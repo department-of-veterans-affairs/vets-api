@@ -3,12 +3,12 @@
 require 'rails_helper'
 require 'va_facilities/geo_serializer'
 
-RSpec.describe VAFacilities::GeoSerializer do
+RSpec.describe VaFacilities::GeoSerializer do
   let(:vha_facility) { build :vha_648A4 }
 
   context '::geometry' do
     it 'makes a geometry object' do
-      geo_object = VAFacilities::GeoSerializer.geometry(vha_facility)
+      geo_object = VaFacilities::GeoSerializer.geometry(vha_facility)
 
       expect(geo_object.keys).to eq(%w[type coordinates])
       expect(geo_object.values).to eq(['Point', [vha_facility.long, vha_facility.lat]])
@@ -17,7 +17,7 @@ RSpec.describe VAFacilities::GeoSerializer do
 
   context '::properties' do
     it 'collects basic facility attributes' do
-      property_object = VAFacilities::GeoSerializer.properties(vha_facility)
+      property_object = VaFacilities::GeoSerializer.properties(vha_facility)
 
       expected_property_keys = %w[
         id
@@ -44,13 +44,13 @@ RSpec.describe VAFacilities::GeoSerializer do
     end
 
     it 'includes id' do
-      property_object = VAFacilities::GeoSerializer.properties(vha_facility)
+      property_object = VaFacilities::GeoSerializer.properties(vha_facility)
 
       expect(property_object['id']).to eq('vha_648A4')
     end
 
     it 'includes satisfaction' do
-      property_object = VAFacilities::GeoSerializer.properties(vha_facility)
+      property_object = VaFacilities::GeoSerializer.properties(vha_facility)
 
       expected_satisfaction = {
         'health' => {
@@ -63,7 +63,7 @@ RSpec.describe VAFacilities::GeoSerializer do
     end
 
     it 'includes wait times' do
-      property_object = VAFacilities::GeoSerializer.properties(vha_facility)
+      property_object = VaFacilities::GeoSerializer.properties(vha_facility)
 
       expected_wait_times = {
         'health' => [
@@ -81,7 +81,7 @@ RSpec.describe VAFacilities::GeoSerializer do
     end
 
     it 'includes services' do
-      property_object = VAFacilities::GeoSerializer.properties(vha_facility)
+      property_object = VaFacilities::GeoSerializer.properties(vha_facility)
 
       expected_services = {
         'health' => %w[DentalServices MentalHealthCare PrimaryCare],
@@ -95,7 +95,7 @@ RSpec.describe VAFacilities::GeoSerializer do
     let(:vha_facility2) { build :vha_402QA }
 
     it 'convert collection to geojson format' do
-      geojson = VAFacilities::GeoSerializer.to_feature_collection([vha_facility, vha_facility2])
+      geojson = VaFacilities::GeoSerializer.to_feature_collection([vha_facility, vha_facility2])
 
       expect(geojson.keys).to eq(%w[type features])
       expect(geojson['type']).to eq('FeatureCollection')

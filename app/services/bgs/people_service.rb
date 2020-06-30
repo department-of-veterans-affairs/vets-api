@@ -3,7 +3,7 @@
 module BGS
   class PeopleService
     include SentryLogging
-    class VAFileNumberNotFound < StandardError; end
+    class VaFileNumberNotFound < StandardError; end
 
     def initialize(current_user)
       @current_user = current_user
@@ -12,10 +12,10 @@ module BGS
     def find_person_by_participant_id
       response = service.people.find_person_by_ptcpnt_id(@current_user.participant_id)
 
-      raise VAFileNumberNotFound if response.nil?
+      raise VaFileNumberNotFound if response.nil?
 
       response
-    rescue VAFileNumberNotFound => e
+    rescue VaFileNumberNotFound => e
       report_no_va_file_user(e)
 
       {}

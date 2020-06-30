@@ -3,7 +3,7 @@
 require 'csv'
 require_dependency 'va_facilities/api_serialization'
 
-module VAFacilities
+module VaFacilities
   class CsvSerializer
     extend ApiSerialization
 
