@@ -50,6 +50,12 @@ module AppealsApi::V1::SwaggerRoot
       }
     }.merge(hlr_create_header_schemas).merge(hlr_create_schemas).merge(non_blank_string)
 
-    key :components, schemas: schemas
+    security = {
+      type: :apiKey,
+      name: :apikey,
+      in: :header
+    }
+
+    key :components, { schemas: schemas, securitySchemes: security }
   end
 end
