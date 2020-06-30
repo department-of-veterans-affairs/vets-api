@@ -14,6 +14,7 @@ module BGS
           jrn_status_type_cd: 'U',
           jrn_user_id: Settings.bgs.client_username,
           jrn_obj_id: Settings.bgs.application,
+          vnp_proc_state_type_cd: 'Started',
           vnp_proc_type_cd: 'DEPCHG', # We need this to update the proc. It has to be in either call (create, update), these are options I'm seeing: DEPCHG, COMPCLM
           ssn: @user.ssn # Just here to make the mocks work
           # vnp_proc_state_type_cd: nil, I only see 'Ready' as a value and we're doing that in the end
@@ -43,9 +44,9 @@ module BGS
           jrn_dt: Time.current.iso8601,
           jrn_lctn_id: Settings.bgs.client_station_id,
           jrn_obj_id: Settings.bgs.application,
-          jrn_status_type_cd: "U",
+          jrn_status_type_cd: 'U',
           jrn_user_id: Settings.bgs.client_username,
-          vnp_proc_state_type_cd: "Ready",
+          vnp_proc_state_type_cd: 'Ready',
           ssn: @user.ssn # Just here to make mocks work
         }
       )

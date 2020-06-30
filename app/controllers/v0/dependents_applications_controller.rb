@@ -3,11 +3,10 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     def create
-      # dependents_hash = dependent_params.to_h
-      # dependents_hash = params
       binding.pry
-      bgs_dependent_service.modify_dependents(dependent_params)
-      render json: {status: 'ok'}
+      # BGS::SubmitForm686cJob.perform(current_user, dependent_params.to_h)
+      # bgs_dependent_service.modify_dependents(dependent_params)
+      # render json: {status: 'ok'}
     end
 
     def show
