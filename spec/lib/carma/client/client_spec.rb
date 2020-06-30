@@ -15,14 +15,12 @@ RSpec.describe CARMA::Client::Client, type: :model do
 
   describe '#create_submission' do
     it 'accepts a payload and submitts to CARMA' do
-      payload = { my: 'data' }
+      payload = { 'my' => 'data' }
 
       client_double = double
       response_double = double
 
-      # rubocop:disable RSpec/SubjectStub
       expect(subject).to receive(:get_client).and_return(client_double)
-      # rubocop:enable RSpec/SubjectStub
 
       expect(client_double).to receive(:post).with(
         '/services/apexrest/carma/v1/1010-cg-submissions',
@@ -45,9 +43,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
     timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
     it 'returns a hard coded response', run_at: timestamp.iso8601 do
-      # rubocop:disable RSpec/SubjectStub
       expect(subject).not_to receive(:get_client)
-      # rubocop:enable RSpec/SubjectStub
 
       response = subject.create_submission_stub(nil)
 
@@ -59,19 +55,17 @@ RSpec.describe CARMA::Client::Client, type: :model do
     end
   end
 
-  describe '#create_attachment' do
+  describe '#upload_attachments' do
     it 'accepts a payload and submitts to CARMA' do
-      payload = { my: 'data' }
+      payload = { 'my' => 'data' }
 
       client_double = double
       response_double = double
 
-      # rubocop:disable RSpec/SubjectStub
       expect(subject).to receive(:get_client).and_return(client_double)
-      # rubocop:enable RSpec/SubjectStub
 
       expect(client_double).to receive(:post).with(
-        '/services/data/v47.0/sobjects/ContentVersion',
+        '/services/data/v47.0/composite/tree/ContentVersion',
         payload,
         'Content-Type': 'application/json'
       ).and_return(
@@ -80,24 +74,31 @@ RSpec.describe CARMA::Client::Client, type: :model do
 
       expect(response_double).to receive(:body).and_return(:response_token)
 
-      response = subject.create_attachment(payload)
+      response = subject.upload_attachments(payload)
 
       expect(response).to eq(:response_token)
     end
   end
 
-  describe '#create_attachment_stub' do
+  describe '#upload_attachments_stub' do
     timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
     it 'returns a hard coded response', run_at: timestamp.iso8601 do
-      # rubocop:disable RSpec/SubjectStub
       expect(subject).not_to receive(:get_client)
-      # rubocop:enable RSpec/SubjectStub
 
-      response = subject.create_attachment_stub(nil)
+      response = subject.upload_attachments_stub(nil)
 
-      # TODO: verify actual response schema
-      expect(response['data']).to eq('Schema TBD')
+      expect(response).to eq(
+        {
+          'hasErrors' => false,
+          'results' => [
+            {
+              'referenceId' => '1010CG',
+              'id' => '06835000000YpsjAAC'
+            }
+          ]
+        }
+      )
     end
   end
 end

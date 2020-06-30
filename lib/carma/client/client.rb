@@ -15,9 +15,6 @@ module CARMA
       SALESFORCE_USERNAME = Settings['salesforce-carma'].username
 
       def create_submission(payload)
-        # TODO: validate payload schema
-        client = get_client
-
         response_body = with_monitoring do
           client.post(
             '/services/apexrest/carma/v1/1010-cg-submissions',
@@ -31,7 +28,6 @@ module CARMA
       end
 
       def create_submission_stub(_payload)
-        # TODO: validate payload schema
         {
           'message' => 'Application Received',
           'data' => {
@@ -43,12 +39,10 @@ module CARMA
         }
       end
 
-      def create_attachment(payload)
-        client = get_client
-
+      def upload_attachments(payload)
         response_body = with_monitoring do
           client.post(
-            '/services/data/v47.0/sobjects/ContentVersion',
+            '/services/data/v47.0/composite/tree/ContentVersion',
             payload,
             'Content-Type': 'application/json'
           ).body
@@ -57,10 +51,22 @@ module CARMA
         response_body
       end
 
-      def create_attachment_stub(_payload)
+      def upload_attachments_stub(_payload)
         {
-          'data' => 'Schema TBD' # TODO: record VCR
+          'hasErrors' => false,
+          'results' => [
+            {
+              'referenceId' => '1010CG',
+              'id' => '06835000000YpsjAAC'
+            }
+          ]
         }
+      end
+
+      private
+
+      def client
+        @client = @client ||= get_client
       end
     end
   end
