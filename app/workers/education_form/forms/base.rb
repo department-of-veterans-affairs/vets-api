@@ -80,7 +80,7 @@ module EducationForm::Forms
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
-      wrapped = wrapped.gsub('’', "'")
+      wrapped = wrapped.gsub(/’|‘/, "'").gsub(/”|“/, '"')
       # We can only send ASCII, so make a best-effort at that.
       transliterated = ActiveSupport::Inflector.transliterate(wrapped, locale: :en)
       # Trim any lines that end in whitespace, but keep the lines themselves
