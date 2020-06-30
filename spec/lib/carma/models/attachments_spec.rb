@@ -44,12 +44,24 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
     end
   end
 
+  describe '#to_h' do
+    it 'returns :all attachments as hash' do
+      subject.add('10-10CG', 'tmp/pdfs/10-10CG_12345.pdf')
+      subject.add('POA', 'tmp/pdfs/POA_12345.pdf')
+
+      expect(subject.all[0]).to receive(:to_h).and_return(:hash_1)
+      expect(subject.all[1]).to receive(:to_h).and_return(:hash_2)
+
+      expect(subject.to_h).to eq(%i[hash_1 hash_2])
+    end
+  end
+
   describe '#to_request_payload' do
     it 'raises error when :all is empty' do
       expect { subject.to_request_payload }.to raise_error 'must have at least one attachment'
     end
 
-    it 'returns #all attachments in an object with key "records"' do
+    it 'returns :all attachments in an object with key "records"' do
       %w[10-10CG POA].each_with_index do |document_type, index|
         subject.add('10-10CG', "tmp/pdfs/#{document_type}_12345.pdf")
         expect(subject.all[index]).to receive(:to_request_payload).and_return("attachment_data_#{index}".to_sym)
@@ -179,7 +191,7 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
       end
 
       context 'disabled' do
-        it 'returns CARMA\'s response and sets #response and #all attachment\'s ids', run_at: '2020-02-27T15:12:05Z' do
+        it 'returns CARMA\'s response and sets :response and :all attachment\'s ids', run_at: '2020-02-27T15:12:05Z' do
           expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false)
 
           [

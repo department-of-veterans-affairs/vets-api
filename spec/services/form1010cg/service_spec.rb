@@ -2,8 +2,6 @@
 
 require 'rails_helper'
 
-# rubocop:disable RSpec/SubjectStub
-
 RSpec.describe Form1010cg::Service do
   let(:subject) { described_class.new create(:caregivers_assistance_claim) }
   let(:default_email_on_mvi_search) { 'no-email@example.com' }
@@ -48,7 +46,7 @@ RSpec.describe Form1010cg::Service do
     it 'requires a claim' do
       expect { described_class.new }.to raise_error do |e|
         expect(e).to be_a(ArgumentError)
-        expect(e.message).to eq('wrong number of arguments (given 0, expected 1)')
+        expect(e.message).to eq('wrong number of arguments (given 0, expected 1..2)')
       end
     end
 
@@ -633,6 +631,11 @@ RSpec.describe Form1010cg::Service do
         subject.submission = double(carma_case_id: nil)
         expect { subject.submit_attachments! }.to raise_error('requires a processed submission')
       end
+
+      it 'if provided submission already has attachments' do
+        subject.submission = double(carma_case_id: 'CAS_1234', attachments: [{ id: 'CAS_qwer' }])
+        expect { subject.submit_attachments! }.to raise_error('submission already has attachments')
+      end
     end
 
     it 'submits the PDF version of submission to CARMA' do
@@ -660,6 +663,8 @@ RSpec.describe Form1010cg::Service do
 
       expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
       expect(carma_attachment).to receive(:submit!).and_return(:ATTACHMENT_RESPONSE)
+      expect(carma_attachment).to receive(:to_h).and_return(:attachments_as_hash)
+      expect(submission).to receive(:attachments=).with(:attachments_as_hash)
 
       expect(File).to receive(:delete).with(file_path)
 
@@ -667,5 +672,3 @@ RSpec.describe Form1010cg::Service do
     end
   end
 end
-
-# rubocop:enable RSpec/SubjectStub

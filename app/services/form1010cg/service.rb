@@ -59,23 +59,22 @@ module Form1010cg
     #
     # @return [Form1010cg::Submission]
     def submit_attachments!(delete_after_processing = true)
-      raise 'requires a processed submission' if submission&.carma_case_id.blank?
+      raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
+      raise 'submission already has attachments'  if  submission.attachments.any?
 
       file_path = claim.to_pdf
 
-      case_attachments = CARMA::Models::Attachments.new(
+      carma_attachments = CARMA::Models::Attachments.new(
         submission.carma_case_id,
         claim.veteran_data['fullName']['first'],
         claim.veteran_data['fullName']['last']
       ).add(
-        '10-10CG',
+        CARMA::Models::Attachments::DOCUMENT_TYPES['10-10CG'],
         file_path
       )
 
-      case_attachments.submit!
-
-      # TODO: add the attachments to submission.attachments for when we presist the submission
-      # may require a #to_json on Attachments or Attachment
+      carma_attachments.submit!
+      submission.attachments = carma_attachments.to_h
 
       File.delete(file_path) if delete_after_processing
 

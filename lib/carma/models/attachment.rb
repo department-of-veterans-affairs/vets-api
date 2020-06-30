@@ -20,8 +20,8 @@ module CARMA
         @veteran_name   = args[:veteran_name]
         @file_path      = args[:file_path]
         @document_type  = args[:document_type]
+        @document_date  = args[:document_date] || Time.now.in_time_zone(timezone).to_date
         @id             = args[:id]
-        @document_date  = args[:document_date] || Time.now.in_time_zone(timezone).to_d
       end
 
       def title
@@ -98,6 +98,17 @@ module CARMA
           #             service call response(carmacase.id).
           # examples:   'JVBERi0xLjMKJcTl8uXrp<.....rest of the base64 ecoded pdf file content>'
           'VersionData' => as_base64
+        }
+      end
+
+      def to_h
+        {
+          id: id,
+          carma_case_id: carma_case_id,
+          veteran_name: veteran_name,
+          file_path: file_path,
+          document_type: document_type,
+          document_date: document_date
         }
       end
 

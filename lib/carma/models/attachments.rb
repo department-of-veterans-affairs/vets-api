@@ -65,6 +65,10 @@ module CARMA
         self
       end
 
+      def to_h
+        all.map(&:to_h)
+      end
+
       private
 
       def client

@@ -26,7 +26,7 @@ RSpec.describe CARMA::Models::Attachment, type: :model do
       expect(subject.veteran_name[:last]).to eq('Doe')
       expect(subject.file_path).to eq('tmp/pdfs/10-10CG_123456.pdf')
       expect(subject.document_type).to eq('10-10CG')
-      expect(subject.document_date.to_s).to eq(Time.now.in_time_zone('Eastern Time (US & Canada)').to_d.to_s)
+      expect(subject.document_date.to_s).to eq(Time.now.in_time_zone('Eastern Time (US & Canada)').to_date.to_s)
     end
   end
 
@@ -77,7 +77,7 @@ RSpec.describe CARMA::Models::Attachment, type: :model do
 
   describe '#document_date' do
     it 'is accessible' do
-      value = Time.now.in_time_zone('Eastern Time (US & Canada)').to_d
+      value = Time.now.in_time_zone('Eastern Time (US & Canada)').to_date
 
       subject.document_date = value
       expect(subject.document_date).to eq(value)
@@ -91,6 +91,31 @@ RSpec.describe CARMA::Models::Attachment, type: :model do
 
       subject.document_type = 'POA'
       expect(subject.reference_id).to eq('POA')
+    end
+  end
+
+  describe '#to_h' do
+    it 'returns attrs as hash', run_at: '2020-02-27T11:12:05-04:00' do
+      subject = described_class.new(
+        {
+          id: 'my-id',
+          carma_case_id: 'aB935000000A9GoCAK',
+          veteran_name: { first: 'Jane', last: 'Doe' },
+          file_path: 'tmp/pdfs/10-10CG_123456.pdf',
+          document_type: described_class::DOCUMENT_TYPES['10-10CG']
+        }
+      )
+
+      expect(subject.to_h).to eq(
+        {
+          id: 'my-id',
+          carma_case_id: 'aB935000000A9GoCAK',
+          veteran_name: { first: 'Jane', last: 'Doe' },
+          file_path: 'tmp/pdfs/10-10CG_123456.pdf',
+          document_type: '10-10CG',
+          document_date: Time.now.in_time_zone('Eastern Time (US & Canada)').to_date
+        }
+      )
     end
   end
 

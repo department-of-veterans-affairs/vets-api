@@ -66,7 +66,7 @@ module CARMA
       private
 
       def client
-        @client = @client ||= get_client
+        @client ||= get_client
       end
     end
   end
