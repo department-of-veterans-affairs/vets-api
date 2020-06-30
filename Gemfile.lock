@@ -48,10 +48,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 1852603b467c12f3a4f904380cb037a66e116460
-  branch: rename_gem
+  revision: 484aa29a943f644d61b4289cf84db6b6f7451043
   specs:
-    bgs_ext (0.14.0)
+    bgs_ext (0.14.1)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
