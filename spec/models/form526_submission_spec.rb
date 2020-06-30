@@ -205,5 +205,34 @@ RSpec.describe Form526Submission do
         expect(subject.workflow_complete).to be_falsey
       end
     end
+
+    context 'with submission confirmation email when successful job statuses' do
+      subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+
+      it 'returns zero jobs triggered when feature flag disabled' do
+        Flipper.disable(:form526_confirmation_email)
+        expect do
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+      end
+
+      it 'returns one job triggered when feature flag enabled' do
+        Flipper.enable(:form526_confirmation_email)
+        expect do
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
+      end
+    end
+
+    context 'with submission confirmation email when failed job statuses' do
+      Flipper.enable(:form526_confirmation_email)
+      subject { create(:form526_submission, :with_mixed_status) }
+
+      it 'returns zero jobs triggered' do
+        expect do
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+      end
+    end
   end
 end

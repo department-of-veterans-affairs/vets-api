@@ -480,6 +480,8 @@ flipper:
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
+    - ltran@thoughtworks.com
+    - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
     - mdewey@governmentcio.com
     - n.ratana@gmail.com
@@ -487,13 +489,14 @@ flipper:
     - osanchez@governmentcio.com
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
+    - pherbert@thoughtworks.com
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
-    - shaun.hubbard@thoughtworks.com
+    - saman.moshafi@thoughtworks.com
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
@@ -546,3 +549,10 @@ coronavirus_chatbot:
   app_secret: fake_secret
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
+
+# Settings for notifications client
+vanotify:
+  client_url: fake_client_url
+  api_key: fake_secret
+  template_id:
+    form526_confirmation_email: fake_template_id

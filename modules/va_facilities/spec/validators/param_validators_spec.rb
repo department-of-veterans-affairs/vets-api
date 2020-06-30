@@ -9,7 +9,7 @@ class DummyClass
   require_dependency 'common/exceptions/internal/ambiguous_request'
   require_dependency 'common/exceptions/internal/invalid_field_value'
 
-  include VAFacilities::ParamValidators
+  include VaFacilities::ParamValidators
   attr_accessor :params
 
   def initialize(params = nil)
@@ -21,7 +21,7 @@ class DummyClass
   end
 end
 
-RSpec.describe VAFacilities::ParamValidators do
+RSpec.describe VaFacilities::ParamValidators do
   before do
     @dummy_class = DummyClass.new
   end
@@ -463,7 +463,7 @@ RSpec.describe VAFacilities::ParamValidators do
         expect(error.message).to eq 'Ambiguous Request'
         expect(
           error.errors[0].detail[:detail]
-        ).to eq VAFacilities::ParamValidators::AMBIGUOUS_PARAMS_ERR
+        ).to eq VaFacilities::ParamValidators::AMBIGUOUS_PARAMS_ERR
       }
     end
 

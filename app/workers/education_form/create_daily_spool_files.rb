@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'net/sftp'
-require 'iconv'
 require 'sentry_logging'
 
 module EducationForm
