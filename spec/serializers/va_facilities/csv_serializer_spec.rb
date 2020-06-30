@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'va_facilities/csv_serializer'
 
-RSpec.describe VAFacilities::CsvSerializer do
+RSpec.describe VaFacilities::CsvSerializer do
   let(:vha_facility) { build :vha_648A4 }
   let(:vba_facility) { build :vba_314c }
   let(:vc_facility) { build :vc_0543V }
@@ -102,14 +102,14 @@ RSpec.describe VAFacilities::CsvSerializer do
   end
 
   it 'uses preset headers' do
-    facilities_csv = VAFacilities::CsvSerializer.to_csv([vha_facility])
+    facilities_csv = VaFacilities::CsvSerializer.to_csv([vha_facility])
     data = CSV.parse(facilities_csv, headers: true)
 
-    expect(data.headers).to eq(VAFacilities::CsvSerializer.headers)
+    expect(data.headers).to eq(VaFacilities::CsvSerializer.headers)
   end
 
   it 'converts a vha facility object to a csv' do
-    facilities_csv = VAFacilities::CsvSerializer.to_csv([vha_facility])
+    facilities_csv = VaFacilities::CsvSerializer.to_csv([vha_facility])
     data = CSV.parse(facilities_csv, headers: true)
 
     compare_row_to_facility(data[0], vha_facility)
@@ -117,7 +117,7 @@ RSpec.describe VAFacilities::CsvSerializer do
   end
 
   it 'converts a vba facility object to a csv' do
-    facilities_csv = VAFacilities::CsvSerializer.to_csv([vba_facility])
+    facilities_csv = VaFacilities::CsvSerializer.to_csv([vba_facility])
     data = CSV.parse(facilities_csv, headers: true)
 
     compare_row_to_facility(data[0], vba_facility)
@@ -125,7 +125,7 @@ RSpec.describe VAFacilities::CsvSerializer do
   end
 
   it 'converts a vc facility object to a csv' do
-    facilities_csv = VAFacilities::CsvSerializer.to_csv([vc_facility])
+    facilities_csv = VaFacilities::CsvSerializer.to_csv([vc_facility])
     data = CSV.parse(facilities_csv, headers: true)
 
     compare_row_to_facility(data[0], vc_facility)
@@ -133,7 +133,7 @@ RSpec.describe VAFacilities::CsvSerializer do
   end
 
   it 'converts a nca facility object to a csv' do
-    facilities_csv = VAFacilities::CsvSerializer.to_csv([nca_facility])
+    facilities_csv = VaFacilities::CsvSerializer.to_csv([nca_facility])
     data = CSV.parse(facilities_csv, headers: true)
 
     compare_row_to_facility(data[0], nca_facility)

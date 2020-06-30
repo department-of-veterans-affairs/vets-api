@@ -516,5 +516,165 @@
         string: '{"@odata.context":"https://dws.ppms.va.gov/v1.0/$metadata#Specialties","value":[{"SpecialtyCode":"101Y00000X","Name":"Counselor","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":null,"SpecialtyDescription":"A provider who is trained and educated in the performance of behavior health services through interpersonal communications and analysis. Training and education at the specialty level usually requires a master''s degree and clinical experience and supervision for licensure or certification."},{"SpecialtyCode":"101YA0400X","Name":"Counselor - Addiction (Substance Use Disorder)","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Addiction (Substance Use Disorder)","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YM0800X","Name":"Counselor - Mental Health","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Mental Health","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YP1600X","Name":"Counselor - Pastoral","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Pastoral","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YP2500X","Name":"Counselor - Professional","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Professional","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YS0200X","Name":"Counselor - School","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"School","SpecialtyDescription":"Definition to come…"}]}'
       http_version:
     recorded_at: Thu, 16 Jan 2020 20:16:26 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/ProviderLocator?acceptingnewpatients=0&address=%27South+Gilbert+Road%2C+Chandler%2C+Arizona+85286%2C+United+States%27&driveTime=10000&gender=0&maxResults=11&network=0&primarycare=0&radius=81&specialtycode1=%27261QU0200X%27&specialtycode2=null&specialtycode3=null&specialtycode4=null
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v0.17.0
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '911'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=951fcbe5c61b30184c5b32c3f88f0ef2e7035ddc068cecff4f7d9ecaf334490e;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 25 Jun 2020 20:10:25 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosProviderLocatorResult)","value":[{"Miles":0.30499999999999999,"Minutes":0.78300000000000003,"ProviderName":"Banner
+          Urgent Care Services LLC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"Banner
+          Urgent Care Services LLC","CareSiteAddress":"3200 S Gilbert Rd Chandler, AZ
+          85286","CareSiteAddressStreet":"3200 S Gilbert Rd","CareSiteAddressCity":"Chandler","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85286","CareSitePhoneNumber":"4808275700","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"TriWest
+          - Choice","NetworkId":4,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1609229764","Latitude":33.259951999999998,"Longitude":-111.79016300000001,"GeoWarning":null},{"Miles":2.9780000000000002,"Minutes":5.5330000000000004,"ProviderName":"Urgent
+          Care Centers of Arizona LLC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"Medpost
+          Urgent Care - Gilbert Fiesta","CareSiteAddress":"2487 S Gilbert Rd Ste A108
+          Gilbert, AZ 85295","CareSiteAddressStreet":"2487 S Gilbert Rd Ste A108","CareSiteAddressCity":"Gilbert","CareSiteAddressState":"AZ","CareSiteAddressZipCode":"85295","CareSitePhoneNumber":"4808991341","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"TriWest
+          - Choice","NetworkId":4,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1447660816","Latitude":33.304830000000003,"Longitude":-111.78898,"GeoWarning":null}]}'
+    recorded_at: Thu, 25 Jun 2020 20:10:25 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/Providers(1609229764)?%24expand=ProviderSpecialties
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v0.17.0
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '922'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=951fcbe5c61b30184c5b32c3f88f0ef2e7035ddc068cecff4f7d9ecaf334490e;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 25 Jun 2020 20:10:26 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Providers(ProviderSpecialties())","value":[{"ProviderIdentifier":1609229764,"ProviderIdentifierType":"Npi","Name":"Banner
+          Urgent Care Services LLC","ProviderType":"GroupPracticeOrAgency","QualityRankingTotalScore":null,"QualityRankingLastUpdated":null,"MainPhone":null,"Email":null,"PrimaryDirectMessagingAddress":"testemail@va.gov","SecondaryDirectMessagingAddress":null,"EMRSystem":null,"EMRSystemOther":null,"Address":null,"AddressStreet":null,"AddressCity":null,"AddressStateProvince":null,"AddressPostalCode":null,"AddressCounty":null,"AddressCountry":null,"ProviderStatusReason":"Active","PrimaryCarePhysician":false,"IsAcceptingNewPatients":null,"ProviderEthnicity":null,"ProviderGender":null,"Religion":null,"OrganizationId":null,"ServiceProviderType":null,"SpecialInstruction":null,"OwnedCareSiteName":null,"OrganizationFax":null,"OrganizationStatus":null,"IsExternal":true,"InternalType":null,"LicensingJuristicion":null,"CanCreateHealthCareOrders":null,"InternalAppointmentStatus":null,"ExternalHealthProviderType":null,"OnLeie":null,"ExternalInstitutionDeaNumber":null,"ExternalLeieCheckDate":null,"ValidationSource":null,"ContactMethodEmail":false,"ContactMethodFax":true,"ContactMethodVirtuPro":false,"ContactMethodHSRM":true,"ContactMethodPhone":false,"ContactMethodMail":false,"ContactMethodRefDoc":false,"BulkEmails":false,"BulkMails":true,"Emails":false,"Mails":false,"PhoneCalls":false,"Faxes":false,"PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"Id":null,"ModifiedOnDate":"2020-05-04T15:34:09Z","TerminationDate":null,"ProviderSpecialties":[]}]}'
+    recorded_at: Thu, 25 Jun 2020 20:10:26 GMT
+  - request:
+      method: get
+      uri: https://np.dws.ppms.va.gov/v1.0/Providers(1447660816)?%24expand=ProviderSpecialties
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        User-Agent:
+        - Faraday v0.17.0
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        cache-control:
+        - no-cache
+        pragma:
+        - no-cache
+        content-length:
+        - '941'
+        content-type:
+        - application/json; odata.metadata=minimal
+        expires:
+        - "-1"
+        vary:
+        - Accept-Encoding
+        server:
+        - Microsoft-IIS/10.0
+        odata-version:
+        - '4.0'
+        x-aspnet-version:
+        - 4.0.30319
+        request-context:
+        - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+        access-control-expose-headers:
+        - Request-Context
+        x-powered-by:
+        - ASP.NET
+        x-content-type-options:
+        - nosniff
+        set-cookie:
+        - ARRAffinity=951fcbe5c61b30184c5b32c3f88f0ef2e7035ddc068cecff4f7d9ecaf334490e;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
+        date:
+        - Thu, 25 Jun 2020 20:10:26 GMT
+        connection:
+        - close
+      body:
+        encoding: ASCII-8BIT
+        string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Providers(ProviderSpecialties())","value":[{"ProviderIdentifier":1447660816,"ProviderIdentifierType":"Npi","Name":"Urgent
+          Care Centers of Arizona LLC","ProviderType":"GroupPracticeOrAgency","QualityRankingTotalScore":null,"QualityRankingLastUpdated":null,"MainPhone":null,"Email":"unknown@unknown.com","PrimaryDirectMessagingAddress":"testemail@va.gov","SecondaryDirectMessagingAddress":null,"EMRSystem":null,"EMRSystemOther":null,"Address":null,"AddressStreet":null,"AddressCity":null,"AddressStateProvince":null,"AddressPostalCode":null,"AddressCounty":null,"AddressCountry":null,"ProviderStatusReason":"Active","PrimaryCarePhysician":false,"IsAcceptingNewPatients":null,"ProviderEthnicity":null,"ProviderGender":null,"Religion":null,"OrganizationId":null,"ServiceProviderType":null,"SpecialInstruction":null,"OwnedCareSiteName":null,"OrganizationFax":null,"OrganizationStatus":null,"IsExternal":true,"InternalType":null,"LicensingJuristicion":null,"CanCreateHealthCareOrders":null,"InternalAppointmentStatus":null,"ExternalHealthProviderType":null,"OnLeie":null,"ExternalInstitutionDeaNumber":null,"ExternalLeieCheckDate":null,"ValidationSource":null,"ContactMethodEmail":false,"ContactMethodFax":true,"ContactMethodVirtuPro":false,"ContactMethodHSRM":true,"ContactMethodPhone":false,"ContactMethodMail":false,"ContactMethodRefDoc":false,"BulkEmails":false,"BulkMails":true,"Emails":false,"Mails":false,"PhoneCalls":false,"Faxes":false,"PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"Id":null,"ModifiedOnDate":"2020-05-04T15:39:30Z","TerminationDate":null,"ProviderSpecialties":[]}]}'
+    recorded_at: Thu, 25 Jun 2020 20:10:27 GMT
   recorded_with: VCR 5.0.0
   

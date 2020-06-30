@@ -3,11 +3,11 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :request do
+describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :request do
   include FixtureHelpers
 
   def base_path(path)
-    "/services/appeals/v1/decision_review/#{path}"
+    "/services/appeals/v1/decision_reviews/#{path}"
   end
 
   before(:all) do
