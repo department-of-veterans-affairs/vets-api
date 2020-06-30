@@ -63,14 +63,14 @@ module EducationForm::Forms
       @form = app.open_struct_form
       @text = format unless self.class == Base
     end
-    
+
     # @note
     #   The input fixtures in {spec/fixtures/education_benefits_claims/**/*.json contain
-    #   Windows-1252 encoding "double right-single-quotation-mark", (’) Unicode %u2019
+    #   Windows-1252 encoding "double right-single-quotation-mark", (') Unicode %u2019
     #   but .spl file (expected output) contains ASCII apostrophe ('), code %27.
     #
     #   Workaround is to sub the ASCII apostrophe, though other non-UTF-8 chars might break specs
-    #   
+    #
     # Convert the JSON/OStruct document into the text format that we submit to the backend
     def format
       @applicant = @form
@@ -78,7 +78,7 @@ module EducationForm::Forms
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
       wrapped = wrapped.gsub('’', "'")
-      
+
       # We can only send ASCII, so make a best-effort at that.
       transliterated = ActiveSupport::Inflector.transliterate(wrapped, locale: :en)
       # Trim any lines that end in whitespace, but keep the lines themselves
