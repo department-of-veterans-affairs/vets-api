@@ -24,24 +24,42 @@ RSpec.describe Debts::LetterDownloader do
   end
 
   describe '#get_letter' do
-    let(:request_name) { 'GetDocumentContent' }
-    let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
-    let(:request_args) { document_id }
-    let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
-
     before do
-      expect(vbms_client).to receive(:send_request).with(
-        request_double
-      ).and_return(
-        OpenStruct.new(
-          document_id: document_id,
-          content: content
-        )
+      # rubocop:disable RSpec/SubjectStub
+      expect(subject).to receive(:list_letters).and_return(
+        get_fixture('vbms/list_letters').map!(&:symbolize_keys)
       )
+      # rubocop:enable RSpec/SubjectStub
     end
 
-    it 'downloads a debt letter' do
-      expect(subject.get_letter(document_id)).to eq(content)
+    context 'with a document in the users folder' do
+      let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
+      let(:request_name) { 'GetDocumentContent' }
+      let(:request_args) { document_id }
+      let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
+
+      before do
+        expect(vbms_client).to receive(:send_request).with(
+          request_double
+        ).and_return(
+          OpenStruct.new(
+            document_id: document_id,
+            content: content
+          )
+        )
+      end
+
+      it 'downloads a debt letter' do
+        expect(subject.get_letter(document_id)).to eq(content)
+      end
+    end
+
+    context 'with a document not in the users folder' do
+      let(:document_id) { '{abc}' }
+
+      it 'raises an unauthorized error' do
+        expect { subject.get_letter(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+      end
     end
   end
 
