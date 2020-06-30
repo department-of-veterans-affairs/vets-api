@@ -112,7 +112,8 @@ module Users
           mhv_account_state: user.mhv_account_state
         }
       else
-        scaffold.errors << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error # TODO: should this be MPI?
+        # TODO: should this be MPI?
+        scaffold.errors << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error
         nil
       end
     end
