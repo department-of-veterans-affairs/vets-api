@@ -1286,7 +1286,7 @@ module PdfFill
           } # end child_stopped_attending_school
         }, # end dependents_application
         # -----------------  SECTION IX: REMARKS  ----------------- #
-        #'remarks' => {
+        'remarks' => {
           'remarks_line1' => {
             key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[0]',
             limit: 35,
@@ -1301,50 +1301,122 @@ module PdfFill
             question_suffix: 'B',
             question_text: 'REMARKS'
           },
+          'remarks_line3' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[2]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'C',
+            question_text: 'REMARKS'
+          },
+          'remarks_line4' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[3]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'D',
+            question_text: 'REMARKS'
+          },
+          'remarks_line5' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[4]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'E',
+            question_text: 'REMARKS'
+          },
+          'remarks_line6' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[5]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'F',
+            question_text: 'REMARKS'
+          },
+          'remarks_line7' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[6]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'G',
+            question_text: 'REMARKS'
+          },
+          'remarks_line8' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[7]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'H',
+            question_text: 'REMARKS'
+          },
+          'remarks_line9' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[8]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'I',
+            question_text: 'REMARKS'
+          },
+          'remarks_line10' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[9]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'J',
+            question_text: 'REMARKS'
+          },
+          'remarks_line11' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[10]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'K',
+            question_text: 'REMARKS'
+          },
+          'remarks_line12' => {
+            key: 'form1[0].#subform[31].#subform[32].#subform[33].Remarks[11]',
+            limit: 35,
+            question_num: 25,
+            question_suffix: 'L',
+            question_text: 'REMARKS'
+          }
           # @TODO remarks
-        #},
-        'ssn1' => {
-          'first' => { key: 'form1[0].#subform[18].Veterans_SocialSecurityNumber_FirstThreeNumbers[1]' },
-          'second' => { key: 'form1[0].#subform[18].Veterans_SocialSecurityNumber_SecondTwoNumbers[1]' },
-          'third' => { key: 'form1[0].#subform[18].Veterans_SocialSecurityNumber_LastFourNumbers[1]' }
         },
-        'ssn2' => {
-          'first' => { key: 'form1[0].#subform[19].#subform[20].Veterans_SocialSecurityNumber_FirstThreeNumbers[2]' },
-          'second' => { key: 'form1[0].#subform[19].#subform[20].Veterans_SocialSecurityNumber_SecondTwoNumbers[2]' },
-          'third' => { key: 'form1[0].#subform[19].#subform[20].Veterans_SocialSecurityNumber_LastFourNumbers[2]' }
-        },
-        'ssn3' => {
-          'first' => { key: 'form1[0].#subform[21].#subform[22].Veterans_SocialSecurityNumber_FirstThreeNumbers[3]' },
-          'second' => { key: 'form1[0].#subform[21].#subform[22].Veterans_SocialSecurityNumber_SecondTwoNumbers[3]' },
-          'third' => { key: 'form1[0].#subform[21].#subform[22].Veterans_SocialSecurityNumber_LastFourNumbers[3]' }
-        },
-        'ssn4' => {
-          'first' => { key: 'form1[0].#subform[23].#subform[24].Veterans_SocialSecurityNumber_FirstThreeNumbers[4]' },
-          'second' => { key: 'form1[0].#subform[23].#subform[24].Veterans_SocialSecurityNumber_SecondTwoNumbers[4]' },
-          'third' => { key: 'form1[0].#subform[23].#subform[24].Veterans_SocialSecurityNumber_LastFourNumbers[4]' }
-        },
-        'ssn5' => {
-          'first' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_FirstThreeNumbers[5]' },
-          'second' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_SecondTwoNumbers[5]' },
-          'third' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_LastFourNumbers[5]' }
-        },
-        'ssn6' => {
-          'first' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_FirstThreeNumbers[6]' },
-          'second' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_SecondTwoNumbers[6]' },
-          'third' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_LastFourNumbers[6]' }
-        },
-        'ssn7' => {
-          'first' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_FirstThreeNumbers[7]' },
-          'second' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_SecondTwoNumbers[7]' },
-          'third' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_LastFourNumbers[7]' }
-        },
-        'ssn8' => {
-          'first' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_FirstThreeNumbers[8]' },
-          'second' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_SecondTwoNumbers[8]' },
-          'third' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_LastFourNumbers[8]' }
-        },
+        'veteran_ssn' => {
+          'ssn1' => {
+            'first' => { key: 'form1[0].#subform[18].Veterans_SocialSecurityNumber_FirstThreeNumbers[1]' },
+            'second' => { key: 'form1[0].#subform[18].Veterans_SocialSecurityNumber_SecondTwoNumbers[1]' },
+            'third' => { key: 'form1[0].#subform[18].Veterans_SocialSecurityNumber_LastFourNumbers[1]' }
+          },
+          'ssn2' => {
+            'first' => { key: 'form1[0].#subform[19].#subform[20].Veterans_SocialSecurityNumber_FirstThreeNumbers[2]' },
+            'second' => { key: 'form1[0].#subform[19].#subform[20].Veterans_SocialSecurityNumber_SecondTwoNumbers[2]' },
+            'third' => { key: 'form1[0].#subform[19].#subform[20].Veterans_SocialSecurityNumber_LastFourNumbers[2]' }
+          },
+          'ssn3' => {
+            'first' => { key: 'form1[0].#subform[21].#subform[22].Veterans_SocialSecurityNumber_FirstThreeNumbers[3]' },
+            'second' => { key: 'form1[0].#subform[21].#subform[22].Veterans_SocialSecurityNumber_SecondTwoNumbers[3]' },
+            'third' => { key: 'form1[0].#subform[21].#subform[22].Veterans_SocialSecurityNumber_LastFourNumbers[3]' }
+          },
+          'ssn4' => {
+            'first' => { key: 'form1[0].#subform[23].#subform[24].Veterans_SocialSecurityNumber_FirstThreeNumbers[4]' },
+            'second' => { key: 'form1[0].#subform[23].#subform[24].Veterans_SocialSecurityNumber_SecondTwoNumbers[4]' },
+            'third' => { key: 'form1[0].#subform[23].#subform[24].Veterans_SocialSecurityNumber_LastFourNumbers[4]' }
+          },
+          'ssn5' => {
+            'first' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_FirstThreeNumbers[5]' },
+            'second' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_SecondTwoNumbers[5]' },
+            'third' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_LastFourNumbers[5]' }
+          },
+          'ssn6' => {
+            'first' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_FirstThreeNumbers[6]' },
+            'second' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_SecondTwoNumbers[6]' },
+            'third' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_LastFourNumbers[6]' }
+          },
+          'ssn7' => {
+            'first' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_FirstThreeNumbers[7]' },
+            'second' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_SecondTwoNumbers[7]' },
+            'third' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_LastFourNumbers[7]' }
+          },
+          'ssn8' => {
+            'first' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_FirstThreeNumbers[8]' },
+            'second' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_SecondTwoNumbers[8]' },
+            'third' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_LastFourNumbers[8]' }
+          }
+        }, # end veteran_ssn
         'signature' => {
-          key: 'form1[0].#subform[34]'
+          key: 'signature'
         },
         'signature_date' => {
           'month' => {
@@ -1362,6 +1434,7 @@ module PdfFill
       def merge_fields
         merge_veteran_helpers
         merge_spouse_helpers
+
         merge_previous_marriage_helpers
         merge_spouse_marriage_history_helpers
         merge_child_helpers
@@ -1376,9 +1449,7 @@ module PdfFill
         expand_signature(@form_data['veteran_information']['full_name'])
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
 
-        @form_data['remarks_line1'] = "REMARKS GO HERE"
-        @form_data['remarks_line2'] = "REMARKS REMARKS REMARKS"
-
+        expand_remarks
         expand_veteran_ssn
 
         @form_data
@@ -1651,11 +1722,20 @@ module PdfFill
         }
       end
 
+      def expand_remarks
+        @form_data['remarks'] = {}
+        # @TODO this needs logic to add any sections to remarks based on user input
+        # 12.times do |i|
+        #   @form_data['remarks']['remarks_line' + (i + 1).to_s] = ""
+        # end
+      end
+
       def expand_veteran_ssn
         # veteran ssn is repeated at the top of 8 pages
         veteran_ssn = @form_data['veteran_information']['ssn']
+        @form_data['veteran_ssn'] = {}
         8.times do |i|
-          @form_data['ssn' + (i + 1).to_s] = veteran_ssn
+          @form_data['veteran_ssn']['ssn' + (i + 1).to_s] = veteran_ssn
         end
       end
     end
