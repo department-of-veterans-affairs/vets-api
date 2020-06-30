@@ -1703,6 +1703,12 @@ en:
         code: DR_502
         detail: Received an an invalid response from the upstream server
         status: 502
+      DR_401:
+        <<: *defaults
+        title: Invalid API Key
+        code: DR_401
+        detail: Invalid api_key for the upstream server
+        status: 502
       DR_malformed_request:
         <<: *defaults
         title: Malformed Request
