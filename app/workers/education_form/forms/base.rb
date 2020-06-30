@@ -65,6 +65,7 @@ module EducationForm::Forms
     end
 
     # rubocop:disable Style/AsciiComments
+
     # @note
     #   The input fixtures in {spec/fixtures/education_benefits_claims/**/*.json contain
     #   Windows-1252 encoding "double right-single-quotation-mark", (’) Unicode %u2019
@@ -80,7 +81,6 @@ module EducationForm::Forms
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
       wrapped = wrapped.gsub('’', "'")
-
       # We can only send ASCII, so make a best-effort at that.
       transliterated = ActiveSupport::Inflector.transliterate(wrapped, locale: :en)
       # Trim any lines that end in whitespace, but keep the lines themselves
