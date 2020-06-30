@@ -640,7 +640,8 @@ RSpec.describe Form1010cg::Service do
       file_path         = 'tmp/my_file.pdf'
       carma_attachment  = double
       claim             = create(:caregivers_assistance_claim)
-      submission        = Form1010cg::Submission.new(
+
+      submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
         submitted_at: '2020-06-26 13:30:59'
       )
