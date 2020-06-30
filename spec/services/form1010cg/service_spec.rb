@@ -625,49 +625,44 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  describe 'submit_attachment!' do
+  describe '#submit_attachments!' do
     context 'raises error' do
-      it 'when document_type is not valid' do
-        expect do
-          subject.submit_attachment!('BAD-Doc-Type', 'tmp/my_attachment.pdf')
-        end.to raise_error('Invalid document_type')
-      end
+      it 'when claim is not yet processed' do
+        expect { subject.submit_attachments! }.to raise_error('requires a processed submission')
 
-      it 'when claim is not submitted' do
-        expect do
-          subject.submit_attachment!('10-10CG', 'tmp/my_attachment.pdf')
-        end.to raise_error('Claim must be submitted')
+        subject.submission = double(carma_case_id: nil)
+        expect { subject.submit_attachments! }.to raise_error('requires a processed submission')
       end
     end
 
-    xit 'submits the provided file to CARMA' do
-      claim            = create(:caregivers_assistance_claim)
-      claim.submission = create(:form1010cg_submission, saved_claim_id: claim.id)
+    it 'submits the PDF version of submission to CARMA' do
+      document_type     = '10-10CG'
+      file_path         = 'tmp/my_file.pdf'
+      carma_attachment  = double
+      claim             = create(:caregivers_assistance_claim)
+      submission        = Form1010cg::Submission.new(
+        carma_case_id: 'aB9350000000TjICAU',
+        submitted_at: '2020-06-26 13:30:59'
+      )
 
-      subject = described_class.new(claim)
+      subject = described_class.new(claim, submission)
 
-      document_type = '10-10CG'
-      file_path     = 'tmp/my_file.pdf'
+      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
 
-      carma_attachment = double
-
-      expect(CARMA::Models::Attachment).to receive(:new).with(
-        carma_case_id: claim.submission.carma_case_id,
-        veteran_name: {
-          first: claim.veteran_data['fullName']['first'],
-          last: claim.veteran_data['fullName']['last']
-        },
-        file_path: file_path,
-        document_type: document_type
+      expect(CARMA::Models::Attachments).to receive(:new).with(
+        submission.carma_case_id,
+        claim.veteran_data['fullName']['first'],
+        claim.veteran_data['fullName']['last']
       ).and_return(
         carma_attachment
       )
 
+      expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
       expect(carma_attachment).to receive(:submit!).and_return(:ATTACHMENT_RESPONSE)
 
-      expect(
-        subject.submit_attachment!(document_type, file_path)
-      ).to eq(:ATTACHMENT_RESPONSE)
+      expect(File).to receive(:delete).with(file_path)
+
+      expect(subject.submit_attachments!).to eq(submission)
     end
   end
 end

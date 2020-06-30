@@ -3,19 +3,19 @@
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
 module Form1010cg
   class Service
-    attr_reader :claim # SavedClaim::CaregiversAssistanceClaim
-    attr_reader :carma_submission # CARMA::Models::Submission
-    attr_reader :submission # Form1010cg::Submission
+    attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
+                  :submission # Form1010cg::Submission
 
     NOT_FOUND = 'NOT_FOUND'
 
-    def initialize(claim)
+    def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
       claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
 
       # The CaregiversAssistanceClaim we are processing with this service
-      @claim = claim
+      @claim        = claim
+      @submission   = submission
 
       # Store for the search results we will run on MVI and eMIS
       @cache = {
@@ -34,46 +34,52 @@ module Form1010cg
     #
     # @return [Form1010cg::Submission]
     def process_claim!
+      raise 'submission already present' if submission.present?
+
       assert_veteran_status
 
-      @carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
+      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
         submitted_at: carma_submission.submitted_at
       )
 
-      # begin
-      #   submit_attachment!('10-10CG', claim.to_pdf)
-      # rescue => exception
-      #   message = "Failed to upload attachment: ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
-      #   Rails.logger.error message, backtrace: exception.backtrace
-      # end
+      begin
+        submit_attachments!
+      rescue
+        # message = "Failed to upload attachment: ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
+        # Rails.logger.error message, backtrace: exception.backtrace
+      end
 
       submission
     end
 
-    def submit_attachment!(document_type, local_path, delete_after_processing = true)
-      document_types = CARMA::Models::Attachment::DOCUMENT_TYPES
+    # Will generate a PDF version of the submission and attach it to the CARMA Case.
+    #
+    # @return [Form1010cg::Submission]
+    def submit_attachments!(delete_after_processing = true)
+      raise 'requires a processed submission' if submission&.carma_case_id.blank?
 
-      raise 'Invalid document_type'   if document_types[document_type].nil?
-      raise 'Claim must be submitted' if submission&.carma_case_id.nil?
+      file_path = claim.to_pdf
 
-      attachment = CARMA::Models::Attachment.new(
-        carma_case_id: submission.carma_case_id,
-        veteran_name: {
-          first: claim.veteran_data['fullName']['first'],
-          last: claim.veteran_data['fullName']['last']
-        },
-        file_path: local_path,
-        document_type: document_type
+      case_attachments = CARMA::Models::Attachments.new(
+        submission.carma_case_id,
+        claim.veteran_data['fullName']['first'],
+        claim.veteran_data['fullName']['last']
+      ).add(
+        '10-10CG',
+        file_path
       )
 
-      response = attachment.submit!
+      case_attachments.submit!
 
-      File.delete(local_path) if delete_after_processing
+      # TODO: add the attachments to submission.attachments for when we presist the submission
+      # may require a #to_json on Attachments or Attachment
 
-      response
+      File.delete(file_path) if delete_after_processing
+
+      submission
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI
