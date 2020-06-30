@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MviPolicy do
+describe MPIPolicy do
   subject { described_class }
 
   permissions :queryable? do
