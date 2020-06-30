@@ -19,6 +19,10 @@ module ClaimsApi
             'Disability'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           response 200 do
             key :description, 'schema response'
             content 'application/json' do
@@ -71,7 +75,7 @@ module ClaimsApi
           ]
 
           security do
-            key :apikey, []
+            key :bearer_token, []
           end
 
           parameter do
@@ -179,6 +183,10 @@ module ClaimsApi
             'Disability'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           parameter do
             key :name, :id
             key :in, :path
@@ -277,6 +285,10 @@ module ClaimsApi
           key :tags, [
             'Disability'
           ]
+
+          security do
+            key :bearer_token, []
+          end
 
           parameter do
             key :name, 'X-VA-SSN'
@@ -412,6 +424,10 @@ module ClaimsApi
           key :tags, [
             'Disability'
           ]
+
+          security do
+            key :bearer_token, []
+          end
 
           parameter do
             key :name, :id

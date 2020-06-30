@@ -2,13 +2,13 @@
 
 require 'rails_helper'
 
-describe ValidatePDF, uploader_helpers: true do
-  class ValidatePDFTest < CarrierWave::Uploader::Base
-    include ValidatePDF
+describe ValidatePdf, uploader_helpers: true do
+  class ValidatePdfTest < CarrierWave::Uploader::Base
+    include ValidatePdf
   end
 
   def store_image
-    ValidatePDFTest.new.store!(file)
+    ValidatePdfTest.new.store!(file)
   end
 
   context 'with a file that is not a PDF' do

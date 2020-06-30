@@ -6,14 +6,7 @@ class V0::Facilities::CcpController < FacilitiesController
   def index
     raise Common::Exceptions::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR) if params[:type].nil?
 
-    ppms_results =  case search_params[:type]
-                    when 'cc_provider'
-                      provider_search
-                    when 'cc_pharmacy'
-                      provider_search('services' => ['3336C0003X'])
-                    when 'cc_urgent_care'
-                      api.pos_locator(search_params)
-                    end
+    ppms_results = ppms_search
 
     render  json: ppms_results,
             each_serializer: ProviderSerializer,
@@ -35,6 +28,37 @@ class V0::Facilities::CcpController < FacilitiesController
   end
 
   private
+
+  def ppms_search
+    if Flipper.enabled?(:facility_locator_ppms_legacy_urgent_care_to_pos_locator)
+      ppms_search_with_legacy_urgent_care
+    else
+      ppms_search_without_legacy_urgent_care
+    end
+  end
+
+  def ppms_search_without_legacy_urgent_care
+    case search_params[:type]
+    when 'cc_provider'
+      provider_search
+    when 'cc_pharmacy'
+      provider_search('services' => ['3336C0003X'])
+    when 'cc_urgent_care'
+      api.pos_locator(search_params)
+    end
+  end
+
+  def ppms_search_with_legacy_urgent_care
+    if search_params[:type] == 'cc_provider' && search_params['services'] == ['261QU0200X']
+      api.pos_locator(search_params)
+    elsif search_params[:type] == 'cc_provider'
+      provider_search
+    elsif search_params[:type] == 'cc_pharmacy'
+      provider_search('services' => ['3336C0003X'])
+    elsif search_params[:type] == 'cc_urgent_care'
+      api.pos_locator(search_params)
+    end
+  end
 
   def search_params
     params.permit(:type, :address, :page, :per_page, services: [], bbox: [])
