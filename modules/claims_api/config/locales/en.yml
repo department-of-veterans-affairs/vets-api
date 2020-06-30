@@ -1,0 +1,4 @@
+en: 
+  date:
+    formats:
+      va_form: "%m/%d/%Y"

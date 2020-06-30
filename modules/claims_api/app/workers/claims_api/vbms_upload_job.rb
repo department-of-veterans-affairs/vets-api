@@ -1,26 +1,27 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'claims_api/vbms_uploader'
 
 module ClaimsApi
-  class VbmsUploader
+  class VbmsUploadJob
     include Sidekiq::Worker
 
     def perform(power_of_attorney_id)
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       uploader = ClaimsApi::PowerOfAttorneyUploader.new(power_of_attorney_id)
       uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
-      filepath = fetch_file_path(uploader)
-
-      upload_token_response = fetch_upload_token(
-        filepath: filepath,
-        file_number: power_of_attorney.auth_headers['va_eauth_pnid']
+      file_path = fetch_file_path(uploader)
+      uploader = ClaimsApi::VbmsUploader.new(
+        filepath: file_path,
+        file_number: power_of_attorney.auth_headers['va_eauth_pnid'],
+        doc_type: '295'
       )
-      upload_response = upload_document(filepath: filepath, upload_token: upload_token_response.upload_token)
+      upload_response = uploader.upload!
       power_of_attorney.update(
         status: 'uploaded',
-        vbms_new_document_version_ref_id: upload_response.upload_document_response[:@new_document_version_ref_id],
-        vbms_document_series_ref_id: upload_response.upload_document_response[:@document_series_ref_id]
+        vbms_new_document_version_ref_id: upload_response[:vbms_new_document_version_ref_id],
+        vbms_document_series_ref_id: upload_response[:vbms_document_series_ref_id]
       )
     rescue VBMS::Unknown
       rescue_vbms_error(power_of_attorney)
@@ -53,35 +54,6 @@ module ClaimsApi
         power_of_attorney.status = 'failed'
       end
       power_of_attorney.save
-    end
-
-    def client
-      @client ||= VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
-    end
-
-    def fetch_upload_token(filepath:, file_number:)
-      content_hash = Digest::SHA1.hexdigest(File.read(filepath))
-      filename = SecureRandom.uuid + File.basename(filepath)
-
-      vbms_request = VBMS::Requests::InitializeUpload.new(
-        content_hash: content_hash,
-        filename: filename,
-        file_number: file_number,
-        va_receive_date: Time.zone.now,
-        doc_type: '295',
-        source: 'BVA',
-        subject: '295',
-        new_mail: true
-      )
-      client.send_request(vbms_request)
-    end
-
-    def upload_document(filepath:, upload_token:)
-      upload_request = VBMS::Requests::UploadDocument.new(
-        upload_token: upload_token,
-        filepath: filepath
-      )
-      client.send_request(upload_request)
     end
   end
 end
