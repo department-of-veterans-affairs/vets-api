@@ -69,7 +69,7 @@ module Form1010cg
         claim.veteran_data['fullName']['first'],
         claim.veteran_data['fullName']['last']
       ).add(
-        CARMA::Models::Attachments::DOCUMENT_TYPES['10-10CG'],
+        CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'],
         file_path
       )
 
