@@ -117,7 +117,7 @@ class MPIData < Common::RedisStore
     search_response = MPI::OrchSearchService.new.find_profile(user)
     if search_response.ok?
       @mpi_response = search_response
-      add_response = mvi_service.add_person(user)
+      add_response = mpi_service.add_person(user)
       add_ids(add_response) if add_response.ok?
     else
       add_response = MPI::Responses::AddPersonResponse.with_failed_orch_search(
@@ -139,11 +139,11 @@ class MPIData < Common::RedisStore
 
   def response_from_redis_or_service
     do_cached_with(key: user.uuid) do
-      mvi_service.find_profile(user)
+      mpi_service.find_profile(user)
     end
   end
 
-  def mvi_service
+  def mpi_service
     @service ||= MPI::Service.new
   end
 
