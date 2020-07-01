@@ -6,8 +6,7 @@ class AppealsApi::Docs::V1::DocsController < ApplicationController
   SWAGGER = Swagger::Blocks.build_root_json(
     [
       AppealsApi::V1::SwaggerRoot,
-      AppealsApi::V1::HigherLevelReviewsControllerSwagger,
-      AppealsApi::V1::ContestableIssuesControllerSwagger
+      AppealsApi::V1::HigherLevelReviewsControllerSwagger
     ]
   ).freeze
 
