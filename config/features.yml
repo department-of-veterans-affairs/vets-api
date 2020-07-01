@@ -155,3 +155,7 @@ features:
     actor_type: user
     description: >
       Comparison Tool Search Enhancements to improve usability
+  route_st_louis_rpo_to_buffalo_rpo:
+    actor_type: user
+    description: >
+      All submission data that was previously routed to St Louis RPO is routed to the Buffalo RPO

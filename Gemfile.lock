@@ -430,7 +430,6 @@ GEM
     i18n (1.8.3)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
-    iconv (1.0.8)
     iniparse (1.5.0)
     iso_country_codes (0.7.8)
     jmespath (1.4.0)
@@ -847,7 +846,6 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
-  iconv
   iso_country_codes
   json (>= 2.3.0)
   json-schema
