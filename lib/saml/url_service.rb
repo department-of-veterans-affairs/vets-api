@@ -64,9 +64,7 @@ module SAML
       # if the original auth request was an inbound ssoe autologin (type custom)
       # and authentication failed, set 'force-needed' so the FE can silently fail
       # authentication and NOT show the user an error page
-      if (auth != 'success' && @tracker&.payload_attr(:type) == 'custom')
-        auth = 'force-needed'
-      end
+      auth = 'force-needed' if auth != 'success' && @tracker&.payload_attr(:type) == 'custom'
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth != 'success'
