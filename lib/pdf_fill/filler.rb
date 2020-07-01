@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-module PDFFill
+module PdfFill
   module Filler
     module_function
 
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     FORM_CLASSES = {
-      '21P-527EZ' => PDFFill::Forms::Va21p527ez,
-      '21P-530' => PDFFill::Forms::Va21p530,
-      '21-4142' => PDFFill::Forms::Va214142,
-      '21-0781a' => PDFFill::Forms::Va210781a,
-      '21-0781' => PDFFill::Forms::Va210781,
-      '21-8940' => PDFFill::Forms::Va218940,
-      '10-10CG' => PDFFill::Forms::Va1010cg
+      '21P-527EZ' => PdfFill::Forms::Va21p527ez,
+      '21P-530' => PdfFill::Forms::Va21p530,
+      '21-4142' => PdfFill::Forms::Va214142,
+      '21-0781a' => PdfFill::Forms::Va210781a,
+      '21-0781' => PdfFill::Forms::Va210781,
+      '21-8940' => PdfFill::Forms::Va218940,
+      '10-10CG' => PdfFill::Forms::Va1010cg
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)

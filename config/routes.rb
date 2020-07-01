@@ -234,14 +234,6 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
-
-      resource :reference_data, only: %i[show] do
-        collection do
-          get 'countries', to: 'reference_data#countries'
-          get 'states', to: 'reference_data#states'
-          get 'zipcodes', to: 'reference_data#zipcodes'
-        end
-      end
     end
 
     resources :search, only: :index
@@ -316,9 +308,9 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VAFacilities::Engine, at: '/va_facilities'
+    mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
-    mount VAForms::Engine, at: '/va_forms'
+    mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end

@@ -2,7 +2,7 @@
 
 require_dependency 'va_facilities/api_serialization'
 
-module VAFacilities
+module VaFacilities
   class FacilitySerializer < ActiveModel::Serializer
     include ApiSerialization
 

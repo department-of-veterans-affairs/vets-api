@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'shrine/plugins/validate_unlocked_pdf'
 
-describe Shrine::Plugins::ValidateUnlockedPDF do
+describe Shrine::Plugins::ValidateUnlockedPdf do
   describe '#validate_unlocked_pdf' do
     let(:good_pdf) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
     let(:locked_pdf) { Rails.root.join('spec', 'fixtures', 'files', 'locked-pdf.pdf') }
@@ -11,7 +11,7 @@ describe Shrine::Plugins::ValidateUnlockedPDF do
 
     let(:klass) do
       Class.new do
-        include Shrine::Plugins::ValidateUnlockedPDF::AttacherMethods
+        include Shrine::Plugins::ValidateUnlockedPdf::AttacherMethods
         def get
           raise "shouldn't be called"
         end

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/ClassLength
-module PDFFill
+module PdfFill
   module Forms
     class Va218940 < FormBase
       include FormHelper
 
-      ITERATOR = PDFFill::HashConverter::ITERATOR
+      ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
         'veteranFullName' => {
@@ -535,7 +535,7 @@ module PDFFill
 
         other_training_pre_unemploy.each do |training|
           overflow = format_training_overflow(training)
-          training['otherEdPreUnemployOverflow'] = PDFFill::FormValue.new('', overflow)
+          training['otherEdPreUnemployOverflow'] = PdfFill::FormValue.new('', overflow)
         end
         @form_data['otherEducationTrainingPreUnemployability'] = other_training_pre_unemploy
 
@@ -544,7 +544,7 @@ module PDFFill
 
         other_training_post_unemploy.each do |training|
           overflow = format_training_overflow(training)
-          training['otherEdPostUnemployOverflow'] = PDFFill::FormValue.new('', overflow)
+          training['otherEdPostUnemployOverflow'] = PdfFill::FormValue.new('', overflow)
         end
         @form_data['otherEducationTrainingPostUnemployability'] = other_training_post_unemploy
       end
@@ -564,7 +564,7 @@ module PDFFill
 
         employers.each do |employer|
           overflow = format_previous_employer_overflow(employer)
-          employer['previousEmployerOverflow'] = PDFFill::FormValue.new('', overflow)
+          employer['previousEmployerOverflow'] = PdfFill::FormValue.new('', overflow)
           compress_previous_employer_info(employer)
         end
         @form_data['previousEmployers'] = employers
@@ -642,7 +642,7 @@ module PDFFill
           employer['nameAndAddress'] = employer['name'] + "\n" + address
           employer.except!('name')
           employer.except!('address')
-          employer['appliedEmployerOverflow'] = PDFFill::FormValue.new('', overflow)
+          employer['appliedEmployerOverflow'] = PdfFill::FormValue.new('', overflow)
         end
         @form_data['appliedEmployers'] = unemployability['appliedEmployers']
       end
