@@ -3,17 +3,17 @@
 module Common
   module Client
     module Concerns
-    ##
-    # Module mixin for overriding session logic when making MHV client connections
-    #
-    # @see BB::Client
-    # @see Rx::Client
-    # @see SM::Client
-    # @see MHVLogging::Client
-    #
-    # @!attribute [r] session
-    #   @return [Hash] a hash containing session information
-    #
+      ##
+      # Module mixin for overriding session logic when making MHV client connections
+      #
+      # @see BB::Client
+      # @see Rx::Client
+      # @see SM::Client
+      # @see MHVLogging::Client
+      #
+      # @!attribute [r] session
+      #   @return [Hash] a hash containing session information
+      #
       module MHVSessionBasedClient
         extend ActiveSupport::Concern
         include SentryLogging
