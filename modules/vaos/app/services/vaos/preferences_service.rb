@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class PreferencesService < VAOS::BaseService
+  class PreferencesService < VAOS::SessionService
     def get_preferences
       with_monitoring do
         response = perform(:get, url, nil, headers)

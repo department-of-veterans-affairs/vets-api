@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class CCEligibilityService < VAOS::BaseService
+  class CCEligibilityService < VAOS::SessionService
     def get_eligibility(service_type)
       with_monitoring do
         response = perform(:get, url(service_type), nil, headers)

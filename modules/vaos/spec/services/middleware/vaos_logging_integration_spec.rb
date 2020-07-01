@@ -29,6 +29,9 @@ describe VAOS::Middleware::VaosLogging do
             '[StatsD] measure api.external_http_request.VAOS.time:0.0 '\
 '#endpoint:/appointments/v1/patients/xxx/appointments #method:get'
           )
+          expect(Rails.logger).to receive(:info).with(
+            '[StatsD] increment shared.sidekiq.default.VAOS_ExtendSessionJob.enqueue:1'
+          )
           expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.get_appointments.total:1')
           expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                       duration: 0.0,
