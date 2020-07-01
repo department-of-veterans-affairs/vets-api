@@ -88,9 +88,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :summary, 'Show a Higher-Level Review'
       key :description, 'Returns all of the data associated with a specific Higher-Level Review'
       parameter name: 'uuid', 'in': 'path', required: true, description: 'Higher-Level Review UUID' do
-        schema do
-          key :'$ref', :uuid
-        end
+        schema { key :'$ref', :uuid }
       end
       key :responses, '200': response_hlr_show_success, '404': response_hlr_show_not_found
       security do
