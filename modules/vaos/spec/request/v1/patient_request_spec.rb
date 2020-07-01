@@ -12,7 +12,7 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
   context 'with loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
-    it 'returns a forbidden error' do
+    it 'returns a user forbidden error' do
       get '/vaos/v1/Patient'
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['issue'].first.dig('details', 'text'))
