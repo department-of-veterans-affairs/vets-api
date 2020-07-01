@@ -10,15 +10,16 @@ require 'mpi/errors/errors'
 require 'sentry_logging'
 
 module MPI
-  # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
-  # to three MVI endpoints:
+  # Wrapper for the MPI (Master Person Index) Service.
+  # This was formerly the MVI (Mater Veteran Index) Service.
+  # vets.gov has access to three MPI endpoints:
   # * PRPA_IN201301UV02 (TODO(AJD): Add Person)
   # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
   # * PRPA_IN201305UV02 (aliased as .find_profile)
   class Service < Common::Client::Base
     include Common::Client::Monitoring
 
-    # The MVI Service SOAP operations vets.gov has access to
+    # The MPI Service SOAP operations vets.gov has access to
     unless const_defined?(:OPERATIONS)
       OPERATIONS = {
         add_person: 'PRPA_IN201301UV02',
@@ -30,7 +31,7 @@ module MPI
     # @return [MPI::Configuration] the configuration for this service
     configuration MPI::Configuration
 
-    STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
+    STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX) # TODO: update this logs and exceptions?
     SERVER_ERROR = 'server_error'
 
     # rubocop:disable Metrics/MethodLength
@@ -48,24 +49,24 @@ module MPI
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
       log_console_and_sentry('MVI add_person connection failed.', :warn)
-      mvi_add_exception_response_for('MVI_503', e)
+      mpi_add_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
       log_console_and_sentry("MVI add_person connection failed: #{e.message}", :warn)
-      mvi_add_exception_response_for('MVI_504', e)
+      mpi_add_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_console_and_sentry("MVI add_person error: #{e.message}", :warn)
-      mvi_add_exception_response_for('MVI_504', e)
+      mpi_add_exception_response_for('MVI_504', e)
     rescue MPI::Errors::Base => e
-      key = get_mvi_error_key(e)
-      mvi_error_handler(user_identity, e)
-      mvi_add_exception_response_for(key, e)
+      key = get_mpi_error_key(e)
+      mpi_error_handler(user_identity, e)
+      mpi_add_exception_response_for(key, e)
     end
     # rubocop:enable Metrics/MethodLength
 
-    # Given a user queries MVI and returns their VA profile.
+    # Given a user queries MPI and returns their VA profile.
     #
-    # @param user [UserIdentity] the user to query MVI for
-    # @return [MPI::Responses::FindProfileResponse] the parsed response from MVI.
+    # @param user [UserIdentity] the user to query MPI for
+    # @return [MPI::Responses::FindProfileResponse] the parsed response from MPI.
     # rubocop:disable Metrics/MethodLength
     def find_profile(user_identity)
       with_monitoring do
@@ -81,26 +82,26 @@ module MPI
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
       log_console_and_sentry('MVI find_profile connection failed.', :warn)
-      mvi_profile_exception_response_for('MVI_503', e)
+      mpi_profile_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
       log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
-      mvi_profile_exception_response_for('MVI_504', e)
+      mpi_profile_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
-      mvi_profile_exception_response_for('MVI_504', e)
+      mpi_profile_exception_response_for('MVI_504', e)
     rescue MPI::Errors::Base => e
-      mvi_error_handler(user_identity, e)
+      mpi_error_handler(user_identity, e)
       if e.is_a?(MPI::Errors::RecordNotFound)
-        mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
+        mpi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
-        mvi_profile_exception_response_for('MVI_502', e)
+        mpi_profile_exception_response_for('MVI_502', e)
       end
     end
     # rubocop:enable Metrics/MethodLength
 
     def self.service_is_up?
-      last_mvi_outage = Breakers::Outage.find_latest(service: MPI::Configuration.instance.breakers_service)
-      last_mvi_outage.blank? || last_mvi_outage.end_time.present?
+      last_mpi_outage = Breakers::Outage.find_latest(service: MPI::Configuration.instance.breakers_service)
+      last_mpi_outage.blank? || last_mpi_outage.end_time.present?
     end
 
     private
@@ -109,20 +110,20 @@ module MPI
       Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user_identity)) { yield }
     end
 
-    def get_mvi_error_key(e)
+    def get_mpi_error_key(e)
       error_name = e.body&.[](:other)&.first&.[](:displayName)
       return 'MVI_502_DUP' if error_name == 'Duplicate Key Identifier'
 
       'MVI_502'
     end
 
-    def mvi_add_exception_response_for(key, error)
+    def mpi_add_exception_response_for(key, error)
       exception = build_exception(key, error)
 
       MPI::Responses::AddPersonResponse.with_server_error(exception)
     end
 
-    def mvi_profile_exception_response_for(key, error, type: SERVER_ERROR)
+    def mpi_profile_exception_response_for(key, error, type: SERVER_ERROR)
       exception = build_exception(key, error)
 
       if type == SERVER_ERROR
@@ -141,7 +142,7 @@ module MPI
       )
     end
 
-    def mvi_error_handler(user_identity, e)
+    def mpi_error_handler(user_identity, e)
       case e
       when MPI::Errors::DuplicateRecords
         log_console_and_sentry('MVI Duplicate Record', :warn)
