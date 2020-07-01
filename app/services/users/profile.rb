@@ -72,8 +72,7 @@ module Users
         multifactor: user.multifactor,
         verified: user.loa3?,
         sign_in: user.identity.sign_in,
-        authn_context: user.authn_context,
-        authenticated_by_ssoe: user.identity.authenticated_by_ssoe
+        authn_context: user.authn_context
       }
     end
 

@@ -70,10 +70,6 @@ RSpec.describe Users::Profile do
           expect(profile[:sign_in]).to eq(service_name: 'idme')
         end
 
-        it 'includes authenticated_by_ssoe' do
-          expect(profile[:authenticated_by_ssoe]).to eq(nil)
-        end
-
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'multifactor') }
 
