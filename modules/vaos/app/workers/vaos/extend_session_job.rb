@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq'
+
 module VAOS
   class ExtendSessionJob
     include Sidekiq::Worker
