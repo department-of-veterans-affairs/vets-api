@@ -44,9 +44,9 @@ module Debts
     private
 
     def verify_letter_in_folder(document_id)
-      raise Common::Exceptions::Unauthorized unless list_letters.map do |letter|
-        letter[:document_id]
-      end.include?(document_id)
+      raise Common::Exceptions::Unauthorized unless list_letters.any? do |letter|
+        letter[:document_id] == document_id
+      end
     end
   end
 end
