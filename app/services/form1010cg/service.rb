@@ -47,9 +47,8 @@ module Form1010cg
 
       begin
         submit_attachments!
-      rescue
-        # message = "Failed to upload attachment: ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}",
-        # Rails.logger.error message, backtrace: exception.backtrace
+      rescue => e
+        Rails.logger.warn e.message, backtrace: e.backtrace
       end
 
       submission

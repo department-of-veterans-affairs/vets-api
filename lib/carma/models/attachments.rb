@@ -72,7 +72,7 @@ module CARMA
       private
 
       def client
-        @client ||= CARMA::Client::Client.new
+        CARMA::Client::Client.instance
       end
     end
   end
