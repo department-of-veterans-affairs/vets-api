@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class MessagesService < VAOS::SessionService
+  class MessagesService < VAOS::BaseService
     def get_messages(request_id)
       with_monitoring do
         response = perform(:get, messages_url(request_id), nil, headers)

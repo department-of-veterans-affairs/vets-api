@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class AppointmentRequestsService < VAOS::SessionService
+  class AppointmentRequestsService < VAOS::BaseService
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
         response = perform(:get, get_request_url, date_params(start_date, end_date), headers)
