@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# confirmation email job
 
 require 'notifications/client'
 
@@ -20,7 +19,7 @@ class Form526ConfirmationEmailJob
     )
   rescue => e
     Rails.logger.error(
-      "Error performing Form526ConfirmationEmailJob: #{e.message}",
+      "Error performing the Form526ConfirmationEmailJob: #{e.message}",
       submission_id: id
     )
     StatsD.increment(STATSD_ERROR_NAME)
