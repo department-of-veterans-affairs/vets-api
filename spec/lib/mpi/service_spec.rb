@@ -49,7 +49,7 @@ describe MPI::Service do
     context 'valid_request when user has no ids' do
       let(:user) { build(:user_with_no_ids) }
 
-      let(:mvi_codes) do
+      let(:mpi_codes) do
         {
           birls_id: '111985523',
           participant_id: '32397028'
@@ -60,7 +60,7 @@ describe MPI::Service do
         VCR.use_cassette('mvi/add_person/add_person_success') do
           response = subject.add_person(user)
           expect(response.status).to eq('OK')
-          expect(response.mvi_codes).to have_deep_attributes(mvi_codes)
+          expect(response.mpi_codes).to have_deep_attributes(mpi_codes)
         end
       end
 
@@ -76,7 +76,7 @@ describe MPI::Service do
     context 'valid_request when user already has both ids' do
       let(:user) { build(:user, :loa3) }
 
-      let(:mvi_codes) do
+      let(:mpi_codes) do
         {
           birls_id: '796104437',
           participant_id: '13367440',
@@ -88,7 +88,7 @@ describe MPI::Service do
         VCR.use_cassette('mvi/add_person/add_person_already_exists') do
           response = subject.add_person(user)
           expect(response.status).to eq('OK')
-          expect(response.mvi_codes).to have_deep_attributes(mvi_codes)
+          expect(response.mpi_codes).to have_deep_attributes(mpi_codes)
         end
       end
 
@@ -113,7 +113,7 @@ describe MPI::Service do
 
           expect(response.class).to eq MPI::Responses::AddPersonResponse
           expect(response.status).to eq server_error
-          expect(response.mvi_codes).to be_nil
+          expect(response.mpi_codes).to be_nil
           expect(exception.title).to eq 'Bad Gateway'
           expect(exception.code).to eq 'MVI_502'
           expect(exception.status).to eq '502'
@@ -132,7 +132,7 @@ describe MPI::Service do
 
           expect(response.class).to eq MPI::Responses::AddPersonResponse
           expect(response.status).to eq server_error
-          expect(response.mvi_codes).to be_nil
+          expect(response.mpi_codes).to be_nil
           expect(exception.title).to eq 'Duplicate Keys'
           expect(exception.code).to eq 'MVI_502_DUP'
           expect(exception.status).to eq '502'
@@ -156,7 +156,7 @@ describe MPI::Service do
 
         expect(response.class).to eq MPI::Responses::AddPersonResponse
         expect(response.status).to eq server_error
-        expect(response.mvi_codes).to be_nil
+        expect(response.mpi_codes).to be_nil
         expect(exception.title).to eq 'Gateway timeout'
         expect(exception.code).to eq 'MVI_504'
         expect(exception.status).to eq '504'
@@ -174,7 +174,7 @@ describe MPI::Service do
 
         expect(response.class).to eq MPI::Responses::AddPersonResponse
         expect(response.status).to eq server_error
-        expect(response.mvi_codes).to be_nil
+        expect(response.mpi_codes).to be_nil
         expect(exception.title).to eq 'Service unavailable'
         expect(exception.code).to eq 'MVI_503'
         expect(exception.status).to eq '503'
@@ -615,7 +615,7 @@ describe MPI::Service do
 
         expect(response.class).to eq MPI::Responses::AddPersonResponse
         expect(response.status).to eq server_error
-        expect(response.mvi_codes).to be_nil
+        expect(response.mpi_codes).to be_nil
         expect(exception.title).to eq 'Gateway timeout'
         expect(exception.code).to eq 'MVI_504'
         expect(exception.status).to eq '504'

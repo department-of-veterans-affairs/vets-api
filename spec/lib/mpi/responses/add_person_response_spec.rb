@@ -16,9 +16,9 @@ describe MPI::Responses::AddPersonResponse do
   end
 
   describe '.with_server_error' do
-    it 'builds a response with a nil mvi_codes and a status of SERVER_ERROR' do
+    it 'builds a response with a nil mpi_codes and a status of SERVER_ERROR' do
       expect(error_response.status).to eq('SERVER_ERROR')
-      expect(error_response.mvi_codes).to be_nil
+      expect(error_response.mpi_codes).to be_nil
     end
 
     it 'optionally sets #error to the passed exception', :aggregate_failures do
@@ -34,18 +34,18 @@ describe MPI::Responses::AddPersonResponse do
     context 'with an SERVER_ERROR orchestrated search result' do
       let(:status) { 'SERVER_ERROR' }
 
-      it 'builds a response with a nil mvi_codes and a status of SERVER_ERROR' do
+      it 'builds a response with a nil mpi_codes and a status of SERVER_ERROR' do
         expect(failed_search.status).to eq('SERVER_ERROR')
-        expect(failed_search.mvi_codes).to be_nil
+        expect(failed_search.mpi_codes).to be_nil
       end
     end
 
     context 'with an NOT_FOUND orchestrated search result' do
       let(:status) { 'NOT_FOUND' }
 
-      it 'builds a response with a nil mvi_codes and a status of NOT_FOUND' do
+      it 'builds a response with a nil mpi_codes and a status of NOT_FOUND' do
         expect(failed_search.status).to eq('NOT_FOUND')
-        expect(failed_search.mvi_codes).to be_nil
+        expect(failed_search.mpi_codes).to be_nil
       end
     end
 
@@ -63,7 +63,7 @@ describe MPI::Responses::AddPersonResponse do
       it 'builds a response with a nil errors a status of OK' do
         expect(ok_response.status).to eq('OK')
         expect(ok_response.error).to be_nil
-        expect(ok_response.mvi_codes).to eq(
+        expect(ok_response.mpi_codes).to eq(
           {
             birls_id: '111985523',
             participant_id: '32397028'

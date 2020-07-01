@@ -131,8 +131,8 @@ class MPIData < Common::RedisStore
 
   def add_ids(response)
     # set new ids in the profile and recache the response
-    profile.birls_id = response.mvi_codes[:birls_id].presence
-    profile.participant_id = response.mvi_codes[:participant_id].presence
+    profile.birls_id = response.mpi_codes[:birls_id].presence
+    profile.participant_id = response.mpi_codes[:participant_id].presence
 
     cache(user.uuid, mpi_response) if mpi_response.cache?
   end

@@ -8,7 +8,7 @@ describe MPIData, skip_mvi: true do
   let(:user) { build(:user, :loa3) }
   let(:mvi) { MPIData.for_user(user) }
   let(:mvi_profile) { build(:mvi_profile) }
-  let(:mvi_codes) do
+  let(:mpi_codes) do
     {
       birls_id: '111985523',
       participant_id: '32397028'
@@ -25,7 +25,7 @@ describe MPIData, skip_mvi: true do
   let(:add_response) do
     MPI::Responses::AddPersonResponse.new(
       status: MPI::Responses::AddPersonResponse::RESPONSE_STATUS[:ok],
-      mvi_codes: mvi_codes
+      mpi_codes: mpi_codes
     )
   end
   let(:add_response_error) { MPI::Responses::AddPersonResponse.with_server_error(server_error_exception) }
@@ -219,7 +219,7 @@ describe MPIData, skip_mvi: true do
     let(:response) do
       MPI::Responses::AddPersonResponse.new(
         status: 'OK',
-        mvi_codes: {
+        mpi_codes: {
           birls_id: '1234567890',
           participant_id: '0987654321'
         }
