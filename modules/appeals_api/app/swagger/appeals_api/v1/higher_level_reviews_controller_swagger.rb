@@ -65,9 +65,6 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     'all fields used': { value: example_all_fields_used },
     'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_200996_minimum.json']] }
   }
-  puts '------------'
-  puts hlr_create_request_body.inspect
-  puts '------------'
 
   swagger_path '/higher_level_reviews' do
     operation :post, tags: HLR_TAG do

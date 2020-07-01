@@ -7,6 +7,7 @@ module AppealsApi::V1::SwaggerRoot
   read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
   read_json_schema = ->(filename) { JSON.parse read_file[['config', 'schemas', filename]] }
 
+  # rubocop:disable Metrics/BlockLength
   swagger_root do
     key :openapi, '3.0.0'
     info do
@@ -50,12 +51,15 @@ module AppealsApi::V1::SwaggerRoot
       }
     }.merge(hlr_create_header_schemas).merge(hlr_create_schemas).merge(non_blank_string)
 
-    security = {
-      type: :apiKey,
-      name: :apikey,
-      in: :header
+    security_scheme = {
+      apikey: {
+        type: :apiKey,
+        name: :apikey,
+        in: :header
+      }
     }
 
-    key :components, { schemas: schemas, securitySchemes: security }
+    key :components, { schemas: schemas, securitySchemes: security_scheme }
   end
+  # rubocop:enable Metrics/BlockLength
 end
