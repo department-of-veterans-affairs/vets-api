@@ -101,39 +101,6 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({ type: type })
             end
 
-            it 'redirects with a forceAuthn' do
-              expect(SAML::SSOeSettingsService)
-                .to receive(:saml_settings)
-                .with(force_authn: true)
-
-              expect { get(:new, params: { type: type, clientId: '123123', force: true }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
-
-              expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
-              expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({ type: type })
-            end
-
-            it 'redirects for an inbound ssoe' do
-              expect(SAML::SSOeSettingsService)
-                .to receive(:saml_settings)
-                .with(force_authn: true)
-
-              expect { get(:new, params: { type: type, clientId: '123123', inbound: true }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
-
-              expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
-              expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({ inbound_ssoe: 'true',
-                                                                                          type: type })
-            end
-
             it 'persists redirect application' do
               expect { get(:new, params: { type: type, clientId: '123123', application: 'myvahealth' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
@@ -216,13 +183,20 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'routes /sessions/custom/new to SessionController#new' do
-          it 'redirects' do
-            expect { get(:new, params: { type: :custom, authn: 'dslogon', client_id: '123123' }) }
+          it 'redirects for an inbound ssoe' do
+            expect(SAML::SSOeSettingsService)
+              .to receive(:saml_settings)
+              .with(force_authn: false)
+
+            expect { get(:new, params: { type: 'custom', authn: 'myhealthevet', clientId: '123123' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['context:custom', 'version:v1'], **once)
+
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'custom')
+            expect(SAMLRequestTracker.keys.length).to eq(1)
+            expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload).to eq({ type: 'custom' })
           end
 
           it 'raises exception when missing authn parameter' do
@@ -305,17 +279,6 @@ RSpec.describe V1::SessionsController, type: :controller do
         )
         allow(SAML::User).to receive(:new).and_return(saml_user)
         expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
-      end
-
-      it 'logs inbound stat when set in the tracker' do
-        SAMLRequestTracker.create(
-          uuid: login_uuid,
-          payload: { inbound_ssoe: 'true', type: 'mhv' }
-        )
-        allow(SAML::User).to receive(:new).and_return(saml_user)
-        expect { post(:saml_callback) }
-          .to trigger_statsd_increment(described_class::STATSD_LOGIN_INBOUND,
-                                       tags: ['context:mhv', 'version:v1', 'status:success'])
       end
 
       context 'for a user with semantically invalid SAML attributes' do
