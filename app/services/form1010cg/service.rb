@@ -45,40 +45,45 @@ module Form1010cg
         submitted_at: carma_submission.submitted_at
       )
 
-      begin
-        submit_attachments!
-      rescue => e
-        # TODO: Sentry?
-        Rails.logger.warn e.message, backtrace: e.backtrace
-      end
+      submit_attachment
 
       submission
     end
 
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
-    # @return [Form1010cg::Submission]
-    def submit_attachments!
+    # @return [Boolean]
+    def submit_attachment # rubocop:disable Metrics/MethodLength
       raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
       raise 'submission already has attachments'  if  submission.attachments.any?
 
-      file_path = claim.to_pdf
+      file_path = begin
+                    claim.to_pdf
+                  rescue
+                    return false
+                  end
 
-      carma_attachments = CARMA::Models::Attachments.new(
-        submission.carma_case_id,
-        claim.veteran_data['fullName']['first'],
-        claim.veteran_data['fullName']['last']
-      ).add(
-        CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'],
-        file_path
-      )
+      begin
+        carma_attachments = CARMA::Models::Attachments.new(
+          submission.carma_case_id,
+          claim.veteran_data['fullName']['first'],
+          claim.veteran_data['fullName']['last']
+        )
 
-      carma_attachments.submit!
-      submission.attachments = carma_attachments.to_h
+        carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
+
+        carma_attachments.submit!
+        submission.attachments = carma_attachments.to_h
+      rescue
+        # Regardless of the reason, we should not raise an error when sending attachments fails.
+        # If we made it this far, there is a submission that exists in CARMA, so the user should
+        # get a sucessful response whether attachments reach CARMA or not.
+        File.delete(file_path)
+        return false
+      end
 
       File.delete(file_path)
-
-      submission
+      true
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI
