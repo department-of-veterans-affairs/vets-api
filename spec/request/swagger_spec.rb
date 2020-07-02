@@ -147,7 +147,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       VCR.use_cassette 'mvi/find_candidate/valid' do
         VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
           VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
-            VCR.use_cassette 'carma/oauth2/token/200' do
+            VCR.use_cassette 'carma/auth/token/200' do
               VCR.use_cassette 'carma/submissions/create/201' do
                 VCR.use_cassette 'carma/attachments/upload/201' do
                   expect(subject).to validate(

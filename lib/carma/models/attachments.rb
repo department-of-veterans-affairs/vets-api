@@ -66,7 +66,10 @@ module CARMA
       end
 
       def to_h
-        all.map(&:to_h)
+        {
+          has_errors: has_errors,
+          data: all.map(&:to_h)
+        }
       end
 
       private

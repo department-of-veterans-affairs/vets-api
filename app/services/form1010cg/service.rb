@@ -48,6 +48,7 @@ module Form1010cg
       begin
         submit_attachments!
       rescue => e
+        # TODO: Sentry?
         Rails.logger.warn e.message, backtrace: e.backtrace
       end
 

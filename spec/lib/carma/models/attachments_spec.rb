@@ -52,7 +52,9 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
       expect(subject.all[0]).to receive(:to_h).and_return(:hash_1)
       expect(subject.all[1]).to receive(:to_h).and_return(:hash_2)
 
-      expect(subject.to_h).to eq(%i[hash_1 hash_2])
+      result = subject.to_h
+      expect(result[:data]).to eq(%i[hash_1 hash_2])
+      expect(result[:has_errors]).to eq(nil)
     end
   end
 
@@ -123,18 +125,12 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
             expected_response
           )
 
-          5.times { subject.submit! }
+          subject.submit!
 
           expect(subject.response).to eq(expected_response)
           expect(subject.has_errors).to eq(false)
           expect(subject.all[0].id).to eq(expected_response['results'][0]['id'])
           expect(subject.all[1].id).to eq(expected_response['results'][1]['id'])
-        end
-
-        context 'with error' do
-          it 'sets #has_errors to true' do
-            # TODO: test client using 400 VCR. Pretty sure it'll raise an error vs return a response
-          end
         end
 
         context 'when re-submitted' do
@@ -239,12 +235,6 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
           expect(subject.has_errors).to eq(false)
           expect(subject.all[0].id).to eq(expected_response['results'][0]['id'])
           expect(subject.all[1].id).to eq(expected_response['results'][1]['id'])
-        end
-
-        context 'with error' do
-          it 'sets #has_errors to true' do
-            # TODO: test client using 400 VCR. Pretty sure it'll raise an error vs return a response
-          end
         end
 
         context 'when re-submitted' do
