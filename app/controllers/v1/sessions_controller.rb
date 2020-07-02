@@ -30,6 +30,7 @@ module V1
     def new
       type = params[:type]
 
+      new_stats(type)
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
@@ -41,7 +42,6 @@ module V1
       else
         render_login(type)
       end
-      new_stats(type)
     end
 
     def ssoe_slo_callback
@@ -49,6 +49,7 @@ module V1
     end
 
     def saml_callback
+      Rails.logger.info('SSOe SAML received')
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
@@ -107,7 +108,7 @@ module V1
       after_login_actions
       helper = url_service(user_session_form.saml_uuid)
       if helper.should_uplevel?
-        render_login('verify')
+        render_login('verify', user_session_form.saml_uuid)
       else
         redirect_to helper.login_redirect_url
         login_stats(:success, saml_response, user_session_form)
@@ -122,6 +123,7 @@ module V1
                                locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
+      Rails.logger.info('SSOe SAML sent')
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
