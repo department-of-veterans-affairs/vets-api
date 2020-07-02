@@ -30,7 +30,6 @@ module V1
     def new
       type = params[:type]
 
-      new_stats(type)
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
@@ -42,6 +41,7 @@ module V1
       else
         render_login(type)
       end
+      new_stats(type)
     end
 
     def ssoe_slo_callback
