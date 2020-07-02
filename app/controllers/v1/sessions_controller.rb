@@ -57,11 +57,11 @@ module V1
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
       log_message_to_sentry(e.message, e.level, extra_context: e.context)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
+      redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
+      redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: '007') unless performed?
       callback_stats(:failed_unknown)
     ensure
       callback_stats(:total)
