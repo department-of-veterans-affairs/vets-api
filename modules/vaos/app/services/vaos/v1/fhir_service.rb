@@ -12,7 +12,7 @@ module VAOS
     #   service = VAOS::V1::FHIRService.new(user, :Organization)
     #   response = service.read(987654)
     #
-    class FHIRService < VAOS::BaseService
+    class FHIRService < VAOS::SessionService
       STATSD_KEY_PREFIX = 'api.vaos.fhir'
       RESOURCES = %i[Appointment HealthcareService Location Organization Patient Schedule Slot].freeze
 

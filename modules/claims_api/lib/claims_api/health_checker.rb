@@ -18,17 +18,13 @@ module ClaimsApi
     end
 
     def self.bgs_is_healthy?
-      # response = Faraday.get(BGS_WSDL)
-      # response.status == 200
-      # BGS does not have upper level access yet, just return true
-      true
+      response = Faraday.get(BGS_WSDL)
+      response.status == 200
     end
 
     def self.vbms_is_healthy?
-      # response = Faraday.get(Settings.vbms.url)
-      # response.status == 200
-      # VBMS does not have upper level access yet, just return true
-      true
+      response = Faraday.get(Settings.vbms.url)
+      response.status == 200
     end
   end
 end

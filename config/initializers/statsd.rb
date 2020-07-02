@@ -18,18 +18,10 @@ StatsD.backend = if host.present? && port.present?
   V1::SessionsController::REDIRECT_URLS.each do |t|
     StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
                      tags: ["version:#{v}", "context:#{t}"])
-    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_FORCEAUTH, 0,
-                     tags: ["version:#{v}", "context:#{t}"])
-    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_INBOUND, 0,
-                     tags: ["version:#{v}", "context:#{t}"])
     StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
                      tags: ["version:#{v}", "context:#{t}"])
     StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
                      tags: ["version:#{v}", "context:#{t}"])
-    %w[success failure].each do |s|
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_INBOUND, 0,
-                       tags: ["version:#{v}", "context:#{t}", "status:#{s}"])
-    end
   end
   %w[success failure].each do |s|
     (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|

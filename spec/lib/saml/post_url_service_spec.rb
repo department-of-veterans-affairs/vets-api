@@ -238,18 +238,18 @@ RSpec.describe SAML::PostURLService do
 
           context 'for a user authenticating with inbound ssoe' do
             let(:user) { build(:user, :loa3) }
-            let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}', inbound: 'true' } }
+            let(:params) { { action: 'saml_callback', RelayState: '{"type":"custom"}', type: 'custom' } }
 
             it 'is successful' do
               expect(subject.login_redirect_url)
-                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=custom')
             end
 
             it 'is a failure' do
               expect(subject.login_redirect_url(auth: 'fail', code: '001'))
                 .to eq(values[:base_redirect] +
                        SAML::URLService::LOGIN_REDIRECT_PARTIAL +
-                       '?auth=force-needed&code=001&type=idme')
+                       '?auth=force-needed&code=001&type=custom')
             end
           end
         end

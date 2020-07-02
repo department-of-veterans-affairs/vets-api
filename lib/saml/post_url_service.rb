@@ -47,10 +47,10 @@ module SAML
         return redirect_target if redirect_target.present?
       end
 
-      # if the original auth request specified inbound ssoe and authentication
-      # failed, set 'force-needed' so the FE can silently fail authentication and NOT
-      # show the user an error page
-      auth = 'force-needed' if (auth != 'success') && @tracker&.payload_attr(:inbound_ssoe)
+      # if the original auth request was an inbound ssoe autologin (type custom)
+      # and authentication failed, set 'force-needed' so the FE can silently fail
+      # authentication and NOT show the user an error page
+      auth = 'force-needed' if auth != 'success' && @tracker&.payload_attr(:type) == 'custom'
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth != 'success'
@@ -81,7 +81,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      save_saml_request_tracker(saml_auth_request.uuid)
+      save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
       post_params = saml_auth_request.create_params(new_url_settings, 'RelayState' => relay_state_params)
       login_url = new_url_settings.idp_sso_target_url
       [login_url, post_params]
