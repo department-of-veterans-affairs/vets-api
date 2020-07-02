@@ -123,7 +123,7 @@ module V1
                                locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
-      Rails.logger.info('SSOe SAML sent')
+      Rails.logger.info('SSOe: SAML Request')
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
