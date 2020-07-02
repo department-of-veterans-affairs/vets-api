@@ -229,7 +229,7 @@ module SAML
 
     def save_saml_request_tracker(uuid, authn_context)
       @tracker.uuid = uuid
-      @tracker.payload['authn_context'] = authn_context
+      @tracker.payload[:authn_context] = authn_context
       @tracker.save
     end
   end
