@@ -61,7 +61,9 @@ module V1
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
-      redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: '007') unless performed?
+      unless performed?
+        redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: '007')
+      end
       callback_stats(:failed_unknown)
     ensure
       callback_stats(:total)
