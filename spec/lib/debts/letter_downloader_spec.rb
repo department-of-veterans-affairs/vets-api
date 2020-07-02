@@ -9,7 +9,7 @@ RSpec.describe Debts::LetterDownloader do
   let(:file_number) { '796330625' }
   let(:vbms_client) { FakeVbms.new }
 
-  def stub_request(request_name, args, return_val)
+  def stub_vbms_client_request(request_name, args, return_val)
     request_double = double
     expect("VBMS::Requests::#{request_name}".constantize).to receive(:new).with(args).and_return(request_double)
 
@@ -27,7 +27,11 @@ RSpec.describe Debts::LetterDownloader do
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(vbms_client)
 
-    stub_request('FindDocumentVersionReference', file_number, get_vbms_fixture('find_document_version_reference'))
+    stub_vbms_client_request(
+      'FindDocumentVersionReference',
+      file_number,
+      get_vbms_fixture('find_document_version_reference')
+    )
   end
 
   describe '#get_letter' do
@@ -36,7 +40,7 @@ RSpec.describe Debts::LetterDownloader do
       let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
 
       before do
-        stub_request(
+        stub_vbms_client_request(
           'GetDocumentContent',
           document_id,
           OpenStruct.new(
