@@ -116,8 +116,8 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
             ]
           }
 
-          expect_any_instance_of(CARMA::Client::Client).not_to receive(:upload_attachments)
-          expect_any_instance_of(CARMA::Client::Client).to receive(:upload_attachments_stub).with(
+          expect(CARMA::Client::Client.instance).not_to receive(:upload_attachments)
+          expect(CARMA::Client::Client.instance).to receive(:upload_attachments_stub).with(
             expected_request_payload
           ).and_return(
             expected_response
@@ -173,8 +173,8 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
               ]
             }
 
-            expect_any_instance_of(CARMA::Client::Client).not_to receive(:upload_attachments)
-            expect_any_instance_of(CARMA::Client::Client).to receive(:upload_attachments_stub).with(
+            expect(CARMA::Client::Client.instance).not_to receive(:upload_attachments)
+            expect(CARMA::Client::Client.instance).to receive(:upload_attachments_stub).with(
               expected_request_payload
             ).and_return(
               expected_response
@@ -226,8 +226,8 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
             ]
           }
 
-          expect_any_instance_of(CARMA::Client::Client).not_to receive(:upload_attachments_stub)
-          expect_any_instance_of(CARMA::Client::Client).to receive(:upload_attachments).with(
+          expect(CARMA::Client::Client.instance).not_to receive(:upload_attachments_stub)
+          expect(CARMA::Client::Client.instance).to receive(:upload_attachments).with(
             expected_request_payload
           ).and_return(
             expected_response
@@ -283,8 +283,8 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
               ]
             }
 
-            expect_any_instance_of(CARMA::Client::Client).not_to receive(:upload_attachments_stub)
-            expect_any_instance_of(CARMA::Client::Client).to receive(:upload_attachments).with(
+            expect(CARMA::Client::Client.instance).not_to receive(:upload_attachments_stub)
+            expect(CARMA::Client::Client.instance).to receive(:upload_attachments).with(
               expected_request_payload
             ).and_return(
               expected_response
