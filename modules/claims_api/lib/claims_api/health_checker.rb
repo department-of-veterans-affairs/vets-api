@@ -6,14 +6,14 @@ module ClaimsApi
 
     def self.services_are_healthy?
       # TODO: we should add check for Okta and SAML Proxies being up as well
-      mvi_is_healthy? && evss_is_healthy? && bgs_is_healthy? && vbms_is_healthy?
+      mpi_is_healthy? && evss_is_healthy? && bgs_is_healthy? && vbms_is_healthy?
     end
 
     def self.evss_is_healthy?
       EVSS::Service.service_is_up?
     end
 
-    def self.mvi_is_healthy?
+    def self.mpi_is_healthy?
       MPI::Service.service_is_up?
     end
 
