@@ -85,7 +85,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            let(:authn) {
+            let(:authn) do
               case type
               when 'mhv'
                 'myhealthevet'
@@ -94,7 +94,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               when 'dslogon'
                 'dslogon'
               end
-            }
+            end
 
             it 'presents login form' do
               expect(SAML::SSOeSettingsService)
@@ -124,10 +124,10 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAMLRequestTracker.keys.length).to eq(1)
               expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
                 .to eq({
-                        redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/',
-                        type: type,
-                        authn_context: authn
-                      })
+                         redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/',
+                         type: type,
+                         authn_context: authn
+                       })
             end
 
             it 'adds to parameter to application redirect' do
@@ -144,11 +144,11 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAMLRequestTracker.keys.length).to eq(1)
               expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
                 .to eq({
-                        redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com'\
-                        + '/session-api/realm/realm_uuid',
-                        type: type,
-                        authn_context: authn
-                      })
+                         redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com'\
+                         + '/session-api/realm/realm_uuid',
+                         type: type,
+                         authn_context: authn
+                       })
             end
 
             it 'allows nested to parameter' do
@@ -166,11 +166,11 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAMLRequestTracker.keys.length).to eq(1)
               expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
                 .to eq({
-                        redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com'\
-                        + '/session-api/realm/realm_uuid?to=https://ehrm.example.com',
-                        type: type,
-                        authn_context: authn
-                      })
+                         redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com'\
+                         + '/session-api/realm/realm_uuid?to=https://ehrm.example.com',
+                         type: type,
+                         authn_context: authn
+                       })
             end
 
             it 'strips CRLF characters from to parameter' do
@@ -204,9 +204,9 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAMLRequestTracker.keys.length).to eq(1)
               expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
                 .to eq({
-                        type: type,
-                        authn_context: authn
-                      })
+                         type: type,
+                         authn_context: authn
+                       })
             end
           end
         end
@@ -227,9 +227,9 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect(SAMLRequestTracker.keys.length).to eq(1)
             expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
               .to eq({
-                      type: 'custom',
-                      authn_context: 'myhealthevet'
-                    })
+                       type: 'custom',
+                       authn_context: 'myhealthevet'
+                     })
           end
 
           it 'raises exception when missing authn parameter' do
