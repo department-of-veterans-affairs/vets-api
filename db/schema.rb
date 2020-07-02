@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_22_154300) do
+ActiveRecord::Schema.define(version: 2020_05_08_201027) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -243,14 +243,6 @@ ActiveRecord::Schema.define(version: 2020_05_22_154300) do
     t.string "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "form1010cg_submissions", force: :cascade do |t|
-    t.string "carma_case_id", limit: 18, null: false
-    t.datetime "submitted_at", null: false
-    t.bigint "saved_claim_id", null: false
-    t.index ["carma_case_id"], name: "index_form1010cg_submissions_on_carma_case_id", unique: true
-    t.index ["saved_claim_id"], name: "index_form1010cg_submissions_on_saved_claim_id"
   end
 
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
@@ -577,5 +569,4 @@ ActiveRecord::Schema.define(version: 2020_05_22_154300) do
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
   end
 
-  add_foreign_key "form1010cg_submissions", "saved_claims"
 end
