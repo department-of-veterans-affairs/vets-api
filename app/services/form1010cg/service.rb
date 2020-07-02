@@ -58,7 +58,7 @@ module Form1010cg
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
     # @return [Form1010cg::Submission]
-    def submit_attachments!(delete_after_processing = true)
+    def submit_attachments!
       raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
       raise 'submission already has attachments'  if  submission.attachments.any?
 
@@ -76,7 +76,7 @@ module Form1010cg
       carma_attachments.submit!
       submission.attachments = carma_attachments.to_h
 
-      File.delete(file_path) if delete_after_processing
+      File.delete(file_path)
 
       submission
     end

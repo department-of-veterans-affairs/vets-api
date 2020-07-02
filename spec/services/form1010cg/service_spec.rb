@@ -615,6 +615,8 @@ RSpec.describe Form1010cg::Service do
         carma_submission
       }
 
+      expect(subject).to receive(:submit_attachments!)
+
       result = subject.process_claim!
 
       expect(result).to be_a(Form1010cg::Submission)
