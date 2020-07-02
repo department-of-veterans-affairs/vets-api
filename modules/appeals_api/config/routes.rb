@@ -23,7 +23,7 @@ AppealsApi::Engine.routes.draw do
   end
 
   namespace :docs do
-    namespace :v0 { resources :api, only: [:index] }
+    namespace(:v0) { resources :api, only: [:index] }
     namespace :v1, defaults: { format: 'json' } do
       get 'decision_reviews', to: 'docs#decision_reviews'
     end
