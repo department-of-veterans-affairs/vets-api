@@ -9,6 +9,7 @@ class AppealsApi::V1::ContestableIssuesControllerSwagger
 
   swagger_path '/contestable_issues' do
     operation :get, tags: ['Issues'] do
+      key :operationId, 'getContestableIssues'
       key :summary, 'Returns all contestable issues for a specific veteran.'
       desc = 'Returns all issues a Veteran could contest in a Decision Review as of the `receiptDate`. ' \
         'Associate these results when creating new Decision Reviews.'
@@ -23,6 +24,9 @@ class AppealsApi::V1::ContestableIssuesControllerSwagger
         schema type: :string, 'format': :date
       end
       key :responses, read_json_from_same_dir['responses_contestable_issues.json']
+      security do
+        key :apikey, []
+      end
     end
   end
 end

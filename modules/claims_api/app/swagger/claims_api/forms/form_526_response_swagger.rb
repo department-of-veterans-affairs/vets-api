@@ -341,7 +341,7 @@ module ClaimsApi
 
                   property :unitPhone do
                     key :type, :object
-                    key :description, 'Phone number Object for Vetern\'s old unit'
+                    key :description, 'Phone number Object for Veteran\'s old unit'
 
                     property :areaCode do
                       key :type, :string
