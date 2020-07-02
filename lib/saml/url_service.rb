@@ -169,7 +169,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      save_saml_request_tracker(saml_auth_request.uuid)
+      save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -227,8 +227,9 @@ module SAML
       )
     end
 
-    def save_saml_request_tracker(uuid)
+    def save_saml_request_tracker(uuid, authn_context)
       @tracker.uuid = uuid
+      @tracker.payload['authn_context'] = authn_context
       @tracker.save
     end
   end

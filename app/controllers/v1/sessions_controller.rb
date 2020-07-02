@@ -49,8 +49,8 @@ module V1
     end
 
     def saml_callback
-      Rails.logger.info('SSOe: SAML Response')
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+      Rails.logger.info("SSOe: SAML Response => #{saml_response.authn_context}")
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
@@ -116,22 +116,22 @@ module V1
     end
 
     def render_login(type, previous_saml_uuid = nil)
-      login_url, post_params = login_params(type, previous_saml_uuid)
+      force = (type != 'custom')
+      helper = url_service(previous_saml_uuid, force)
+      login_url, post_params = login_params(type, helper)
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
                                locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
-      Rails.logger.info('SSOe: SAML Request')
+      Rails.logger.info("SSOe: SAML Request => #{helper.tracker.payload_attr(:authn_context)}")
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
-    def login_params(type, previous_saml_uuid = nil)
+    def login_params(type, helper)
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
 
-      force = (type != 'custom')
-      helper = url_service(previous_saml_uuid, force)
       case type
       when 'signup'
         helper.signup_url
