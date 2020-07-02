@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class SystemsService < VAOS::BaseService
+  class SystemsService < VAOS::SessionService
     AVAILABLE_APPT_FMT = '%m/%d/%Y'
 
     def get_systems
