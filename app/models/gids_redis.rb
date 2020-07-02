@@ -19,6 +19,10 @@ class GIDSRedis < Common::RedisStore
       self.rest_call = name
       self.scrubbed_params = args.first
       response_from_redis_or_service.body
+    elsif search_respond_to?(name)
+      self.rest_call = name
+      self.scrubbed_params = args.first
+      response_from_redis_or_search_service.body
     else
       super
     end
@@ -28,16 +32,8 @@ class GIDSRedis < Common::RedisStore
     gi_service.respond_to?(name)
   end
 
-  def get_institution_search_results(params)
-    do_cached_with(key: 'get_institution_search_results' + params.to_s) do
-      gi_search_service.get_institution_search_results(params)
-    end
-  end
-
-  def get_institution_program_search_results(params)
-    do_cached_with(key: 'get_institution_program_search_results' + params.to_s) do
-      gi_search_service.get_institution_program_search_results(params)
-    end
+  def search_respond_to?(name)
+    gi_search_service.respond_to?(name)
   end
 
   private
@@ -45,6 +41,12 @@ class GIDSRedis < Common::RedisStore
   def response_from_redis_or_service
     do_cached_with(key: rest_call.to_s + scrubbed_params.to_s) do
       gi_service.send(rest_call, scrubbed_params)
+    end
+  end
+
+  def response_from_redis_or_search_service
+    do_cached_with(key: rest_call.to_s + scrubbed_params.to_s) do
+      gi_search_service.send(rest_call, scrubbed_params)
     end
   end
 
