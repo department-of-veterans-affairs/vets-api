@@ -18,7 +18,7 @@ RSpec.describe VeteranConfirmation::StatusService do
     let(:server_error) { MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:server_error] }
 
     let(:mvi_profile) do
-      profile = MPI::Models::MpiProfile.new
+      profile = MPI::Models::MPIProfile.new
       profile.edipi = '1005490754'
       response = MPI::Responses::FindProfileResponse.new
       response.profile = profile

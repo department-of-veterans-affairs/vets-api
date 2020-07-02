@@ -27,7 +27,7 @@ FactoryBot.modify do
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
       after(:build) do |user, _t|
         profile = build(
-          :mvi_profile,
+          :mpi_profile,
           given_names: %w[Judy Snow],
           family_name: 'Morrison',
           suffix: nil,
@@ -36,7 +36,7 @@ FactoryBot.modify do
           edipi: '1259897978',
           birls_id: nil,
           vet360_id: '63807',
-          full_mvi_ids: %w[
+          full_mpi_ids: %w[
             1012845331V153043^NI^200M^USVHA^P 1259897978^NI^200DOD^USDOD^A 0000027819^PN^200PROV^USDVA^A
             7216691^PI^983^USVHA^A 552161050^PI^984^USVHA^A 63807^PI^200VETS^USDVA^A
             3071ca1783954ec19170f3c4bdfd0c95^PN^200VIDM^USDVA^A 16701377^PI^200MHS^USVHA^A

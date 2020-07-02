@@ -2167,7 +2167,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
           MPI::Responses::FindProfileResponse.new(
             status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-            profile: build(:mvi_profile, vet360_id: '1')
+            profile: build(:mpi_profile, vet360_id: '1')
           )
         )
       end
@@ -2303,8 +2303,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'when MVI returns an unexpected response body' do
       it 'supports returning a custom 502 response' do
-        allow_any_instance_of(MPI::Models::MpiProfile).to receive(:gender).and_return(nil)
-        allow_any_instance_of(MPI::Models::MpiProfile).to receive(:birth_date).and_return(nil)
+        allow_any_instance_of(MPI::Models::MPIProfile).to receive(:gender).and_return(nil)
+        allow_any_instance_of(MPI::Models::MPIProfile).to receive(:birth_date).and_return(nil)
 
         VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 502, headers)

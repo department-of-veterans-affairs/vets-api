@@ -2,7 +2,7 @@
 
 module MPI
   module Models
-    class MpiProfileAddress
+    class MPIProfileAddress
       include Virtus.model
 
       attribute :street, String

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe MhvAccountsService do
   let(:mvi_profile) do
-    build(:mvi_profile,
+    build(:mpi_profile,
           icn: '1012667122V019349',
           given_names: %w[Hector],
           family_name: 'Allen',
@@ -19,7 +19,7 @@ RSpec.describe MhvAccountsService do
   end
 
   let(:mvi_profile_address) do
-    build(:mvi_profile_address,
+    build(:mpi_profile_address,
           street: '20140624',
           city: 'Houston',
           state: 'TX',

@@ -4,7 +4,7 @@ require 'sentry_logging'
 
 module MPI
   module Responses
-    # Parses a MVI response and returns a MpiProfile
+    # Parses a MVI response and returns a MPIProfile
     class ProfileParser
       include SentryLogging
 
@@ -74,9 +74,9 @@ module MPI
         acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
 
-      # Parse the response and builds an MpiProfile.
+      # Parse the response and builds an MPIProfile.
       #
-      # @return [MpiProfile] the profile from the parsed response
+      # @return [MPIProfile] the profile from the parsed response
       def parse
         subject = locate_element(@original_body, SUBJECT_XPATH)
         return nil unless subject
@@ -84,19 +84,19 @@ module MPI
         patient = locate_element(subject, PATIENT_XPATH)
         return nil unless patient
 
-        build_mvi_profile(patient)
+        build_mpi_profile(patient)
       end
 
       private
 
       # rubocop:disable Metrics/MethodLength
       # rubocop:disable Metrics/AbcSize
-      def build_mvi_profile(patient)
+      def build_mpi_profile(patient)
         name = parse_name(get_patient_name(patient))
-        full_mvi_ids = get_extensions(patient.locate('id'))
-        parsed_mvi_ids = MPI::Responses::IdParser.new.parse(patient.locate('id'))
-        log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
-        MPI::Models::MpiProfile.new(
+        full_mpi_ids = get_extensions(patient.locate('id'))
+        parsed_mpi_ids = MPI::Responses::IdParser.new.parse(patient.locate('id'))
+        log_inactive_mhv_ids(parsed_mpi_ids[:mhv_ids].to_a, parsed_mpi_ids[:active_mhv_ids].to_a)
+        MPI::Models::MPIProfile.new(
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
@@ -105,21 +105,21 @@ module MPI
           ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
           address: parse_address(patient),
           home_phone: parse_phone(patient),
-          full_mvi_ids: full_mvi_ids,
-          icn: parsed_mvi_ids[:icn],
-          mhv_ids: parsed_mvi_ids[:mhv_ids],
-          active_mhv_ids: parsed_mvi_ids[:active_mhv_ids],
-          edipi: sanitize_edipi(parsed_mvi_ids[:edipi]),
-          participant_id: sanitize_participant_id(parsed_mvi_ids[:vba_corp_id]),
-          vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
-          sec_id: parsed_mvi_ids[:sec_id],
-          birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
-          vet360_id: parsed_mvi_ids[:vet360_id],
+          full_mpi_ids: full_mpi_ids,
+          icn: parsed_mpi_ids[:icn],
+          mhv_ids: parsed_mpi_ids[:mhv_ids],
+          active_mhv_ids: parsed_mpi_ids[:active_mhv_ids],
+          edipi: sanitize_edipi(parsed_mpi_ids[:edipi]),
+          participant_id: sanitize_participant_id(parsed_mpi_ids[:vba_corp_id]),
+          vha_facility_ids: parsed_mpi_ids[:vha_facility_ids],
+          sec_id: parsed_mpi_ids[:sec_id],
+          birls_id: sanitize_birls_id(parsed_mpi_ids[:birls_id]),
+          vet360_id: parsed_mpi_ids[:vet360_id],
           historical_icns: MPI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
-          icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
+          icn_with_aaid: parsed_mpi_ids[:icn_with_aaid],
           search_token: locate_element(@original_body, 'id').attributes[:extension],
-          cerner_id: parsed_mvi_ids[:cerner_id],
-          cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids]
+          cerner_id: parsed_mpi_ids[:cerner_id],
+          cerner_facility_ids: parsed_mpi_ids[:cerner_facility_ids]
         )
       end
       # rubocop:enable Metrics/AbcSize
@@ -215,7 +215,7 @@ module MPI
 
         address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
         address_hash[:street] = address_hash.delete :street_address_line
-        MPI::Models::MpiProfileAddress.new(address_hash)
+        MPI::Models::MPIProfileAddress.new(address_hash)
       end
 
       def parse_phone(patient)

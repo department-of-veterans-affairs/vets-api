@@ -4,7 +4,7 @@ require 'common/models/attribute_types/date_time_string'
 
 module MPI
   module Models
-    class MpiProfile
+    class MPIProfile
       include Virtus.model
 
       attribute :given_names, Array[String]
@@ -13,9 +13,9 @@ module MPI
       attribute :gender, String
       attribute :birth_date, Common::DateTimeString
       attribute :ssn, String
-      attribute :address, MpiProfileAddress
+      attribute :address, MPIProfileAddress
       attribute :home_phone, String
-      attribute :full_mvi_ids, Array[String]
+      attribute :full_mpi_ids, Array[String]
       attribute :icn, String
       attribute :icn_with_aaid, String
       attribute :mhv_ids, Array[String]

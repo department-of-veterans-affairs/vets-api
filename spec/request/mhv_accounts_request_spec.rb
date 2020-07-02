@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Account creation and upgrade', type: :request do
-  let(:mvi_profile) do
-    build(:mvi_profile,
+  let(:mpi_profile) do
+    build(:mpi_profile,
           icn: '1012667122V019349',
           given_names: %w[Hector],
           family_name: 'Allen',
@@ -15,11 +15,11 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           mhv_ids: mhv_ids,
           vha_facility_ids: vha_facility_ids,
           home_phone: nil,
-          address: mvi_profile_address)
+          address: mpi_profile_address)
   end
 
-  let(:mvi_profile_address) do
-    build(:mvi_profile_address,
+  let(:mpi_profile_address) do
+    build(:mpi_profile_address,
           street: '20140624',
           city: 'Houston',
           state: 'TX',
@@ -30,14 +30,14 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   let(:user) do
     create(:user, :loa3,
            ssn: user_ssn,
-           first_name: mvi_profile.given_names.first,
-           last_name: mvi_profile.family_name,
-           gender: mvi_profile.gender,
-           birth_date: mvi_profile.birth_date,
+           first_name: mpi_profile.given_names.first,
+           last_name: mpi_profile.family_name,
+           gender: mpi_profile.gender,
+           birth_date: mpi_profile.birth_date,
            email: 'vets.gov.user+0@gmail.com')
   end
 
-  let(:user_ssn) { mvi_profile.ssn }
+  let(:user_ssn) { mpi_profile.ssn }
 
   let(:mhv_ids) { [] }
   let(:vha_facility_ids) { ['450'] }
@@ -45,7 +45,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
 
   before do
-    stub_mvi(mvi_profile)
+    stub_mvi(mpi_profile)
     sign_in_as(user)
   end
 

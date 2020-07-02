@@ -21,9 +21,9 @@ class MPIData < Common::RedisStore
   # @param user [User] the user to query MVI for
   # @return [MPIData] an instance of this class
   def self.for_user(user)
-    mvi = MPIData.new
-    mvi.user = user
-    mvi
+    mpi = MPIData.new
+    mpi.user = user
+    mpi
   end
 
   # A DOD EDIPI (Electronic Data Interchange Personal Identifier) MVI correlation ID
@@ -79,7 +79,7 @@ class MPIData < Common::RedisStore
 
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
-  # @return [MPI::Models::MpiProfile] patient 'golden record' data from MVI
+  # @return [MPI::Models::MPIProfile] patient 'golden record' data from MVI
   def profile
     return nil unless user.loa3?
 

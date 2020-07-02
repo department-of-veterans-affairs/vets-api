@@ -35,10 +35,10 @@ RSpec.describe User, type: :model do
 
   describe '#ssn_mismatch?', :skip_mvi do
     let(:user) { build(:user, :loa3) }
-    let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }
+    let(:mpi_profile) { build(:mpi_profile, ssn: 'unmatched-ssn') }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mvi(mpi_profile)
     end
 
     it 'returns true if user loa3?, and ssns dont match' do
@@ -65,7 +65,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'mvi ssn is nil' do
-      let(:mvi_profile) { build(:mvi_profile, ssn: nil) }
+      let(:mpi_profile) { build(:mpi_profile, ssn: nil) }
 
       it 'returns false' do
         expect(user).to be_loa3
@@ -76,7 +76,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'matched ssn' do
-      let(:mvi_profile) { build(:mvi_profile, ssn: user.ssn) }
+      let(:mpi_profile) { build(:mpi_profile, ssn: user.ssn) }
 
       it 'returns false if user identity ssn is nil' do
         expect(user).to be_loa3
@@ -192,11 +192,11 @@ RSpec.describe User, type: :model do
 
     describe 'getter methods' do
       context 'when saml user attributes available, icn is available, and user LOA3' do
-        let(:mvi_profile) { build(:mvi_profile) }
-        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
+        let(:mpi_profile) { build(:mpi_profile) }
+        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mpi_profile.icn) }
 
         before do
-          stub_mvi(mvi_profile)
+          stub_mvi(mpi_profile)
         end
 
         it 'fetches first_name from IDENTITY' do
@@ -242,17 +242,17 @@ RSpec.describe User, type: :model do
       end
 
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
-        let(:mvi_profile) { build(:mvi_profile) }
-        let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+        let(:mpi_profile) { build(:mpi_profile) }
+        let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mpi_profile.icn) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mvi(mpi_profile) }
 
         it 'fetches first_name from MVI' do
           expect(user.first_name).to be(user.va_profile.given_names.first)
         end
 
         context 'when given_names has no middle_name' do
-          let(:mvi_profile) { build(:mvi_profile, given_names: ['Joe']) }
+          let(:mpi_profile) { build(:mpi_profile, given_names: ['Joe']) }
 
           it 'fetches middle name from MVI' do
             expect(user.middle_name).to be_nil
@@ -260,7 +260,7 @@ RSpec.describe User, type: :model do
         end
 
         context 'when given_names has middle_name' do
-          let(:mvi_profile) { build(:mvi_profile, given_names: %w[Joe Bob]) }
+          let(:mpi_profile) { build(:mpi_profile, given_names: %w[Joe Bob]) }
 
           it 'fetches middle name from MVI' do
             expect(user.middle_name).to eq('Bob')
@@ -268,7 +268,7 @@ RSpec.describe User, type: :model do
         end
 
         context 'when given_names has multiple middle names' do
-          let(:mvi_profile) { build(:mvi_profile, given_names: %w[Michael Joe Bob Sinclair]) }
+          let(:mpi_profile) { build(:mpi_profile, given_names: %w[Michael Joe Bob Sinclair]) }
 
           it 'fetches middle name from MVI' do
             expect(user.middle_name).to eq('Joe Bob Sinclair')
@@ -297,10 +297,10 @@ RSpec.describe User, type: :model do
       end
 
       context 'when saml user attributes NOT available, icn is available, and user NOT LOA3' do
-        let(:mvi_profile) { build(:mvi_profile) }
-        let(:user) { build(:user, :loa1, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+        let(:mpi_profile) { build(:mpi_profile) }
+        let(:user) { build(:user, :loa1, :mhv_sign_in, mhv_icn: mpi_profile.icn) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mvi(mpi_profile) }
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be_nil
@@ -332,10 +332,10 @@ RSpec.describe User, type: :model do
       end
 
       context 'when icn is not available from saml data' do
-        let(:mvi_profile) { build(:mvi_profile) }
+        let(:mpi_profile) { build(:mpi_profile) }
         let(:user) { build(:user, :loa3) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mvi(mpi_profile) }
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be(user.identity.first_name)
@@ -377,12 +377,12 @@ RSpec.describe User, type: :model do
 
         context 'when there are mhv ids' do
           let(:loa3_user) { build(:user, :loa3) }
-          let(:mvi_profile) { build(:mvi_profile) }
+          let(:mpi_profile) { build(:mpi_profile) }
 
           it 'has a mhv correlation id' do
-            stub_mvi(mvi_profile)
-            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
-            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.active_mhv_ids.first)
+            stub_mvi(mpi_profile)
+            expect(loa3_user.mhv_correlation_id).to eq(mpi_profile.mhv_ids.first)
+            expect(loa3_user.mhv_correlation_id).to eq(mpi_profile.active_mhv_ids.first)
           end
         end
       end
@@ -401,7 +401,7 @@ RSpec.describe User, type: :model do
     let(:user) { build(:user, :loa3) }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mvi(mpi_profile)
     end
 
     around do |example|
@@ -413,7 +413,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when there are no facilities' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: []) }
 
       it 'is false' do
         expect(user).not_to be_va_patient
@@ -421,7 +421,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when there are nil facilities' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: nil) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: nil) }
 
       it 'is false' do
         expect(user).not_to be_va_patient
@@ -429,7 +429,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when there are no facilities in the defined range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [200, 759]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: [200, 759]) }
 
       it 'is false' do
         expect(user).not_to be_va_patient
@@ -437,7 +437,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when facility is at the bottom edge of range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [450]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: [450]) }
 
       it 'is true' do
         expect(user).to be_va_patient
@@ -445,7 +445,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when alphanumeric facility is at the bottom edge of range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: %w[450MH]) }
 
       it 'is true' do
         expect(user).to be_va_patient
@@ -453,7 +453,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when facility is at the top edge of range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [758]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: [758]) }
 
       it 'is true' do
         expect(user).to be_va_patient
@@ -461,7 +461,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when alphanumeric facility is at the top edge of range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[758MH]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: %w[758MH]) }
 
       it 'is true' do
         expect(user).to be_va_patient
@@ -469,7 +469,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when there are multiple alphanumeric facilities all within defined range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH 758MH]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: %w[450MH 758MH]) }
 
       it 'is true' do
         expect(user).to be_va_patient
@@ -477,7 +477,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when there are multiple facilities all outside of defined range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[449MH 759MH]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: %w[449MH 759MH]) }
 
       it 'is false' do
         expect(user).not_to be_va_patient
@@ -485,7 +485,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when it matches exactly to a facility_specific' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759MM]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: %w[759MM]) }
 
       it 'is true' do
         expect(user).to be_va_patient
@@ -493,7 +493,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when it does not match exactly to a facility_specific and is outside of ranges' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759]) }
+      let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: %w[759]) }
 
       it 'is false' do
         expect(user).not_to be_va_patient
@@ -503,10 +503,10 @@ RSpec.describe User, type: :model do
 
   describe '#va_treatment_facility_ids' do
     let(:user) { build(:user, :loa3) }
-    let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[200MHS 400 741 744]) }
+    let(:mpi_profile) { build(:mpi_profile, vha_facility_ids: %w[200MHS 400 741 744]) }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mvi(mpi_profile)
     end
 
     it 'filters out fake vha facility ids that arent in Settings.mhv.facility_range' do

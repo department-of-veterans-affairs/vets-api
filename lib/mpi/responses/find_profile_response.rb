@@ -15,8 +15,8 @@ module MPI
       # @return [String] The status of the response
       attribute :status, String
 
-      # @return [MPI::Models::MpiProfile] The parsed MVI profile
-      attribute :profile, MPI::Models::MpiProfile
+      # @return [MPI::Models::MPIProfile] The parsed MVI profile
+      attribute :profile, MPI::Models::MPIProfile
 
       # @return [Common::Exceptions::BackendServiceException] The rescued exception
       attribute :error, Common::Exceptions::BackendServiceException
@@ -46,7 +46,7 @@ module MPI
       # Builds a response with a ok status and a parsed response
       #
       # @param response [Ox::Element] ox element returned from the soap service middleware
-      # @return [MPI::Responses::FindProfileResponse] response with a parsed MpiProfile
+      # @return [MPI::Responses::FindProfileResponse] response with a parsed MPIProfile
       def self.with_parsed_response(response)
         profile_parser = ProfileParser.new(response)
         profile = profile_parser.parse

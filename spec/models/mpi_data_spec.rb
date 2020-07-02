@@ -7,7 +7,7 @@ require 'support/mvi/stub_mvi'
 describe MPIData, skip_mvi: true do
   let(:user) { build(:user, :loa3) }
   let(:mvi) { MPIData.for_user(user) }
-  let(:mvi_profile) { build(:mvi_profile) }
+  let(:mvi_profile) { build(:mpi_profile) }
   let(:mpi_codes) do
     {
       birls_id: '111985523',

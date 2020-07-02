@@ -152,7 +152,7 @@ FactoryBot.define do
       after(:build) do
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             birls_id: nil,
             participant_id: nil
           )
@@ -164,7 +164,7 @@ FactoryBot.define do
       after(:build) do
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             birls_id: nil
           )
         )
@@ -175,7 +175,7 @@ FactoryBot.define do
       after(:build) do
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             sec_id: nil
           )
         )
@@ -186,7 +186,7 @@ FactoryBot.define do
       after(:build) do
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             vet360_id: '1411684'
           )
         )
@@ -202,7 +202,7 @@ FactoryBot.define do
       after(:build) do
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             edipi: '1007697216',
             birls_id: '796043735',
             participant_id: '600061742',
@@ -221,7 +221,7 @@ FactoryBot.define do
       after(:build) do
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             edipi: nil,
             birls_id: '796043735',
             participant_id: nil,
@@ -239,7 +239,7 @@ FactoryBot.define do
       ssn { '796068949' }
 
       after(:build) do
-        stub_mvi(build(:mvi_profile, birls_id: '796068948'))
+        stub_mvi(build(:mpi_profile, birls_id: '796068948'))
       end
     end
 
@@ -252,7 +252,7 @@ FactoryBot.define do
       after(:build) do
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             edipi: '1007697216',
             birls_id: '796043735',
             participant_id: nil,
@@ -277,7 +277,7 @@ FactoryBot.define do
       after(:build) do
         stub_mvi(
           build(
-            :mvi_profile_response,
+            :mpi_profile_response,
             edipi: '1007697216',
             birls_id: '796043735',
             participant_id: '600061742',
@@ -352,7 +352,7 @@ FactoryBot.define do
       after(:build) do |_user, t|
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             icn: '1000123456V123456',
             mhv_ids: %w[12345678901],
             vha_facility_ids: t.va_patient ? %w[358 200MHS] : []
@@ -399,7 +399,7 @@ FactoryBot.define do
       after(:build) do |_user, t|
         stub_mvi(
           build(
-            :mvi_profile,
+            :mpi_profile,
             icn: '1000123456V123456',
             mhv_ids: %w[12345678901],
             vha_facility_ids: t.va_patient ? %w[358] : []

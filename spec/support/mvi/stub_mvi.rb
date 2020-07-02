@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 def stub_mvi(profile = nil)
-  profile ||= build(:mvi_profile)
+  profile ||= build(:mpi_profile)
   # don't allow MPIData instances to be frozen during specs so that
   # response_from_redis_or_service can always be reset
   # (avoids WARNING: rspec-mocks was unable to restore the original... message)

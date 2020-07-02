@@ -12,21 +12,21 @@ FactoryBot.define do
 end
 
 FactoryBot.define do
-  factory :mvi_profile_address, class: 'MPI::Models::MpiProfileAddress' do
+  factory :mpi_profile_address, class: 'MPI::Models::MPIProfileAddress' do
     street { "#{street}, #{street2}" }
     city { Faker::Address.city[0...20] }
     state { Faker::Address.state_abbr }
     postal_code { Faker::Address.zip }
     country { 'USA' }
 
-    factory :mvi_profile_address_austin do
+    factory :mpi_profile_address_austin do
       street { '121 A St' }
       city { 'Austin' }
       state { 'TX' }
       postal_code { '78772' }
     end
 
-    factory :mvi_profile_address_springfield do
+    factory :mpi_profile_address_springfield do
       street { '42 MAIN ST' }
       city { 'SPRINGFIELD' }
       state { 'IL' }
@@ -36,16 +36,16 @@ FactoryBot.define do
 end
 
 FactoryBot.define do
-  factory :mvi_profile, class: 'MPI::Models::MpiProfile' do
+  factory :mpi_profile, class: 'MPI::Models::MPIProfile' do
     given_names { Array.new(2) { Faker::Name.first_name } }
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }
     gender { Faker::Medical::Patient.gender }
     birth_date { Faker::Date.between(from: 80.years.ago, to: 30.years.ago).strftime('%Y%m%d') }
     ssn { Faker::Medical::SSN.ssn.delete('-') }
-    address { build(:mvi_profile_address) }
+    address { build(:mpi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
-    full_mvi_ids {
+    full_mpi_ids {
       [
         '1000123456V123456^NI^200M^USVHA^P',
         '12345^PI^516^USVHA^PCE',
@@ -69,7 +69,7 @@ FactoryBot.define do
     historical_icns { %w[1000123457V123456 1000123458V123456] }
     search_token { 'WSDOC2002071538432741110027956' }
 
-    factory :mvi_profile_response do
+    factory :mpi_profile_response do
       given_names { %w[John William] }
       family_name { 'Smith' }
       suffix { 'Sr' }
@@ -77,7 +77,7 @@ FactoryBot.define do
       birth_date { '19800101' }
       ssn { '555443333' }
       home_phone { '1112223333' }
-      full_mvi_ids {
+      full_mpi_ids {
         [
           '1000123456V123456^NI^200M^USVHA^P',
           '12345^PI^516^USVHA^PCE',
@@ -121,7 +121,7 @@ FactoryBot.define do
         family_name { 'Ranger' }
         suffix { nil }
         ssn { '111223333' }
-        address { build(:mvi_profile_address_springfield) }
+        address { build(:mpi_profile_address_springfield) }
         home_phone { '1112223333 p1' }
         icn { '12345678901234567' }
         sec_id { '0001234567' }
@@ -135,7 +135,7 @@ FactoryBot.define do
       end
 
       trait :address_austin do
-        address { build(:mvi_profile_address_austin) }
+        address { build(:mpi_profile_address_austin) }
       end
     end
   end

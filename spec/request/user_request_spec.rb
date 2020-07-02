@@ -72,15 +72,15 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     context 'with deactivated MHV account' do
-      let(:mvi_profile) do
-        build(:mvi_profile,
+      let(:mpi_profile) do
+        build(:mpi_profile,
               mhv_ids: %w[12345 67890],
               active_mhv_ids: ['12345'])
       end
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        stub_mvi(mvi_profile)
+        stub_mvi(mpi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -92,15 +92,15 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     context 'with multiple MHV accounts' do
-      let(:mvi_profile) do
-        build(:mvi_profile,
+      let(:mpi_profile) do
+        build(:mpi_profile,
               mhv_ids: %w[12345 67890],
               active_mhv_ids: %w[12345 67890])
       end
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        stub_mvi(mvi_profile)
+        stub_mvi(mpi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -112,15 +112,15 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     context 'with missing MHV accounts' do
-      let(:mvi_profile) do
-        build(:mvi_profile_response,
+      let(:mpi_profile) do
+        build(:mpi_profile_response,
               :missing_attrs)
       end
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        allow_any_instance_of(MPI::Models::MpiProfile).to receive(:active_mhv_ids).and_return(nil)
-        stub_mvi(mvi_profile)
+        allow_any_instance_of(MPI::Models::MPIProfile).to receive(:active_mhv_ids).and_return(nil)
+        stub_mvi(mpi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end

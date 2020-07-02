@@ -222,7 +222,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
     context 'with a MHV credential profile' do
       let(:mvi_profile) do
-        build(:mvi_profile,
+        build(:mpi_profile,
               icn: '10000012345V123457',
               family_name: 'zackariah')
       end
@@ -257,7 +257,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       let(:okta_response) { FactoryBot.build(:okta_dslogon_response) }
       let(:faraday_response) { instance_double('Faraday::Response') }
       let(:mvi_profile) do
-        build(:mvi_profile,
+        build(:mpi_profile,
               icn: '10000012345V123456',
               family_name: 'WEAVER')
       end
@@ -289,7 +289,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       let(:okta_response) { FactoryBot.build(:okta_idme_response) }
       let(:faraday_response) { instance_double('Faraday::Response') }
       let(:mvi_profile) do
-        build(:mvi_profile,
+        build(:mpi_profile,
               icn: '10000012345V123458',
               family_name: 'CARROLL')
       end

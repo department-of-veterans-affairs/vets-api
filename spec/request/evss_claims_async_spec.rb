@@ -12,7 +12,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context 'for a user without evss attrs' do
     before do
-      profile = build(:mvi_profile, edipi: nil)
+      profile = build(:mpi_profile, edipi: nil)
       stub_mvi(profile)
     end
 

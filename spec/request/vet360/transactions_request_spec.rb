@@ -11,7 +11,7 @@ RSpec.describe 'transactions', type: :request do
     allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
       MPI::Responses::FindProfileResponse.new(
         status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-        profile: build(:mvi_profile, vet360_id: '1')
+        profile: build(:mpi_profile, vet360_id: '1')
       )
     )
     sign_in_as(user)
