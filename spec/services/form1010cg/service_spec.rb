@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Form1010cg::Service do
-  let(:subject) { described_class.new create(:caregivers_assistance_claim) }
+  let(:subject) { described_class.new build(:caregivers_assistance_claim) }
   let(:default_email_on_mvi_search) { 'no-email@example.com' }
   let(:build_claim_data_for) do
     lambda do |form_subject, &mutations|
@@ -64,7 +64,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'sets claim' do
-      claim = create(:caregivers_assistance_claim)
+      claim = build(:caregivers_assistance_claim)
       service = described_class.new claim
 
       expect(service.claim).to eq(claim)
@@ -74,7 +74,7 @@ RSpec.describe Form1010cg::Service do
   describe '#icn_for' do
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
-        create(
+        build(
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
@@ -119,7 +119,7 @@ RSpec.describe Form1010cg::Service do
 
     it 'sets returns "NOT_FOUND" when profile not found in MVI' do
       subject = described_class.new(
-        create(
+        build(
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
@@ -164,7 +164,7 @@ RSpec.describe Form1010cg::Service do
 
     it 'returns a cached responses when called more than once for a given subject' do
       subject = described_class.new(
-        create(
+        build(
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
@@ -247,7 +247,7 @@ RSpec.describe Form1010cg::Service do
         end
 
         subject = described_class.new(
-          create(
+          build(
             :caregivers_assistance_claim,
             form: {
               'veteran' => veteran_data,
@@ -297,7 +297,7 @@ RSpec.describe Form1010cg::Service do
         end
 
         subject = described_class.new(
-          create(
+          build(
             :caregivers_assistance_claim,
             form: {
               'veteran' => veteran_data,
@@ -343,7 +343,7 @@ RSpec.describe Form1010cg::Service do
   describe '#is_veteran' do
     it 'returns false if the icn for the for the subject is "NOT_FOUND"' do
       subject = described_class.new(
-        create(
+        build(
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
@@ -362,7 +362,7 @@ RSpec.describe Form1010cg::Service do
       context 'when title38_status_code is "V1"' do
         it 'returns true' do
           subject = described_class.new(
-            create(
+            build(
               :caregivers_assistance_claim,
               form: {
                 'veteran' => build_claim_data_for.call(:veteran),
@@ -395,7 +395,7 @@ RSpec.describe Form1010cg::Service do
       context 'when title38_status_code is not "V1"' do
         it 'returns false' do
           subject = described_class.new(
-            create(
+            build(
               :caregivers_assistance_claim,
               form: {
                 'veteran' => build_claim_data_for.call(:veteran),
@@ -428,7 +428,7 @@ RSpec.describe Form1010cg::Service do
       context 'when title38_status_code is not present' do
         it 'returns false' do
           subject = described_class.new(
-            create(
+            build(
               :caregivers_assistance_claim,
               form: {
                 'veteran' => build_claim_data_for.call(:veteran),
@@ -457,7 +457,7 @@ RSpec.describe Form1010cg::Service do
       context 'when the search fails' do
         it 'raises the error found in the MVI response' do
           subject = described_class.new(
-            create(
+            build(
               :caregivers_assistance_claim,
               form: {
                 'veteran' => build_claim_data_for.call(:veteran),
@@ -488,7 +488,7 @@ RSpec.describe Form1010cg::Service do
 
     it 'returns a cached responses when called more than once for a given subject' do
       subject = described_class.new(
-        create(
+        build(
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
@@ -642,7 +642,7 @@ RSpec.describe Form1010cg::Service do
       document_type     = '10-10CG'
       file_path         = 'tmp/my_file.pdf'
       carma_attachment  = double
-      claim             = create(:caregivers_assistance_claim)
+      claim             = build(:caregivers_assistance_claim)
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
