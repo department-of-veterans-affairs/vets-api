@@ -1,3 +1,4 @@
+# coding: utf-8
 # frozen_string_literal: true
 
 class AppealsApi::V1::HigherLevelReviewsControllerSwagger
@@ -22,7 +23,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       created_at: { '$ref': '#/components/schemas/timeStamp' },
       form_data: { '$ref': '#/components/schemas/hlrCreate' }
     }
-    type = :appeals_api_higher_level_review
+    type = :HigherLevelReviewInfo
     schema = {
       type: OBJ,
       properties: {
@@ -108,9 +109,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :description, desc
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body
-      type = { type: :string, enum: [:appeals_api_higher_level_review_validation] }
+      type = { type: :string, enum: [:higherLevelReviewValidation] }
       attrs = { type: OBJ, properties: { status: { type: :string, enum: [:valid] } } }
-      example = { data: { type: :appeals_api_higher_level_review_validation, attributes: { status: :valid } } }
+      example = { data: { type: type[:enum].first, attributes: { status: :valid } } }
       schema = { type: OBJ, properties: { data: { type: OBJ, properties: { type: type, attributes: attrs } } } }
       content = { 'application/json': { schema: schema, examples: { valid: { value: { data: example } } } } }
       key :responses, '200': { description: 'Valid', content: content }, '422': response_hlr_create_error
