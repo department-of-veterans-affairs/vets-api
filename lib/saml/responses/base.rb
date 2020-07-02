@@ -68,15 +68,13 @@ module SAML
 
       def authn_context_text
         response_doc = assertion_encrypted? ? decrypted_document : document
+        return nil if response_doc.blank?
+
         REXML::XPath.first(response_doc, '//saml:AuthnContextClassRef')&.text
       end
 
       def authn_context
-        if decrypted_document
-          authn_context_text || SAML::User::UNKNOWN_AUTHN_CONTEXT
-        else
-          SAML::User::UNKNOWN_AUTHN_CONTEXT
-        end
+        authn_context_text || SAML::User::UNKNOWN_AUTHN_CONTEXT
       end
     end
   end
