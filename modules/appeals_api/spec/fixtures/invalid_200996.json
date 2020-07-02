@@ -9,7 +9,7 @@
   },
   "included": [
     {
-      "type": "ContestableIssue",
+      "type": "contestableIssue",
       "attributes": {
         "decisionIssueId": 205
       }
