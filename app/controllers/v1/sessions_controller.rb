@@ -49,7 +49,7 @@ module V1
     end
 
     def saml_callback
-      Rails.logger.info('SSOe SAML received')
+      Rails.logger.info('SSOe: SAML Response')
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
