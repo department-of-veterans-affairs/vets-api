@@ -28,6 +28,18 @@ class GIDSRedis < Common::RedisStore
     gi_service.respond_to?(name)
   end
 
+  def get_institution_search_results(params)
+    do_cached_with(key: 'get_institution_search_results' + params.to_s) do
+      gi_search_service.get_institution_search_results(params)
+    end
+  end
+
+  def get_institution_program_search_results(params)
+    do_cached_with(key: 'get_institution_program_search_results' + params.to_s) do
+      gi_search_service.get_institution_program_search_results(params)
+    end
+  end
+
   private
 
   def response_from_redis_or_service
@@ -38,5 +50,9 @@ class GIDSRedis < Common::RedisStore
 
   def gi_service
     @client ||= ::GI::Client.new
+  end
+
+  def gi_search_service
+    @search_client ||= ::GI::SearchClient.new
   end
 end
