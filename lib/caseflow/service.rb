@@ -81,7 +81,7 @@ module Caseflow
 
     private
 
-    def authorized_perform(method, path, params, additional_headers = nil, options = nil) # rubocop:disable Metrics/ParameterLists
+    def authorized_perform(method, path, params, additional_headers = nil, options = nil)
       perform(method, path, params, DEFAULT_HEADERS.merge(additional_headers || {}), options)
     end
   end
