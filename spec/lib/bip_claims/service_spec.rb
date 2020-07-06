@@ -33,7 +33,7 @@ RSpec.describe BipClaims::Service do
       )
       expect(mvi_service).to receive(:find_profile)
 
-      service.lookup_veteran_from_mvi(claim)
+      service.lookup_veteran_from_mpi(claim)
     end
   end
 end
