@@ -30,7 +30,7 @@ module OpenidAuth
         mpi_response = service.find_profile(user_identity)
         raise mpi_response.error if mpi_response.error
 
-        render json: mpi_response, serializer: MviLookupSerializer
+        render json: mpi_response, serializer: MPILookupSerializer
       end
 
       def check_required_headers

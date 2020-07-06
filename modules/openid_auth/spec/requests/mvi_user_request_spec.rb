@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true do
+RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true do
   describe 'via GET with headers' do
     context 'looking up with an SSN' do
       let(:auth_headers) do
@@ -110,7 +110,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       end
     end
 
-    context 'MVI communication issues' do
+    context 'MPI communication issues' do
       let(:auth_headers) do
         {
           'apiKey' => 'saml-key',
@@ -128,7 +128,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
 
       let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
 
-      it 'responds properly when MVI is down' do
+      it 'responds properly when MPI is down' do
         stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
         get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
         expect(response).to have_http_status(:bad_gateway)
@@ -247,7 +247,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       end
     end
 
-    context 'MVI communication issues' do
+    context 'MPI communication issues' do
       let(:req_body) do
         {
           'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
@@ -264,7 +264,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
 
       let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
 
-      it 'responds properly when MVI is down' do
+      it 'responds properly when MPI is down' do
         stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
         post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
         expect(response).to have_http_status(:bad_gateway)
