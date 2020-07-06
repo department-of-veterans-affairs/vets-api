@@ -19,7 +19,7 @@ describe VAOS::Middleware::VaosLogging do
     let(:type) { 'va' }
 
     context 'with a succesful response' do
-      it 'increments statsd and logs additional details in a success line' do
+      xit 'increments statsd and logs additional details in a success line' do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
           expect(Rails.logger).to receive(:info).with(
             '[StatsD] increment api.external_http_request.VAOS.success:1 '\

@@ -111,10 +111,6 @@ features:
     actor_type: user
     description: >
       Enables STEM scholarship functionality
-  edu_section_103:
-    actor_type: user
-    description: >
-      Enables section 103 content
   gibct_estimate_your_benefits:
     actor_type: user
     description: >
