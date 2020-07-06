@@ -12,7 +12,7 @@ module VAOS
     def extend_session(account_uuid)
       unless session_creation_locked?(account_uuid)
         lock_session_creation(account_uuid)
-        ExtendSessionJob.perform_async(account_uuid)
+        VAOS::ExtendSessionJob.perform_async(account_uuid)
       end
     end
 
