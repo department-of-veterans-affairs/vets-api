@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/mvi_verification'
+require_dependency 'claims_api/concerns/mpi_verification'
 require_dependency 'claims_api/concerns/header_validation'
 require_dependency 'claims_api/unsynchronized_evss_claims_service'
 require_dependency 'claims_api/concerns/json_format_validation'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
-    include ClaimsApi::MviVerification
+    include ClaimsApi::MPIVerification
     include ClaimsApi::HeaderValidation
     include ClaimsApi::JsonFormatValidation
 

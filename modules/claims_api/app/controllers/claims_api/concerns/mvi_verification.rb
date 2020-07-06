@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  module MviVerification
+  module MPIVerification
     extend ActiveSupport::Concern
 
     included do
@@ -9,10 +9,10 @@ module ClaimsApi
 
       def verify_mpi
         unless target_veteran.mpi_record?
-          log_message_to_sentry('MVIError in claims',
+          log_message_to_sentry('MPI error in claims',
                                 :warning,
                                 body: target_veteran.mpi&.response&.error&.inspect)
-          render json: { errors: [{ detail: 'MVI user not found' }] },
+          render json: { errors: [{ detail: 'MPI user not found' }] },
                  status: :not_found
         end
       end
