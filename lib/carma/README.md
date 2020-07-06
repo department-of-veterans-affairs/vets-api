@@ -38,8 +38,8 @@ submission  = CARMA::Models::Submission.from_claim(
                 claim,
                 {
                   veteran: {
-                    icn: get_icn_for(:veteran),
-                    is_veteran: verify_veteran(veteran_icn)
+                    icn: '1234',
+                    is_veteran: true
                   }
                 }
               )
