@@ -23,13 +23,16 @@ module AppealsApi::V1::SwaggerRoot
       end
     end
 
-    server description: 'VA.gov API sandbox environment' do
-      key :url, 'https://sandbox-api.va.gov/services/appeals/{version}/decision_reviews'
+    url = ->(prefix = '') { "https://#{prefix}api.va.gov/services/appeals/{version}/decision_reviews" }
+
+    server description: 'VA.gov API sandbox environment', url: url['sandbox-'] do
       variable(:version) { key :default, 'v1' }
     end
     key :basePath, '/services/appeals/v1'
     key :consumes, ['application/json']
     key :produces, ['application/json']
+
+    server description: 'VA.gov API production environment', url: url[] { variable(:version) { key :default, 'v1' } }
 
     hlr_create_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
       read_json_schema['200996.json']
