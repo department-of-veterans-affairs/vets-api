@@ -16,26 +16,44 @@ This is an http client used to communicate with CARMA. It contains configuration
 
 ## Example
 
-### Simple (available now)
-```
-claim = CaregiversAssistanceClaim.new
-
-submission = CARMA::Models::Submission.from_claim(claim)
-submission.submit!
-```
-
-### Advanced (future features)
+### Simple Submission
 ```
 claim = CaregiversAssistanceClaim.new
 
 submission = CARMA::Models::Submission.from_claim(claim)
 submission.metadata = {
   veteran: {
-    icn: get_icn_for(submission.data[:veteran]),
-    is_veteran: verify_veteran(vet_icn)
+    icn: '1234',
+    is_veteran: true
   }
 }
 
 submission.submit!
-submission.submit_attachments_async if submission.attachments.any?
+```
+
+### Submission with Attachments 
+```
+claim       = SavedClaim::CaregiversAssistanceClaim.new
+submission  = CARMA::Models::Submission.from_claim(
+                claim,
+                {
+                  veteran: {
+                    icn: get_icn_for(:veteran),
+                    is_veteran: verify_veteran(veteran_icn)
+                  }
+                }
+              )
+
+submission.submit!
+
+attachments = CARMA::Models::Attachments.new(
+  submission.carma_case_id,
+  claim.veteran_data['fullName']['first'],
+  claim.veteran_data['fullName']['last']
+)
+
+attachments.add('10-10CG', 'tmp/pdfs/10-10CG-claim-guid.pdf')
+attachments.add('POA', 'tmp/pdfs/POA-claim-guid.pdf')
+
+attachments.submit!
 ```
