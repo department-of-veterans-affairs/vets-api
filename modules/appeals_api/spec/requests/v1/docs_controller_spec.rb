@@ -18,7 +18,7 @@ describe AppealsApi::Docs::V1::DocsController, type: :request do
     end
 
     it '/higher_level_reviews/contestable_issues supports GET' do
-      expect(json['paths']['/higher_level_reviews/contestable_issues']).to include('get')
+      expect(json['paths']['/higher_level_reviews/contestable_issues/{benefit_type}']).to include('get')
     end
 
     it 'HLR statuses match model (if this test fails, has there been a version change?)' do
