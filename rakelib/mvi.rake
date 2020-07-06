@@ -66,8 +66,8 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
             # Not persisting any users, user_identities, or caching MVI by doing it this way.
             user = User.new(uuid: user_identity.uuid)
             user.instance_variable_set(:@identity, user_identity)
-            mvi = Mvi.for_user(user)
-            response = mvi.send(:mvi_service).find_profile(user_identity)
+            mpi = MPIProfile.for_user(user)
+            response = mpi.send(:mpi_service).find_profile(user_identity)
 
             appended_headers.each do |column_name|
               case column_name
