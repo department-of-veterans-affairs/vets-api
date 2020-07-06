@@ -1049,7 +1049,6 @@ RSpec.describe FormProfile, type: :model do
   #   let(:instance) { FormProfile.new('21-526EZ-BDD') }
 
   #   it 'loads 526ez when BDD is given' do
-  #     byebug
   #     instance.load_form_mapping
   #     expect(YAML).to receive(:load_file).once.and_return(
   #       'hi'
