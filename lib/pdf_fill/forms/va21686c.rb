@@ -295,21 +295,21 @@ module PdfFill
           'current_marriage_information' => {
             'date' => {
               'month' => {
-                key: "form1[0].#subform[17].DOMARRIAGEmonth[0]",
+                key: 'form1[0].#subform[17].DOMARRIAGEmonth[0]',
                 limit: 2,
                 question_num: '11D',
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > DATE OF MARRIAGE MONTH'
               },
               'day' => {
-                key: "form1[0].#subform[17].DOMARRIAGEday[0]",
+                key: 'form1[0].#subform[17].DOMARRIAGEday[0]',
                 limit: 2,
                 question_num: '11D',
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > DATE OF MARRIAGE DAY'
               },
               'year' => {
-                key: "form1[0].#subform[17].DOMARRIAGEyear[0]",
+                key: 'form1[0].#subform[17].DOMARRIAGEyear[0]',
                 limit: 4,
                 question_num: '11D',
                 question_suffix: 'C',
@@ -318,21 +318,21 @@ module PdfFill
             },
             'location' => {
               'city' => {
-                key: "form1[0].#subform[17].CurrentMailingAddress_City[2]",
+                key: 'form1[0].#subform[17].CurrentMailingAddress_City[2]',
                 limit: 18,
                 question_num: '11E',
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE CITY'
               },
               'state' => {
-                key: "form1[0].#subform[17].CurrentMailingAddress_StateOrProvince[2]",
+                key: 'form1[0].#subform[17].CurrentMailingAddress_StateOrProvince[2]',
                 limit: 2,
                 question_num: '11E',
-                question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE STATE'
+                question_suffix: 'B'
+                #question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE STATE' ## this breaks
               },
               'country' => {
-                key: "form1[0].#subform[17].CurrentMailingAddress_Country[2]",
+                key: 'form1[0].#subform[17].CurrentMailingAddress_Country[2]',
                 limit: 2,
                 question_num: '11E',
                 question_suffix: 'C',
@@ -884,7 +884,7 @@ module PdfFill
                 'annulled' => { key: 'children_to_add.previous_marriage_details.reason_marriage_ended.annulled[%iterator%]' },
                 'other' => { key: 'children_to_add.previous_marriage_details.reason_marriage_ended.other[%iterator%]' }
               },
-              'reason_marriage_ended_other' => {
+              'other_reason_marriage_ended' => {
                 'reason_marriage_ended_other_line1' => {
                   key: 'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line1[%iterator%]',
                   limit: 8,
@@ -935,14 +935,14 @@ module PdfFill
               'city' => {
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].CurrentMailingAddress_City[27]',
                 limit: 18,
-                question_num: '20B',
+                question_num: 20,
                 question_suffix: 'A',
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > PLACE OF DIVORCE'
               },
               'state' => {
                 key: 'form1[0].#subform[25].#subform[26].#subform[27].CurrentMailingAddress_StateOrProvince[27]',
                 limit: 2,
-                question_num: '20B',
+                question_num: 20,
                 question_suffix: 'B',
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > PLACE OF DIVORCE'
               },
@@ -1036,51 +1036,50 @@ module PdfFill
               'address_line1' => {
                 key: 'step_children.address.address_line1[%iterator%]',
                 limit: 27,
-                question_num: '21E',
+                question_num: 21,
                 question_suffix: 'A',
                 question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > STREET'
               },
               'address_line2' => {
                 key: 'step_children.address.address_line2[%iterator%]',
                 limit: 5,
-                question_num: '21E',
+                question_num: 21,
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > STREET'
               },
               'city' => {
                 key: 'step_children.address.city[%iterator%]',
                 limit: 18,
-                question_num: '21E',
+                question_num: 21,
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > CITY'
               },
               'state_code' => {
                 key: 'step_children.address.state_code[%iterator%]',
                 limit: 2,
-                question_num: '21E',
+                question_num: 21,
                 question_suffix: 'D',
                 question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > STATE'
               },
               'country_name' => {
                 key: 'step_children.address.country_name[%iterator%]',
                 limit: 2,
-                question_num: '21E',
-                question_suffix: 'E'#,
-                # @ TODO adding question_text here breaks
-                #question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > COUNTRY'
+                question_num: 21,
+                question_suffix: 'E',
+                question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > COUNTRY'
               },
               'zip_code' => {
                 'firstFive' => {
                   key: 'step_children.address.zip_code.firstFive[%iterator%]',
                   limit: 5,
-                  question_num: '21E',
+                  question_num: 21,
                   question_suffix: 'F',
                   question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > ZIPCODE FIRST FIVE'
                 },
                 'lastFour' => {
                   key: 'step_children.address.zip_code.lastFour[%iterator%]',
                   limit: 4,
-                  question_num: '21E',
+                  question_num: 21,
                   question_suffix: 'G',
                   question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WHERE > ZIPCODE LAST FOUR'
                 },
@@ -1110,7 +1109,7 @@ module PdfFill
             'child_status' => {
               # child
               'child_under18' => {
-                # XXX true
+                # @TODO true
               } # end of
             },
             'full_name' => {
@@ -1482,10 +1481,16 @@ module PdfFill
         # extract postal code
         veteran_contact_information['veteran_address']['postalCode'] = veteran_contact_information['veteran_address']['zip_code']
         veteran_contact_information['veteran_address']['zip_code'] = split_postal_code(veteran_contact_information['veteran_address'])
+
+        # @TODO find out if FE is manipulating country codes/names
+        if veteran_contact_information['veteran_address']['country_name'] == 'USA'
+          veteran_contact_information['veteran_address']['country_name'] = 'US'
+        end
       end
 
       def merge_spouse_helpers
         spouse = @form_data['dependents_application']['spouse_information']
+        return unless spouse.present?
 
         # extract middle initial
         spouse['full_name']['middle'] = extract_middle_i(spouse, 'full_name')
@@ -1501,16 +1506,20 @@ module PdfFill
         @form_data['dependents_application']['current_marriage_information']['date'] = split_date(@form_data['dependents_application']['current_marriage_information']['date'])
 
         va_file_number = spouse['va_file_number']
-        va_file_number = va_file_number.delete('-') unless va_file_number.blank?
-        spouse['va_file_number'] = {
-          'va_file_number_first_three' => va_file_number[0..2],
-          'va_file_number_second_two' => va_file_number[3..4],
-          'va_file_number_last_four' => va_file_number[5..8]
-        }
+        if va_file_number.present?
+          va_file_number = va_file_number.delete('-')
+          spouse['va_file_number'] = {
+            'va_file_number_first_three' => va_file_number[0..2],
+            'va_file_number_second_two' => va_file_number[3..4],
+            'va_file_number_last_four' => va_file_number[5..8]
+          }
+        end
 
         # extract postal code
-        @form_data['dependents_application']['does_live_with_spouse']['address']['postalCode'] = @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code']
-        @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code'] = split_postal_code(@form_data['dependents_application']['does_live_with_spouse']['address'])
+        if @form_data['dependents_application']['does_live_with_spouse']['address'].present?
+          @form_data['dependents_application']['does_live_with_spouse']['address']['postalCode'] = @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code']
+          @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code'] = split_postal_code(@form_data['dependents_application']['does_live_with_spouse']['address'])
+        end
 
         expand_marriage_type
         expand_is_veteran
@@ -1519,6 +1528,7 @@ module PdfFill
 
       def merge_previous_marriage_helpers
         previous_spouses = @form_data['dependents_application']['veteran_marriage_history']
+        return unless previous_spouses.present?
 
         previous_spouses.each do |spouse|
           # extract middle initial
@@ -1541,6 +1551,7 @@ module PdfFill
 
       def merge_spouse_marriage_history_helpers
         previous_spouses = @form_data['dependents_application']['spouse_marriage_history']
+        return unless previous_spouses.present?
 
         previous_spouses.each do |spouse|
           # extract middle initial
@@ -1564,6 +1575,7 @@ module PdfFill
 
       def merge_child_helpers
         children_to_add = @form_data['dependents_application']['children_to_add']
+        return unless children_to_add.present?
 
         children_to_add.each do |child|
           # extract middle initial
@@ -1587,18 +1599,20 @@ module PdfFill
           # expand child status
           child_status = child['child_status']
 
-          # @TODO child_status = {"biological"=>true}
+          # @TODO 18-23 YEARS OLD AND IN SCHOOL
           # need to check values from FE why is this one coming in differently than the others?
           child['child_status'] = {
             'biological' => child_status['biological'] ? 0 : 'Off',
             'school_age_in_school' => child_status['school_age_in_school'] ? 0 : 'Off',
             'adopted' => child_status['adopted'] ? 0 : 'Off',
-            'incapable_self_support' => child_status['incapable_self_support'] ? 0 : 'Off',
+            'not_capable' => child_status['incapable_self_support'] ? 0 : 'Off',
             'child_previously_married' => child_status['child_previously_married'] ? 0 : 'Off',
             'stepchild' => child_status['stepchild'] ? 0 : 'Off'
           }
 
           if child['previously_married'] == 'Yes'
+            child['child_status']['child_previously_married'] = 0
+
             # extract date
             child['previous_marriage_details']['date_marriage_ended'] = split_date(child['previous_marriage_details']['date_marriage_ended'])
 
@@ -1607,15 +1621,27 @@ module PdfFill
             # @TODO confirm option values coming from FE
             child['previous_marriage_details']['reason_marriage_ended'] = {
               'declared_void' => reason_marriage_ended == 'declared_void' ? 0 : 'Off',
-              'annulled' => reason_marriage_ended == 'annulled' ? 0 : 'Off',
-              'other' => reason_marriage_ended == 'OTHER'? 0 : 'Off'
+              'annulled' => reason_marriage_ended == 'Annulment' ? 0 : 'Off',
+              'other' => reason_marriage_ended == 'Other'? 0 : 'Off'
             }
+
+            other_reason_marriage_ended = child['previous_marriage_details']['other_reason_marriage_ended']
+            if other_reason_marriage_ended.present?
+              child['previous_marriage_details']['other_reason_marriage_ended'] = {}
+              if other_reason_marriage_ended.length > 8 && other_reason_marriage_ended.length < 16
+                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] = other_reason_marriage_ended[0..7]
+                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line2'] = other_reason_marriage_ended[8..15]
+              else
+                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] = other_reason_marriage_ended
+              end
+            end
           end
         end
       end
 
       def merge_divorce_helpers
         divorce = @form_data['dependents_application']['report_divorce']
+        return unless divorce.present?
 
         #extract date
         divorce['date'] = split_date(divorce['date'])
@@ -1626,10 +1652,12 @@ module PdfFill
 
       def merge_stepchildren_helpers
         step_children = @form_data['dependents_application']['step_children']
+        return unless step_children.present?
+
         step_children.each do |stepchild|
           # extract middle initial
           stepchild['full_name'] = extract_middle_i(stepchild, 'full_name')
-          stepchild['who_does_the_stepchild_live_with']['full_name'] = extract_middle_i(stepchild['who_does_the_stepchild_live_with'], 'full_name')
+          stepchild['who_does_the_stepchild_live_with'] = extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
           # extract step_children zip codes
           # @TODO is there a better way to do this?
@@ -1652,6 +1680,8 @@ module PdfFill
 
       def merge_death_helpers
         deaths = @form_data['dependents_application']['deaths']
+        return unless deaths.present?
+
         deaths.each do |death|
           # extract middle initial
           death['full_name'] = extract_middle_i(death, 'full_name')
@@ -1677,6 +1707,7 @@ module PdfFill
 
       def merge_child_marriage_helpers
         child_marriage = @form_data['dependents_application']['child_marriage']
+        return unless child_marriage.present?
 
         # extract middle initial
         child_marriage['full_name'] = extract_middle_i(child_marriage, 'full_name')
@@ -1687,6 +1718,7 @@ module PdfFill
 
       def merge_child_stopped_attending_school_helpers
         child_stopped_attending_school = @form_data['dependents_application']['child_stopped_attending_school']
+        return unless child_stopped_attending_school.present?
 
         # extract middle initial
         child_stopped_attending_school['full_name'] = extract_middle_i(child_stopped_attending_school, 'full_name')
@@ -1698,10 +1730,10 @@ module PdfFill
       def expand_marriage_type
         marriage_type = @form_data['dependents_application']['current_marriage_information']['type']
         @form_data['dependents_application']['current_marriage_information']['type'] = {
-          'religious_ceremony' => marriage_type == 'religious_ceremony' ? 1 : 'Off',
-          'common_law' => marriage_type == 'common_law' ? 1 : 'Off',
-          'tribal' => marriage_type == 'tribal'? 1 : 'Off',
-          'proxy' => marriage_type == 'proxy' ? 1 : 'Off',
+          'religious_ceremony' => marriage_type == 'CEREMONIAL' ? 1 : 'Off',
+          'common_law' => marriage_type == 'COMMON-LAW' ? 1 : 'Off',
+          'tribal' => marriage_type == 'TRIBAL'? 1 : 'Off',
+          'proxy' => marriage_type == 'PROXY' ? 1 : 'Off',
           'OTHER' => marriage_type == 'OTHER' ? 1 : 'Off'
         }
       end
