@@ -114,6 +114,6 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def render_higher_level_review
-    render json: AppealsApi::HigherLevelReview.new(@higher_level_review).serializable_hash
+    render json: AppealsApi::HigherLevelReviewSerializer.new(@higher_level_review).serializable_hash
   end
 end
