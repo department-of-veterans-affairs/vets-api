@@ -546,7 +546,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'type' => 'DOMESTIC',
             'zipFirstFive' => '12345',
             'zipLastFour' => '6789'
-          }
+          },
+          'currentlyVAEmployee' => false
         }
       end
     end
@@ -576,7 +577,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'type' => 'MILITARY',
             'zipFirstFive' => '12345',
             'zipLastFour' => '6789'
-          }
+          },
+          'currentlyVAEmployee' => false
         }
       end
     end
@@ -602,7 +604,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'country' => 'Germany',
             'type' => 'INTERNATIONAL',
             'internationalPostalCode' => '732'
-          }
+          },
+          'currentlyVAEmployee' => false
         }
       end
     end
@@ -643,7 +646,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'beginningDate' => '2018-02-01',
             'endingDate' => '2018-02-30',
             'addressChangeType' => 'TEMPORARY'
-          }
+          },
+          'currentlyVAEmployee' => false
         }
       end
     end
