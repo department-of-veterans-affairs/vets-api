@@ -157,7 +157,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       cache_file = File.join(Settings.betamocks.cache_dir, 'mvi', 'profile', "#{k}.yml")
       unless File.exist? cache_file
         puts "user with ssn #{k} not found, generating cache file"
-        profile = MPI::Models::MviProfile.new(v)
+        profile = MPI::Models::MPIProfile.new(v)
         create_cache_from_profile(cache_file, profile, template)
       end
     end
