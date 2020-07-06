@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-describe VAOS::BaseService do
+describe VAOS::SessionService do
   let(:klass) do
-    Class.new(VAOS::BaseService) do
+    Class.new(VAOS::SessionService) do
       def get_systems
         perform(:get, '/mvi/v1/patients/session/identifiers.json', nil, headers)
       end
