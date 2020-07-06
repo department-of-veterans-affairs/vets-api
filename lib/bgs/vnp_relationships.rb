@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGS
-  class VnpRelationships < Base
+  class VnpRelationships < Service
     def initialize(proc_id:, veteran:, dependents:, user:)
       @proc_id = proc_id
       @dependents = dependents

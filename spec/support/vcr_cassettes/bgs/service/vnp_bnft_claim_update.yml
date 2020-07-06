@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 24 Jun 2020 21:08:04 GMT
+      - Mon, 06 Jul 2020 20:48:00 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -48,11 +48,11 @@ http_interactions:
         <message name="MessageFaultException">
         <part name="fault" element="tns:MessageFaultException"/>
         </message>
-        <message name="vnpBnftClaimRemove">
-        <part name="parameters" element="tns:vnpBnftClaimRemove"/>
+        <message name="findAllAsArray">
+        <part name="parameters" element="tns:findAllAsArray"/>
         </message>
-        <message name="vnpBnftClaimRemoveResponse">
-        <part name="parameters" element="tns:vnpBnftClaimRemoveResponse"/>
+        <message name="findAllAsArrayResponse">
+        <part name="parameters" element="tns:findAllAsArrayResponse"/>
         </message>
         <message name="vnpBnftClaimCreate">
         <part name="parameters" element="tns:vnpBnftClaimCreate"/>
@@ -60,17 +60,17 @@ http_interactions:
         <message name="vnpBnftClaimCreateResponse">
         <part name="parameters" element="tns:vnpBnftClaimCreateResponse"/>
         </message>
-        <message name="findAllAsArray">
-        <part name="parameters" element="tns:findAllAsArray"/>
-        </message>
-        <message name="findAllAsArrayResponse">
-        <part name="parameters" element="tns:findAllAsArrayResponse"/>
-        </message>
         <message name="vnpBnftClaimFindByPrimaryKey">
         <part name="parameters" element="tns:vnpBnftClaimFindByPrimaryKey"/>
         </message>
         <message name="vnpBnftClaimFindByPrimaryKeyResponse">
         <part name="parameters" element="tns:vnpBnftClaimFindByPrimaryKeyResponse"/>
+        </message>
+        <message name="vnpBnftClaimRemove">
+        <part name="parameters" element="tns:vnpBnftClaimRemove"/>
+        </message>
+        <message name="vnpBnftClaimRemoveResponse">
+        <part name="parameters" element="tns:vnpBnftClaimRemoveResponse"/>
         </message>
         <portType name="VnpBnftClaimService">
         <operation name="vnpBnftClaimUpdate">
@@ -78,25 +78,25 @@ http_interactions:
         <output wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimUpdateResponse" message="tns:vnpBnftClaimUpdateResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimUpdate/Fault/MessageFaultException"/>
         </operation>
-        <operation name="vnpBnftClaimRemove">
-        <input wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimRemoveRequest" message="tns:vnpBnftClaimRemove"/>
-        <output wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimRemoveResponse" message="tns:vnpBnftClaimRemoveResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimRemove/Fault/MessageFaultException"/>
+        <operation name="findAllAsArray">
+        <input wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/findAllAsArrayRequest" message="tns:findAllAsArray"/>
+        <output wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/findAllAsArray/Fault/MessageFaultException"/>
         </operation>
         <operation name="vnpBnftClaimCreate">
         <input wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimCreateRequest" message="tns:vnpBnftClaimCreate"/>
         <output wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimCreateResponse" message="tns:vnpBnftClaimCreateResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimCreate/Fault/MessageFaultException"/>
         </operation>
-        <operation name="findAllAsArray">
-        <input wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/findAllAsArrayRequest" message="tns:findAllAsArray"/>
-        <output wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/findAllAsArray/Fault/MessageFaultException"/>
-        </operation>
         <operation name="vnpBnftClaimFindByPrimaryKey">
         <input wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimFindByPrimaryKeyRequest" message="tns:vnpBnftClaimFindByPrimaryKey"/>
         <output wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimFindByPrimaryKeyResponse" message="tns:vnpBnftClaimFindByPrimaryKeyResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimFindByPrimaryKey/Fault/MessageFaultException"/>
+        </operation>
+        <operation name="vnpBnftClaimRemove">
+        <input wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimRemoveRequest" message="tns:vnpBnftClaimRemove"/>
+        <output wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimRemoveResponse" message="tns:vnpBnftClaimRemoveResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://bnftClaimService.services.vonapp.vba.va.gov/VnpBnftClaimService/vnpBnftClaimRemove/Fault/MessageFaultException"/>
         </operation>
         </portType>
         <binding name="VnpBnftClaimServicePortBinding" type="tns:VnpBnftClaimService">
@@ -113,7 +113,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="vnpBnftClaimRemove">
+        <operation name="findAllAsArray">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -137,7 +137,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findAllAsArray">
+        <operation name="vnpBnftClaimFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -149,7 +149,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="vnpBnftClaimFindByPrimaryKey">
+        <operation name="vnpBnftClaimRemove">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -168,8 +168,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-    http_version: null
-  recorded_at: Wed, 24 Jun 2020 21:08:05 GMT
+  recorded_at: Mon, 06 Jul 2020 20:48:00 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpBnftClaimWebServiceBean/VnpBnftClaimService
@@ -181,23 +180,23 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.137</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>43718343580978448</vaws:ExternalUid>
+            <vaws:ExternalUid>44949544200145145</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpBnftClaimCreate><arg0><vnpProcID>3829360</vnpProcID><vnpBnftClaimId xsi:nil="true"/><bnftClaimTypeCd>130DPNEBNADJ</bnftClaimTypeCd><claimRcvdDt>2020-06-24T21:08:04Z</claimRcvdDt><jrnDt>2020-06-24T21:08:04Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><pgmTypeCd>COMP</pgmTypeCd><ptcpntClmantId>146232</ptcpntClmantId><statusTypeCd>CURR</statusTypeCd><svcTypeCd>CP</svcTypeCd><applcnId xsi:nil="true"/><atchmsInd>N</atchmsInd><claimJrsdtnLctnId>335</claimJrsdtnLctnId><claimSuspnsDt xsi:nil="true"/><endPrdctTypeCd xsi:nil="true"/><infrmlInd xsi:nil="true"/><intakeJrsdtnLctnId>335</intakeJrsdtnLctnId><lastPaidDt xsi:nil="true"/><payeeTypeCd xsi:nil="true"/><ptcpntDpositAcntId xsi:nil="true"/><ptcpntVsrId xsi:nil="true"/><rmksTxt xsi:nil="true"/><ptcpntMailAddrsId>113372</ptcpntMailAddrsId><ptcpntPymtAddrsId xsi:nil="true"/><termnlDigitNbr xsi:nil="true"/><vnpPtcpntVetId>146232</vnpPtcpntVetId><bnftClaimId xsi:nil="true"/></arg0></tns:vnpBnftClaimCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpBnftClaimUpdate><arg0><vnpBnftClaimId>425502</vnpBnftClaimId><bnftClaimTypeCd>130DPNEBNADJ</bnftClaimTypeCd><claimRcvdDt>2020-07-06T20:47:59Z</claimRcvdDt><jrnDt>2020-07-06T20:47:59Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><pgmTypeCd>CPL</pgmTypeCd><ptcpntClmantId>149000</ptcpntClmantId><statusTypeCd>PEND</statusTypeCd><svcTypeCd>CP</svcTypeCd><vnpProcID>3829532</vnpProcID><applcnId xsi:nil="true"/><atchmsInd xsi:nil="true"/><claimJrsdtnLctnId>347</claimJrsdtnLctnId><claimSuspnsDt xsi:nil="true"/><endPrdctTypeCd xsi:nil="true"/><infrmlInd xsi:nil="true"/><intakeJrsdtnLctnId>347</intakeJrsdtnLctnId><lastPaidDt xsi:nil="true"/><payeeTypeCd xsi:nil="true"/><ptcpntDpositAcntId xsi:nil="true"/><ptcpntVsrId xsi:nil="true"/><rmksTxt xsi:nil="true"/><ptcpntMailAddrsId xsi:nil="true"/><ptcpntPymtAddrsId xsi:nil="true"/><termnlDigitNbr xsi:nil="true"/><vnpPtcpntVetId xsi:nil="true"/><bnftClaimId>600195007</bnftClaimId></arg0></tns:vnpBnftClaimUpdate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
       Soapaction:
-      - '"vnpBnftClaimCreate"'
+      - '"vnpBnftClaimUpdate"'
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1982'
+      - '1984'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -212,11 +211,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Wed, 24 Jun 2020 21:08:06 GMT
+      - Mon, 06 Jul 2020 20:48:01 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '1195'
+      - '1132'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -225,8 +224,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpBnftClaimCreateResponse
-        xmlns:ns0="http://bnftClaimService.services.vonapp.vba.va.gov/"><return><vnpBnftClaimId>425329</vnpBnftClaimId><atchmsInd>N</atchmsInd><bnftClaimTypeCd>130DPNEBNADJ</bnftClaimTypeCd><claimJrsdtnLctnId>335</claimJrsdtnLctnId><claimRcvdDt>2020-06-24T21:08:04Z</claimRcvdDt><intakeJrsdtnLctnId>335</intakeJrsdtnLctnId><jrnDt>2020-06-24T21:08:04Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><pgmTypeCd>COMP</pgmTypeCd><ptcpntClmantId>146232</ptcpntClmantId><statusTypeCd>CURR</statusTypeCd><svcTypeCd>CP</svcTypeCd><ptcpntMailAddrsId>113372</ptcpntMailAddrsId><vnpPtcpntVetId>146232</vnpPtcpntVetId><vnpProcID>3829360</vnpProcID></return></ns0:vnpBnftClaimCreateResponse></S:Body></S:Envelope>
-    http_version: null
-  recorded_at: Wed, 24 Jun 2020 21:08:06 GMT
-recorded_with: VCR 5.1.0
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpBnftClaimUpdateResponse
+        xmlns:ns0="http://bnftClaimService.services.vonapp.vba.va.gov/"><return><vnpBnftClaimId>425502</vnpBnftClaimId><bnftClaimTypeCd>130DPNEBNADJ</bnftClaimTypeCd><claimJrsdtnLctnId>347</claimJrsdtnLctnId><claimRcvdDt>2020-07-06T15:47:59-05:00</claimRcvdDt><intakeJrsdtnLctnId>347</intakeJrsdtnLctnId><jrnDt>2020-07-06T15:47:59-05:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><pgmTypeCd>CPL</pgmTypeCd><ptcpntClmantId>149000</ptcpntClmantId><statusTypeCd>PEND</statusTypeCd><svcTypeCd>CP</svcTypeCd><vnpProcID>3829532</vnpProcID><bnftClaimId>600195007</bnftClaimId></return></ns0:vnpBnftClaimUpdateResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 06 Jul 2020 20:48:01 GMT
+recorded_with: VCR 6.0.0

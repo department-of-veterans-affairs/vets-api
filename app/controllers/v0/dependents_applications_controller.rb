@@ -3,9 +3,11 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     def create
-      binding.pry
-      # BGS::SubmitForm686cJob.perform(current_user, dependent_params.to_h)
-      # bgs_dependent_service.modify_dependents(dependent_params)
+      # binding.pry
+      BGS::SubmitForm686cJob.perform_async(current_user, dependent_params.to_h)
+
+      # run the below if you don't want async
+      # BGS::Form686c.new(current_user).submit(dependent_params.to_h)
       # render json: {status: 'ok'}
     end
 

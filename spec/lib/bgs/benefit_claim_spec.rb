@@ -45,9 +45,9 @@ RSpec.describe BGS::BenefitClaim do
       end
     end
 
-    it 'calls BGS::Base#insert_benefit_claim' do
+    it 'calls BGS::Service#insert_benefit_claim' do
       VCR.use_cassette('bgs/benefit_claim/create') do
-        expect_any_instance_of(BGS::Base).to receive(:insert_benefit_claim)
+        expect_any_instance_of(BGS::Service).to receive(:insert_benefit_claim)
                                                .with(
                                                  {vnp_benefit_claim_type_code: '130DPNEBNADJ'},
                                                  vet_hash

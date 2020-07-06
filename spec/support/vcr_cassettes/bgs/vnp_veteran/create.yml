@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sat, 27 Jun 2020 17:28:03 GMT
+      - Mon, 06 Jul 2020 21:16:19 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -168,7 +168,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Sat, 27 Jun 2020 17:28:03 GMT
+  recorded_at: Mon, 06 Jul 2020 21:16:39 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpPtcpntWebServiceBean/VnpPtcpntService
@@ -180,14 +180,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.137</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>96334103459896210</vaws:ExternalUid>
+            <vaws:ExternalUid>47310552889561424</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpPtcpntCreate><arg0><vnpPtcpntId xsi:nil="true"/><vnpProcId>3828241</vnpProcId><fraudInd xsi:nil="true"/><jrnDt>2020-06-27T17:28:02Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><legacyPoaCd xsi:nil="true"/><miscVendorInd xsi:nil="true"/><ptcpntShortNm xsi:nil="true"/><ptcpntTypeNm>Person</ptcpntTypeNm><taxIdfctnNbr xsi:nil="true"/><tinWaiverReasonTypeCd xsi:nil="true"/><ptcpntFkPtcpntId xsi:nil="true"/><corpPtcpntId xsi:nil="true"/></arg0></tns:vnpPtcpntCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpPtcpntCreate><arg0><vnpPtcpntId xsi:nil="true"/><vnpProcId>12345</vnpProcId><fraudInd xsi:nil="true"/><jrnDt>2020-07-06T21:16:18Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><legacyPoaCd xsi:nil="true"/><miscVendorInd xsi:nil="true"/><ptcpntShortNm xsi:nil="true"/><ptcpntTypeNm>Person</ptcpntTypeNm><taxIdfctnNbr xsi:nil="true"/><tinWaiverReasonTypeCd xsi:nil="true"/><ptcpntFkPtcpntId xsi:nil="true"/><corpPtcpntId xsi:nil="true"/></arg0></tns:vnpPtcpntCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -196,7 +196,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1484'
+      - '1485'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -211,11 +211,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Sat, 27 Jun 2020 17:28:04 GMT
+      - Mon, 06 Jul 2020 21:16:47 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '803'
+      - '801'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -225,8 +225,8 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntCreateResponse
-        xmlns:ns0="http://ptcpntService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>149000</vnpPtcpntId><vnpProcId>3828241</vnpProcId><jrnDt>2020-06-27T17:28:02Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><ptcpntTypeNm>Person</ptcpntTypeNm></return></ns0:vnpPtcpntCreateResponse></S:Body></S:Envelope>
-  recorded_at: Sat, 27 Jun 2020 17:28:04 GMT
+        xmlns:ns0="http://ptcpntService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>149307</vnpPtcpntId><vnpProcId>12345</vnpProcId><jrnDt>2020-07-06T21:16:18Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><ptcpntTypeNm>Person</ptcpntTypeNm></return></ns0:vnpPtcpntCreateResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 06 Jul 2020 21:16:47 GMT
 - request:
     method: get
     uri: https://localhost:4447/StandardDataWebServiceBean/StandardDataWebService?WSDL
@@ -248,7 +248,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sat, 27 Jun 2020 17:28:05 GMT
+      - Mon, 06 Jul 2020 21:16:47 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -1100,7 +1100,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Sat, 27 Jun 2020 17:28:05 GMT
+  recorded_at: Mon, 06 Jul 2020 21:16:54 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/StandardDataWebServiceBean/StandardDataWebService
@@ -1112,10 +1112,10 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.137</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>96334103459896210</vaws:ExternalUid>
+            <vaws:ExternalUid>47310552889561424</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
@@ -1128,7 +1128,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1101'
+      - '1104'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1143,7 +1143,7 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Sat, 27 Jun 2020 17:28:06 GMT
+      - Mon, 06 Jul 2020 21:16:55 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
@@ -1156,9 +1156,720 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMS4xNQAA</work:WorkContext></env:Header><S:Body><ns0:findBenefitClaimTypeIncrementResponse
-        xmlns:ns0="http://standarddata.services.vetsnet.vba.va.gov/"><return>134</return></ns0:findBenefitClaimTypeIncrementResponse></S:Body></S:Envelope>
-  recorded_at: Sat, 27 Jun 2020 17:28:06 GMT
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMS4xNwAA</work:WorkContext></env:Header><S:Body><ns0:findBenefitClaimTypeIncrementResponse
+        xmlns:ns0="http://standarddata.services.vetsnet.vba.va.gov/"><return>139</return></ns0:findBenefitClaimTypeIncrementResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 06 Jul 2020 21:16:55 GMT
+- request:
+    method: get
+    uri: https://localhost:4447/PersonWebServiceBean/PersonWebService?WSDL
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Host:
+      - ".vba.va.gov"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 06 Jul 2020 21:16:56 GMT
+      Server:
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml;charset=utf-8
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jax-ws.java.net). RI's version is JAX-WS RI 2.3.0-b170407.2038 svn-revision#2eaca54d17a59d265c6fe886b7fd0027836c766c. --><!-- Generated by JAX-WS RI (http://jax-ws.java.net). RI's version is JAX-WS RI 2.3.0-b170407.2038 svn-revision#2eaca54d17a59d265c6fe886b7fd0027836c766c. --><definitions xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:wsp1_2="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://person.services.vetsnet.vba.va.gov/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://person.services.vetsnet.vba.va.gov/" name="PersonWebService">
+        <types>
+        <xsd:schema>
+        <xsd:import namespace="http://person.services.vetsnet.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/PersonWebServiceBean/PersonWebService?xsd=1"/>
+        </xsd:schema>
+        </types>
+        <message name="findPtcpntIdByPtcpntId">
+        <part name="parameters" element="tns:findPtcpntIdByPtcpntId"/>
+        </message>
+        <message name="findPtcpntIdByPtcpntIdResponse">
+        <part name="parameters" element="tns:findPtcpntIdByPtcpntIdResponse"/>
+        </message>
+        <message name="MessageException">
+        <part name="fault" element="tns:MessageException"/>
+        </message>
+        <message name="findEmployeeByFileNumber">
+        <part name="parameters" element="tns:findEmployeeByFileNumber"/>
+        </message>
+        <message name="findEmployeeByFileNumberResponse">
+        <part name="parameters" element="tns:findEmployeeByFileNumberResponse"/>
+        </message>
+        <message name="findEmployeeByPtcpntId">
+        <part name="parameters" element="tns:findEmployeeByPtcpntId"/>
+        </message>
+        <message name="findEmployeeByPtcpntIdResponse">
+        <part name="parameters" element="tns:findEmployeeByPtcpntIdResponse"/>
+        </message>
+        <message name="findPersonByPhoneNbr">
+        <part name="parameters" element="tns:findPersonByPhoneNbr"/>
+        </message>
+        <message name="findPersonByPhoneNbrResponse">
+        <part name="parameters" element="tns:findPersonByPhoneNbrResponse"/>
+        </message>
+        <message name="findPersonBySvcNbr">
+        <part name="parameters" element="tns:findPersonBySvcNbr"/>
+        </message>
+        <message name="findPersonBySvcNbrResponse">
+        <part name="parameters" element="tns:findPersonBySvcNbrResponse"/>
+        </message>
+        <message name="findPersonByTaxIdfctnNbr">
+        <part name="parameters" element="tns:findPersonByTaxIdfctnNbr"/>
+        </message>
+        <message name="findPersonByTaxIdfctnNbrResponse">
+        <part name="parameters" element="tns:findPersonByTaxIdfctnNbrResponse"/>
+        </message>
+        <message name="findPersonByMtgeLoanId">
+        <part name="parameters" element="tns:findPersonByMtgeLoanId"/>
+        </message>
+        <message name="findPersonByMtgeLoanIdResponse">
+        <part name="parameters" element="tns:findPersonByMtgeLoanIdResponse"/>
+        </message>
+        <message name="findPersonByInsFileNbr">
+        <part name="parameters" element="tns:findPersonByInsFileNbr"/>
+        </message>
+        <message name="findPersonByInsFileNbrResponse">
+        <part name="parameters" element="tns:findPersonByInsFileNbrResponse"/>
+        </message>
+        <message name="findDependents">
+        <part name="parameters" element="tns:findDependents"/>
+        </message>
+        <message name="findDependentsResponse">
+        <part name="parameters" element="tns:findDependentsResponse"/>
+        </message>
+        <message name="insertPtcpntRlnshp">
+        <part name="parameters" element="tns:insertPtcpntRlnshp"/>
+        </message>
+        <message name="insertPtcpntRlnshpResponse">
+        <part name="parameters" element="tns:insertPtcpntRlnshpResponse"/>
+        </message>
+        <message name="updatePtcpntRlnshp">
+        <part name="parameters" element="tns:updatePtcpntRlnshp"/>
+        </message>
+        <message name="updatePtcpntRlnshpResponse">
+        <part name="parameters" element="tns:updatePtcpntRlnshpResponse"/>
+        </message>
+        <message name="managePtcpntRlnshpPoa">
+        <part name="parameters" element="tns:managePtcpntRlnshpPoa"/>
+        </message>
+        <message name="managePtcpntRlnshpPoaResponse">
+        <part name="parameters" element="tns:managePtcpntRlnshpPoaResponse"/>
+        </message>
+        <message name="findRelationshipsByFileNumberRelationshipType">
+        <part name="parameters" element="tns:findRelationshipsByFileNumberRelationshipType"/>
+        </message>
+        <message name="findRelationshipsByFileNumberRelationshipTypeResponse">
+        <part name="parameters" element="tns:findRelationshipsByFileNumberRelationshipTypeResponse"/>
+        </message>
+        <message name="findRelationshipsByPtcpntIdRelationshipType">
+        <part name="parameters" element="tns:findRelationshipsByPtcpntIdRelationshipType"/>
+        </message>
+        <message name="findRelationshipsByPtcpntIdRelationshipTypeResponse">
+        <part name="parameters" element="tns:findRelationshipsByPtcpntIdRelationshipTypeResponse"/>
+        </message>
+        <message name="findPersonBySSN">
+        <part name="parameters" element="tns:findPersonBySSN"/>
+        </message>
+        <message name="findPersonBySSNResponse">
+        <part name="parameters" element="tns:findPersonBySSNResponse"/>
+        </message>
+        <message name="updatePerson">
+        <part name="parameters" element="tns:updatePerson"/>
+        </message>
+        <message name="updatePersonResponse">
+        <part name="parameters" element="tns:updatePersonResponse"/>
+        </message>
+        <message name="findDependentsByPtcpntId">
+        <part name="parameters" element="tns:findDependentsByPtcpntId"/>
+        </message>
+        <message name="findDependentsByPtcpntIdResponse">
+        <part name="parameters" element="tns:findDependentsByPtcpntIdResponse"/>
+        </message>
+        <message name="insertPerson">
+        <part name="parameters" element="tns:insertPerson"/>
+        </message>
+        <message name="insertPersonResponse">
+        <part name="parameters" element="tns:insertPersonResponse"/>
+        </message>
+        <message name="findPersonByPtcpntId">
+        <part name="parameters" element="tns:findPersonByPtcpntId"/>
+        </message>
+        <message name="findPersonByPtcpntIdResponse">
+        <part name="parameters" element="tns:findPersonByPtcpntIdResponse"/>
+        </message>
+        <message name="findPersonsBySsns">
+        <part name="parameters" element="tns:findPersonsBySsns"/>
+        </message>
+        <message name="findPersonsBySsnsResponse">
+        <part name="parameters" element="tns:findPersonsBySsnsResponse"/>
+        </message>
+        <message name="findPersonsByFileNumbers">
+        <part name="parameters" element="tns:findPersonsByFileNumbers"/>
+        </message>
+        <message name="findPersonsByFileNumbersResponse">
+        <part name="parameters" element="tns:findPersonsByFileNumbersResponse"/>
+        </message>
+        <message name="findPersonsByPtcpntIds">
+        <part name="parameters" element="tns:findPersonsByPtcpntIds"/>
+        </message>
+        <message name="findPersonsByPtcpntIdsResponse">
+        <part name="parameters" element="tns:findPersonsByPtcpntIdsResponse"/>
+        </message>
+        <message name="findPersonByFileNumber">
+        <part name="parameters" element="tns:findPersonByFileNumber"/>
+        </message>
+        <message name="findPersonByFileNumberResponse">
+        <part name="parameters" element="tns:findPersonByFileNumberResponse"/>
+        </message>
+        <message name="findRelationships">
+        <part name="parameters" element="tns:findRelationships"/>
+        </message>
+        <message name="findRelationshipsResponse">
+        <part name="parameters" element="tns:findRelationshipsResponse"/>
+        </message>
+        <message name="findEmployeeByBnftClaimId">
+        <part name="parameters" element="tns:findEmployeeByBnftClaimId"/>
+        </message>
+        <message name="findEmployeeByBnftClaimIdResponse">
+        <part name="parameters" element="tns:findEmployeeByBnftClaimIdResponse"/>
+        </message>
+        <message name="insertPersonWithRelationship">
+        <part name="parameters" element="tns:insertPersonWithRelationship"/>
+        </message>
+        <message name="insertPersonWithRelationshipResponse">
+        <part name="parameters" element="tns:insertPersonWithRelationshipResponse"/>
+        </message>
+        <portType name="PersonWebService">
+        <operation name="findPtcpntIdByPtcpntId">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPtcpntIdByPtcpntIdRequest" message="tns:findPtcpntIdByPtcpntId"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPtcpntIdByPtcpntIdResponse" message="tns:findPtcpntIdByPtcpntIdResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPtcpntIdByPtcpntId/Fault/MessageException"/>
+        </operation>
+        <operation name="findEmployeeByFileNumber">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByFileNumberRequest" message="tns:findEmployeeByFileNumber"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByFileNumberResponse" message="tns:findEmployeeByFileNumberResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByFileNumber/Fault/MessageException"/>
+        </operation>
+        <operation name="findEmployeeByPtcpntId">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByPtcpntIdRequest" message="tns:findEmployeeByPtcpntId"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByPtcpntIdResponse" message="tns:findEmployeeByPtcpntIdResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByPtcpntId/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonByPhoneNbr">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPhoneNbrRequest" message="tns:findPersonByPhoneNbr"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPhoneNbrResponse" message="tns:findPersonByPhoneNbrResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPhoneNbr/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonBySvcNbr">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySvcNbrRequest" message="tns:findPersonBySvcNbr"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySvcNbrResponse" message="tns:findPersonBySvcNbrResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySvcNbr/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonByTaxIdfctnNbr">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByTaxIdfctnNbrRequest" message="tns:findPersonByTaxIdfctnNbr"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByTaxIdfctnNbrResponse" message="tns:findPersonByTaxIdfctnNbrResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByTaxIdfctnNbr/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonByMtgeLoanId">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByMtgeLoanIdRequest" message="tns:findPersonByMtgeLoanId"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByMtgeLoanIdResponse" message="tns:findPersonByMtgeLoanIdResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByMtgeLoanId/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonByInsFileNbr">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByInsFileNbrRequest" message="tns:findPersonByInsFileNbr"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByInsFileNbrResponse" message="tns:findPersonByInsFileNbrResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByInsFileNbr/Fault/MessageException"/>
+        </operation>
+        <operation name="findDependents">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsRequest" message="tns:findDependents"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsResponse" message="tns:findDependentsResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependents/Fault/MessageException"/>
+        </operation>
+        <operation name="insertPtcpntRlnshp">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPtcpntRlnshpRequest" message="tns:insertPtcpntRlnshp"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPtcpntRlnshpResponse" message="tns:insertPtcpntRlnshpResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPtcpntRlnshp/Fault/MessageException"/>
+        </operation>
+        <operation name="updatePtcpntRlnshp">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePtcpntRlnshpRequest" message="tns:updatePtcpntRlnshp"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePtcpntRlnshpResponse" message="tns:updatePtcpntRlnshpResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePtcpntRlnshp/Fault/MessageException"/>
+        </operation>
+        <operation name="managePtcpntRlnshpPoa">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/managePtcpntRlnshpPoaRequest" message="tns:managePtcpntRlnshpPoa"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/managePtcpntRlnshpPoaResponse" message="tns:managePtcpntRlnshpPoaResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/managePtcpntRlnshpPoa/Fault/MessageException"/>
+        </operation>
+        <operation name="findRelationshipsByFileNumberRelationshipType">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipTypeRequest" message="tns:findRelationshipsByFileNumberRelationshipType"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipTypeResponse" message="tns:findRelationshipsByFileNumberRelationshipTypeResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByFileNumberRelationshipType/Fault/MessageException"/>
+        </operation>
+        <operation name="findRelationshipsByPtcpntIdRelationshipType">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipTypeRequest" message="tns:findRelationshipsByPtcpntIdRelationshipType"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipTypeResponse" message="tns:findRelationshipsByPtcpntIdRelationshipTypeResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsByPtcpntIdRelationshipType/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonBySSN">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySSNRequest" message="tns:findPersonBySSN"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySSNResponse" message="tns:findPersonBySSNResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonBySSN/Fault/MessageException"/>
+        </operation>
+        <operation name="updatePerson">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePersonRequest" message="tns:updatePerson"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePersonResponse" message="tns:updatePersonResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/updatePerson/Fault/MessageException"/>
+        </operation>
+        <operation name="findDependentsByPtcpntId">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntIdRequest" message="tns:findDependentsByPtcpntId"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntIdResponse" message="tns:findDependentsByPtcpntIdResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findDependentsByPtcpntId/Fault/MessageException"/>
+        </operation>
+        <operation name="insertPerson">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonRequest" message="tns:insertPerson"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonResponse" message="tns:insertPersonResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPerson/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonByPtcpntId">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntIdRequest" message="tns:findPersonByPtcpntId"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntIdResponse" message="tns:findPersonByPtcpntIdResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByPtcpntId/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonsBySsns">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsBySsnsRequest" message="tns:findPersonsBySsns"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsBySsnsResponse" message="tns:findPersonsBySsnsResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsBySsns/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonsByFileNumbers">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbersRequest" message="tns:findPersonsByFileNumbers"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbersResponse" message="tns:findPersonsByFileNumbersResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByFileNumbers/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonsByPtcpntIds">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByPtcpntIdsRequest" message="tns:findPersonsByPtcpntIds"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByPtcpntIdsResponse" message="tns:findPersonsByPtcpntIdsResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonsByPtcpntIds/Fault/MessageException"/>
+        </operation>
+        <operation name="findPersonByFileNumber">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByFileNumberRequest" message="tns:findPersonByFileNumber"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByFileNumberResponse" message="tns:findPersonByFileNumberResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findPersonByFileNumber/Fault/MessageException"/>
+        </operation>
+        <operation name="findRelationships">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsRequest" message="tns:findRelationships"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationshipsResponse" message="tns:findRelationshipsResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findRelationships/Fault/MessageException"/>
+        </operation>
+        <operation name="findEmployeeByBnftClaimId">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByBnftClaimIdRequest" message="tns:findEmployeeByBnftClaimId"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByBnftClaimIdResponse" message="tns:findEmployeeByBnftClaimIdResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/findEmployeeByBnftClaimId/Fault/MessageException"/>
+        </operation>
+        <operation name="insertPersonWithRelationship">
+        <input wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonWithRelationshipRequest" message="tns:insertPersonWithRelationship"/>
+        <output wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonWithRelationshipResponse" message="tns:insertPersonWithRelationshipResponse"/>
+        <fault message="tns:MessageException" name="MessageException" wsam:Action="http://person.services.vetsnet.vba.va.gov/PersonWebService/insertPersonWithRelationship/Fault/MessageException"/>
+        </operation>
+        </portType>
+        <binding name="PersonWebServicePortBinding" type="tns:PersonWebService">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <operation name="findPtcpntIdByPtcpntId">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findEmployeeByFileNumber">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findEmployeeByPtcpntId">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonByPhoneNbr">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonBySvcNbr">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonByTaxIdfctnNbr">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonByMtgeLoanId">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonByInsFileNbr">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findDependents">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="insertPtcpntRlnshp">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="updatePtcpntRlnshp">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="managePtcpntRlnshpPoa">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findRelationshipsByFileNumberRelationshipType">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findRelationshipsByPtcpntIdRelationshipType">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonBySSN">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="updatePerson">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findDependentsByPtcpntId">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="insertPerson">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonByPtcpntId">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonsBySsns">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonsByFileNumbers">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonsByPtcpntIds">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findPersonByFileNumber">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findRelationships">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="findEmployeeByBnftClaimId">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="insertPersonWithRelationship">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageException">
+        <soap:fault name="MessageException" use="literal"/>
+        </fault>
+        </operation>
+        </binding>
+        <service name="PersonWebService">
+        <port name="PersonWebServicePort" binding="tns:PersonWebServicePortBinding">
+        <soap:address location="http://linktestbepbenefits.vba.va.gov:80/PersonWebServiceBean/PersonWebService"/>
+        </port>
+        </service>
+        </definitions>
+  recorded_at: Mon, 06 Jul 2020 21:16:56 GMT
+- request:
+    method: post
+    uri: http://linktestbepbenefits.vba.va.gov/PersonWebServiceBean/PersonWebService
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version="1.0" encoding="UTF-8"?><env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://person.services.vetsnet.vba.va.gov/" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+          <wsse:UsernameToken>
+            <wsse:Username>VAgovAPI</wsse:Username>
+          </wsse:UsernameToken>
+          <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
+            <vaws:CLIENT_MACHINE>192.168.1.137</vaws:CLIENT_MACHINE>
+            <vaws:STN_ID>281</vaws:STN_ID>
+            <vaws:applicationName>VAgovAPI</vaws:applicationName>
+            <vaws:ExternalUid>47310552889561424</vaws:ExternalUid>
+            <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
+          </vaws:VaServiceHeaders>
+        </wsse:Security>
+        </env:Header><env:Body><tns:findPersonByPtcpntId><ptcpntId>600061742</ptcpntId></tns:findPersonByPtcpntId></env:Body></env:Envelope>
+    headers:
+      Host:
+      - ".vba.va.gov"
+      Soapaction:
+      - '"findPersonByPtcpntId"'
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Content-Length:
+      - '1007'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.17.9
+      Date:
+      - Mon, 06 Jul 2020 21:16:58 GMT
+      Content-Type:
+      - text/xml; charset=utf-8
+      Content-Length:
+      - '1947'
+      Connection:
+      - keep-alive
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdUAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABjMuMS4xNwAA</work:WorkContext></env:Header><S:Body><ns0:findPersonByPtcpntIdResponse
+        xmlns:ns0="http://person.services.vetsnet.vba.va.gov/"><PersonDTO><brthdyDt>1986-05-06T00:00:00-05:00</brthdyDt><deathDtEnterdDt>2019-06-06T00:00:00-05:00</deathDtEnterdDt><deathDtUpdatdDt>2019-06-06T00:00:00-05:00</deathDtUpdatdDt><deathHistInd>Y</deathHistInd><deathNotfcnSourceTypeCd>CORP</deathNotfcnSourceTypeCd><emailAddr>vet@googlevet.com</emailAddr><empInd>N</empInd><fileNbr>796043735</fileNbr><firstNm>WESLEY</firstNm><firstNmKey>-1</firstNmKey><genderCd>M</genderCd><insFileNbr></insFileNbr><jrnDt>2020-07-06T10:38:00-05:00</jrnDt><jrnExtnlApplcnNm>VAgovAPI                     </jrnExtnlApplcnNm><jrnExtnlKeyTxt>abraham.lincoln@vets.gov               </jrnExtnlKeyTxt><jrnExtnlUserId>13404012049643921                      </jrnExtnlUserId><jrnLctnId>281</jrnLctnId><jrnObjId>VAGOVAPI  -
+        CEST</jrnObjId><jrnPersonId>216629795</jrnPersonId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAGOVAPI</jrnUserId><lastNm>FORD</lastNm><lastNmKey>-1</lastNmKey><mltyPersonInd>Y</mltyPersonInd><potntlDngrsInd>N</potntlDngrsInd><ptcpntDTO><blockAutoEnrlmtCd>U</blockAutoEnrlmtCd><blockCaddInd>U</blockCaddInd><ptcpntId>600061742</ptcpntId><ptcpntTypeNm>Person</ptcpntTypeNm></ptcpntDTO><ptcpntId>600061742</ptcpntId><serousEmplmtHndcapInd>N</serousEmplmtHndcapInd><ssnNbr>796043735</ssnNbr><ssnVrfctnStatusTypeCd>0</ssnVrfctnStatusTypeCd><stationOfJurisdiction>499</stationOfJurisdiction><termnlDigitNbr>35</termnlDigitNbr><vetInd>Y</vetInd></PersonDTO></ns0:findPersonByPtcpntIdResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 06 Jul 2020 21:16:58 GMT
 - request:
     method: get
     uri: https://localhost:4447/VnpPersonWebServiceBean/VnpPersonService?WSDL
@@ -1180,7 +1891,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sat, 27 Jun 2020 17:28:07 GMT
+      - Mon, 06 Jul 2020 21:16:59 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -1327,7 +2038,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Sat, 27 Jun 2020 17:28:07 GMT
+  recorded_at: Mon, 06 Jul 2020 21:16:59 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpPersonWebServiceBean/VnpPersonService
@@ -1339,14 +2050,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.137</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>96334103459896210</vaws:ExternalUid>
+            <vaws:ExternalUid>47310552889561424</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpPersonCreate><arg0><vnpPtcpntId>149000</vnpPtcpntId><birthCityNm xsi:nil="true"/><birthStateCd xsi:nil="true"/><birthCntryNm xsi:nil="true"/><brthdyDt xsi:nil="true"/><cmptnyDecnTypeCd xsi:nil="true"/><depNbr xsi:nil="true"/><empInd xsi:nil="true"/><entlmtTypeCd xsi:nil="true"/><ethnicTypeCd xsi:nil="true"/><everMariedInd xsi:nil="true"/><fidDecnCategyTypeCd xsi:nil="true"/><fileNbr xsi:nil="true"/><firstNm>WESLEY</firstNm><firstNmKey xsi:nil="true"/><frgnSvcNbr xsi:nil="true"/><genderCd xsi:nil="true"/><jrnDt>2020-06-27T17:28:06Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnSserId>VAgovAPI</jrnSserId><lastNm>FORD</lastNm><lastNmKey xsi:nil="true"/><lgyEntlmtTypeCd xsi:nil="true"/><martlStatusTypeCd>Married</martlStatusTypeCd><middleNm xsi:nil="true"/><mltyPersonInd xsi:nil="true"/><monthsPresntEmplyrNbr xsi:nil="true"/><netWorthAmt xsi:nil="true"/><noSsnReasonTypeCd xsi:nil="true"/><ocptnTxt xsi:nil="true"/><personDeathCauseTypeNm xsi:nil="true"/><personTypeNm xsi:nil="true"/><potntlDngrsInd xsi:nil="true"/><raceTypeNm xsi:nil="true"/><serousEmplmtHndcapInd xsi:nil="true"/><slttnTypeNm xsi:nil="true"/><spinaBifidaInd xsi:nil="true"/><ssnNbr xsi:nil="true"/><ssnVrfctnStatusTypeCd xsi:nil="true"/><suffixNm xsi:nil="true"/><taxAbtmntCd xsi:nil="true"/><termnlDigitNbr xsi:nil="true"/><titleTxt xsi:nil="true"/><vetInd>Y</vetInd><vetTypeNm xsi:nil="true"/><yearsPresntEmplyrNbr xsi:nil="true"/><vnpProcId>3828241</vnpProcId><vnpSruslyDsabldInd xsi:nil="true"/><vnpSchoolChildInd xsi:nil="true"/><deathDt xsi:nil="true"/></arg0></tns:vnpPersonCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpPersonCreate><arg0><vnpPtcpntId>149307</vnpPtcpntId><birthCityNm xsi:nil="true"/><birthStateCd xsi:nil="true"/><birthCntryNm xsi:nil="true"/><brthdyDt xsi:nil="true"/><cmptnyDecnTypeCd xsi:nil="true"/><depNbr xsi:nil="true"/><empInd xsi:nil="true"/><entlmtTypeCd xsi:nil="true"/><ethnicTypeCd xsi:nil="true"/><everMariedInd xsi:nil="true"/><fidDecnCategyTypeCd xsi:nil="true"/><fileNbr xsi:nil="true"/><firstNm>WESLEY</firstNm><firstNmKey xsi:nil="true"/><frgnSvcNbr xsi:nil="true"/><genderCd xsi:nil="true"/><jrnDt>2020-07-06T21:16:58Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnSserId>VAgovAPI</jrnSserId><lastNm>FORD</lastNm><lastNmKey xsi:nil="true"/><lgyEntlmtTypeCd xsi:nil="true"/><martlStatusTypeCd>Married</martlStatusTypeCd><middleNm xsi:nil="true"/><mltyPersonInd xsi:nil="true"/><monthsPresntEmplyrNbr xsi:nil="true"/><netWorthAmt xsi:nil="true"/><noSsnReasonTypeCd xsi:nil="true"/><ocptnTxt xsi:nil="true"/><personDeathCauseTypeNm xsi:nil="true"/><personTypeNm xsi:nil="true"/><potntlDngrsInd xsi:nil="true"/><raceTypeNm xsi:nil="true"/><serousEmplmtHndcapInd xsi:nil="true"/><slttnTypeNm xsi:nil="true"/><spinaBifidaInd xsi:nil="true"/><ssnNbr xsi:nil="true"/><ssnVrfctnStatusTypeCd xsi:nil="true"/><suffixNm xsi:nil="true"/><taxAbtmntCd xsi:nil="true"/><termnlDigitNbr xsi:nil="true"/><titleTxt xsi:nil="true"/><vetInd>Y</vetInd><vetTypeNm xsi:nil="true"/><yearsPresntEmplyrNbr xsi:nil="true"/><vnpProcId>12345</vnpProcId><vnpSruslyDsabldInd xsi:nil="true"/><vnpSchoolChildInd xsi:nil="true"/><deathDt xsi:nil="true"/></arg0></tns:vnpPersonCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -1355,7 +2066,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '2558'
+      - '2559'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1370,11 +2081,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Sat, 27 Jun 2020 17:28:09 GMT
+      - Mon, 06 Jul 2020 21:17:00 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '852'
+      - '850'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -1384,8 +2095,8 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPersonCreateResponse
-        xmlns:ns0="http://personService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>149000</vnpPtcpntId><firstNm>WESLEY</firstNm><jrnDt>2020-06-27T12:28:06-05:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><lastNm>FORD</lastNm><martlStatusTypeCd>Married</martlStatusTypeCd><vetInd>Y</vetInd><vnpProcId>3828241</vnpProcId></return></ns0:vnpPersonCreateResponse></S:Body></S:Envelope>
-  recorded_at: Sat, 27 Jun 2020 17:28:09 GMT
+        xmlns:ns0="http://personService.services.vonapp.vba.va.gov/"><return><vnpPtcpntId>149307</vnpPtcpntId><firstNm>WESLEY</firstNm><jrnDt>2020-07-06T16:16:58-05:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><lastNm>FORD</lastNm><martlStatusTypeCd>Married</martlStatusTypeCd><vetInd>Y</vetInd><vnpProcId>12345</vnpProcId></return></ns0:vnpPersonCreateResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 06 Jul 2020 21:17:00 GMT
 - request:
     method: get
     uri: https://localhost:4447/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService?WSDL
@@ -1407,7 +2118,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sat, 27 Jun 2020 17:28:09 GMT
+      - Mon, 06 Jul 2020 21:17:00 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -1554,7 +2265,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Sat, 27 Jun 2020 17:28:10 GMT
+  recorded_at: Mon, 06 Jul 2020 21:17:01 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService
@@ -1566,14 +2277,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.137</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>96334103459896210</vaws:ExternalUid>
+            <vaws:ExternalUid>47310552889561424</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpPtcpntPhoneCreate><arg0><vnpPtcpntPhoneId xsi:nil="true"/><vnpProcId>3828241</vnpProcId><vnpPtcpntId>149000</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>1112223333</phoneNbr><efctvDt>2020-06-27T17:28:09Z</efctvDt><endDt xsi:nil="true"/><areaNbr xsi:nil="true"/><cntryNbr xsi:nil="true"/><frgnPhoneRfrncTxt xsi:nil="true"/><extnsnNbr xsi:nil="true"/><jrnDt>2020-06-27T17:28:09Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAgovAPI</jrnUserId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnObjId>VAgovAPI</jrnObjId></arg0></tns:vnpPtcpntPhoneCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpPtcpntPhoneCreate><arg0><vnpPtcpntPhoneId xsi:nil="true"/><vnpProcId>12345</vnpProcId><vnpPtcpntId>149307</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>1112223333</phoneNbr><efctvDt>2020-07-06T21:17:00Z</efctvDt><endDt xsi:nil="true"/><areaNbr xsi:nil="true"/><cntryNbr xsi:nil="true"/><frgnPhoneRfrncTxt xsi:nil="true"/><extnsnNbr xsi:nil="true"/><jrnDt>2020-07-06T21:17:00Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAgovAPI</jrnUserId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnObjId>VAgovAPI</jrnObjId></arg0></tns:vnpPtcpntPhoneCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -1582,7 +2293,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1492'
+      - '1493'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1597,11 +2308,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Sat, 27 Jun 2020 17:28:11 GMT
+      - Mon, 06 Jul 2020 21:17:01 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '929'
+      - '927'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -1611,8 +2322,8 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntPhoneCreateResponse
-        xmlns:ns0="http://ptcpntPhoneService.services.vonapp.vba.va.gov/"><return><vnpPtcpntPhoneId>77022</vnpPtcpntPhoneId><vnpProcId>3828241</vnpProcId><vnpPtcpntId>149000</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>1112223333</phoneNbr><efctvDt>2020-06-27T17:28:09Z</efctvDt><jrnDt>2020-06-27T17:28:09Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAgovAPI</jrnUserId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnObjId>VAgovAPI</jrnObjId></return></ns0:vnpPtcpntPhoneCreateResponse></S:Body></S:Envelope>
-  recorded_at: Sat, 27 Jun 2020 17:28:11 GMT
+        xmlns:ns0="http://ptcpntPhoneService.services.vonapp.vba.va.gov/"><return><vnpPtcpntPhoneId>77147</vnpPtcpntPhoneId><vnpProcId>12345</vnpProcId><vnpPtcpntId>149307</vnpPtcpntId><phoneTypeNm>Daytime</phoneTypeNm><phoneNbr>1112223333</phoneNbr><efctvDt>2020-07-06T21:17:00Z</efctvDt><jrnDt>2020-07-06T21:17:00Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnUserId>VAgovAPI</jrnUserId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnObjId>VAgovAPI</jrnObjId></return></ns0:vnpPtcpntPhoneCreateResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 06 Jul 2020 21:17:01 GMT
 - request:
     method: get
     uri: https://localhost:4447/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?WSDL
@@ -1634,7 +2345,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Sat, 27 Jun 2020 17:28:11 GMT
+      - Mon, 06 Jul 2020 21:17:02 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -1652,11 +2363,11 @@ http_interactions:
         <xsd:import namespace="http://ptcpntAddrsService.services.vonapp.vba.va.gov/" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService?xsd=1"/>
         </xsd:schema>
         </types>
-        <message name="vnpPtcpntAddrsFindByPrimaryKey">
-        <part name="parameters" element="tns:vnpPtcpntAddrsFindByPrimaryKey"/>
+        <message name="findAllAsArray">
+        <part name="parameters" element="tns:findAllAsArray"/>
         </message>
-        <message name="vnpPtcpntAddrsFindByPrimaryKeyResponse">
-        <part name="parameters" element="tns:vnpPtcpntAddrsFindByPrimaryKeyResponse"/>
+        <message name="findAllAsArrayResponse">
+        <part name="parameters" element="tns:findAllAsArrayResponse"/>
         </message>
         <message name="MessageFaultException">
         <part name="fault" element="tns:MessageFaultException"/>
@@ -1679,17 +2390,17 @@ http_interactions:
         <message name="vnpPtcpntAddrsRemoveResponse">
         <part name="parameters" element="tns:vnpPtcpntAddrsRemoveResponse"/>
         </message>
-        <message name="findAllAsArray">
-        <part name="parameters" element="tns:findAllAsArray"/>
+        <message name="vnpPtcpntAddrsFindByPrimaryKey">
+        <part name="parameters" element="tns:vnpPtcpntAddrsFindByPrimaryKey"/>
         </message>
-        <message name="findAllAsArrayResponse">
-        <part name="parameters" element="tns:findAllAsArrayResponse"/>
+        <message name="vnpPtcpntAddrsFindByPrimaryKeyResponse">
+        <part name="parameters" element="tns:vnpPtcpntAddrsFindByPrimaryKeyResponse"/>
         </message>
         <portType name="VnpPtcpntAddrsService">
-        <operation name="vnpPtcpntAddrsFindByPrimaryKey">
-        <input wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsFindByPrimaryKeyRequest" message="tns:vnpPtcpntAddrsFindByPrimaryKey"/>
-        <output wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsFindByPrimaryKeyResponse" message="tns:vnpPtcpntAddrsFindByPrimaryKeyResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsFindByPrimaryKey/Fault/MessageFaultException"/>
+        <operation name="findAllAsArray">
+        <input wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/findAllAsArrayRequest" message="tns:findAllAsArray"/>
+        <output wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/findAllAsArray/Fault/MessageFaultException"/>
         </operation>
         <operation name="vnpPtcpntAddrsCreate">
         <input wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsCreateRequest" message="tns:vnpPtcpntAddrsCreate"/>
@@ -1706,15 +2417,15 @@ http_interactions:
         <output wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsRemoveResponse" message="tns:vnpPtcpntAddrsRemoveResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsRemove/Fault/MessageFaultException"/>
         </operation>
-        <operation name="findAllAsArray">
-        <input wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/findAllAsArrayRequest" message="tns:findAllAsArray"/>
-        <output wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/findAllAsArray/Fault/MessageFaultException"/>
+        <operation name="vnpPtcpntAddrsFindByPrimaryKey">
+        <input wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsFindByPrimaryKeyRequest" message="tns:vnpPtcpntAddrsFindByPrimaryKey"/>
+        <output wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsFindByPrimaryKeyResponse" message="tns:vnpPtcpntAddrsFindByPrimaryKeyResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://ptcpntAddrsService.services.vonapp.vba.va.gov/VnpPtcpntAddrsService/vnpPtcpntAddrsFindByPrimaryKey/Fault/MessageFaultException"/>
         </operation>
         </portType>
         <binding name="VnpPtcpntAddrsServicePortBinding" type="tns:VnpPtcpntAddrsService">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="vnpPtcpntAddrsFindByPrimaryKey">
+        <operation name="findAllAsArray">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -1762,7 +2473,7 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findAllAsArray">
+        <operation name="vnpPtcpntAddrsFindByPrimaryKey">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -1781,7 +2492,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Sat, 27 Jun 2020 17:28:12 GMT
+  recorded_at: Mon, 06 Jul 2020 21:17:02 GMT
 - request:
     method: post
     uri: http://linktestbepbenefits.vba.va.gov/VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService
@@ -1793,14 +2504,14 @@ http_interactions:
             <wsse:Username>VAgovAPI</wsse:Username>
           </wsse:UsernameToken>
           <vaws:VaServiceHeaders xmlns:vaws="http://vbawebservices.vba.va.gov/vawss">
-            <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
+            <vaws:CLIENT_MACHINE>192.168.1.137</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>96334103459896210</vaws:ExternalUid>
+            <vaws:ExternalUid>47310552889561424</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpPtcpntAddrsCreate><arg0><efctvDt>2020-06-27T17:28:11Z</efctvDt><vnpPtcpntId>149000</vnpPtcpntId><vnpProcId>3828241</vnpProcId><addrsOneTxt>8200 Doby LN</addrsOneTxt><addrsThreeTxt xsi:nil="true"/><addrsTwoTxt xsi:nil="true"/><badAddrsInd xsi:nil="true"/><cityNm>Pasadena</cityNm><cntryNm>USA</cntryNm><countyNm xsi:nil="true"/><eftWaiverTypeNm xsi:nil="true"/><emailAddrsTxt>foo@foo.com</emailAddrsTxt><endDt xsi:nil="true"/><fmsAddrsCodeTxt xsi:nil="true"/><frgnPostalCd xsi:nil="true"/><group1VerifdTypeCd xsi:nil="true"/><jrnDt>2020-06-27T17:28:11Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lctnNm xsi:nil="true"/><mltyPostalTypeCd xsi:nil="true"/><mltyPostOfficeTypeCd xsi:nil="true"/><postalCd>CA</postalCd><prvncNm>CA</prvncNm><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt xsi:nil="true"/><trsuryAddrsFourTxt xsi:nil="true"/><trsuryAddrsOneTxt xsi:nil="true"/><trsuryAddrsSixTxt xsi:nil="true"/><trsuryAddrsThreeTxt xsi:nil="true"/><trsuryAddrsTwoTxt xsi:nil="true"/><trsurySeqNbr xsi:nil="true"/><trtryNm xsi:nil="true"/><zipFirstSuffixNbr xsi:nil="true"/><zipPrefixNbr>21122</zipPrefixNbr><zipSecondSuffixNbr xsi:nil="true"/></arg0></tns:vnpPtcpntAddrsCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpPtcpntAddrsCreate><arg0><efctvDt>2020-07-06T21:17:01Z</efctvDt><vnpPtcpntId>149307</vnpPtcpntId><vnpProcId>12345</vnpProcId><addrsOneTxt>8200 Doby LN</addrsOneTxt><addrsThreeTxt xsi:nil="true"/><addrsTwoTxt xsi:nil="true"/><badAddrsInd xsi:nil="true"/><cityNm>Pasadena</cityNm><cntryNm>USA</cntryNm><countyNm xsi:nil="true"/><eftWaiverTypeNm xsi:nil="true"/><emailAddrsTxt>foo@foo.com</emailAddrsTxt><endDt xsi:nil="true"/><fmsAddrsCodeTxt xsi:nil="true"/><frgnPostalCd xsi:nil="true"/><group1VerifdTypeCd xsi:nil="true"/><jrnDt>2020-07-06T21:17:01Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><lctnNm xsi:nil="true"/><mltyPostalTypeCd xsi:nil="true"/><mltyPostOfficeTypeCd xsi:nil="true"/><postalCd>CA</postalCd><prvncNm>CA</prvncNm><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><trsuryAddrsFiveTxt xsi:nil="true"/><trsuryAddrsFourTxt xsi:nil="true"/><trsuryAddrsOneTxt xsi:nil="true"/><trsuryAddrsSixTxt xsi:nil="true"/><trsuryAddrsThreeTxt xsi:nil="true"/><trsuryAddrsTwoTxt xsi:nil="true"/><trsurySeqNbr xsi:nil="true"/><trtryNm xsi:nil="true"/><zipFirstSuffixNbr xsi:nil="true"/><zipPrefixNbr>21122</zipPrefixNbr><zipSecondSuffixNbr xsi:nil="true"/></arg0></tns:vnpPtcpntAddrsCreate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -1809,7 +2520,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '2249'
+      - '2250'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -1824,11 +2535,11 @@ http_interactions:
       Server:
       - nginx/1.17.9
       Date:
-      - Sat, 27 Jun 2020 17:28:13 GMT
+      - Mon, 06 Jul 2020 21:17:03 GMT
       Content-Type:
       - text/xml; charset=utf-8
       Content-Length:
-      - '1151'
+      - '1149'
       Connection:
       - keep-alive
       X-Frame-Options:
@@ -1838,7 +2549,7 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpPtcpntAddrsCreateResponse
-        xmlns:ns0="http://ptcpntAddrsService.services.vonapp.vba.va.gov/"><return><vnpPtcpntAddrsId>115983</vnpPtcpntAddrsId><efctvDt>2020-06-27T17:28:11Z</efctvDt><vnpPtcpntId>149000</vnpPtcpntId><vnpProcId>3828241</vnpProcId><addrsOneTxt>8200
-        Doby LN</addrsOneTxt><cityNm>Pasadena</cityNm><cntryNm>USA</cntryNm><emailAddrsTxt>foo@foo.com</emailAddrsTxt><jrnDt>2020-06-27T17:28:11Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><postalCd>CA</postalCd><prvncNm>CA</prvncNm><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><zipPrefixNbr>21122</zipPrefixNbr></return></ns0:vnpPtcpntAddrsCreateResponse></S:Body></S:Envelope>
-  recorded_at: Sat, 27 Jun 2020 17:28:13 GMT
+        xmlns:ns0="http://ptcpntAddrsService.services.vonapp.vba.va.gov/"><return><vnpPtcpntAddrsId>116185</vnpPtcpntAddrsId><efctvDt>2020-07-06T21:17:01Z</efctvDt><vnpPtcpntId>149307</vnpPtcpntId><vnpProcId>12345</vnpProcId><addrsOneTxt>8200
+        Doby LN</addrsOneTxt><cityNm>Pasadena</cityNm><cntryNm>USA</cntryNm><emailAddrsTxt>foo@foo.com</emailAddrsTxt><jrnDt>2020-07-06T21:17:01Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnObjId>VAgovAPI</jrnObjId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><postalCd>CA</postalCd><prvncNm>CA</prvncNm><ptcpntAddrsTypeNm>Mailing</ptcpntAddrsTypeNm><sharedAddrsInd>N</sharedAddrsInd><zipPrefixNbr>21122</zipPrefixNbr></return></ns0:vnpPtcpntAddrsCreateResponse></S:Body></S:Envelope>
+  recorded_at: Mon, 06 Jul 2020 21:17:03 GMT
 recorded_with: VCR 6.0.0

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGS
-  class StudentSchool < Base
+  class StudentSchool < Service
     def initialize(proc_id:, vnp_participant_id:, payload:, user:)
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id

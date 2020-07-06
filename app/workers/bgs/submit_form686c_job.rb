@@ -12,13 +12,7 @@ module BGS
     # perform method from example: app/workers/central_mail/submit_form4142_job.rb
     # has a 'submission id' and 'tracking'. What's that?
     def perform(user, payload)
-      form_686.submit(user, payload)
-    end
-
-    private
-
-    def form_686
-      @form_686 ||= BGS::Form686c.new(current_user)
+      BGS::Form686c.new(user).submit(payload)
     end
   end
 end

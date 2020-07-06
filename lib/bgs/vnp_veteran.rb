@@ -13,6 +13,7 @@ module BGS
     def create
       participant = create_participant(@proc_id, nil)
       claim_type_end_product = find_benefit_claim_type_increment
+      va_file_number = get_va_file_number
       person = create_person(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
@@ -22,8 +23,7 @@ module BGS
         first_name: person[:first_nm],
         last_name: person[:last_nm],
         vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id],
-        # file_number: person[:file_nbr],
-        # ssn_number: person[:ssn_nbr],
+        file_number: va_file_number,
         address_line_one: address[:addrs_one_txt],
         address_line_two: address[:addrs_two_txt], # veteran only
         address_line_three: address[:addrs_three_txt], # veteran only
@@ -31,7 +31,7 @@ module BGS
         address_state_code: address[:postal_cd], # veteran only
         address_city: address[:city_nm], # veteran only
         address_zip_code: address[:zip_prefix_nbr], # veteran only
-        type: 'veteran', # needed
+        type: 'veteran',
         benefit_claim_type_end_product: claim_type_end_product
       }
     end

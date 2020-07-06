@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGS
-  class BenefitClaim < Base
+  class BenefitClaim < Service
     def initialize(vnp_benefit_claim:, veteran:, user:)
       @vnp_benefit_claim = vnp_benefit_claim
       @veteran = veteran
