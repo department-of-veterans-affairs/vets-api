@@ -33,7 +33,7 @@
   },
   "included": [
     {
-      "type": "ContestableIssue",
+      "type": "contestableIssue",
       "attributes": {
         "issue": "tinnitus",
         "decisionDate": "1900-01-01",
@@ -43,7 +43,7 @@
       }
     },
     {
-      "type": "ContestableIssue",
+      "type": "contestableIssue",
       "attributes": {
         "issue": "left knee",
         "decisionDate": "1900-01-02",
@@ -52,7 +52,7 @@
       }
     },
     {
-      "type": "ContestableIssue",
+      "type": "contestableIssue",
       "attributes": {
         "issue": "right knee",
         "decisionDate": "1900-01-03",
@@ -61,7 +61,7 @@
       }
     },
     {
-      "type": "ContestableIssue",
+      "type": "contestableIssue",
       "attributes": {
         "issue": "PTSD",
         "decisionDate": "1900-01-04",
@@ -70,7 +70,7 @@
       }
     },
     {
-      "type": "ContestableIssue",
+      "type": "contestableIssue",
       "attributes": {
         "issue": "Traumatic Brain Injury",
         "decisionDate": "1900-01-05",
@@ -78,7 +78,7 @@
       }
     },
     {
-      "type": "ContestableIssue",
+      "type": "contestableIssue",
       "attributes": {
         "issue": "right shoulder",
         "decisionDate": "1900-01-06"
