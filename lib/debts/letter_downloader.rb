@@ -20,6 +20,8 @@ module Debts
     end
 
     def get_letter(document_id)
+      verify_letter_in_folder(document_id)
+
       @client.send_request(
         VBMS::Requests::GetDocumentContent.new(document_id)
       ).content
@@ -36,6 +38,14 @@ module Debts
         debts_record.marshal_dump.slice(
           :document_id, :doc_type, :type_description, :received_at
         )
+      end
+    end
+
+    private
+
+    def verify_letter_in_folder(document_id)
+      raise Common::Exceptions::Unauthorized unless list_letters.any? do |letter|
+        letter[:document_id] == document_id
       end
     end
   end

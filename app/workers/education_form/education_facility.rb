@@ -4,15 +4,13 @@ module EducationForm
   class EducationFacility
     # sourced from http://www.vba.va.gov/pubs/forms/VBA-22-1990-ARE.pdf
 
-    DEFAULT = :eastern
-
     EASTERN = %w[
       CT DE DC ME MD MA NC NH NJ NY PA RI VT VA
       VI AA
     ].freeze
 
     # We need to keep SOUTHERN because existing records will have
-    # this as a region, and we need to conitnue to show the counts
+    # this as a region, and we need to continue to show the counts
     # in the YTD reports.
     SOUTHERN = %w[].freeze
 
@@ -86,15 +84,21 @@ module EducationForm
 
     def self.check_area(address)
       area = address&.state
-      case area
-      when *EASTERN
-        :eastern
-      when *CENTRAL
-        :central
-      when *WESTERN
-        :western
+      if Flipper.enabled?(:route_st_louis_rpo_to_buffalo_rpo)
+        if WESTERN.any? { |state| state == area }
+          :western
+        else
+          :eastern
+        end
       else
-        DEFAULT
+        case area
+        when *CENTRAL
+          :central
+        when *WESTERN
+          :western
+        else
+          :eastern
+        end
       end
     end
 
