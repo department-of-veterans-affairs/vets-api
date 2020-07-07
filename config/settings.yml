@@ -256,7 +256,7 @@ mhv:
   account:
     mock: false
 
-# Settings for Master Veteran Index
+# Settings for Master Person Index (formerly Master Veteran Index)
 mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
   open_timeout: 15
