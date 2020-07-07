@@ -748,7 +748,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
-      context 'MVI is down', :aggregate_failures do
+      context 'MPI is down', :aggregate_failures do
         let(:authn_context) { 'myhealthevet' }
         let(:mhv_premium_user) { build(:user, :mhv, uuid: uuid) }
         let(:saml_user_attributes) do
@@ -806,7 +806,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                   authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
                   loa: { current: 1, highest: 1 }
                 },
-                mvi: 'breakers is open for MVI'
+                mpi: 'breakers is open for MPI'
               }
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')

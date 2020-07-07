@@ -75,16 +75,16 @@ class UserSessionForm
         authn_context: @user_identity&.authn_context,
         loa: @user_identity&.loa
       },
-      mvi: mvi_context
+      mpi: mpi_context
     )
   end
 
-  def mvi_context
+  def mpi_context
     latest_outage = MPI::Configuration.instance.breakers_service.latest_outage
     if latest_outage && !latest_outage.ended?
-      'breakers is closed for MVI'
+      'breakers is closed for MPI'
     else
-      'breakers is open for MVI'
+      'breakers is open for MPI'
     end
   end
 
