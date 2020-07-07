@@ -36,7 +36,7 @@ describe VAOS::PreferencesService do
     end
 
     context 'with valid params' do
-      it 'updates preferences', :skip_mvi do
+      it 'updates preferences', :skip_mpi do
         VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
           response = subject.put_preferences(request_body)
 
@@ -49,7 +49,7 @@ describe VAOS::PreferencesService do
     end
 
     context 'with invalid params' do
-      it 'returns a validation exception', :skip_mvi do
+      it 'returns a validation exception', :skip_mpi do
         expect { subject.put_preferences({}) }.to raise_error(Common::Exceptions::ValidationErrors)
       end
     end

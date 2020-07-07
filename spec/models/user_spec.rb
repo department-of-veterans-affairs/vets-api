@@ -33,7 +33,7 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#ssn_mismatch?', :skip_mvi do
+  describe '#ssn_mismatch?', :skip_mpi do
     let(:user) { build(:user, :loa3) }
     let(:mpi_profile) { build(:mpi_profile, ssn: 'unmatched-ssn') }
 

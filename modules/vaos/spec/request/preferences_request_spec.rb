@@ -37,7 +37,7 @@ RSpec.describe 'preferences', type: :request do
       end
     end
 
-    context 'with a valid PUT preferences request', :skip_mvi do
+    context 'with a valid PUT preferences request', :skip_mpi do
       let(:user) { build(:user, :vaos) }
       let(:request_body) do
         {

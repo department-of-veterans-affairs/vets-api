@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
+RSpec.describe 'vaos appointments', type: :request, skip_mpi: true do
   include SchemaMatchers
 
   before do

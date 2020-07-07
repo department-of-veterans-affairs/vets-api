@@ -89,7 +89,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     end
   end
 
-  describe 'POST /vaos/v0/appointment_requests', skip_mvi: true do
+  describe 'POST /vaos/v0/appointment_requests', skip_mpi: true do
     let(:current_user) { build(:user, :vaos) }
     let(:params) { build(:appointment_request_form, :creation, user: current_user).params }
 
@@ -117,7 +117,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
     end
   end
 
-  describe 'PUT /vaos/v0/appointment_requests/:id', skip_mvi: true do
+  describe 'PUT /vaos/v0/appointment_requests/:id', skip_mpi: true do
     let(:current_user) { build(:user, :vaos) }
     let(:id) { '8a4886886e4c8e22016e92be77cb00f9' }
     let(:date) { Time.zone.parse('2019-11-22 10:53:05 +0000') }

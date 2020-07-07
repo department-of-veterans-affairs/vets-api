@@ -23,7 +23,7 @@ RSpec.describe 'personal_information', type: :request do
       end
     end
 
-    context 'when MVI does not return a gender nor birthday', skip_mvi: true do
+    context 'when MVI does not return a gender nor birthday', skip_mpi: true do
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('mpi/find_candidate/missing_birthday_and_gender') do
           get '/v0/profile/personal_information'

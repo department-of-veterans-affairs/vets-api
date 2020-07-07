@@ -175,7 +175,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
   end
 
-  context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
+  context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mpi do
     before do
       sign_in_as(new_user(:loa1))
       get v0_user_url, params: nil
@@ -209,7 +209,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
   end
 
-  context 'GET /v0/user - MVI Integration', :skip_mvi do
+  context 'GET /v0/user - MVI Integration', :skip_mpi do
     before do
       sign_in_as(new_user(:loa3))
     end

@@ -1388,7 +1388,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
-      it 'supports getting user with some external errors', skip_mvi: true do
+      it 'supports getting user with some external errors', skip_mpi: true do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
     end

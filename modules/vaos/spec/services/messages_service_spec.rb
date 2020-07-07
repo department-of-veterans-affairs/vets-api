@@ -10,7 +10,7 @@ describe VAOS::MessagesService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
-  describe '#get_messages', :skip_mvi do
+  describe '#get_messages', :skip_mpi do
     it 'returns an array of size 1' do
       VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[method uri]) do
         response = subject.get_messages(request_id)
@@ -38,7 +38,7 @@ describe VAOS::MessagesService do
     end
   end
 
-  describe '#post_message', :skip_mvi do
+  describe '#post_message', :skip_mpi do
     let(:appointment_request_id) { '8a4886886e4c8e22016ef6a8b1bf0396' }
     let(:request_body) { { message_text: 'I want to see doctor Jeckyl please.' } }
 

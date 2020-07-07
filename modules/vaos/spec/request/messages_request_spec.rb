@@ -37,7 +37,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
         end
       end
 
-      it 'has access and returns messages', :skip_mvi do
+      it 'has access and returns messages', :skip_mpi do
         VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[method uri]) do
           get "/vaos/v0/appointment_requests/#{request_id}/messages"
 
@@ -80,7 +80,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       end
 
       context 'with access and valid message' do
-        it 'posts a message', :skip_mvi do
+        it 'posts a message', :skip_mpi do
           VCR.use_cassette('vaos/messages/post_message', match_requests_on: %i[method uri]) do
             post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
@@ -94,7 +94,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       context 'with access and invalid message' do
         let(:request_body) { { message_text: Faker::Lorem.characters(number: 101) } }
 
-        it 'returns a validation error', :skip_mvi do
+        it 'returns a validation error', :skip_mpi do
           post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
           expect(response).to have_http_status(:unprocessable_entity)
@@ -107,7 +107,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       context 'with access and invalid message' do
         let(:request_body) { { message_text: '' } }
 
-        it 'returns a validation error', :skip_mvi do
+        it 'returns a validation error', :skip_mpi do
           post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
           expect(response).to have_http_status(:bad_request)
@@ -120,7 +120,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       context 'with access and invalid appointment request id' do
         let(:request_id) { '8a4886886e4c8e22016eebd3b8820347' }
 
-        it 'returns bad request', :skip_mvi do
+        it 'returns bad request', :skip_mpi do
           VCR.use_cassette('vaos/messages/post_message_error', match_requests_on: %i[method uri]) do
             post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 
@@ -133,7 +133,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       end
 
       context 'with access and too many messages for appointment request' do
-        it 'returns bad request', :skip_mvi do
+        it 'returns bad request', :skip_mpi do
           VCR.use_cassette('vaos/messages/post_message_error_400', match_requests_on: %i[method uri]) do
             post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
 

@@ -37,7 +37,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
         end
       end
 
-      it 'has access and returns eligibility true', :skip_mvi do
+      it 'has access and returns eligibility true', :skip_mpi do
         VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method uri]) do
           get "/vaos/v0/community_care/eligibility/#{service_type}"
 
@@ -50,7 +50,7 @@ RSpec.describe 'vaos community care eligibility', type: :request do
       context 'with access and invalid service_type' do
         let(:service_type) { 'NotAType' }
 
-        it 'returns a validation error', :skip_mvi do
+        it 'returns a validation error', :skip_mpi do
           VCR.use_cassette('vaos/cc_eligibility/get_eligibility_400', match_requests_on: %i[method uri]) do
             get "/vaos/v0/community_care/eligibility/#{service_type}"
 

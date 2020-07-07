@@ -10,7 +10,7 @@ describe VAOS::CCEligibilityService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
-  describe '#get_eligibility', :skip_mvi do
+  describe '#get_eligibility', :skip_mpi do
     it 'gets an eligibility of true' do
       VCR.use_cassette('vaos/cc_eligibility/get_eligibility_true', match_requests_on: %i[method uri]) do
         response = subject.get_eligibility(service_type)
