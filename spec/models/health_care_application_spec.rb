@@ -133,7 +133,7 @@ RSpec.describe HealthCareApplication, type: :model do
   end
 
   describe '.user_attributes' do
-    it 'creates a mvi compatible hash of attributes' do
+    it 'creates a mpi compatible hash of attributes' do
       expect(
         described_class.user_attributes(
           health_care_application.parsed_form

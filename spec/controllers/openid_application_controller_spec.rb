@@ -221,7 +221,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
     end
 
     context 'with a MHV credential profile' do
-      let(:mvi_profile) do
+      let(:mpi_profile) do
         build(:mpi_profile,
               icn: '10000012345V123457',
               family_name: 'zackariah')
@@ -229,7 +229,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       before do
         allow(JWT).to receive(:decode).and_return(token)
-        stub_mpi(mvi_profile)
+        stub_mpi(mpi_profile)
       end
 
       let(:okta_response) { FactoryBot.build(:okta_mhv_response) }
@@ -256,7 +256,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
     context 'with a DSLogon credential profile' do
       let(:okta_response) { FactoryBot.build(:okta_dslogon_response) }
       let(:faraday_response) { instance_double('Faraday::Response') }
-      let(:mvi_profile) do
+      let(:mpi_profile) do
         build(:mpi_profile,
               icn: '10000012345V123456',
               family_name: 'WEAVER')
@@ -264,7 +264,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       before do
         allow(JWT).to receive(:decode).and_return(token)
-        stub_mpi(mvi_profile)
+        stub_mpi(mpi_profile)
       end
 
       it 'returns 200 and add user to session' do
@@ -288,7 +288,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
     context 'with an ID.me credential profile' do
       let(:okta_response) { FactoryBot.build(:okta_idme_response) }
       let(:faraday_response) { instance_double('Faraday::Response') }
-      let(:mvi_profile) do
+      let(:mpi_profile) do
         build(:mpi_profile,
               icn: '10000012345V123458',
               family_name: 'CARROLL')
@@ -296,7 +296,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       before do
         allow(JWT).to receive(:decode).and_return(token)
-        stub_mpi(mvi_profile)
+        stub_mpi(mpi_profile)
       end
 
       it 'returns 200 and add user to session' do

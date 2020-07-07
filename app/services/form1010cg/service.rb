@@ -85,7 +85,7 @@ module Form1010cg
       cached_icn = @cache[:icns][form_subject]
       return cached_icn unless cached_icn.nil?
 
-      response = mvi_service.find_profile(build_user_identity_for(form_subject))
+      response = mpi_service.find_profile(build_user_identity_for(form_subject))
 
       case response.status
       when 'OK'
@@ -129,8 +129,8 @@ module Form1010cg
       raise(Common::Exceptions::ValidationErrors, claim)
     end
 
-    def mvi_service
-      @mvi_service ||= MPI::Service.new
+    def mpi_service
+      @mpi_service ||= MPI::Service.new
     end
 
     # MPI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.

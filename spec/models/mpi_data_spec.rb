@@ -6,8 +6,8 @@ require 'support/mpi/stub_mpi'
 
 describe MPIData, skip_mpi: true do
   let(:user) { build(:user, :loa3) }
-  let(:mvi) { MPIData.for_user(user) }
-  let(:mvi_profile) { build(:mpi_profile) }
+  let(:mpi) { MPIData.for_user(user) }
+  let(:mpi_profile) { build(:mpi_profile) }
   let(:mpi_codes) do
     {
       birls_id: '111985523',
@@ -17,7 +17,7 @@ describe MPIData, skip_mpi: true do
   let(:profile_response) do
     MPI::Responses::FindProfileResponse.new(
       status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
-      profile: mvi_profile
+      profile: mpi_profile
     )
   end
   let(:profile_response_error) { MPI::Responses::FindProfileResponse.with_server_error(server_error_exception) }
@@ -34,7 +34,7 @@ describe MPIData, skip_mpi: true do
 
   describe '.new' do
     it 'creates an instance with user attributes' do
-      expect(mvi.user).to eq(user)
+      expect(mpi.user).to eq(user)
     end
   end
 
@@ -75,51 +75,51 @@ describe MPIData, skip_mpi: true do
     context 'when the cache is empty' do
       it 'caches and return an :ok response', :aggregate_failures do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
-        expect(mvi).to receive(:save).once
+        expect(mpi).to receive(:save).once
         expect_any_instance_of(MPI::Service).to receive(:find_profile).once
-        expect(mvi.status).to eq('OK')
-        expect(mvi.send(:record_ttl)).to eq(86_400)
-        expect(mvi.error).to be_nil
+        expect(mpi.status).to eq('OK')
+        expect(mpi.send(:record_ttl)).to eq(86_400)
+        expect(mpi.error).to be_nil
       end
       it 'returns an :error response but not cache it', :aggregate_failures do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
-        expect(mvi).not_to receive(:save)
+        expect(mpi).not_to receive(:save)
         expect_any_instance_of(MPI::Service).to receive(:find_profile).once
-        expect(mvi.status).to eq('SERVER_ERROR')
-        expect(mvi.error).to be_present
-        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
+        expect(mpi.status).to eq('SERVER_ERROR')
+        expect(mpi.error).to be_present
+        expect(mpi.error.class).to eq Common::Exceptions::BackendServiceException
       end
       it 'returns a :not_found response and cache it for a shorter time', :aggregate_failures do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_not_found)
-        expect(mvi).to receive(:save).once
+        expect(mpi).to receive(:save).once
         expect_any_instance_of(MPI::Service).to receive(:find_profile).once
-        expect(mvi.status).to eq('NOT_FOUND')
-        expect(mvi.send(:record_ttl)).to eq(1800)
-        expect(mvi.error).to be_present
-        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
+        expect(mpi.status).to eq('NOT_FOUND')
+        expect(mpi.send(:record_ttl)).to eq(1800)
+        expect(mpi.error).to be_present
+        expect(mpi.error.class).to eq Common::Exceptions::BackendServiceException
       end
     end
 
     context 'when there is cached data' do
       it 'returns the cached data for :ok response', :aggregate_failures do
-        mvi.cache(user.uuid, profile_response)
+        mpi.cache(user.uuid, profile_response)
         expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
-        expect(mvi.profile).to have_deep_attributes(mvi_profile)
-        expect(mvi.error).to be_nil
+        expect(mpi.profile).to have_deep_attributes(mpi_profile)
+        expect(mpi.error).to be_nil
       end
       it 'returns the cached data for :error response', :aggregate_failures do
-        mvi.cache(user.uuid, profile_response_error)
+        mpi.cache(user.uuid, profile_response_error)
         expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
-        expect(mvi.profile).to be_nil
-        expect(mvi.error).to be_present
-        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
+        expect(mpi.profile).to be_nil
+        expect(mpi.error).to be_present
+        expect(mpi.error.class).to eq Common::Exceptions::BackendServiceException
       end
       it 'returns the cached data for :not_found response', :aggregate_failures do
-        mvi.cache(user.uuid, profile_response_not_found)
+        mpi.cache(user.uuid, profile_response_not_found)
         expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
-        expect(mvi.profile).to be_nil
-        expect(mvi.error).to be_present
-        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
+        expect(mpi.profile).to be_nil
+        expect(mpi.error).to be_present
+        expect(mpi.error.class).to eq Common::Exceptions::BackendServiceException
       end
     end
   end
@@ -132,43 +132,43 @@ describe MPIData, skip_mpi: true do
 
       describe '#edipi' do
         it 'matches the response' do
-          expect(mvi.edipi).to eq(profile_response.profile.edipi)
+          expect(mpi.edipi).to eq(profile_response.profile.edipi)
         end
       end
 
       describe '#icn' do
         it 'matches the response' do
-          expect(mvi.icn).to eq(profile_response.profile.icn)
+          expect(mpi.icn).to eq(profile_response.profile.icn)
         end
       end
 
       describe '#icn_with_aaid' do
         it 'matches the response' do
-          expect(mvi.icn_with_aaid).to eq(profile_response.profile.icn_with_aaid)
+          expect(mpi.icn_with_aaid).to eq(profile_response.profile.icn_with_aaid)
         end
       end
 
       describe '#mhv_correlation_id' do
         it 'matches the response' do
-          expect(mvi.mhv_correlation_id).to eq(profile_response.profile.mhv_correlation_id)
+          expect(mpi.mhv_correlation_id).to eq(profile_response.profile.mhv_correlation_id)
         end
       end
 
       describe '#participant_id' do
         it 'matches the response' do
-          expect(mvi.participant_id).to eq(profile_response.profile.participant_id)
+          expect(mpi.participant_id).to eq(profile_response.profile.participant_id)
         end
       end
 
       describe '#historical_icns' do
         it 'matches the response' do
-          expect(mvi.historical_icns).to eq(profile_response.profile.historical_icns)
+          expect(mpi.historical_icns).to eq(profile_response.profile.historical_icns)
         end
       end
 
       describe '#vet360_id' do
         it 'matches the response' do
-          expect(mvi.vet360_id).to eq(profile_response.profile.vet360_id)
+          expect(mpi.vet360_id).to eq(profile_response.profile.vet360_id)
         end
       end
     end
@@ -179,43 +179,43 @@ describe MPIData, skip_mpi: true do
       end
 
       it 'captures the error in #error' do
-        expect(mvi.error).to be_present
+        expect(mpi.error).to be_present
       end
 
       describe '#edipi' do
         it 'is nil' do
-          expect(mvi.edipi).to be_nil
+          expect(mpi.edipi).to be_nil
         end
       end
 
       describe '#icn' do
         it 'is nil' do
-          expect(mvi.icn).to be_nil
+          expect(mpi.icn).to be_nil
         end
       end
 
       describe '#icn_with_aaid' do
         it 'is nil' do
-          expect(mvi.icn_with_aaid).to be_nil
+          expect(mpi.icn_with_aaid).to be_nil
         end
       end
 
       describe '#mhv_correlation_id' do
         it 'is nil' do
-          expect(mvi.mhv_correlation_id).to be_nil
+          expect(mpi.mhv_correlation_id).to be_nil
         end
       end
 
       describe '#participant_id' do
         it 'is nil' do
-          expect(mvi.participant_id).to be_nil
+          expect(mpi.participant_id).to be_nil
         end
       end
     end
   end
 
   describe '#add_ids' do
-    let(:mvi) { MPIData.for_user(user) }
+    let(:mpi) { MPIData.for_user(user) }
     let(:response) do
       MPI::Responses::AddPersonResponse.new(
         status: 'OK',
@@ -229,7 +229,7 @@ describe MPIData, skip_mpi: true do
     it 'updates the user profile and updates the cache' do
       allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
       expect_any_instance_of(MPIData).to receive(:cache).twice.and_call_original
-      mvi.send(:add_ids, response)
+      mpi.send(:add_ids, response)
       expect(user.participant_id).to eq('0987654321')
       expect(user.birls_id).to eq('1234567890')
     end

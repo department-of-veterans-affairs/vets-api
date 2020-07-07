@@ -64,7 +64,7 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context 'mvi ssn is nil' do
+    context 'mpi ssn is nil' do
       let(:mpi_profile) { build(:mpi_profile, ssn: nil) }
 
       it 'returns false' do
@@ -227,7 +227,7 @@ RSpec.describe User, type: :model do
           expect(user.ssn).to be(user.identity.ssn)
         end
 
-        it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
+        it 'fetches edipi from mpi when identity.dslogon_edipi is empty' do
           expect(user.edipi).to be(user.mpi.edipi)
         end
 

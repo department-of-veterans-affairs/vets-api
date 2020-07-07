@@ -9,7 +9,7 @@ describe MPI::Messages::MessageBuilder do
   describe '#build_idm' do
     let(:el) { dummy_class.build_idm('PRPA_IN201305UV02') }
 
-    it 'has mvi attributes' do
+    it 'has mpi attributes' do
       expect(el.attributes).to eq(
         'xmlns:idm' => 'http://vaww.oed.oit.va.gov',
         'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema‐instance',

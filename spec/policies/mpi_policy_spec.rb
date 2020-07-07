@@ -8,7 +8,7 @@ describe MPIPolicy do
   permissions :queryable? do
     let(:user) { build(:user, :loa3) }
 
-    context 'with a user who has the required mvi attributes' do
+    context 'with a user who has the required mpi attributes' do
       context 'where user has an icn, but not the required personal attributes' do
         it 'is queryable' do
           user.identity.attributes = {
@@ -19,7 +19,7 @@ describe MPIPolicy do
             gender: nil
           }
 
-          expect(subject).to permit(user, :mvi)
+          expect(subject).to permit(user, :mpi)
         end
       end
 
@@ -27,43 +27,43 @@ describe MPIPolicy do
         it 'is queryable' do
           allow(user).to receive(:icn).and_return(nil)
 
-          expect(subject).to permit(user, :mvi)
+          expect(subject).to permit(user, :mpi)
         end
       end
     end
 
-    context 'with a user who does not have the required mvi attributes' do
+    context 'with a user who does not have the required mpi attributes' do
       context 'where user has no icn' do
         before { allow(user).to receive(:icn).and_return(nil) }
 
         it 'is not queryable without a ssn' do
           user.identity.ssn = nil
 
-          expect(subject).not_to permit(user, :mvi)
+          expect(subject).not_to permit(user, :mpi)
         end
 
         it 'is not queryable without a first_name' do
           user.identity.first_name = nil
 
-          expect(subject).not_to permit(user, :mvi)
+          expect(subject).not_to permit(user, :mpi)
         end
 
         it 'is not queryable without a last_name' do
           user.identity.last_name = nil
 
-          expect(subject).not_to permit(user, :mvi)
+          expect(subject).not_to permit(user, :mpi)
         end
 
         it 'is not queryable without a birth_date' do
           user.identity.birth_date = nil
 
-          expect(subject).not_to permit(user, :mvi)
+          expect(subject).not_to permit(user, :mpi)
         end
 
         it 'is not queryable without a gender' do
           user.identity.gender = nil
 
-          expect(subject).not_to permit(user, :mvi)
+          expect(subject).not_to permit(user, :mpi)
         end
       end
     end
@@ -74,7 +74,7 @@ describe MPIPolicy do
       let(:user) { build(:user_with_no_ids) }
 
       it 'grants access' do
-        expect(subject).to permit(user, :mvi)
+        expect(subject).to permit(user, :mpi)
       end
     end
 
@@ -82,7 +82,7 @@ describe MPIPolicy do
       let(:user) { build(:user_with_no_birls_id) }
 
       it 'grants access' do
-        expect(subject).to permit(user, :mvi)
+        expect(subject).to permit(user, :mpi)
       end
     end
 
@@ -90,7 +90,7 @@ describe MPIPolicy do
       let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       it 'denies access' do
-        expect(subject).not_to permit(user, :mvi)
+        expect(subject).not_to permit(user, :mpi)
       end
     end
 
@@ -98,7 +98,7 @@ describe MPIPolicy do
       let(:user) { build(:user, :loa3) }
 
       it 'denies access' do
-        expect(subject).not_to permit(user, :mvi)
+        expect(subject).not_to permit(user, :mpi)
       end
     end
   end

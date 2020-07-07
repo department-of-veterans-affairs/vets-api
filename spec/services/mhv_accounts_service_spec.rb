@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe MhvAccountsService do
-  let(:mvi_profile) do
+  let(:mpi_profile) do
     build(:mpi_profile,
           icn: '1012667122V019349',
           given_names: %w[Hector],
@@ -15,10 +15,10 @@ RSpec.describe MhvAccountsService do
           mhv_ids: mhv_ids,
           vha_facility_ids: vha_facility_ids,
           home_phone: nil,
-          address: mvi_profile_address)
+          address: mpi_profile_address)
   end
 
-  let(:mvi_profile_address) do
+  let(:mpi_profile_address) do
     build(:mpi_profile_address,
           street: '20140624',
           city: 'Houston',
@@ -29,11 +29,11 @@ RSpec.describe MhvAccountsService do
 
   let(:user) do
     create(:user, :loa3,
-           ssn: mvi_profile.ssn,
-           first_name: mvi_profile.given_names.first,
-           last_name: mvi_profile.family_name,
-           gender: mvi_profile.gender,
-           birth_date: mvi_profile.birth_date,
+           ssn: mpi_profile.ssn,
+           first_name: mpi_profile.given_names.first,
+           last_name: mpi_profile.family_name,
+           gender: mpi_profile.gender,
+           birth_date: mpi_profile.birth_date,
            email: 'vets.gov.user+0@gmail.com')
   end
 
@@ -41,7 +41,7 @@ RSpec.describe MhvAccountsService do
   let(:vha_facility_ids) { ['450'] }
 
   before do
-    stub_mpi(mvi_profile)
+    stub_mpi(mpi_profile)
     terms = create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME, version: 'v3.4')
     date_signed = Time.new(2017, 5, 9).utc
     create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid, created_at: date_signed)

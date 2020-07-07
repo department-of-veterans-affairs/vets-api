@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe BipClaims::Service do
   let(:service) { described_class.new }
   let(:claim) { build(:burial_claim) }
-  let(:mvi_service) { instance_double(MPI::AttrService) }
+  let(:mpi_service) { instance_double(MPI::AttrService) }
 
   describe '#veteran_attributes' do
     it 'creates valid Veteran object from form data' do
@@ -26,12 +26,12 @@ RSpec.describe BipClaims::Service do
     end
 
     it 'calls MPI::AttrService for veteran lookup' do
-      allow(MPI::AttrService).to receive(:new).and_return(mvi_service)
-      allow(mvi_service).to receive(:find_profile).and_return(
+      allow(MPI::AttrService).to receive(:new).and_return(mpi_service)
+      allow(mpi_service).to receive(:find_profile).and_return(
         OpenStruct.new(profile:
           OpenStruct.new(participant_id: 123))
       )
-      expect(mvi_service).to receive(:find_profile)
+      expect(mpi_service).to receive(:find_profile)
 
       service.lookup_veteran_from_mpi(claim)
     end

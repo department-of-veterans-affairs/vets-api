@@ -46,7 +46,7 @@ module V0
       def log_errors_for(response)
         if response&.gender.nil? || response&.birth_date.nil?
           log_message_to_sentry(
-            'mvi missing data bug',
+            'mpi missing data bug',
             :info,
             {
               response: response,

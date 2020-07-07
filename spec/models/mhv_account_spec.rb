@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe MhvAccount, type: :model do
-  let(:mvi_profile) do
+  let(:mpi_service) do
     build(:mpi_profile,
           icn: '1012667122V019349',
           given_names: %w[Hector],
@@ -16,10 +16,10 @@ RSpec.describe MhvAccount, type: :model do
           active_mhv_ids: active_mhv_ids,
           vha_facility_ids: vha_facility_ids,
           home_phone: nil,
-          address: mvi_profile_address)
+          address: mpi_service_address)
   end
 
-  let(:mvi_profile_address) do
+  let(:mpi_service_address) do
     build(:mpi_profile_address,
           street: '20140624',
           city: 'Houston',
@@ -32,21 +32,21 @@ RSpec.describe MhvAccount, type: :model do
     create(:user,
            loa: user_loa,
            ssn: user_ssn,
-           first_name: mvi_profile.given_names.first,
-           last_name: mvi_profile.family_name,
-           gender: mvi_profile.gender,
-           birth_date: mvi_profile.birth_date,
+           first_name: mpi_service.given_names.first,
+           last_name: mpi_service.family_name,
+           gender: mpi_service.gender,
+           birth_date: mpi_service.birth_date,
            email: 'vets.gov.user+0@gmail.com')
   end
 
   let(:user_loa) { { current: LOA::THREE, highest: LOA::THREE } }
-  let(:user_ssn) { mvi_profile.ssn }
+  let(:user_ssn) { mpi_service.ssn }
   let(:mhv_ids) { [] }
   let(:active_mhv_ids) { mhv_ids }
   let(:vha_facility_ids) { ['450'] }
 
   before do
-    stub_mpi(mvi_profile)
+    stub_mpi(mpi_service)
   end
 
   around do |example|

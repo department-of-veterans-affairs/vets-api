@@ -6,7 +6,7 @@ require 'rails_helper'
 
 RSpec.describe Form1010cg::Service do
   let(:subject) { described_class.new build(:caregivers_assistance_claim) }
-  let(:default_email_on_mvi_search) { 'no-email@example.com' }
+  let(:default_email_on_mpi_search) { 'no-email@example.com' }
   let(:build_claim_data_for) do
     lambda do |form_subject, &mutations|
       data = {
@@ -74,7 +74,7 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#icn_for' do
-    it 'searches MVI for the provided form subject' do
+    it 'searches MPI for the provided form subject' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -87,14 +87,14 @@ RSpec.describe Form1010cg::Service do
 
       veteran_data = subject.claim.veteran_data
 
-      expected_mvi_search_params = {
+      expected_mpi_search_params = {
         first_name: veteran_data['fullName']['first'],
         middle_name: veteran_data['fullName']['middle'],
         last_name: veteran_data['fullName']['last'],
         birth_date: veteran_data['dateOfBirth'],
         gender: veteran_data['gender'],
         ssn: veteran_data['ssnOrTin'],
-        email: default_email_on_mvi_search,
+        email: default_email_on_mpi_search,
         uuid: be_an_instance_of(String),
         loa: {
           current: LOA::THREE,
@@ -103,7 +103,7 @@ RSpec.describe Form1010cg::Service do
       }
 
       expect(UserIdentity).to receive(:new).with(
-        expected_mvi_search_params
+        expected_mpi_search_params
       ).and_return(
         :user_identity
       )
@@ -119,7 +119,7 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq(:ICN_123)
     end
 
-    it 'sets returns "NOT_FOUND" when profile not found in MVI' do
+    it 'sets returns "NOT_FOUND" when profile not found in MPI' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -132,14 +132,14 @@ RSpec.describe Form1010cg::Service do
 
       veteran_data = subject.claim.veteran_data
 
-      expected_mvi_search_params = {
+      expected_mpi_search_params = {
         first_name: veteran_data['fullName']['first'],
         middle_name: veteran_data['fullName']['middle'],
         last_name: veteran_data['fullName']['last'],
         birth_date: veteran_data['dateOfBirth'],
         gender: veteran_data['gender'],
         ssn: veteran_data['ssnOrTin'],
-        email: default_email_on_mvi_search,
+        email: default_email_on_mpi_search,
         uuid: be_an_instance_of(String),
         loa: {
           current: LOA::THREE,
@@ -148,7 +148,7 @@ RSpec.describe Form1010cg::Service do
       }
 
       expect(UserIdentity).to receive(:new).with(
-        expected_mvi_search_params
+        expected_mpi_search_params
       ).and_return(
         :user_identity
       )
@@ -178,7 +178,7 @@ RSpec.describe Form1010cg::Service do
       veteran_data = subject.claim.veteran_data
       pc_data = subject.claim.primary_caregiver_data
 
-      expected_mvi_search_params = {
+      expected_mpi_search_params = {
         veteran: {
           first_name: veteran_data['fullName']['first'],
           middle_name: veteran_data['fullName']['middle'],
@@ -186,7 +186,7 @@ RSpec.describe Form1010cg::Service do
           birth_date: veteran_data['dateOfBirth'],
           gender: veteran_data['gender'],
           ssn: veteran_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
+          email: default_email_on_mpi_search,
           uuid: be_an_instance_of(String),
           loa: {
             current: LOA::THREE,
@@ -200,7 +200,7 @@ RSpec.describe Form1010cg::Service do
           birth_date: pc_data['dateOfBirth'],
           gender: pc_data['gender'],
           ssn: pc_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
+          email: default_email_on_mpi_search,
           uuid: be_an_instance_of(String),
           loa: {
             current: LOA::THREE,
@@ -210,7 +210,7 @@ RSpec.describe Form1010cg::Service do
       }
 
       expect(UserIdentity).to receive(:new).with(
-        expected_mvi_search_params[:veteran]
+        expected_mpi_search_params[:veteran]
       ).and_return(
         :veteran_user_identity
       )
@@ -222,7 +222,7 @@ RSpec.describe Form1010cg::Service do
       )
 
       expect(UserIdentity).to receive(:new).with(
-        expected_mvi_search_params[:primaryCaregiver]
+        expected_mpi_search_params[:primaryCaregiver]
       ).and_return(
         :pc_user_identity
       )
@@ -243,7 +243,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'when gender is "U"' do
-      it 'will search MVI with gender: nil' do
+      it 'will search MPI with gender: nil' do
         veteran_data = build_claim_data_for.call(:veteran) do |data|
           data['gender'] = 'U'
         end
@@ -258,14 +258,14 @@ RSpec.describe Form1010cg::Service do
           )
         )
 
-        expected_mvi_search_params = {
+        expected_mpi_search_params = {
           first_name: veteran_data['fullName']['first'],
           middle_name: veteran_data['fullName']['middle'],
           last_name: veteran_data['fullName']['last'],
           birth_date: veteran_data['dateOfBirth'],
           gender: nil,
           ssn: veteran_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
+          email: default_email_on_mpi_search,
           uuid: be_an_instance_of(String),
           loa: {
             current: LOA::THREE,
@@ -274,7 +274,7 @@ RSpec.describe Form1010cg::Service do
         }
 
         expect(UserIdentity).to receive(:new).with(
-          expected_mvi_search_params
+          expected_mpi_search_params
         ).and_return(
           :user_identity
         )
@@ -292,7 +292,7 @@ RSpec.describe Form1010cg::Service do
     end
 
     context 'when email is provided' do
-      it 'will provid that email in the mvi search' do
+      it 'will provid that email in the mpi search' do
         veteran_email = 'veteran-email@example.com'
         veteran_data = build_claim_data_for.call(:veteran) do |data|
           data['email'] = veteran_email
@@ -308,7 +308,7 @@ RSpec.describe Form1010cg::Service do
           )
         )
 
-        expected_mvi_search_params = {
+        expected_mpi_search_params = {
           first_name: veteran_data['fullName']['first'],
           middle_name: veteran_data['fullName']['middle'],
           last_name: veteran_data['fullName']['last'],
@@ -324,7 +324,7 @@ RSpec.describe Form1010cg::Service do
         }
 
         expect(UserIdentity).to receive(:new).with(
-          expected_mvi_search_params
+          expected_mpi_search_params
         ).and_return(
           :user_identity
         )
@@ -457,7 +457,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when the search fails' do
-        it 'raises the error found in the MVI response' do
+        it 'raises the error found in the MPI response' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,

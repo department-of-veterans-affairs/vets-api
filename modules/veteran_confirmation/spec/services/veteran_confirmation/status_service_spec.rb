@@ -17,7 +17,7 @@ RSpec.describe VeteranConfirmation::StatusService do
     let(:not_found) { MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_found] }
     let(:server_error) { MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:server_error] }
 
-    let(:mvi_profile) do
+    let(:mpi_profile) do
       profile = MPI::Models::MPIProfile.new
       profile.edipi = '1005490754'
       response = MPI::Responses::FindProfileResponse.new
@@ -26,13 +26,13 @@ RSpec.describe VeteranConfirmation::StatusService do
       response
     end
 
-    let(:not_found_mvi_profile) do
+    let(:not_found_mpi_profile) do
       response = MPI::Responses::FindProfileResponse.new
       response.status = not_found
       response
     end
 
-    let(:server_error_mvi_profile) do
+    let(:server_error_mpi_profile) do
       response = MPI::Responses::FindProfileResponse.new
       response.status = server_error
       response.error = MPI::Errors::ServiceError.new
@@ -62,7 +62,7 @@ RSpec.describe VeteranConfirmation::StatusService do
     context 'when passed valid attributes' do
       it 'confirms veteran status for persons with a title38 status of V1' do
         expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
-          .and_return(mvi_profile)
+          .and_return(mpi_profile)
         expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status)
           .and_return(veteran_status_response)
 
@@ -72,7 +72,7 @@ RSpec.describe VeteranConfirmation::StatusService do
 
       it 'does not confirm for title38 status codes other than V1' do
         expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
-          .and_return(mvi_profile)
+          .and_return(mpi_profile)
         expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status)
           .and_return(non_veteran_status_response)
 
@@ -82,7 +82,7 @@ RSpec.describe VeteranConfirmation::StatusService do
 
       it 'raises an exception if MVI returns a server error' do
         expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
-          .and_return(server_error_mvi_profile)
+          .and_return(server_error_mpi_profile)
 
         expect do
           subject.get_by_attributes(valid_attributes)
@@ -91,7 +91,7 @@ RSpec.describe VeteranConfirmation::StatusService do
 
       it 'does not confirm if a profile is not found in MVI' do
         expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
-          .and_return(not_found_mvi_profile)
+          .and_return(not_found_mpi_profile)
 
         result = subject.get_by_attributes(valid_attributes)
 
@@ -100,7 +100,7 @@ RSpec.describe VeteranConfirmation::StatusService do
 
       it 'does not confirm if EMIS returns an error response' do
         expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
-          .and_return(mvi_profile)
+          .and_return(mpi_profile)
 
         expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status)
           .and_return(emis_error)
