@@ -560,15 +560,7 @@ RSpec.describe Form1010cg::Service do
   describe '#assert_veteran_status' do
     it 'will raise error if veteran\'s icn can not be found' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-      expect { subject.assert_veteran_status }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(1)
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
-        expect(e.errors[0].detail).to eq('base - Unable to process submission digitally')
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].title).to eq('Unable to process submission digitally')
-      end
+      expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
     it 'will not raise error if veteran\'s icn is found' do
@@ -582,16 +574,7 @@ RSpec.describe Form1010cg::Service do
   describe '#process_claim!' do
     it 'raises error when ICN not found for veteran' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-
-      expect { subject.process_claim! }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(1)
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
-        expect(e.errors[0].detail).to eq('base - Unable to process submission digitally')
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].title).to eq('Unable to process submission digitally')
-      end
+      expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
     it 'submits the claim with metadata to carma and returns a Form1010cg::Submission' do
