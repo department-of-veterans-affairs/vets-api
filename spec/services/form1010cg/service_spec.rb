@@ -537,12 +537,15 @@ RSpec.describe Form1010cg::Service do
         expect(subject).to receive(:icn_for).with(form_subject).and_return(return_value)
       end
 
+      veteran_status = true
+      expect(subject).to receive(:is_veteran).with('veteran').and_return(veteran_status)
+
       expect(subject).not_to receive(:is_veteran)
 
       expect(subject.build_metadata).to eq(
         veteran: {
           icn: :ICN_0,
-          is_veteran: false
+          is_veteran: veteran_status
         },
         primary_caregiver: {
           icn: :ICN_1

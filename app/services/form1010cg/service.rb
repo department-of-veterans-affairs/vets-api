@@ -70,8 +70,7 @@ module Form1010cg
         }
       end
 
-      # Set the veteran status on the :veteran namespace of metadata
-      metadata[:veteran][:is_veteran] = false
+      metadata[:veteran][:is_veteran] = is_veteran('veteran')
 
       metadata
     end
