@@ -521,7 +521,6 @@ RSpec.describe Form1010cg::Service do
         ).and_return(
           emis_response
         )
-        allow(emis_service).to receive(:items).and_raise(NoMethodError)
       end
 
       3.times do
