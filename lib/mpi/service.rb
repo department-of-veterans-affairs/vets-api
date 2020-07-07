@@ -11,7 +11,7 @@ require 'sentry_logging'
 
 module MPI
   # Wrapper for the MPI (Master Person Index) Service.
-  # This was formerly the MVI (Mater Veteran Index) Service.
+  # This was formerly the MPI (Mater Veteran Index) Service.
   # vets.gov has access to three MPI endpoints:
   # * PRPA_IN201301UV02 (TODO(AJD): Add Person)
   # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
@@ -48,13 +48,13 @@ module MPI
       end
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
-      log_console_and_sentry('MVI add_person connection failed.', :warn)
+      log_console_and_sentry('MPI add_person connection failed.', :warn)
       mpi_add_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
-      log_console_and_sentry("MVI add_person connection failed: #{e.message}", :warn)
+      log_console_and_sentry("MPI add_person connection failed: #{e.message}", :warn)
       mpi_add_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_console_and_sentry("MVI add_person error: #{e.message}", :warn)
+      log_console_and_sentry("MPI add_person error: #{e.message}", :warn)
       mpi_add_exception_response_for('MVI_504', e)
     rescue MPI::Errors::Base => e
       key = get_mpi_error_key(e)
@@ -81,13 +81,13 @@ module MPI
       end
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
-      log_console_and_sentry('MVI find_profile connection failed.', :warn)
+      log_console_and_sentry('MPI find_profile connection failed.', :warn)
       mpi_profile_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
-      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
+      log_console_and_sentry("MPI find_profile connection failed: #{e.message}", :warn)
       mpi_profile_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
+      log_console_and_sentry("MPI find_profile error: #{e.message}", :warn)
       mpi_profile_exception_response_for('MVI_504', e)
     rescue MPI::Errors::Base => e
       mpi_error_handler(user_identity, e)
@@ -107,7 +107,7 @@ module MPI
     private
 
     def measure_info(user_identity)
-      Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user_identity)) { yield }
+      Rails.logger.measure_info('Performed MPI Query', payload: logging_context(user_identity)) { yield }
     end
 
     def get_mpi_error_key(e)
@@ -145,18 +145,18 @@ module MPI
     def mpi_error_handler(user_identity, e)
       case e
       when MPI::Errors::DuplicateRecords
-        log_console_and_sentry('MVI Duplicate Record', :warn)
+        log_console_and_sentry('MPI Duplicate Record', :warn)
       when MPI::Errors::RecordNotFound
-        log_console_and_sentry('MVI Record Not Found')
+        log_console_and_sentry('MPI Record Not Found')
       when MPI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user_identity.mhv_icn.present?
-          log_console_and_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
+          log_console_and_sentry('MPI Invalid Request (Possible RecordNotFound)', :error)
         else
-          log_console_and_sentry('MVI Invalid Request', :error)
+          log_console_and_sentry('MPI Invalid Request', :error)
         end
       when MPI::Errors::FailedRequestError
-        log_console_and_sentry('MVI Failed Request', :error)
+        log_console_and_sentry('MPI Failed Request', :error)
       end
     end
 

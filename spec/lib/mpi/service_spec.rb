@@ -104,7 +104,7 @@ describe MPI::Service do
     context 'invalid requests' do
       it 'responds with a SERVER_ERROR if request is invalid', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
+          'MPI Invalid Request', :error
         )
 
         VCR.use_cassette('mpi/add_person/add_person_invalid_request') do
@@ -123,7 +123,7 @@ describe MPI::Service do
 
       it 'responds with a SERVER_ERROR if the user has duplicate keys in the system', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
+          'MPI Invalid Request', :error
         )
 
         VCR.use_cassette('mpi/add_person/add_person_duplicate') do
@@ -141,13 +141,13 @@ describe MPI::Service do
       end
     end
 
-    context 'with an MVI timeout' do
+    context 'with an MPI timeout' do
       let(:base_path) { MPI::Configuration.instance.base_path }
 
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(subject).to receive(:log_console_and_sentry).with(
-          'MVI add_person error: Gateway timeout',
+          'MPI add_person error: Gateway timeout',
           :warn
         )
         response = subject.add_person(user)
@@ -276,7 +276,7 @@ describe MPI::Service do
       it 'responds with a SERVER_ERROR if ICN is invalid', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound)', :error
+          'MPI Invalid Request (Possible RecordNotFound)', :error
         )
 
         VCR.use_cassette('mpi/find_candidate/invalid_icn') do
@@ -289,7 +289,7 @@ describe MPI::Service do
       it 'responds with a SERVER_ERROR if ICN has no matches', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound)', :error
+          'MPI Invalid Request (Possible RecordNotFound)', :error
         )
 
         VCR.use_cassette('mpi/find_candidate/icn_not_found') do
@@ -399,12 +399,12 @@ describe MPI::Service do
       end
     end
 
-    context 'when a MVI invalid request response is returned' do
+    context 'when a MPI invalid request response is returned' do
       it 'raises a invalid request error', :aggregate_failures do
         invalid_xml = File.read('spec/support/mpi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MPI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
+          'MPI Invalid Request', :error
         )
         VCR.use_cassette('mpi/find_candidate/invalid') do
           response = subject.find_profile(user)
@@ -413,12 +413,12 @@ describe MPI::Service do
       end
     end
 
-    context 'when a MVI internal system problem response is returned' do
+    context 'when a MPI internal system problem response is returned' do
       let(:body) { File.read('spec/support/mpi/find_candidate_ar_code_database_error_response.xml') }
 
       it 'raises a invalid request error', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Failed Request', :error
+          'MPI Failed Request', :error
         )
         stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
         response = subject.find_profile(user)
@@ -426,13 +426,13 @@ describe MPI::Service do
       end
     end
 
-    context 'with an MVI timeout' do
+    context 'with an MPI timeout' do
       let(:base_path) { MPI::Configuration.instance.base_path }
 
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(subject).to receive(:log_console_and_sentry).with(
-          'MVI find_profile error: Gateway timeout',
+          'MPI find_profile error: Gateway timeout',
           :warn
         )
         response = subject.find_profile(user)
@@ -445,7 +445,7 @@ describe MPI::Service do
       it 'raises a request failure error', :aggregate_failures do
         allow_any_instance_of(MPI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI find_profile error: SOAP HTTP call failed',
+          'MPI find_profile error: SOAP HTTP call failed',
           :warn
         )
         VCR.use_cassette('mpi/find_candidate/five_hundred') do
@@ -513,7 +513,7 @@ describe MPI::Service do
       end
     end
 
-    context 'when MVI returns 500 but VAAFI sends 200' do
+    context 'when MPI returns 500 but VAAFI sends 200' do
       before do
         expect(MPI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
@@ -521,7 +521,7 @@ describe MPI::Service do
       %w[internal_server_error internal_server_error_2].each do |cassette|
         it 'raises an Common::Client::Errors::HTTPError', :aggregate_failures do
           expect(subject).to receive(:log_message_to_sentry).with(
-            'MVI find_profile error: SOAP service returned internal server error',
+            'MPI find_profile error: SOAP service returned internal server error',
             :warn
           )
           VCR.use_cassette("mpi/find_candidate/#{cassette}") do
@@ -533,14 +533,14 @@ describe MPI::Service do
       end
     end
 
-    context 'when MVI multiple match failure response' do
+    context 'when MPI multiple match failure response' do
       before do
         expect(MPI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
       it 'raises MPI::Errors::RecordNotFound', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Duplicate Record', :warn
+          'MPI Duplicate Record', :warn
         )
 
         VCR.use_cassette('mpi/find_candidate/failure_multiple_matches') do

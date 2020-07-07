@@ -167,7 +167,7 @@ class FormProfile
   # In case of collisions, preference is given in this order:
   # * The form profile cache (the record for this class)
   # * ID.me
-  # * MVI
+  # * MPI
   # * TODO(AJD): MIS (military history)
   #
   def prefill(user)
