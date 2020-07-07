@@ -32,20 +32,14 @@ module Form1010cg
     #
     # @return [Form1010cg::Submission]
     def process_claim!
-      # assert_veteran_status
+      assert_veteran_status
 
-      {
-        cache: @cache,
-        veteran_data: claim.veteran_data,
-        emis_response: is_veteran('veteran')
-      }
+      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
 
-      # carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
-
-      # Form1010cg::Submission.new(
-      #   carma_case_id: carma_submission.carma_case_id,
-      #   submitted_at: carma_submission.submitted_at
-      # )
+      Form1010cg::Submission.new(
+        carma_case_id: carma_submission.carma_case_id,
+        submitted_at: carma_submission.submitted_at
+      )
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI
@@ -118,12 +112,10 @@ module Form1010cg
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
       response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
-      # raise response.error if response.error?
 
-      is_veteran = response.try { |res| res.items.first.title38_status_code } == 'V1'
+      is_veteran = response.try(:items)&.first&.title38_status_code == 'V1'
 
       @cache[:veteran_statuses][form_subject] = is_veteran || false
-      response
     end
 
     private

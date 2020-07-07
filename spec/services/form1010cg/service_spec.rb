@@ -44,7 +44,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  xdescribe '::new' do
+  describe '::new' do
     it 'requires a claim' do
       expect { described_class.new }.to raise_error do |e|
         expect(e).to be_a(ArgumentError)
@@ -73,7 +73,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  xdescribe '#icn_for' do
+  describe '#icn_for' do
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
         build(
@@ -342,7 +342,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  xdescribe '#is_veteran' do
+  describe '#is_veteran' do
     it 'returns false if the icn for the for the subject is "NOT_FOUND"' do
       subject = described_class.new(
         build(
@@ -360,7 +360,7 @@ RSpec.describe Form1010cg::Service do
       expect(subject.is_veteran('veteran')).to eq(false)
     end
 
-    xdescribe 'searches eMIS and' do
+    describe 'searches eMIS and' do
       context 'when title38_status_code is "V1"' do
         it 'returns true' do
           subject = described_class.new(
@@ -481,9 +481,7 @@ RSpec.describe Form1010cg::Service do
             emis_response
           )
 
-          expect { subject.is_veteran('veteran') }.to raise_error do |e|
-            expect(e).to be_a(Common::Client::Errors::HTTPError)
-          end
+          expect(subject.is_veteran('veteran')).to eq(false)
         end
       end
     end
@@ -523,6 +521,7 @@ RSpec.describe Form1010cg::Service do
         ).and_return(
           emis_response
         )
+        allow(emis_service).to receive(:items).and_raise(NoMethodError)
       end
 
       3.times do
@@ -532,7 +531,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  xdescribe '#build_metadata' do
+  describe '#build_metadata' do
     it 'returns the icn for each subject on the form and the veteran\'s status' do
       %w[veteran primaryCaregiver secondaryCaregiverOne].each_with_index do |form_subject, index|
         return_value = form_subject == 'secondaryCaregiverOne' ? 'NOT_FOUND' : "ICN_#{index}".to_sym
@@ -557,7 +556,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  xdescribe '#assert_veteran_status' do
+  describe '#assert_veteran_status' do
     it 'will raise error if veteran\'s icn can not be found' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect { subject.assert_veteran_status }.to raise_error do |e|
@@ -579,7 +578,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  xdescribe '#process_claim!' do
+  describe '#process_claim!' do
     it 'raises error when ICN not found for veteran' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
 

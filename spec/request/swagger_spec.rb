@@ -144,7 +144,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
-    xit 'supports adding an caregiver\'s assistance claim' do
+    it 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mvi/find_candidate/valid' do
         VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
           VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
@@ -2672,7 +2672,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
   end
 
   context 'and' do
-    xit 'tests all documented routes' do
+    it 'tests all documented routes' do
       subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
       expect(subject).to validate_all_paths
     end
