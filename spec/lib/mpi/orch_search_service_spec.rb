@@ -22,7 +22,7 @@ describe MPI::OrchSearchService do
         allow(SecureRandom).to receive(:uuid).and_return('b4d9a901-8f2f-46c0-802f-3eeb99c51dfb')
         allow(Socket).to receive(:ip_address_list).and_return([Addrinfo.ip('1.1.1.1')])
 
-        VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes', VCR::MATCH_EVERYTHING) do
           Settings.mvi.vba_orchestration = true
           response = described_class.new.find_profile(user)
           expect(response.status).to eq('OK')

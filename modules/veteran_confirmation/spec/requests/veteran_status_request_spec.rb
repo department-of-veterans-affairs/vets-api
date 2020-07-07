@@ -26,7 +26,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
 
   context 'with a valid user' do
     it 'returns confirmed if the veteran status is confirmed' do
-      VCR.use_cassette('mvi/find_candidate/valid') do
+      VCR.use_cassette('mpi/find_candidate/valid') do
         VCR.use_cassette('emis/get_veteran_status/valid_icn') do
           post '/services/veteran_confirmation/v0/status', params: valid_attributes
 
@@ -37,7 +37,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     it 'can confirm without optional attributes' do
-      VCR.use_cassette('mvi/find_candidate/valid') do
+      VCR.use_cassette('mpi/find_candidate/valid') do
         VCR.use_cassette('emis/get_veteran_status/valid_icn') do
           post '/services/veteran_confirmation/v0/status', params: required_valid_attributes
 
@@ -48,7 +48,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     it 'returns not confirmed if the user is not a veteran' do
-      VCR.use_cassette('mvi/find_candidate/valid') do
+      VCR.use_cassette('mpi/find_candidate/valid') do
         VCR.use_cassette('emis/get_veteran_status/valid_non_veteran_icn') do
           post '/services/veteran_confirmation/v0/status', params: valid_attributes
 

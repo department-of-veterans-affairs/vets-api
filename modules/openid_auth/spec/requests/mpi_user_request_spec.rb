@@ -21,7 +21,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns the icn data for a user' do
-        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -31,7 +31,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns an error if icn is missing' do
-        VCR.use_cassette('mvi/find_candidate/no_subject') do
+        VCR.use_cassette('mpi/find_candidate/no_subject') do
           auth_headers['x-va-level-of-assurance'] = 1
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:not_found)
@@ -51,7 +51,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns the first and last names for a user' do
-        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -79,7 +79,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns the icn data for a user' do
-        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -89,7 +89,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns an error if icn is missing' do
-        VCR.use_cassette('mvi/find_candidate/no_subject') do
+        VCR.use_cassette('mpi/find_candidate/no_subject') do
           auth_headers['x-va-level-of-assurance'] = 1
           get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:not_found)
@@ -160,7 +160,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns the icn data for a user' do
-        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -170,7 +170,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns an error if icn is missing' do
-        VCR.use_cassette('mvi/find_candidate/no_subject') do
+        VCR.use_cassette('mpi/find_candidate/no_subject') do
           req_body['level_of_assurance'] = 1
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:not_found)
@@ -189,7 +189,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns the first and last names for a user' do
-        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -216,7 +216,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns the icn data for a user' do
-        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -226,7 +226,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
       end
 
       it 'returns an error if icn is missing' do
-        VCR.use_cassette('mvi/find_candidate/no_subject') do
+        VCR.use_cassette('mpi/find_candidate/no_subject') do
           req_body['level_of_assurance'] = 1
           post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:not_found)
