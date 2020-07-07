@@ -743,6 +743,14 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
+  describe '#extract_pciu_data' do
+    it 'should rescue EVSS::ErrorMiddleware::EVSSError errors' do
+      expect(user).to receive(:pciu_primary_phone).and_raise(EVSS::ErrorMiddleware::EVSSError)
+
+      expect(form_profile.send(:extract_pciu_data, user, :pciu_primary_phone)).to eq('')
+    end
+  end
+
   describe '#prefill_form' do
     def can_prefill_emis(yes)
       expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
