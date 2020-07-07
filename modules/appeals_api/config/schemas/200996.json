@@ -180,7 +180,7 @@
     "hlrCreateContestableIssue": {
       "type": "object",
       "properties": {
-        "type":       { "type": "string", "enum": ["ContestableIssue"] },
+        "type":       { "type": "string", "enum": ["contestableIssue"] },
         "attributes": { "$ref": "#/definitions/hlrCreateContestableIssueAttributes" }
       },
       "additionalProperties": false,
