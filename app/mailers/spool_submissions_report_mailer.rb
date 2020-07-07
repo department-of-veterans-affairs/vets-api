@@ -17,15 +17,8 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
   ].freeze
 
   STAGING_RECIPIENTS = %w[
-    Brian.Grubb@va.gov
-    Delli-Gatti_Michael@bah.com
-    Joseph.Preisser@va.gov
-    Joseph.Welton@va.gov
-    kyle.pietrosanto@va.gov
     lihan@adhocteam.us
-    matthew.ziolkowski@va.gov
-    Michael.Johnson19@va.gov
-    Ricardo.DaSilva@va.gov
+    Delli-Gatti_Michael@bah.com
     sonntag_adam@bah.com
   ].freeze
 
