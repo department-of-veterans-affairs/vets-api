@@ -1045,14 +1045,10 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  # describe '#load_form_mapping' do
-  #   let(:instance) { FormProfile.new('21-526EZ-BDD') }
-
-  #   it 'loads 526ez when BDD is given' do
-  #     instance.load_form_mapping
-  #     expect(YAML).to receive(:load_file).once.and_return(
-  #       'hi'
-  #     )
-  #   end
-  # end
+  describe '#load_form_mapping' do
+    it 'loads 526ez when BDD is given' do
+      the_yaml = described_class.load_form_mapping('21-526EZ-BDD')
+      expect(the_yaml['veteran']).to eq(%w[veteran_contact_information veteran])
+    end
+  end
 end
