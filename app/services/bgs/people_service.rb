@@ -48,7 +48,7 @@ module BGS
     def service
       external_key = @current_user.common_name || @current_user.email
 
-      @service ||= LighthouseBGS::Services.new(
+      @service ||= BGS::Services.new(
         external_uid: @current_user.icn,
         external_key: external_key
       )
