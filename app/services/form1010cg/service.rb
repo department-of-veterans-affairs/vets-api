@@ -112,7 +112,7 @@ module Form1010cg
 
       response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
 
-      is_veteran = response.try(:items)&.first&.title38_status_code == 'V1'
+      is_veteran = response&.items&.first&.title38_status_code == 'V1'
 
       @cache[:veteran_statuses][form_subject] = is_veteran || false
     end

@@ -457,7 +457,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when the search fails' do
-        it 'raises the error found in the MVI response' do
+        it 'returns false' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -471,7 +471,8 @@ RSpec.describe Form1010cg::Service do
           expected_icn = :ICN_123
           emis_response = double(
             error?: true,
-            error: Common::Client::Errors::HTTPError.new('BadRequest', 400, nil)
+            error: Common::Client::Errors::HTTPError.new('BadRequest', 400, nil),
+            items: []
           )
 
           expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
