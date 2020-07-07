@@ -194,8 +194,8 @@
         "issue":                 { "$ref": "#/definitions/nonBlankStringMaxLength140" },
         "decisionDate":          { "$ref": "#/definitions/date" },
         "decisionIssueId":       { "type": "integer" },
-        "ratingIssueId":         { "type": "string" },
-        "ratingDecisionIssueId": { "type": "string" }
+        "ratingIssueReferenceId":    { "type": "string" },
+        "ratingDecisionReferenceId": { "type": "string" }
       },
       "additionalProperties": false,
       "required": [ "issue", "decisionDate" ]
