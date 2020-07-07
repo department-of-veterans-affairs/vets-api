@@ -13,6 +13,7 @@ module V1
     REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
+    STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -56,11 +57,13 @@ module V1
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
       log_message_to_sentry(e.message, e.level, extra_context: e.context)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
+      redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
+      unless performed?
+        redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: '007')
+      end
       callback_stats(:failed_unknown)
     ensure
       callback_stats(:total)
@@ -125,7 +128,7 @@ module V1
                                locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
-      Rails.logger.info("SSOe: SAML Request => #{helper.tracker.payload_attr(:authn_context)}")
+      saml_request_stats(helper.tracker.payload_attr(:authn_context))
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
@@ -152,6 +155,13 @@ module V1
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity
+
+    def saml_request_stats(authn_context)
+      Rails.logger.info("SSOe: SAML Request => #{authn_context}")
+      StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
+                       tags: ["context:#{authn_context}",
+                              VERSION_TAG])
+    end
 
     def user_logout(saml_response)
       logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
