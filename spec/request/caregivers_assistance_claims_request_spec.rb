@@ -76,7 +76,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     end
   end
 
-  describe 'POST /v0/caregivers_assistance_claims' do
+  xdescribe 'POST /v0/caregivers_assistance_claims' do
     context 'when unauthenticated' do
       it_behaves_like 'any invalid submission'
 

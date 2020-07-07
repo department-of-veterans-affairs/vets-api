@@ -144,7 +144,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
-    it 'supports adding an caregiver\'s assistance claim' do
+    xit 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mvi/find_candidate/valid' do
         VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
           VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do

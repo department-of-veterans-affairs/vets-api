@@ -7,7 +7,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     expect(described_class.ancestors).to include(ActionController::API)
   end
 
-  describe '#create' do
+  xdescribe '#create' do
     context 'when Flipper :allow_online_10_10cg_submissions is' do
       context 'disabled' do
         it 'renders :service_unavailable' do
