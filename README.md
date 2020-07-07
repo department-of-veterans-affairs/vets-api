@@ -132,7 +132,7 @@ The following features require additional configuration, click for details.
 - [Facilities Locator](/docs/setup/facilities_locator.md)
 - [My HealtheVet (MHV)](/docs/setup/mhv.md)
 - [Education Benefits](/docs/setup/edu_benefits.md)
-- [Master Veteran Index (MVI)](/docs/setup/mvi.md)
+- [Master Veteran Index (MVI)](/docs/setup/mpi.md)
 
 To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 
