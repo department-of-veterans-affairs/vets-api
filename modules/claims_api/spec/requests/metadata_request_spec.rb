@@ -31,7 +31,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
         expect(response.status).to eq(503)
       end
 
-      it 'returns correct status when mvi is not healthy' do
+      it 'returns correct status when mpi is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
@@ -77,7 +77,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
         expect(response.status).to eq(503)
       end
 
-      it 'returns correct status when mvi is not healthy' do
+      it 'returns correct status when mpi is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
