@@ -524,7 +524,7 @@ describe MPI::Service do
             'MVI find_profile error: SOAP service returned internal server error',
             :warn
           )
-          VCR.use_cassette("mvi/find_candidate/#{cassette}") do
+          VCR.use_cassette("mpi/find_candidate/#{cassette}") do
             response = subject.find_profile(user)
 
             server_error_504_expectations_for(response)

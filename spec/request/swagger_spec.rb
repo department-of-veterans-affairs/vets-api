@@ -145,9 +145,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports adding an caregiver\'s assistance claim' do
-      VCR.use_cassette 'mvi/find_candidate/valid' do
-        VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
-          VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
+      VCR.use_cassette 'mpi/find_candidate/valid' do
+        VCR.use_cassette 'mpi/find_candidate/valid_icn_ni_only' do
+          VCR.use_cassette 'mpi/find_candidate/valid_no_gender' do
             VCR.use_cassette 'carma/submissions/create/201' do
               expect(subject).to validate(
                 :post,
@@ -204,7 +204,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 
       VCR.use_cassette(
-        'mvi/find_candidate/find_profile_with_attributes',
+        'mpi/find_candidate/find_profile_with_attributes',
         VCR::MATCH_EVERYTHING
       ) do
         expect(subject).to validate(

@@ -18,7 +18,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 
       VCR.use_cassette(
-        'mvi/find_candidate/find_profile_with_attributes',
+        'mpi/find_candidate/find_profile_with_attributes',
         VCR::MATCH_EVERYTHING
       ) do
         create(:in_progress_form, user_uuid: user.uuid, form_id: form_id)
