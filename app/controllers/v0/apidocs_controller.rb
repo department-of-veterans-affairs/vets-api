@@ -122,6 +122,7 @@ module V0
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
+      Swagger::Requests::DebtLetters,
       Swagger::Requests::DependentsApplications,
       Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::EducationBenefitsClaims,

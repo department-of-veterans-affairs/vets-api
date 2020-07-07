@@ -189,6 +189,10 @@ components:
           description: Overall severity rating determined by VA calculation of each service related conditions. Used to help determine disability compensation (pay) and related benefits.
           type: integer
           example: 100
+        combined_effective_date:
+          description: When the Veteran could begin claiming benefits for combined disability rating
+          type: datetime
+          example: "2018-03-27T21:00:41.000+0000"
         individual_ratings:
           description: list of individual service connected disabilty ratings
           type: array

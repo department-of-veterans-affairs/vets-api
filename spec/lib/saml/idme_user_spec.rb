@@ -24,25 +24,6 @@ RSpec.describe SAML::User do
     end
 
     context 'handles invalid authn_contexts' do
-      context 'no decrypted document' do
-        it 'raises expected error' do
-          allow(saml_response).to receive(:decrypted_document).and_return(nil)
-          expect(Raven).to receive(:extra_context).once.with(
-            saml_attributes: {
-              'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-              'email' => ['kam+tristanmhv@adhocteam.us'],
-              'multifactor' => [false],
-              'level_of_assurance' => ['1']
-            },
-            saml_response: Base64.encode64(document_partial(authn_context).to_s)
-          )
-          expect(Raven).to receive(:tags_context).once.with(
-            controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
-          )
-          expect { subject.to_hash }.to raise_exception(NoMethodError)
-        end
-      end
-
       context 'authn_context equal to something unknown' do
         let(:authn_context) { 'unknown_authn_context' }
         let(:saml_attributes) { nil }
