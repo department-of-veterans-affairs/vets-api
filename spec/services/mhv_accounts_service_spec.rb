@@ -41,7 +41,7 @@ RSpec.describe MhvAccountsService do
   let(:vha_facility_ids) { ['450'] }
 
   before do
-    stub_mvi(mvi_profile)
+    stub_mpi(mvi_profile)
     terms = create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME, version: 'v3.4')
     date_signed = Time.new(2017, 5, 9).utc
     create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid, created_at: date_signed)

@@ -226,7 +226,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'when user.mpi is not found' do
-        before { stub_mvi_not_found }
+        before { stub_mpi_not_found }
 
         it 'returns va_profile as null' do
           expect(va_profile).to be_nil

@@ -20,7 +20,7 @@ RSpec.describe 'Intent to file', type: :request do
 
   before do
     stub_poa_verification
-    stub_mvi
+    stub_mpi
   end
 
   describe '#0966' do

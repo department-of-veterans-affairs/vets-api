@@ -46,7 +46,7 @@ RSpec.describe MhvAccount, type: :model do
   let(:vha_facility_ids) { ['450'] }
 
   before do
-    stub_mvi(mvi_profile)
+    stub_mpi(mvi_profile)
   end
 
   around do |example|

@@ -150,7 +150,7 @@ FactoryBot.define do
 
     factory :user_with_no_ids, traits: [:loa3] do
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             birls_id: nil,
@@ -162,7 +162,7 @@ FactoryBot.define do
 
     factory :user_with_no_birls_id, traits: [:loa3] do
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             birls_id: nil
@@ -173,7 +173,7 @@ FactoryBot.define do
 
     factory :user_with_no_secid, traits: [:loa3] do
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             sec_id: nil
@@ -184,7 +184,7 @@ FactoryBot.define do
 
     factory :vets360_user, traits: [:loa3] do
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             vet360_id: '1411684'
@@ -200,7 +200,7 @@ FactoryBot.define do
       ssn { '796043735' }
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             edipi: '1007697216',
@@ -219,7 +219,7 @@ FactoryBot.define do
       ssn { '796043735' }
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             edipi: nil,
@@ -239,7 +239,7 @@ FactoryBot.define do
       ssn { '796068949' }
 
       after(:build) do
-        stub_mvi(build(:mpi_profile, birls_id: '796068948'))
+        stub_mpi(build(:mpi_profile, birls_id: '796068948'))
       end
     end
 
@@ -250,7 +250,7 @@ FactoryBot.define do
       ssn { nil }
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             edipi: '1007697216',
@@ -275,7 +275,7 @@ FactoryBot.define do
       ssn { '796043735' }
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile_response,
             edipi: '1007697216',
@@ -350,7 +350,7 @@ FactoryBot.define do
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
       after(:build) do |_user, t|
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             icn: '1000123456V123456',
@@ -397,7 +397,7 @@ FactoryBot.define do
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
       after(:build) do |_user, t|
-        stub_mvi(
+        stub_mpi(
           build(
             :mpi_profile,
             icn: '1000123456V123456',

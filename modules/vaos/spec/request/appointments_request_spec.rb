@@ -60,7 +60,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       end
 
       context 'without icn' do
-        before { stub_mvi_not_found }
+        before { stub_mpi_not_found }
 
         let(:current_user) { build(:user, :mhv, mhv_icn: nil) }
 

@@ -174,7 +174,7 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
+    stub_mpi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
 

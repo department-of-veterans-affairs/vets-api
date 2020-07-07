@@ -229,7 +229,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       before do
         allow(JWT).to receive(:decode).and_return(token)
-        stub_mvi(mvi_profile)
+        stub_mpi(mvi_profile)
       end
 
       let(:okta_response) { FactoryBot.build(:okta_mhv_response) }
@@ -264,7 +264,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       before do
         allow(JWT).to receive(:decode).and_return(token)
-        stub_mvi(mvi_profile)
+        stub_mpi(mvi_profile)
       end
 
       it 'returns 200 and add user to session' do
@@ -296,7 +296,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       before do
         allow(JWT).to receive(:decode).and_return(token)
-        stub_mvi(mvi_profile)
+        stub_mpi(mvi_profile)
       end
 
       it 'returns 200 and add user to session' do

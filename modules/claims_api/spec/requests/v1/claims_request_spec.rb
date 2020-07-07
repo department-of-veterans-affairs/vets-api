@@ -19,7 +19,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   before do
     stub_poa_verification
-    stub_mvi
+    stub_mpi
   end
 
   context 'index' do

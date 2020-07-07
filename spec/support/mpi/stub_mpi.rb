@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-def stub_mvi(profile = nil)
+def stub_mpi(profile = nil)
   profile ||= build(:mpi_profile)
   # don't allow MPIData instances to be frozen during specs so that
   # response_from_redis_or_service can always be reset
@@ -14,7 +14,7 @@ def stub_mvi(profile = nil)
   )
 end
 
-def stub_mvi_not_found
+def stub_mpi_not_found
   allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
     MPI::Responses::FindProfileResponse.with_not_found(not_found_exception)
   )

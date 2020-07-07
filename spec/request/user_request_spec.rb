@@ -80,7 +80,7 @@ RSpec.describe 'Fetching user data', type: :request do
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        stub_mvi(mpi_profile)
+        stub_mpi(mpi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -100,7 +100,7 @@ RSpec.describe 'Fetching user data', type: :request do
       let(:mhv_user) { build(:user, :mhv) }
 
       before do
-        stub_mvi(mpi_profile)
+        stub_mpi(mpi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -120,7 +120,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
       before do
         allow_any_instance_of(MPI::Models::MPIProfile).to receive(:active_mhv_ids).and_return(nil)
-        stub_mvi(mpi_profile)
+        stub_mpi(mpi_profile)
         sign_in_as(mhv_user)
         get v0_user_url, params: nil
       end
@@ -215,7 +215,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     it 'MVI error should only make a request to MVI one time per request!', :aggregate_failures do
-      stub_mvi_failure
+      stub_mpi_failure
       expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
@@ -232,7 +232,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     it 'MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
-      stub_mvi_record_not_found
+      stub_mpi_record_not_found
       expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
@@ -249,7 +249,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     it 'MVI DuplicateRecords should only make a request to MVI one time per request!', :aggregate_failures do
-      stub_mvi_duplicate_record
+      stub_mpi_duplicate_record
       expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
@@ -266,7 +266,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     it 'MVI success should only make a request to MVI one time per multiple requests!' do
-      stub_mvi_success
+      stub_mpi_success
       expect_any_instance_of(Common::Client::Base).to receive(:perform).once.and_call_original
       expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
@@ -281,7 +281,7 @@ RSpec.describe 'Fetching user data', type: :request do
       start_time = now - 120
       Timecop.freeze(start_time)
       # Starts out successful
-      stub_mvi_success
+      stub_mpi_success
       sign_in_as(new_user)
       expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
@@ -289,7 +289,7 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
 
       # Encounters failure and breakers kicks in
-      stub_mvi_failure
+      stub_mpi_failure
       1.times do |_count|
         sign_in_as(new_user)
         expect { get v0_user_url, params: nil }
@@ -300,7 +300,7 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(MPI::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
 
       # skipped because breakers is active
-      stub_mvi_success
+      stub_mpi_success
       sign_in_as(new_user)
       expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
@@ -326,23 +326,23 @@ RSpec.describe 'Fetching user data', type: :request do
     user
   end
 
-  def stub_mvi_failure
-    stub_mvi_external_request File.read('spec/support/mpi/find_candidate_soap_fault.xml')
+  def stub_mpi_failure
+    stub_mpi_external_request File.read('spec/support/mpi/find_candidate_soap_fault.xml')
   end
 
-  def stub_mvi_record_not_found
-    stub_mvi_external_request File.read('spec/support/mpi/find_candidate_no_subject_response.xml')
+  def stub_mpi_record_not_found
+    stub_mpi_external_request File.read('spec/support/mpi/find_candidate_no_subject_response.xml')
   end
 
-  def stub_mvi_duplicate_record
-    stub_mvi_external_request File.read('spec/support/mpi/find_candidate_multiple_match_response.xml')
+  def stub_mpi_duplicate_record
+    stub_mpi_external_request File.read('spec/support/mpi/find_candidate_multiple_match_response.xml')
   end
 
-  def stub_mvi_success
-    stub_mvi_external_request File.read('spec/support/mpi/find_candidate_response.xml')
+  def stub_mpi_success
+    stub_mpi_external_request File.read('spec/support/mpi/find_candidate_response.xml')
   end
 
-  def stub_mvi_external_request(file)
+  def stub_mpi_external_request(file)
     stub_request(:post, Settings.mvi.url)
       .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: file)
   end
