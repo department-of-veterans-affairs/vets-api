@@ -8,7 +8,7 @@ describe MPI::Responses::ProfileParser do
   let(:parser) { MPI::Responses::ProfileParser.new(faraday_response) }
 
   context 'given a valid response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
 
     before do
       allow(faraday_response).to receive(:body) { body }
@@ -58,7 +58,7 @@ describe MPI::Responses::ProfileParser do
       end
 
       context 'with a missing address, invalid edipi, and invalid participant id' do
-        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
+        let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response_nil_address.xml')) }
         let(:mpi_profile) do
           build(
             :mpi_profile_response,
@@ -90,7 +90,7 @@ describe MPI::Responses::ProfileParser do
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
         let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
-        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs_response.xml')) }
+        let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_attrs_response.xml')) }
         let(:mpi_profile) do
           build(
             :mpi_profile_response,
@@ -120,7 +120,7 @@ describe MPI::Responses::ProfileParser do
   end
 
   context 'with no subject element' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_no_subject_response.xml')) }
     let(:mpi_profile) { build(:mpi_profile_response, :missing_attrs) }
 
     describe '#parse' do
@@ -132,7 +132,7 @@ describe MPI::Responses::ProfileParser do
   end
 
   context 'given an invalid response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_invalid_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_invalid_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
@@ -143,7 +143,7 @@ describe MPI::Responses::ProfileParser do
   end
 
   context 'given a failure response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_ar_code_database_error_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
@@ -154,7 +154,7 @@ describe MPI::Responses::ProfileParser do
   end
 
   context 'given a multiple match' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_match_response.xml')) }
 
     before do
       allow(faraday_response).to receive(:body) { body }
@@ -175,7 +175,7 @@ describe MPI::Responses::ProfileParser do
 
   context 'with multiple MHV IDs' do
     let(:icn_with_aaid) { '12345678901234567^NI^200M^USVHA' }
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_mhv_response.xml')) }
     let(:mpi_profile) do
       build(
         :mpi_profile_response,
@@ -205,7 +205,7 @@ describe MPI::Responses::ProfileParser do
   end
 
   context 'with a vet360 id' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
     let(:mpi_profile) do
       build(
         :mpi_profile_response,
@@ -227,7 +227,7 @@ describe MPI::Responses::ProfileParser do
   end
 
   context 'with inactive MHV ID edge cases' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_inactive_mhv_ids.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_inactive_mhv_ids.xml')) }
 
     before do
       Settings.sentry.dsn = 'asdf'

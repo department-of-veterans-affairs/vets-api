@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'common/exceptions'
-require 'support/mvi/stub_mvi'
+require 'support/mpi/stub_mpi'
 
 describe MPIData, skip_mvi: true do
   let(:user) { build(:user, :loa3) }

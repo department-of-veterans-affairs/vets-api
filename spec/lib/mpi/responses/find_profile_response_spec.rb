@@ -2,11 +2,11 @@
 
 require 'rails_helper'
 require 'mpi/responses/find_profile_response'
-require 'support/mvi/stub_mvi'
+require 'support/mpi/stub_mpi'
 
 describe MPI::Responses::FindProfileResponse do
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
+  let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
   let(:ok_response) { MPI::Responses::FindProfileResponse.with_parsed_response(faraday_response) }
   let(:error_response) { MPI::Responses::FindProfileResponse.with_server_error }
   let(:not_found_response) { MPI::Responses::FindProfileResponse.with_not_found }

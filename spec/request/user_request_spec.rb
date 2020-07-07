@@ -327,19 +327,19 @@ RSpec.describe 'Fetching user data', type: :request do
   end
 
   def stub_mvi_failure
-    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_soap_fault.xml')
+    stub_mvi_external_request File.read('spec/support/mpi/find_candidate_soap_fault.xml')
   end
 
   def stub_mvi_record_not_found
-    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_no_subject_response.xml')
+    stub_mvi_external_request File.read('spec/support/mpi/find_candidate_no_subject_response.xml')
   end
 
   def stub_mvi_duplicate_record
-    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')
+    stub_mvi_external_request File.read('spec/support/mpi/find_candidate_multiple_match_response.xml')
   end
 
   def stub_mvi_success
-    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_response.xml')
+    stub_mvi_external_request File.read('spec/support/mpi/find_candidate_response.xml')
   end
 
   def stub_mvi_external_request(file)

@@ -95,7 +95,7 @@ def correlation_id(extension)
 end
 
 def expect_valid_icn_with_aaid_from_parsed_xml(xml_file:, expected_icn_with_aaid:)
-  body = Ox.parse(File.read("spec/support/mvi/#{xml_file}.xml"))
+  body = Ox.parse(File.read("spec/support/mpi/#{xml_file}.xml"))
   correlation_ids = MPI::Responses::IdParser.new.parse(ids_in(body))
 
   expect(correlation_ids[:icn_with_aaid]).to eq expected_icn_with_aaid

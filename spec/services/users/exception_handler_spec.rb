@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/mvi/stub_mvi'
+require 'support/mpi/stub_mpi'
 
 RSpec.describe Users::ExceptionHandler do
   let(:user) { build(:user, :loa3) }

@@ -126,7 +126,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
         }
       end
 
-      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+      let(:body) { File.read('spec/support/mpi/find_candidate_ar_code_database_error_response.xml') }
 
       it 'responds properly when MPI is down' do
         stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
@@ -262,7 +262,7 @@ RSpec.describe 'Return ICN for a User from MPI', type: :request, skip_emis: true
         }
       end
 
-      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+      let(:body) { File.read('spec/support/mpi/find_candidate_ar_code_database_error_response.xml') }
 
       it 'responds properly when MPI is down' do
         stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)

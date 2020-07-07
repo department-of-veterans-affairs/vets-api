@@ -8,7 +8,7 @@ describe MPI::Responses::AddParser do
   let(:parser) { described_class.new(faraday_response) }
 
   context 'given a valid response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/add_person_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_response.xml')) }
 
     before do
       allow(faraday_response).to receive(:body) { body }
@@ -56,7 +56,7 @@ describe MPI::Responses::AddParser do
   end
 
   context 'given an invalid response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/add_person_invalid_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_invalid_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
@@ -67,7 +67,7 @@ describe MPI::Responses::AddParser do
   end
 
   context 'given an internal error response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/add_person_internal_error_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_internal_error_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
