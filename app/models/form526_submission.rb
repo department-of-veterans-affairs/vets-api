@@ -133,7 +133,7 @@ class Form526Submission < ApplicationRecord
 
   def send_form526_confirmation_email
     email_address = form['form526']['form526']['veteran']['emailAddress']
-    Form526ConfirmationEmailJob.perform_async(id, email_address)
+    Form526ConfirmationEmailJob.perform_async(id, email_address, submitted_claim_id, updated_at)
   end
 
   private
