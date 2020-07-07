@@ -5,7 +5,7 @@ require 'common/client/concerns/service_status'
 
 module MPI
   module Responses
-    # Cacheable response from MVI's add person endpoint (prpa_in201301_uv02).
+    # Cacheable response from MPI's add person endpoint (prpa_in201301_uv02).
     class AddPersonResponse
       include Virtus.model(nullify_blank: true)
       include Common::Client::ServiceStatus

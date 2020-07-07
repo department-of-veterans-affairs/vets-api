@@ -21,35 +21,35 @@ describe VAOS::JWT do
     context 'with a decoded payload' do
       let(:decoded_payload) { JWT.decode(subject.token, rsa_private.public_key, true, algorithm: 'RS512').first }
 
-      it 'includes a sub from MVI' do
+      it 'includes a sub from MPI' do
         expect(decoded_payload['sub']).to eq('1012845331V153043')
       end
 
-      it 'includes a firstName from MVI' do
+      it 'includes a firstName from MPI' do
         expect(decoded_payload['firstName']).to eq('Judy')
       end
 
-      it 'includes a lastName from MVI' do
+      it 'includes a lastName from MPI' do
         expect(decoded_payload['lastName']).to eq('Morrison')
       end
 
-      it 'includes a gender DERIVED from MVI' do
+      it 'includes a gender DERIVED from MPI' do
         expect(decoded_payload['gender']).to eq('FEMALE')
       end
 
-      it 'includes a dob from MVI' do
+      it 'includes a dob from MPI' do
         expect(decoded_payload['dob']).to eq('19530401')
       end
 
-      it 'includes a dateOfBirth from MVI' do
+      it 'includes a dateOfBirth from MPI' do
         expect(decoded_payload['dateOfBirth']).to eq('19530401')
       end
 
-      it 'includes a edipid from MVI' do
+      it 'includes a edipid from MPI' do
         expect(decoded_payload['edipid']).to eq('1259897978')
       end
 
-      it 'includes a ssn from MVI' do
+      it 'includes a ssn from MPI' do
         expect(decoded_payload['ssn']).to eq('796061976')
       end
 

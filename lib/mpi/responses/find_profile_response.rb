@@ -7,7 +7,7 @@ require 'mpi/models/mpi_profile'
 
 module MPI
   module Responses
-    # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
+    # Cacheable response from MPI's find profile endpoint (prpa_in201306_uv02).
     class FindProfileResponse
       include Virtus.model(nullify_blank: true)
       include Common::Client::ServiceStatus
@@ -15,7 +15,7 @@ module MPI
       # @return [String] The status of the response
       attribute :status, String
 
-      # @return [MPI::Models::MPIProfile] The parsed MVI profile
+      # @return [MPI::Models::MPIProfile] The parsed MPI profile
       attribute :profile, MPI::Models::MPIProfile
 
       # @return [Common::Exceptions::BackendServiceException] The rescued exception

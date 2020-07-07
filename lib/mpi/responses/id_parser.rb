@@ -9,14 +9,14 @@ module MPI
       PERMANENT_ICN_REGEX = /^\w+\^NI\^200M\^USVHA\^P$/.freeze
       ICN_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA'
 
-      # Used to parse IDs found in an MVI 1306 response at the
+      # Used to parse IDs found in an MPI 1306 response at the
       # //controlActProcess/subject/registrationEvent/subject1/patient/id path.
       #
       # All IDs adhere to the following pattern:
       # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
       #
       # IDs can either be considered an ICN (Integration Control Number) or Correlation ID.
-      # The ICN is the unique ID for the MVI service.
+      # The ICN is the unique ID for the MPI service.
       # Correlation IDs correlate to other services (Vet360, Birls, edipi, etc)
       #
       # An ICN following the PERMANENT_ICN_REGEX pattern will always be present.

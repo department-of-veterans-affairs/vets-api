@@ -80,7 +80,7 @@ RSpec.describe VeteranConfirmation::StatusService do
         expect(result).to eq('not confirmed')
       end
 
-      it 'raises an exception if MVI returns a server error' do
+      it 'raises an exception if MPI returns a server error' do
         expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
           .and_return(server_error_mpi_profile)
 
@@ -89,7 +89,7 @@ RSpec.describe VeteranConfirmation::StatusService do
         end.to raise_error(MPI::Errors::ServiceError)
       end
 
-      it 'does not confirm if a profile is not found in MVI' do
+      it 'does not confirm if a profile is not found in MPI' do
         expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
           .and_return(not_found_mpi_profile)
 

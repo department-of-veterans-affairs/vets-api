@@ -76,7 +76,7 @@ module VAOS
       @facility = values_hash.empty? ? {} : values_hash.merge(object_type: 'Facility').compact
     end
 
-    # These values ought to be derived from MVI vs user input, except for inpatient and text_messaging_allowed
+    # These values ought to be derived from MPI vs user input, except for inpatient and text_messaging_allowed
     def patient=(values_hash)
       @patient = {
         display_name: "#{last_name}, #{first_name}",

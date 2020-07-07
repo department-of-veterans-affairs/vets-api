@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Return Okta commands for a User from MVI', type: :request, skip_emis: true do
+RSpec.describe 'Return Okta commands for a User from MPI', type: :request, skip_emis: true do
   describe 'via POST with user info in request body' do
     let(:headers) do
       {
@@ -30,7 +30,7 @@ RSpec.describe 'Return Okta commands for a User from MVI', type: :request, skip_
         end
       end
 
-      it 'returns an error if MVI profile not found' do
+      it 'returns an error if MPI profile not found' do
         VCR.use_cassette('mpi/find_candidate/no_subject') do
           req_body['level_of_assurance'] = 1
           post '/internal/auth/v0/okta', params: JSON.generate(req_body), headers: headers

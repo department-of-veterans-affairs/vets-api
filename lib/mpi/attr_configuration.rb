@@ -45,7 +45,7 @@ module MPI
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :soap_parser
-        conn.use :logging, 'MVIRequest' if Settings.mvi_hca.pii_logging # Refactor as response middleware?
+        conn.use :logging, 'MPIRequest' if Settings.mvi_hca.pii_logging # Refactor as response middleware?
         conn.response :betamocks if Settings.mvi_hca.mock
         conn.adapter Faraday.default_adapter
       end

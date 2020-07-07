@@ -84,7 +84,7 @@ module SAML
       def idme_uuid
         return safe_attr('va_eauth_uid') if csid == 'idme'
 
-        # the gcIds are a pipe-delimited concatenation of the MVI correlation IDs
+        # the gcIds are a pipe-delimited concatenation of the MPI correlation IDs
         # (minus the weird "base/extension" cruft)
         gcids = safe_attr('va_eauth_gcIds')&.split('|')
         if gcids

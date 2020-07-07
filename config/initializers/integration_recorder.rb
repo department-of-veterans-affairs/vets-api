@@ -196,7 +196,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
         end
       end
 
-      # This method will capture all external requests made to hosts such as MVI or EMIS
+      # This method will capture all external requests made to hosts such as MPI or EMIS
       def capture_external_interactions
         result = nil
         VCR.use_cassette(feature_settings[:external_cassette], record: :new_episodes) do

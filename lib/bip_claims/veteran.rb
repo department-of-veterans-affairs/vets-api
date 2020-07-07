@@ -18,7 +18,7 @@ module BipClaims
     end
 
     def gender
-      # MVI message_user_attributes expects a gender value but it's not asked on the burials form
+      # MPI message_user_attributes expects a gender value but it's not asked on the burials form
       nil
     end
   end

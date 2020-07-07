@@ -26,7 +26,7 @@ module MPI
     end
 
     def service_name
-      'MVI'
+      'MVI' # TODO: are we MPI now?
     end
 
     def ssl_options
@@ -48,7 +48,7 @@ module MPI
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :soap_parser
-        conn.use :logging, 'MVIRequest' if Settings.mvi.pii_logging # Refactor as response middleware?
+        conn.use :logging, 'MPIRequest' if Settings.mvi.pii_logging # Refactor as response middleware?
         conn.response :betamocks if Settings.mvi.mock
         conn.adapter Faraday.default_adapter
       end

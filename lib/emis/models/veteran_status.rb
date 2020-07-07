@@ -15,7 +15,7 @@ module EMIS
     #       V6 => Military Person, Not Title 38 Veteran, DoD Affiliate (indicates current military)
     #       V7 => Military Person, Not Title 38 Veteran, Not DoD Affiliate, "Bad Paper"
     #         Discharge(s) [See note below on IIT]
-    #       * Interoperability Indicator Type (IIT) [MVI can treat V6 and V7 as V3 if they so
+    #       * Interoperability Indicator Type (IIT) [MPI can treat V6 and V7 as V3 if they so
     #         choose; combination meets original V3 definition]
     # @!attribute post911_deployment_indicator
     #   @return [String] "Y" if veteran was deployed post 9/11, "N" otherwise

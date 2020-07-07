@@ -15,11 +15,11 @@ module Form1010cg
       # The CaregiversAssistanceClaim we are processing with this service
       @claim = claim
 
-      # Store for the search results we will run on MVI and eMIS
+      # Store for the search results we will run on MPI and eMIS
       @cache = {
         # [form_subject]: String          - The person's ICN
-        # [form_subject]: NOT_FOUND       - This person could not be found in MVI
-        # [form_subject]: nil             - An MVI search has not been conducted for this person
+        # [form_subject]: NOT_FOUND       - This person could not be found in MPI
+        # [form_subject]: nil             - An MPI search has not been conducted for this person
         icns: {},
         # [form_subject]: true            - This person is a veteran
         # [form_subject]: false           - This person's veteran status cannot be confirmed
@@ -42,7 +42,7 @@ module Form1010cg
       )
     end
 
-    # Will raise an error unless the veteran specified on the claim's data can be found in MVI
+    # Will raise an error unless the veteran specified on the claim's data can be found in MPI
     #
     # @return [nil]
     def assert_veteran_status
@@ -76,7 +76,7 @@ module Form1010cg
       metadata
     end
 
-    # Will search MVI for the provided form subject and return (1) the matching profile's ICN or (2) `NOT_FOUND`.
+    # Will search MPI for the provided form subject and return (1) the matching profile's ICN or (2) `NOT_FOUND`.
     # The result will be cached and subsequent calls will return the cached value, preventing additional api requests.
     #
     # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")

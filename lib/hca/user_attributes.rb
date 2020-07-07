@@ -17,7 +17,7 @@ class HCA::UserAttributes
   end
 
   def gender
-    # MVI message_user_attributes expects a gender value but it's not asked on the HCA form
+    # MPI message_user_attributes expects a gender value but it's not asked on the HCA form
     nil
   end
 end

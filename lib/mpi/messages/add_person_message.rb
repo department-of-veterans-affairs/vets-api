@@ -4,7 +4,7 @@ require 'socket'
 
 module MPI
   module Messages
-    # Builds an MVI SOAP XML message for adding a user.
+    # Builds an MPI SOAP XML message for adding a user.
     #
     # Call with a user object and use `.to_xml` method to create the XML message
     #

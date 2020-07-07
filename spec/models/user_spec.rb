@@ -247,14 +247,14 @@ RSpec.describe User, type: :model do
 
         before { stub_mpi(mpi_profile) }
 
-        it 'fetches first_name from MVI' do
+        it 'fetches first_name from MPI' do
           expect(user.first_name).to be(user.va_profile.given_names.first)
         end
 
         context 'when given_names has no middle_name' do
           let(:mpi_profile) { build(:mpi_profile, given_names: ['Joe']) }
 
-          it 'fetches middle name from MVI' do
+          it 'fetches middle name from MPI' do
             expect(user.middle_name).to be_nil
           end
         end
@@ -262,7 +262,7 @@ RSpec.describe User, type: :model do
         context 'when given_names has middle_name' do
           let(:mpi_profile) { build(:mpi_profile, given_names: %w[Joe Bob]) }
 
-          it 'fetches middle name from MVI' do
+          it 'fetches middle name from MPI' do
             expect(user.middle_name).to eq('Bob')
           end
         end
@@ -270,28 +270,28 @@ RSpec.describe User, type: :model do
         context 'when given_names has multiple middle names' do
           let(:mpi_profile) { build(:mpi_profile, given_names: %w[Michael Joe Bob Sinclair]) }
 
-          it 'fetches middle name from MVI' do
+          it 'fetches middle name from MPI' do
             expect(user.middle_name).to eq('Joe Bob Sinclair')
           end
         end
 
-        it 'fetches last_name from MVI' do
+        it 'fetches last_name from MPI' do
           expect(user.last_name).to be(user.va_profile.family_name)
         end
 
-        it 'fetches gender from MVI' do
+        it 'fetches gender from MPI' do
           expect(user.gender).to be(user.va_profile.gender)
         end
 
-        it 'fetches birth_date from MVI' do
+        it 'fetches birth_date from MPI' do
           expect(user.birth_date).to be(user.va_profile.birth_date)
         end
 
-        it 'fetches zip from MVI' do
+        it 'fetches zip from MPI' do
           expect(user.zip).to be(user.va_profile.address.postal_code)
         end
 
-        it 'fetches ssn from MVI' do
+        it 'fetches ssn from MPI' do
           expect(user.ssn).to be(user.va_profile.ssn)
         end
       end

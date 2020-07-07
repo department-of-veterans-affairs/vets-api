@@ -11,7 +11,7 @@ module MPI
     end
 
     def measure_info(_user_attributes)
-      Rails.logger.measure_info('Performed MVI Query') { yield }
+      Rails.logger.measure_info('Performed MPI Query') { yield }
     end
   end
 end

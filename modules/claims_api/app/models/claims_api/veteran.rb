@@ -32,7 +32,7 @@ module ClaimsApi
       va_profile[:birth_date]
     end
 
-    # Virtus doesnt provide a valid? method, but MVI requires it
+    # Virtus doesnt provide a valid? method, but MPI requires it
     def valid?(*)
       va_profile.present?
     end

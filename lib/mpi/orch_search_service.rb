@@ -10,7 +10,7 @@ module MPI
 
     def measure_info(user_identity)
       Rails.logger.measure_info(
-        'Performed MVI Orchestrated Search Query', payload: logging_context(user_identity)
+        'Performed MPI Orchestrated Search Query', payload: logging_context(user_identity)
       ) { yield }
     end
 

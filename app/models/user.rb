@@ -226,7 +226,7 @@ class User < Common::RedisStore
     InProgressForm.where(user_uuid: uuid)
   end
 
-  # Re-caches the MVI response. Use in response to any local changes that
+  # Re-caches the MPI response. Use in response to any local changes that
   # have been made.
   def recache
     mpi.cache(uuid, mpi.mpi_response) # TODO: update method name in model
