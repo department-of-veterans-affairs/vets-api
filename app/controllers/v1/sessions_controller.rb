@@ -57,12 +57,12 @@ module V1
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
       log_message_to_sentry(e.message, e.level, extra_context: e.context)
-      redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
       unless performed?
-        redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: '007')
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: '007')
       end
       callback_stats(:failed_unknown)
     ensure
@@ -109,7 +109,7 @@ module V1
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
-      helper = url_service(user_session_form.saml_uuid)
+      helper = url_service
       if helper.should_uplevel?
         render_login('verify', user_session_form.saml_uuid)
       else
@@ -118,9 +118,9 @@ module V1
       end
     end
 
-    def render_login(type, previous_saml_uuid = nil)
+    def render_login(type)
       force = (type != 'custom')
-      helper = url_service(previous_saml_uuid, force)
+      helper = url_service(force)
       login_url, post_params = login_params(type, helper)
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
@@ -181,7 +181,7 @@ module V1
     end
 
     def login_stats(status, _saml_response, user_session_form)
-      tracker = url_service(user_session_form&.saml_uuid).tracker
+      tracker = url_service.tracker
       type = tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       case status
@@ -247,13 +247,12 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service(previous_saml_uuid = nil, force_authn = false)
+    def url_service(force_authn = false)
       SAML::PostURLService.new(saml_settings(force_authn: force_authn),
                                session: @session_object,
                                user: current_user,
                                params: params,
-                               loa3_context: LOA::IDME_LOA3,
-                               previous_saml_uuid: previous_saml_uuid)
+                               loa3_context: LOA::IDME_LOA3)
     end
   end
 end

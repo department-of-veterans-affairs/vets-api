@@ -107,7 +107,7 @@ module V0
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
-        redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
+        redirect_to url_service.login_redirect_url
         if location.start_with?(url_service.base_redirect_url)
           # only record login stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
@@ -148,7 +148,7 @@ module V0
     end
 
     def login_stats(status, saml_response, user_session_form)
-      tracker = url_service(user_session_form&.saml_uuid).tracker
+      tracker = url_service.tracker
       case status
       when :success
         login_stats_success(saml_response, tracker)
@@ -210,12 +210,11 @@ module V0
       'UNKNOWN'
     end
 
-    def url_service(previous_saml_uuid = nil)
+    def url_service
       SAML::URLService.new(saml_settings,
                            session: @session_object,
                            user: current_user,
-                           params: params,
-                           previous_saml_uuid: previous_saml_uuid)
+                           params: params)
     end
   end
 end

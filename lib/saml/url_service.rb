@@ -21,7 +21,7 @@ module SAML
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(saml_settings, session: nil, user: nil, params: {},
-                   loa3_context: LOA::IDME_LOA3_VETS, previous_saml_uuid: nil)
+                   loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
@@ -39,7 +39,7 @@ module SAML
         @type = JSON.parse(params[:RelayState])['type']
       end
       @query_params = {}
-      @tracker = initialize_tracker(params, previous_saml_uuid: previous_saml_uuid)
+      @tracker = initialize_tracker(params)
 
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
@@ -212,11 +212,21 @@ module SAML
       [prefix, suffix].join('/')
     end
 
+    def previous_saml_uuid(params)
+      if (params[:action] == 'saml_callback') && params[:SAMLResponse].present?
+        settings = SAML::SSOeSettingsService.saml_settings
+        resp = SAML::Responses::Login.new(params[:SAMLResponse], settings: settings)
+        return resp.in_response_to
+      end
+    end
+
     # Initialize a new SAMLRequestTracker, if a valid previous SAML UUID is
-    # given, copy over the redirect and created_at timestamp.  This is useful
-    # for a user that has to go through the upleveling process.
-    def initialize_tracker(params, previous_saml_uuid: nil)
-      previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
+    # found in the SAMLResponse, copy over the redirect, type and created_at
+    # timestamp.  This is useful for a user that has to go through the
+    # upleveling process.
+    def initialize_tracker(params)
+      uuid = previous_saml_uuid(params)
+      previous = uuid && SAMLRequestTracker.find(uuid)
       redirect = previous&.payload_attr(:redirect) || build_redirect(params)
       type = previous&.payload_attr(:type) || params[:type]
       # if created_at is set to nil (meaning no previous tracker to use), it
