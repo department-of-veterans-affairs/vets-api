@@ -337,7 +337,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(controller).to receive(:log_message_to_sentry).with(
             'SSNS DO NOT MATCH!!',
             :warn,
-            identity_compared_with_mvi: {
+            identity_compared_with_mpi: {
               length: [9, 9],
               only_digits: [true, true],
               encoding: %w[UTF-8 UTF-8],
