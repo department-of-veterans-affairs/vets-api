@@ -298,7 +298,7 @@
       :uid_location: header
       :uid_locator: 'ssn'
 
-# MVI
+# Master Person Index (MPI) - formerly MVI
 - :name: 'MVI'
   :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
   :endpoints:
