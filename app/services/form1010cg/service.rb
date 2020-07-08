@@ -3,6 +3,9 @@
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
 module Form1010cg
   class Service
+    class InvalidVeteranStatus < StandardError
+    end
+
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
@@ -90,7 +93,7 @@ module Form1010cg
     #
     # @return [nil]
     def assert_veteran_status
-      raise_unprocessable if icn_for('veteran') == NOT_FOUND
+      raise InvalidVeteranStatus if icn_for('veteran') == NOT_FOUND
     end
 
     # Returns a metadata hash:
@@ -114,8 +117,7 @@ module Form1010cg
         }
       end
 
-      # Set the veteran status on the :veteran namespace of metadata
-      metadata[:veteran][:is_veteran] = false
+      metadata[:veteran][:is_veteran] = is_veteran('veteran')
 
       metadata
     end
@@ -156,7 +158,6 @@ module Form1010cg
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
       response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
-      raise response.error if response.error?
 
       is_veteran = response&.items&.first&.title38_status_code == 'V1'
 
@@ -164,14 +165,6 @@ module Form1010cg
     end
 
     private
-
-    # The claim cannot be processed under certain conditions (see #assert_veteran_status).
-    # If those conditions are not met, raise this client error.
-    def raise_unprocessable
-      message = 'Unable to process submission digitally'
-      claim.errors.add(:base, message, message: message)
-      raise(Common::Exceptions::ValidationErrors, claim)
-    end
 
     def mvi_service
       @mvi_service ||= MVI::Service.new

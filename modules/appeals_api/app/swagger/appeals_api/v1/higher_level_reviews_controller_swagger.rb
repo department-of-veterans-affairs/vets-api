@@ -18,11 +18,11 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   response_hlr_show_success = lambda do
     properties = {
       status: { '$ref': '#/components/schemas/hlrStatus' },
-      updated_at: { '$ref': '#/components/schemas/timeStamp' },
-      created_at: { '$ref': '#/components/schemas/timeStamp' },
-      form_data: { '$ref': '#/components/schemas/hlrCreate' }
+      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
+      createdAt: { '$ref': '#/components/schemas/timeStamp' },
+      formData: { '$ref': '#/components/schemas/hlrCreate' }
     }
-    type = :appeals_api_higher_level_review
+    type = :HigherLevelReviewInfo
     schema = {
       type: OBJ,
       properties: {
@@ -32,7 +32,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       }
     }
     time = '2020-04-23T21:06:12.531Z'
-    attrs = { status: :processed, updated_at: time, created_at: time, form_data: example_all_fields_used }
+    attrs = { status: :processed, updatedAt: time, createdAt: time, formData: example_all_fields_used }
     example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
 
     {
@@ -123,9 +123,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :description, desc
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body
-      type = { type: :string, enum: [:appeals_api_higher_level_review_validation] }
+      type = { type: :string, enum: [:higherLevelReviewValidation] }
       attrs = { type: OBJ, properties: { status: { type: :string, enum: [:valid] } } }
-      example = { data: { type: :appeals_api_higher_level_review_validation, attributes: { status: :valid } } }
+      example = { data: { type: type[:enum].first, attributes: { status: :valid } } }
       schema = { type: OBJ, properties: { data: { type: OBJ, properties: { type: type, attributes: attrs } } } }
       content = { 'application/json': { schema: schema, examples: { valid: { value: { data: example } } } } }
       key :responses, '200': { description: 'Valid', content: content }, '422': response_hlr_create_error

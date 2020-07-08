@@ -48,20 +48,19 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 3a9cf80e0d542e9869de8c1a8cd7e4d0eac11864
-  branch: master
+  revision: 3f70650a80e2a4b8273679fb5dfde0bc7db0e859
   specs:
-    lighthouse_bgs (0.13.0)
+    bgs_ext (0.14.1)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 68e33ec46ab2c5417145479992d81ae86c02eccf
+  revision: 9e21f294686847a9b2a389c0b29532a90f4531e2
   branch: master
   specs:
-    vets_json_schema (6.0.3)
+    vets_json_schema (6.1.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -483,7 +482,6 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    newrelic_rpm (6.10.0.364)
     nio4r (2.5.2)
     no_proxy_fix (0.1.2)
     nokogiri (1.10.9)
@@ -809,6 +807,7 @@ DEPENDENCIES
   aws-sdk-sns (~> 1)
   benchmark-ips
   betamocks!
+  bgs_ext!
   brakeman (~> 4.7)
   breakers
   bundler-audit
@@ -854,13 +853,11 @@ DEPENDENCIES
   jsonapi-parser
   jwt
   levenshtein-ffi
-  lighthouse_bgs!
   liquid
   mail (= 2.7.1)
   memoist
   mini_magick (~> 4.10.1)
   net-sftp
-  newrelic_rpm
   nokogiri (~> 1.10)
   notifications-ruby-client (~> 5.1)
   oj
