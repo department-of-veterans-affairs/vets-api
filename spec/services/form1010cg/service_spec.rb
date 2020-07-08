@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Form1010cg::Service do
   let(:subject) { described_class.new build(:caregivers_assistance_claim) }
-  let(:default_email_on_mvi_search) { 'no-email@example.com' }
   let(:build_claim_data_for) do
     lambda do |form_subject, &mutations|
       data = {
@@ -90,24 +89,18 @@ RSpec.describe Form1010cg::Service do
         middle_name: veteran_data['fullName']['middle'],
         last_name: veteran_data['fullName']['last'],
         birth_date: veteran_data['dateOfBirth'],
-        gender: veteran_data['gender'],
         ssn: veteran_data['ssnOrTin'],
-        email: default_email_on_mvi_search,
-        uuid: be_an_instance_of(String),
-        loa: {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
+        gender: veteran_data['gender']
       }
 
-      expect(UserIdentity).to receive(:new).with(
+      expect(MVI::Models::MviUserAttributes).to receive(:new).with(
         expected_mvi_search_params
       ).and_return(
-        :user_identity
+        :mvi_user_attributes
       )
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
-        :user_identity
+        :mvi_user_attributes
       ).and_return(
         double(status: 'OK', profile: double(icn: :ICN_123))
       )
@@ -117,7 +110,7 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq(:ICN_123)
     end
 
-    it 'sets returns "NOT_FOUND" when profile not found in MVI' do
+    it 'returns "NOT_FOUND" when profile not found in MVI' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -135,24 +128,18 @@ RSpec.describe Form1010cg::Service do
         middle_name: veteran_data['fullName']['middle'],
         last_name: veteran_data['fullName']['last'],
         birth_date: veteran_data['dateOfBirth'],
-        gender: veteran_data['gender'],
         ssn: veteran_data['ssnOrTin'],
-        email: default_email_on_mvi_search,
-        uuid: be_an_instance_of(String),
-        loa: {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
+        gender: veteran_data['gender']
       }
 
-      expect(UserIdentity).to receive(:new).with(
+      expect(MVI::Models::MviUserAttributes).to receive(:new).with(
         expected_mvi_search_params
       ).and_return(
-        :user_identity
+        :mvi_user_attributes
       )
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
-        :user_identity
+        :mvi_user_attributes
       ).and_return(
         double(status: 'NOT_FOUND', error: double)
       )
@@ -182,51 +169,39 @@ RSpec.describe Form1010cg::Service do
           middle_name: veteran_data['fullName']['middle'],
           last_name: veteran_data['fullName']['last'],
           birth_date: veteran_data['dateOfBirth'],
-          gender: veteran_data['gender'],
           ssn: veteran_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
+          gender: veteran_data['gender']
         },
         primaryCaregiver: {
           first_name: pc_data['fullName']['first'],
           middle_name: pc_data['fullName']['middle'],
           last_name: pc_data['fullName']['last'],
           birth_date: pc_data['dateOfBirth'],
-          gender: pc_data['gender'],
           ssn: pc_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
+          gender: pc_data['gender']
         }
       }
 
-      expect(UserIdentity).to receive(:new).with(
+      expect(MVI::Models::MviUserAttributes).to receive(:new).with(
         expected_mvi_search_params[:veteran]
       ).and_return(
-        :veteran_user_identity
+        :veteran_mvi_user_attributes
       )
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
-        :veteran_user_identity
+        :veteran_mvi_user_attributes
       ).and_return(
         double(status: 'OK', profile: double(icn: :CACHED_VALUE))
       )
 
-      expect(UserIdentity).to receive(:new).with(
+      expect(MVI::Models::MviUserAttributes).to receive(:new).with(
         expected_mvi_search_params[:primaryCaregiver]
       ).and_return(
-        :pc_user_identity
+        :pc_mvi_user_attributes
       )
 
       expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
-        :pc_user_identity
+        :pc_mvi_user_attributes
       ).and_return(
         double(status: 'NOT_FOUND', error: double)
       )
@@ -261,74 +236,18 @@ RSpec.describe Form1010cg::Service do
           middle_name: veteran_data['fullName']['middle'],
           last_name: veteran_data['fullName']['last'],
           birth_date: veteran_data['dateOfBirth'],
-          gender: nil,
           ssn: veteran_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
+          gender: nil
         }
 
-        expect(UserIdentity).to receive(:new).with(
+        expect(MVI::Models::MviUserAttributes).to receive(:new).with(
           expected_mvi_search_params
         ).and_return(
-          :user_identity
+          :mvi_user_attributes
         )
 
         expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
-          :user_identity
-        ).and_return(
-          double(status: 'OK', profile: double(icn: :ICN_123))
-        )
-
-        result = subject.icn_for('veteran')
-
-        expect(result).to eq(:ICN_123)
-      end
-    end
-
-    context 'when email is provided' do
-      it 'will provid that email in the mvi search' do
-        veteran_email = 'veteran-email@example.com'
-        veteran_data = build_claim_data_for.call(:veteran) do |data|
-          data['email'] = veteran_email
-        end
-
-        subject = described_class.new(
-          build(
-            :caregivers_assistance_claim,
-            form: {
-              'veteran' => veteran_data,
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
-            }.to_json
-          )
-        )
-
-        expected_mvi_search_params = {
-          first_name: veteran_data['fullName']['first'],
-          middle_name: veteran_data['fullName']['middle'],
-          last_name: veteran_data['fullName']['last'],
-          birth_date: veteran_data['dateOfBirth'],
-          gender: veteran_data['gender'],
-          ssn: veteran_data['ssnOrTin'],
-          email: veteran_email,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
-        }
-
-        expect(UserIdentity).to receive(:new).with(
-          expected_mvi_search_params
-        ).and_return(
-          :user_identity
-        )
-
-        expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
-          :user_identity
+          :mvi_user_attributes
         ).and_return(
           double(status: 'OK', profile: double(icn: :ICN_123))
         )

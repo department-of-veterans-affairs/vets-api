@@ -138,7 +138,11 @@ module Form1010cg
       cached_icn = @cache[:icns][form_subject]
       return cached_icn unless cached_icn.nil?
 
-      response = mvi_service.find_profile(build_user_identity_for(form_subject))
+      response = mvi_service.find_profile(
+        build_mvi_user_attributes_for(
+          form_subject
+        )
+      )
 
       case response.status
       when 'OK'
@@ -177,30 +181,17 @@ module Form1010cg
       @mvi_service ||= MVI::Service.new
     end
 
-    # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
-    # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
-    #
-    # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
-    # @return [UserIdentity] A valid UserIdentity for the given form_subject
-    def build_user_identity_for(form_subject)
+    def build_mvi_user_attributes_for(form_subject)
       data = claim.parsed_form[form_subject]
 
-      attributes = {
+      MVI::Models::MviUserAttributes.new(
         first_name: data['fullName']['first'],
         middle_name: data['fullName']['middle'],
         last_name: data['fullName']['last'],
         birth_date: data['dateOfBirth'],
-        gender: data['gender'] == 'U' ? nil : data['gender'],
         ssn: data['ssnOrTin'],
-        email: data['email'] || 'no-email@example.com',
-        uuid: SecureRandom.uuid,
-        loa: {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
-      }
-
-      UserIdentity.new attributes
+        gender: data['gender'] == 'U' ? nil : data['gender']
+      )
     end
   end
 end
