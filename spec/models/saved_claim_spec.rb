@@ -9,7 +9,7 @@ RSpec.describe SavedClaim do
     it 'converts form to pdf' do
       file_path = 'file_path'
 
-      expect(PdfFill::Filler).to receive(:fill_form).with(saved_claim).once.and_return(file_path)
+      expect(PdfFill::Filler).to receive(:fill_form).with(saved_claim, nil).once.and_return(file_path)
       saved_claim.to_pdf
     end
   end
