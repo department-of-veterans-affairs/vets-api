@@ -214,7 +214,7 @@ RSpec.describe Users::Profile do
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           error = subject.errors.first
 
-          expect(error[:external_service]).to eq 'MVI'
+          expect(error[:external_service]).to eq 'MPI'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Not authorized'
           expect(error[:status]).to eq 401
@@ -235,7 +235,7 @@ RSpec.describe Users::Profile do
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           error = subject.errors.first
 
-          expect(error[:external_service]).to eq 'MVI'
+          expect(error[:external_service]).to eq 'MPI'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Record not found'
           expect(error[:status]).to eq 404

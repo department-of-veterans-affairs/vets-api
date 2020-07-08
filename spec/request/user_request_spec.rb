@@ -190,7 +190,7 @@ RSpec.describe 'Fetching user data', type: :request do
       error = body.dig('meta', 'errors').first
 
       expect(response.status).to eq 296
-      expect(error['external_service']).to eq 'MVI'
+      expect(error['external_service']).to eq 'MPI'
       expect(error['description']).to be_present
       expect(error['status']).to eq 401
     end
@@ -226,7 +226,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
-      expect(error['external_service']).to eq 'MVI'
+      expect(error['external_service']).to eq 'MPI'
       expect(error['description']).to be_present
       expect(error['status']).to eq 504
     end
@@ -243,7 +243,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
-      expect(error['external_service']).to eq 'MVI'
+      expect(error['external_service']).to eq 'MPI'
       expect(error['description']).to be_present
       expect(error['status']).to eq 404
     end
@@ -260,7 +260,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
-      expect(error['external_service']).to eq 'MVI'
+      expect(error['external_service']).to eq 'MPI'
       expect(error['description']).to be_present
       expect(error['status']).to eq 404
     end
