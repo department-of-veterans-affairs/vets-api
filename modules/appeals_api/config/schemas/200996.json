@@ -33,7 +33,7 @@
     "hlrCreateData": {
       "type": "object",
       "properties": {
-        "type":       { "type": "string", "enum": ["HigherLevelReview"] },
+        "type":       { "type": "string", "enum": ["higherLevelReview"] },
         "attributes": { "$ref": "#/definitions/hlrCreateDataAttributes" }
       },
       "additionalProperties": false,
