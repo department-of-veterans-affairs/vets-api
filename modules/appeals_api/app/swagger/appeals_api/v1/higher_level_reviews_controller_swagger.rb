@@ -134,4 +134,30 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       end
     end
   end
+
+  swagger_path '/higher_level_reviews/contestable_issues/{benefit_type}' do
+    operation :get, tags: HLR_TAG do
+      key :operationId, 'getContestableIssues'
+      key :summary, 'Returns all contestable issues for a specific veteran.'
+      desc = 'Returns all issues a Veteran could contest in a Higher-Level Review as of the `receiptDate` ' \
+        'and bound by `benefitType`. Associate these results when creating new Decision Reviews.'
+      key :description, desc
+      parameter name: 'X-VA-SSN', 'in': 'header', required: true, description: 'veteran\'s ssn' do
+        schema '$ref': 'X-VA-SSN'
+      end
+      parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
+        desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
+          'the receipt date of a hypothetical Decision Review must be specified.'
+        key :description, desc
+        schema type: :string, 'format': :date
+      end
+      parameter name: 'benefit_type', 'in': 'path', required: true, description: 'benefit type' do
+        schema '$ref': 'hlrCreateBenefitType'
+      end
+      key :responses, read_json_from_same_dir['responses_contestable_issues.json']
+      security do
+        key :apikey, []
+      end
+    end
+  end
 end
