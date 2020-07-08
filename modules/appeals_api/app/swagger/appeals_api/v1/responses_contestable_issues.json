@@ -82,7 +82,7 @@
         "examples": {
           "bad file number or SSN": {
             "value": {
-              "errors": { "status": 404, "code": "veteran_not_found", "title": "Veteran Not Found", "detail": "Veteran with SSN: 123456789 not found." }}}}}}},
+              "errors": { "status": 404, "code": "veteran_not_found", "title": "Veteran Not Found" }}}}}}},
   "422": {
     "description": "Bad receipt date",
     "content": {
@@ -105,7 +105,7 @@
               "errors": { "status": 422, "code": "invalid_benefit_type", "title": "Invalid Benefit Type", "detail": "Benefit type nil is invalid. Must be one of: [\"compensation\", \"pension\", \"fiduciary\", \"insurance\", \"education\", \"voc_rehab\", \"loan_guaranty\", \"vha\", \"nca\"]" }}},
           "invalid veteran ssn": {
             "value": {
-              "errors": { "status": 422, "code": "invalid_veteran_ssn", "title": "Invalid Veteran SSN", "detail": "\"123\" is an invalid SSN (regex: /^\\d{9}$/)." }}}}}}},
+              "errors": { "status": 422, "code": "invalid_veteran_ssn", "title": "Invalid Veteran SSN", "detail": "SSN regex: /^\\d{9}$/)." }}}}}}},
   "500": {
     "description": "Unknown error",
     "content": {
