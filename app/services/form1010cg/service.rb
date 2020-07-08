@@ -78,9 +78,16 @@ module Form1010cg
         carma_attachments.submit!
         submission.attachments = carma_attachments.to_hash
       rescue
-        # Regardless of the reason, we should not raise an error when sending attachments fails.
-        # If we made it this far, there is a submission that exists in CARMA, so the user should
-        # get a sucessful response whether attachments reach CARMA or not.
+        # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
+        # sending to CARMA is just the submission, itself, as a PDF. This is to follow the current
+        # conventions of CARMA: every case has the PDF of the submission attached.
+        #
+        # Regardless of the reason, we shouldn't raise an error when sending attachments fails.
+        # It's non-critical and we don't want the error to buble up to the response,
+        # misleading the user to think thier claim was not submitted.
+        #
+        # If we made it this far, there is a submission that exists in CARMA.
+        # So the user should get a sucessful response, whether attachments reach CARMA or not.
         File.delete(file_path)
         return false
       end

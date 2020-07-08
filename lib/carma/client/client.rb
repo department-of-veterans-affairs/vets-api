@@ -27,6 +27,7 @@ module CARMA
         end
       end
 
+      # Used for Feature Flipper :stub_carma_responses
       def create_submission_stub(_payload)
         {
           'message' => 'Application Received',
@@ -49,6 +50,7 @@ module CARMA
         end
       end
 
+      # Used for Feature Flipper :stub_carma_responses
       def upload_attachments_stub(_payload)
         {
           'hasErrors' => false,
