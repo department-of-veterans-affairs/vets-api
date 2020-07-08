@@ -83,7 +83,7 @@ module Form1010cg
         # conventions of CARMA: every case has the PDF of the submission attached.
         #
         # Regardless of the reason, we shouldn't raise an error when sending attachments fails.
-        # It's non-critical and we don't want the error to buble up to the response,
+        # It's non-critical and we don't want the error to bubble up to the response,
         # misleading the user to think thier claim was not submitted.
         #
         # If we made it this far, there is a submission that exists in CARMA.
