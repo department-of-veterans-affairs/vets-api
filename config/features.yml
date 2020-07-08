@@ -155,3 +155,7 @@ features:
     actor_type: user
     description: >
       All submission data that was previously routed to St Louis RPO is routed to the Buffalo RPO
+  form996_higher_level_review:
+    actor_type: user
+    description: >
+      Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
