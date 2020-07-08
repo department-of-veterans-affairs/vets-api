@@ -266,6 +266,11 @@ class FormProfile
       opt[:us_phone] = get_us_phone(pciu_primary_phone)
     end
 
+    if opt[:mobile_phone].nil?
+      pciu_alternate_phone = extract_pciu_data(user, :pciu_alternate_phone)
+      opt[:mobile_phone] = pciu_alternate_phone
+    end
+
     format_for_schema_compatibility(opt)
 
     FormContactInformation.new(opt)
