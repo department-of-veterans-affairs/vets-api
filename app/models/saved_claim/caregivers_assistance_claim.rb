@@ -8,6 +8,12 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     raise NotImplementedError, 'Not Implemented for Form 10-10CG'
   end
 
+  def to_pdf
+    # We never save the claim, so we don't have an id to provide for the filename.
+    # Instead we'll create a filename with this format "10-10cg_{uuid}"
+    super(guid)
+  end
+
   # SavedClaims require regional_office to be defined, CaregiversAssistanceClaim has no purpose for it.
   #
   # CaregiversAssistanceClaims are not processed regional VA offices.
