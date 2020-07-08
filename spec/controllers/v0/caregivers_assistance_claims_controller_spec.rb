@@ -131,6 +131,85 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
             end
           end
         end
+
+        context 'when Form1010cg::Service raises InvalidVeteranStatus' do
+          it 'renders backend service outage' do
+            claim = build(:caregivers_assistance_claim)
+            form_data = claim.form
+            params = { caregivers_assistance_claim: { form: form_data } }
+            service = double
+
+            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+              form: form_data
+            ).and_return(
+              claim
+            )
+
+            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+            expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+
+            post :create, params: params
+
+            expect(response.status).to eq(503)
+            expect(
+              JSON.parse(
+                response.body
+              )
+            ).to eq(
+              'errors' => [
+                {
+                  'title' => 'Service unavailable',
+                  'detail' => 'Backend Service Outage',
+                  'code' => '503',
+                  'status' => '503'
+                }
+              ]
+            )
+          end
+
+          it 'matches the response of a Common::Client::Errors::ClientError' do
+            claim = build(:caregivers_assistance_claim)
+            form_data = claim.form
+            params = { caregivers_assistance_claim: { form: form_data } }
+            service = double
+
+            expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
+
+            ## Backend Client Error Scenario
+
+            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+              form: form_data
+            ).and_return(
+              claim
+            )
+
+            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+            expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
+
+            backend_client_error_response = post :create, params: params
+
+            ## Invalid Veteran Status Scenario
+
+            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+              form: form_data
+            ).and_return(
+              claim
+            )
+
+            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+            expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+
+            invalid_veteran_status_response = post :create, params: params
+
+            %w[status body headers].each do |response_attr|
+              expect(
+                invalid_veteran_status_response.send(response_attr)
+              ).to eq(
+                backend_client_error_response.send(response_attr)
+              )
+            end
+          end
+        end
       end
     end
   end
