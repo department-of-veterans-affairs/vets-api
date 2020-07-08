@@ -24,7 +24,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
 
     it 'create an HLR and persist the data' do
       post(path, params: @data, headers: @headers)
-      expect(parsed['data']['type']).to eq('higherLevelReviewInfo')
+      expect(parsed['data']['type']).to eq('higherLevelReview')
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
