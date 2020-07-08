@@ -1044,4 +1044,11 @@ RSpec.describe FormProfile, type: :model do
       end
     end
   end
+
+  describe '#load_form_mapping' do
+    it 'loads 526ez when BDD is given' do
+      the_yaml = described_class.load_form_mapping('21-526EZ-BDD')
+      expect(the_yaml['veteran']).to eq(%w[veteran_contact_information veteran])
+    end
+  end
 end
