@@ -2,7 +2,7 @@
 
 module Swagger
   module Requests
-    class MviUsers
+    class MPIUsers
       include Swagger::Blocks
 
       swagger_path '/v0/mvi_users/{id}' do
@@ -11,11 +11,11 @@ module Swagger
           extend Swagger::Responses::ForbiddenError
           extend Swagger::Responses::UnprocessableEntityError
 
-          key :summary, 'Add user to MVI'
-          key :description, "Make Orchestrated Search call to the Master Veteran Index (MVI)
-            requesting that MVI make calls to upstream services to find or create the user's
+          key :summary, 'Add user to MPI (formerly MVI)'
+          key :description, "Make Orchestrated Search call to the Master Person Index (MPI, formerly MVI)
+            requesting that MPI make calls to upstream services to find or create the user's
             CorpDB (Corp) ID, and possibly the user's Beneficiary Identification and Records
-            Locator Subsystem (BIRLS) ID. MVI will save the IDs it discovers to its own database.
+            Locator Subsystem (BIRLS) ID. MPI will save the IDs it discovers to its own database.
             The Corp and BIRLS IDs are required prerequisites for serving the 21-0966 Intent to File
             form and 21-526EZ disability claim form to the client."
           key :operationId, 'postMviUser'
@@ -33,7 +33,7 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'MVI Orchestrated Search returned a Success response'
+            key :description, 'MPI Orchestrated Search returned a Success response'
             schema do
               property :message, type: :string, example: 'Success'
             end
