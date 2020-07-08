@@ -1,6 +1,6 @@
 {
   "data": {
-    "type": "HigherLevelReview",
+    "type": "higherLevelReview",
     "attributes": {
       "informalConference": true,
       "sameOffice": true,
