@@ -101,7 +101,7 @@ module CARMA
         }
       end
 
-      def to_h
+      def to_hash
         {
           id: id,
           carma_case_id: carma_case_id,

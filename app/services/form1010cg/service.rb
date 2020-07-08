@@ -76,7 +76,7 @@ module Form1010cg
         carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
 
         carma_attachments.submit!
-        submission.attachments = carma_attachments.to_h
+        submission.attachments = carma_attachments.to_hash
       rescue
         # Regardless of the reason, we should not raise an error when sending attachments fails.
         # If we made it this far, there is a submission that exists in CARMA, so the user should

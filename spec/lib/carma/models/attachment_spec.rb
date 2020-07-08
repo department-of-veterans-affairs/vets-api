@@ -94,7 +94,7 @@ RSpec.describe CARMA::Models::Attachment, type: :model do
     end
   end
 
-  describe '#to_h' do
+  describe '#to_hash' do
     it 'returns attrs as hash', run_at: '2020-02-27T11:12:05-04:00' do
       subject = described_class.new(
         {
@@ -106,7 +106,7 @@ RSpec.describe CARMA::Models::Attachment, type: :model do
         }
       )
 
-      expect(subject.to_h).to eq(
+      expect(subject.to_hash).to eq(
         {
           id: 'my-id',
           carma_case_id: 'aB935000000A9GoCAK',

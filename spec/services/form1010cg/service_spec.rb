@@ -650,7 +650,7 @@ RSpec.describe Form1010cg::Service do
 
       expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
       expect(carma_attachment).to receive(:submit!).and_return(:ATTACHMENT_RESPONSE)
-      expect(carma_attachment).to receive(:to_h).and_return(:attachments_as_hash)
+      expect(carma_attachment).to receive(:to_hash).and_return(:attachments_as_hash)
       expect(submission).to receive(:attachments=).with(:attachments_as_hash)
 
       expect(File).to receive(:delete).with(file_path)

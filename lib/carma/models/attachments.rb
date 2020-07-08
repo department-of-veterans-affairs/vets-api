@@ -65,10 +65,10 @@ module CARMA
         self
       end
 
-      def to_h
+      def to_hash
         {
           has_errors: has_errors,
-          data: all.map(&:to_h)
+          data: all.map(&:to_hash)
         }
       end
 
