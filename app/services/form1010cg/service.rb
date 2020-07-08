@@ -70,8 +70,7 @@ module Form1010cg
         }
       end
 
-      # Set the veteran status on the :veteran namespace of metadata
-      metadata[:veteran][:is_veteran] = false
+      metadata[:veteran][:is_veteran] = is_veteran('veteran')
 
       metadata
     end
@@ -112,7 +111,6 @@ module Form1010cg
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
       response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
-      raise response.error if response.error?
 
       is_veteran = response&.items&.first&.title38_status_code == 'V1'
 
