@@ -26,7 +26,7 @@ module MPI
     end
 
     def service_name
-      'MVI' # TODO: are we MPI now?
+      'MPI'
     end
 
     def ssl_options
