@@ -448,7 +448,7 @@
       :uid_location: header
       :uid_locator: ssn
   - :method: :get
-    :path: "/api/v3/decision_review/contestable_issues"
+    :path: "/api/v3/decision_reviews/higher_level_reviews/contestable_issues/compensation"
     :file_path: "modules_appeals_api/contestable_issues"
     :cache_multiple_responses:
       :uid_location: header

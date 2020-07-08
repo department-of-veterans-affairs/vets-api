@@ -9,6 +9,7 @@ require 'support/rx_client_helpers'
 require 'bb/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
+require 'support/stub_debt_letters'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -145,19 +146,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     it 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mvi/find_candidate/valid' do
-        VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
-          VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
-            VCR.use_cassette 'carma/submissions/create/201' do
-              expect(subject).to validate(
-                :post,
-                '/v0/caregivers_assistance_claims',
-                200,
-                '_data' => {
-                  'caregivers_assistance_claim' => {
-                    'form' => build(:caregivers_assistance_claim).form
-                  }
-                }
-              )
+        VCR.use_cassette 'emis/get_veteran_status/valid' do
+          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
+            VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
+              VCR.use_cassette 'carma/auth/token/200' do
+                VCR.use_cassette 'carma/submissions/create/201' do
+                  VCR.use_cassette 'carma/attachments/upload/201' do
+                    expect(subject).to validate(
+                      :post,
+                      '/v0/caregivers_assistance_claims',
+                      200,
+                      '_data' => {
+                        'caregivers_assistance_claim' => {
+                          'form' => build(:caregivers_assistance_claim).form
+                        }
+                      }
+                    )
+                  end
+                end
+              end
             end
           end
         end
@@ -317,6 +324,41 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           }
         }
       )
+    end
+
+    context 'debts tests' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+
+      context 'debt letters index' do
+        stub_debt_letters(:index)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/debt_letters',
+            200,
+            headers
+          )
+        end
+      end
+
+      context 'debt letters show' do
+        stub_debt_letters(:show)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/debt_letters/{id}',
+            200,
+            headers.merge(
+              'id' => CGI.escape(document_id)
+            )
+          )
+        end
+      end
     end
 
     context 'HCA tests' do
