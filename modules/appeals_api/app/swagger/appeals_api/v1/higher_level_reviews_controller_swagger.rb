@@ -18,9 +18,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   response_hlr_show_success = lambda do
     properties = {
       status: { '$ref': '#/components/schemas/hlrStatus' },
-      updated_at: { '$ref': '#/components/schemas/timeStamp' },
-      created_at: { '$ref': '#/components/schemas/timeStamp' },
-      form_data: { '$ref': '#/components/schemas/hlrCreate' }
+      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
+      createdAt: { '$ref': '#/components/schemas/timeStamp' },
+      formData: { '$ref': '#/components/schemas/hlrCreate' }
     }
     type = :HigherLevelReviewInfo
     schema = {
@@ -32,7 +32,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       }
     }
     time = '2020-04-23T21:06:12.531Z'
-    attrs = { status: :processed, updated_at: time, created_at: time, form_data: example_all_fields_used }
+    attrs = { status: :processed, updatedAt: time, createdAt: time, formData: example_all_fields_used }
     example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
 
     {

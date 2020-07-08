@@ -79,7 +79,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
       uuid = create(:higher_level_review).id
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
-      expect(parsed.dig('data', 'attributes', 'form_data')).to be_a Hash
+      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end
 
     it 'returns an error when given a bad uuid' do
