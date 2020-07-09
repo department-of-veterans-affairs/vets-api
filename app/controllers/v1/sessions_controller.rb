@@ -180,9 +180,10 @@ module V1
     # would be resolved by an account lookup, before we implement that
     def log_missing_uuid_info(exception)
       return if exception&.identifier.blank?
+
       accounts = Account.where(icn: exception.identifier)
-      Rails.logger.info("SSOe: Account UUID mapping NOT FOUND") if accounts.blank?
-      Rails.logger.info("SSOe: Account UUID mapping FOUND - #{accounts.size} entries") unless accounts.blank? 
+      Rails.logger.info('SSOe: Account UUID mapping NOT FOUND') if accounts.blank?
+      Rails.logger.info("SSOe: Account UUID mapping FOUND - #{accounts.size} entries") if accounts.present?
     end
 
     def new_stats(type)
