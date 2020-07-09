@@ -32,8 +32,15 @@ class YearToDateReportMailer < ApplicationMailer
 
   STAGING_RECIPIENTS = {
     to: %w[
-      lihan@adhocteam.us
+      Brian.Grubb@va.gov
       Delli-Gatti_Michael@bah.com
+      Joseph.Preisser@va.gov
+      Joseph.Welton@va.gov
+      kyle.pietrosanto@va.gov
+      lihan@adhocteam.us
+      matthew.ziolkowski@va.gov
+      Michael.Johnson19@va.gov
+      Ricardo.DaSilva@va.gov
       sonntag_adam@bah.com
     ]
   }.freeze

@@ -12,30 +12,48 @@ This CARMA service/module is used to submit valid, online, 10-10CG submissions (
 Used to hold model objects relating to CARMA's domain. More models can be added as the interface with CARMA grows (i.e. CARMA::Models::Case).
 
 ### CARMA::Client
-This is an http client used to communicate with CARMA. It contains configuration and auth behavior needed to interface with the Salesforce app. This is an extention of our internal Salesforce service (lib/salesforce) which also extends Restforce (a ruby package for interfacing with the Salesforce API).
+This is an http client used to communicate with CARMA. It contains configuration and auth behavior needed to interface with the Salesforce app. This is an extension of our internal Salesforce service (lib/salesforce) which also extends Restforce (a ruby package for interfacing with the Salesforce API).
 
 ## Example
 
-### Simple (available now)
-```
-claim = CaregiversAssistanceClaim.new
-
-submission = CARMA::Models::Submission.from_claim(claim)
-submission.submit!
-```
-
-### Advanced (future features)
+### Simple Submission
 ```
 claim = CaregiversAssistanceClaim.new
 
 submission = CARMA::Models::Submission.from_claim(claim)
 submission.metadata = {
   veteran: {
-    icn: get_icn_for(submission.data[:veteran]),
-    is_veteran: verify_veteran(vet_icn)
+    icn: '1234',
+    is_veteran: true
   }
 }
 
 submission.submit!
-submission.submit_attachments_async if submission.attachments.any?
+```
+
+### Submission with Attachments 
+```
+claim       = SavedClaim::CaregiversAssistanceClaim.new
+submission  = CARMA::Models::Submission.from_claim(
+                claim,
+                {
+                  veteran: {
+                    icn: '1234',
+                    is_veteran: true
+                  }
+                }
+              )
+
+submission.submit!
+
+attachments = CARMA::Models::Attachments.new(
+  submission.carma_case_id,
+  claim.veteran_data['fullName']['first'],
+  claim.veteran_data['fullName']['last']
+)
+
+attachments.add('10-10CG', 'tmp/pdfs/10-10CG-claim-guid.pdf')
+attachments.add('POA', 'tmp/pdfs/POA-claim-guid.pdf')
+
+attachments.submit!
 ```
