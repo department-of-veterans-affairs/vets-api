@@ -57,6 +57,7 @@ module V1
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
       log_message_to_sentry(e.message, e.level, extra_context: e.context)
+      log_missing_uuid_info(e) if e.code == SAML::UserAttributeError::IDME_UUID_MISSING[:code]
       redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
@@ -173,6 +174,16 @@ module V1
         Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
           "'#{originating_request_id}'")
       end
+    end
+
+    # Diagnostic logging to determine what percentage of these issues
+    # would be resolved by an account lookup, before we implement that
+    def log_missing_uuid_info(exception)
+      return if exception&.identifier.blank?
+
+      accounts = Account.where(icn: exception.identifier)
+      Rails.logger.info('SSOe: Account UUID mapping NOT FOUND') if accounts.blank?
+      Rails.logger.info("SSOe: Account UUID mapping FOUND - #{accounts.size} entries") if accounts.present?
     end
 
     def new_stats(type)

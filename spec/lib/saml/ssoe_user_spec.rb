@@ -796,6 +796,7 @@ RSpec.describe SAML::User do
           expect { subject.validate! }.to raise_error { |error|
             expect(error).to be_a(SAML::UserAttributeError)
             expect(error.message).to eq('User attributes is missing an ID.me UUID')
+            expect(error.identifier).to eq('1012779219V964737')
           }
         end
       end
