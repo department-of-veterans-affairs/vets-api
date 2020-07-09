@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe BGS::Base do
@@ -212,7 +213,7 @@ RSpec.describe BGS::Base do
               'state_code' => 'AR',
               'zip_code' => '61201'
             }
-          },
+          }
         }
 
         response = bgs_base.create_child_school(proc_id, participant_id, payload)
@@ -226,40 +227,40 @@ RSpec.describe BGS::Base do
     it 'creates a child school record' do
       VCR.use_cassette('bgs/base/create_child_student') do
         payload = {
-          "student_networth_information" => {
-            "savings" => "3455",
-            "securities" => "3234",
-            "real_estate" => "5623",
-            "other_assets" => "4566",
-            "remarks" => "Some remarks about the student's net worth"
+          'student_networth_information' => {
+            'savings' => '3455',
+            'securities' => '3234',
+            'real_estate' => '5623',
+            'other_assets' => '4566',
+            'remarks' => "Some remarks about the student's net worth"
           },
-          "student_earnings_from_school_year" => {
-            "earnings_from_all_employment" => "12000",
-            "annual_social_security_payments" => "3453",
-            "other_annuities_income" => "30595",
-            "all_other_income" => "5596"
+          'student_earnings_from_school_year' => {
+            'earnings_from_all_employment' => '12000',
+            'annual_social_security_payments' => '3453',
+            'other_annuities_income' => '30595',
+            'all_other_income' => '5596'
           },
-          "student_expected_earnings_next_year" => {
-            "earnings_from_all_employment" => "12000",
-            "annual_social_security_payments" => "3940",
-            "other_annuities_income" => "3989",
-            "all_other_income" => "984"
+          'student_expected_earnings_next_year' => {
+            'earnings_from_all_employment' => '12000',
+            'annual_social_security_payments' => '3940',
+            'other_annuities_income' => '3989',
+            'all_other_income' => '984'
           },
-          "student_address_marriage_tuition" => {
-            "address" => {
-              "country_name" => "USA",
-              "address_line1" => "1019 Robin Cir",
-              "city" => "Arroyo Grande",
-              "state_code" => "CA",
-              "zip_code" => "93420"
+          'student_address_marriage_tuition' => {
+            'address' => {
+              'country_name' => 'USA',
+              'address_line1' => '1019 Robin Cir',
+              'city' => 'Arroyo Grande',
+              'state_code' => 'CA',
+              'zip_code' => '93420'
             },
-            "was_married" => true,
-            "marriage_date" => "2015-03-04",
-            "tuition_is_paid_by_gov_agency" => 'Y',
-            "agency_name" => "Some Agency",
-            "date_payments_began" => "2019-02-03"
+            'was_married' => true,
+            'marriage_date' => '2015-03-04',
+            'tuition_is_paid_by_gov_agency' => 'Y',
+            'agency_name' => 'Some Agency',
+            'date_payments_began' => '2019-02-03'
           },
-          "student_will_earn_income_next_year" => true
+          'student_will_earn_income_next_year' => true
         }
         response = bgs_base.create_child_student(proc_id, participant_id, payload)
 

@@ -1,30 +1,31 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe BGS::VnpRelationships do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
-  let(:veteran_hash) { {vnp_participant_id: '146189'} }
+  let(:veteran_hash) { { vnp_participant_id: '146189' } }
 
   describe '#create' do
     context 'adding children' do
       it 'returns a relationship hash with correct :ptcpnt_rlnshp_type_nm and :family_rlnshp_type_nm' do
         VCR.use_cassette('bgs/vnp_relationships/create/child') do
           child = {
-            :vnp_participant_id => "148953",
-            :participant_relationship_type_name => "Child",
-            :family_relationship_type_name => "Biological",
-            :begin_date => nil,
-            :end_date => nil,
-            :event_date => nil,
-            :marriage_state => nil,
-            :marriage_city => nil,
-            :divorce_state => nil,
-            :divorce_city => nil,
-            :marriage_termination_type_code => "Death",
-            :living_expenses_paid_amount => nil,
-            :type => "child"
+            vnp_participant_id: '148953',
+            participant_relationship_type_name: 'Child',
+            family_relationship_type_name: 'Biological',
+            begin_date: nil,
+            end_date: nil,
+            event_date: nil,
+            marriage_state: nil,
+            marriage_city: nil,
+            divorce_state: nil,
+            divorce_city: nil,
+            marriage_termination_type_code: 'Death',
+            living_expenses_paid_amount: nil,
+            type: 'child'
           }
 
           dependent_array = [child]
@@ -58,12 +59,12 @@ RSpec.describe BGS::VnpRelationships do
           dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
 
           expect(dependents.first).to include(
-                                        ptcpnt_rlnshp_type_nm: 'Spouse',
-                                        family_rlnshp_type_nm: 'Ex-Spouse',
-                                        marage_trmntn_type_cd: 'Divorce',
-                                        marage_trmntn_city_nm: 'Tampa',
-                                        marage_trmntn_state_cd: 'FL'
-                                      )
+            ptcpnt_rlnshp_type_nm: 'Spouse',
+            family_rlnshp_type_nm: 'Ex-Spouse',
+            marage_trmntn_type_cd: 'Divorce',
+            marage_trmntn_city_nm: 'Tampa',
+            marage_trmntn_state_cd: 'FL'
+          )
         end
       end
     end
@@ -89,10 +90,10 @@ RSpec.describe BGS::VnpRelationships do
           dependent_array = [death]
           dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
           expect(dependents.first).to include(
-                                        participant_relationship_type_name: 'Spouse',
-                                        family_relationship_type_name: 'Spouse',
-                                        marriage_termination_type_code: 'Death'
-                                      )
+            participant_relationship_type_name: 'Spouse',
+            family_relationship_type_name: 'Spouse',
+            marriage_termination_type_code: 'Death'
+          )
         end
       end
     end
@@ -118,11 +119,11 @@ RSpec.describe BGS::VnpRelationships do
           dependent_array = [spouse]
           dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
           expect(dependents.first).to include(
-                                        participant_relationship_type_name: 'Spouse',
-                                        family_relationship_type_name: 'Spouse',
-                                        marriage_state: 'FL',
-                                        marriage_city: 'Tampa'
-                                      )
+            participant_relationship_type_name: 'Spouse',
+            family_relationship_type_name: 'Spouse',
+            marriage_state: 'FL',
+            marriage_city: 'Tampa'
+          )
         end
       end
     end
@@ -148,11 +149,11 @@ RSpec.describe BGS::VnpRelationships do
           dependent_array = [spouse]
           dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
           expect(dependents.first).to include(
-                                        participant_relationship_type_name: 'Spouse',
-                                        family_relationship_type_name: 'Spouse',
-                                        marriage_state: 'FL',
-                                        marriage_city: 'Tampa'
-                                      )
+            participant_relationship_type_name: 'Spouse',
+            family_relationship_type_name: 'Spouse',
+            marriage_state: 'FL',
+            marriage_city: 'Tampa'
+          )
         end
       end
     end

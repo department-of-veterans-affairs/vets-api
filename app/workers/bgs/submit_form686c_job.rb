@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 module BGS
   class SubmitForm686cJob
     include Sidekiq::Worker
-  #  should we do retries? If so, how many?
-  #   ex.
-  #   sidekiq_options(retry: 10)
+    #  should we do retries? If so, how many?
+    #   ex.
+    #   sidekiq_options(retry: 10)
 
     # class SubmitForm86cError < Common::Exceptions::BackendServiceException; end
 

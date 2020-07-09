@@ -7,7 +7,7 @@ module BGS
       @payload = payload
       @veteran_info = formatted_params(@payload, user)
 
-      super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
+      super(user)
     end
 
     def create
@@ -47,7 +47,7 @@ module BGS
         ['last', user.last_name],
         *dependents_application.dig('veteran_contact_information'),
         *dependents_application.dig('veteran_contact_information', 'veteran_address'),
-        ['vet_ind', 'Y']
+        %w[vet_ind Y]
       ]
 
       if dependents_application['current_marriage_information']

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe BGS::Dependents do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
-  let(:fixtures_path) { "#{Rails.root.to_s}/spec/fixtures/686c/dependents" }
+  let(:fixtures_path) { "#{Rails.root}/spec/fixtures/686c/dependents" }
   let(:all_flows_payload) do
     payload = File.read("#{fixtures_path}/all_flows_payload.json")
     JSON.parse(payload)
@@ -22,12 +22,12 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    family_relationship_type_name: 'Biological',
-                                    participant_relationship_type_name: 'Child',
-                                    type: 'child'
-                                  )
-                                )
+            a_hash_including(
+              family_relationship_type_name: 'Biological',
+              participant_relationship_type_name: 'Child',
+              type: 'child'
+            )
+          )
         end
       end
 
@@ -37,8 +37,8 @@ RSpec.describe BGS::Dependents do
         payload = JSON.parse(json)
         VCR.use_cassette('bgs/dependents/children/apdopted_child_lives_with_veteran') do
           expect_any_instance_of(BGS::Service).to receive(:create_address)
-                                                 .with(anything, anything, veteran_address_info).at_most(4).times
-                                                 .and_call_original
+            .with(anything, anything, veteran_address_info).at_most(4).times
+            .and_call_original
 
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
@@ -47,12 +47,12 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    family_relationship_type_name: 'Adopted Child',
-                                    participant_relationship_type_name: 'Child',
-                                    type: 'child'
-                                  )
-                                )
+            a_hash_including(
+              family_relationship_type_name: 'Adopted Child',
+              participant_relationship_type_name: 'Child',
+              type: 'child'
+            )
+          )
         end
       end
     end
@@ -67,12 +67,12 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    family_relationship_type_name: 'Child',
-                                    participant_relationship_type_name: 'Child',
-                                    type: 'death'
-                                  )
-                                )
+            a_hash_including(
+              family_relationship_type_name: 'Child',
+              participant_relationship_type_name: 'Child',
+              type: 'death'
+            )
+          )
         end
       end
     end
@@ -90,15 +90,15 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    family_relationship_type_name: 'Spouse',
-                                    participant_relationship_type_name: 'Spouse',
-                                    marriage_city: 'Slawson',
-                                    marriage_state: 'CA',
-                                    type: 'spouse',
-                                    begin_date: '2014-03-04'
-                                  )
-                                )
+            a_hash_including(
+              family_relationship_type_name: 'Spouse',
+              participant_relationship_type_name: 'Spouse',
+              marriage_city: 'Slawson',
+              marriage_state: 'CA',
+              type: 'spouse',
+              begin_date: '2014-03-04'
+            )
+          )
         end
       end
 
@@ -111,15 +111,15 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    family_relationship_type_name: 'Estranged Spouse',
-                                    participant_relationship_type_name: 'Spouse',
-                                    marriage_city: 'Slawson',
-                                    marriage_state: 'CA',
-                                    type: 'spouse',
-                                    begin_date: '2014-03-04'
-                                  )
-                                )
+            a_hash_including(
+              family_relationship_type_name: 'Estranged Spouse',
+              participant_relationship_type_name: 'Spouse',
+              marriage_city: 'Slawson',
+              marriage_state: 'CA',
+              type: 'spouse',
+              begin_date: '2014-03-04'
+            )
+          )
         end
       end
 
@@ -134,15 +134,15 @@ RSpec.describe BGS::Dependents do
           'ssn' => '323454323',
           'birth_date' => '1981-04-04',
           'ever_married_ind' => 'Y',
-          "vet_ind" => "Y",
-          "va_file_number" => "00000000",
-          "martl_status_type_cd" => "Married"
+          'vet_ind' => 'Y',
+          'va_file_number' => '00000000',
+          'martl_status_type_cd' => 'Married'
         }
 
         VCR.use_cassette('bgs/dependents/create/spouse/is_veteran') do
           expect_any_instance_of(BGS::Service).to receive(:create_person)
-                                                 .with("3828033", "148993", spouse_vet_hash)
-                                                 .and_call_original
+            .with('3828033', '148993', spouse_vet_hash)
+            .and_call_original
 
           BGS::Dependents.new(
             proc_id: proc_id,
@@ -162,14 +162,14 @@ RSpec.describe BGS::Dependents do
             user: user
           ).create
 
-          # ToDo this expectation will change when we get the new data keys from the FE
+          # TODO: this expectation will change when we get the new data keys from the FE
           expect(dependents).to include(
-                                  an_object_having_attributes(
-                                    divorce_state: 'MI',
-                                    divorce_city: 'Clawson',
-                                    marriage_termination_type_code: "Divorce"
-                                  )
-                                )
+            an_object_having_attributes(
+              divorce_state: 'MI',
+              divorce_city: 'Clawson',
+              marriage_termination_type_code: 'Divorce'
+            )
+          )
         end
       end
     end
@@ -184,12 +184,12 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    family_relationship_type_name: 'Stepchild',
-                                    participant_relationship_type_name: 'Child',
-                                    living_expenses_paid_amount: '.5'
-                                  )
-                                )
+            a_hash_including(
+              family_relationship_type_name: 'Stepchild',
+              participant_relationship_type_name: 'Child',
+              living_expenses_paid_amount: '.5'
+            )
+          )
         end
       end
     end
@@ -204,13 +204,13 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    event_date: '1977-02-01',
-                                    family_relationship_type_name: 'Other',
-                                    participant_relationship_type_name: 'Child',
-                                    type: 'child_marriage'
-                                  )
-                                )
+            a_hash_including(
+              event_date: '1977-02-01',
+              family_relationship_type_name: 'Other',
+              participant_relationship_type_name: 'Child',
+              type: 'child_marriage'
+            )
+          )
         end
       end
     end
@@ -225,13 +225,13 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    participant_relationship_type_name: 'Child',
-                                    family_relationship_type_name: 'Other',
-                                    event_date: '2019-03-03',
-                                    type: 'not_attending_school'
-                                  )
-                                )
+            a_hash_including(
+              participant_relationship_type_name: 'Child',
+              family_relationship_type_name: 'Other',
+              event_date: '2019-03-03',
+              type: 'not_attending_school'
+            )
+          )
         end
       end
     end
@@ -246,12 +246,12 @@ RSpec.describe BGS::Dependents do
           ).create
 
           expect(dependents).to include(
-                                  a_hash_including(
-                                    type: '674',
-                                    participant_relationship_type_name: 'Child',
-                                    family_relationship_type_name: 'Other'
-                                  )
-                                )
+            a_hash_including(
+              type: '674',
+              participant_relationship_type_name: 'Child',
+              family_relationship_type_name: 'Other'
+            )
+          )
         end
       end
     end

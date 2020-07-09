@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BGS
   class Form686c < Service
     def initialize(user)
@@ -5,7 +7,6 @@ module BGS
     end
 
     def submit(payload)
-      # BGS::SubmitForm686cJob.perform_async(@user, payload) this is for the job
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
 
@@ -24,8 +25,6 @@ module BGS
       benefit_claim_record = BenefitClaim.new(vnp_benefit_claim: vnp_benefit_claim_record, veteran: veteran, user: @user).create
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
       update_proc(proc_id)
-
-      # {response: 'ok'} this is for the job
     end
 
     private

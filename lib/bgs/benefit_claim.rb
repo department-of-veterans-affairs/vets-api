@@ -18,7 +18,7 @@ module BGS
         participant_claimant_id: benefit_claim.dig(:benefit_claim_record, :participant_claimant_id),
         program_type_code: benefit_claim.dig(:benefit_claim_record, :program_type_code),
         service_type_code: benefit_claim.dig(:benefit_claim_record, :service_type_code),
-        status_type_code: benefit_claim.dig(:benefit_claim_record, :status_type_code),
+        status_type_code: benefit_claim.dig(:benefit_claim_record, :status_type_code)
       }
     end
   end

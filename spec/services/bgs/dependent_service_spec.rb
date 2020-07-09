@@ -4,13 +4,13 @@ require 'rails_helper'
 RSpec.describe BGS::DependentService do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependent_service) { BGS::DependentService.new(user) }
-  let(:fixtures_path) { "#{Rails.root.to_s}/spec/fixtures/686c/dependents" }
+  let(:fixtures_path) { "#{Rails.root}/spec/fixtures/686c/dependents" }
   let(:all_flows_payload) do
     payload = File.read("#{fixtures_path}/all_flows_payload.json")
     JSON.parse(payload)
   end
 
-  # TODO may want to return something else
+  # TODO: may want to return something else
   it 'returns a hash with proc information' do
     VCR.use_cassette('bgs/dependent_service/modify_dependents') do
       modify_dependents = dependent_service.modify_dependents(all_flows_payload)

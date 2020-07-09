@@ -6,7 +6,7 @@ module BGS
       @proc_id = proc_id
       @veteran = veteran
 
-      super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
+      super(user)
     end
 
     def create

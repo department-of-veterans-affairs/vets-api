@@ -9,7 +9,7 @@ module BGS
       'adopted' => 'Adopted Child',
       'disabled' => 'Other',
       'child_over18_in_school' => 'Other'
-    }
+    }.freeze
 
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
@@ -17,7 +17,7 @@ module BGS
       @dependents = []
       @dependents_application = @payload['dependents_application']
 
-      super(user) # is this cool? Might be smelly. Might indicate a new class/object 🤔
+      super(user)
     end
 
     def create
@@ -45,7 +45,7 @@ module BGS
         create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_info)
         generate_address(
           participant[:vnp_ptcpnt_id],
-          dependent_address(child_info["does_child_live_with_you"], child_info.dig('child_address_info', 'address'))
+          dependent_address(child_info['does_child_live_with_you'], child_info.dig('child_address_info', 'address'))
         )
 
         @dependents << serialize_result(
@@ -76,7 +76,7 @@ module BGS
           participant,
           relationship_types[:participant],
           relationship_types[:family],
-          {type: 'death'}
+          { type: 'death' }
         )
       end
     end
@@ -286,7 +286,7 @@ module BGS
         'place_of_birth_state': child_info.dig('place_of_birth', 'state'),
         'place_of_birth_city': child_info.dig('place_of_birth', 'city'),
         'reason_marriage_ended': child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
-        'ever_married_ind': child_info['previously_married'] == 'Yes' ? 'Y' : 'N',
+        'ever_married_ind': child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
       }.merge(child_info['full_name']).with_indifferent_access
     end
 
@@ -306,7 +306,9 @@ module BGS
         'vet_ind': spouse_information['is_veteran'] ? 'Y' : 'N'
       }.merge(spouse_information['full_name']).with_indifferent_access
 
-      marriage_info.merge({'va_file_number': spouse_information['va_file_number']}) if spouse_information['is_veteran']
+      if spouse_information['is_veteran']
+        marriage_info.merge({ 'va_file_number': spouse_information['va_file_number'] })
+      end
     end
 
     def format_divorce_info
@@ -325,7 +327,7 @@ module BGS
       if info['dependent_type']
         return { participant: 'Guardian', family: 'Other' } if info['dependent_type'] == 'DEPENDENT_PARENT'
 
-        return {
+        {
           participant: info['dependent_type'].capitalize.gsub('_', ' '),
           family: info['dependent_type'].capitalize.gsub('_', ' ')
         }

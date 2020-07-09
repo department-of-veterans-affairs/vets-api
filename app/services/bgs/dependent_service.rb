@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGS
-  class DependentService < Base
+  class DependentService
     def initialize(user)
       @user = user
     end
@@ -26,4 +26,3 @@ module BGS
     end
   end
 end
-
