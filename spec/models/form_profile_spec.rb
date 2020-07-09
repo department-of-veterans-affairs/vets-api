@@ -27,6 +27,12 @@ RSpec.describe FormProfile, type: :model do
     )
   end
 
+  let(:mobile_phone) do
+    {
+        'mobilePhone' => user.pciu_alternate_phone
+    }
+  end
+
   let(:full_name) do
     {
       'first' => user.first_name&.capitalize,
@@ -261,6 +267,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'gender' => user.gender,
       'homePhone' => us_phone,
+      'mobilePhone' => mobile_phone,
       'veteranDateOfBirth' => user.birth_date,
       'veteranSocialSecurityNumber' => user.ssn,
       'email' => user.pciu_email
