@@ -2,7 +2,7 @@
 
 require 'lighthouse/facilities/client'
 
-class V1::Facilities::VAController < FacilitiesController
+class V1::Facilities::VaController < FacilitiesController
   # Index supports the following query parameters:
   # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery

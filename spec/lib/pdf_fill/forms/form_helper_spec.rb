@@ -3,8 +3,8 @@
 require 'rails_helper'
 require 'pdf_fill/forms/form_helper'  
 
-describe PDFFill::Forms::FormHelper do
-  let(:including_class) { Class.new { include PDFFill::Forms::FormHelper } }
+describe PdfFill::Forms::FormHelper do
+  let(:including_class) { Class.new { include PdfFill::Forms::FormHelper } }
 
   describe '#split_ssn' do
     it 'returns nil' do

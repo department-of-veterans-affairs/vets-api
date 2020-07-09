@@ -2,5 +2,5 @@
 
 require 'va_facilities/engine'
 
-module VAFacilities
+module VaFacilities
 end
