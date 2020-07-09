@@ -3,7 +3,7 @@
 require 'rails_helper'
 RSpec.describe BGS::VnpVeteran do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
-  let(:fixtures_path) { "#{Rails.root}/spec/fixtures/686c/dependents" }
+  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
   let(:all_flows_payload) do
     payload = File.read("#{fixtures_path}/all_flows_payload.json")
     JSON.parse(payload)

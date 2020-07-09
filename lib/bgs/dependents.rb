@@ -85,6 +85,7 @@ module BGS
       lives_with_vet = @dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
       marriage_info = format_marriage_info(@dependents_application['spouse_information'], lives_with_vet)
       participant = create_participant(@proc_id)
+
       create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
       generate_address(
         participant[:vnp_ptcpnt_id],
@@ -195,11 +196,9 @@ module BGS
       if address['view:lives_on_military_base'] == true
         address['military_postal_code'] = address.delete('state_code')
         address['military_post_office_type_code'] = address.delete('city')
-
-        create_address(@proc_id, participant_id, address)
-      else
-        create_address(@proc_id, participant_id, address)
       end
+
+      create_address(@proc_id, participant_id, address)
     end
 
     def report_veteran_marriage_history
@@ -309,6 +308,8 @@ module BGS
       if spouse_information['is_veteran']
         marriage_info.merge({ 'va_file_number': spouse_information['va_file_number'] })
       end
+
+      marriage_info
     end
 
     def format_divorce_info

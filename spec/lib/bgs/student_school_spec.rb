@@ -6,7 +6,7 @@ RSpec.describe BGS::StudentSchool do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:proc_id) { '3829409' }
   let(:vnp_participant_id) { '148998' }
-  let(:fixtures_path) { "#{Rails.root}/spec/fixtures/686c/dependents" }
+  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
   let(:all_flows_payload) do
     payload = File.read("#{fixtures_path}/all_flows_payload.json")
     JSON.parse(payload)

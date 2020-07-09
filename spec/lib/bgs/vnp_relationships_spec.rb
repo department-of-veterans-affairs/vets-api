@@ -30,9 +30,14 @@ RSpec.describe BGS::VnpRelationships do
 
           dependent_array = [child]
 
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
+          dependents = BGS::VnpRelationships.new(
+            proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user
+          ).create
 
-          expect(dependents.first).to include(participant_relationship_type_name: 'Child', family_relationship_type_name: 'Biological')
+          expect(dependents.first).to include(
+            participant_relationship_type_name: 'Child',
+            family_relationship_type_name: 'Biological'
+          )
         end
       end
     end
@@ -56,7 +61,9 @@ RSpec.describe BGS::VnpRelationships do
           }
 
           dependent_array = [divorce]
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
+          dependents = BGS::VnpRelationships.new(
+            proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user
+          ).create
 
           expect(dependents.first).to include(
             ptcpnt_rlnshp_type_nm: 'Spouse',
