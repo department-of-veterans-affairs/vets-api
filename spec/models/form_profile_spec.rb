@@ -29,7 +29,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:mobile_phone) do
     {
-        'mobilePhone' => user.pciu_alternate_phone
+      'mobilePhone' => user.pciu_alternate_phone
     }
   end
 
