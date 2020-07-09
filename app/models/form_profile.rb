@@ -247,7 +247,18 @@ class FormProfile
   def initialize_contact_information(user)
     opt = {}
     opt.merge!(initialize_vets360_contact_info(user)) if Settings.vet360.prefill && user.vet360_id.present?
+    opt[:email] ||= extract_pciu_data(user, :pciu_email)
 
+    set_contact_information_address(user, opt)
+    set_contact_information_home_phone(user, opt)
+    set_contact_information_mobile_phone(user, opt)
+
+    format_for_schema_compatibility(opt)
+
+    FormContactInformation.new(opt)
+  end
+
+  def set_contact_information_address(user, opt)
     if opt[:address].nil? && user.va_profile&.address
       opt[:address] = {
         street: user.va_profile.address.street,
@@ -258,22 +269,21 @@ class FormProfile
         postal_code: user.va_profile.address.postal_code
       }
     end
+  end
 
-    opt[:email] ||= extract_pciu_data(user, :pciu_email)
+  def set_contact_information_home_phone(user, opt)
     if opt[:home_phone].nil?
       pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
       opt[:home_phone] = pciu_primary_phone
       opt[:us_phone] = get_us_phone(pciu_primary_phone)
     end
+  end
 
+  def set_contact_information_mobile_phone(user, opt)
     if opt[:mobile_phone].nil?
       pciu_alternate_phone = extract_pciu_data(user, :pciu_alternate_phone)
       opt[:mobile_phone] = pciu_alternate_phone
     end
-
-    format_for_schema_compatibility(opt)
-
-    FormContactInformation.new(opt)
   end
 
   def format_for_schema_compatibility(opt)
