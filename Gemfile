@@ -134,6 +134,7 @@ group :test do
   gem 'faker-medical'
   gem 'fakeredis'
   gem 'pdf-inspector'
+  gem 'rspec-retry'
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
