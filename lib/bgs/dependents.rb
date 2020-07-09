@@ -306,7 +306,7 @@ module BGS
       }.merge(spouse_information['full_name']).with_indifferent_access
 
       if spouse_information['is_veteran']
-        marriage_info.merge({ 'va_file_number': spouse_information['va_file_number'] })
+        marriage_info.merge!({ 'va_file_number': spouse_information['va_file_number'] })
       end
 
       marriage_info
