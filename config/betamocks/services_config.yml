@@ -337,7 +337,7 @@
     :file_path: "emis/veteran_status"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>'
+      :uid_locator: '<v13:edipiORicnValue>([V0-9]*)<\/v13:edipiORicnValue>'
 
   - :method: :post
     :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
