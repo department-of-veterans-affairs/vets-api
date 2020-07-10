@@ -51,7 +51,7 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      Rails.logger.info("SSOe: SAML Response => #{saml_response.authn_context}")
+      Rails.logger.info("SSOe: SAML Response => authn=#{saml_response.authn_context} / type=#{params.dig(:RelayState, 'type')}")
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
@@ -128,7 +128,7 @@ module V1
                                locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
-      saml_request_stats(helper.tracker.payload_attr(:authn_context))
+      saml_request_stats(helper.tracker.payload_attr(:authn_context), type)
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
@@ -156,8 +156,8 @@ module V1
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
-    def saml_request_stats(authn_context)
-      Rails.logger.info("SSOe: SAML Request => #{authn_context}")
+    def saml_request_stats(authn_context, type)
+      Rails.logger.info("SSOe: SAML Request => authn=#{authn_context} / type=#{type}")
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
                        tags: ["context:#{authn_context}",
                               VERSION_TAG])
