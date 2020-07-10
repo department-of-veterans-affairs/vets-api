@@ -16,21 +16,21 @@ module PdfFill
               limit: 12,
               question_num: 1,
               question_suffix: 'A',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME (First, Middle Initial, Last)'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME'
             },
             'middleInitial' => {
               key: 'form1[0].#subform[17].VeteranMiddleInitial1[0]',
               limit: 1,
               question_num: 1,
               question_suffix: 'B',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME (First, Middle Initial, Last)'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME'
             },
             'last' => {
               key: 'form1[0].#subform[17].VeteranLastName[0]',
               limit: 18,
               question_num: 1,
               question_suffix: 'C',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME (First, Middle Initial, Last)'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME'
             }
             # suffix
           },
@@ -134,14 +134,14 @@ module PdfFill
               limit: 30,
               question_num: 10,
               question_suffix: 'A',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > COMPLETE MAILING ADDRESS OF VETERAN/CLAIMANT'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
             },
             'address_line2' => {
               key: 'form1[0].#subform[17].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
               limit: 5,
               question_num: 10,
               question_suffix: 'B',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > COMPLETE MAILING ADDRESS OF VETERAN/CLAIMANT'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
             },
             # address_line3
             'city' => {
@@ -149,21 +149,21 @@ module PdfFill
               limit: 18,
               question_num: 10,
               question_suffix: 'C',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > COMPLETE MAILING ADDRESS OF VETERAN/CLAIMANT'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
             },
             'state_code' => {
               key: 'form1[0].#subform[17].CurrentMailingAddress_StateOrProvince[0]',
               limit: 2,
               question_num: 10,
               question_suffix: 'D',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > COMPLETE MAILING ADDRESS OF VETERAN/CLAIMANT'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
             },
             'country_name' => {
               key: 'form1[0].#subform[17].CurrentMailingAddress_Country[0]',
               limit: 2,
               question_num: 10,
               question_suffix: 'E',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > COMPLETE MAILING ADDRESS OF VETERAN/CLAIMANT'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
             },
             'zip_code' => {
               'firstFive' => {
@@ -171,14 +171,14 @@ module PdfFill
                 limit: 5,
                 question_num: 10,
                 question_suffix: 'F',
-                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > COMPLETE MAILING ADDRESS OF VETERAN/CLAIMANT'
+                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
               },
               'lastFour' => {
                 key: 'form1[0].#subform[17].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
                 limit: 4,
                 question_num: 10,
                 question_suffix: 'G',
-                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > COMPLETE MAILING ADDRESS OF VETERAN/CLAIMANT'
+                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
               }
             }
           }
@@ -328,8 +328,8 @@ module PdfFill
                 key: 'form1[0].#subform[17].CurrentMailingAddress_StateOrProvince[2]',
                 limit: 2,
                 question_num: 11,
-                question_suffix: 'B'
-                #question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE STATE' ## this breaks
+                question_suffix: 'B',
+                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE STATE'
               },
               'country' => {
                 key: 'form1[0].#subform[17].CurrentMailingAddress_Country[2]',
@@ -360,15 +360,14 @@ module PdfFill
               key: 'form1[0].#subform[17].Other[0]',
               limit: 9,
               question_num: 11,
-              question_suffix: 'A' #,
-              # @ TODO adding question_text here breaks
-              #question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE TYPE OTHER EXPLANATION'
+              question_suffix: 'A',
+              question_text: 'INFORMATION NEEDED TO ADD SPOUSE > MARRIAGE TYPE OTHER EXPLANATION'
             }
           }, # end current_marriage_information
           'does_live_with_spouse' => {
             'spouse_does_live_with_veteran' => {
-              'spouse_does_live_with_veteran_yes' => { key: 'form1[0].#subform[17].YES[1]' }, #XXX
-              'spouse_does_live_with_veteran_no' => { key: 'form1[0].#subform[17].NO[1]' } #XXX
+              'spouse_does_live_with_veteran_yes' => { key: 'form1[0].#subform[17].YES[1]' },
+              'spouse_does_live_with_veteran_no' => { key: 'form1[0].#subform[17].NO[1]' }
             },
             'current_spouse_reason_for_separation' => {
               key: 'form1[0].#subform[17].Reasonforseparation[0]',
@@ -440,21 +439,21 @@ module PdfFill
                 limit: 12,
                 question_num: 14,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE FIRST NAME'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE FIRST NAME'
               }, # end of first name
               'middleInitial' => {
                 key: 'form1[0].#subform[18].CHILDMiddleInitial1[%iterator%]',
                 limit: 1,
                 question_num: 14,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MIDDLE INITIAL'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MIDDLE INITIAL'
               },  # end of middle initial
               'last' => {
                 key: 'form1[0].#subform[18].CHILDLastName[%iterator%]',
                 limit: 18,
                 question_num: 14,
                 question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE LAST NAME'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE LAST NAME'
               }
               # 'suffix' => {
               # @TODO
@@ -466,21 +465,21 @@ module PdfFill
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'E',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > MONTH'
+                question_text: 'PREVIOUS MARRIAGE HISTORY > MONTH'
               }, # end of marriage start month
               'day' => {
                 key: 'veteran_marriage_history.start_date.day[%iterator%]',
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'F',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > MONTH'
+                question_text: 'PREVIOUS MARRIAGE HISTORY > MONTH'
               }, # end of marriage start day
               'year' => {
                 key: 'veteran_marriage_history.start_date.year[%iterator%]',
                 limit: 4,
                 question_num: 14,
                 question_suffix: 'G',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > YEAR'
+                question_text: 'PREVIOUS MARRIAGE HISTORY > YEAR'
               } # end of marriage start year
             },
             #, # end of start_date
@@ -490,14 +489,14 @@ module PdfFill
                 limit: 18,
                 question_num: 14,
                 question_suffix: 'E',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > CITY'
+                question_text: 'PREVIOUS MARRIAGE HISTORY > CITY'
               }, # end of city
               'state' => {
                 key: 'veteran_marriage_history.start_location.state[%iterator%]',
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'E',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > STATE'
+                question_text: 'PREVIOUS MARRIAGE HISTORY > STATE'
               } # end of state
             }, #end of start_location
             'reason_marriage_ended' => {
@@ -511,7 +510,7 @@ module PdfFill
               #limit: 12, # @TODO THIS BREAKS - WHYYY???
               question_num: 14,
               question_suffix: 'A',
-              question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
+              question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
             },
             'end_date' => {
               'month' => {
@@ -519,21 +518,21 @@ module PdfFill
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > TERMINATION MONTH'
+                question_text: 'PREVIOUS MARRIAGE HISTORY > TERMINATION MONTH'
               }, # end of termination month
               'day' => {
                 key: 'veteran_marriage_history.end_date.day[%iterator%]',
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  TERMINATION DAY'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  TERMINATION DAY'
               }, # end of termination day
               'year' => {
                 key: 'veteran_marriage_history.end_date.year[%iterator%]',
                 limit: 4,
                 question_num: 14,
                 question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  TERMINATION YEAR'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  TERMINATION YEAR'
               } # end of termination year
             }, # end of end date
             'end_location' => {
@@ -542,14 +541,14 @@ module PdfFill
                 limit: 18,
                 question_num: 14,
                 question_suffix: 'D',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  TERMINATION CITY'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  TERMINATION CITY'
               }, # end city
               'state' => {
                 key: 'veteran.previousMarriage.terminationState[%iterator%]',
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'E',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  TERMINATION STATE'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  TERMINATION STATE'
               } # end state
             } # end of end_location
           }, # end veteran_marriage_history
@@ -562,21 +561,21 @@ module PdfFill
                 limit: 12,
                 question_num: 15,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE FIRST NAME'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE FIRST NAME'
               },
               'middleInitial' => {
                 key: 'veteranSpouse.previousSpouse.middleInitial[%iterator%]',
                 limit: 1,
                 question_num: 15,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE MIDDLE INITIAL'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE MIDDLE INITIAL'
               },
               'last' => {
                 key: 'veteranSpouse.previousSpouse.lastName[%iterator%]',
                 limit: 18,
                 question_num: 15,
                 question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE LAST NAME'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE LAST NAME'
               },
               'suffix' => {
                 # @TODO not in the form
@@ -588,22 +587,22 @@ module PdfFill
                 limit: 2,
                 question_num: 15,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE MONTH'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE MONTH'
               },
               'day' => {
                 key: 'spouse_marriage_history.start_date.day[%iterator%]',
                 limit: 2,
                 question_num: 15,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE DAY'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE DAY'
               },
               'year' => {
                 key: 'spouse_marriage_history.start_date.year[%iterator%]',
                 limit: 4,
                 question_num: 15,
                 question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE YEAR'
-              },
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE YEAR'
+              }
             }, # end of start date
             'start_location' => {
               'city' => {
@@ -611,15 +610,15 @@ module PdfFill
                 limit: 18,
                 question_num: 15,
                 question_suffix: 'D',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION CITY'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION CITY'
               },
               'state' => {
                 key: 'spouse_marriage_history.start_location.state[%iterator%]',
                 limit: 2,
                 question_num: 15,
                 question_suffix: 'E',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
-              },
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
+              }
               # @TODO country key: 'spouse_marriage_history.start_location.country[%iterator%]'
             }, # end of start location
             'reason_marriage_ended' => {
@@ -633,7 +632,7 @@ module PdfFill
               #limit: 12, # @TODO THIS BREAKS - WHYYY???
               question_num: 14,
               question_suffix: 'A',
-              question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
+              question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
             },
             'end_date' => {
               'month' => {
@@ -641,21 +640,21 @@ module PdfFill
                 limit: 2,
                 question_num: 15,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED MONTH'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED MONTH'
               }, # end of end date month
               'day' => {
                 key: 'spouse_marriage_history.end_date.day[%iterator%]',
                 limit: 2,
                 question_num: 15,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED DAY'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED DAY'
               }, # end of end date day
               'year' => {
                 key: 'spouse_marriage_history.end_date.year[%iterator%]',
                 limit: 4,
                 question_num: 15,
                 question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED YEAR'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED YEAR'
               } # end of end date year
             }, # end of end date
             'end_location' => {
@@ -664,14 +663,14 @@ module PdfFill
                 limit: 18,
                 question_num: 15,
                 question_suffix: 'D',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION CITY'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION CITY'
               },
               'state' => {
                 key: 'spouse_marriage_history.end_location.state[%iterator%]',
                 limit: 2,
                 question_num: 15,
                 question_suffix: 'E',
-                question_text: 'INFORMATION NEEDED TO ADD SPOUSE > PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
               }
               # @TODO country key: 'spouse_marriage_history.end_location.country[%iterator%]'
             } # end of location
@@ -686,22 +685,22 @@ module PdfFill
                 limit: 12,
                 question_num: 16,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > FIRST NAME'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > FIRST NAME'
               },
               'middleInitial' => {
                 key: 'children_to_add.full_name.middleInitial[%iterator%]',
                 limit: 1,
                 question_num: 16,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > MIDDLE INITIAL'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > MIDDLE INITIAL'
               },
               'last' => {
                 key: 'children_to_add.full_name.last[%iterator%]',
                 limit: 18,
                 question_num: 16,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > LAST NAME'
-              },
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > LAST NAME'
+              }
               # 'suffix' => {
               #  @TODO suffix
               # }
@@ -712,22 +711,22 @@ module PdfFill
                 limit: 3,
                 question_num: 16,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > FIRST THREE SSN'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > FIRST THREE SSN'
               }, # end of ssn first three
               'second' => {
                 key: 'children_to_add.ssn.second[%iterator%]',
                 limit: 2,
                 question_num: 16,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > SECOND TWO SSN'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > SECOND TWO SSN'
               }, # end of second two
               'third' => {
                 key: 'children_to_add.ssn.third[%iterator%]',
                 limit: 4,
                 question_num: 16,
                 question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > LAST FOUR SSN'
-              }, # end of last four
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > LAST FOUR SSN'
+              } # end of last four
             }, # end of ssn
             'birth_date' => {
               'month' => {
@@ -735,21 +734,21 @@ module PdfFill
                 limit: 2,
                 question_num: 16,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > THEIR BIRTHDAY MONTH'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > THEIR BIRTHDAY MONTH'
               },
               'day' => {
                 key: 'children_to_add.birth_date.day[%iterator%]',
                 limit: 4,
                 question_num: 16,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > THEIR BIRTHDAY DAY'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > THEIR BIRTHDAY DAY'
               },
               'year' => {
                 key: 'children_to_add.birth_date.year[%iterator%]',
                 limit: 4,
                 question_num: 16,
                 question_suffix: 'C',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > WHEN ADOPTED IS SELECTED > THEIR BIRTHDAY YEAR'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > THEIR BIRTHDAY YEAR'
               }
             }, # birth_date
             'place_of_birth' => {
@@ -758,14 +757,14 @@ module PdfFill
                 limit: 18,
                 question_num: 16,
                 question_suffix: 'A',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > PLACEMENT OF BIRTH > CITY'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > PLACE OF BIRTH > CITY'
               },
               'state' => {
                 key: 'children_to_add.place_of_birth.state[%iterator%]',
                 limit: 2,
                 question_num: 16,
                 question_suffix: 'B',
-                question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > PLACE OF BIRTH > STATE'
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > PLACE OF BIRTH > STATE'
               }
               # @TODO country
             }, # end place_of_birth
@@ -776,21 +775,21 @@ module PdfFill
                   limit: 12,
                   question_num: 16,
                   question_suffix: 'A',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > FIRST NAME'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > FIRST NAME'
                 }, # end of first name
                 'middleInitial' => {
                   key: 'children_to_add.child_address_info.person_child_lives_with.middleInitial[%iterator%]',
                   limit: 1,
                   question_num: 16,
                   question_suffix: 'B',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > MIDDLE INITIAL'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > MIDDLE INITIAL'
                 }, # end of middle initial
                 'last' => {
                   key: 'children_to_add.child_address_info.person_child_lives_with.last[%iterator%]',
                   limit: 18,
                   question_num: 16,
                   question_suffix: 'C',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > LAST NAME'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > LAST NAME'
                 } # end of last name
               }, # end of person child lives with
               'address' => {
@@ -799,35 +798,35 @@ module PdfFill
                   limit: 27,
                   question_num: 16,
                   question_suffix: 'A',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ADDRESS'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > ADDRESS'
                 }, # end of address line1
                 'address_line2' => {
                   key: 'children_to_add.child_address_info.address.address_line2[%iterator%]',
                   limit: 5,
                   question_num: 16,
                   question_suffix: 'B',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ADDRESS'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > ADDRESS'
                 },
                 'city' => {
                   key: 'children_to_add.child_address_info.address.city[%iterator%]',
                   limit: 18,
                   question_num: 16,
                   question_suffix: 'C',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > CITY'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > CITY'
                 }, # end of city
                 'state_code' => {
                   key: 'children_to_add.child_address_info.address.state_code[%iterator%]',
                   limit: 2,
                   question_num: 16,
                   question_suffix: 'D',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > STATE'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > STATE'
                 },
                 'country_name' => {
                   key: 'children_to_add.child_address_info.address.country_name[%iterator%]',
                   limit: 2,
                   question_num: 16,
                   question_suffix: 'E',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > COUNTRY'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > COUNTRY'
                 },
                 'zip_code' => {
                   'firstFive' => {
@@ -835,14 +834,14 @@ module PdfFill
                     limit: 5,
                     question_num: 16,
                     question_suffix: 'F',
-                    question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ZIP'
+                    question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > ZIP'
                   },
                   'lastFour' => {
                     key: 'children_to_add.child_address_info.address.zip_code.last_four[%iterator%]',
                     limit: 4,
                     question_num: 16,
                     question_suffix: 'G',
-                    question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > ZIP'
+                    question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > ZIP'
                   }
                 }
               } # end address
@@ -862,21 +861,21 @@ module PdfFill
                   limit: 2,
                   question_num: 16,
                   question_suffix: 'A',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > MONTH'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > MONTH'
                 }, # end of month
                 'day' => {
                   key: 'children_to_add.previous_marriage_details.date_marriage_ended.day[%iterator%]',
                   limit: 2,
                   question_num: 16,
                   question_suffix: 'B',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > DAY'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > DAY'
                 }, # end of day
                 'year' => {
                   key: 'children_to_add.previous_marriage_details.date_marriage_ended.year[%iterator%]',
                   limit: 4,
                   question_num: 16,
                   question_suffix: 'C',
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > YEAR'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > YEAR'
                 } # end of year
               }, # end of date marriage ended
               'reason_marriage_ended' => {
@@ -890,14 +889,14 @@ module PdfFill
                   limit: 8,
                   question_num: 16,
                   question_suffix: 'G', # after buttons?
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > REASON LINE1'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > REASON LINE1'
                 },
                 'reason_marriage_ended_other_line2' => {
                   key: 'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line2[%iterator%]',
                   limit: 8,
                   question_num: 16,
                   question_suffix: 'H', # after buttons?
-                  question_text: 'INFORMATION NEEDED TO ADD a CHILD > CHILD DOES NOT LIVE WITH CLAIMANT > END DATE OF CHILDS MARRIAGE > REASON LINE2'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > REASON LINE2'
                 }
               } # end reason_marriage_ended_other
             } # end previous_marriage_details
@@ -1202,7 +1201,7 @@ module PdfFill
                 question_num: 23,
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT MARRIAGE OF A CHILD > NAME > LAST'
-              }, # end of last name of married child
+              } # end of last name of married child
               # 'suffix' => {
               # @TODO
               # } # end of suffix
@@ -1543,7 +1542,7 @@ module PdfFill
           spouse['reason_marriage_ended'] = {
             'death' => reason_marriage_ended == 'DEATH' ? 0 : 'Off',
             'divorce' => reason_marriage_ended == 'DIVORCE' ? 0 : 'Off',
-            'annulment' => reason_marriage_ended == 'ANNULMENT'? 0 : 'Off',
+            'annulment' => reason_marriage_ended == 'ANNULMENT' ? 0 : 'Off',
             'other' => reason_marriage_ended == 'OTHER' ? 0 : 'Off'
           }
         end
@@ -1567,7 +1566,7 @@ module PdfFill
           spouse['reason_marriage_ended'] = {
             'death' => reason_marriage_ended == 'DEATH' ? 0 : 'Off',
             'divorce' => reason_marriage_ended == 'DIVORCE' ? 0 : 'Off',
-            'annulment' => reason_marriage_ended == 'ANNULMENT'? 0 : 'Off',
+            'annulment' => reason_marriage_ended == 'ANNULMENT' ? 0 : 'Off',
             'other' => reason_marriage_ended == 'OTHER' ? 0 : 'Off'
           }
         end
@@ -1587,7 +1586,7 @@ module PdfFill
           # extract ssn
           # @TODO is there a better way to do this?
           ssn = child['ssn']
-          child['ssn'] = split_ssn(ssn.delete('-')) unless ssn.blank?
+          child['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
 
           # extract postal code
           # @TODO is there a better way to do this?
