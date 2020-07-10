@@ -16,19 +16,40 @@ class UserSessionForm
 
   def initialize(saml_response)
     @saml_uuid = saml_response.in_response_to
-    saml_attributes = SAML::User.new(saml_response)
-    saml_attributes.validate!
-    existing_user = User.find(saml_attributes.user_attributes.uuid)
-    @user_identity = UserIdentity.new(saml_attributes.to_hash)
+    saml_user = SAML::User.new(saml_response)
+    normalized_attributes = normalize_saml(saml_user)
+    existing_user = User.find(normalized_attributes[:uuid])
+    @user_identity = UserIdentity.new(normalized_attributes)
     @user = User.new(uuid: @user_identity.attributes[:uuid])
     @user.instance_variable_set(:@identity, @user_identity)
-    if saml_attributes.changing_multifactor?
+    if saml_user.changing_multifactor?
       @user.mhv_last_signed_in = existing_user.last_signed_in
       @user.last_signed_in = existing_user.last_signed_in
     else
       @user.last_signed_in = Time.current.utc
     end
     @session = Session.new(uuid: @user.uuid)
+  end
+
+  def normalize_saml(saml_user)
+    saml_user.validate!
+    saml_user.to_hash
+  rescue SAML::UserAttributeError => e
+    raise unless e.code == SAML::UserAttributeError::IDME_UUID_MISSING[:code]
+
+    idme_uuid = idme_uuid_from_account(e&.identifier)
+    raise if idme_uuid.blank?
+
+    Rails.logger.info('Account UUID injected into user SAML attributes')
+    saml_user.to_hash.merge({ uuid: idme_uuid,
+                              idme_uuid: idme_uuid })
+  end
+
+  def idme_uuid_from_account(identifier)
+    return if identifier.blank?
+
+    accounts = Account.where(icn: identifier)
+    accounts.size == 1 ? accounts&.first&.idme_uuid : nil
   end
 
   def valid?
