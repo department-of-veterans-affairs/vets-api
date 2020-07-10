@@ -153,6 +153,18 @@ RSpec.describe 'Disability compensation form', type: :request do
       end
     end
 
+    context 'with an `bdd` claim' do
+      let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
+
+      xit 'matches the rated disabilites schema' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_bdd_form') do
+          post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('submit_disability_form')
+        end
+      end
+    end
+
     context 'with invalid json body' do
       it 'returns a 422' do
         post '/v0/disability_compensation_form/submit', params: { 'form526' => nil }.to_json, headers: headers
