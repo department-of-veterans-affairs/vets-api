@@ -1031,7 +1031,7 @@ module PdfFill
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO ADD A STEPCHILD > LIVING WITH WHO > LAST NAME'
               } # end of last
-            } # end of who_does_the_stepchild_live_with
+            }, # end of who_does_the_stepchild_live_with
             'address' => {
               'address_line1' => {
                 key: 'step_children.address.address_line1[%iterator%]',
