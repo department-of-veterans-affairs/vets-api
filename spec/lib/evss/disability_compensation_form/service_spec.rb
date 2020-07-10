@@ -58,6 +58,22 @@ describe EVSS::DisabilityCompensationForm::Service do
       end
     end
 
+    context 'with valid BDD input' do
+      let(:valid_bdd_form_content) do
+        File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json'
+      end
+
+      xit 'returns a form submit response object' do
+        # skipping until I can record cassette.
+        VCR.use_cassette('evss/disability_compensation_form/submit_form_bdd') do
+          response = subject.submit_form526(valid_bdd_form_content)
+          expect(response).to be_ok
+          expect(response).to be_an EVSS::DisabilityCompensationForm::FormSubmitResponse
+          expect(response.claim_id).to be_an Integer
+        end
+      end
+    end
+
     context 'with an http timeout' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
