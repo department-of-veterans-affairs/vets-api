@@ -40,6 +40,7 @@ class UserSessionForm
     idme_uuid = idme_uuid_from_account(e&.identifier)
     raise if idme_uuid.blank?
 
+    Rails.logger.info('Account UUID injected into user SAML attributes')
     saml_user.to_hash.merge({ uuid: idme_uuid,
                               idme_uuid: idme_uuid })
   end
