@@ -40,10 +40,10 @@ class YearToDateReportMailer < ApplicationMailer
       lihan@adhocteam.us
       matthew.ziolkowski@va.gov
       Michael.Johnson19@va.gov
+      neel_darrell@bah.com
       Ricardo.DaSilva@va.gov
       sonntag_adam@bah.com
       turner_desiree@bah.com
-      neel_darrell@bah.com
     ]
   }.freeze
 
