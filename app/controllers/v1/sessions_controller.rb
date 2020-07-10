@@ -178,6 +178,8 @@ module V1
 
     # Diagnostic logging to determine what percentage of these issues
     # would be resolved by an account lookup, before we implement that
+    # TODO: Remove this method after we're confident in the UUID injection
+    # performed in UserSessionForm
     def log_missing_uuid_info(exception)
       return if exception&.identifier.blank?
 
