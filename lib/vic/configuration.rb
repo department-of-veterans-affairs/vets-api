@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'salesforce/configuration'
 
 module VIC
   class Configuration < Salesforce::Configuration

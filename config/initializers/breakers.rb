@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'caseflow/configuration'
 require 'bb/configuration'
 require 'breakers/statsd_plugin'
 require 'caseflow/configuration'
@@ -18,6 +17,7 @@ require 'evss/gi_bill_status/service'
 require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
 require 'facilities/bulk_configuration'
+require 'facilities/ppms/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
