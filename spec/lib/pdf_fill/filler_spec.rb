@@ -62,8 +62,7 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
-    #%w[21P-530 21P-527EZ 10-10CG 21-686C].each do |form_id|
-    %w[21-686C].each do |form_id|
+    %w[21P-530 21P-527EZ 10-10CG 21-686C].each do |form_id|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
