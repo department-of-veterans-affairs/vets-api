@@ -51,12 +51,7 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      values = {
-        'id' => saml_response.in_response_to,
-        'authn' => saml_response.authn_context,
-        'type' => params.dig(:RelayState, 'type'),
-      }
-      Rails.logger.info("SSOe: SAML Response => #{values}")
+      saml_response_logging(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
@@ -133,7 +128,7 @@ module V1
                                locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
-      saml_request_stats(helper.tracker.payload_attr(:authn_context), type)
+      saml_request_stats(helper.tracker)
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
@@ -161,16 +156,25 @@ module V1
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
-    def saml_request_stats(tracker, type)
+    def saml_request_stats(tracker)
       values = {
-        'id' => tracker.uuid,
-        'authn' => tracker.payload_attr(:authn_context),
-        'type' => type,
+        'id' => tracker&.uuid,
+        'authn' => tracker&.payload_attr(:authn_context),
+        'type' => tracker&.payload_attr(:type)
       }
       Rails.logger.info("SSOe: SAML Request => #{values}")
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
-                       tags: ["context:#{authn_context}",
+                       tags: ["context:#{tracker&.payload_attr(:authn_context)}",
                               VERSION_TAG])
+    end
+
+    def saml_response_logging(saml_response)
+      values = {
+        'id' => saml_response.in_response_to,
+        'authn' => saml_response.authn_context,
+        'type' => JSON.parse(params[:RelayState] || '{}')['type']
+      }
+      Rails.logger.info("SSOe: SAML Response => #{values}")
     end
 
     def user_logout(saml_response)
