@@ -42,6 +42,8 @@ class YearToDateReportMailer < ApplicationMailer
       Michael.Johnson19@va.gov
       Ricardo.DaSilva@va.gov
       sonntag_adam@bah.com
+      turner_desiree@bah.com
+      neel_darrell@bah.com
     ]
   }.freeze
 
