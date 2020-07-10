@@ -56,5 +56,13 @@ RSpec.describe UserSessionForm, type: :model do
         expect(error).to be_a(SAML::UserAttributeError)
       }
     end
+
+    it 'uses the injected identifier as the user key' do
+      account = create(:account, icn: saml_attributes[:va_eauth_icn])
+      subject = UserSessionForm.new(saml_response)
+      subject.persist
+      expect(User.find(account.idme_uuid)).to be_truthy
+      expect(UserIdentity.find(account.idme_uuid)).to be_truthy
+    end
   end
 end
