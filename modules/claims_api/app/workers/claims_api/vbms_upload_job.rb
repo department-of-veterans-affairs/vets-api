@@ -15,6 +15,10 @@ module ClaimsApi
       uploader.retrieve_from_store!(power_of_attorney.file_data['filename'])
       file_path = fetch_file_path(uploader)
       upload_to_vbms(power_of_attorney, file_path)
+    rescue VBMS::Unknown
+      rescue_vbms_error(power_of_attorney)
+    rescue Errno::ENOENT
+      rescue_file_not_found(power_of_attorney)
     end
 
     def fetch_file_path(uploader)

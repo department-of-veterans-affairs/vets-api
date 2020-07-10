@@ -34,10 +34,6 @@ module ClaimsApi
         vbms_new_document_version_ref_id: upload_response[:vbms_new_document_version_ref_id],
         vbms_document_series_ref_id: upload_response[:vbms_document_series_ref_id]
       )
-    rescue VBMS::Unknown
-      rescue_vbms_error(power_of_attorney)
-    rescue Errno::ENOENT
-      rescue_file_not_found(power_of_attorney)
     end
   end
 end

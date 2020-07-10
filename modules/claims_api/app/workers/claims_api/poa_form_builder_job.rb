@@ -20,6 +20,10 @@ module ClaimsApi
       pdf << CombinePDF.load(page2)
       pdf.save(output_path)
       upload_to_vbms(power_of_attorney, output_path)
+    rescue VBMS::Unknown
+      rescue_vbms_error(power_of_attorney)
+    rescue Errno::ENOENT
+      rescue_file_not_found(power_of_attorney)
     end
   end
 end
