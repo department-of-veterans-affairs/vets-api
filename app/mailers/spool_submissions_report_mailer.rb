@@ -17,8 +17,10 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
   ].freeze
 
   STAGING_RECIPIENTS = %w[
-    lihan@adhocteam.us
+    Darrell.Neel@va.gov
     Delli-Gatti_Michael@bah.com
+    lihan@adhocteam.us
+    Shawkey_Daniel@bah.com
     sonntag_adam@bah.com
   ].freeze
 

@@ -82,7 +82,7 @@
         "examples": {
           "bad file number or SSN": {
             "value": {
-              "errors": { "status": 404, "code": "veteran_not_found", "title": "Veteran not found" }}}}}}},
+              "errors": { "status": 404, "code": "veteran_not_found", "title": "Veteran Not Found" }}}}}}},
   "422": {
     "description": "Bad receipt date",
     "content": {
@@ -91,9 +91,21 @@
           "type": "object",
           "properties": { "errors": { "$ref": "#/components/schemas/errorWithTitleAndDetail" } }},
         "examples": {
-          "bad receipt date": {
+          "before AMA": {
             "value": {
-              "errors": { "status": 422, "code": "bad_receipt_date", "title": "Bad receipt date" }}}}}}},
+              "errors": { "status": 422, "code": "invalid_receipt_date", "title": "Invalid Receipt Date", "detail": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)." }}},
+          "future receipt date": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_receipt_date", "title": "Invalid Receipt Date", "detail": "\"2020-07-02\" is in the future (today: 2020-07-01; time zone: (GMT-05:00) America/New_York)." }}},
+          "unparsable date": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_receipt_date", "title": "Invalid Receipt Date", "detail": "\"Widdershins\" is not a valid date." }}},
+          "invalid benefit_type": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_benefit_type", "title": "Invalid Benefit Type", "detail": "Benefit type nil is invalid. Must be one of: [\"compensation\", \"pension\", \"fiduciary\", \"insurance\", \"education\", \"voc_rehab\", \"loan_guaranty\", \"vha\", \"nca\"]" }}},
+          "invalid veteran ssn": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_veteran_ssn", "title": "Invalid Veteran SSN", "detail": "SSN regex: /^\\d{9}$/)." }}}}}}},
   "500": {
     "description": "Unknown error",
     "content": {
