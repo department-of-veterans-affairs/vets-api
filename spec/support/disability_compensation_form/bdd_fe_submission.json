@@ -1,6 +1,7 @@
 {
   "form526": {
     "isVaEmployee": false,
+    "standardClaim": true,
     "serviceInformation": {
       "servicePeriods": [
         {
