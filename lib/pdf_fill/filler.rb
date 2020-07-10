@@ -52,7 +52,6 @@ module PdfFill
         form_data: form_class.new(form_data).merge_fields,
         pdftk_keys: form_class::KEY
       )
-
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         file_path,

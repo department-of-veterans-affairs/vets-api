@@ -65,8 +65,7 @@ describe PdfFill::Filler do
     #%w[21P-530 21P-527EZ 10-10CG 21-686C].each do |form_id|
     %w[21-686C].each do |form_id|
       context "form #{form_id}" do
-        %w[overflow].each do |type|
-        #%w[simple kitchen_sink overflow].each do |type|
+        %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
@@ -94,21 +93,22 @@ describe PdfFill::Filler do
 
               file_path = described_class.fill_form(saved_claim)
 
+
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
 
-                #expect(
-                #  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
-                #).to eq(true)
+                expect(
+                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                ).to eq(true)
 
-                #File.delete(extras_path)
+                File.delete(extras_path)
               end
 
-              #expect(
-              #  compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-              #).to eq(true)
+              expect(
+                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+              ).to eq(true)
 
-              #File.delete(file_path)
+              File.delete(file_path)
             end
           end
         end
@@ -117,11 +117,9 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    #%w[21-4142 21-0781a 21-0781 21-8940].each do |form_id|
-    %w[21-686C].each do |form_id|
+    %w[21-4142 21-0781a 21-0781 21-8940].each do |form_id|
       context "form #{form_id}" do
-        #%w[simple kitchen_sink overflow].each do |type|
-        %w[overflow].each do |type|
+        %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
@@ -139,21 +137,21 @@ describe PdfFill::Filler do
 
               file_path = described_class.fill_ancillary_form(form_data, 1, form_id)
 
-              #if type == 'overflow'
-              #  extras_path = the_extras_generator.generate
+              if type == 'overflow'
+                extras_path = the_extras_generator.generate
 
-              #  expect(
-              #    FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
-              #  ).to eq(true)
+                expect(
+                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                ).to eq(true)
 
-              #  File.delete(extras_path)
-              #end
+                File.delete(extras_path)
+              end
 
-              #expect(
-              #  compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-              #).to eq(true)
+              expect(
+                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+              ).to eq(true)
 
-              #File.delete(file_path)
+              File.delete(file_path)
             end
           end
         end
