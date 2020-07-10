@@ -29,8 +29,6 @@ module Search
     #
     def results
       with_monitoring do
-         puts "!!!!!!betamocks:#{Settings.betamocks} search:#{Settings.search} #{results_url}"
-         puts "!!!!!!!! base uri#{URI(Settings.search.url).host}:#{URI(Settings.search.url).port}"
         response = perform(:get, results_url, query_params)
         Search::ResultsResponse.from(response)
       end

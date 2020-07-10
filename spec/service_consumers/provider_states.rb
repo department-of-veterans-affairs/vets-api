@@ -25,13 +25,22 @@ end
 
 Pact.provider_states_for 'Search' do
   provider_state 'multiple matching results exist' do
-    no_op
-    # set_up do
-    #   VCR.insert_cassette('search/page_1')
-    # end
-    #
-    # tear_down do
-    #   VCR.eject_cassette
-    # end
+    set_up do
+      vcr_cassette = YAML.load_file(
+        'spec/support/vcr_cassettes/search/success_utf8.yml'
+      )['http_interactions'][0]
+
+      url_stub = vcr_cassette['request']['uri']
+      response_stub = {
+        headers:  vcr_cassette['response']['headers'],
+        body:     vcr_cassette['response']['body']['string']
+      }
+
+      stub_request(:get, url_stub).to_return(response_stub)
+    end
+
+    tear_down do
+      # Any tear down steps to clean up the provider state
+    end
   end
 end
