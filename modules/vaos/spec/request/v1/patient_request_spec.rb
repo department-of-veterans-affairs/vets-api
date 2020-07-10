@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'faker/medical'
 
 RSpec.describe 'VAOS::V1::Patient', type: :request do
   include SchemaMatchers
