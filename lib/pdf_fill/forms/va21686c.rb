@@ -781,7 +781,7 @@ module PdfFill
                   limit: 1,
                   question_num: 16,
                   question_suffix: 'B',
-                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > MIDDLE INIT'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > MIDDLE'
                 }, # end of middle initial
                 'last' => {
                   key: 'children_to_add.child_address_info.person_child_lives_with.last[%iterator%]',
@@ -891,7 +891,8 @@ module PdfFill
               'other_reason_marriage_ended' => {
                 'reason_marriage_ended_other_line1' => {
                   key:
-                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line1[%iterator%]',
+                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.' +
+                    'reason_marriage_ended_other_line1[%iterator%]',
                   limit: 8,
                   question_num: 16,
                   question_suffix: 'G', # after buttons?
@@ -899,7 +900,8 @@ module PdfFill
                 },
                 'reason_marriage_ended_other_line2' => {
                   key:
-                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line2[%iterator%]',
+                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.' +
+                    'reason_marriage_ended_other_line2[%iterator%]',
                   limit: 8,
                   question_num: 16,
                   question_suffix: 'H', # after buttons?
@@ -1243,7 +1245,7 @@ module PdfFill
               }
             } # end date_married
           }, # end of child marriage
-          # ------  SECTION VIII: VETERAN/CLAIMANT REPORTING A SCHOOLCHILD OVER 18 HAS STOPPED ATTENDING SCHOOL  ------ #
+          # ---  SECTION VIII: VETERAN/CLAIMANT REPORTING A SCHOOLCHILD OVER 18 HAS STOPPED ATTENDING SCHOOL  --- #
           'child_stopped_attending_school' => {
             'full_name' => {
               'first' => {
@@ -1506,15 +1508,7 @@ module PdfFill
         ssn = veteran_information['ssn']
         veteran_information['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
 
-        phone_number = veteran_contact_information['phone_number']
-        if phone_number.present?
-          phone_number = phone_number.delete('^0-9')
-          veteran_contact_information['phone_number'] = {
-            'phone_area_code' => phone_number[0..2],
-            'phone_first_three_numbers' => phone_number[3..5],
-            'phone_last_four_numbers' => phone_number[6..9]
-          }
-        end
+        expand_phone_number(veteran_contact_information)
 
         # extract postal code
         veteran_contact_information['veteran_address']['postalCode'] =
@@ -1546,16 +1540,6 @@ module PdfFill
         @form_data['dependents_application']['current_marriage_information']['date'] =
           split_date(@form_data['dependents_application']['current_marriage_information']['date'])
 
-        va_file_number = spouse['va_file_number']
-        if va_file_number.present?
-          va_file_number = va_file_number.delete('-')
-          spouse['va_file_number'] = {
-            'va_file_number_first_three' => va_file_number[0..2],
-            'va_file_number_second_two' => va_file_number[3..4],
-            'va_file_number_last_four' => va_file_number[5..8]
-          }
-        end
-
         # extract postal code
         if @form_data['dependents_application']['does_live_with_spouse']['address'].present?
           @form_data['dependents_application']['does_live_with_spouse']['address']['postalCode'] =
@@ -1564,6 +1548,7 @@ module PdfFill
             split_postal_code(@form_data['dependents_application']['does_live_with_spouse']['address'])
         end
 
+        expand_va_file_number(spouse)
         expand_marriage_type
         expand_is_veteran
         expand_does_live_with_spouse
@@ -1629,12 +1614,11 @@ module PdfFill
 
           # extract ssn
           # @TODO is there a better way to do this?
-          ssn = child['ssn']
-          child['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
+          child['ssn'] = split_ssn(child['ssn'].delete('-')) if child['ssn'].present?
 
           # extract postal code
           # @TODO is there a better way to do this?
-          if !child['does_child_live_with_you']
+          unless child['does_child_live_with_you']
             child['child_address_info']['address']['postalCode'] =
               child['child_address_info']['address']['zip_code']
             child['child_address_info']['address']['zip_code'] =
@@ -1656,34 +1640,38 @@ module PdfFill
           }
 
           if child['previously_married'] == 'Yes'
-            child['child_status']['child_previously_married'] = 0
+            expand_child_previously_married(child)
+          end
+        end
+      end
 
-            # extract date
-            child['previous_marriage_details']['date_marriage_ended'] =
-              split_date(child['previous_marriage_details']['date_marriage_ended'])
+      def expand_child_previously_married(child)
+        child['child_status']['child_previously_married'] = 0
 
-            # expand reason child marriage ended
-            reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
-            # @TODO confirm option values coming from FE
-            child['previous_marriage_details']['reason_marriage_ended'] = {
-              'declared_void' => reason_marriage_ended == 'declared_void' ? 0 : 'Off',
-              'annulled' => reason_marriage_ended == 'Annulment' ? 0 : 'Off',
-              'other' => reason_marriage_ended == 'Other' ? 0 : 'Off'
-            }
+        # extract date
+        child['previous_marriage_details']['date_marriage_ended'] =
+          split_date(child['previous_marriage_details']['date_marriage_ended'])
 
-            other_reason_marriage_ended = child['previous_marriage_details']['other_reason_marriage_ended']
-            if other_reason_marriage_ended.present?
-              child['previous_marriage_details']['other_reason_marriage_ended'] = {}
-              if other_reason_marriage_ended.length > 8 && other_reason_marriage_ended.length < 16
-                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] =
-                  other_reason_marriage_ended[0..7]
-                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line2'] =
-                  other_reason_marriage_ended[8..15]
-              else
-                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] =
-                  other_reason_marriage_ended
-              end
-            end
+        # expand reason child marriage ended
+        reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
+        # @TODO confirm option values coming from FE
+        child['previous_marriage_details']['reason_marriage_ended'] = {
+          'declared_void' => reason_marriage_ended == 'declared_void' ? 0 : 'Off',
+          'annulled' => reason_marriage_ended == 'Annulment' ? 0 : 'Off',
+          'other' => reason_marriage_ended == 'Other' ? 0 : 'Off'
+        }
+
+        other_reason_marriage_ended = child['previous_marriage_details']['other_reason_marriage_ended']
+        if other_reason_marriage_ended.present?
+          child['previous_marriage_details']['other_reason_marriage_ended'] = {}
+          if other_reason_marriage_ended.length > 8 && other_reason_marriage_ended.length < 16
+            child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] =
+              other_reason_marriage_ended[0..7]
+            child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line2'] =
+              other_reason_marriage_ended[8..15]
+          else
+            child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] =
+              other_reason_marriage_ended
           end
         end
       end
@@ -1776,6 +1764,29 @@ module PdfFill
         # extract date
         child_stopped_attending_school['date_child_left_school'] =
           split_date(child_stopped_attending_school['date_child_left_school'])
+      end
+
+      def expand_phone_number(veteran_contact_information)
+        phone_number = veteran_contact_information['phone_number']
+        if phone_number.present?
+          phone_number = phone_number.delete('^0-9')
+          veteran_contact_information['phone_number'] = {
+            'phone_area_code' => phone_number[0..2],
+            'phone_first_three_numbers' => phone_number[3..5],
+            'phone_last_four_numbers' => phone_number[6..9]
+          }
+        end
+      end
+
+      def expand_va_file_number(spouse)
+        if spouse['va_file_number'].present?
+          va_file_number = spouse['va_file_number'].delete('-')
+          spouse['va_file_number'] = {
+            'va_file_number_first_three' => va_file_number[0..2],
+            'va_file_number_second_two' => va_file_number[3..4],
+            'va_file_number_last_four' => va_file_number[5..8]
+          }
+        end
       end
 
       def expand_marriage_type
