@@ -891,7 +891,7 @@ module PdfFill
               'other_reason_marriage_ended' => {
                 'reason_marriage_ended_other_line1' => {
                   key:
-                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.' +
+                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.' \
                     'reason_marriage_ended_other_line1[%iterator%]',
                   limit: 8,
                   question_num: 16,
@@ -900,7 +900,7 @@ module PdfFill
                 },
                 'reason_marriage_ended_other_line2' => {
                   key:
-                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.' +
+                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.' \
                     'reason_marriage_ended_other_line2[%iterator%]',
                   limit: 8,
                   question_num: 16,
@@ -1625,33 +1625,37 @@ module PdfFill
               split_postal_code(child['child_address_info']['address'])
           end
 
-          # expand child status
-          child_status = child['child_status']
-
-          # @TODO 18-23 YEARS OLD AND IN SCHOOL
-          # need to check values from FE why is this one coming in differently than the others?
-          child['child_status'] = {
-            'biological' => child_status['biological'] ? 0 : 'Off',
-            'school_age_in_school' => child_status['school_age_in_school'] ? 0 : 'Off',
-            'adopted' => child_status['adopted'] ? 0 : 'Off',
-            'not_capable' => child_status['incapable_self_support'] ? 0 : 'Off',
-            'child_previously_married' => child_status['child_previously_married'] ? 0 : 'Off',
-            'stepchild' => child_status['stepchild'] ? 0 : 'Off'
-          }
+          expand_child_status(child)
 
           if child['previously_married'] == 'Yes'
+            child['child_status']['child_previously_married'] = 0
+
+            # extract date
+            child['previous_marriage_details']['date_marriage_ended'] =
+              split_date(child['previous_marriage_details']['date_marriage_ended'])
+
             expand_child_previously_married(child)
           end
         end
       end
 
+      def expand_child_status(child)
+        # expand child status
+        child_status = child['child_status']
+
+        # @TODO 18-23 YEARS OLD AND IN SCHOOL
+        # need to check values from FE why is this one coming in differently than the others?
+        child['child_status'] = {
+          'biological' => child_status['biological'] ? 0 : 'Off',
+          'school_age_in_school' => child_status['school_age_in_school'] ? 0 : 'Off',
+          'adopted' => child_status['adopted'] ? 0 : 'Off',
+          'not_capable' => child_status['incapable_self_support'] ? 0 : 'Off',
+          'child_previously_married' => child_status['child_previously_married'] ? 0 : 'Off',
+          'stepchild' => child_status['stepchild'] ? 0 : 'Off'
+        }
+      end
+
       def expand_child_previously_married(child)
-        child['child_status']['child_previously_married'] = 0
-
-        # extract date
-        child['previous_marriage_details']['date_marriage_ended'] =
-          split_date(child['previous_marriage_details']['date_marriage_ended'])
-
         # expand reason child marriage ended
         reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
         # @TODO confirm option values coming from FE
