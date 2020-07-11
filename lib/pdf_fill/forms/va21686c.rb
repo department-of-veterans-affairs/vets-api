@@ -440,14 +440,14 @@ module PdfFill
                 question_num: 14,
                 question_suffix: 'A',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE FIRST NAME'
-              }, # end of first name
+              },
               'middleInitial' => {
                 key: 'form1[0].#subform[18].CHILDMiddleInitial1[%iterator%]',
                 limit: 1,
                 question_num: 14,
                 question_suffix: 'B',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MIDDLE INITIAL'
-              },  # end of middle initial
+              },
               'last' => {
                 key: 'form1[0].#subform[18].CHILDLastName[%iterator%]',
                 limit: 18,
@@ -458,7 +458,7 @@ module PdfFill
               # 'suffix' => {
               # @TODO
               # } # end of suffix
-            },  # end of end of full name
+            }, # end of end of full name
             'start_date' => {
               'month' => {
                 key: 'veteran_marriage_history.start_date.month[%iterator%]',
@@ -466,23 +466,22 @@ module PdfFill
                 question_num: 14,
                 question_suffix: 'E',
                 question_text: 'PREVIOUS MARRIAGE HISTORY > MONTH'
-              }, # end of marriage start month
+              },
               'day' => {
                 key: 'veteran_marriage_history.start_date.day[%iterator%]',
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'F',
                 question_text: 'PREVIOUS MARRIAGE HISTORY > MONTH'
-              }, # end of marriage start day
+              },
               'year' => {
                 key: 'veteran_marriage_history.start_date.year[%iterator%]',
                 limit: 4,
                 question_num: 14,
                 question_suffix: 'G',
                 question_text: 'PREVIOUS MARRIAGE HISTORY > YEAR'
-              } # end of marriage start year
-            },
-            #, # end of start_date
+              }
+            }, # end of start_date
             'start_location' => {
               'city' => {
                 key: 'veteran.previousMarriage.startCity[%iterator%]',
@@ -490,15 +489,15 @@ module PdfFill
                 question_num: 14,
                 question_suffix: 'E',
                 question_text: 'PREVIOUS MARRIAGE HISTORY > CITY'
-              }, # end of city
+              },
               'state' => {
                 key: 'veteran_marriage_history.start_location.state[%iterator%]',
                 limit: 2,
                 question_num: 14,
                 question_suffix: 'E',
                 question_text: 'PREVIOUS MARRIAGE HISTORY > STATE'
-              } # end of state
-            }, #end of start_location
+              }
+            }, # end of start_location
             'reason_marriage_ended' => {
               'death' => { key: 'veteran_marriage_history.reason_marriage_ended.death[%iterator%]' },
               'divorce' => { key: 'veteran_marriage_history.reason_marriage_ended.divorce[%iterator%]' },
@@ -507,7 +506,7 @@ module PdfFill
             },
             'reason_marriage_ended_other' => {
               key: 'veteran_marriage_history.reason_marriage_ended_other[%iterator%]',
-              #limit: 12, # @TODO THIS BREAKS - WHYYY???
+              # limit: 12, # @TODO THIS BREAKS - WHYYY???
               question_num: 14,
               question_suffix: 'A',
               question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
@@ -629,7 +628,7 @@ module PdfFill
             },
             'reason_marriage_ended_other' => {
               key: 'spouse_marriage_history.reason_marriage_ended_other[%iterator%]',
-              #limit: 12, # @TODO THIS BREAKS - WHYYY???
+              # limit: 12, # @TODO THIS BREAKS - WHYYY???
               question_num: 14,
               question_suffix: 'A',
               question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
@@ -782,7 +781,7 @@ module PdfFill
                   limit: 1,
                   question_num: 16,
                   question_suffix: 'B',
-                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > MIDDLE INITIAL'
+                  question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > CHILD DOES NOT LIVE WITH CLAIMANT > MIDDLE INIT'
                 }, # end of middle initial
                 'last' => {
                   key: 'children_to_add.child_address_info.person_child_lives_with.last[%iterator%]',
@@ -851,7 +850,9 @@ module PdfFill
               'school_age_in_school' => { key: 'children_to_add.child_status.school_age_in_school[%iterator%]' },
               'adopted' => { key: 'children_to_add.child_status.adopted[%iterator%]' },
               'incapable_self_support' => { key: 'children_to_add.child_status.incapable_self_support[%iterator%]' },
-              'child_previously_married' => { key: 'children_to_add.child_status.child_previously_married[%iterator%]' },
+              'child_previously_married' => {
+                key: 'children_to_add.child_status.child_previously_married[%iterator%]'
+              },
               'stepchild' => { key: 'children_to_add.child_status.stepchild[%iterator%]' }
             }, # end of child status
             'previous_marriage_details' => {
@@ -879,20 +880,26 @@ module PdfFill
                 } # end of year
               }, # end of date marriage ended
               'reason_marriage_ended' => {
-                'declared_void' => { key: 'children_to_add.previous_marriage_details.reason_marriage_ended.declared_void[%iterator%]' },
-                'annulled' => { key: 'children_to_add.previous_marriage_details.reason_marriage_ended.annulled[%iterator%]' },
+                'declared_void' => {
+                  key: 'children_to_add.previous_marriage_details.reason_marriage_ended.declared_void[%iterator%]'
+                },
+                'annulled' => {
+                  key: 'children_to_add.previous_marriage_details.reason_marriage_ended.annulled[%iterator%]'
+                },
                 'other' => { key: 'children_to_add.previous_marriage_details.reason_marriage_ended.other[%iterator%]' }
               },
               'other_reason_marriage_ended' => {
                 'reason_marriage_ended_other_line1' => {
-                  key: 'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line1[%iterator%]',
+                  key:
+                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line1[%iterator%]',
                   limit: 8,
                   question_num: 16,
                   question_suffix: 'G', # after buttons?
                   question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > END DATE OF CHILDS MARRIAGE > REASON LINE1'
                 },
                 'reason_marriage_ended_other_line2' => {
-                  key: 'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line2[%iterator%]',
+                  key:
+                    'children_to_add.previous_marriage_details.reason_marriage_ended_other.reason_marriage_ended_other_line2[%iterator%]',
                   limit: 8,
                   question_num: 16,
                   question_suffix: 'H', # after buttons?
@@ -982,8 +989,12 @@ module PdfFill
             limit: 2,
             first_key: 'full_name',
             'supporting_stepchild' => {
-              'supporting_stepchild_yes' => { 'key': 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[79]' },
-              'supporting_stepchild_no' => { 'key': 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[78]' }
+              'supporting_stepchild_yes' => {
+                'key': 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[79]'
+              },
+              'supporting_stepchild_no' => {
+                'key': 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[78]'
+              }
             }, # end of supporting_stepchild
             'full_name' => {
               'first' => {
@@ -1102,7 +1113,9 @@ module PdfFill
               'stepchild' => { 'key': 'deaths.dependent_type.stepchild[%iterator%]' },
               'adopted' => { 'key': 'deaths.dependent_type.adopted[%iterator%]' },
               'dependent_parent' => { 'key': 'deaths.dependent_type.dependent_parent[%iterator%]' },
-              'child_incapable_self_support' => { 'key': 'deaths.dependent_type.child_incapable_self_support[%iterator%]' },
+              'child_incapable_self_support' => {
+                'key': 'deaths.dependent_type.child_incapable_self_support[%iterator%]'
+              },
               '18_23_years_old_in_school' => { 'key': 'deaths.dependent_type.18_23_years_old_in_school[%iterator%]' }
             },
             'child_status' => {
@@ -1230,7 +1243,7 @@ module PdfFill
               }
             } # end date_married
           }, # end of child marriage
-          # -----------------  SECTION VIII: VETERAN/CLAIMANT REPORTING A SCHOOLCHILD OVER 18 HAS STOPPED ATTENDING SCHOOL  ----------------- #
+          # ------  SECTION VIII: VETERAN/CLAIMANT REPORTING A SCHOOLCHILD OVER 18 HAS STOPPED ATTENDING SCHOOL  ------ #
           'child_stopped_attending_school' => {
             'full_name' => {
               'first' => {
@@ -1393,24 +1406,48 @@ module PdfFill
             'third' => { key: 'form1[0].#subform[23].#subform[24].Veterans_SocialSecurityNumber_LastFourNumbers[4]' }
           },
           'ssn5' => {
-            'first' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_FirstThreeNumbers[5]' },
-            'second' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_SecondTwoNumbers[5]' },
-            'third' => { key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_LastFourNumbers[5]' }
+            'first' => {
+              key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_FirstThreeNumbers[5]'
+            },
+            'second' => {
+              key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_SecondTwoNumbers[5]'
+            },
+            'third' => {
+              key: 'form1[0].#subform[25].#subform[26].#subform[27].Veterans_SocialSecurityNumber_LastFourNumbers[5]'
+            }
           },
           'ssn6' => {
-            'first' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_FirstThreeNumbers[6]' },
-            'second' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_SecondTwoNumbers[6]' },
-            'third' => { key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_LastFourNumbers[6]' }
+            'first' => {
+              key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_FirstThreeNumbers[6]'
+            },
+            'second' => {
+              key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_SecondTwoNumbers[6]'
+            },
+            'third' => {
+              key: 'form1[0].#subform[28].#subform[29].#subform[30].Veterans_SocialSecurityNumber_LastFourNumbers[6]'
+            }
           },
           'ssn7' => {
-            'first' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_FirstThreeNumbers[7]' },
-            'second' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_SecondTwoNumbers[7]' },
-            'third' => { key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_LastFourNumbers[7]' }
+            'first' => {
+              key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_FirstThreeNumbers[7]'
+            },
+            'second' => {
+              key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_SecondTwoNumbers[7]'
+            },
+            'third' => {
+              key: 'form1[0].#subform[31].#subform[32].#subform[33].Veterans_SocialSecurityNumber_LastFourNumbers[7]'
+            }
           },
           'ssn8' => {
-            'first' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_FirstThreeNumbers[8]' },
-            'second' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_SecondTwoNumbers[8]' },
-            'third' => { key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_LastFourNumbers[8]' }
+            'first' => {
+              key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_FirstThreeNumbers[8]'
+            },
+            'second' => {
+              key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_SecondTwoNumbers[8]'
+            },
+            'third' => {
+              key: 'form1[0].#subform[34].#subform[35].Veterans_SocialSecurityNumber_LastFourNumbers[8]'
+            }
           }
         }, # end veteran_ssn
         'signature' => {
@@ -1470,16 +1507,20 @@ module PdfFill
         veteran_information['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
 
         phone_number = veteran_contact_information['phone_number']
-        phone_number = phone_number.delete('^0-9') if phone_number.present?
-        veteran_contact_information['phone_number'] = {
-          'phone_area_code' => phone_number[0..2],
-          'phone_first_three_numbers' => phone_number[3..5],
-          'phone_last_four_numbers' => phone_number[6..9]
-        } if phone_number.present?
+        if phone_number.present?
+          phone_number = phone_number.delete('^0-9')
+          veteran_contact_information['phone_number'] = {
+            'phone_area_code' => phone_number[0..2],
+            'phone_first_three_numbers' => phone_number[3..5],
+            'phone_last_four_numbers' => phone_number[6..9]
+          }
+        end
 
         # extract postal code
-        veteran_contact_information['veteran_address']['postalCode'] = veteran_contact_information['veteran_address']['zip_code']
-        veteran_contact_information['veteran_address']['zip_code'] = split_postal_code(veteran_contact_information['veteran_address'])
+        veteran_contact_information['veteran_address']['postalCode'] =
+          veteran_contact_information['veteran_address']['zip_code']
+        veteran_contact_information['veteran_address']['zip_code'] =
+          split_postal_code(veteran_contact_information['veteran_address'])
 
         # @TODO find out if FE is manipulating country codes/names
         if veteran_contact_information['veteran_address']['country_name'] == 'USA'
@@ -1502,7 +1543,8 @@ module PdfFill
         spouse['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
 
         # extract marriage date
-        @form_data['dependents_application']['current_marriage_information']['date'] = split_date(@form_data['dependents_application']['current_marriage_information']['date'])
+        @form_data['dependents_application']['current_marriage_information']['date'] =
+          split_date(@form_data['dependents_application']['current_marriage_information']['date'])
 
         va_file_number = spouse['va_file_number']
         if va_file_number.present?
@@ -1516,8 +1558,10 @@ module PdfFill
 
         # extract postal code
         if @form_data['dependents_application']['does_live_with_spouse']['address'].present?
-          @form_data['dependents_application']['does_live_with_spouse']['address']['postalCode'] = @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code']
-          @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code'] = split_postal_code(@form_data['dependents_application']['does_live_with_spouse']['address'])
+          @form_data['dependents_application']['does_live_with_spouse']['address']['postalCode'] =
+            @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code']
+          @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code'] =
+            split_postal_code(@form_data['dependents_application']['does_live_with_spouse']['address'])
         end
 
         expand_marriage_type
@@ -1591,8 +1635,10 @@ module PdfFill
           # extract postal code
           # @TODO is there a better way to do this?
           if !child['does_child_live_with_you']
-            child['child_address_info']['address']['postalCode'] = child['child_address_info']['address']['zip_code']
-            child['child_address_info']['address']['zip_code'] = split_postal_code(child['child_address_info']['address'])
+            child['child_address_info']['address']['postalCode'] =
+              child['child_address_info']['address']['zip_code']
+            child['child_address_info']['address']['zip_code'] =
+              split_postal_code(child['child_address_info']['address'])
           end
 
           # expand child status
@@ -1613,7 +1659,8 @@ module PdfFill
             child['child_status']['child_previously_married'] = 0
 
             # extract date
-            child['previous_marriage_details']['date_marriage_ended'] = split_date(child['previous_marriage_details']['date_marriage_ended'])
+            child['previous_marriage_details']['date_marriage_ended'] =
+              split_date(child['previous_marriage_details']['date_marriage_ended'])
 
             # expand reason child marriage ended
             reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
@@ -1628,10 +1675,13 @@ module PdfFill
             if other_reason_marriage_ended.present?
               child['previous_marriage_details']['other_reason_marriage_ended'] = {}
               if other_reason_marriage_ended.length > 8 && other_reason_marriage_ended.length < 16
-                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] = other_reason_marriage_ended[0..7]
-                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line2'] = other_reason_marriage_ended[8..15]
+                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] =
+                  other_reason_marriage_ended[0..7]
+                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line2'] =
+                  other_reason_marriage_ended[8..15]
               else
-                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] = other_reason_marriage_ended
+                child['previous_marriage_details']['other_reason_marriage_ended']['reason_marriage_ended_other_line1'] =
+                  other_reason_marriage_ended
               end
             end
           end
@@ -1656,7 +1706,8 @@ module PdfFill
         step_children.each do |stepchild|
           # extract middle initial
           stepchild['full_name'] = extract_middle_i(stepchild, 'full_name')
-          stepchild['who_does_the_stepchild_live_with'] = extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
+          stepchild['who_does_the_stepchild_live_with'] =
+            extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
           # extract step_children zip codes
           # @TODO is there a better way to do this?
@@ -1723,7 +1774,8 @@ module PdfFill
         child_stopped_attending_school['full_name'] = extract_middle_i(child_stopped_attending_school, 'full_name')
 
         # extract date
-        child_stopped_attending_school['date_child_left_school'] = split_date(child_stopped_attending_school['date_child_left_school'])
+        child_stopped_attending_school['date_child_left_school'] =
+          split_date(child_stopped_attending_school['date_child_left_school'])
       end
 
       def expand_marriage_type
@@ -1746,7 +1798,8 @@ module PdfFill
       end
 
       def expand_does_live_with_spouse
-        does_live_with_spouse = @form_data['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran']
+        does_live_with_spouse =
+          @form_data['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran']
         @form_data['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = {
           'spouse_does_live_with_veteran_yes' => does_live_with_spouse ? 1 : 'Off',
           'spouse_does_live_with_veteran_no' => !does_live_with_spouse ? 1 : 'Off'
