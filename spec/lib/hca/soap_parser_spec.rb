@@ -44,7 +44,7 @@ describe HCA::SOAPParser do
 
       test_body('<?xml version="1.0" ?><metadata></metadata>')
 
-      test_body(File.read('spec/fixtures/hca/mvi_error.xml'))
+      test_body(File.read('spec/fixtures/hca/mpi_error.xml'))
     end
 
     context 'with 503 response' do
