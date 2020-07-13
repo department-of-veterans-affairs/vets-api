@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'evss/reference_data/service'
+require 'evss/reference_data/intake_sites_response'
 
 describe EVSS::ReferenceData::Service do
   subject { described_class.new(user) }

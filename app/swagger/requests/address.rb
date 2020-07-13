@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'responses/authentication_error'
+
 module Swagger
   module Requests
     class Address
