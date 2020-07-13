@@ -22,10 +22,6 @@ module AppealsApi
         )
       end
 
-      def healthcheck
-        render json: Caseflow::Service.new.healthcheck.body
-      end
-
       private
 
       def log_request

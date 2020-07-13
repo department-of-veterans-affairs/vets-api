@@ -18,11 +18,11 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   response_hlr_show_success = lambda do
     properties = {
       status: { '$ref': '#/components/schemas/hlrStatus' },
-      updated_at: { '$ref': '#/components/schemas/timeStamp' },
-      created_at: { '$ref': '#/components/schemas/timeStamp' },
-      form_data: { '$ref': '#/components/schemas/hlrCreate' }
+      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
+      createdAt: { '$ref': '#/components/schemas/timeStamp' },
+      formData: { '$ref': '#/components/schemas/hlrCreate' }
     }
-    type = :appeals_api_higher_level_review
+    type = :HigherLevelReviewInfo
     schema = {
       type: OBJ,
       properties: {
@@ -32,7 +32,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       }
     }
     time = '2020-04-23T21:06:12.531Z'
-    attrs = { status: :processed, updated_at: time, created_at: time, form_data: example_all_fields_used }
+    attrs = { status: :processed, updatedAt: time, createdAt: time, formData: example_all_fields_used }
     example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
 
     {
@@ -56,9 +56,11 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   end
 
   hlr_create_json_schema = read_json[['config', 'schemas', '200996.json']]
+
   hlr_create_request_body = AppealsApi::JsonSchemaToSwaggerConverter.new(
     hlr_create_json_schema
   ).to_swagger['requestBody']
+
   hlr_create_request_body['content']['application/json']['examples'] = {
     'all fields used': { value: example_all_fields_used },
     'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_200996_minimum.json']] }
@@ -66,6 +68,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
 
   swagger_path '/higher_level_reviews' do
     operation :post, tags: HLR_TAG do
+      key :operationId, 'postHigherLevelReviews'
       key :summary, 'Create a Higher-Level Review'
       desc = 'Submits a Decision Review request of type *Higher-Level Review*. This endpoint is analogous ' \
         'to submitting [VA Form 20-0996](https://www.vba.va.gov/pubs/forms/VBA-20-0996-ARE.pdf) via mail or fax.'
@@ -73,22 +76,30 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body
       key :responses, '200': response_hlr_show_success, '422': response_hlr_create_error
+      security do
+        key :apikey, []
+      end
     end
   end
 
   swagger_path '/higher_level_reviews/{uuid}' do
     operation :get, tags: HLR_TAG do
+      key :operationId, 'getHigherLevelReview'
       key :summary, 'Show a Higher-Level Review'
       key :description, 'Returns all of the data associated with a specific Higher-Level Review'
       parameter name: 'uuid', 'in': 'path', required: true, description: 'Higher-Level Review UUID' do
         schema { key :'$ref', :uuid }
       end
       key :responses, '200': response_hlr_show_success, '404': response_hlr_show_not_found
+      security do
+        key :apikey, []
+      end
     end
   end
 
   swagger_path '/higher_level_reviews/schema' do
     operation :get, tags: HLR_TAG do
+      key :operationId, 'getHigherLevelReviewSchema'
       key :summary, 'Return the JSON Schema for POST /higher_level_reviews'
       desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` enpdoint.'
       key :description, desc
@@ -97,23 +108,56 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
         schema = JSON.pretty_generate AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(hlr_create_json_schema)
         key :content, 'application/json': { examples: { default: { value: schema } } }
       end
+      security do
+        key :apikey, []
+      end
     end
   end
 
   swagger_path '/higher_level_reviews/validate' do
     operation :post, tags: HLR_TAG do
+      key :operationId, 'postValidateHigherLevelReview'
       key :summary, 'Validate a POST /higher_level_reviews request body (dry run)'
       desc = 'Validate a `POST /higher_level_reviews` request body against the JSON Schema. ' \
         'Like the `POST /higher_level_reviews`, but *only* does the validations **—does not submit anything.**'
       key :description, desc
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body
-      type = { type: :string, enum: [:appeals_api_higher_level_review_validation] }
+      type = { type: :string, enum: [:higherLevelReviewValidation] }
       attrs = { type: OBJ, properties: { status: { type: :string, enum: [:valid] } } }
-      example = { data: { type: :appeals_api_higher_level_review_validation, attributes: { status: :valid } } }
+      example = { data: { type: type[:enum].first, attributes: { status: :valid } } }
       schema = { type: OBJ, properties: { data: { type: OBJ, properties: { type: type, attributes: attrs } } } }
       content = { 'application/json': { schema: schema, examples: { valid: { value: { data: example } } } } }
       key :responses, '200': { description: 'Valid', content: content }, '422': response_hlr_create_error
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/higher_level_reviews/contestable_issues/{benefit_type}' do
+    operation :get, tags: HLR_TAG do
+      key :operationId, 'getContestableIssues'
+      key :summary, 'Returns all contestable issues for a specific veteran.'
+      desc = 'Returns all issues a Veteran could contest in a Higher-Level Review as of the `receiptDate` ' \
+        'and bound by `benefitType`. Associate these results when creating new Decision Reviews.'
+      key :description, desc
+      parameter name: 'X-VA-SSN', 'in': 'header', required: true, description: 'veteran\'s ssn' do
+        schema '$ref': 'X-VA-SSN'
+      end
+      parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
+        desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
+          'the receipt date of a hypothetical Decision Review must be specified.'
+        key :description, desc
+        schema type: :string, 'format': :date
+      end
+      parameter name: 'benefit_type', 'in': 'path', required: true, description: 'benefit type' do
+        schema '$ref': 'hlrCreateBenefitType'
+      end
+      key :responses, read_json_from_same_dir['responses_contestable_issues.json']
+      security do
+        key :apikey, []
+      end
     end
   end
 end

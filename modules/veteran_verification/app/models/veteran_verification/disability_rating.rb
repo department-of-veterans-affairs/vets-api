@@ -10,6 +10,7 @@ module VeteranVerification
 
     attribute :id, String
     attribute :combined_disability_rating, Integer
+    attribute :combined_effective_date, String
     attribute :individual_ratings, Array
 
     def self.rating_service
@@ -37,8 +38,17 @@ module VeteranVerification
       DisabilityRating.new(
         id: 0,
         combined_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
+        combined_effective_date: get_combined_effective_date(response[:disability_rating_record]),
         individual_ratings: individual_ratings(response)
       )
+    end
+
+    def self.get_combined_effective_date(disability_rating_record)
+      if disability_rating_record[:combined_degree_effective_date].nil?
+        nil
+      else
+        DateTime.strptime(disability_rating_record[:combined_degree_effective_date], '%m%d%Y')
+      end
     end
 
     def self.individual_ratings(response)

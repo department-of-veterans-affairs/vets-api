@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'lighthouse_bgs'
+require 'bgs'
 
 module ClaimsApi
   class PoaUpdater
@@ -9,7 +9,7 @@ module ClaimsApi
 
     def perform(power_of_attorney_id)
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-      service = LighthouseBGS::Services.new(
+      service = BGS::Services.new(
         external_uid: poa_form.external_uid,
         external_key: poa_form.external_key
       )

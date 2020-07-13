@@ -11,7 +11,7 @@ module Swagger
             items type: :object do
               key :description, 'A contestable issue (to contest this, you include it as a RequestIssue'\
                                 ' when creating a HigherLevelReview, SupplementalClaim, or Appeal)'
-              property :type, type: :string, enum: %w[ContestableIssue]
+              property :type, type: :string, enum: %w[contestableIssue]
               property :attributes, type: :object do
                 property :ratingIssueId do
                   key :type, :string
@@ -27,12 +27,12 @@ module Swagger
                   key :format, :date
                   key :description, 'RatingIssue diagnostic code'
                 end
-                property :ratingDecisionId do
+                property :ratingDecisionReferenceId do
                   key :type, :string
                   key :description, 'The BGS ID for the contested rating decision.'\
                                     ' This may be populated while ratingIssueId is nil'
                 end
-                property :decisionIssueId do
+                property :decisionIssueReferenceId do
                   key :type, :integer
                   key :description, 'DecisionIssue ID'
                 end
@@ -79,6 +79,14 @@ module Swagger
                 property :isRating do
                   key :type, :boolean
                   key :description, 'Whether or not this is a RatingIssue'
+                end
+                property :ratingIssueSubjectText do
+                  key :type, :string
+                  key :description, 'Short description of RatingIssue'
+                end
+                property :ratingIssuePercentNumber do
+                  key :type, :string
+                  key :description, 'Numerical rating for RatingIssue'
                 end
               end
             end

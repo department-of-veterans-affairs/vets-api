@@ -6,6 +6,8 @@ require_relative 'configuration'
 module CARMA
   module Client
     class Client < Salesforce::Service
+      include Singleton
+
       configuration CARMA::Client::Configuration
 
       STATSD_KEY_PREFIX = 'api.carma'
@@ -16,9 +18,7 @@ module CARMA
       SALESFORCE_USERNAME = Settings['salesforce-carma'].username
 
       def create_submission(payload)
-        client = get_client
-
-        response_body = with_monitoring do
+        with_monitoring do
           client.post(
             '/services/apexrest/carma/v1/1010-cg-submissions',
             payload,
@@ -26,13 +26,9 @@ module CARMA
             'Sforce-Auto-Assign': 'FALSE'
           ).body
         end
-
-        response_body
       end
 
-      # The CARMA Staging and Prod enviornments will not exist until ~May 2020
-      # So we will not be hitting SALESFORCE_INSTANCE_URL in runtime, to avoid 500 errors. Instead
-      # we'll use stub req/res in order to do user testing on the rest of our submission code.
+      # Used for Feature Flipper :stub_carma_responses
       def create_submission_stub(_payload)
         {
           'message' => 'Application Received',
@@ -43,6 +39,35 @@ module CARMA
             }
           }
         }
+      end
+
+      def upload_attachments(payload)
+        with_monitoring do
+          client.post(
+            '/services/data/v47.0/composite/tree/ContentVersion',
+            payload,
+            'Content-Type': 'application/json'
+          ).body
+        end
+      end
+
+      # Used for Feature Flipper :stub_carma_responses
+      def upload_attachments_stub(_payload)
+        {
+          'hasErrors' => false,
+          'results' => [
+            {
+              'referenceId' => '1010CG',
+              'id' => '06835000000YpsjAAC'
+            }
+          ]
+        }
+      end
+
+      private
+
+      def client
+        @client ||= get_client
       end
     end
   end
