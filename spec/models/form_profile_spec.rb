@@ -27,12 +27,6 @@ RSpec.describe FormProfile, type: :model do
     )
   end
 
-  let(:mobile_phone) do
-    {
-      'mobilePhone' => user.pciu_alternate_phone
-    }
-  end
-
   let(:full_name) do
     {
       'first' => user.first_name&.capitalize,
@@ -267,7 +261,6 @@ RSpec.describe FormProfile, type: :model do
       },
       'gender' => user.gender,
       'homePhone' => us_phone,
-      'mobilePhone' => mobile_phone,
       'veteranDateOfBirth' => user.birth_date,
       'veteranSocialSecurityNumber' => user.ssn,
       'email' => user.pciu_email
@@ -920,6 +913,28 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
+      context 'with emis and GiBillStatus prefill for 10203' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_10203_expected['remainingEntitlement'] = {
+              'months' => 0,
+              'days' => 12,
+          }
+        end
+
+        it 'prefills 10203 with emis and entitlement information' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+                expect_prefilled('22-10203')
+              end
+            end
+          end
+        end
+      end
+
       context 'with a user that can prefill emis' do
         before do
           stub_methods_for_emis_data
@@ -950,7 +965,6 @@ RSpec.describe FormProfile, type: :model do
           1010ez
           22-0993
           FEEDBACK-TOOL
-          22-10203
           686C-674
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
@@ -1049,6 +1063,13 @@ RSpec.describe FormProfile, type: :model do
         instance1.prefill(user)
         instance2.prefill(user)
       end
+    end
+  end
+
+  describe '#load_form_mapping' do
+    it 'loads 526ez when BDD is given' do
+      the_yaml = described_class.load_form_mapping('21-526EZ-BDD')
+      expect(the_yaml['veteran']).to eq(%w[veteran_contact_information veteran])
     end
   end
 end

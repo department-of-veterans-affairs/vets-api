@@ -156,7 +156,11 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+    if form_id == '1010EZ' # our first form. lessons learned.
+      form_id = form_id.downcase
+    elsif form_id == '21-526EZ-BDD'
+      form_id = '21-526EZ' # the front end treats the forms differently, but the back end doesn't
+    end
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
@@ -247,18 +251,7 @@ class FormProfile
   def initialize_contact_information(user)
     opt = {}
     opt.merge!(initialize_vets360_contact_info(user)) if Settings.vet360.prefill && user.vet360_id.present?
-    opt[:email] ||= extract_pciu_data(user, :pciu_email)
 
-    set_contact_information_address(user, opt)
-    set_contact_information_home_phone(user, opt)
-    set_contact_information_mobile_phone(user, opt)
-
-    format_for_schema_compatibility(opt)
-
-    FormContactInformation.new(opt)
-  end
-
-  def set_contact_information_address(user, opt)
     if opt[:address].nil? && user.va_profile&.address
       opt[:address] = {
         street: user.va_profile.address.street,
@@ -269,21 +262,17 @@ class FormProfile
         postal_code: user.va_profile.address.postal_code
       }
     end
-  end
 
-  def set_contact_information_home_phone(user, opt)
+    opt[:email] ||= extract_pciu_data(user, :pciu_email)
     if opt[:home_phone].nil?
       pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
       opt[:home_phone] = pciu_primary_phone
       opt[:us_phone] = get_us_phone(pciu_primary_phone)
     end
-  end
 
-  def set_contact_information_mobile_phone(user, opt)
-    if opt[:mobile_phone].nil?
-      pciu_alternate_phone = extract_pciu_data(user, :pciu_alternate_phone)
-      opt[:mobile_phone] = pciu_alternate_phone
-    end
+    format_for_schema_compatibility(opt)
+
+    FormContactInformation.new(opt)
   end
 
   def format_for_schema_compatibility(opt)
