@@ -133,14 +133,14 @@ class Form526Submission < ApplicationRecord
 
   def send_form526_confirmation_email
     email_address = form['form526']['form526']['veteran']['emailAddress']
-    Form526ConfirmationEmailJob.perform_async(
-      id, 
-      email_address, 
-      submitted_claim_id, 
-      updated_at,
-      @current_user&.first_name,
-      @current_user&.last_name
-    )
+    personalizationParameters = {
+      "email" => email_address,
+      "submitted_claim_id" => submitted_claim_id,
+      "updated_at" => updated_at,
+      "first_name" => @current_user&.first_name,
+      "last_name" => @current_user&.last_name
+    }
+    Form526ConfirmationEmailJob.perform_async(id, personalizationParameters)
   end
 
   private
