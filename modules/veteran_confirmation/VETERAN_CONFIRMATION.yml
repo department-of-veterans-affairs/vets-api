@@ -5,7 +5,7 @@ info:
   description: |
     The Veteran Confirmation API allows you to confirm Veteran status for a given person. This can be useful for offering Veterans discounts or other benefits.
 
-    The API will only return “Confirmed” or “Not Confirmed”. 
+    The API will only return “Confirmed” or “Not Confirmed”.
 
     ## Quickstart Guide
     ### 1. Get Access Credentials
@@ -19,7 +19,7 @@ info:
 
     ### 3. Build your app
     The base URI for the Veteran Confirmation API in the Sandbox environment is:
-    
+
     https://sandbox-api.va.gov/services/veteran_confirmation/v0
 
     In this environment, use attributes from the list of [Test Users](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Only Test Users can return a `"confirmed"` response.
@@ -32,26 +32,26 @@ info:
     ## Authorization
     This API requires an API key in combination with identifiable information for the person being confirmed listed below. API requests are authorized through a symmetric API token provided in an HTTP header with name `apikey`. Including more information has a better chance of making a match and returning a Confirmed status. 
     #### Required information:
-    * First Name 
-    * Last Name 
-    * Date of Birth 
-    * Social Security Number 
+    * First Name
+    * Last Name
+    * Date of Birth
+    * Social Security Number
 
     #### Optional information:
     * Middle Name
     * Gender
-    
+
     ## Reference
     ### Sandbox vs. Production Data
     APIs accessed via the Sandbox environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different. 
 
-    ### Master Veteran Index (MVI)
-    The Master Veteran Index confirms a user's identity. In Production, several factors are considered to confirm identity. These include: a user’s first name, last name, date of birth and Social Security number. The MVI is mocked in the Sandbox environment. In this environment, the only factor used to confirm identity is the Social Security number.
+    ### Master Person Index (MPI)
+    The Master Person Index (formerly Master Veteran Index) confirms a user's identity. In Production, several factors are considered to confirm identity. These include: a user’s first name, last name, date of birth and Social Security number. The MPI is mocked in the Sandbox environment. In this environment, the only factor used to confirm identity is the Social Security number.
 
-    ### Rate Limiting 
+    ### Rate Limiting
     We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing and requests will be decided on a case by case basis. 
 
-    ### Raw Open API Spec 
+    ### Raw Open API Spec
     https://api.va.gov/services/veteran_confirmation/docs/v0/api
 
   termsOfService: ''
@@ -116,7 +116,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/AuthorizationError"
         '503':
-          description: We encountered a temporary error. Check back in the future. 
+          description: We encountered a temporary error. Check back in the future.
 components:
   securitySchemes:
     apikey:
