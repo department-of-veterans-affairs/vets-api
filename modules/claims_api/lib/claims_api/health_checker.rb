@@ -10,11 +10,11 @@ module ClaimsApi
     end
 
     def self.evss_is_healthy?
-      EVSS::Service.service_is_up?
+      Settings.evss.mock_claims || EVSS::Service.service_is_up?
     end
 
     def self.mpi_is_healthy?
-      MPI::Service.service_is_up?
+      Settings.mvi.mock || MPI::Service.service_is_up?
     end
 
     def self.bgs_is_healthy?
