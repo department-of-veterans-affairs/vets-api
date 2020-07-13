@@ -43,7 +43,7 @@
         "city": "Slawson"
       },
       "type": "tribal",
-      "type_other": "Some Other type"
+      "type_other": "Other"
     },
     "does_live_with_spouse": {
       "spouse_does_live_with_veteran": false,
@@ -98,7 +98,7 @@
             "middle": "Oliver",
             "last": "Bradsky"},
           "address": {
-            "country_name": "USA",
+            "country_name": "US",
             "address_line1": "1100 Robin Cir",
             "city": "Los Angeles",
             "state_code": "CA", "zip_code": "90210"
@@ -113,7 +113,7 @@
         },
         "full_name": {
           "first": "John",
-          "middle": "oliver",
+          "middle": "Hank",
           "last": "Hamm",
           "suffix": "Sr."
         },
@@ -126,9 +126,9 @@
         "child_status": {"adopted": true},
         "previously_married": "No",
         "full_name": {
-          "first": "Adopted first name",
-          "middle": "adopted middle name",
-          "last": "adopted last name",
+          "first": "Charlie",
+          "middle": "",
+          "last": "Rivers",
           "suffix": "Sr."
         },
         "ssn": "370947143",
@@ -145,7 +145,7 @@
           "last": "Huberws"
         },
         "address": {
-          "country_name": "USA",
+          "country_name": "US",
           "address_line1": "412 Crooks Road",
           "city": "Clawson",
           "state_code": "AL",

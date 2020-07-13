@@ -63,7 +63,7 @@
       {
         "start_date": "2007-04-03",
         "start_location": {"state": "AK", "city": "Rock Island"},
-        "reason_marriage_ended": "OTHER",
+        "reason_marriage_ended": "Other",
         "reason_marriage_ended_other": "Some other reason",
         "end_date": "2009-05-05",
         "end_location": {"state": "IL", "city": "Chicago"},
@@ -77,7 +77,7 @@
       {
         "start_date": "2002-01-31",
         "start_location": {"state": "FL", "city": "Miami"},
-        "reason_marriage_ended": "OTHER",
+        "reason_marriage_ended": "Other",
         "reason_marriage_ended_other": "Just because",
         "end_date": "2005-03-06",
         "end_location": {"state": "NJ", "city": "Newark"},
@@ -91,7 +91,7 @@
       {
         "start_date": "1999-12-15",
         "start_location": {"state": "PA", "city": "Philadelphia"},
-        "reason_marriage_ended": "DIVORCE",
+        "reason_marriage_ended": "Divorce",
         "reason_marriage_ended_other": "DIVORCE",
         "end_date": "2001-07-04",
         "end_location": {"state": "NY", "city": "New York"},
@@ -105,7 +105,7 @@
       {
         "start_date": "1996-06-04",
         "start_location": {"state": "TX", "city": "Austin"},
-        "reason_marriage_ended": "ANNULMENT",
+        "reason_marriage_ended": "Annulment",
         "reason_marriage_ended_other": "Annulled",
         "end_date": "1998-01-08",
         "end_location": {"state": "TX", "city": "Houston"},
@@ -122,7 +122,7 @@
       {
         "start_date": "2014-03-03",
         "start_location": {"state": "IL", "city": "Rock Island"},
-        "reason_marriage_ended": "DEATH",
+        "reason_marriage_ended": "Death",
         "reason_marriage_ended_other": "Death",
         "end_date": "2017-03-04",
         "end_location": {"state": "FL", "city": "Tampa"},
@@ -136,7 +136,7 @@
       {
         "start_date": "2009-09-06",
         "start_location": {"state": "TX", "city": "Houston"},
-        "reason_marriage_ended": "DIVORCE",
+        "reason_marriage_ended": "Divorce",
         "reason_marriage_ended_other": "Divorce",
         "end_date": "2012-06-01",
         "end_location": {"state": "FL", "city": "Miami"},
@@ -150,7 +150,7 @@
       {
         "start_date": "2008-03-05",
         "start_location": {"state": "PA", "city": "Pittsburgh"},
-        "reason_marriage_ended": "ANNULMENT",
+        "reason_marriage_ended": "Annulment",
         "reason_marriage_ended_other": "Annulment",
         "end_date": "2006-05-07",
         "end_location": {"state": "PA", "city": "Philadelphia"},
@@ -164,7 +164,7 @@
       {
         "start_date": "2001-01-01",
         "start_location": {"state": "VT", "city": "Burlington"},
-        "reason_marriage_ended": "OTHER",
+        "reason_marriage_ended": "Other",
         "reason_marriage_ended_other": "Other",
         "end_date": "2005-05-05",
         "end_location": {"state": "VT", "city": "Bennington"},
@@ -198,7 +198,7 @@
         "previously_married": "Yes",
         "previous_marriage_details": {
           "date_marriage_ended": "2018-03-04",
-          "reason_marriage_ended": "OTHER"
+          "reason_marriage_ended": "Other"
         },
         "full_name": {
           "first": "John",
@@ -283,7 +283,7 @@
           "last": "Doe",
           "suffix": "Sr."
         },
-        "dependent_type": "ADOPTED",
+        "dependent_type": "CHILD",
         "child_status": {
           "child_under18": true
         }

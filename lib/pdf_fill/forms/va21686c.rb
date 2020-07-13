@@ -352,7 +352,7 @@ module PdfFill
               'proxy' => {
                 key: 'form1[0].#subform[17].Proxy[0]'
               },
-              'OTHER' => {
+              'other' => {
                 key: 'form1[0].#subform[17].OTHER_Explain[0]'
               }
             }, # end of marriage type
@@ -506,7 +506,7 @@ module PdfFill
             },
             'reason_marriage_ended_other' => {
               key: 'veteran_marriage_history.reason_marriage_ended_other[%iterator%]',
-              # limit: 12, # @TODO THIS BREAKS - WHYYY???
+              # limit: 12, # @TODO THIS BREAKS
               question_num: 14,
               question_suffix: 'A',
               question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
@@ -628,7 +628,7 @@ module PdfFill
             },
             'reason_marriage_ended_other' => {
               key: 'spouse_marriage_history.reason_marriage_ended_other[%iterator%]',
-              # limit: 12, # @TODO THIS BREAKS - WHYYY???
+              # limit: 12, # @TODO THIS BREAKS
               question_num: 14,
               question_suffix: 'A',
               question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
@@ -1567,12 +1567,12 @@ module PdfFill
           spouse['end_date'] = split_date(spouse['end_date'])
 
           reason_marriage_ended = spouse['reason_marriage_ended']
-          # @TODO confirm option values coming from FE
+          # @TODO why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
-            'death' => reason_marriage_ended == 'DEATH' ? 0 : 'Off',
-            'divorce' => reason_marriage_ended == 'DIVORCE' ? 0 : 'Off',
-            'annulment' => reason_marriage_ended == 'ANNULMENT' ? 0 : 'Off',
-            'other' => reason_marriage_ended == 'OTHER' ? 0 : 'Off'
+            'death' => reason_marriage_ended == 'Death' ? 0 : 'Off',
+            'divorce' => reason_marriage_ended == 'Divorce' ? 0 : 'Off',
+            # 'annulment' => reason_marriage_ended == 'ANNULMENT' ? 0 : 'Off',
+            'other' => reason_marriage_ended == 'Other' ? 0 : 'Off'
           }
         end
       end
@@ -1591,12 +1591,12 @@ module PdfFill
 
           # expand reason marriage ended
           reason_marriage_ended = spouse['reason_marriage_ended']
-          # @TODO confirm option values coming from FE
+          # @TODO why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
-            'death' => reason_marriage_ended == 'DEATH' ? 0 : 'Off',
-            'divorce' => reason_marriage_ended == 'DIVORCE' ? 0 : 'Off',
-            'annulment' => reason_marriage_ended == 'ANNULMENT' ? 0 : 'Off',
-            'other' => reason_marriage_ended == 'OTHER' ? 0 : 'Off'
+            'death' => reason_marriage_ended == 'Death' ? 0 : 'Off',
+            'divorce' => reason_marriage_ended == 'Divorce' ? 0 : 'Off',
+            # 'annulment' => reason_marriage_ended == 'ANNULMENT' ? 0 : 'Off',
+            'other' => reason_marriage_ended == 'Other' ? 0 : 'Off'
           }
         end
       end
@@ -1613,7 +1613,6 @@ module PdfFill
           child['birth_date'] = split_date(child['birth_date'])
 
           # extract ssn
-          # @TODO is there a better way to do this?
           child['ssn'] = split_ssn(child['ssn'].delete('-')) if child['ssn'].present?
 
           # extract postal code
@@ -1644,25 +1643,27 @@ module PdfFill
         child_status = child['child_status']
 
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
-        # need to check values from FE why is this one coming in differently than the others?
         child['child_status'] = {
-          'biological' => child_status['biological'] ? 0 : 'Off',
-          'school_age_in_school' => child_status['school_age_in_school'] ? 0 : 'Off',
-          'adopted' => child_status['adopted'] ? 0 : 'Off',
-          'not_capable' => child_status['incapable_self_support'] ? 0 : 'Off',
-          'child_previously_married' => child_status['child_previously_married'] ? 0 : 'Off',
-          'stepchild' => child_status['stepchild'] ? 0 : 'Off'
+          'biological' => select_radio_button(child_status['biological']),
+          'school_age_in_school' => select_radio_button(child_status['school_age_in_school']),
+          'adopted' => select_radio_button(child_status['adopted']),
+          'incapable_self_support' => select_radio_button(child_status['not_capable']),
+          'child_previously_married' => select_radio_button(child_status['child_previously_married']),
+          'stepchild' => select_radio_button(child_status['stepchild'])
         }
       end
 
       def expand_child_previously_married(child)
         # expand reason child marriage ended
         reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
-        # @TODO confirm option values coming from FE
+        if reason_marriage_ended == 'Divorce' || reason_marriage_ended == 'Death'
+          # we show 'Divorce' and 'Death' as options on the FE as opposed to 'Declared Void'
+          reason_marriage_ended = 'Declared Void'
+        end
         child['previous_marriage_details']['reason_marriage_ended'] = {
-          'declared_void' => reason_marriage_ended == 'declared_void' ? 0 : 'Off',
-          'annulled' => reason_marriage_ended == 'Annulment' ? 0 : 'Off',
-          'other' => reason_marriage_ended == 'Other' ? 0 : 'Off'
+          'declared_void' => select_radio_button(reason_marriage_ended == 'Declared Void'),
+          'annulled' => select_radio_button(reason_marriage_ended == 'Annulment'),
+          'other' => select_radio_button(reason_marriage_ended == 'Other')
         }
 
         other_reason_marriage_ended = child['previous_marriage_details']['other_reason_marriage_ended']
@@ -1707,7 +1708,6 @@ module PdfFill
           stepchild['address']['zip_code'] = split_postal_code(stepchild['address'])
 
           # expand living_expenses_paid
-          # @TODO check these values coming from FE
           living_expenses_paid = stepchild['living_expenses_paid']
           stepchild['living_expenses_paid'] = {
             'more_than_half' => living_expenses_paid == 'More than half' ? 0 : 'Off',
@@ -1733,16 +1733,18 @@ module PdfFill
 
           # expand dependent type
           dependent_type = death['dependent_type']
+          if dependent_type == 'CHILD'
+            # ex. "dependent_type":"CHILD","child_status":{"child_under18":true,"step_child":true}
+            dependent_type = death['child_status']
+          end
           death['dependent_type'] = {
-            # @TODO check these values coming from FE
-            # @TODO form says check all that apply
-            'spouse' => dependent_type == 'SPOUSE' ? 0 : 'Off',
-            'minor_child' => dependent_type == 'CHILD' ? 0 : 'Off',
-            'stepchild' => dependent_type == 'STEPCHILD' ? 0 : 'Off',
-            'adopted' => dependent_type == 'ADOPTED' ? 0 : 'Off',
-            'dependent_parent' => dependent_type == 'DEPENDENT_PARENT' ? 0 : 'Off',
-            'child_incapable_self_support' => dependent_type == 'child_incapable_self_support' ? 0 : 'Off',
-            '18_23_years_old_in_school' => dependent_type == '18_23_years_old_in_school' ? 0 : 'Off'
+            'spouse' => select_radio_button(dependent_type == 'SPOUSE'),
+            'minor_child' => select_radio_button(dependent_type['child_under18']),
+            'stepchild' => select_radio_button(dependent_type['step_child']),
+            'adopted' => select_radio_button(dependent_type['adopted']),
+            'dependent_parent' => select_radio_button(dependent_type == 'DEPENDENT_PARENT'),
+            'child_incapable_self_support' => select_radio_button(dependent_type['disabled']),
+            '18_23_years_old_in_school' => select_radio_button(dependent_type['child_over18_in_school'])
           }
         end
       end
@@ -1800,7 +1802,7 @@ module PdfFill
           'common_law' => marriage_type == 'COMMON-LAW' ? 1 : 'Off',
           'tribal' => marriage_type == 'TRIBAL' ? 1 : 'Off',
           'proxy' => marriage_type == 'PROXY' ? 1 : 'Off',
-          'OTHER' => marriage_type == 'OTHER' ? 1 : 'Off'
+          'other' => marriage_type == 'OTHER' ? 1 : 'Off'
         }
       end
 
