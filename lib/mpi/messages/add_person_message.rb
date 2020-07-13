@@ -22,7 +22,7 @@ module MPI
 
       def to_xml
         template = Liquid::Template.parse(
-          File.read(File.join('config', 'mvi_schema', SCHEMA_FILE_NAME))
+          File.read(File.join('config', 'mpi_schema', SCHEMA_FILE_NAME))
         )
 
         template.render!(build_content(@user))
