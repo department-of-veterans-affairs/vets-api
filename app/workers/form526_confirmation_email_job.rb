@@ -8,13 +8,13 @@ class Form526ConfirmationEmailJob
 
   STATSD_ERROR_NAME = 'worker.form526_confirmation_email.error'
 
-  def perform(id, personalization_parameters) 
+  def perform(id, personalization_parameters)
     @notify_client ||= Notifications::Client.new(
       Settings.vanotify.api_key,
       Settings.vanotify.client_url
     )
     @notify_client.send_email(
-      email_address: personalization_parameters["email"],
+      email_address: personalization_parameters['email'],
       template_id: Settings.vanotify.template_id.form526_confirmation_email,
       personalisation: {
         claim_id: personalization_parameters['submitted_claim_id'],

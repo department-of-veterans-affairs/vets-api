@@ -47,14 +47,14 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         allow(notification_client).to receive(:send_email).and_return(@email_response)
 
         expect(notification_client).to receive(:send_email).with(requirements)
-        subject.perform(123, 
-        {
-          'email' => @email_address,
-          'submitted_claim_id' => '600191990',
-          'updated_at' => Time.zone.parse('2020-07-12'),
-          'first_name' => 'first',
-          'last_name' => 'last'
-        })
+        subject.perform(123,
+                        {
+                          'email' => @email_address,
+                          'submitted_claim_id' => '600191990',
+                          'updated_at' => Time.zone.parse('2020-07-12'),
+                          'first_name' => 'first',
+                          'last_name' => 'last'
+                        })
       end
 
       it 'handles errors when sending an email' do
@@ -84,7 +84,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
             'updated_at' => Time.zone.parse('2020-07-12'),
             'first_name' => 'first',
             'last_name' => 'last'
-            }
+          }
           Form526ConfirmationEmailJob.perform_async(123, personalization_parameters)
         end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
       end
