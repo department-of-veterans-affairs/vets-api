@@ -3,7 +3,7 @@
 module BGS
   class DisabilityRatingService
     def get_rating(current_user)
-      service = LighthouseBGS::Services.new(
+      service = BGS::Services.new(
         external_uid: current_user.icn,
         external_key: current_user.email
       )

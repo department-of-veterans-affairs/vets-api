@@ -156,7 +156,11 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+    if form_id == '1010EZ' # our first form. lessons learned.
+      form_id = form_id.downcase
+    elsif form_id == '21-526EZ-BDD'
+      form_id = '21-526EZ' # the front end treats the forms differently, but the back end doesn't
+    end
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 

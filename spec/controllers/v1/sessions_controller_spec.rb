@@ -104,6 +104,8 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect { get(:new, params: { type: type, clientId: '123123' }) }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
+                .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
+                                              tags: ["context:#{authn}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -574,8 +576,15 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(post(:saml_callback)).to have_http_status(:ok)
         end
 
+        it 'counts the triggered SAML request' do
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
+                                         tags: ["context:#{LOA::IDME_LOA3}", 'version:v1'], **once)
+        end
+
         it 'redirects to identity proof URL', :aggregate_failures do
           Timecop.freeze(Time.current)
+          expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).and_return(true)
           expect_any_instance_of(SAML::PostURLService).to receive(:verify_url)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 

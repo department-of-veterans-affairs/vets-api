@@ -31,6 +31,10 @@ StatsD.backend = if host.present? && port.present?
                        tags: ["version:#{v}", "context:#{ctx}"])
     end
   end
+  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
+                     tags: ["version:#{v}", "context:#{ctx}"])
+  end
   SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
     StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,
                      tags: ["version:#{v}", "error:#{known_error[:tag]}"])
