@@ -17,7 +17,7 @@
         "changeOfAddress": {
           "beginningDate": "2018-06-04",
           "addressChangeType": "PERMANENT",
-          "addressLine1": "1234 Couch Stree",
+          "addressLine1": "1234 Couch Street",
           "addressLine2": "Apt. 22",
           "city": "Portland",
           "country": "USA",
@@ -35,7 +35,7 @@
             }
           },
           "currentlyHomeless": {
-            "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
+            "homelessSituationType": "fleeing",
             "otherLivingSituation": "other living situation"
           }
         }

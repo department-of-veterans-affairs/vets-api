@@ -16,7 +16,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   describe '#translate' do
     before do
-      create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+      create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
     end
 
     let(:form_content) do
@@ -335,6 +335,30 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               'activeDutyEndDate' => '1990-01-02'
             }
           ]
+        }
+      end
+    end
+
+    context 'when provided service separation location' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'serviceInformation' => {
+              'servicePeriods' => [],
+              'separationLocation' => {
+                'separationLocationCode' => '98283',
+                'separationLocationName' => 'AF Academy'
+              }
+            }
+          }
+        }
+      end
+
+      it 'translates the data correctly' do
+        expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
+          'servicePeriods' => [],
+          'separationLocationCode' => '98283',
+          'separationLocationName' => 'AF Academy'
         }
       end
     end
@@ -1364,6 +1388,86 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         it 'returns the application creation date + 365 days' do
           expect(subject.send(:application_expiration_date)).to eq itf.expiration_date.iso8601
         end
+      end
+    end
+  end
+
+  describe '#translate_bdd' do
+    today = Time.now.in_time_zone('Central Time (US & Canada)').to_date
+
+    context 'when rad date is > 180 away' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'serviceInformation' => {
+              'servicePeriods' => [
+                {
+                  'dateRange' => {
+                    'from' => '1980-02-05',
+                    'to' => (today + 181).to_s
+                  },
+                  'serviceBranch' => 'Air Force'
+                }
+              ]
+            }
+          }
+        }
+      end
+
+      it 'throws 422 error' do
+        expect { subject.send(:bdd_qualified?) }.to raise_error(
+          Common::Exceptions::UnprocessableEntity
+        ) { |e|
+          expect(e.errors[0].detail).to match(/more than 180 days/)
+        }
+      end
+    end
+
+    context 'when rad date is 90 days away' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'serviceInformation' => {
+              'servicePeriods' => [
+                {
+                  'dateRange' => {
+                    'from' => '1980-02-05',
+                    'to' => (today + 90).to_s
+                  },
+                  'serviceBranch' => 'Air Force'
+                }
+              ]
+            }
+          }
+        }
+      end
+
+      it 'bdd_qualified is true' do
+        expect(subject.send(:bdd_qualified?)).to eq true
+      end
+    end
+
+    context 'when rad date is < 90 days away' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'serviceInformation' => {
+              'servicePeriods' => [
+                {
+                  'dateRange' => {
+                    'from' => '1980-02-05',
+                    'to' => (today + 89).to_s
+                  },
+                  'serviceBranch' => 'Air Force'
+                }
+              ]
+            }
+          }
+        }
+      end
+
+      it 'bdd_qualified is false' do
+        expect(subject.send(:bdd_qualified?)).to eq false
       end
     end
   end

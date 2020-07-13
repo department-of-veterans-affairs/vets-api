@@ -18,20 +18,22 @@ StatsD.backend = if host.present? && port.present?
   V1::SessionsController::REDIRECT_URLS.each do |t|
     StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
                      tags: ["version:#{v}", "context:#{t}"])
-    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_FORCEAUTH, 0,
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
                      tags: ["version:#{v}", "context:#{t}"])
-    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_INBOUND, 0,
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
                      tags: ["version:#{v}", "context:#{t}"])
   end
   %w[success failure].each do |s|
     (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
       StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
                        tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS, 0,
-                       tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
       StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
                        tags: ["version:#{v}", "context:#{ctx}"])
     end
+  end
+  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
+                     tags: ["version:#{v}", "context:#{ctx}"])
   end
   SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
     StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,

@@ -61,10 +61,10 @@ module SAML
         return redirect_target if redirect_target.present?
       end
 
-      # if the original auth request specified inbound ssoe and authentication
-      # failed, set 'force-needed' so the FE can silently fail authentication and NOT
-      # show the user an error page
-      auth = 'force-needed' if (auth != 'success') && @tracker&.payload_attr(:inbound_ssoe)
+      # if the original auth request was an inbound ssoe autologin (type custom)
+      # and authentication failed, set 'force-needed' so the FE can silently fail
+      # authentication and NOT show the user an error page
+      auth = 'force-needed' if auth != 'success' && @tracker&.payload_attr(:type) == 'custom'
 
       @query_params[:type] = type if type
       @query_params[:auth] = auth if auth != 'success'
@@ -96,6 +96,11 @@ module SAML
     def idme_url
       @type = 'idme'
       build_sso_url(LOA::IDME_LOA1_VETS)
+    end
+
+    def custom_url(authn)
+      @type = 'custom'
+      build_sso_url(authn)
     end
 
     def signup_url
@@ -164,7 +169,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      save_saml_request_tracker(saml_auth_request.uuid)
+      save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -213,17 +218,18 @@ module SAML
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
       redirect = previous&.payload_attr(:redirect) || build_redirect(params)
-      inbound = params[:inbound] || nil
+      type = previous&.payload_attr(:type) || params[:type]
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: { redirect: redirect, inbound_ssoe: inbound }.compact,
+        payload: { redirect: redirect, type: type }.compact,
         created_at: previous&.created_at
       )
     end
 
-    def save_saml_request_tracker(uuid)
+    def save_saml_request_tracker(uuid, authn_context)
       @tracker.uuid = uuid
+      @tracker.payload[:authn_context] = authn_context
       @tracker.save
     end
   end

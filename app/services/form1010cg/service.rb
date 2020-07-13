@@ -3,17 +3,22 @@
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
 module Form1010cg
   class Service
-    attr_reader :claim
+    class InvalidVeteranStatus < StandardError
+    end
+
+    attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
+                  :submission # Form1010cg::Submission
 
     NOT_FOUND = 'NOT_FOUND'
 
-    def initialize(claim)
+    def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
       claim.valid? || raise(Common::Exceptions::ValidationErrors, claim)
 
       # The CaregiversAssistanceClaim we are processing with this service
-      @claim = claim
+      @claim        = claim
+      @submission   = submission
 
       # Store for the search results we will run on MVI and eMIS
       @cache = {
@@ -32,21 +37,70 @@ module Form1010cg
     #
     # @return [Form1010cg::Submission]
     def process_claim!
+      raise 'submission already present' if submission.present?
+
       assert_veteran_status
 
       carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
 
-      Form1010cg::Submission.new(
+      @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
         submitted_at: carma_submission.submitted_at
       )
+
+      submit_attachment
+
+      submission
+    end
+
+    # Will generate a PDF version of the submission and attach it to the CARMA Case.
+    #
+    # @return [Boolean]
+    def submit_attachment # rubocop:disable Metrics/MethodLength
+      raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
+      raise 'submission already has attachments'  if  submission.attachments.any?
+
+      file_path = begin
+                    claim.to_pdf
+                  rescue
+                    return false
+                  end
+
+      begin
+        carma_attachments = CARMA::Models::Attachments.new(
+          submission.carma_case_id,
+          claim.veteran_data['fullName']['first'],
+          claim.veteran_data['fullName']['last']
+        )
+
+        carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
+
+        carma_attachments.submit!
+        submission.attachments = carma_attachments.to_hash
+      rescue
+        # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
+        # sending to CARMA is just the submission, itself, as a PDF. This is to follow the current
+        # conventions of CARMA: every case has the PDF of the submission attached.
+        #
+        # Regardless of the reason, we shouldn't raise an error when sending attachments fails.
+        # It's non-critical and we don't want the error to bubble up to the response,
+        # misleading the user to think thier claim was not submitted.
+        #
+        # If we made it this far, there is a submission that exists in CARMA.
+        # So the user should get a sucessful response, whether attachments reach CARMA or not.
+        File.delete(file_path)
+        return false
+      end
+
+      File.delete(file_path)
+      true
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI
     #
     # @return [nil]
     def assert_veteran_status
-      raise_unprocessable if icn_for('veteran') == NOT_FOUND
+      raise InvalidVeteranStatus if icn_for('veteran') == NOT_FOUND
     end
 
     # Returns a metadata hash:
@@ -70,8 +124,7 @@ module Form1010cg
         }
       end
 
-      # Set the veteran status on the :veteran namespace of metadata
-      metadata[:veteran][:is_veteran] = false
+      metadata[:veteran][:is_veteran] = is_veteran('veteran')
 
       metadata
     end
@@ -112,7 +165,6 @@ module Form1010cg
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
       response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
-      raise response.error if response.error?
 
       is_veteran = response&.items&.first&.title38_status_code == 'V1'
 
@@ -120,14 +172,6 @@ module Form1010cg
     end
 
     private
-
-    # The claim cannot be processed under certain conditions (see #assert_veteran_status).
-    # If those conditions are not met, raise this client error.
-    def raise_unprocessable
-      message = 'Unable to process submission digitally'
-      claim.errors.add(:base, message, message: message)
-      raise(Common::Exceptions::ValidationErrors, claim)
-    end
 
     def mvi_service
       @mvi_service ||= MVI::Service.new

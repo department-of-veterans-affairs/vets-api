@@ -28,7 +28,11 @@ module EVSS
       FORM4142_OVERFLOW_TEXT = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
                                'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
 
+      # EVSS validates this date using CST, at some point this may change to EST.
+      EVSS_TZ = 'Central Time (US & Canada)'
+
       def initialize(user, form_content, has_form4142)
+        @form_submission_date = Time.now.in_time_zone(EVSS_TZ).to_date
         @user = user
         @form_content = form_content
         @has_form4142 = has_form4142
@@ -45,6 +49,7 @@ module EVSS
         output_form['autoCestPDFGenerationDisabled'] = input_form['autoCestPDFGenerationDisabled'] || false
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
+        output_form['bddQualified'] = bdd_qualified?
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -80,6 +85,10 @@ module EVSS
 
         overflow
       end
+
+      ###
+      # Banking info
+      ###
 
       def translate_banking_info
         populated = input_form['bankName'].present? && input_form['bankAccountType'].present? &&
@@ -133,6 +142,10 @@ module EVSS
         }
       end
 
+      ###
+      # Service pay
+      ###
+
       def translate_service_pay
         service_pay = {
           'waiveVABenefitsToRetainTrainingPay' => input_form['waiveTrainingPay'],
@@ -173,6 +186,10 @@ module EVSS
         }
       end
 
+      ###
+      # Service info
+      ###
+
       def translate_service_info
         {
           'serviceInformation' => {
@@ -180,7 +197,13 @@ module EVSS
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
             'servedInCombatZone' => input_form['servedInCombatZonePost911'],
-            'alternateNames' => translate_names
+            'alternateNames' => translate_names,
+            'separationLocationName' => input_form.dig('serviceInformation',
+                                                       'separationLocation',
+                                                       'separationLocationName'),
+            'separationLocationCode' => input_form.dig('serviceInformation',
+                                                       'separationLocation',
+                                                       'separationLocationCode')
           }.compact
         }
       end
@@ -220,6 +243,10 @@ module EVSS
         }.compact
       end
 
+      ###
+      # Personal info
+      ###
+
       def translate_names
         return nil if input_form['alternateNames'].blank?
 
@@ -245,6 +272,10 @@ module EVSS
 
         service_branch
       end
+
+      ###
+      # Veteran info
+      ###
 
       def translate_veteran
         {
@@ -378,6 +409,10 @@ module EVSS
         }
       end
 
+      ###
+      # Treatments
+      ###
+
       def translate_treatments
         return {} if input_form['vaTreatmentFacilities'].blank?
 
@@ -413,6 +448,10 @@ module EVSS
         }.compact
       end
 
+      ###
+      # Disabilities
+      ###
+
       def translate_disabilities
         rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
         # New primary disabilities need to be added first before handling secondary
@@ -421,7 +460,7 @@ module EVSS
         primary_disabilities = translate_new_primary_disabilities(rated_disabilities)
         disabilities = translate_new_secondary_disabilities(primary_disabilities)
 
-        # Strip out disabilites with ActionType eq to `None` that do not have any
+        # Strip out disabilities with ActionType eq to `None` that do not have any
         # secondary disabilities to avoid sending extraneous data
         disabilities.delete_if do |disability|
           disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
@@ -495,7 +534,7 @@ module EVSS
       # @option input_disability [String] :classificationCode Optional classification code
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :worsenedDescription The disabilities description
-      # @option input_disability [String] :worsenedEffects The disabilites effects
+      # @option input_disability [String] :worsenedEffects The disabilities effects
       # @return [Hash] Transformed disability to match EVSS's validation
       def map_worsened(input_disability)
         {
@@ -558,6 +597,10 @@ module EVSS
         end
       end
 
+      ###
+      # Date calculations
+      ###
+
       def application_expiration_date
         return (rad_date + 1.day + 365.days).iso8601 if greater_rad_date?
         return (application_create_date + 365.days).iso8601 if greater_itf_date?
@@ -575,12 +618,15 @@ module EVSS
 
       def application_create_date
         # Application create date is the date the user began their application
-        @acd ||= InProgressForm.where(form_id: VA526ez::FORM_ID, user_uuid: @user.uuid)
+        # TODO AEC
+        @acd ||= InProgressForm.where(form_id: [FormProfiles::VA526ez::FORM_ID, FormProfiles::VA526ezbdd::FORM_ID],
+                                      user_uuid: @user.uuid)
+                               .order('updated_at desc')
                                .first.created_at
       end
 
       def rad_date
-        # retrieve the most recent 'Return from Active Duty' Date
+        # retrieve the most recent Release from Active Duty (RAD) date
         return @rd if @rd
 
         service_episodes = @user.military_information.service_episodes_by_date
@@ -594,6 +640,30 @@ module EVSS
         service = EVSS::IntentToFile::Service.new(@user)
         response = service.get_active('compensation')
         @itf = response.intent_to_file
+      end
+
+      ###
+      # Benefits Delivery at Discharge (BDD)
+      ###
+
+      def user_supplied_rad_date
+        # Retrieve the most recent Release from Active Duty (RAD) date from user supplied service periods
+        recent_service_period = translate_service_periods.sort_by { |episode| episode['activeDutyEndDate'] }.reverse[0]
+        recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
+      end
+
+      def bdd_qualified?
+        # To be bdd_qualified application should be submitted 180-90 days prior to Release from Active Duty (RAD) date.
+        # Applications < 90 days prior to release can be submitted but only with value as false.
+        days_until_release = user_supplied_rad_date - @form_submission_date
+
+        if days_until_release > 180
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: 'User may not submit BDD more than 180 days prior to RAD date',
+            source: 'DataTranslationAllClaim'
+          )
+        end
+        days_until_release >= 90
       end
     end
   end

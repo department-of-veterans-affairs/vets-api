@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_review/contestable_issues
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/contestable_issues
     body:
       encoding: US-ASCII
       string: ''
@@ -14,8 +14,8 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - abcd1234abcd1234abcd1234abcd1234abcd1234
-      Veteranid:
+      - "<DECISION_REVIEW_KEY>"
+      X-Va-Ssn:
       - '111223333'
       Receiptdate:
       - '2020-01-14'

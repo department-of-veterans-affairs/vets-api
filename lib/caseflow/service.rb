@@ -17,7 +17,7 @@ module Caseflow
 
     STATSD_KEY_PREFIX = 'api.appeals'
     CASEFLOW_V2_API_PATH = '/api/v2/appeals'
-    CASEFLOW_V3_API_PATH = '/api/v3/decision_review/'
+    CASEFLOW_V3_API_PATH = '/api/v3/decision_reviews/'
     DEFAULT_HEADERS = { 'Authorization' => "Token token=#{Settings.caseflow.app_token}" }.freeze
 
     ##
@@ -29,11 +29,11 @@ module Caseflow
     #
     def get_appeals(user, additional_headers = {})
       with_monitoring do
-        response = perform(
+        response = authorized_perform(
           :get,
           CASEFLOW_V2_API_PATH,
           {},
-          request_headers(additional_headers.merge('ssn' => user.ssn))
+          additional_headers.merge('ssn' => user.ssn)
         )
         Caseflow::Responses::Caseflow.new(response.body, response.status)
       end
@@ -42,24 +42,29 @@ module Caseflow
     ##
     # Returns contestable issues for a veteran.
     #
-    # @param headers [Hash] Headers to include (in addition to the caseflow api token).
+    # @param headers [Hash] Headers to include.
     # @return [Hash] Response object.
     #
-    def get_contestable_issues(headers)
+    def get_contestable_issues(headers:, benefit_type:)
       with_monitoring do
-        perform(:get, "#{CASEFLOW_V3_API_PATH}contestable_issues", {}, request_headers(headers))
+        authorized_perform(
+          :get,
+          "#{CASEFLOW_V3_API_PATH}higher_level_reviews/contestable_issues/#{benefit_type}",
+          {},
+          headers
+        )
       end
     end
 
     ##
-    # Create a HLR.
+    # Create a HLR in Caseflow.
     #
-    # @param body [Hash] The HLR's attributes. See modules/appeals_api/app/swagger/v1/decision_reviews.yaml
+    # @param body [Hash] The HLR's attributes.
     # @return [Hash] Response object.
     #
     def create_higher_level_review(body)
       with_monitoring do
-        perform(:post, "#{CASEFLOW_V3_API_PATH}higher_level_reviews", body, request_headers)
+        authorized_perform(:post, "#{CASEFLOW_V3_API_PATH}higher_level_reviews", body)
       end
     end
 
@@ -76,8 +81,8 @@ module Caseflow
 
     private
 
-    def request_headers(additional_headers = {})
-      DEFAULT_HEADERS.merge(additional_headers)
+    def authorized_perform(method, path, params, additional_headers = nil, options = nil)
+      perform(method, path, params, DEFAULT_HEADERS.merge(additional_headers || {}), options)
     end
   end
 end

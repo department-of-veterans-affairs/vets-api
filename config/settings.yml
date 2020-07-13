@@ -77,8 +77,6 @@ salesforce-carma:
 
 salesforce:
   env: dev
-  signing_key_path: 'spec/fixtures/vic/private.key'
-  consumer_key: d669f7d339fd25af442bf75bb643c4c45f0f05fb3cb39cc77521e2011c6bb84086bb624d7ef14d715736
 
 # Settings for Education Benefits
 edu:
@@ -139,7 +137,7 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://sandbox-api.va.gov/services/appeals/v1/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
 
@@ -185,6 +183,7 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
+  mock_reference: false
   mock_itf: true
   mock_disabilities_form: true
   mock_common_service: true
@@ -194,9 +193,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  jwt:
-    issuer: fake_issuer
-    key: fake_key
   reference_data_service:
     enabled: false
   international_postal_codes: 'config/evss/international_postal_codes.json'
@@ -444,10 +440,6 @@ betamocks:
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
-faraday_socks_proxy:
-  enabled: false
-  uri: socks5://localhost:2002
-
 google_analytics_tracking_id: ~
 
 # Settings for search
@@ -471,6 +463,7 @@ flipper:
     - devinmccurdy@gmail.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
+    - filip.fafara@gmail.com
     - grodriguez@governmentcio.com
     - hughes_dustin@bah.com
     - jbalboni@gmail.com
@@ -485,23 +478,27 @@ flipper:
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
+    - ltran@thoughtworks.com
+    - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
+    - mdewey@governmentcio.com
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
+    - pherbert@thoughtworks.com
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
-    - shaun.hubbard@thoughtworks.com
+    - saman.moshafi@thoughtworks.com
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
-    - zurbergram@gmail.com
+    - zurbergram@gmail.com  
 
 bgs:
   application: ~
@@ -550,3 +547,10 @@ coronavirus_chatbot:
   app_secret: fake_secret
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
+
+# Settings for notifications client
+vanotify:
+  client_url: fake_client_url
+  api_key: fake_secret
+  template_id:
+    form526_confirmation_email: fake_template_id

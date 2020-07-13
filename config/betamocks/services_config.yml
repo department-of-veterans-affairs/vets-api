@@ -15,7 +15,7 @@
     :file_path: "mdot/supplies/create"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'va_api_key'
+      :uid_locator: 'vaapikey'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
@@ -334,10 +334,17 @@
   :endpoints:
   - :method: :post
     :path: "/VIERSService/eMIS/v1/VeteranStatusService"
-    :file_path: "emis/veteran_status"
+    :file_path: "emis/veteran_status/by_edipi"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>'
+      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>\s*<v13:inputType>EDIPI</v13:inputType>'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/VeteranStatusService"
+    :file_path: "emis/veteran_status/by_icn"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v13:edipiORicnValue>([V0-9]*)<\/v13:edipiORicnValue>\s*<v13:inputType>ICN</v13:inputType>'
 
   - :method: :post
     :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
@@ -447,6 +454,12 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: ssn
+  - :method: :get
+    :path: "/api/v3/decision_reviews/higher_level_reviews/contestable_issues/compensation"
+    :file_path: "modules_appeals_api/contestable_issues"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: X-VA-SSN
   - :method: :get
     :path: "/health-check"
     :file_path: "appeals/health-check"

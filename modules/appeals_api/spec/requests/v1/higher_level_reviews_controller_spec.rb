@@ -3,11 +3,11 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :request do
+describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :request do
   include FixtureHelpers
 
   def base_path(path)
-    "/services/appeals/v1/decision_review/#{path}"
+    "/services/appeals/v1/decision_reviews/#{path}"
   end
 
   before(:all) do
@@ -24,7 +24,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
 
     it 'create an HLR and persist the data' do
       post(path, params: @data, headers: @headers)
-      expect(parsed['data']['type']).to eq('appeals_api_higher_level_reviews')
+      expect(parsed['data']['type']).to eq('higherLevelReview')
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
@@ -47,7 +47,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
     it 'returns a response when valid' do
       post(path, params: @data, headers: @headers)
       expect(parsed['data']['attributes']['status']).to eq('valid')
-      expect(parsed['data']['type']).to eq('appeals_api_higher_level_review_validation')
+      expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
     end
 
     it 'returns a response when invalid' do
@@ -79,7 +79,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       uuid = create(:higher_level_review).id
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
-      expect(parsed.dig('data', 'attributes', 'form_data')).to be_a Hash
+      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end
 
     it 'returns an error when given a bad uuid' do

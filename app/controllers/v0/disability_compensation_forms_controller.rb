@@ -11,6 +11,11 @@ module V0
              serializer: RatedDisabilitiesSerializer
     end
 
+    def separation_locations
+      response = EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+      render json: response, each_serializer: EVSSSeparationLocationSerializer
+    end
+
     def suggested_conditions
       results = DisabilityContention.suggested(params[:name_part])
       render json: results, each_serializer: DisabilityContentionSerializer
