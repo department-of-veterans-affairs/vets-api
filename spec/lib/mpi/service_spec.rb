@@ -561,7 +561,7 @@ describe MPI::Service do
         VCR.use_cassette('mpi/find_candidate/valid') do
           subject.find_profile(user)
         end
-        expect(StatsD).to have_received(:increment).with('api.mvi.find_profile.total')
+        expect(StatsD).to have_received(:increment).with('api.mpi.find_profile.total')
       end
 
       it 'logs the request and response data' do
@@ -579,9 +579,9 @@ describe MPI::Service do
       it 'increments find_profile fail and total', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(StatsD).to receive(:increment).once.with(
-          'api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.mpi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
-        expect(StatsD).to receive(:increment).once.with('api.mvi.find_profile.total')
+        expect(StatsD).to receive(:increment).once.with('api.mpi.find_profile.total')
         response = subject.find_profile(user)
 
         server_error_504_expectations_for(response)
@@ -598,7 +598,7 @@ describe MPI::Service do
         VCR.use_cassette('mpi/add_person/add_person_success') do
           subject.add_person(user)
         end
-        expect(StatsD).to have_received(:increment).with('api.mvi.add_person.total')
+        expect(StatsD).to have_received(:increment).with('api.mpi.add_person.total')
       end
     end
 
@@ -606,9 +606,9 @@ describe MPI::Service do
       it 'increments add_person fail and total', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(StatsD).to receive(:increment).once.with(
-          'api.mvi.add_person.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.mpi.add_person.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
-        expect(StatsD).to receive(:increment).once.with('api.mvi.add_person.total')
+        expect(StatsD).to receive(:increment).once.with('api.mpi.add_person.total')
         response = subject.add_person(user)
 
         exception = response.error.errors.first

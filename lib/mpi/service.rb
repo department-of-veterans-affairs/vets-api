@@ -31,7 +31,7 @@ module MPI
     # @return [MPI::Configuration] the configuration for this service
     configuration MPI::Configuration
 
-    STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX) # TODO: update this logs and exceptions?
+    STATSD_KEY_PREFIX = 'api.mpi' unless const_defined?(:STATSD_KEY_PREFIX)
     SERVER_ERROR = 'server_error'
 
     # rubocop:disable Metrics/MethodLength
