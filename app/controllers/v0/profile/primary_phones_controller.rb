@@ -8,7 +8,6 @@ module V0
       before_action :authorize_evss!
 
       def show
-        number = VaFileNumber.find(params[:id])
         response = service.get_primary_phone
 
         render json: response, serializer: PhoneNumberSerializer
