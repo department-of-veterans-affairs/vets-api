@@ -38,22 +38,24 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
                                .form526_confirmation_email,
           personalisation: {
             claim_id: '600191990',
-            date_submitted: 'July 12, 2020'
+            date_submitted: 'July 12, 2020',
+            first_name: 'first',
+            last_name: 'last'
           }
         }
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_email).and_return(@email_response)
 
         expect(notification_client).to receive(:send_email).with(requirements)
-        subject.perform(123, @email_address, '600191990', Time.zone.parse('2020-07-12'))
+        subject.perform(123, @email_address, '600191990', Time.zone.parse('2020-07-12'), 'first', 'last')
       end
 
       it 'handles errors when sending an email' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_email).and_raise(StandardError, 'some error')
 
-        expect { subject.perform(123, @email_address, '600191990', Time.zone.parse('2020-07-12')) }.not_to raise_error
-        expect { subject.perform(123, @email_address, '600191990', Time.zone.parse('2020-07-12')) }
+        expect { subject.perform(123, @email_address, '600191990', Time.zone.parse('2020-07-12'), '@current_user.first_name', 'last') }.not_to raise_error
+        expect { subject.perform(123, @email_address, '600191990', Time.zone.parse('2020-07-12'), '@current_user.first_name', 'last') }
           .to trigger_statsd_increment('worker.form526_confirmation_email.error')
       end
 
@@ -62,7 +64,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         allow(notification_client).to receive(:send_email).and_return(@email_response)
 
         expect do
-          Form526ConfirmationEmailJob.perform_async(123, @email_address, '600191990', Time.zone.parse('2020-07-12'))
+          Form526ConfirmationEmailJob.perform_async(123, @email_address, '600191990', Time.zone.parse('2020-07-12'), '@current_user.first_name', 'last')
         end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
       end
     end
