@@ -399,6 +399,12 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_10203_expected) do
     {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
       'veteranAddress' => {
         'street' => street_check[:street],
         'street2' => street_check[:street2],
@@ -407,13 +413,7 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
-      'veteranFullName' => {
-        'first' => user.first_name&.capitalize,
-        'last' => user.last_name&.capitalize,
-        'suffix' => user.va_profile[:suffix]
-      },
       'homePhone' => us_phone,
-      'veteranSocialSecurityNumber' => user.ssn,
       'email' => user.pciu_email
     }
   end
@@ -614,61 +614,6 @@ RSpec.describe FormProfile, type: :model do
       },
       'claimantPhone' => us_phone,
       'claimantEmail' => user.pciu_email
-    }
-  end
-
-  let(:v21_526_ez_expected) do
-    {
-      'disabilities' => [
-        {
-          'diagnosticCode' => 5238,
-          'decisionCode' => 'SVCCONNCTED',
-          'decisionText' => 'Service Connected',
-          'name' => 'Diabetes mellitus0',
-          'ratedDisabilityId' => '0',
-          'ratingDecisionId' => '63655',
-          'ratingPercentage' => 100
-        },
-        {
-          'diagnosticCode' => 5238,
-          'decisionCode' => 'SVCCONNCTED',
-          'decisionText' => 'Service Connected',
-          'name' => 'Diabetes mellitus1',
-          'ratedDisabilityId' => '1',
-          'ratingDecisionId' => '63655',
-          'ratingPercentage' => 100
-        }
-      ],
-      'servicePeriods' => [
-        {
-          'serviceBranch' => 'Air Force Reserve',
-          'dateRange' => {
-            'from' => '2007-04-01',
-            'to' => '2016-06-01'
-          }
-        }
-      ],
-      'reservesNationalGuardService' => {
-        'obligationTermOfServiceDateRange' => {
-          'from' => '2007-04-01',
-          'to' => '2016-06-01'
-        }
-      },
-      'veteran' => {
-        'mailingAddress' => {
-          'country' => 'USA',
-          'city' => 'Washington',
-          'state' => 'DC',
-          'zipCode' => '20011',
-          'addressLine1' => '140 Rock Creek Rd'
-        },
-        'primaryPhone' => '4445551212',
-        'emailAddress' => 'test2@test1.net'
-      },
-      'bankAccountNumber' => '*********1234',
-      'bankAccountType' => 'Checking',
-      'bankName' => 'Comerica',
-      'bankRoutingNumber' => '*****2115'
     }
   end
 
@@ -919,8 +864,8 @@ RSpec.describe FormProfile, type: :model do
           can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           v22_10203_expected['remainingEntitlement'] = {
-              'months' => 0,
-              'days' => 12,
+            'months' => 0,
+            'days' => 12
           }
         end
 
@@ -928,7 +873,8 @@ RSpec.describe FormProfile, type: :model do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
-                expect_prefilled('22-10203')
+                prefilled_data = Oj.load(described_class.for('22-10203').prefill(user).to_json)['form_data']
+                expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
               end
             end
           end
@@ -975,42 +921,6 @@ RSpec.describe FormProfile, type: :model do
         context 'with a user that can prefill evss' do
           before do
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-          end
-
-          # Note: `increase only` and `all claims` use the same form prefilling
-          context 'when Vet360 prefill is disabled' do
-            it 'returns prefilled 21-526EZ' do
-              VCR.use_cassette('evss/pciu_address/address_domestic') do
-                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  VCR.use_cassette('evss/ppiu/payment_information') do
-                    expect_prefilled('21-526EZ')
-                  end
-                end
-              end
-            end
-          end
-
-          context 'when Vet360 prefill is enabled' do
-            before do
-              Settings.vet360.prefill = true
-              expected_veteran_info = v21_526_ez_expected['veteran']
-              expected_veteran_info['emailAddress'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
-              expected_veteran_info['primaryPhone'] = '3035551234'
-            end
-
-            after do
-              Settings.vet360.prefill = false
-            end
-
-            it 'returns prefilled 21-526EZ' do
-              VCR.use_cassette('evss/pciu_address/address_domestic') do
-                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  VCR.use_cassette('evss/ppiu/payment_information') do
-                    expect_prefilled('21-526EZ')
-                  end
-                end
-              end
-            end
           end
 
           it 'returns prefilled 21-686C' do
