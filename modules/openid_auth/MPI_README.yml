@@ -3,7 +3,7 @@ info:
   version: 0.0.1
   title: ICN Lookup
   description: |
-    Looking up an ICN for an MPI record
+    Looking up an ICN for an MPI (formerly MVI) record
 
     ### Authorization
 
