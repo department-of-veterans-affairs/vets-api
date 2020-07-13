@@ -2,7 +2,7 @@
 
 require 'common/models/base'
 require 'common/models/redis_store'
-require 'mpi/messages/find_profile_message' # TODO: update these references
+require 'mpi/messages/find_profile_message'
 require 'mpi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
@@ -229,7 +229,7 @@ class User < Common::RedisStore
   # Re-caches the MPI response. Use in response to any local changes that
   # have been made.
   def recache
-    mpi.cache(uuid, mpi.mpi_response) # TODO: update method name in model
+    mpi.cache(uuid, mpi.mpi_response)
   end
 
   # destroy both UserIdentity and self
