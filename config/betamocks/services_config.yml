@@ -334,10 +334,17 @@
   :endpoints:
   - :method: :post
     :path: "/VIERSService/eMIS/v1/VeteranStatusService"
-    :file_path: "emis/veteran_status"
+    :file_path: "emis/veteran_status/by_edipi"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>'
+      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>\s*<v13:inputType>EDIPI</v13:inputType>'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/VeteranStatusService"
+    :file_path: "emis/veteran_status/by_icn"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v13:edipiORicnValue>([V0-9]*)<\/v13:edipiORicnValue>\s*<v13:inputType>ICN</v13:inputType>'
 
   - :method: :post
     :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
