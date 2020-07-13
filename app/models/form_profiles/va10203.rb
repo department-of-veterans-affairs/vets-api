@@ -57,6 +57,7 @@ class FormProfiles::VA10203 < FormProfile
   end
 
   def initialize_entitlement_information(gi_bill_status)
+    return {} if gi_bill_status == {}
     return {} if gi_bill_status.remaining_entitlement.blank?
 
     VA10203::FormEntitlementInformation.new(
@@ -66,6 +67,8 @@ class FormProfiles::VA10203 < FormProfile
   end
 
   def initialize_school_information(gi_bill_status)
+    return {} if gi_bill_status == {}
+
     most_recent = gi_bill_status.enrollments.max_by(&:begin_date)
 
     return {} if most_recent.blank?
