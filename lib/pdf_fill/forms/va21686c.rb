@@ -1656,7 +1656,7 @@ module PdfFill
       def expand_child_previously_married(child)
         # expand reason child marriage ended
         reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
-        if reason_marriage_ended == 'Divorce' || reason_marriage_ended == 'Death'
+        if reason_marriage_ended.include?('Divorce') || reason_marriage_ended.include?('Death')
           # we show 'Divorce' and 'Death' as options on the FE as opposed to 'Declared Void'
           reason_marriage_ended = 'Declared Void'
         end
@@ -1666,6 +1666,10 @@ module PdfFill
           'other' => select_radio_button(reason_marriage_ended == 'Other')
         }
 
+        expand_other_reason_marriage_ended(child)
+      end
+
+      def expand_other_reason_marriage_ended(child)
         other_reason_marriage_ended = child['previous_marriage_details']['other_reason_marriage_ended']
         if other_reason_marriage_ended.present?
           child['previous_marriage_details']['other_reason_marriage_ended'] = {}
