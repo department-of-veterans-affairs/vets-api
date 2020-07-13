@@ -42,8 +42,7 @@ namespace :form526 do
       version = 'version 1: IO'
       submission.form526_job_statuses.each do |job_status|
         version = 'version 2: AC' if job_status.job_class == 'SubmitForm526AllClaim'
-        if (job_status.job_class == 'SubmitForm526AllClaim') &&
-           job_status.error_message.present?
+        if job_status.job_class == 'SubmitForm526AllClaim' && job_status.error_message.present?
           job_status.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         end
       end
