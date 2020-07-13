@@ -62,4 +62,5 @@ config/ca-trust
 dump.rdb
 /.project
 .generators
-.rakeTasksProcfile.local
+.rakeTasks
+Procfile.local
