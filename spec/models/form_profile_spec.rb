@@ -867,14 +867,19 @@ RSpec.describe FormProfile, type: :model do
             'months' => 0,
             'days' => 12
           }
+          v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+          v22_10203_expected['schoolCity'] = 'NORFOLK'
+          v22_10203_expected['schoolState'] = 'VA'
         end
 
         it 'prefills 10203 with emis and entitlement information' do
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
-                prefilled_data = Oj.load(described_class.for('22-10203').prefill(user).to_json)['form_data']
-                expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
+                VCR.use_cassette('gi_client/gets_the_institution_details') do
+                  prefilled_data = Oj.load(described_class.for('22-10203').prefill(user).to_json)['form_data']
+                  expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
+                end
               end
             end
           end
