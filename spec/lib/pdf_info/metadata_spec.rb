@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require 'pdf_info'
 
-describe PDFInfo::Metadata do
+describe PdfInfo::Metadata do
   let(:result) do
     <<~STDOUT
       Title:
@@ -68,9 +68,9 @@ describe PDFInfo::Metadata do
     end
 
     context 'when the command errors' do
-      it 'raises a PDFInfo::MetadataReadError' do
+      it 'raises a PdfInfo::MetadataReadError' do
         expect(Open3).to receive(:popen2e).with(%w[pdfinfo argv0], '/tmp/file.pdf').and_yield('', result, bad_exit)
-        expect { described_class.read('/tmp/file.pdf') }.to raise_error(PDFInfo::MetadataReadError, /pdfinfo exited/)
+        expect { described_class.read('/tmp/file.pdf') }.to raise_error(PdfInfo::MetadataReadError, /pdfinfo exited/)
       end
     end
   end

@@ -33,7 +33,7 @@
     "hlrCreateData": {
       "type": "object",
       "properties": {
-        "type":       { "type": "string", "enum": ["HigherLevelReview"] },
+        "type":       { "type": "string", "enum": ["higherLevelReview"] },
         "attributes": { "$ref": "#/definitions/hlrCreateDataAttributes" }
       },
       "additionalProperties": false,
@@ -180,7 +180,7 @@
     "hlrCreateContestableIssue": {
       "type": "object",
       "properties": {
-        "type":       { "type": "string", "enum": ["ContestableIssue"] },
+        "type":       { "type": "string", "enum": ["contestableIssue"] },
         "attributes": { "$ref": "#/definitions/hlrCreateContestableIssueAttributes" }
       },
       "additionalProperties": false,
@@ -194,8 +194,8 @@
         "issue":                 { "$ref": "#/definitions/nonBlankStringMaxLength140" },
         "decisionDate":          { "$ref": "#/definitions/date" },
         "decisionIssueId":       { "type": "integer" },
-        "ratingIssueId":         { "type": "string" },
-        "ratingDecisionIssueId": { "type": "string" }
+        "ratingIssueReferenceId":    { "type": "string" },
+        "ratingDecisionReferenceId": { "type": "string" }
       },
       "additionalProperties": false,
       "required": [ "issue", "decisionDate" ]

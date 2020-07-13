@@ -3,7 +3,7 @@
 require 'socket'
 
 # OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
-LighthouseBGS.configure do |config|
+BGS.configure do |config|
   config.application = Settings.bgs.application
   config.client_ip = Socket.ip_address_list.detect(&:ipv4_private?).ip_address
   config.client_station_id = Settings.bgs.client_station_id

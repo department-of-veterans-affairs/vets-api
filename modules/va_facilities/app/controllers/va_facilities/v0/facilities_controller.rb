@@ -8,12 +8,12 @@ require_dependency 'va_facilities/geo_serializer'
 require_dependency 'va_facilities/csv_serializer'
 require_dependency 'va_facilities/param_validators'
 
-module VAFacilities
+module VaFacilities
   module V0
     class FacilitiesController < ApplicationController
       include ActionController::MimeResponds
-      include VAFacilities::PaginationHeaders
-      include VAFacilities::ParamValidators
+      include VaFacilities::PaginationHeaders
+      include VaFacilities::ParamValidators
       skip_before_action(:authenticate)
       before_action :set_default_format
       before_action :validate_params, only: [:index]
@@ -24,10 +24,10 @@ module VAFacilities
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
         respond_to do |format|
           format.geojson do
-            render geojson: VAFacilities::GeoSerializer.to_geojson(resource)
+            render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
           end
           format.csv do
-            render csv: VAFacilities::CsvSerializer.to_csv(resource), filename: 'va_facilities'
+            render csv: VaFacilities::CsvSerializer.to_csv(resource), filename: 'va_facilities'
           end
         end
       end
@@ -38,12 +38,12 @@ module VAFacilities
         respond_to do |format|
           format.json do
             render json: resource,
-                   each_serializer: VAFacilities::FacilitySerializer,
+                   each_serializer: VaFacilities::FacilitySerializer,
                    meta: metadata(resource)
           end
           format.geojson do
             response.headers['Link'] = link_header(resource)
-            render geojson: VAFacilities::GeoSerializer.to_geojson(resource)
+            render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
           end
         end
       end
@@ -54,10 +54,10 @@ module VAFacilities
 
         respond_to do |format|
           format.json do
-            render json: results, serializer: VAFacilities::FacilitySerializer
+            render json: results, serializer: VaFacilities::FacilitySerializer
           end
           format.geojson do
-            render geojson: VAFacilities::GeoSerializer.to_geojson(results)
+            render geojson: VaFacilities::GeoSerializer.to_geojson(results)
           end
         end
       end

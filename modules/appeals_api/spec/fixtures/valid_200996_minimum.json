@@ -1,6 +1,6 @@
 {
   "data": {
-    "type": "HigherLevelReview",
+    "type": "higherLevelReview",
     "attributes": {
       "informalConference": false,
       "sameOffice": true,
@@ -10,7 +10,7 @@
   },
   "included": [
     {
-      "type": "ContestableIssue",
+      "type": "contestableIssue",
       "attributes": {
         "issue": "left shoulder",
         "decisionDate": "1920-12-01"

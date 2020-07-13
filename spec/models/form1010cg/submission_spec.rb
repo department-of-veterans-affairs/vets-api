@@ -12,5 +12,6 @@ RSpec.describe Form1010cg::Submission, type: :model do
 
     expect(subject.carma_case_id).to eq(carma_case_id)
     expect(subject.submitted_at).to eq(submitted_at)
+    expect(subject.attachments).to eq([])
   end
 end

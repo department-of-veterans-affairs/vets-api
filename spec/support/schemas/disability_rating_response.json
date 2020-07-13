@@ -17,6 +17,9 @@
             "combined_disability_rating": {
               "type": "integer"
             },
+            "combined_effective_date": {
+              "type": "string"
+            },
             "individual_ratings": {
               "type": "array",
               "items": {
