@@ -49,11 +49,11 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         expect(notification_client).to receive(:send_email).with(requirements)
         subject.perform(123, 
         {
-          "email" => @email_address,
-          "submitted_claim_id" => '600191990',
-          "updated_at" => Time.zone.parse('2020-07-12'),
-          "first_name" => 'first',
-          "last_name" => 'last'
+          'email' => @email_address,
+          'submitted_claim_id' => '600191990',
+          'updated_at' => Time.zone.parse('2020-07-12'),
+          'first_name' => 'first',
+          'last_name' => 'last'
         })
       end
 
@@ -61,15 +61,15 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
         allow(notification_client).to receive(:send_email).and_raise(StandardError, 'some error')
 
-        personalizationParameters = {
-          "email" => @email_address,
-          "submitted_claim_id" => '600191990',
-          "updated_at" => Time.zone.parse('2020-07-12'),
-          "first_name" => 'first',
-          "last_name" => 'last'
+        personalization_parameters = {
+          'email' => @email_address,
+          'submitted_claim_id' => '600191990',
+          'updated_at' => Time.zone.parse('2020-07-12'),
+          'first_name' => 'first',
+          'last_name' => 'last'
         }
-        expect { subject.perform(123, personalizationParameters) }.not_to raise_error
-        expect { subject.perform(123, personalizationParameters) }
+        expect { subject.perform(123, personalization_parameters) }.not_to raise_error
+        expect { subject.perform(123, personalization_parameters) }
           .to trigger_statsd_increment('worker.form526_confirmation_email.error')
       end
 
@@ -78,14 +78,14 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         allow(notification_client).to receive(:send_email).and_return(@email_response)
 
         expect do
-          personalizationParameters = {
-            "email" => @email_address,
-            "submitted_claim_id" => '600191990',
-            "updated_at" => Time.zone.parse('2020-07-12'),
-            "first_name" => 'first',
-            "last_name" => 'last'
-          }
-          Form526ConfirmationEmailJob.perform_async(123, personalizationParameters)
+          personalization_parameters = {
+            'email' => @email_address,
+            'submitted_claim_id' => '600191990',
+            'updated_at' => Time.zone.parse('2020-07-12'),
+            'first_name' => 'first',
+            'last_name' => 'last'
+            }
+          Form526ConfirmationEmailJob.perform_async(123, personalization_parameters)
         end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
       end
     end
