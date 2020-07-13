@@ -1,6 +1,6 @@
 {
   "data": {
-    "type": "HigherLevelReview",
+    "type": "higherLevelReview",
     "attributes": {
       "sameOffice": false,
       "legacyOptInApproved": true,

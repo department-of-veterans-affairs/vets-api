@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class CCSupportedSitesService < VAOS::BaseService
+  class CCSupportedSitesService < VAOS::SessionService
     def get_supported_sites(site_codes)
       with_monitoring do
         response = perform(:get, url(site_codes), nil, headers)

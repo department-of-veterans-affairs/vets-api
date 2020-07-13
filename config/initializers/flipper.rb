@@ -47,6 +47,10 @@ FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
     # default features to enabled for development and test only
     Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
   end
+  # TODO
+  # The following line disables SSOe login for `development` environtments, including review instances.
+  # Line is to be removed after SSOe is working locally and in review instances.
+  Flipper.disable(feature) if (Rails.env.development? || Rails.env.test?) && feature.match?(/ssoe/)
 rescue
   # make sure we can still run rake tasks before table has been created
   nil
