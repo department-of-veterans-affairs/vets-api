@@ -148,10 +148,10 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   desc 'Create missing cache files from mock_mvi_responses.yml'
   task migrate_mock_data: :environment do
     yaml = YAML.safe_load(
-      File.read(File.join('config', 'mpi_schema', 'mock_mvi_responses.yml'))
+      File.read(File.join('config', 'mpi_schema', 'mock_mpi_responses.yml'))
     )
     template = Liquid::Template.parse(
-      File.read(File.join('config', 'mpi_schema', 'mvi_template.xml'))
+      File.read(File.join('config', 'mpi_schema', 'mpi_template.xml'))
     )
     yaml['find_candidate'].each do |k, v|
       cache_file = File.join(Settings.betamocks.cache_dir, 'mvi', 'profile', "#{k}.yml")
