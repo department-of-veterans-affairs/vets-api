@@ -118,5 +118,5 @@ up: db  ## Starts the server and associated services with docker-compose
 	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1,clamd=0,freshclam=0"
 
 .PHONY: foreman
-up: db  ## Starts the server and associated services with docker-compose
+foreman: db  ## Starts the server and associated services with docker-compose
 	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start --procfile=Procfile.local"
