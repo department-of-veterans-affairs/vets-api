@@ -743,6 +743,14 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
+  describe '#extract_pciu_data' do
+    it 'rescues EVSS::ErrorMiddleware::EVSSError errors' do
+      expect(user).to receive(:pciu_primary_phone).and_raise(EVSS::ErrorMiddleware::EVSSError)
+
+      expect(form_profile.send(:extract_pciu_data, user, :pciu_primary_phone)).to eq('')
+    end
+  end
+
   describe '#prefill_form' do
     def can_prefill_emis(yes)
       expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
@@ -913,6 +921,46 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
+      context 'with emis prefill for 10203' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'prefills 10203' do
+          expect_prefilled('22-10203')
+        end
+      end
+
+      context 'with emis and GiBillStatus prefill for 10203' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_10203_expected['remainingEntitlement'] = {
+            'months' => 0,
+            'days' => 12
+          }
+          v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+          v22_10203_expected['schoolCity'] = 'NORFOLK'
+          v22_10203_expected['schoolState'] = 'VA'
+        end
+
+        it 'prefills 10203 with emis and entitlement information' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+                VCR.use_cassette('gi_client/gets_the_institution_details') do
+                  prefilled_data = Oj.load(described_class.for('22-10203').prefill(user).to_json)['form_data']
+                  expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
+                end
+              end
+            end
+          end
+        end
+      end
+
       context 'with a user that can prefill emis' do
         before do
           stub_methods_for_emis_data
@@ -943,7 +991,6 @@ RSpec.describe FormProfile, type: :model do
           1010ez
           22-0993
           FEEDBACK-TOOL
-          22-10203
           686C-674
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
