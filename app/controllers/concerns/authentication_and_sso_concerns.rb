@@ -26,7 +26,7 @@ module AuthenticationAndSSOConcerns
 
     if @session_object.nil?
       Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
-      reset_session
+      clear_session
       return false
     end
 
@@ -45,15 +45,22 @@ module AuthenticationAndSSOConcerns
     @current_user = User.find(@session_object.uuid) if @session_object
   end
 
-  # Destroys the users session in 1) Redis, 1) the MHV SSO Cookie, 3) and the Session Cookie
-  def reset_session
-    Rails.logger.info('SSO: ApplicationController#reset_session', sso_logging_info)
+  # Destroys the users session in 1) Redis and the MHV SSO Cookie
+  def clear_session
+    Rails.logger.info('SSO: ApplicationController#clear_session', sso_logging_info)
 
     cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
     @session_object&.destroy
     @current_user&.destroy
     @session_object = nil
     @current_user = nil
+  end
+
+  # Destroys the users session in 1) Redis, 2) the MHV SSO Cookie, 3) and the Session Cookie
+  def reset_session
+    Rails.logger.info('SSO: ApplicationController#reset_session', sso_logging_info)
+
+    clear_session
     super
   end
 
