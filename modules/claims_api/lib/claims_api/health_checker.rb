@@ -18,8 +18,7 @@ module ClaimsApi
     end
 
     def self.bgs_is_healthy?
-      response = Faraday.get(BGS_WSDL)
-      response.status == 200
+      BGS::Services.new.vet_record.healthy?
     end
 
     def self.vbms_is_healthy?
