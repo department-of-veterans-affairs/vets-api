@@ -43,13 +43,13 @@ module CARMA
         }
       end
 
-      def submit!(external_client = nil)
+      def submit!(client)
         return response if response
 
         @response = if Flipper.enabled?(:stub_carma_responses)
-                      (external_client || client).upload_attachments_stub(to_request_payload)
+                      client.upload_attachments_stub(to_request_payload)
                     else
-                      (external_client || client).upload_attachments(to_request_payload)
+                      client.upload_attachments(to_request_payload)
                     end
 
         @has_errors = @response['hasErrors']
@@ -70,12 +70,6 @@ module CARMA
           has_errors: has_errors,
           data: all.map(&:to_hash)
         }
-      end
-
-      private
-
-      def client
-        CARMA::Client::Client.new
       end
     end
   end

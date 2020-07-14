@@ -42,13 +42,13 @@ module CARMA
         self.metadata = args[:metadata] || {}
       end
 
-      def submit!(external_client = nil)
+      def submit!(client)
         raise 'This submission has already been submitted to CARMA' if submitted?
 
         response =  if Flipper.enabled?(:stub_carma_responses)
-                      (external_client || client).create_submission_stub(to_request_payload)
+                      client.create_submission_stub(to_request_payload)
                     else
-                      (external_client || client).create_submission(to_request_payload)
+                      client.create_submission(to_request_payload)
                     end
 
         @carma_case_id = response['data']['carmacase']['id']
@@ -63,12 +63,6 @@ module CARMA
 
       def metadata=(metadata_hash)
         @metadata = Metadata.new(metadata_hash)
-      end
-
-      private
-
-      def client
-        CARMA::Client::Client.new
       end
     end
   end
