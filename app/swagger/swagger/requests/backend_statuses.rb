@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'backend_services'
+require 'pagerduty/models/service'
 
 module Swagger
   module Requests
