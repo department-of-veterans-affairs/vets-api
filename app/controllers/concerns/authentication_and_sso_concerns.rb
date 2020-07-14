@@ -46,7 +46,7 @@ module AuthenticationAndSSOConcerns
     @current_user = User.find(@session_object.uuid) if @session_object
   end
 
-  # Destroys the users session in 1) Redis and the MHV SSO Cookie
+  # Destroys the user's session in Redis and the MHV SSO Cookie
   def clear_session
     Rails.logger.info('SSO: ApplicationController#clear_session', sso_logging_info)
 
