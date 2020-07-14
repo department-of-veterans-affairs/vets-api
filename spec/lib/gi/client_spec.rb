@@ -20,7 +20,7 @@ describe 'gi client' do
   end
 
   it 'gets the institution details', :vcr do
-    client_response = client.get_institution_details(id: '11900146').body
+    client_response = client.get_institution_details(id: '11902614').body
     expect(client_response[:data]).to be_a(Hash)
     expect(client_response[:data].keys).to contain_exactly(:id, :type, :attributes, :links)
   end
