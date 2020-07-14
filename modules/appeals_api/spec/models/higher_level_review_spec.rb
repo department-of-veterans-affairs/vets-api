@@ -316,21 +316,21 @@ describe AppealsApi::HigherLevelReview, type: :model do
           'data' => default_form_data['data'],
           'included' => [
             {
-              'type' => 'ContestableIssue',
+              'type' => 'contestableIssue',
               'attributes' => {
                 'issue' => 'tinnitus',
                 'decisionDate' => 'banana'
               }
             },
             {
-              'type' => 'ContestableIssue',
+              'type' => 'contestableIssue',
               'attributes' => {
                 'issue' => 'PTSD',
                 'decisionDate' => (Time.zone.today + 2).to_s
               }
             },
             {
-              'type' => 'ContestableIssue',
+              'type' => 'contestableIssue',
               'attributes' => {
                 'issue' => 'right knee',
                 'decisionDate' => '1901-01-31'

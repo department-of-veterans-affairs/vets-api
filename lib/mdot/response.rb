@@ -32,7 +32,7 @@ module MDOT
       eligibility = MDOT::Eligibility.new
 
       supplies.each do |supply|
-        group = supply.product_group.downcase.to_sym
+        group = supply.product_group.downcase.pluralize.to_sym
         eligibility.send("#{group}=", true) if eligibility.attributes.key?(group) && supply.available_for_reorder
       end
 

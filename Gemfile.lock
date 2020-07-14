@@ -33,6 +33,15 @@ GIT
       faraday (>= 0.7.4, <= 0.17.0)
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
+  revision: 0ad1cd274698c1779ef3d95669db846ca2d484ea
+  specs:
+    bgs_ext (0.14.2)
+      httpclient
+      nokogiri (>= 1.8.5)
+      savon (~> 2.12)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
   revision: bebad55f8723f091c7d41522178b11999f574499
   branch: master
@@ -47,21 +56,11 @@ GIT
       xmlenc
 
 GIT
-  remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 3a9cf80e0d542e9869de8c1a8cd7e4d0eac11864
-  branch: master
-  specs:
-    lighthouse_bgs (0.13.0)
-      httpclient
-      nokogiri (>= 1.8.5)
-      savon (~> 2.12)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 68e33ec46ab2c5417145479992d81ae86c02eccf
+  revision: ecae25f8c61c74a38b1be0c8def2d151a59764a3
   branch: master
   specs:
-    vets_json_schema (6.0.3)
+    vets_json_schema (6.2.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -99,6 +98,7 @@ PATH
   remote: modules/vaos
   specs:
     vaos (0.1.0)
+      sidekiq
 
 PATH
   remote: modules/vba_documents
@@ -263,7 +263,7 @@ GEM
     config (2.2.1)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
-    connection_pool (2.2.2)
+    connection_pool (2.2.3)
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
@@ -354,8 +354,6 @@ GEM
       railties (>= 5.0.0)
     faker (2.13.0)
       i18n (>= 1.6, < 2)
-    faker-medical (0.5.2)
-      faker
     fakeredis (0.8.0)
       redis (~> 4.1)
     faraday (0.17.0)
@@ -482,7 +480,6 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    newrelic_rpm (6.10.0.364)
     nio4r (2.5.2)
     no_proxy_fix (0.1.2)
     nokogiri (1.10.9)
@@ -548,7 +545,7 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
-    rack (2.0.9)
+    rack (2.2.3)
     rack-attack (6.2.2)
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
@@ -637,6 +634,8 @@ GEM
       rspec-expectations (~> 3.9)
       rspec-mocks (~> 3.9)
       rspec-support (~> 3.9)
+    rspec-retry (0.6.2)
+      rspec-core (> 3.3)
     rspec-support (3.9.3)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
@@ -693,11 +692,11 @@ GEM
     shrine-memory (0.2.2)
       down
       shrine (~> 2.0)
-    sidekiq (5.2.8)
+    sidekiq (5.2.9)
       connection_pool (~> 2.2, >= 2.2.2)
-      rack (< 2.1.0)
+      rack (~> 2.0)
       rack-protection (>= 1.5.0)
-      redis (>= 3.3.5, < 5)
+      redis (>= 3.3.5, < 4.2)
     sidekiq-ent (1.8.1)
       einhorn (= 0.7.4)
       sidekiq (>= 5.2.3)
@@ -808,6 +807,7 @@ DEPENDENCIES
   aws-sdk-sns (~> 1)
   benchmark-ips
   betamocks!
+  bgs_ext!
   brakeman (~> 4.7)
   breakers
   bundler-audit
@@ -826,7 +826,6 @@ DEPENDENCIES
   dry-types
   factory_bot_rails (> 5)
   faker
-  faker-medical
   fakeredis
   faraday
   faraday_curl
@@ -853,13 +852,11 @@ DEPENDENCIES
   jsonapi-parser
   jwt
   levenshtein-ffi
-  lighthouse_bgs!
   liquid
   mail (= 2.7.1)
   memoist
   mini_magick (~> 4.10.1)
   net-sftp
-  newrelic_rpm
   nokogiri (~> 1.10)
   notifications-ruby-client (~> 5.1)
   oj
@@ -895,6 +892,7 @@ DEPENDENCIES
   rgeo-geojson
   rspec-instrumentation-matcher
   rspec-rails
+  rspec-retry
   rspec_junit_formatter
   rubocop
   rubocop-junit-formatter
