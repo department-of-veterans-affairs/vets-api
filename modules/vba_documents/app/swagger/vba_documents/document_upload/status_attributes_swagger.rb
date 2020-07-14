@@ -27,7 +27,7 @@ module VbaDocuments
           end
 
           property :message do
-            key :description, 'Humar readable error description. Only present if status = "error"'
+            key :description, 'Human readable error description. Only present if status = "error"'
             key :type, :string
           end
 
