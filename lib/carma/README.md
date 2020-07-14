@@ -28,23 +28,24 @@ submission.metadata = {
   }
 }
 
-submission.submit!
+submission.submit!(CARMA::Client::Client.new)
 ```
 
 ### Submission with Attachments 
 ```
-claim       = SavedClaim::CaregiversAssistanceClaim.new
-submission  = CARMA::Models::Submission.from_claim(
-                claim,
-                {
-                  veteran: {
-                    icn: '1234',
-                    is_veteran: true
+carma_client  = CARMA::Client::Client.new
+claim         = SavedClaim::CaregiversAssistanceClaim.new
+submission    = CARMA::Models::Submission.from_claim(
+                  claim,
+                  {
+                    veteran: {
+                      icn: '1234',
+                      is_veteran: true
+                    }
                   }
-                }
-              )
+                )
 
-submission.submit!
+submission.submit!(carma_client)
 
 attachments = CARMA::Models::Attachments.new(
   submission.carma_case_id,
@@ -55,5 +56,5 @@ attachments = CARMA::Models::Attachments.new(
 attachments.add('10-10CG', 'tmp/pdfs/10-10CG-claim-guid.pdf')
 attachments.add('POA', 'tmp/pdfs/POA-claim-guid.pdf')
 
-attachments.submit!
+attachments.submit!(carma_client)
 ```
