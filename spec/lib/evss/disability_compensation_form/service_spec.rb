@@ -63,9 +63,9 @@ describe EVSS::DisabilityCompensationForm::Service do
         File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json'
       end
 
-      xit 'returns a form submit response object' do
-        # skipping until I can record cassette.
-        VCR.use_cassette('evss/disability_compensation_form/submit_form_bdd') do
+      it 'returns a form submit response object' do
+        # TODO: this cassette seems hand-written and is missing a body
+        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
           response = subject.submit_form526(valid_bdd_form_content)
           expect(response).to be_ok
           expect(response).to be_an EVSS::DisabilityCompensationForm::FormSubmitResponse
