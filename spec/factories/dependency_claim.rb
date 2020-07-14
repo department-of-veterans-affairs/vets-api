@@ -17,7 +17,7 @@ FactoryBot.define do
           ssn: '796104437',
           vaFileNumber: '796104437',
           serviceNumber: '12345678',
-          birth_date: '1950-10-04',
+          birth_date: '1950-10-04'
         },
         veteranContactInformation: {
           veteranAddress: {
