@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'vet360/models/base'
-require 'vet360/models/message'
+require_relative 'base'
+require_relative 'message'
 
 module Vet360
   module Models

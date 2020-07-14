@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vet360/models/base'
+require_relative 'base'
 
 module Vet360
   module Models

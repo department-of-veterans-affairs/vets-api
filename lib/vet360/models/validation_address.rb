@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'base_address'
 require 'common/hash_helpers'
-require 'vet360/models/base_address'
 
 module Vet360
   module Models
