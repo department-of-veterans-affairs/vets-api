@@ -34,9 +34,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 3f70650a80e2a4b8273679fb5dfde0bc7db0e859
+  revision: 0ad1cd274698c1779ef3d95669db846ca2d484ea
   specs:
-    bgs_ext (0.14.1)
+    bgs_ext (0.14.2)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -354,8 +354,6 @@ GEM
       railties (>= 5.0.0)
     faker (2.13.0)
       i18n (>= 1.6, < 2)
-    faker-medical (0.5.2)
-      faker
     fakeredis (0.8.0)
       redis (~> 4.1)
     faraday (0.17.0)
@@ -828,7 +826,6 @@ DEPENDENCIES
   dry-types
   factory_bot_rails (> 5)
   faker
-  faker-medical
   fakeredis
   faraday
   faraday_curl

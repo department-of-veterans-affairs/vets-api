@@ -130,8 +130,6 @@ end
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
-  gem 'faker'
-  gem 'faker-medical'
   gem 'fakeredis'
   gem 'pdf-inspector'
   gem 'rspec-retry'
@@ -146,6 +144,7 @@ group :test do
   gem 'webrick'
 end
 
+# rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'brakeman', '~> 4.7'
@@ -154,6 +153,7 @@ group :development, :test do
   gem 'danger'
   gem 'database_cleaner'
   gem 'factory_bot_rails', '> 5'
+  gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_curl'
@@ -175,6 +175,7 @@ group :development, :test do
   gem 'webmock'
   gem 'yard'
 end
+# rubocop:enable Metrics/BlockLength
 
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
 if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
