@@ -15,10 +15,13 @@ class GIDSRedis < Common::RedisStore
   attr_accessor :scrubbed_params
 
   def method_missing(name, *args)
+    self.rest_call = name
+    self.scrubbed_params = args.first
+
     if respond_to?(name)
-      self.rest_call = name
-      self.scrubbed_params = args.first
-      response_from_redis_or_service.body
+      response_from_redis_or_service(gi_service).body
+    elsif search_respond_to?(name)
+      response_from_redis_or_service(gi_search_service).body
     else
       super
     end
@@ -28,15 +31,23 @@ class GIDSRedis < Common::RedisStore
     gi_service.respond_to?(name)
   end
 
+  def search_respond_to?(name)
+    gi_search_service.respond_to?(name)
+  end
+
   private
 
-  def response_from_redis_or_service
+  def response_from_redis_or_service(service)
     do_cached_with(key: rest_call.to_s + scrubbed_params.to_s) do
-      gi_service.send(rest_call, scrubbed_params)
+      service.send(rest_call, scrubbed_params)
     end
   end
 
   def gi_service
     @client ||= ::GI::Client.new
+  end
+
+  def gi_search_service
+    @search_client ||= ::GI::SearchClient.new
   end
 end
