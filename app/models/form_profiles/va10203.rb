@@ -57,8 +57,7 @@ class FormProfiles::VA10203 < FormProfile
   end
 
   def initialize_entitlement_information(gi_bill_status)
-    return {} if gi_bill_status == {}
-    return {} if gi_bill_status.remaining_entitlement.blank?
+    return {} if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
 
     VA10203::FormEntitlementInformation.new(
       months: gi_bill_status.remaining_entitlement.months,
