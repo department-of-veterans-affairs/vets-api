@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'common/client/errors'
-require 'common/exceptions/external/backend_service_exception' # TODO: use internal/external update
+require 'common/exceptions'
+require 'vet360/address_validation/configuration'
+require 'vet360/address_validation/address_suggestions_response'
 require 'vet360/service'
-require_relative 'configuration'
 
 module Vet360
   module AddressValidation

@@ -6,6 +6,8 @@ require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
 require 'sentry_logging'
 require_relative 'configuration'
+require 'mvi/errors/errors'
+require 'mvi/messages/add_person_message'
 
 
 module MVI

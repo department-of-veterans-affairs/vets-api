@@ -10,6 +10,7 @@
 
 # Current subclasses are PensionClaim and BurialClaim.
 
+require 'pension_burial/tag_sentry'
 require 'common/exceptions/internal/validation_errors'
 
 class ClaimsBaseController < ApplicationController

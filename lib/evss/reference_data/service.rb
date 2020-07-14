@@ -3,6 +3,7 @@
 require 'evss/pciu_address/countries_response'
 require 'evss/pciu_address/states_response'
 require_relative 'configuration'
+require_relative 'intake_sites_response'
 
 module EVSS
   module ReferenceData
