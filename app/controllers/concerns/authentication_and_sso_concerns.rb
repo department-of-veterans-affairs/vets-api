@@ -26,7 +26,7 @@ module AuthenticationAndSSOConcerns
     load_user
 
     if @session_object.nil?
-      Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
+      Rails.logger.debug('SSO: INVALID SESSION', sso_logging_info)
       clear_session
       return false
     end
@@ -48,7 +48,7 @@ module AuthenticationAndSSOConcerns
 
   # Destroys the users session in 1) Redis and the MHV SSO Cookie
   def clear_session
-    Rails.logger.info('SSO: ApplicationController#clear_session', sso_logging_info)
+    Rails.logger.debug('SSO: ApplicationController#clear_session', sso_logging_info)
 
     cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
     @session_object&.destroy
