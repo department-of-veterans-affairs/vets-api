@@ -19,7 +19,7 @@ module VbaDocuments
             property :status do
               key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'v1', 'status_description.md'))
               key :type, :string
-              key :enum, %i[pending uploaded recieved processing success vbms error]
+              key :enum, %i[pending uploaded received processing success vbms error]
             end
 
             property :code do
@@ -28,7 +28,7 @@ module VbaDocuments
             end
 
             property :message do
-              key :description, 'Humar readable error description. Only present if status = "error"'
+              key :description, 'Human readable error description. Only present if status = "error"'
               key :type, :string
             end
 

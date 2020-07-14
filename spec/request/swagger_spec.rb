@@ -1245,7 +1245,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           context 'successful calls' do
             it 'supports showing institution details' do
               VCR.use_cassette('gi_client/gets_the_institution_details') do
-                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 200, 'id' => '11900146')
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 200, 'id' => '11902614')
               end
             end
           end
