@@ -18,7 +18,11 @@ module ClaimsApi
     end
 
     def self.bgs_is_healthy?
-      BGS::Services.new.vet_record.healthy?
+      service = LighthouseBGS::Services.new(
+        external_uid: 'healthcheck_uid',
+        external_key: 'healthcheck_key'
+      )
+      service.vet_record.healthy?
     end
 
     def self.vbms_is_healthy?
