@@ -37,10 +37,10 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
                                .template_id
                                .form526_confirmation_email,
           personalisation: {
-            claim_id: '600191990',
-            date_submitted: 'July 12, 2020',
-            first_name: 'first',
-            last_name: 'last'
+            'claim_id' => '600191990',
+            'date_submitted' => 'July 12, 2020',
+            'first_name' => 'first',
+            'last_name' => 'last'
           }
         }
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
