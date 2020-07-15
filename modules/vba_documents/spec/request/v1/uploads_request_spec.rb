@@ -6,7 +6,7 @@ require_relative '../../support/vba_document_fixtures'
 require_dependency 'vba_documents/object_store'
 require_dependency 'vba_documents/multipart_parser'
 
-RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
+RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures
 
   describe '#create /v1/uploads' do
@@ -126,6 +126,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         expect(response.status).to eq(404)
       end
     end
+
     it 'returns a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)
       version = instance_double(Aws::S3::ObjectVersion)

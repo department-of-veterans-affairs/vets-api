@@ -99,6 +99,14 @@ features:
     actor_type: user
     description: >
       Enables the use of VSP for making a new VA appointment request
+  va_online_scheduling_express_care:
+    actor_type: user
+    description: >
+      Enables Express Care redirect to legacy and Express Care tab
+  va_online_scheduling_express_care_new:
+    actor_type: user
+    description: >
+      Enables Express Care request flow in VAOS 
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -155,3 +163,7 @@ features:
     actor_type: user
     description: >
       All submission data that was previously routed to St Louis RPO is routed to the Buffalo RPO
+  form996_higher_level_review:
+    actor_type: user
+    description: >
+      Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.

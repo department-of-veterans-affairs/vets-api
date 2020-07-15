@@ -61,7 +61,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   def validation_success
     {
       data: {
-        type: 'appeals_api_higher_level_review_validation',
+        type: 'higherLevelReviewValidation',
         attributes: {
           status: 'valid'
         }
@@ -114,6 +114,6 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def render_higher_level_review
-    render json: @higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
+    render json: AppealsApi::HigherLevelReviewSerializer.new(@higher_level_review).serializable_hash
   end
 end

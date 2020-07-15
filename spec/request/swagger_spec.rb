@@ -146,19 +146,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     it 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mvi/find_candidate/valid' do
-        VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
-          VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
-            VCR.use_cassette 'carma/submissions/create/201' do
-              expect(subject).to validate(
-                :post,
-                '/v0/caregivers_assistance_claims',
-                200,
-                '_data' => {
-                  'caregivers_assistance_claim' => {
-                    'form' => build(:caregivers_assistance_claim).form
-                  }
-                }
-              )
+        VCR.use_cassette 'emis/get_veteran_status/valid' do
+          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
+            VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
+              VCR.use_cassette 'carma/auth/token/200' do
+                VCR.use_cassette 'carma/submissions/create/201' do
+                  VCR.use_cassette 'carma/attachments/upload/201' do
+                    expect(subject).to validate(
+                      :post,
+                      '/v0/caregivers_assistance_claims',
+                      200,
+                      '_data' => {
+                        'caregivers_assistance_claim' => {
+                          'form' => build(:caregivers_assistance_claim).form
+                        }
+                      }
+                    )
+                  end
+                end
+              end
             end
           end
         end
@@ -1239,7 +1245,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           context 'successful calls' do
             it 'supports showing institution details' do
               VCR.use_cassette('gi_client/gets_the_institution_details') do
-                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 200, 'id' => '11900146')
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 200, 'id' => '11902614')
               end
             end
           end
