@@ -2,8 +2,6 @@
 
 require 'rails_helper'
 
-# rubocop:disable RSpec/SubjectStub
-
 RSpec.describe Form1010cg::Service do
   let(:subject) { described_class.new build(:caregivers_assistance_claim) }
   let(:default_email_on_mvi_search) { 'no-email@example.com' }
@@ -48,7 +46,7 @@ RSpec.describe Form1010cg::Service do
     it 'requires a claim' do
       expect { described_class.new }.to raise_error do |e|
         expect(e).to be_a(ArgumentError)
-        expect(e.message).to eq('wrong number of arguments (given 0, expected 1)')
+        expect(e.message).to eq('wrong number of arguments (given 0, expected 1..2)')
       end
     end
 
@@ -457,7 +455,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       context 'when the search fails' do
-        it 'raises the error found in the MVI response' do
+        it 'returns false' do
           subject = described_class.new(
             build(
               :caregivers_assistance_claim,
@@ -471,7 +469,8 @@ RSpec.describe Form1010cg::Service do
           expected_icn = :ICN_123
           emis_response = double(
             error?: true,
-            error: Common::Client::Errors::HTTPError.new('BadRequest', 400, nil)
+            error: Common::Client::Errors::HTTPError.new('BadRequest', 400, nil),
+            items: []
           )
 
           expect(subject).to receive(:icn_for).with('veteran').and_return(expected_icn)
@@ -481,9 +480,7 @@ RSpec.describe Form1010cg::Service do
             emis_response
           )
 
-          expect { subject.is_veteran('veteran') }.to raise_error do |e|
-            expect(e).to be_a(Common::Client::Errors::HTTPError)
-          end
+          expect(subject.is_veteran('veteran')).to eq(false)
         end
       end
     end
@@ -539,12 +536,15 @@ RSpec.describe Form1010cg::Service do
         expect(subject).to receive(:icn_for).with(form_subject).and_return(return_value)
       end
 
+      veteran_status = true
+      expect(subject).to receive(:is_veteran).with('veteran').and_return(veteran_status)
+
       expect(subject).not_to receive(:is_veteran)
 
       expect(subject.build_metadata).to eq(
         veteran: {
           icn: :ICN_0,
-          is_veteran: false
+          is_veteran: veteran_status
         },
         primary_caregiver: {
           icn: :ICN_1
@@ -560,15 +560,7 @@ RSpec.describe Form1010cg::Service do
   describe '#assert_veteran_status' do
     it 'will raise error if veteran\'s icn can not be found' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-      expect { subject.assert_veteran_status }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(1)
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
-        expect(e.errors[0].detail).to eq('base - Unable to process submission digitally')
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].title).to eq('Unable to process submission digitally')
-      end
+      expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
     it 'will not raise error if veteran\'s icn is found' do
@@ -582,16 +574,7 @@ RSpec.describe Form1010cg::Service do
   describe '#process_claim!' do
     it 'raises error when ICN not found for veteran' do
       expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-
-      expect { subject.process_claim! }.to raise_error do |e|
-        expect(e).to be_a(Common::Exceptions::ValidationErrors)
-        expect(e.errors.size).to eq(1)
-        expect(e.errors[0].code).to eq('100')
-        expect(e.errors[0].source[:pointer]).to eq('data/attributes/base')
-        expect(e.errors[0].detail).to eq('base - Unable to process submission digitally')
-        expect(e.errors[0].status).to eq('422')
-        expect(e.errors[0].title).to eq('Unable to process submission digitally')
-      end
+      expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
     it 'submits the claim with metadata to carma and returns a Form1010cg::Submission' do
@@ -617,6 +600,8 @@ RSpec.describe Form1010cg::Service do
         carma_submission
       }
 
+      expect(subject).to receive(:submit_attachment)
+
       result = subject.process_claim!
 
       expect(result).to be_a(Form1010cg::Submission)
@@ -624,6 +609,150 @@ RSpec.describe Form1010cg::Service do
       expect(result.submitted_at).to eq(expected[:results][:submitted_at])
     end
   end
-end
 
-# rubocop:enable RSpec/SubjectStub
+  describe '#submit_attachment' do
+    context 'raises error' do
+      it 'when claim is not yet processed' do
+        expect { subject.submit_attachment }.to raise_error('requires a processed submission')
+
+        subject.submission = double(carma_case_id: nil)
+        expect { subject.submit_attachment }.to raise_error('requires a processed submission')
+      end
+
+      it 'if provided submission already has attachments' do
+        subject.submission = double(carma_case_id: 'CAS_1234', attachments: [{ id: 'CAS_qwer' }])
+        expect { subject.submit_attachment }.to raise_error('submission already has attachments')
+      end
+    end
+
+    it 'submits the PDF version of submission to CARMA' do
+      document_type     = '10-10CG'
+      file_path         = 'tmp/my_file.pdf'
+      carma_attachment  = double
+      claim             = build(:caregivers_assistance_claim)
+
+      submission = Form1010cg::Submission.new(
+        carma_case_id: 'aB9350000000TjICAU',
+        submitted_at: '2020-06-26 13:30:59'
+      )
+
+      subject = described_class.new(claim, submission)
+
+      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
+
+      expect(CARMA::Models::Attachments).to receive(:new).with(
+        submission.carma_case_id,
+        claim.veteran_data['fullName']['first'],
+        claim.veteran_data['fullName']['last']
+      ).and_return(
+        carma_attachment
+      )
+
+      expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
+      expect(carma_attachment).to receive(:submit!).and_return(:ATTACHMENT_RESPONSE)
+      expect(carma_attachment).to receive(:to_hash).and_return(:attachments_as_hash)
+      expect(submission).to receive(:attachments=).with(:attachments_as_hash)
+
+      expect(File).to receive(:delete).with(file_path)
+
+      expect(subject.submit_attachment).to eq(true)
+    end
+
+    it 'returns false when PDF generation fails' do
+      claim = build(:caregivers_assistance_claim)
+
+      submission = Form1010cg::Submission.new(
+        carma_case_id: 'aB9350000000TjICAU',
+        submitted_at: '2020-06-26 13:30:59'
+      )
+
+      subject = described_class.new(claim, submission)
+
+      expect(subject.claim).to receive(:to_pdf).and_raise('pdf generation failure')
+      expect(CARMA::Models::Attachments).not_to receive(:new)
+
+      expect(subject.submit_attachment).to eq(false)
+    end
+
+    it 'returns false when building Attachments fails' do
+      file_path = 'tmp/my_file.pdf'
+      claim     = build(:caregivers_assistance_claim)
+
+      submission = Form1010cg::Submission.new(
+        carma_case_id: 'aB9350000000TjICAU',
+        submitted_at: '2020-06-26 13:30:59'
+      )
+
+      subject = described_class.new(claim, submission)
+
+      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
+
+      expect(CARMA::Models::Attachments).to receive(:new).and_raise('failure')
+
+      expect(File).to receive(:delete).with(file_path)
+
+      expect(subject.submit_attachment).to eq(false)
+    end
+
+    it 'returns false when adding an attachment fails' do
+      document_type     = '10-10CG'
+      file_path         = 'tmp/my_file.pdf'
+      carma_attachment  = double
+      claim             = build(:caregivers_assistance_claim)
+
+      submission = Form1010cg::Submission.new(
+        carma_case_id: 'aB9350000000TjICAU',
+        submitted_at: '2020-06-26 13:30:59'
+      )
+
+      subject = described_class.new(claim, submission)
+
+      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
+
+      expect(CARMA::Models::Attachments).to receive(:new).with(
+        submission.carma_case_id,
+        claim.veteran_data['fullName']['first'],
+        claim.veteran_data['fullName']['last']
+      ).and_return(
+        carma_attachment
+      )
+
+      expect(carma_attachment).to receive(:add).with(document_type, file_path).and_raise('failure')
+
+      expect(File).to receive(:delete).with(file_path)
+
+      expect(subject.submit_attachment).to eq(false)
+    end
+
+    it 'returns false submission fails' do
+      document_type     = '10-10CG'
+      file_path         = 'tmp/my_file.pdf'
+      carma_attachment  = double
+      claim             = build(:caregivers_assistance_claim)
+
+      submission = Form1010cg::Submission.new(
+        carma_case_id: 'aB9350000000TjICAU',
+        submitted_at: '2020-06-26 13:30:59'
+      )
+
+      subject = described_class.new(claim, submission)
+
+      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
+
+      expect(CARMA::Models::Attachments).to receive(:new).with(
+        submission.carma_case_id,
+        claim.veteran_data['fullName']['first'],
+        claim.veteran_data['fullName']['last']
+      ).and_return(
+        carma_attachment
+      )
+
+      expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
+      expect(carma_attachment).to receive(:submit!).and_raise('bad request')
+
+      expect(File).to receive(:delete).with(file_path)
+
+      expect(subject.submit_attachment).to eq(false)
+    end
+  end
+end

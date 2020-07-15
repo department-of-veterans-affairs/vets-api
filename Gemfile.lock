@@ -33,6 +33,15 @@ GIT
       faraday (>= 0.7.4, <= 0.17.0)
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
+  revision: 3f70650a80e2a4b8273679fb5dfde0bc7db0e859
+  specs:
+    bgs_ext (0.14.1)
+      httpclient
+      nokogiri (>= 1.8.5)
+      savon (~> 2.12)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
   revision: bebad55f8723f091c7d41522178b11999f574499
   branch: master
@@ -45,15 +54,6 @@ GIT
       nori
       xmldsig (~> 0.3.1)
       xmlenc
-
-GIT
-  remote: https://github.com/department-of-veterans-affairs/lighthouse-bgs.git
-  revision: 3f70650a80e2a4b8273679fb5dfde0bc7db0e859
-  specs:
-    bgs_ext (0.14.1)
-      httpclient
-      nokogiri (>= 1.8.5)
-      savon (~> 2.12)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
