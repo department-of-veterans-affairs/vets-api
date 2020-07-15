@@ -11,6 +11,21 @@ module Form1010cg
 
     NOT_FOUND = 'NOT_FOUND'
 
+    def self.metrics
+      prefix = 'api.form1010cg'
+
+      OpenStruct.new(
+        attempts: prefix + '.attempts',
+        success: prefix + '.success',
+        failure: OpenStruct.new(
+          client: OpenStruct.new(
+            data: prefix + '.failure.client.data',
+            qualification: prefix + '.failure.client.qualification'
+          )
+        )
+      )
+    end
+
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
