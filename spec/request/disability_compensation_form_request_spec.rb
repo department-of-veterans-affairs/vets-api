@@ -33,6 +33,16 @@ RSpec.describe 'Disability compensation form', type: :request do
       end
     end
 
+    context 'with a 401 response' do
+      it 'returns a bad gateway response' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_401') do
+          get '/v0/disability_compensation_form/submit_all_claim', params: nil, headers: headers
+          expect(response).to have_http_status(:not_found)
+          expect(response).to match_response_schema('evss_errors', strict: false)
+        end
+      end
+    end
+
     context 'with a 403 unauthorized response' do
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
