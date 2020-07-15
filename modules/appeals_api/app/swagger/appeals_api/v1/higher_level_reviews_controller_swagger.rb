@@ -22,7 +22,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       createdAt: { '$ref': '#/components/schemas/timeStamp' },
       formData: { '$ref': '#/components/schemas/hlrCreate' }
     }
-    type = :HigherLevelReviewInfo
+    type = :higherLevelReview
     schema = {
       type: OBJ,
       properties: {

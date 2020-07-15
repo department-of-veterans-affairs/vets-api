@@ -5,8 +5,6 @@ require 'common/client/base'
 module CARMA
   module Client
     class Client < Salesforce::Service
-      include Singleton
-
       configuration CARMA::Client::Configuration
 
       STATSD_KEY_PREFIX = 'api.carma'
@@ -18,7 +16,7 @@ module CARMA
 
       def create_submission(payload)
         with_monitoring do
-          client.post(
+          restforce.post(
             '/services/apexrest/carma/v1/1010-cg-submissions',
             payload,
             'Content-Type': 'application/json',
@@ -42,7 +40,7 @@ module CARMA
 
       def upload_attachments(payload)
         with_monitoring do
-          client.post(
+          restforce.post(
             '/services/data/v47.0/composite/tree/ContentVersion',
             payload,
             'Content-Type': 'application/json'
@@ -65,7 +63,7 @@ module CARMA
 
       private
 
-      def client
+      def restforce
         @client ||= get_client
       end
     end
