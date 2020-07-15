@@ -19,7 +19,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
       restforce_client  = double
       response_double   = double
 
-      expect(described_class.instance).to receive(:client).and_return(restforce_client)
+      expect(subject).to receive(:get_client).and_return(restforce_client)
       expect(restforce_client).to receive(:post).with(
         '/services/apexrest/carma/v1/1010-cg-submissions',
         payload,
@@ -31,7 +31,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
 
       expect(response_double).to receive(:body).and_return(:response_token)
 
-      response = described_class.instance.create_submission(payload)
+      response = subject.create_submission(payload)
       expect(response).to eq(:response_token)
     end
   end
@@ -40,8 +40,8 @@ RSpec.describe CARMA::Client::Client, type: :model do
     timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
     it 'returns a hard coded response', run_at: timestamp.iso8601 do
-      expect(described_class.instance).not_to receive(:client)
-      response = described_class.instance.create_submission_stub(nil)
+      expect(subject).not_to receive(:get_client)
+      response = subject.create_submission_stub(nil)
 
       expect(response['message']).to eq('Application Received')
       expect(response['data']).to be_present
@@ -57,7 +57,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
       restforce_client  = double
       response_double   = double
 
-      expect(described_class.instance).to receive(:client).and_return(restforce_client)
+      expect(subject).to receive(:get_client).and_return(restforce_client)
 
       expect(restforce_client).to receive(:post).with(
         '/services/data/v47.0/composite/tree/ContentVersion',
@@ -69,15 +69,15 @@ RSpec.describe CARMA::Client::Client, type: :model do
 
       expect(response_double).to receive(:body).and_return(:response_token)
 
-      response = described_class.instance.upload_attachments(payload)
+      response = subject.upload_attachments(payload)
       expect(response).to eq(:response_token)
     end
   end
 
   describe '#upload_attachments_stub' do
     it 'returns a hard coded response' do
-      expect(described_class.instance).not_to receive(:client)
-      response = described_class.instance.upload_attachments_stub(nil)
+      expect(subject).not_to receive(:get_client)
+      response = subject.upload_attachments_stub(nil)
 
       expect(response).to eq(
         {

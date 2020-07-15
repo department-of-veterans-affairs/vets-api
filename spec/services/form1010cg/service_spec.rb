@@ -496,6 +496,9 @@ RSpec.describe Form1010cg::Service do
         )
       )
 
+      emis_service = double
+      expect(EMIS::VeteranStatusService).to receive(:new).with(no_args).and_return(emis_service)
+
       # Only two calls should be made to eMIS for the six calls of :is_veteran below
       2.times do |index|
         expected_form_subject = index.zero? ? 'veteran' : 'primaryCaregiver'
@@ -503,7 +506,6 @@ RSpec.describe Form1010cg::Service do
 
         expect(subject).to receive(:icn_for).with(expected_form_subject).and_return(expected_icn)
 
-        emis_service = double
         emis_response_title38_value = index.zero? ? 'V1' : 'V4'
         emis_response = double(
           error?: false,
@@ -514,7 +516,6 @@ RSpec.describe Form1010cg::Service do
           ]
         )
 
-        expect(EMIS::VeteranStatusService).to receive(:new).with(no_args).and_return(emis_service)
         expect(emis_service).to receive(:get_veteran_status).with(
           icn: expected_icn
         ).and_return(
