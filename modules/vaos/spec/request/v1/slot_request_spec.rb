@@ -26,7 +26,7 @@ RSpec.describe 'VAOS::V1::Slot', type: :request do
     context 'with a loa3 user' do
       let(:user) { FactoryBot.create(:user, :vaos) }
 
-      it 'and no slots found' do
+      it 'returns no slots' do
         VCR.use_cassette('vaos/fhir/slot/search_200_no_slots_found', match_requests_on: %i[method uri]) do
           get '/vaos/v1/Slot?schedule=no-such-resource'
           expect(response).to have_http_status(:ok)
@@ -34,7 +34,7 @@ RSpec.describe 'VAOS::V1::Slot', type: :request do
         end
       end
 
-      it 'and slots found' do
+      it 'returns slots' do
         VCR.use_cassette('vaos/fhir/slot/search_200_slots_found', match_requests_on: %i[method uri]) do
           get '/vaos/v1/Slot?schedule=Schedule/sch.nep.AVT987.20191208'
           expect(response).to have_http_status(:ok)
@@ -44,7 +44,7 @@ RSpec.describe 'VAOS::V1::Slot', type: :request do
         end
       end
 
-      it 'and server returns a 500 error' do
+      it 'returns a 500 error' do
         VCR.use_cassette('vaos/fhir/slot/search_500', match_requests_on: %i[method uri]) do
           get '/vaos/v1/Slot?start=2020-12-08'
           expect(response).to have_http_status(:bad_gateway)
