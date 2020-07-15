@@ -548,12 +548,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
       end
 
-      let(:form526) do
-        File.read(
-          Rails.root.join('spec', 'support', 'disability_compensation_form', 'front_end_submission.json')
-        )
-      end
-
       let(:form526v2) do
         File.read(
           Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
