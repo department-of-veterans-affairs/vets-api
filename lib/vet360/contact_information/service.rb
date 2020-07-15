@@ -10,7 +10,7 @@ require_relative 'transaction_response'
 module Vet360
   module ContactInformation
     class Service < Vet360::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
 
       configuration Vet360::ContactInformation::Configuration
 

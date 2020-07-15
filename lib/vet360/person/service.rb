@@ -8,7 +8,7 @@ require 'vet360/service'
 module Vet360
   module Person
     class Service < Vet360::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
       include ERB::Util
 
       AAID = MVI::Responses::IdParser::ICN_ASSIGNING_AUTHORITY_ID

@@ -14,7 +14,7 @@ module EVSS
     #   letter_response = EVSS::Letters::DownloadService.new.download_letter("commissary")
     #
     class DownloadService < EVSS::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
 
       configuration EVSS::Letters::DownloadConfiguration
 

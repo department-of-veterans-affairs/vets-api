@@ -8,7 +8,7 @@ require_relative 'veteran'
 module BipClaims
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.bip_claims'
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     configuration BipClaims::Configuration
 

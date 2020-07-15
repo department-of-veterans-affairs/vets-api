@@ -6,7 +6,7 @@ require 'search/pagination'
 
 module Search
   class ResultsResponse < Common::Base
-    include Common::Client::ServiceStatus
+    include Common::Client::Concerns::ServiceStatus
 
     attribute :status, Integer
     attribute :body, Hash
