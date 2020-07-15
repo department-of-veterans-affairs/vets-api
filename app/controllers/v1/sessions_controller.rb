@@ -51,12 +51,13 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      Rails.logger.info("SSOe: SAML Response => #{saml_response.authn_context}")
+      saml_response_logging(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
       log_message_to_sentry(e.message, e.level, extra_context: e.context)
+      log_missing_uuid_info(e) if e.code == SAML::UserAttributeError::IDME_UUID_MISSING[:code]
       redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
@@ -128,7 +129,7 @@ module V1
                                locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
-      saml_request_stats(helper.tracker.payload_attr(:authn_context))
+      saml_request_stats(helper.tracker)
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
@@ -156,11 +157,25 @@ module V1
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
-    def saml_request_stats(authn_context)
-      Rails.logger.info("SSOe: SAML Request => #{authn_context}")
+    def saml_request_stats(tracker)
+      values = {
+        'id' => tracker&.uuid,
+        'authn' => tracker&.payload_attr(:authn_context),
+        'type' => tracker&.payload_attr(:type)
+      }
+      Rails.logger.info("SSOe: SAML Request => #{values}")
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
-                       tags: ["context:#{authn_context}",
+                       tags: ["context:#{tracker&.payload_attr(:authn_context)}",
                               VERSION_TAG])
+    end
+
+    def saml_response_logging(saml_response)
+      values = {
+        'id' => saml_response.in_response_to,
+        'authn' => saml_response.authn_context,
+        'type' => JSON.parse(params[:RelayState] || '{}')['type']
+      }
+      Rails.logger.info("SSOe: SAML Response => #{values}")
     end
 
     def user_logout(saml_response)
@@ -173,6 +188,18 @@ module V1
         Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
           "'#{originating_request_id}'")
       end
+    end
+
+    # Diagnostic logging to determine what percentage of these issues
+    # would be resolved by an account lookup, before we implement that
+    # TODO: Remove this method after we're confident in the UUID injection
+    # performed in UserSessionForm
+    def log_missing_uuid_info(exception)
+      return if exception&.identifier.blank?
+
+      accounts = Account.where(icn: exception.identifier)
+      Rails.logger.info('SSOe: Account UUID mapping NOT FOUND') if accounts.blank?
+      Rails.logger.info("SSOe: Account UUID mapping FOUND - #{accounts.size} entries") if accounts.present?
     end
 
     def new_stats(type)
