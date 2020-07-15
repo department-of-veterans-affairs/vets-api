@@ -119,14 +119,15 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
             ]
           }
 
-          expect(CARMA::Client::Client.instance).not_to receive(:upload_attachments)
-          expect(CARMA::Client::Client.instance).to receive(:upload_attachments_stub).with(
+          carma_client = double
+          expect(carma_client).not_to receive(:upload_attachments)
+          expect(carma_client).to receive(:upload_attachments_stub).with(
             expected_request_payload
           ).and_return(
             expected_response
           )
 
-          subject.submit!
+          subject.submit!(carma_client)
 
           expect(subject.response).to eq(expected_response)
           expect(subject.has_errors).to eq(false)
@@ -170,14 +171,15 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
               ]
             }
 
-            expect(CARMA::Client::Client.instance).not_to receive(:upload_attachments)
-            expect(CARMA::Client::Client.instance).to receive(:upload_attachments_stub).with(
+            carma_client = double
+            expect(carma_client).not_to receive(:upload_attachments)
+            expect(carma_client).to receive(:upload_attachments_stub).with(
               expected_request_payload
             ).and_return(
               expected_response
             )
 
-            5.times { subject.submit! }
+            5.times { subject.submit!(carma_client) }
 
             expect(subject.response).to eq(expected_response)
             expect(subject.has_errors).to eq(false)
@@ -223,14 +225,15 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
             ]
           }
 
-          expect(CARMA::Client::Client.instance).not_to receive(:upload_attachments_stub)
-          expect(CARMA::Client::Client.instance).to receive(:upload_attachments).with(
+          carma_client = double
+          expect(carma_client).not_to receive(:upload_attachments_stub)
+          expect(carma_client).to receive(:upload_attachments).with(
             expected_request_payload
           ).and_return(
             expected_response
           )
 
-          subject.submit!
+          subject.submit!(carma_client)
 
           expect(subject.response).to eq(expected_response)
           expect(subject.has_errors).to eq(false)
@@ -274,14 +277,15 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
               ]
             }
 
-            expect(CARMA::Client::Client.instance).not_to receive(:upload_attachments_stub)
-            expect(CARMA::Client::Client.instance).to receive(:upload_attachments).with(
+            carma_client = double
+            expect(carma_client).not_to receive(:upload_attachments_stub)
+            expect(carma_client).to receive(:upload_attachments).with(
               expected_request_payload
             ).and_return(
               expected_response
             )
 
-            5.times { subject.submit! }
+            5.times { subject.submit!(carma_client) }
 
             expect(subject.response).to eq(expected_response)
             expect(subject.has_errors).to eq(false)
