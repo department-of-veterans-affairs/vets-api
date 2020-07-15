@@ -51,7 +51,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
                         {
                           'email' => @email_address,
                           'submitted_claim_id' => '600191990',
-                          'updated_at' => Time.zone.parse('2020-07-12'),
+                          'updated_at' => '2020-07-12 14:56:04 UTC',
                           'first_name' => 'first',
                           'last_name' => 'last'
                         })
@@ -64,7 +64,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         personalization_parameters = {
           'email' => @email_address,
           'submitted_claim_id' => '600191990',
-          'updated_at' => Time.zone.parse('2020-07-12'),
+          'updated_at' => '2020-07-12 14:56:04 UTC',
           'first_name' => 'first',
           'last_name' => 'last'
         }
@@ -81,7 +81,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           personalization_parameters = {
             'email' => @email_address,
             'submitted_claim_id' => '600191990',
-            'updated_at' => Time.zone.parse('2020-07-12'),
+            'updated_at' => '2020-07-12 14:56:04 UTC',
             'first_name' => 'first',
             'last_name' => 'last'
           }
