@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 
-require 'pact/provider/rspec'
-require 'service_consumers/provider_states'
-
-
-
 # ensure pacts run in test
 ENV['RAILS_ENV'] ||= 'test'
+
+require File.expand_path('../../config/environment', __dir__)
+require 'pact/provider/rspec'
+require 'service_consumers/provider_states'
+require 'support/vcr'
+
+VCR.configure do |c|
+  # PACT requests are performed before insert_cassette is invoked
+  c.allow_http_connections_when_no_cassette = true
+end
 
 # Ensure your provider application version enables you to trace back to an exact
 # state of your provider codebase.
@@ -20,17 +25,6 @@ Pact.service_provider 'VA.gov API' do
   # or publish your pacts as artifacts, and point the pact_uri to the pact published by the last successful build.
   # honours_pact_with 'HCA Post' do
   #   pact_uri 'tmp/hca-va.gov_api.json'
-  # end
-  
-  # RSpec.configure do |config|
-  #   config.before(:each) do
-  #     puts "!!!!#{Rails.env}"
-  #     puts "!!!!!!betamocks:#{Settings.betamocks} search:#{Settings.search}"
-  #     VCR.insert_cassette('search/page_1')
-  #   end
-  #   config.after(:each) do
-  #     VCR.eject_cassette
-  #   end
   # end
 
   app_version provider_version
