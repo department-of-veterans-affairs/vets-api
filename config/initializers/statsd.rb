@@ -107,7 +107,7 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
 
 # init Form1010cg
-StatsD.increment(Form1010cg::Service.metrics.attempts, 0)
+StatsD.increment(Form1010cg::Service.metrics.attempt, 0)
 StatsD.increment(Form1010cg::Service.metrics.success, 0)
 StatsD.increment(Form1010cg::Service.metrics.failure.client.data, 0)
 StatsD.increment(Form1010cg::Service.metrics.failure.client.qualification, 0)

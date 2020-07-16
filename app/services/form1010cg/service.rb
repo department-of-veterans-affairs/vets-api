@@ -9,13 +9,13 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    NOT_FOUND = 'NOT_FOUND'
+    STATSD_KEY_PREFIX = 'api.form1010cg'
+    NOT_FOUND         = 'NOT_FOUND'
 
     def self.metrics
-      prefix = 'api.form1010cg'
-
+      prefix = STATSD_KEY_PREFIX + '.submission'
       OpenStruct.new(
-        attempts: prefix + '.attempts',
+        attempt: prefix + '.attempt',
         success: prefix + '.success',
         failure: OpenStruct.new(
           client: OpenStruct.new(

@@ -14,7 +14,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
           expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(false)
           expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
 
-          expect(StatsD).to receive(:increment).with('api.form1010cg.attempts')
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
 
           post :create, params: { caregivers_assistance_claim: { form: '{ "my": "data" }' } }
 
@@ -31,8 +31,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         it 'requires "caregivers_assistance_claim" param' do
           expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
 
-          expect(StatsD).to receive(:increment).with('api.form1010cg.attempts')
-          expect(StatsD).to receive(:increment).with('api.form1010cg.failure.client.data')
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
 
           post :create, params: {}
 
@@ -54,8 +54,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         it 'requires "caregivers_assistance_claim.form" param' do
           expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
 
-          expect(StatsD).to receive(:increment).with('api.form1010cg.attempts')
-          expect(StatsD).to receive(:increment).with('api.form1010cg.failure.client.data')
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
 
           post :create, params: { caregivers_assistance_claim: { form: nil } }
 
@@ -89,8 +89,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
               expect(Form1010cg::Service).not_to receive(:new).with(claim)
 
-              expect(StatsD).to receive(:increment).with('api.form1010cg.attempts')
-              expect(StatsD).to receive(:increment).with('api.form1010cg.failure.client.data')
+              expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+              expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
 
               post :create, params: params
 
@@ -128,8 +128,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
               expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
               expect(service).to receive(:process_claim!).and_return(submission)
 
-              expect(StatsD).to receive(:increment).with('api.form1010cg.attempts')
-              expect(StatsD).to receive(:increment).with('api.form1010cg.success')
+              expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+              expect(StatsD).to receive(:increment).with('api.form1010cg.submission.success')
 
               post :create, params: params
 
@@ -162,8 +162,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
             expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
             expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
 
-            expect(StatsD).to receive(:increment).with('api.form1010cg.attempts')
-            expect(StatsD).to receive(:increment).with('api.form1010cg.failure.client.qualification')
+            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
 
             post :create, params: params
 
@@ -216,8 +216,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
             expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
             expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
 
-            expect(StatsD).to receive(:increment).with('api.form1010cg.attempts')
-            expect(StatsD).to receive(:increment).with('api.form1010cg.failure.client.qualification')
+            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
 
             invalid_veteran_status_response = post :create, params: params
 

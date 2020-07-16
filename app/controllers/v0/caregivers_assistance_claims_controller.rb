@@ -8,7 +8,7 @@ module V0
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
     def create
-      increment Form1010cg::Service.metrics.attempts
+      increment Form1010cg::Service.metrics.attempt
       return service_unavailable unless Flipper.enabled?(:allow_online_10_10cg_submissions)
 
       claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
