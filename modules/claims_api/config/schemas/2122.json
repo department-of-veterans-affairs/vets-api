@@ -49,6 +49,10 @@
     "mailingAddress": {
       "type": "object",
       "required": [
+        "numberAndStreet",
+        "city",
+        "country",
+        "zipFirstFive"
       ],
       "properties" : {
         "numberAndStreet": { "$ref": "#/definitions/addressLine" },
