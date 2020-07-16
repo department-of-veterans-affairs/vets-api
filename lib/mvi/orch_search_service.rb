@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/external/unprocessable_entity'
+require 'common/exceptions/unprocessable_entity'
 
 module MVI
   class OrchSearchService < Service

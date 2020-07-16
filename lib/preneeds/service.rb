@@ -15,7 +15,7 @@ module Preneeds
     # Specifies configuration to be used by this service.
     #
     configuration Preneeds::Configuration
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     # Used in building SOAP request
     STARTING_CID = '<soap-request-body@soap>'
