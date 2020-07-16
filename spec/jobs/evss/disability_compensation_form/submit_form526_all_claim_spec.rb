@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type: :job do
+RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :job do
   subject { described_class }
 
   before do
@@ -32,7 +32,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
       end
 
       it 'submits successfully' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
           subject.perform_async(submission.id)
           described_class.drain
           expect(Form526JobStatus.last.status).to eq 'success'
@@ -42,7 +42,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
 
     context 'when retrying a job' do
       it 'doesnt recreate the job status' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
           subject.perform_async(submission.id)
 
           jid = subject.jobs.last['jid']
@@ -68,7 +68,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
       end
 
       it 'runs the retryable_error_handler and raises a EVSS::DisabilityCompensationForm::GatewayTimeout' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
           expect(Form526JobStatus).to receive(:upsert).twice

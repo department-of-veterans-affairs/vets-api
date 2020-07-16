@@ -2,11 +2,11 @@
 
 require 'rails_helper'
 
-RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
+RSpec.describe SavedClaim::DisabilityCompensation::Form526AllClaim do
   let(:user) { build(:disabilities_compensation_user) }
 
   before do
-    create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
+    create(:in_progress_form, form_id: FormProfiles::VA526ezbdd::FORM_ID, user_uuid: user.uuid)
   end
 
   describe '#to_submission_data' do
@@ -14,10 +14,10 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
       subject { described_class.from_hash(form_content) }
 
       let(:form_content) do
-        JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission.json'))
+        JSON.parse(File.read('spec/support/disability_compensation_form/bdd_fe_submission.json'))
       end
       let(:submission_data) do
-        JSON.parse(File.read('spec/support/disability_compensation_form/submissions/only_526.json'))
+        JSON.parse(File.read('spec/support/disability_compensation_form/submissions/526_bdd.json'))
       end
 
       it 'returns a hash of submission data' do
