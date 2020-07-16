@@ -52,25 +52,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/disability_compensation_form/submit' do
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Submit the disability compensation increase application for a veteran'
-          key :operationId, 'postSubmitForm'
-          key :tags, %w[form_526]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :'$ref', :SubmitDisabilityForm
-            end
-          end
-        end
-      end
-
       swagger_path '/v0/disability_compensation_form/submit_all_claim' do
         operation :post do
           extend Swagger::Responses::AuthenticationError

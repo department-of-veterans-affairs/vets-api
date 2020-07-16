@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :form526_job_status do
     form526_submission_id { 123 }
     job_id { SecureRandom.hex(12) }
-    job_class { 'SubmitForm526IncreaseOnly' }
+    job_class { 'SubmitForm526AllClaim' }
     status { 'success' }
     error_class { nil }
     error_message { nil }
