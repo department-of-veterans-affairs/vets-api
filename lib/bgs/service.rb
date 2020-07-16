@@ -83,7 +83,7 @@ module BGS
 
     def get_va_file_number
       with_multiple_attempts_enabled do
-        person = service.people.find_person_by_ptcpnt_id(@user.participant_id)
+        person = service.people.find_person_by_ptcpnt_id(@user[:participant_id])
 
         person[:file_nbr]
       end
@@ -242,10 +242,10 @@ module BGS
       with_multiple_attempts_enabled do
         service.data.find_benefit_claim_type_increment(
           {
-            ptcpnt_id: @user.participant_id,
+            ptcpnt_id: @user[:participant_id],
             bnft_claim_type_cd: '130DPNEBNADJ',
             pgm_type_cd: 'CPL',
-            ssn: @user.ssn # Just here to make the mocks work
+            ssn: @user[:ssn] # Just here to make the mocks work
           }
         )
         #  need to catch the following exception
@@ -258,15 +258,15 @@ module BGS
         service.claims.insert_benefit_claim(
           {
             file_number: veteran[:file_number], # 796149080 This is not working with file number in the payload or the ssn value getting annot insert NULL into ("CORPPROD"."PERSON"."LAST_NM")
-            ssn: @user.ssn, # this is actually needed for the service call Might want to use the payload value
-            ptcpnt_id_claimant: @user.participant_id,
+            ssn: @user[:ssn], # this is actually needed for the service call Might want to use the payload value
+            ptcpnt_id_claimant: @user[:participant_id],
             benefit_claim_type: '1', # this is intentionally hard coded
             payee: '00', # intentionally left hard-coded
             end_product: veteran[:benefit_claim_type_end_product], # this is the value we get from the increment call in vnp_veteran
             # end_product_code: vnp_benefit_claim[:vnp_benefit_claim_type_code],
             end_product_code: '130DPNEBNADJ',
-            first_name: @user.first_name,
-            last_name: @user.last_name,
+            first_name: @user[:first_name],
+            last_name: @user[:last_name],
             address_line1: veteran[:address_line_one],
             address_line2: veteran[:address_line_two],
             address_line3: veteran[:address_line_three],
@@ -308,9 +308,9 @@ module BGS
     end
 
     def service
-      @service ||= LighthouseBGS::Services.new(
-        external_uid: @user.icn,
-        external_key: @user.email
+      @service ||= BGS::Services.new(
+        external_uid: @user[:icn],
+        external_key: @user[:external_key]
       )
     end
 
@@ -336,13 +336,13 @@ module BGS
         jrn_status_type_cd: 'U',
         jrn_user_id: Settings.bgs.client_username,
         jrn_obj_id: Settings.bgs.application,
-        ssn: @user.ssn # Just here to make the mocks work
+        ssn: @user[:ssn] # Just here to make the mocks work
       }
     end
 
     def notify_of_service_exception(error, method, attempt = nil, status = :error)
       msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
-      context = { icn: @user.icn }
+      context = { icn: @user[:icn] }
       tags = { team: 'vfs-ebenefits' }
 
       return log_message_to_sentry(msg, :warn, context, tags) if status == :warn

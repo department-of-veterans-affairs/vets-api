@@ -4,9 +4,9 @@ module V0
   class DependentsApplicationsController < ApplicationController
     def create
       # run the below if you don't want async
-      BGS::Form686c.new(current_user).submit(dependent_params.to_h)
-      # BGS::SubmitForm686cJob.perform_async(current_user, dependent_params.to_h)
-      # render json: {status: 'ok'}
+      # BGS::Form686c.new(veteran_hash).submit(dependent_params.to_h)
+      BGS::SubmitForm686cJob.perform_async(veteran_hash, dependent_params.to_h)
+      render json: {status: 'ok'}
     end
 
     def show
@@ -26,6 +26,17 @@ module V0
 
     def bgs_dependent_service
       @bgs_dependent_service ||= BGS::DependentService.new(current_user)
+    end
+
+    def veteran_hash
+      {
+        participant_id: current_user.participant_id,
+        ssn: current_user.ssn,
+        first_name: current_user.first_name,
+        last_name: current_user.last_name,
+        external_key: current_user.common_name || current_user.email,
+        icn: current_user.icn
+      }
     end
 
     def dependent_params

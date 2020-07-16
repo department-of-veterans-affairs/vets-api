@@ -42,9 +42,9 @@ module BGS
       dependents_application = payload['dependents_application']
       vet_info = [
         *payload['veteran_information'],
-        ['first', user.first_name],
-        ['middle', user.middle_name],
-        ['last', user.last_name],
+        ['first', user[:first_name]],
+        ['middle', user[:middle_name]],
+        ['last', user[:last_name]],
         *dependents_application.dig('veteran_contact_information'),
         *dependents_application.dig('veteran_contact_information', 'veteran_address'),
         %w[vet_ind Y]

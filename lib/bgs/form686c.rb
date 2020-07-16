@@ -3,7 +3,7 @@
 module BGS
   class Form686c < Service
     def initialize(user)
-      @user = user
+      @user = user.with_indifferent_access
     end
 
     def submit(payload)
