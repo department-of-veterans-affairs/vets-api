@@ -2,7 +2,6 @@
 
 module EducationForm::Forms
   class VA10203 < Base
-
     def header_form_type
       'V10203'
     end
@@ -12,7 +11,7 @@ module EducationForm::Forms
     end
 
     def any_remaining_benefit
-      yesno(['moreThanSixMonths', 'sixMonthsOrLess'].include?(@applicant.benefitLeft))
+      yesno(%w[moreThanSixMonths sixMonthsOrLess].include?(@applicant.benefitLeft))
     end
   end
 end
