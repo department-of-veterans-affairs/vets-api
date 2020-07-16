@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/external/backend_service_exception'
+require 'common/exceptions/backend_service_exception'
 
 module DecisionReview
   # Custom exception that maps Decision Review errors to error details defined in config/locales/exceptions.en.yml

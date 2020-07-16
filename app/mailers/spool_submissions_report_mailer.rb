@@ -22,6 +22,9 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     lihan@adhocteam.us
     Shawkey_Daniel@bah.com
     sonntag_adam@bah.com
+    Turner_Desiree@bah.com
+    Neel_Darrell@bah.com
+    shawkey_daniel@bah.com
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
