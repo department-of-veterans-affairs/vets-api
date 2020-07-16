@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :dependency_claim, class: SavedClaim::DependencyClaim do
-    form_id { '21-686C' }
+    form_id { '686C-674' }
 
     form {
       {
