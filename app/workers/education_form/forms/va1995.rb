@@ -7,6 +7,7 @@ module EducationForm::Forms
       'chapter32': 'CH32',
       'chapter33': 'CH33',
       'chapter1606': 'CH1606',
+      'chapter1607': 'CH1607',
       'transferOfEntitlement': 'TransferOfEntitlement'
     }.freeze
 
