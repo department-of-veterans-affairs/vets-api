@@ -5,8 +5,6 @@ require 'common/client/base'
 module CARMA
   module Client
     class Client < Salesforce::Service
-      include Singleton
-
       configuration CARMA::Client::Configuration
 
       STATSD_KEY_PREFIX = 'api.carma'

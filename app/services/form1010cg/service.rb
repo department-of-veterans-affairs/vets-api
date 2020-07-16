@@ -74,6 +74,7 @@ module Form1010cg
         )
 
         carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
+
         carma_attachments.submit!(carma_client)
         submission.attachments = carma_attachments.to_hash
       rescue
@@ -117,7 +118,6 @@ module Form1010cg
       # Set the ICN's for each form_subject on the metadata hash
       metadata = claim.form_subjects.each_with_object({}) do |form_subject, obj|
         icn = icn_for(form_subject)
-
         obj[form_subject.snakecase.to_sym] = {
           icn: icn == NOT_FOUND ? nil : icn
         }
