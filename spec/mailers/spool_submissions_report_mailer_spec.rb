@@ -30,11 +30,14 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
 
         expect(mail.to).to eq(
           %w[
+            Brian.Grubb@va.gov
             Darrell.Neel@va.gov
             Delli-Gatti_Michael@bah.com
+            Joseph.Preisser@va.gov
+            Joseph.Welton@va.gov
             lihan@adhocteam.us
-            Shawkey_Daniel@bah.com
             sonntag_adam@bah.com
+            tammy.hurley1@va.gov
             Turner_Desiree@bah.com
             Neel_Darrell@bah.com
             shawkey_daniel@bah.com
