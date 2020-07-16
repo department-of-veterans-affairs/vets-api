@@ -32,10 +32,6 @@
         "OTHER"
       ]
     },
-    "signatureImage": {
-        "title": "Signature of the Veteran or their Representative",
-        "type": "string"
-    },
     "phone": {
       "$comment": "the phone fields must not exceed 20 chars, when concatenated",
       "type": "object",
@@ -55,18 +51,10 @@
       "required": [
       ],
       "properties" : {
-        "numberAndStreet": {
-          "$ref": "#/definitions/addressLine"
-        },
-        "aptUnitNumber": {
-          "type": "integer"
-        },
-        "city": {
-          "type": "string"
-        },
-        "country": {
-          "type": "string"
-        },
+        "numberAndStreet": { "$ref": "#/definitions/addressLine" },
+        "aptUnitNumber":   { "type": "integer" },
+        "city":            { "type": "string" },
+        "country":         { "type": "string" },
         "zipFirstFive": {
           "type": "string",
           "pattern": "^\\d{5}?$"
@@ -75,7 +63,7 @@
           "type": "string",
           "pattern": "^\\d{4}?$"
         },
-        "additionalProperties": false
+        "additionalProperties": { "type": "boolean" }
       }
     }
   },
@@ -126,20 +114,9 @@
         "firstName":        { "type": "string" },
         "lastName":         { "type": "string" },
         "jobTitle":         { "type": "string" },
-        "address":         { "$ref": "#/definitions/mailingAddress" },
+        "address":          { "$ref": "#/definitions/mailingAddress" },
         "email":            { "$ref": "#/definitions/email" },
         "appointmentDate":  { "$ref": "#/definitions/date" }
-      }
-    },
-    "signatures": {
-      "type": "object",
-      "required": [
-        "veteran",
-        "representative"
-      ],
-      "properties": {
-        "veteran": { "$ref": "#/definitions/signatureImage" },
-        "representative": { "$ref": "#/definitions/signatureImage" }
       }
     },
     "recordConsent": { "type": "boolean" },
@@ -157,6 +134,23 @@
         }
       ]
     },
-    "consentAddressChange": { "type": "boolean" }
+    "consentAddressChange": { "type": "boolean" },
+    "signatures": {
+      "type": "object",
+      "required": [
+        "veteran",
+        "representative"
+      ],
+      "properties": {
+        "veteran": {
+          "title": "Signature of the Veteran",
+          "type":  "string"
+        },
+        "representative": {
+          "title": "Signature of the Veteran Representative",
+          "type":  "string"
+        }
+      }
+    }
   }
 }
