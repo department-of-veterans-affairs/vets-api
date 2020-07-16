@@ -161,7 +161,9 @@ module Form1010cg
       return cached_veteran_status unless cached_veteran_status.nil?
 
       icn = icn_for(form_subject)
+
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
+
       response = emis_service.get_veteran_status(icn: icn)
 
       is_veteran = response&.items&.first&.title38_status_code == 'V1'
