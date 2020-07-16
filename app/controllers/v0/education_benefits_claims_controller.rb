@@ -7,7 +7,7 @@ module V0
     def create
       claim = SavedClaim::EducationBenefits.form_class(form_type).new(education_benefits_claim_params)
 
-      unless claim.save
+      unless claim.save(@current_user)
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
