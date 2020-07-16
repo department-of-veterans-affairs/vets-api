@@ -15,11 +15,11 @@ RSpec.describe VaForms::FormReloader, type: :job do
 
   describe 'importer' do
     it 'loads the initial set of data' do
-      VCR.use_cassette('va_forms/forms') do
+      VCR.use_cassette('va_forms/gql_forms') do
         allow_any_instance_of(VaForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
         expect do
-          form_reloader.load_page(current_page: 0)
-        end.to change(VaForms::Form, :count).by(25)
+          form_reloader.perform
+        end.to change(VaForms::Form, :count).by(10)
       end
     end
 
@@ -58,32 +58,24 @@ RSpec.describe VaForms::FormReloader, type: :job do
     describe 'stale forms' do
       it 'marks missing forms as invalid' do
         allow_any_instance_of(VaForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
-        form_name = '26-8736a'
-
-        # Populate the DB to include 26-8736a
-        VCR.use_cassette('va_forms/forms') do
-          form_reloader.load_page(current_page: 0)
-          expect(VaForms::Form.find_by(form_name: form_name).valid_pdf).to eq(true)
-        end
-
-        # Run the build again with 26-8736a omitted from the HTML
-        VCR.use_cassette('va_forms/forms-missing-26-8736a') do
-          form_reloader = VaForms::FormReloader.new
-          form_reloader.load_page(current_page: 0)
-          form_reloader.mark_stale_forms
-          expect(VaForms::Form.find_by(form_name: form_name).valid_pdf).to eq(false)
-        end
+        form_1 =  FactoryBot.create(:va_form, form_name: '26-8736a')
+        form_2 =  FactoryBot.create(:va_form, form_name: '21-22a')
+        form_reloader.mark_stale_forms([form_1])
+        form_1.reload
+        form_2.reload
+        expect(form_1.valid_pdf).to eq(true)
+        expect(form_2.valid_pdf).to eq(false)
       end
     end
 
     describe 'date parsing checks' do
       it 'parses date when month day year' do
-        date_string = '7/30/2018'
+        date_string = '2018-7-30'
         expect(VaForms::FormReloader.new.parse_date(date_string).to_s).to eq('2018-07-30')
       end
 
       it 'parses date when month and year' do
-        date_string = '07/2018'
+        date_string = '07-2018'
         expect(VaForms::FormReloader.new.parse_date(date_string).to_s).to eq('2018-07-01')
       end
     end

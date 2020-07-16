@@ -6,82 +6,66 @@ module VaForms
   class FormReloader
     include Sidekiq::Worker
 
-    BASE_URL = 'https://www.va.gov'
-
-    def initialize
-      @processed_forms = []
-    end
+    FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
-      load_page(current_page: 0)
-      mark_stale_forms
+      conn = Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
+        faraday.request :url_encoded
+        faraday.adapter :net_http_socks unless Rails.env.production?
+      end
+      conn.basic_auth(Settings.va_forms.drupal_username, Settings.va_forms.drupal_password)
+      query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
+      body = { query: query }
+      response = conn.post('graphql', body.to_json)
+      forms_data = JSON.parse(response.body)
+      processed_forms = []
+      forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
+        va_form = build_and_save_form(form)
+        processed_forms << va_form
+      rescue
+        next
+      end
+      mark_stale_forms(processed_forms)
     end
 
-    def mark_stale_forms
-      processed_form_names = @processed_forms.map { |f| f['form_name'] }
+    def faraday_options
+      options = {
+        ssl: {
+          verify: false
+        }
+      }
+      options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
+      options
+    end
+
+    def mark_stale_forms(processed_forms)
+      processed_form_names = processed_forms.map { |f| f['form_name'] }
       missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
       missing_forms.find_each do |form|
         form.update(valid_pdf: false)
       end
     end
 
-    def load_page(current_page: 0)
-      params = {}
-      unless current_page.zero?
-        params = {
-          id: 'form2',
-          name: 'form2',
-          'CurrentPage' => current_page,
-          'Next10' => 'Next25 >'
-        }
-      end
-      page = Faraday.new(url: BASE_URL).post(
-        '/vaforms/search_action.asp',
-        params
-      ).body
-      doc = Nokogiri::HTML(page)
-      next_button = doc.css('input[name=Next10]')
-      last_page = next_button.first.attributes['disabled'].present?
-      parse_page(doc)
-      current_page += 1
-      load_page(current_page: current_page) unless last_page
-    end
-
-    def parse_page(doc)
-      doc.xpath('//table/tr').each do |row|
-        parse_table_row(row)
-      end
-    end
-
-    def parse_table_row(row)
-      if row.css('a').try(:first) && (url = row.css('a').first['href'])
-        return if url.starts_with?('#') || url == 'help.asp'
-
-        begin
-          parse_form_row(row, url)
-        rescue
-          Rails.logger.warn "VA Forms could not open #{url}"
-        end
-      end
-    end
-
-    def parse_form_row(line, url)
-      form_name = line.css('a').first.text
-      form = VaForms::Form.find_or_initialize_by form_name: form_name
-      @processed_forms.push(form)
-      current_sha256 = form.sha256
-      form.title = line.css('font').text
-      revision_string = line.css('td:nth-child(4)').text
-      form.last_revision_on = parse_date(line.css('td:nth-child(4)').text) if revision_string.present?
-      form.pages = line.css('td:nth-child(5)').text
-      form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
-      form.url = Addressable::URI.parse(form_url).normalize.to_s
-      form = update_sha256(form)
-      form.save if current_sha256 != form.sha256
+    def build_and_save_form(form)
+      va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormName']
+      current_sha256 = va_form.sha256
+      va_form.form_name = form['fieldVaFormName']
+      url = form['fieldVaFormUrl']['uri']
+      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
+      va_form.url = Addressable::URI.parse(va_form_url).normalize.to_s
+      va_form.title = form['fieldVaFormNumber']
+      issued_string = form.dig('fieldVaFormIssueDate', 'value')
+      va_form.first_issued_on = parse_date(issued_string) if issued_string.present?
+      revision_string = form.dig('fieldVaFormRevisionDate', 'value')
+      va_form.last_revision_on = parse_date(revision_string) if revision_string.present?
+      va_form.pages = form['fieldVaFormNumPages']
+      va_form = update_sha256(va_form)
+      va_form.save if current_sha256 != va_form.sha256
+      va_form
     end
 
     def parse_date(date_string)
-      matcher = date_string.split('/').count == 2 ? '%m/%Y' : '%m/%d/%Y'
+      matcher = date_string.split('-').count == 2 ? '%m-%Y' : '%Y-%m-%d'
       Date.strptime(date_string, matcher)
     end
 
@@ -107,7 +91,7 @@ module VaForms
     end
 
     def get_full_url(url)
-      "#{BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
+      "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
   end
 end

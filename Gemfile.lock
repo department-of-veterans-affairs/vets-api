@@ -360,6 +360,9 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday-http-cache (2.2.0)
       faraday (>= 0.8)
+    faraday_adapter_socks (0.1.1)
+      faraday (~> 0.9)
+      socksify (~> 1.7)
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
     faraday_middleware (0.13.1)
@@ -828,6 +831,7 @@ DEPENDENCIES
   faker
   fakeredis
   faraday
+  faraday_adapter_socks
   faraday_curl
   faraday_middleware
   fast_jsonapi
