@@ -74,7 +74,6 @@ module Form1010cg
         )
 
         carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
-
         carma_attachments.submit!(carma_client)
         submission.attachments = carma_attachments.to_hash
       rescue
@@ -163,7 +162,6 @@ module Form1010cg
 
       icn = icn_for(form_subject)
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
-
       response = emis_service.get_veteran_status(icn: icn)
 
       is_veteran = response&.items&.first&.title38_status_code == 'V1'
