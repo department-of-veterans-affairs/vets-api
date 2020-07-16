@@ -118,7 +118,6 @@ module Form1010cg
       # Set the ICN's for each form_subject on the metadata hash
       metadata = claim.form_subjects.each_with_object({}) do |form_subject, obj|
         icn = icn_for(form_subject)
-
         obj[form_subject.snakecase.to_sym] = {
           icn: icn == NOT_FOUND ? nil : icn
         }
@@ -162,6 +161,7 @@ module Form1010cg
       return cached_veteran_status unless cached_veteran_status.nil?
 
       icn = icn_for(form_subject)
+
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
       response = emis_service.get_veteran_status(icn: icn)
