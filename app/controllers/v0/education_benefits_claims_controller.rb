@@ -7,7 +7,7 @@ module V0
     def create
       claim = SavedClaim::EducationBenefits.form_class(form_type).new(education_benefits_claim_params)
 
-      unless claim.save(@current_user)
+      unless claim.save
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
@@ -15,6 +15,7 @@ module V0
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
       load_user
+      claim.after_submit(@current_user)
       clear_saved_form(claim.in_progress_form_id)
       render(json: claim.education_benefits_claim)
     end

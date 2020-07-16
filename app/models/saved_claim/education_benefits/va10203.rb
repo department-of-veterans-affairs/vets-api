@@ -3,9 +3,13 @@
 class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   add_form_and_validation('22-10203')
 
-  after_save(:notify_school_contact_officials)
+  def after_submit(user)
+    notify_school_contact_officials(user)
+  end
 
-  def notify_school_contact_officials
+  private
+
+  def notify_school_contact_officials(user)
     authorized = user.authorize :evss, :access?
 
     if authorized
@@ -17,8 +21,6 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
       @school_information = {}
     end
   end
-
-  private
 
   def get_gi_bill_status(user)
     service = EVSS::GiBillStatus::Service.new(user)

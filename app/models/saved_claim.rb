@@ -36,10 +36,6 @@ class SavedClaim < ApplicationRecord
     validates(:form_id, inclusion: [form_id])
   end
 
-  def save(user)
-    self.user = user
-    super()
-  end
   # Run after a claim is saved, this processes any files and workflows that are present
   # and sends them to our internal partners for processing.
   def process_attachments!
