@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mdot/client'
 
 describe MDOT::Client, type: :mdot_helpers do
   subject { described_class.new(user) }
@@ -40,7 +41,7 @@ describe MDOT::Client, type: :mdot_helpers do
             'api.mdot.get_supplies.total'
           )
           expect { subject.get_supplies }.to raise_error(
-            MDOT::ServiceException
+            MDOT::Exceptions::ServiceException
           ) do |e|
             expect(e.message).to match(/MDOT_502/)
           end
@@ -60,7 +61,7 @@ describe MDOT::Client, type: :mdot_helpers do
             'api.mdot.get_supplies.total'
           )
           expect { subject.get_supplies }.to raise_error(
-            MDOT::ServiceException
+            MDOT::Exceptions::ServiceException
           ) do |e|
             expect(e.message).to match(/MDOT_service_unavailable/)
           end
@@ -80,7 +81,7 @@ describe MDOT::Client, type: :mdot_helpers do
             'api.mdot.get_supplies.total'
           )
           expect { subject.get_supplies }.to raise_error(
-            MDOT::ServiceException
+            MDOT::Exceptions::ServiceException
           ) do |e|
             expect(e.message).to match(/MDOT_deceased/)
           end
@@ -100,7 +101,7 @@ describe MDOT::Client, type: :mdot_helpers do
             'api.mdot.get_supplies.total'
           )
           expect { subject.get_supplies }.to raise_error(
-            MDOT::ServiceException
+            MDOT::Exceptions::ServiceException
           ) do |e|
             expect(e.message).to match(/MDOT_invalid/)
           end
@@ -183,7 +184,7 @@ describe MDOT::Client, type: :mdot_helpers do
             'api.mdot.submit_order.total'
           )
           set_mdot_token_for(user)
-          expect { subject.submit_order(valid_order) }.to raise_error(MDOT::ServiceException)
+          expect { subject.submit_order(valid_order) }.to raise_error(MDOT::Exceptions::ServiceException)
         end
       end
     end
@@ -192,7 +193,7 @@ describe MDOT::Client, type: :mdot_helpers do
       it 'returns a 422 error' do
         set_mdot_token_for(user)
         expect { subject.submit_order(invalid_order) }.to raise_error(
-          MDOT::ServiceException
+          MDOT::Exceptions::ServiceException
         ) do |e|
           expect(e.message).to match(/MDOT_supplies_not_selected/)
         end

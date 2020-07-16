@@ -8,7 +8,7 @@ module MPI
     # Cacheable response from MPI's add person endpoint (prpa_in201301_uv02).
     class AddPersonResponse
       include Virtus.model(nullify_blank: true)
-      include Common::Client::ServiceStatus
+      include Common::Client::Concerns::ServiceStatus
 
       # @return [String] The status of the response
       attribute :status, String

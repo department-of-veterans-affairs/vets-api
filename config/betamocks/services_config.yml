@@ -1,6 +1,16 @@
 ---
 :services:
 
+- :name: 'debts'
+  :base_uri: <%= "#{URI(Settings.debts.url).host}:#{URI(Settings.debts.url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: "/api/v1/debtletter/letterdetails/get"
+    :file_path: "debts/index"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'fileNumber":"(\w+)"'
+
 - :name: 'MDOT'
   :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
   :endpoints:
@@ -366,7 +376,7 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-      
+
   - :method: :post
     :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
     :file_path: "emis/v2/deployment"
