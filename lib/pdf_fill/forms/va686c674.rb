@@ -1511,12 +1511,10 @@ module PdfFill
         expand_phone_number(veteran_contact_information)
 
         # extract postal code
-        veteran_contact_information['veteran_address']['postalCode'] =
-          veteran_contact_information['veteran_address']['zip_code']
         veteran_contact_information['veteran_address']['zip_code'] =
           split_postal_code(veteran_contact_information['veteran_address'])
 
-        # @TODO find out if FE is manipulating country codes/names
+        # @TODO FE is working on a fix for 2 digit country codes
         if veteran_contact_information['veteran_address']['country_name'] == 'USA'
           veteran_contact_information['veteran_address']['country_name'] = 'US'
         end
@@ -1542,8 +1540,6 @@ module PdfFill
 
         # extract postal code
         if @form_data['dependents_application']['does_live_with_spouse']['address'].present?
-          @form_data['dependents_application']['does_live_with_spouse']['address']['postalCode'] =
-            @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code']
           @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code'] =
             split_postal_code(@form_data['dependents_application']['does_live_with_spouse']['address'])
         end
@@ -1616,10 +1612,7 @@ module PdfFill
           child['ssn'] = split_ssn(child['ssn'].delete('-')) if child['ssn'].present?
 
           # extract postal code
-          # @TODO is there a better way to do this?
           unless child['does_child_live_with_you']
-            child['child_address_info']['address']['postalCode'] =
-              child['child_address_info']['address']['zip_code']
             child['child_address_info']['address']['zip_code'] =
               split_postal_code(child['child_address_info']['address'])
           end
@@ -1707,8 +1700,6 @@ module PdfFill
             extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
           # extract step_children zip codes
-          # @TODO is there a better way to do this?
-          stepchild['address']['postalCode'] = stepchild['address']['zip_code']
           stepchild['address']['zip_code'] = split_postal_code(stepchild['address'])
 
           # expand living_expenses_paid
