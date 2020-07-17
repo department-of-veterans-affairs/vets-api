@@ -1569,10 +1569,10 @@ module PdfFill
           reason_marriage_ended = spouse['reason_marriage_ended']
           # @TODO why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
-            'death' => reason_marriage_ended == 'Death' ? 0 : 'Off',
-            'divorce' => reason_marriage_ended == 'Divorce' ? 0 : 'Off',
-            # 'annulment' => reason_marriage_ended == 'ANNULMENT' ? 0 : 'Off',
-            'other' => reason_marriage_ended == 'Other' ? 0 : 'Off'
+            'death' => select_radio_button(reason_marriage_ended == 'Death'),
+            'divorce' => select_radio_button(reason_marriage_ended == 'Divorce'),
+            # 'annulment' => select_radio_button(reason_marriage_ended == 'ANNULMENT'),
+            'other' => select_radio_button(reason_marriage_ended == 'Other')
           }
         end
       end
@@ -1593,10 +1593,10 @@ module PdfFill
           reason_marriage_ended = spouse['reason_marriage_ended']
           # @TODO why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
-            'death' => reason_marriage_ended == 'Death' ? 0 : 'Off',
-            'divorce' => reason_marriage_ended == 'Divorce' ? 0 : 'Off',
-            # 'annulment' => reason_marriage_ended == 'ANNULMENT' ? 0 : 'Off',
-            'other' => reason_marriage_ended == 'Other' ? 0 : 'Off'
+            'death' => select_radio_button(reason_marriage_ended == 'Death'),
+            'divorce' => select_radio_button(reason_marriage_ended == 'Divorce'),
+            # 'annulment' => select_radio_button(reason_marriage_ended == 'ANNULMENT'),
+            'other' => select_radio_button(reason_marriage_ended == 'Other')
           }
         end
       end
@@ -1714,9 +1714,9 @@ module PdfFill
           # expand living_expenses_paid
           living_expenses_paid = stepchild['living_expenses_paid']
           stepchild['living_expenses_paid'] = {
-            'more_than_half' => living_expenses_paid == 'More than half' ? 0 : 'Off',
-            'half' => living_expenses_paid == 'Half' ? 0 : 'Off',
-            'less_than_half' => living_expenses_paid == 'Less than half' ? 0 : 'Off'
+            'more_than_half' => select_radio_button(living_expenses_paid == 'More than half'),
+            'half' => select_radio_button(living_expenses_paid == 'Half'),
+            'less_than_half' => select_radio_button(living_expenses_paid == 'Less than half')
           }
         end
 
@@ -1802,19 +1802,19 @@ module PdfFill
       def expand_marriage_type
         marriage_type = @form_data['dependents_application']['current_marriage_information']['type']
         @form_data['dependents_application']['current_marriage_information']['type'] = {
-          'religious_ceremony' => marriage_type == 'CEREMONIAL' ? 1 : 'Off',
-          'common_law' => marriage_type == 'COMMON-LAW' ? 1 : 'Off',
-          'tribal' => marriage_type == 'TRIBAL' ? 1 : 'Off',
-          'proxy' => marriage_type == 'PROXY' ? 1 : 'Off',
-          'other' => marriage_type == 'OTHER' ? 1 : 'Off'
+          'religious_ceremony' => select_checkbox(marriage_type == 'CEREMONIAL'),
+          'common_law' => select_checkbox(marriage_type == 'COMMON-LAW'),
+          'tribal' => select_checkbox(marriage_type == 'TRIBAL'),
+          'proxy' => select_checkbox(marriage_type == 'PROXY'),
+          'other' => select_checkbox(marriage_type == 'OTHER')
         }
       end
 
       def expand_is_veteran
         is_veteran = @form_data['dependents_application']['spouse_information']['is_veteran']
         @form_data['dependents_application']['spouse_information']['is_veteran'] = {
-          'is_veteran_yes' => is_veteran ? 1 : 'Off',
-          'is_veteran_no' => !is_veteran ? 1 : 'Off'
+          'is_veteran_yes' => select_checkbox(is_veteran),
+          'is_veteran_no' => select_checkbox(!is_veteran)
         }
       end
 
@@ -1822,8 +1822,8 @@ module PdfFill
         does_live_with_spouse =
           @form_data['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran']
         @form_data['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = {
-          'spouse_does_live_with_veteran_yes' => does_live_with_spouse ? 1 : 'Off',
-          'spouse_does_live_with_veteran_no' => !does_live_with_spouse ? 1 : 'Off'
+          'spouse_does_live_with_veteran_yes' => select_checkbox(does_live_with_spouse),
+          'spouse_does_live_with_veteran_no' => select_checkbox(!does_live_with_spouse)
         }
       end
 

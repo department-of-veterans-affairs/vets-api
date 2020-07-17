@@ -116,6 +116,10 @@ module PdfFill
       def select_radio_button(value)
         value ? 0 : 'Off'
       end
+
+      def select_checkbox(value)
+        value ? 1 : 'Off'
+      end
     end
   end
 end
