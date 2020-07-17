@@ -60,6 +60,7 @@ secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d
 debts:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
+  mock: true
   url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465'
 
 review_instance_slug: ~
@@ -468,6 +469,7 @@ flipper:
     - hughes_dustin@bah.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
+    - jesse.cohn@adhocteam.us
     - johnny@oddball.io
     - johnpaul.ashenfelter@oddball.io
     - kabrown@thoughtworks.com

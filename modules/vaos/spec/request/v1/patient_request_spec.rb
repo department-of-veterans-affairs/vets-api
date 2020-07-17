@@ -35,7 +35,6 @@ RSpec.describe 'VAOS::V1::Patient', type: :request do
           )['http_interactions'].first.dig('response', 'body', 'string')
         end
 
-        # TODO: cassettes need to be created
         it 'returns a 200' do
           VCR.use_cassette('vaos/fhir/patient/search_200', match_requests_on: %i[method uri]) do
             get '/vaos/v1/Patient?identifier=200000008'
