@@ -67,7 +67,7 @@
               "express_times": {
                 "oneOf": [
                   {
-                    "type": ["string", "null"]
+                    "type": "null"
                   },
                   {
                     "type": "object",
