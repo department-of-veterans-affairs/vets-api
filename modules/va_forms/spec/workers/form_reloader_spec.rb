@@ -51,7 +51,7 @@ RSpec.describe VaForms::FormReloader, type: :job do
 
     it 'expands relative urls' do
       test_url = './medical/pdf/vha10-10171-fill.pdf'
-      final_url = VaForms::FormReloader.new.get_full_url(test_url)
+      final_url = VaForms::FormReloader.new.expand_va_url(test_url)
       expect(final_url).to eq('https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf')
     end
 

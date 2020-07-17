@@ -54,7 +54,7 @@ module VaForms
       va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormName']
       current_sha256 = va_form.sha256
       url = form['fieldVaFormUrl']['uri']
-      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
+      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
       va_form.url = Addressable::URI.parse(va_form_url).normalize.to_s
       va_form.title = form['fieldVaFormNumber']
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
@@ -93,7 +93,7 @@ module VaForms
       form
     end
 
-    def get_full_url(url)
+    def expand_va_url(url)
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
   end
