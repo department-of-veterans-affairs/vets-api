@@ -1544,9 +1544,15 @@ module PdfFill
             split_postal_code(@form_data['dependents_application']['does_live_with_spouse']['address'])
         end
 
+        # expand is_veteran
+        is_veteran = @form_data['dependents_application']['spouse_information']['is_veteran']
+        @form_data['dependents_application']['spouse_information']['is_veteran'] = {
+          'is_veteran_yes' => select_checkbox(is_veteran),
+          'is_veteran_no' => select_checkbox(!is_veteran)
+        }
+
         expand_va_file_number(spouse)
         expand_marriage_type
-        expand_is_veteran
         expand_does_live_with_spouse
       end
 
@@ -1798,14 +1804,6 @@ module PdfFill
           'tribal' => select_checkbox(marriage_type == 'TRIBAL'),
           'proxy' => select_checkbox(marriage_type == 'PROXY'),
           'other' => select_checkbox(marriage_type == 'OTHER')
-        }
-      end
-
-      def expand_is_veteran
-        is_veteran = @form_data['dependents_application']['spouse_information']['is_veteran']
-        @form_data['dependents_application']['spouse_information']['is_veteran'] = {
-          'is_veteran_yes' => select_checkbox(is_veteran),
-          'is_veteran_no' => select_checkbox(!is_veteran)
         }
       end
 
