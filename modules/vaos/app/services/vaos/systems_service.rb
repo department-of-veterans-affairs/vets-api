@@ -118,6 +118,15 @@ module VAOS
       end
     end
 
+    def get_request_eligibility_criteria(site_codes = nil)
+      with_monitoring do
+        url = '/facilities/v1/request-eligibility-criteria'
+        params = site_codes ? { 'site-codes' => [*site_codes] } : nil
+        response = perform(:get, url, params, headers)
+        response.body.map { |facility| OpenStruct.new(facility) } if response.body.is_a?(Array)
+      end
+    end
+
     private
 
     def available_appointments_url(facility_id)
