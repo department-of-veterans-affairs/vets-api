@@ -9,14 +9,9 @@ module VaForms
     FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
-      conn = Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
-        faraday.request :url_encoded
-        faraday.adapter :net_http_socks unless Rails.env.production?
-      end
-      conn.basic_auth(Settings.va_forms.drupal_username, Settings.va_forms.drupal_password)
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
       body = { query: query }
-      response = conn.post('graphql', body.to_json)
+      response = connection.post('graphql', body.to_json)
       forms_data = JSON.parse(response.body)
       processed_forms = []
       forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
@@ -26,6 +21,15 @@ module VaForms
         next
       end
       mark_stale_forms(processed_forms)
+    end
+
+    def connection
+      basic_auth_class = Faraday::Request::BasicAuthentication
+      @connection ||= Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
+        faraday.request :url_encoded
+        faraday.use basic_auth_class, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
+        faraday.adapter :net_http_socks unless Rails.env.production?
+      end
     end
 
     def faraday_options
