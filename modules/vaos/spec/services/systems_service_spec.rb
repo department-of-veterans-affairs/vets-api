@@ -384,15 +384,14 @@ describe VAOS::SystemsService do
           response = subject.get_request_eligibility_criteria(%w[442 534])
           expect(response.size).to eq(2)
           first_result = response.first
-          expect(first_result.id).to eq('534')
+          expect(first_result.id).to eq('442')
           expect(first_result.request_settings.first).to eq(
             {
-              id: "203",
-              type_of_care: "Audiology",
-              patient_history_required: "No",
+              id: '203',
+              type_of_care: 'Audiology',
               patient_history_duration: 0,
-              stop_codes: [{ primary: "203" }],
-              submitted_request_limit: 1,
+              stop_codes: [{ primary: '203' }],
+              submitted_request_limit: 2,
               enterprise_submitted_request_limit: 2
             }
           )
