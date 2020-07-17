@@ -53,7 +53,6 @@ module VaForms
     def build_and_save_form(form)
       va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormName']
       current_sha256 = va_form.sha256
-      va_form.form_name = form['fieldVaFormName']
       url = form['fieldVaFormUrl']['uri']
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
       va_form.url = Addressable::URI.parse(va_form_url).normalize.to_s
