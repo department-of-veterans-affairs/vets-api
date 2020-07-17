@@ -20,7 +20,7 @@ module VaForms
         processed_forms << va_form
       rescue => e
         log_message_to_sentry(
-          "#{form['fieldVaFormNumber']} faild to import into forms forms database",
+          "#{form['fieldVaFormNumber']} failed to import into forms database",
           :error,
           body: e.message
         )
