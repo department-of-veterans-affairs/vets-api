@@ -32,7 +32,7 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     shawkey_daniel@bah.com
     sonntag_adam@bah.com
     tammy.hurley1@va.gov
-    Turner_Desiree@bah.com 
+    Turner_Desiree@bah.com
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[

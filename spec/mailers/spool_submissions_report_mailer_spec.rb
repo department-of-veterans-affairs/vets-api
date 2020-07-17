@@ -40,7 +40,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             shawkey_daniel@bah.com
             sonntag_adam@bah.com
             tammy.hurley1@va.gov
-            Turner_Desiree@bah.com 
+            Turner_Desiree@bah.com
           ]
         )
       end
@@ -112,7 +112,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             tammy.hurley1@va.gov
             Turner_Desiree@bah.com
             Delli-Gatti_Michael@bah.com
-            sonntag_adam@bah.com 
+            sonntag_adam@bah.com
           ]
         )
       end
