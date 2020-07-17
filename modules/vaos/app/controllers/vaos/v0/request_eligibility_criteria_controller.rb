@@ -11,8 +11,7 @@ module VAOS
       private
 
       def get_params
-        params.require(:site_codes)
-        params.permit(site_codes: [])
+        params[:site_codes].is_a?(Array) ? params.permit(site_codes: []) : params.permit(:site_codes)
       end
 
       def systems_service

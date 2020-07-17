@@ -7,11 +7,9 @@ module VAOS
     class RequestEligibilityCriteriaSerializer
       include FastJsonapi::ObjectSerializer
 
-      set_id :unique_id
-      attributes :unique_id,
-        :assigning_authority,
-        :assigning_code,
-        :id_status
+      attributes :id,
+                 :request_settings,
+                 :custom_request_settings
     end
   end
 end
