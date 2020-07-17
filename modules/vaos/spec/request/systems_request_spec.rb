@@ -115,7 +115,9 @@ RSpec.describe 'systems', type: :request do
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/system_facilities')
-            expect(JSON.parse(response.body)['data'].map { |facility| facility.dig('attributes', 'express_times') }).to eq(
+            expect(
+              JSON.parse(response.body)['data'].map { |facility| facility.dig('attributes', 'express_times') }
+            ).to eq(
               [
                 { 'start' => '09:17', 'end' => '16:45', 'timezone' => 'MDT', 'offset_utc' => '-06:00' },
                 { 'start' => '12:04', 'end' => '14:04', 'timezone' => 'MDT', 'offset_utc' => '-06:00' },
