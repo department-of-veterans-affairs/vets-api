@@ -12,6 +12,7 @@ describe VAOS::CCAppointmentRequestForm, type: :model do
   it 'responds to the correct attributes' do
     expect(subject.attributes.keys)
       .to contain_exactly(
+        :additional_information,
         :appointment_request_detail_code,
         :appointment_request_id,
         :appointment_type,
