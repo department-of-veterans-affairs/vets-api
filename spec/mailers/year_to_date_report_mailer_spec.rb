@@ -34,6 +34,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
             Joseph.Preisser@va.gov
             Joseph.Welton@va.gov
             kyle.pietrosanto@va.gov
+            Lucas.Tickner@va.gov
             lihan@adhocteam.us
             matthew.ziolkowski@va.gov
             Michael.Johnson19@va.gov
@@ -41,6 +42,7 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
             Ricardo.DaSilva@va.gov
             shawkey_daniel@bah.com
             sonntag_adam@bah.com
+            tammy.hurley1@va.gov
             turner_desiree@bah.com
           ]
         )
@@ -59,25 +61,19 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
             222A.VBAVACO@va.gov
             224B.VBAVACO@va.gov
             224C.VBAVACO@va.gov
-            Anne.kainic@va.gov
             Brandon.Scott2@va.gov
-            Brandye.Terrell@va.gov
-            Carolyn.McCollam@va.gov
+            Brian.Grubb@va.gov
             Christina.DiTucci@va.gov
-            Christopher.Marino2@va.gov
-            Christopher.Sutherland@va.gov
-            ian@adhocteam.us
             John.McNeal@va.gov
+            Joseph.Preisser@va.gov
             Joseph.Welton@va.gov
             kathleen.dalfonso@va.gov
             kyle.pietrosanto@va.gov
             Lucas.Tickner@va.gov
             michele.mendola@va.gov
-            peter.chou1@va.gov
-            peter.nastasi@va.gov
             Ricardo.DaSilva@va.gov
-            robert.shinners@va.gov
             shay.norton@va.gov
+            tammy.hurley1@va.gov
           ]
         )
       end
