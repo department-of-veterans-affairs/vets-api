@@ -140,7 +140,7 @@ module EducationForm::Forms
     end
 
     def school_name
-      @applicant.school&.name&.upcase&.strip
+      school&.name&.upcase&.strip
     end
 
     def school_name_and_addr(school)
