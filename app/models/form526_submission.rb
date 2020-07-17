@@ -137,8 +137,8 @@ class Form526Submission < ApplicationRecord
       'email' => email_address,
       'submitted_claim_id' => submitted_claim_id,
       'updated_at' => updated_at,
-      'first_name' => @current_user&.first_name,
-      'last_name' => @current_user&.last_name
+      'first_name' => auth_headers['va_eauth_firstName'],
+      'last_name' => auth_headers['va_eauth_firstName']
     }
     Form526ConfirmationEmailJob.perform_async(id, personalization_parameters)
   end
