@@ -46,8 +46,8 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Server error
+      code: 200
+      message: OK
     headers:
       Date:
       - Mon, 02 Apr 2018 22:46:34 GMT

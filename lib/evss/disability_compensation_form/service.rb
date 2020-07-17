@@ -66,8 +66,8 @@ module EVSS
       private
 
       def handle_error(error)
-        if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
-          save_error_details(error)
+        if right_error_type?(error) && error.body.is_a?(Hash)
+          save_error_details(error) #log error details in Sentry
           raise EVSS::DisabilityCompensationForm::ServiceException, error.body
         else
           super(error)
