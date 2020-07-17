@@ -139,6 +139,10 @@ module EducationForm::Forms
       [name.first, name.middle, name.last, name&.suffix].compact.join(' ')
     end
 
+    def school_name
+      school&.name&.upcase&.strip
+    end
+
     def school_name_and_addr(school)
       return '' if school.nil?
 
