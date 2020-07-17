@@ -6,13 +6,15 @@
   },
   "veteranSocialSecurityNumber": "111223333",
   "benefit": "chapter33",
-  "isEnrolledStem": true,
+  "isEnrolledStem": false,
   "isPursuingTeachingCert": true,
   "benefitLeft": "moreThanSixMonths",
   "degreeName": "Degree Name",
   "schoolName": "School Name",
   "schoolCity": "Test",
   "schoolState": "TN",
+  "schoolStudentId": "12345",
+  "schoolEmailAddress": "test@school.edu",
   "isActiveDuty": true,
   "veteranAddress": {
     "city": "Milwaukee",
@@ -22,12 +24,14 @@
     "street": "123 Main St"
   },
   "email": "test@sample.com",
-  "mobilePhone": "5551110001",
+  "homePhone": "5551110001",
+  "mobilePhone": "5551110002",
   "bankAccount": {
     "accountNumber": "88888888888",
     "accountType": "checking",
     "bankName": "First Bank of JSON",
     "routingNumber": "123456789"
   },
+  "preferredContactMethod": "mail",
   "privacyAgreementAccepted": true
 }
