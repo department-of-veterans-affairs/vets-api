@@ -29,10 +29,8 @@
             ],
             "properties": {
               "request_settings": {
-                "id": "#/properties/requestSettings",
                 "type": "array",
                 "items": {
-                  "id": "#/properties/requestSettings/items",
                   "type": "object",
                   "required": [
                     "id",
