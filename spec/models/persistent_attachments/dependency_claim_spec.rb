@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe PersistentAttachments::DependencyClaim, uploader_helpers: true do
-  let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
+  let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'marriage-certificate.pdf') }
   let(:instance) { described_class.new(form_id: '686C-674') }
 
   it 'sets a guid on initialize' do
