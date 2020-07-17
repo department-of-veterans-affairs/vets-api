@@ -167,7 +167,7 @@ features:
     actor_type: user
     description: >
       Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
-  ct_filter_enhancement:
+ gibct_filter_enhancement:
     actor_type: user
     description: >
       Comparison Tool Filter Enhancements to improve usability
