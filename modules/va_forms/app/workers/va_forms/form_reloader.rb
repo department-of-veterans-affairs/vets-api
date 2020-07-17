@@ -100,6 +100,8 @@ module VaForms
     end
 
     def expand_va_url(url)
+      raise ArgumentError, 'url must start with ./va or ./medical' unless url.starts_with?('./va', './medical')
+
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
   end
