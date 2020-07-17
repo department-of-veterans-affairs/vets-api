@@ -4,7 +4,7 @@
 
 module PdfFill
   module Forms
-    class Va21686c < FormBase
+    class Va686c674 < FormBase
       include FormHelper
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
