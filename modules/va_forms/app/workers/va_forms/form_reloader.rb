@@ -5,6 +5,7 @@ require 'sidekiq'
 module VaForms
   class FormReloader
     include Sidekiq::Worker
+    include SentryLogging
 
     FORM_BASE_URL = 'https://www.va.gov'
 
@@ -17,7 +18,12 @@ module VaForms
       forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
         va_form = build_and_save_form(form)
         processed_forms << va_form
-      rescue
+      rescue => e
+        log_message_to_sentry(
+          "#{form['fieldVaFormNumber']} faild to import into forms forms database",
+          :error,
+          body: e.message
+        )
         next
       end
       mark_stale_forms(processed_forms)
