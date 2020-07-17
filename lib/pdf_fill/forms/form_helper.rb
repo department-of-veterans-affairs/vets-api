@@ -44,9 +44,7 @@ module PdfFill
 
         postal_code = address['postalCode']
 
-        if postal_code.blank?
-          postal_code = address['zip_code']
-        end
+        postal_code = address['zip_code'] if postal_code.blank?
 
         return if postal_code.blank?
 
