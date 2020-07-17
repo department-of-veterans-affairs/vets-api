@@ -124,7 +124,7 @@ module VAOS
         url_params = site_codes ? { 'site-codes' => site_codes } : nil
         options = { params_encoder: Faraday::FlatParamsEncoder }
         response = perform(:get, url, url_params, headers, options)
-        response.body.map { |rec| OpenStruct.new(rec) } if response.body.is_a?(Array)
+        response.body.map { |rec| OpenStruct.new(rec) }
       end
     end
 
