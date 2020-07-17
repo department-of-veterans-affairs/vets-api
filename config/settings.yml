@@ -24,6 +24,9 @@ saml_ssoe:
   issuer: https://ssoe-sp-dev.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
   logout_url: https://pint.eauth.va.gov/pkmslogout
+  request_signing: false
+  response_signing: false
+  response_encryption: false
 
 session_cookie:
   secure: false
