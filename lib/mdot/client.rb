@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require 'common/exceptions/external/gateway_timeout'
+require 'common/exceptions/gateway_timeout'
 require 'mdot/configuration'
 require 'mdot/response'
 require 'mdot/exceptions/key'
@@ -17,7 +17,7 @@ module MDOT
   #
 
   class Client < Common::Client::Base
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     configuration MDOT::Configuration
 
@@ -105,7 +105,7 @@ module MDOT
     end
 
     def raise_backend_exception(key, source, error = nil)
-      exception = MDOT::ServiceException.new(
+      exception = MDOT::Exceptions::ServiceException.new(
         key,
         { source: source.to_s },
         error&.status,

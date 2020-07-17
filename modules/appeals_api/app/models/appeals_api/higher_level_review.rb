@@ -205,7 +205,7 @@ module AppealsApi
     end
 
     def informal_conference_times
-      data_attributes&.dig('informalConferenceTimes')
+      data_attributes&.dig('informalConferenceTimes') || []
     end
 
     def informal_conference_rep_name_and_phone_number

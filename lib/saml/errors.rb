@@ -19,11 +19,14 @@ module SAML
                           tag: :idme_uuid_missing,
                           message: 'User attributes is missing an ID.me UUID' }.freeze
 
-    def initialize(message:, code:, tag:)
+    attr_reader :identifier
+
+    def initialize(message:, code:, tag:, identifier: nil)
       @code = code
       @tag = tag
       @level = :warning
       @context = {}
+      @identifier = identifier
       super(message)
     end
   end

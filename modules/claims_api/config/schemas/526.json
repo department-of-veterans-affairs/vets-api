@@ -473,7 +473,6 @@
             "type": "object",
             "required": [
               "firstName",
-              "middleName",
               "lastName"
             ],
             "properties": {

@@ -2,7 +2,7 @@
 
 module VAOS
   class BaseService < Common::Client::Base
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
     include SentryLogging
 
     STATSD_KEY_PREFIX = 'api.vaos'

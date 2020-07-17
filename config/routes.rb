@@ -39,7 +39,6 @@ Rails.application.routes.draw do
       get 'rated_disabilities'
       get 'rating_info'
       get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
-      post 'submit'
       post 'submit_all_claim'
       get 'suggested_conditions'
       get 'user_submissions'

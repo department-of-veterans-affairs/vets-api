@@ -5,6 +5,8 @@ module V0
   class CaregiversAssistanceClaimsController < ApplicationController
     skip_before_action(:authenticate)
 
+    rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
+
     def create
       return service_unavailable unless Flipper.enabled?(:allow_online_10_10cg_submissions)
 
@@ -26,6 +28,10 @@ module V0
 
     def service_unavailable
       render nothing: true, status: :service_unavailable, as: :json
+    end
+
+    def backend_service_outage
+      render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
     end
   end
 end

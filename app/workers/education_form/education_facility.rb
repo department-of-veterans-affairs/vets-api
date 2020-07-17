@@ -71,10 +71,9 @@ module EducationForm
       return :western if model.form_type == '0993'
 
       # special case 0994
-      return :eastern if model.form_type == '0994'
-
       # special case 1995s
-      return :eastern if model.form_type == '1995s'
+      # special case 10203
+      return :eastern if %w[0994 1995s 10203].include?(model.form_type)
 
       # special case Philippines
       return :western if address&.country == 'PHL'
