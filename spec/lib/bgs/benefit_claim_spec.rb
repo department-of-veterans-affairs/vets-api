@@ -3,17 +3,27 @@
 require 'rails_helper'
 
 RSpec.describe BGS::BenefitClaim do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_hash) do
+    {
+      participant_id: user_object.participant_id,
+      ssn: user_object.ssn,
+      first_name: user_object.first_name,
+      last_name: user_object.last_name,
+      external_key: user_object.common_name || user_object.email,
+      icn: user_object.icn
+    }
+  end
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:vet_hash) do
     {
-      file_number: user.ssn,
-      vnp_participant_id: user.participant_id,
-      ssn_number: user.ssn,
+      file_number: user_hash[:ssn],
+      vnp_participant_id: user_hash[:participant_id],
+      ssn_number: user_hash[:ssn],
       benefit_claim_type_end_product: '133',
-      first_name: user.first_name,
-      last_name: user.last_name,
+      first_name: user_hash[:first_name],
+      last_name: user_hash[:last_name],
       vnp_participant_address_id: '113372',
       phone_number: '5555555555',
       address_line_one: '123 Mainstreet',
@@ -31,12 +41,12 @@ RSpec.describe BGS::BenefitClaim do
         benefit_claim = BGS::BenefitClaim.new(
           vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
           veteran: vet_hash,
-          user: user
+          user: user_hash
         ).create
 
         expect(benefit_claim).to include(
           {
-            benefit_claim_id: '600194635',
+            benefit_claim_id: '600196508',
             claim_type_code: '130DPNEBNADJ',
             participant_claimant_id: '600061742',
             program_type_code: 'CPL',
@@ -59,7 +69,7 @@ RSpec.describe BGS::BenefitClaim do
         BGS::BenefitClaim.new(
           vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
           veteran: vet_hash,
-          user: user
+          user: user_hash
         ).create
       end
     end

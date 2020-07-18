@@ -4,7 +4,7 @@ module BGS
   class VnpVeteran < Service
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
-      @payload = payload
+      @payload = payload.with_indifferent_access
       @veteran_info = formatted_params(@payload, user)
 
       super(user)

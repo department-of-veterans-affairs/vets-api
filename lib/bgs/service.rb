@@ -218,24 +218,25 @@ module BGS
     end
 
     def create_benefit_claim(proc_id, veteran)
-      with_multiple_attempts_enabled do
-        service.vnp_bnft_claim.vnp_bnft_claim_create(
-          {
-            vnp_proc_id: proc_id,
-            claim_rcvd_dt: Time.current.iso8601,
-            status_type_cd: 'CURR', # this is hard-coded in EVSS
-            svc_type_cd: 'CP', # this is hard-coded in EVSS
-            pgm_type_cd: 'COMP', # this is hard-coded in EVSS
-            bnft_claim_type_cd: '130DPNEBNADJ', # This has been changed to this value in light of finding the find_benefit_claim_type_increment call 4/22
-            ptcpnt_clmant_id: veteran[:vnp_participant_id],
-            claim_jrsdtn_lctn_id: '335', # Not required but cannot be null all records seem to be in the 300's and the same as the below, default is 335
-            intake_jrsdtn_lctn_id: '335', # Not required but cannot be null all records seem to be in the 300's, default is 335
-            ptcpnt_mail_addrs_id: veteran[:vnp_participant_address_id],
-            vnp_ptcpnt_vet_id: veteran[:vnp_participant_id],
-            atchms_ind: 'N' # this needs to be set to Y/N if documents are added/attached
-          }.merge(bgs_auth)
-        )
-      end
+      binding.pry
+      # with_multiple_attempts_enabled do
+      service.vnp_bnft_claim.vnp_bnft_claim_create(
+        {
+          vnp_proc_id: proc_id,
+          claim_rcvd_dt: Time.current.iso8601,
+          status_type_cd: 'CURR', # this is hard-coded in EVSS
+          svc_type_cd: 'CP', # this is hard-coded in EVSS
+          pgm_type_cd: 'COMP', # this is hard-coded in EVSS
+          bnft_claim_type_cd: '130DPNEBNADJ', # This has been changed to this value in light of finding the find_benefit_claim_type_increment call 4/22
+          ptcpnt_clmant_id: veteran[:vnp_participant_id],
+          claim_jrsdtn_lctn_id: '335', # Not required but cannot be null all records seem to be in the 300's and the same as the below, default is 335
+          intake_jrsdtn_lctn_id: '335', # Not required but cannot be null all records seem to be in the 300's, default is 335
+          ptcpnt_mail_addrs_id: veteran[:vnp_participant_address_id],
+          vnp_ptcpnt_vet_id: veteran[:vnp_participant_id],
+          atchms_ind: 'N' # this needs to be set to Y/N if documents are added/attached
+        }.merge(bgs_auth)
+      )
+      # end
     end
 
     def find_benefit_claim_type_increment

@@ -3,10 +3,20 @@
 require 'rails_helper'
 
 RSpec.describe BGS::Service do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
-  let(:bgs_service) { BGS::Service.new(user) }
-  let(:proc_id) { '3829360' }
-  let(:participant_id) { '148886' }
+  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_hash) do
+    {
+      participant_id: user_object.participant_id,
+      ssn: user_object.ssn,
+      first_name: user_object.first_name,
+      last_name: user_object.last_name,
+      external_key: user_object.common_name || user_object.email,
+      icn: user_object.icn
+    }
+  end
+  let(:bgs_service) { BGS::Service.new(user_hash) }
+  let(:proc_id) { '3829671' }
+  let(:participant_id) { '149456' }
   let(:dependent_hash) do
     {
       vnp_participant_id: participant_id,
@@ -25,7 +35,7 @@ RSpec.describe BGS::Service do
   end
   let(:vet_hash) do
     {
-      vnp_participant_id: '146232',
+      vnp_participant_id: '149456',
       vnp_participant_address_id: '113372',
       file_number: '796149080',
       ssn_number: '796149080',
@@ -42,7 +52,7 @@ RSpec.describe BGS::Service do
   end
   let(:vnp_benefit_claim_hash) do
     {
-      vnp_proc_id: '3829532',
+      vnp_proc_id: '3829689',
       vnp_benefit_claim_id: '425502',
       vnp_benefit_claim_type_code: '130DPNEBNADJ',
       claim_jrsdtn_lctn_id: '347',
@@ -79,7 +89,7 @@ RSpec.describe BGS::Service do
       it 'returns a proc_form' do
         VCR.use_cassette('bgs/service/create_proc_form') do
           response = bgs_service.create_proc_form(proc_id)
-
+          binding.pry
           expect(response).to have_key(:comp_id)
         end
       end
@@ -116,7 +126,7 @@ RSpec.describe BGS::Service do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_participant') do
         response = bgs_service.create_participant(proc_id)
-
+        binding.pry
         expect(response).to have_key(:vnp_ptcpnt_id)
       end
     end
@@ -298,7 +308,10 @@ RSpec.describe BGS::Service do
   describe '#create_benefit_claim' do
     it 'creates a benefit claim and returns a vnp_bnft_claim_id' do
       VCR.use_cassette('bgs/service/create_benefit_claim') do
-        response = bgs_service.create_benefit_claim('3829532', vet_hash)
+        vet_hash[:vnp_participant_id] = '149471'
+        vet_hash[:vnp_participant_address_id] = '116323'
+
+        response = bgs_service.create_benefit_claim('3829729', vet_hash)
 
         expect(response).to have_key(:vnp_bnft_claim_id)
       end
@@ -310,7 +323,7 @@ RSpec.describe BGS::Service do
       VCR.use_cassette('bgs/service/increment_claim_type') do
         response = bgs_service.find_benefit_claim_type_increment
 
-        expect(response).to eq('130')
+        expect(response).to eq('134')
       end
     end
   end
@@ -326,7 +339,7 @@ RSpec.describe BGS::Service do
   end
 
   describe '#vnp_bnft_claim_update' do
-    it 'creates a benefit claim and returns a vnp_bnft_claim_id' do
+    it 'updates a benefit claim and returns a vnp_bnft_claim_id' do
       VCR.use_cassette('bgs/service/vnp_bnft_claim_update') do
         response = bgs_service.vnp_bnft_claim_update(benefit_claim_hash, vnp_benefit_claim_hash)
 

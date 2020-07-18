@@ -3,7 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe BGS::BenefitClaim do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_hash) do
+    {
+      participant_id: user_object.participant_id,
+      ssn: user_object.ssn,
+      first_name: user_object.first_name,
+      last_name: user_object.last_name,
+      external_key: user_object.common_name || user_object.email,
+      icn: user_object.icn
+    }
+  end
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:veteran_hash) do
@@ -19,7 +29,7 @@ RSpec.describe BGS::BenefitClaim do
         vnp_benefit_claim = BGS::VnpBenefitClaim.new(
           proc_id: proc_id,
           veteran: veteran_hash,
-          user: user
+          user: user_hash
         ).create
 
         expect(vnp_benefit_claim).to include(
@@ -40,7 +50,7 @@ RSpec.describe BGS::BenefitClaim do
         BGS::VnpBenefitClaim.new(
           proc_id: proc_id,
           veteran: veteran_hash,
-          user: user
+          user: user_hash
         ).create
       end
     end

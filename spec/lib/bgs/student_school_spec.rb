@@ -3,9 +3,19 @@
 require 'rails_helper'
 
 RSpec.describe BGS::StudentSchool do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
-  let(:proc_id) { '3829409' }
-  let(:vnp_participant_id) { '148998' }
+  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_hash) do
+    {
+      participant_id: user_object.participant_id,
+      ssn: user_object.ssn,
+      first_name: user_object.first_name,
+      last_name: user_object.last_name,
+      external_key: user_object.common_name || user_object.email,
+      icn: user_object.icn
+    }
+  end
+  let(:proc_id) { '3829729' }
+  let(:vnp_participant_id) { '149471' }
   let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
   let(:all_flows_payload) do
     payload = File.read("#{fixtures_path}/all_flows_payload.json")
@@ -13,7 +23,7 @@ RSpec.describe BGS::StudentSchool do
   end
   let(:child_response) do
     {
-      vnp_child_school_id: '22721',
+      vnp_child_school_id: '22941',
       course_name_txt: 'An amazing program',
       curnt_hours_per_wk_num: '37',
       curnt_school_addrs_one_txt: '2037 29th St',
@@ -49,7 +59,7 @@ RSpec.describe BGS::StudentSchool do
           proc_id: proc_id,
           vnp_participant_id: vnp_participant_id,
           payload: all_flows_payload,
-          user: user
+          user: user_hash
         ).create
 
         expect(student_school).to match(

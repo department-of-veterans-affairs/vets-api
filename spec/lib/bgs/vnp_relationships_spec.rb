@@ -3,7 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe BGS::VnpRelationships do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_hash) do
+    {
+      participant_id: user_object.participant_id,
+      ssn: user_object.ssn,
+      first_name: user_object.first_name,
+      last_name: user_object.last_name,
+      external_key: user_object.common_name || user_object.email,
+      icn: user_object.icn
+    }
+  end
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:veteran_hash) { { vnp_participant_id: '146189' } }
@@ -31,7 +41,7 @@ RSpec.describe BGS::VnpRelationships do
           dependent_array = [child]
 
           dependents = BGS::VnpRelationships.new(
-            proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user
+            proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_hash
           ).create
 
           expect(dependents.first).to include(
@@ -95,7 +105,7 @@ RSpec.describe BGS::VnpRelationships do
           }
 
           dependent_array = [death]
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
+          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_hash).create
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
@@ -124,7 +134,7 @@ RSpec.describe BGS::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
+          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_hash).create
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
@@ -154,7 +164,7 @@ RSpec.describe BGS::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user).create
+          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_hash).create
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
