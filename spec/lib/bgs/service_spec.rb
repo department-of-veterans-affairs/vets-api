@@ -89,7 +89,7 @@ RSpec.describe BGS::Service do
       it 'returns a proc_form' do
         VCR.use_cassette('bgs/service/create_proc_form') do
           response = bgs_service.create_proc_form(proc_id)
-          binding.pry
+
           expect(response).to have_key(:comp_id)
         end
       end
@@ -126,7 +126,7 @@ RSpec.describe BGS::Service do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_participant') do
         response = bgs_service.create_participant(proc_id)
-        binding.pry
+
         expect(response).to have_key(:vnp_ptcpnt_id)
       end
     end

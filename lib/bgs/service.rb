@@ -218,7 +218,6 @@ module BGS
     end
 
     def create_benefit_claim(proc_id, veteran)
-      binding.pry
       # with_multiple_attempts_enabled do
       service.vnp_bnft_claim.vnp_bnft_claim_create(
         {
