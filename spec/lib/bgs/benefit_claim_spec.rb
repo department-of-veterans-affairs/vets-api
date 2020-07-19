@@ -59,10 +59,22 @@ RSpec.describe BGS::BenefitClaim do
 
     it 'calls BGS::Service#insert_benefit_claim' do
       VCR.use_cassette('bgs/benefit_claim/create') do
-        expect_any_instance_of(BGS::Service).to receive(:insert_benefit_claim)
+        expect_any_instance_of(BGS::BenefitClaimWebService).to receive(:insert_benefit_claim)
           .with(
-            { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
-            vet_hash
+            a_hash_including(
+              {
+                ptcpnt_id_claimant: '600061742',
+                ssn: '796043735',
+                file_number: '796043735',
+                date_of_claim: '07/19/2020',
+                end_product: '133',
+                end_product_code: '130DPNEBNADJ',
+                end_product_name: '130 - Automated Dependency 686c',
+                first_name: 'WESLEY',
+                last_name: 'FORD',
+                payee: '00'
+              }
+            )
           )
           .and_call_original
 

@@ -24,7 +24,14 @@ RSpec.describe BGS::Form686c do
     VCR.use_cassette('bgs/form686c/submit') do
       modify_dependents = BGS::Form686c.new(user_hash).submit(all_flows_payload)
 
-      expect(modify_dependents).to include(:jrn_dt, :jrn_lctn_id, :jrn_obj_id, :jrn_status_type_cd, :jrn_user_id, :vnp_proc_id)
+      expect(modify_dependents).to include(
+        :jrn_dt,
+        :jrn_lctn_id,
+        :jrn_obj_id,
+        :jrn_status_type_cd,
+        :jrn_user_id,
+        :vnp_proc_id
+      )
     end
   end
 

@@ -18,25 +18,29 @@ module BGS
       create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
 
+      serialize_result(participant, person, va_file_number, address, claim_type_end_product)
+    end
+
+    private
+
+    def serialize_result(participant, person, va_file_number, address, end_product)
       {
-        vnp_participant_id: participant[:vnp_ptcpnt_id], # dependent and vet
+        vnp_participant_id: participant[:vnp_ptcpnt_id],
         first_name: person[:first_nm],
         last_name: person[:last_nm],
         vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id],
         file_number: va_file_number,
         address_line_one: address[:addrs_one_txt],
-        address_line_two: address[:addrs_two_txt], # veteran only
-        address_line_three: address[:addrs_three_txt], # veteran only
-        address_country: address[:cntry_nm], # veteran only
-        address_state_code: address[:postal_cd], # veteran only
-        address_city: address[:city_nm], # veteran only
-        address_zip_code: address[:zip_prefix_nbr], # veteran only
+        address_line_two: address[:addrs_two_txt],
+        address_line_three: address[:addrs_three_txt],
+        address_country: address[:cntry_nm],
+        address_state_code: address[:postal_cd],
+        address_city: address[:city_nm],
+        address_zip_code: address[:zip_prefix_nbr],
         type: 'veteran',
-        benefit_claim_type_end_product: claim_type_end_product
+        benefit_claim_type_end_product: end_product
       }
     end
-
-    private
 
     def formatted_params(payload, user)
       dependents_application = payload['dependents_application']

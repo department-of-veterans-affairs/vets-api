@@ -21,18 +21,19 @@ RSpec.describe BGS::StudentSchool do
     payload = File.read("#{fixtures_path}/all_flows_payload.json")
     JSON.parse(payload)
   end
-  let(:child_response) do
+  let(:school_params) do
     {
-      vnp_child_school_id: '22941',
       course_name_txt: 'An amazing program',
-      curnt_hours_per_wk_num: '37',
+      curnt_hours_per_wk_num: 37,
       curnt_school_addrs_one_txt: '2037 29th St',
       curnt_school_addrs_zip_nbr: '61201',
+      curnt_school_city_nm: 'Rock Island',
       curnt_school_nm: 'My Great School',
-      curnt_school_postal_cd: 'AR'
+      curnt_school_postal_cd: 'AR',
+      curnt_sessns_per_wk_num: 4
     }
   end
-  let(:school_response) do
+  let(:student_params) do
     {
       agency_paying_tuitn_nm: 'Some Agency',
       govt_paid_tuitn_ind: 'Y',
@@ -55,19 +56,19 @@ RSpec.describe BGS::StudentSchool do
   describe '#create' do
     it 'creates a child school and a child student' do
       VCR.use_cassette('bgs/student_school/create') do
-        student_school = BGS::StudentSchool.new(
+        expect_any_instance_of(BGS::VnpChildSchoolService).to receive(:child_school_create).with(
+          hash_including(school_params)
+        )
+        expect_any_instance_of(BGS::VnpChildStudentService).to receive(:child_student_create).with(
+          hash_including(student_params)
+        )
+
+        BGS::StudentSchool.new(
           proc_id: proc_id,
           vnp_participant_id: vnp_participant_id,
           payload: all_flows_payload,
           user: user_hash
         ).create
-
-        expect(student_school).to match(
-          [
-            a_hash_including(child_response),
-            a_hash_including(school_response)
-          ]
-        )
       end
     end
   end

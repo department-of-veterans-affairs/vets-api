@@ -37,7 +37,6 @@ RSpec.describe BGS::VnpVeteran do
       'first' => 'WESLEY',
       'middle' => nil,
       'last' => 'FORD',
-      'veteran_address' => { 'country_name' => 'USA', 'address_line1' => '8200 Doby LN', 'city' => 'Pasadena', 'state_code' => 'CA', 'zip_code' => '21122' },
       'phone_number' => '1112223333',
       'email_address' => 'foo@foo.com',
       'country_name' => 'USA',
@@ -46,7 +45,14 @@ RSpec.describe BGS::VnpVeteran do
       'state_code' => 'CA',
       'zip_code' => '21122',
       'vet_ind' => 'Y',
-      'martl_status_type_cd' => 'OTHER'
+      'martl_status_type_cd' => 'OTHER',
+      'veteran_address' => {
+        'country_name' => 'USA',
+        'address_line1' => '8200 Doby LN',
+        'city' => 'Pasadena',
+        'state_code' => 'CA',
+        'zip_code' => '21122'
+      }
     }
   end
 

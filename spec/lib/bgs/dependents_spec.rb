@@ -42,7 +42,12 @@ RSpec.describe BGS::Dependents do
       end
 
       it 'returns a hash for adopted child that does live with veteran' do
-        veteran_address_info = all_flows_payload.dig('dependents_application', 'veteran_contact_information', 'veteran_address')
+        veteran_address_info = all_flows_payload.dig(
+          'dependents_application',
+          'veteran_contact_information',
+          'veteran_address'
+        )
+
         json = File.read("#{fixtures_path}/children/adopted_child_lives_with_veteran.json")
         payload = JSON.parse(json)
         VCR.use_cassette('bgs/dependents/children/apdopted_child_lives_with_veteran') do

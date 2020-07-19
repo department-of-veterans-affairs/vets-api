@@ -105,7 +105,12 @@ RSpec.describe BGS::VnpRelationships do
           }
 
           dependent_array = [death]
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_hash).create
+          dependents = BGS::VnpRelationships.new(
+            proc_id: proc_id,
+            veteran: veteran_hash,
+            dependents: dependent_array,
+            user: user_hash
+          ).create
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
@@ -134,7 +139,12 @@ RSpec.describe BGS::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_hash).create
+          dependents = BGS::VnpRelationships.new(
+            proc_id: proc_id,
+            veteran: veteran_hash,
+            dependents: dependent_array,
+            user: user_hash
+          ).create
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
@@ -164,7 +174,10 @@ RSpec.describe BGS::VnpRelationships do
           }
 
           dependent_array = [spouse]
-          dependents = BGS::VnpRelationships.new(proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_hash).create
+          dependents = BGS::VnpRelationships.new(proc_id: proc_id,
+                                                 veteran: veteran_hash,
+                                                 dependents: dependent_array,
+                                                 user: user_hash).create
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',

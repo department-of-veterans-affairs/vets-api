@@ -313,15 +313,14 @@ module BGS
     end
 
     def format_divorce_info
-      report_divorce_info = @payload['report_divorce']['former_spouse_name']
-      report_divorce_info['divorce_state'] = @payload['report_divorce']['location_of_divorce']['state']
-      report_divorce_info['divorce_city'] = @payload['report_divorce']['location_of_divorce']['city']
-      report_divorce_info['marriage_termination_type_code'] = @payload['report_divorce']['explanation_of_annullment_or_void']
-      report_divorce_info['event_dt'] = @payload['report_divorce']['date_of_divorce']
-      report_divorce_info['vet_ind'] = 'N'
-      report_divorce_info['type'] = 'divorce'
-
-      report_divorce_info
+      {
+        divorce_state: report_divorce.dig('location_of_divorce', 'state'),
+        divorce_city: report_divorce.dig('location_of_divorce', 'city'),
+        marriage_termination_type_code: report_divorce['explanation_of_annullment_or_void'],
+        event_dt: report_divorce['date_of_divorce'],
+        vet_ind: 'N',
+        type: 'divorce'
+      }.merge(report_divorce['former_spouse_name'])
     end
 
     def relationship_type(info)
