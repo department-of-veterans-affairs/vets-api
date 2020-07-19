@@ -11,39 +11,6 @@ module BGS
       @user = user
     end
 
-    def create_proc
-      with_multiple_attempts_enabled do
-        service.vnp_proc_v2.vnp_proc_create(
-          {
-            vnp_proc_type_cd: 'DEPCHG',
-            vnp_proc_state_type_cd: 'Started'
-          }.merge(bgs_auth)
-        )
-      end
-    end
-
-    def create_proc_form(vnp_proc_id)
-      with_multiple_attempts_enabled do
-        service.vnp_proc_form.vnp_proc_form_create(
-          {
-            vnp_proc_id: vnp_proc_id,
-            form_type_cd: '21-686c'
-          }.merge(bgs_auth)
-        )
-      end
-    end
-
-    def update_proc(proc_id)
-      with_multiple_attempts_enabled do
-        service.vnp_proc_v2.vnp_proc_update(
-          {
-            vnp_proc_id: proc_id,
-            vnp_proc_state_type_cd: 'Ready'
-          }.merge(bgs_auth)
-        )
-      end
-    end
-
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt.vnp_ptcpnt_create(
@@ -59,56 +26,15 @@ module BGS
     def create_person(proc_id, participant_id, payload)
       with_multiple_attempts_enabled do
         service.vnp_person.vnp_person_create(
-          {
-            vnp_proc_id: proc_id,
-            vnp_ptcpnt_id: participant_id,
-            first_nm: payload['first'],
-            middle_nm: payload['middle'],
-            last_nm: payload['last'],
-            suffix_nm: payload['suffix'],
-            brthdy_dt: format_date(payload['birth_date']),
-            birth_state_cd: payload['place_of_birth_state'],
-            birth_city_nm: payload['place_of_birth_city'],
-            file_nbr: payload['va_file_number'],
-            ssn_nbr: payload['ssn'],
-            death_dt: format_date(payload['death_date']),
-            ever_maried_ind: payload['ever_married_ind'],
-            vet_ind: payload['vet_ind'],
-            martl_status_type_cd: 'Married'
-          }.merge(bgs_auth)
+          create_person_params(proc_id, participant_id, payload)
         )
-      end
-    end
-
-    def get_va_file_number
-      with_multiple_attempts_enabled do
-        person = service.people.find_person_by_ptcpnt_id(@user[:participant_id])
-
-        person[:file_nbr]
       end
     end
 
     def create_address(proc_id, participant_id, payload)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
-          {
-            efctv_dt: Time.current.iso8601,
-            vnp_ptcpnt_id: participant_id,
-            vnp_proc_id: proc_id,
-            ptcpnt_addrs_type_nm: 'Mailing',
-            shared_addrs_ind: 'N',
-            addrs_one_txt: payload['address_line1'],
-            addrs_two_txt: payload['address_line2'],
-            addrs_three_txt: payload['address_line3'],
-            city_nm: payload['city'],
-            cntry_nm: payload['country_name'],
-            postal_cd: payload['state_code'],
-            mlty_postal_type_cd: payload['military_postal_code'],
-            mlty_post_office_type_cd: payload['military_post_office_type_code'],
-            zip_prefix_nbr: payload['zip_code'],
-            prvnc_nm: payload['state_code'],
-            email_addrs_txt: payload['email_address']
-          }.merge(bgs_auth)
+          create_address_params(proc_id, participant_id, payload)
         )
       end
     end
@@ -127,42 +53,6 @@ module BGS
       end
     end
 
-    def create_relationship(proc_id, veteran_participant_id, dependent)
-      with_multiple_attempts_enabled do
-        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(
-          {
-            vnp_proc_id: proc_id,
-            vnp_ptcpnt_id_a: veteran_participant_id,
-            vnp_ptcpnt_id_b: dependent[:vnp_participant_id],
-            ptcpnt_rlnshp_type_nm: dependent[:participant_relationship_type_name],
-            family_rlnshp_type_nm: dependent[:family_relationship_type_name],
-            event_dt: format_date(dependent[:event_date]),
-            begin_dt: format_date(dependent[:begin_date]),
-            end_dt: format_date(dependent[:end_date]),
-            marage_state_cd: dependent[:marriage_state],
-            marage_city_nm: dependent[:marriage_city],
-            marage_trmntn_state_cd: dependent[:divorce_state],
-            marage_trmntn_city_nm: dependent[:divorce_city],
-            marage_trmntn_type_cd: dependent[:marriage_termination_type_code],
-            mthly_support_from_vet_amt: dependent[:living_expenses_paid_amount]
-          }.merge(bgs_auth)
-        )
-      end
-    end
-
-    def find_benefit_claim_type_increment
-      with_multiple_attempts_enabled do
-        service.data.find_benefit_claim_type_increment(
-          {
-            ptcpnt_id: @user[:participant_id],
-            bnft_claim_type_cd: '130DPNEBNADJ',
-            pgm_type_cd: 'CPL',
-            ssn: @user[:ssn] # Just here to make the mocks work
-          }
-        )
-      end
-    end
-
     def service
       @service ||= BGS::Services.new(
         external_uid: @user[:icn],
@@ -171,6 +61,47 @@ module BGS
     end
 
     private
+
+    def create_address_params(proc_id, participant_id, payload)
+      {
+        efctv_dt: Time.current.iso8601,
+        vnp_ptcpnt_id: participant_id,
+        vnp_proc_id: proc_id,
+        ptcpnt_addrs_type_nm: 'Mailing',
+        shared_addrs_ind: 'N',
+        addrs_one_txt: payload['address_line1'],
+        addrs_two_txt: payload['address_line2'],
+        addrs_three_txt: payload['address_line3'],
+        city_nm: payload['city'],
+        cntry_nm: payload['country_name'],
+        postal_cd: payload['state_code'],
+        mlty_postal_type_cd: payload['military_postal_code'],
+        mlty_post_office_type_cd: payload['military_post_office_type_code'],
+        zip_prefix_nbr: payload['zip_code'],
+        prvnc_nm: payload['state_code'],
+        email_addrs_txt: payload['email_address']
+      }.merge(bgs_auth)
+    end
+
+    def create_person_params(proc_id, participant_id, payload)
+      {
+        vnp_proc_id: proc_id,
+        vnp_ptcpnt_id: participant_id,
+        first_nm: payload['first'],
+        middle_nm: payload['middle'],
+        last_nm: payload['last'],
+        suffix_nm: payload['suffix'],
+        brthdy_dt: format_date(payload['birth_date']),
+        birth_state_cd: payload['place_of_birth_state'],
+        birth_city_nm: payload['place_of_birth_city'],
+        file_nbr: payload['va_file_number'],
+        ssn_nbr: payload['ssn'],
+        death_dt: format_date(payload['death_date']),
+        ever_maried_ind: payload['ever_married_ind'],
+        vet_ind: payload['vet_ind'],
+        martl_status_type_cd: 'Married'
+      }.merge(bgs_auth)
+    end
 
     def with_multiple_attempts_enabled
       attempt ||= 0

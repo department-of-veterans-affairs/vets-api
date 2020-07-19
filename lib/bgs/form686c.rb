@@ -30,6 +30,39 @@ module BGS
 
     private
 
+    def create_proc
+      with_multiple_attempts_enabled do
+        service.vnp_proc_v2.vnp_proc_create(
+          {
+            vnp_proc_type_cd: 'DEPCHG',
+            vnp_proc_state_type_cd: 'Started'
+          }.merge(bgs_auth)
+        )
+      end
+    end
+
+    def create_proc_form(vnp_proc_id)
+      with_multiple_attempts_enabled do
+        service.vnp_proc_form.vnp_proc_form_create(
+          {
+            vnp_proc_id: vnp_proc_id,
+            form_type_cd: '21-686c'
+          }.merge(bgs_auth)
+        )
+      end
+    end
+
+    def update_proc(proc_id)
+      with_multiple_attempts_enabled do
+        service.vnp_proc_v2.vnp_proc_update(
+          {
+            vnp_proc_id: proc_id,
+            vnp_proc_state_type_cd: 'Ready'
+          }.merge(bgs_auth)
+        )
+      end
+    end
+
     def process_674(proc_id, dependents, payload)
       dependents.each do |dependent|
         if dependent[:type] == '674'
