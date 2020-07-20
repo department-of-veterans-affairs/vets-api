@@ -35,8 +35,9 @@ module Debts
       end
 
       debts_records.map do |debts_record|
-        debts_record.marshal_dump.slice(
-          :document_id, :doc_type, :type_description, :received_at
+        record = debts_record.marshal_dump.deep_transform_keys { |key| key.to_s.camelize(:lower) }
+        record.symbolize_keys.slice(
+          :documentId, :docType, :typeDescription, :receivedAt
         )
       end
     end
