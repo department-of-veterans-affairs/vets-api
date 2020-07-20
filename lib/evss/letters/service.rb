@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'common/exceptions/internal/record_not_found'
-require 'common/exceptions/external/gateway_timeout'
+require 'common/exceptions/record_not_found'
+require 'common/exceptions/gateway_timeout'
 require 'common/client/concerns/monitoring'
 
 module EVSS

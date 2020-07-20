@@ -5,9 +5,9 @@ require 'rails_helper'
 
 class DummyClass
   require_dependency 'va_facilities/param_validators'
-  require_dependency 'common/exceptions/internal/parameter_missing'
-  require_dependency 'common/exceptions/internal/ambiguous_request'
-  require_dependency 'common/exceptions/internal/invalid_field_value'
+  require_dependency 'common/exceptions/parameter_missing'
+  require_dependency 'common/exceptions/ambiguous_request'
+  require_dependency 'common/exceptions/invalid_field_value'
 
   include VaFacilities::ParamValidators
   attr_accessor :params

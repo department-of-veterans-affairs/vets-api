@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../base_service'
-require 'common/exceptions/external/backend_service_exception'
-require 'common/exceptions/internal/invalid_field_value'
+require 'common/exceptions/backend_service_exception'
+require 'common/exceptions/invalid_field_value'
 
 module VAOS
   module V1

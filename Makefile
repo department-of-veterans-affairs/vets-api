@@ -7,6 +7,12 @@ else
     ENV_ARG	 := dev
 endif
 
+ifdef clam
+	FOREMAN_ARG := all=1
+else
+	FOREMAN_ARG := all=1,clamd=0,freshclam=0
+endif
+
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
@@ -114,5 +120,5 @@ else
 endif
 
 .PHONY: up
-up: db  ## Starts the server and associated services with docker-compose
-	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1,clamd=0,freshclam=0"
+up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV
+	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m ${FOREMAN_ARG}"

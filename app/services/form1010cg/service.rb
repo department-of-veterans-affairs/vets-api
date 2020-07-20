@@ -9,7 +9,21 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    NOT_FOUND = 'NOT_FOUND'
+    STATSD_KEY_PREFIX = 'api.form1010cg.submission'
+    NOT_FOUND         = 'NOT_FOUND'
+
+    def self.metrics
+      OpenStruct.new(
+        attempt: STATSD_KEY_PREFIX + '.attempt',
+        success: STATSD_KEY_PREFIX + '.success',
+        failure: OpenStruct.new(
+          client: OpenStruct.new(
+            data: STATSD_KEY_PREFIX + '.failure.client.data',
+            qualification: STATSD_KEY_PREFIX + '.failure.client.qualification'
+          )
+        )
+      )
+    end
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -118,7 +132,6 @@ module Form1010cg
       # Set the ICN's for each form_subject on the metadata hash
       metadata = claim.form_subjects.each_with_object({}) do |form_subject, obj|
         icn = icn_for(form_subject)
-
         obj[form_subject.snakecase.to_sym] = {
           icn: icn == NOT_FOUND ? nil : icn
         }
@@ -162,6 +175,7 @@ module Form1010cg
       return cached_veteran_status unless cached_veteran_status.nil?
 
       icn = icn_for(form_subject)
+
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
       response = emis_service.get_veteran_status(icn: icn)
