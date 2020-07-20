@@ -23,14 +23,12 @@ module BGS
     def create
       add_children if @payload['add_child']
       report_deaths if @payload['report_death']
-      add_spouse if @payload['add_spouse']
-      # report_divorce if @payload['report_divorce']
+      # add_spouse if @payload['add_spouse']
+      # report_divorce if @payload['report_divorce'] Need to re-add this
       report_stepchild if @payload['report_stepchild_not_in_household']
       report_child_marriage if @payload['report_marriage_of_child_under18']
       report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
       report_674 if @payload['report674']
-      report_veteran_marriage_history if @payload['veteran_was_married_before']
-      report_spouse_marriage_history if @payload['spouse_was_married_before']
 
       @dependents
     end
@@ -79,30 +77,6 @@ module BGS
           { type: 'death' }
         )
       end
-    end
-
-    def add_spouse
-      lives_with_vet = @dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
-      marriage_info = format_marriage_info(@dependents_application['spouse_information'], lives_with_vet)
-      participant = create_participant(@proc_id)
-
-      create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
-      generate_address(
-        participant[:vnp_ptcpnt_id],
-        dependent_address(lives_with_vet, @dependents_application.dig('does_live_with_spouse', 'address'))
-      )
-
-      @dependents << serialize_result(
-        participant,
-        'Spouse',
-        lives_with_vet ? 'Spouse' : 'Estranged Spouse',
-        {
-          begin_date: @dependents_application['current_marriage_information']['date'],
-          marriage_state: @dependents_application['current_marriage_information']['location']['state'],
-          marriage_city: @dependents_application['current_marriage_information']['location']['city'],
-          type: 'spouse'
-        }
-      )
     end
 
     def report_divorce
@@ -201,52 +175,10 @@ module BGS
       create_address(@proc_id, participant_id, address)
     end
 
-    def report_veteran_marriage_history
-      @dependents_application['veteran_marriage_history'].each do |former_spouse|
-        marriage_info = format_former_marriage_info(former_spouse)
-        participant = create_participant(@proc_id)
-        create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
-
-        @dependents << serialize_result(
-          participant,
-          'Spouse',
-          'Ex-Spouse',
-          { 'type': 'veteran_former_marriage' }
-        )
-      end
-    end
-
-    def report_spouse_marriage_history
-      @dependents_application['spouse_marriage_history'].each do |former_spouse|
-        marriage_info = format_former_marriage_info(former_spouse)
-        participant = create_participant(@proc_id)
-        create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
-
-        @dependents << serialize_result(
-          participant,
-          'Spouse',
-          'Ex-Spouse',
-          { 'type': 'spouse_former_marriage' }
-        )
-      end
-    end
-
     def dependent_address(lives_with_vet, alt_address)
       return @dependents_application.dig('veteran_contact_information', 'veteran_address') if lives_with_vet
 
       alt_address
-    end
-
-    def format_former_marriage_info(former_spouse)
-      {
-        'start_date': former_spouse['start_date'],
-        'end_date': former_spouse['end_date'],
-        'marriage_state': former_spouse.dig('start_location', 'state'),
-        'marriage_city': former_spouse.dig('start_location', 'city'),
-        'divorce_state': former_spouse.dig('start_location', 'state'),
-        'divorce_city': former_spouse.dig('start_location', 'city'),
-        'marriage_termination_type_code': former_spouse['reason_marriage_ended_other']
-      }.merge(former_spouse['full_name']).with_indifferent_access
     end
 
     def format_674_info
@@ -296,22 +228,6 @@ module BGS
       }.merge(death_info['full_name'])
     end
 
-    def format_marriage_info(spouse_information, lives_with_vet)
-      marriage_info = {
-        'ssn': spouse_information['ssn'],
-        'birth_date': spouse_information['birth_date'],
-        'ever_married_ind': 'Y',
-        'martl_status_type_cd': lives_with_vet ? 'Married' : 'Separated',
-        'vet_ind': spouse_information['is_veteran'] ? 'Y' : 'N'
-      }.merge(spouse_information['full_name']).with_indifferent_access
-
-      if spouse_information['is_veteran']
-        marriage_info.merge!({ 'va_file_number': spouse_information['va_file_number'] })
-      end
-
-      marriage_info
-    end
-
     def format_divorce_info
       {
         divorce_state: report_divorce.dig('location_of_divorce', 'state'),
@@ -342,19 +258,19 @@ module BGS
     )
 
       {
-        vnp_participant_id: participant[:vnp_ptcpnt_id], # Both
-        participant_relationship_type_name: participant_relationship_type, # dependent only
-        family_relationship_type_name: family_relationship_type, # dependent only
-        begin_date: optional_fields[:begin_date], # dependent only
-        end_date: optional_fields[:end_date], # dependent only
-        event_date: optional_fields[:event_date], # dependent only
-        marriage_state: optional_fields[:marriage_state], # dependent only
-        marriage_city: optional_fields[:marriage_city], # dependent only
-        divorce_state: optional_fields[:divorce_state], # dependent only
-        divorce_city: optional_fields[:divorce_city], # dependent only
-        marriage_termination_type_code: optional_fields[:marriage_termination_type_code], # dependent only
-        living_expenses_paid_amount: optional_fields[:living_expenses_paid], # dependent only
-        type: optional_fields[:type] # both
+        vnp_participant_id: participant[:vnp_ptcpnt_id],
+        participant_relationship_type_name: participant_relationship_type,
+        family_relationship_type_name: family_relationship_type,
+        begin_date: optional_fields[:begin_date],
+        end_date: optional_fields[:end_date],
+        event_date: optional_fields[:event_date],
+        marriage_state: optional_fields[:marriage_state],
+        marriage_city: optional_fields[:marriage_city],
+        divorce_state: optional_fields[:divorce_state],
+        divorce_city: optional_fields[:divorce_city],
+        marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
+        living_expenses_paid_amount: optional_fields[:living_expenses_paid],
+        type: optional_fields[:type]
       }
     end
   end

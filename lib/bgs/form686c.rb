@@ -10,8 +10,7 @@ module BGS
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
 
-      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
-      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
+      process_relationships(payload)
 
       process_674(proc_id, dependents, payload)
 
@@ -61,6 +60,16 @@ module BGS
           }.merge(bgs_auth)
         )
       end
+    end
+
+    def process_relationships(payload)
+      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
+      marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create
+
+      dependents << marriages
+
+      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
+      process_674(proc_id, dependents, payload)
     end
 
     def process_674(proc_id, dependents, payload)
