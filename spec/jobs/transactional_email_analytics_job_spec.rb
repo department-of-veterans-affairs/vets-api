@@ -85,7 +85,7 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
       app_mailers = Dir['app/mailers/*.rb']
                     .collect { |mailer| %r{app/mailers/(.*)\.rb}.match(mailer)[1] }
                     .map { |x| x.camelize.constantize }
-      expect(TransactionalEmailAnalyticsJob.all_mailers).to eq(app_mailers)
+      expect(TransactionalEmailAnalyticsJob.all_mailers).to match_array(app_mailers)
     end
   end
 end
