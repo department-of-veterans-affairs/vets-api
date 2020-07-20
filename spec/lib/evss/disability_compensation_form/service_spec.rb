@@ -16,12 +16,16 @@ describe EVSS::DisabilityCompensationForm::Service do
     context 'with a valid evss response' do
       it 'returns a rated disabilities response object' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-          response = subject.get_rated_disabilities
-          expect(response).to be_ok
-          expect(response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
-          expect(response.rated_disabilities.count).to eq 2
-          expect(response.rated_disabilities.first.special_issues).to be_an Array
-          expect(response.rated_disabilities.first.special_issues.first)
+          expect { @response = subject.get_rated_disabilities }.to trigger_statsd_increment(
+            'api.external_http_request.EVSS/DisabilityCompensationForm.success',
+            times: 1,
+            value: 1
+          )
+          expect(@response).to be_ok
+          expect(@response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
+          expect(@response.rated_disabilities.count).to eq 2
+          expect(@response.rated_disabilities.first.special_issues).to be_an Array
+          expect(@response.rated_disabilities.first.special_issues.first)
             .to be_an EVSS::DisabilityCompensationForm::SpecialIssue
         end
       end
