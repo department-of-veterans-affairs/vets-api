@@ -171,18 +171,18 @@ RSpec.describe Form526Submission do
     end
 
     context 'with multiple successful jobs and email' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123654879) }
+      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
 
       it 'calls confirmation email job with correct values' do
         Flipper.enable(:form526_confirmation_email)
 
         allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
-          expect 'Beyonce'.eql?(args[1]['first_name'])
-          expect 'Knowles'.eql?(args[1]['last_name'])
-          expect 123654879.eql?(args[1]['submitted_claim_id'])
-          expect 'test@email.com'.eql?(args[1]['email'])
+          expect(args[1]['first_name']).to eql('Beyonce')
+          expect(args[1]['last_name']).to eql('Knowles')
+          expect(args[1]['submitted_claim_id']).to eql(123_654_879)
+          expect(args[1]['email']).to eql('test@email.com')
         end
-        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)  
+        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
       end
     end
 
