@@ -78,4 +78,14 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
       end
     end
   end
+
+  # constantize all the mailers for autoloading TransactionalEmailMailer.descendants properly 
+  describe "verify TransactionalEmailAnalyticsJob all_mailers returns all the possible mailer descendants" do 
+    it "matches the list of mailer classes that currently exist" do
+      app_mailers = Dir['app/mailers/*.rb']
+                      .collect { |mailer| %r{app/mailers/(.*)\.rb}.match(mailer)[1] }
+                      .map { |x| x.camelize.constantize }
+      expect(TransactionalEmailAnalyticsJob.all_mailers).to eq(app_mailers)
+    end    
+  end
 end

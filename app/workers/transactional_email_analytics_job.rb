@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-unless Rails.application.config.eager_load
-  # constantize all the mailers so TransactionalEmailMailer.descendants has something
-  # inspired by https://guides.rubyonrails.org/autoloading_and_reloading_constants.html#single-table-inheritance
-  Dir['app/mailers/*.rb']
-    .collect { |mailer| %r{app/mailers/(.*)\.rb}.match(mailer)[1] }
-    .map { |x| x.camelize.constantize }
-end
-
 class TransactionalEmailAnalyticsJob
   include Sidekiq::Worker
 
@@ -42,6 +34,19 @@ class TransactionalEmailAnalyticsJob
       end
       break if we_should_break?
     end
+  end
+  
+   # constantize all the mailers so TransactionalEmailMailer.descendants has something
+  def self.all_mailers
+   [
+     FailedClaimsReportMailer, 
+     SpoolSubmissionsReportMailer, 
+     TransactionalEmailMailer, 
+     ApplicationMailer, 
+     DirectDepositMailer, 
+     HcaSubmissionFailureMailer, 
+     YearToDateReportMailer
+   ]
   end
 
   private
