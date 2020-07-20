@@ -174,7 +174,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'with multiple successful jobs' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: '1234765') }
 
       it 'sets the submission.complete to true' do
         expect(subject.workflow_complete).to be_falsey
