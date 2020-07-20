@@ -3,13 +3,13 @@
 class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   add_form_and_validation('22-10203')
 
-  def notify_school_contact_officials(user)
+  def after_submit(user)
     authorized = user.authorize :evss, :access?
 
     if authorized
-      gi_bill_status = get_gi_bill_status(user)
-      remaining_entitlement = initialize_entitlement_information(gi_bill_status)
-      facility_code = facility_code(gi_bill_status)
+      # gi_bill_status = get_gi_bill_status(user)
+      # remaining_entitlement = initialize_entitlement_information(gi_bill_status)
+      # facility_code = facility_code(gi_bill_status)
 
       email_sent
       save
@@ -45,10 +45,8 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   end
 
   def email_sent
-    @application ||= lambda do
-      @application = open_struct_form
-      @application.sco_email_sent = true
-      @application
-    end.call
+    application = parsed_form
+    application["scoEmailSent"] = true
+    self.form = JSON.generate(application)
   end
 end
