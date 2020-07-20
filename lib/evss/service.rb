@@ -16,6 +16,14 @@ module EVSS
     end
 
     def perform(method, path, body = nil, headers = {}, options = {})
+      Rails.logger.info([
+        'EDMDEBUG evss perform',
+        method.as_json.to_json,
+        path.as_json.to_json,
+        body.as_json.to_json,
+        headers.as_json.to_json,
+        options.as_json.to_json
+      ].join(' '))
       merged_headers = @headers.to_h.merge(headers)
       super(method, path, body, merged_headers, options)
     end

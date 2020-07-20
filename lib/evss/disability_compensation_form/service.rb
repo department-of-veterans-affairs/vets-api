@@ -31,13 +31,11 @@ module EVSS
       # @return [EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse] Response with a list of rated disabilities
       #
       def get_rated_disabilities
-        with_monitoring_and_error_handling do
-          if @headers['va_eauth_birlsfilenumber'].blank?
-            Rails.logger.info('Missing `birls_id`', edipi: @headers['va_eauth_dodedipnid'])
-          end
-          raw_response = perform(:get, 'ratedDisabilities')
-          RatedDisabilitiesResponse.new(raw_response.status, raw_response)
+        if @headers['va_eauth_birlsfilenumber'].blank?
+          Rails.logger.info('Missing `birls_id`', edipi: @headers['va_eauth_dodedipnid'])
         end
+        raw_response = perform(:get, 'ratedDisabilities')
+        RatedDisabilitiesResponse.new(raw_response.status, raw_response)
       end
 
       # POSTs a 526 form to the EVSS submit endpoint. EVSS is bound to VBMSs response times and, therefore,
@@ -47,20 +45,18 @@ module EVSS
       # @return [EVSS::DisabilityCompensationForm::FormSubmitResponse] Response that includes the EVSS claim_id
       #
       def submit_form526(form_content)
-        with_monitoring_and_error_handling do
-          headers = { 'Content-Type' => 'application/json' }
-          options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
-          raw_response = perform(:post, 'submit', form_content, headers, options)
-          FormSubmitResponse.new(raw_response.status, raw_response)
-        end
+        Rails.logger.info "EDMDEBUG evss submit_form526 #{form_content.as_json.to_json}"
+        headers = { 'Content-Type' => 'application/json' }
+        options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
+        raw_response = perform(:post, 'submit', form_content, headers, options)
+        FormSubmitResponse.new(raw_response.status, raw_response)
       end
 
       def validate_form526(form_content)
-        with_monitoring_and_error_handling do
-          headers = { 'Content-Type' => 'application/json' }
-          options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
-          perform(:post, 'validate', form_content, headers, options)
-        end
+        Rails.logger.info "EDMDEBUG evss validate_form526 #{form_content.as_json.to_json}"
+        headers = { 'Content-Type' => 'application/json' }
+        options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
+        perform(:post, 'validate', form_content, headers, options)
       end
 
       private

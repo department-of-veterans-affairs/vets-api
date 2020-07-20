@@ -32,71 +32,33 @@ module MVI
 
     STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
     SERVER_ERROR = 'server_error'
-
-    # rubocop:disable Metrics/MethodLength
     def add_person(user_identity)
-      with_monitoring do
-        measure_info(user_identity) do
-          raw_response = perform(
-            :post, '',
-            create_add_message(user_identity),
-            soapaction: OPERATIONS[:add_person]
-          )
-          MVI::Responses::AddPersonResponse.with_parsed_response(raw_response)
-        end
+      Rails.logger.info "EDMDEBUG mvi add_person #{user_identity.as_json.to_json}"
+      measure_info(user_identity) do
+        raw_response = perform(
+          :post, '',
+          create_add_message(user_identity),
+          soapaction: OPERATIONS[:add_person]
+        )
+        MVI::Responses::AddPersonResponse.with_parsed_response(raw_response)
       end
-    rescue Breakers::OutageException => e
-      Raven.extra_context(breakers_error_message: e.message)
-      log_console_and_sentry('MVI add_person connection failed.', :warn)
-      mvi_add_exception_response_for('MVI_503', e)
-    rescue Faraday::ConnectionFailed => e
-      log_console_and_sentry("MVI add_person connection failed: #{e.message}", :warn)
-      mvi_add_exception_response_for('MVI_504', e)
-    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_console_and_sentry("MVI add_person error: #{e.message}", :warn)
-      mvi_add_exception_response_for('MVI_504', e)
-    rescue MVI::Errors::Base => e
-      key = get_mvi_error_key(e)
-      mvi_error_handler(user_identity, e)
-      mvi_add_exception_response_for(key, e)
     end
-    # rubocop:enable Metrics/MethodLength
 
     # Given a user queries MVI and returns their VA profile.
     #
     # @param user [UserIdentity] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
-    # rubocop:disable Metrics/MethodLength
     def find_profile(user_identity)
-      with_monitoring do
-        measure_info(user_identity) do
-          raw_response = perform(
-            :post, '',
-            create_profile_message(user_identity),
-            soapaction: OPERATIONS[:find_profile]
-          )
-          MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
-        end
-      end
-    rescue Breakers::OutageException => e
-      Raven.extra_context(breakers_error_message: e.message)
-      log_console_and_sentry('MVI find_profile connection failed.', :warn)
-      mvi_profile_exception_response_for('MVI_503', e)
-    rescue Faraday::ConnectionFailed => e
-      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
-      mvi_profile_exception_response_for('MVI_504', e)
-    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
-      mvi_profile_exception_response_for('MVI_504', e)
-    rescue MVI::Errors::Base => e
-      mvi_error_handler(user_identity, e)
-      if e.is_a?(MVI::Errors::RecordNotFound)
-        mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
-      else
-        mvi_profile_exception_response_for('MVI_502', e)
+      Rails.logger.info "EDMDEBUG mvi find_profile #{user_identity.as_json.to_json}"
+      measure_info(user_identity) do
+        raw_response = perform(
+          :post, '',
+          create_profile_message(user_identity),
+          soapaction: OPERATIONS[:find_profile]
+        )
+        MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def self.service_is_up?
       last_mvi_outage = Breakers::Outage.find_latest(service: MVI::Configuration.instance.breakers_service)
