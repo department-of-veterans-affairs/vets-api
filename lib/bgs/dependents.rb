@@ -23,10 +23,9 @@ module BGS
     def create
       add_children if @payload['add_child']
       report_deaths if @payload['report_death']
-      # add_spouse if @payload['add_spouse']
-      # report_divorce if @payload['report_divorce'] Need to re-add this
+      report_divorce if @payload['report_divorce']
       report_stepchild if @payload['report_stepchild_not_in_household']
-      report_child_marriage if @payload['report_marriage_of_child_under18']
+
       report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
       report_674 if @payload['report674']
 
@@ -115,22 +114,22 @@ module BGS
       end
     end
 
-    def report_child_marriage
-      # What do we do about family relationship type? We don't ask the question on the form
-      child_marriage_info = format_child_marriage_info(@dependents_application['child_marriage'])
-      participant = create_participant(@proc_id)
-      create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
-
-      @dependents << serialize_result(
-        participant,
-        'Child',
-        'Other',
-        {
-          'event_date': child_marriage_info['event_date'],
-          'type': 'child_marriage'
-        }
-      )
-    end
+    # def report_child_marriage
+    #   # What do we do about family relationship type? We don't ask the question on the form
+    #   child_marriage_info = format_child_marriage_info(@dependents_application['child_marriage'])
+    #   participant = create_participant(@proc_id)
+    #   create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
+    #
+    #   @dependents << serialize_result(
+    #     participant,
+    #     'Child',
+    #     'Other',
+    #     {
+    #       'event_date': child_marriage_info['event_date'],
+    #       'type': 'child_marriage'
+    #     }
+    #   )
+    # end
 
     def report_child18_or_older_is_not_attending_school
       # What do we do about family relationship type? We don't ask the question on the form
@@ -195,12 +194,6 @@ module BGS
       {
         event_date: child['date_child_left_school']
       }.merge(child['full_name']).with_indifferent_access
-    end
-
-    def format_child_marriage_info(child_marriage)
-      {
-        'event_date': child_marriage['date_married']
-      }.merge(child_marriage['full_name']).with_indifferent_access
     end
 
     def format_stepchild_info(stepchild_info)

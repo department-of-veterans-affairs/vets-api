@@ -12,7 +12,7 @@ module BGS
 
     def create
       spouse_marriages, vet_dependents = @dependents.partition do |dependent|
-        dependent[:type] == 'spouse_former_marriage'
+        dependent[:type] == 'spouse_marriage_history'
       end
 
       spouse = @dependents.find { |dependent| dependent[:type] == 'spouse' }

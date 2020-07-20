@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGS
-  class MarriageHistory < Service
+  class Marriages < Service
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
       @payload = payload
@@ -12,15 +12,16 @@ module BGS
     end
 
     def create
-      report_veteran_marriage_history if @payload['veteran_was_married_before']
-      report_spouse_marriage_history if @payload['spouse_was_married_before']
+      report_marriage_history('veteran_marriage_history') if @payload['veteran_was_married_before']
+      report_marriage_history('spouse_marriage_history') if @payload['spouse_was_married_before']
+      report_child_marriage if @payload['report_marriage_of_child_under18']
       add_spouse if @payload['add_spouse']
     end
 
     private
 
-    def report_veteran_marriage_history
-      @dependents_application['veteran_marriage_history'].each do |former_spouse|
+    def report_marriage_history(type)
+      @dependents_application[type].each do |former_spouse|
         marriage_info = format_former_marriage_info(former_spouse)
         participant = create_participant(@proc_id)
         create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
@@ -29,22 +30,7 @@ module BGS
           participant,
           'Spouse',
           'Ex-Spouse',
-          {'type': 'veteran_former_marriage'}
-        )
-      end
-    end
-
-    def report_spouse_marriage_history
-      @dependents_application['spouse_marriage_history'].each do |former_spouse|
-        marriage_info = format_former_marriage_info(former_spouse)
-        participant = create_participant(@proc_id)
-        create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
-
-        @dependents << serialize_result(
-          participant,
-          'Spouse',
-          'Ex-Spouse',
-          {'type': 'spouse_former_marriage'}
+          {'type': type}
         )
       end
     end
@@ -99,6 +85,53 @@ module BGS
         'divorce_city': former_spouse.dig('start_location', 'city'),
         'marriage_termination_type_code': former_spouse['reason_marriage_ended_other']
       }.merge(former_spouse['full_name']).with_indifferent_access
+    end
+
+    def report_child_marriage
+      # What do we do about family relationship type? We don't ask the question on the form
+      child_marriage_info = format_child_marriage_info(@dependents_application['child_marriage'])
+      participant = create_participant(@proc_id)
+      create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
+
+      @dependents << serialize_result(
+        participant,
+        'Child',
+        'Other',
+        {
+          'event_date': child_marriage_info['event_date'],
+          'type': 'child_marriage'
+        }
+      )
+    end
+
+    def format_child_marriage_info(child_marriage)
+      {
+        'event_date': child_marriage['date_married']
+      }.merge(child_marriage['full_name']).with_indifferent_access
+    end
+
+    def serialize_result(
+      participant,
+      participant_relationship_type,
+      family_relationship_type,
+      optional_fields = {}
+    )
+
+      {
+        vnp_participant_id: participant[:vnp_ptcpnt_id],
+        participant_relationship_type_name: participant_relationship_type,
+        family_relationship_type_name: family_relationship_type,
+        begin_date: optional_fields[:begin_date],
+        end_date: optional_fields[:end_date],
+        event_date: optional_fields[:event_date],
+        marriage_state: optional_fields[:marriage_state],
+        marriage_city: optional_fields[:marriage_city],
+        divorce_state: optional_fields[:divorce_state],
+        divorce_city: optional_fields[:divorce_city],
+        marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
+        living_expenses_paid_amount: optional_fields[:living_expenses_paid],
+        type: optional_fields[:type]
+      }
     end
   end
 end
