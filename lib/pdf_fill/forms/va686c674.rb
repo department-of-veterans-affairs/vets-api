@@ -1617,15 +1617,7 @@ module PdfFill
 
           expand_child_status(child)
 
-          if child['previously_married'] == 'Yes'
-            child['child_status']['child_previously_married'] = 0
-
-            # extract date
-            child['previous_marriage_details']['date_marriage_ended'] =
-              split_date(child['previous_marriage_details']['date_marriage_ended'])
-
-            expand_child_previously_married(child)
-          end
+          expand_child_previously_married(child) if child['previously_married'] == 'Yes'
         end
       end
 
@@ -1645,6 +1637,12 @@ module PdfFill
       end
 
       def expand_child_previously_married(child)
+        child['child_status']['child_previously_married'] = 0
+
+        # extract date
+        child['previous_marriage_details']['date_marriage_ended'] =
+          split_date(child['previous_marriage_details']['date_marriage_ended'])
+
         # expand reason child marriage ended
         reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
         if reason_marriage_ended.include?('Divorce') || reason_marriage_ended.include?('Death')
