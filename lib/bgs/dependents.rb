@@ -152,21 +152,6 @@ module BGS
       )
     end
 
-    def generate_address(participant_id, address)
-      if address['view:lives_on_military_base'] == true
-        address['military_postal_code'] = address.delete('state_code')
-        address['military_post_office_type_code'] = address.delete('city')
-      end
-
-      create_address(@proc_id, participant_id, address)
-    end
-
-    def dependent_address(lives_with_vet, alt_address)
-      return @dependents_application.dig('veteran_contact_information', 'veteran_address') if lives_with_vet
-
-      alt_address
-    end
-
     def format_674_info
       name_and_ssn = @dependents_application['student_name_and_ssn']
       was_married = @dependents_application.dig('student_address_marriage_tuition', 'was_married')

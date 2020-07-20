@@ -151,6 +151,21 @@ module BGS
       }
     end
 
+    def dependent_address(lives_with_vet, alt_address)
+      return @dependents_application.dig('veteran_contact_information', 'veteran_address') if lives_with_vet
+
+      alt_address
+    end
+
+    def generate_address(participant_id, address)
+      if address['view:lives_on_military_base'] == true
+        address['military_postal_code'] = address.delete('state_code')
+        address['military_post_office_type_code'] = address.delete('city')
+      end
+
+      create_address(@proc_id, participant_id, address)
+    end
+
     def notify_of_service_exception(error, method, attempt = nil, status = :error)
       msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
       context = { icn: @user[:icn] }
