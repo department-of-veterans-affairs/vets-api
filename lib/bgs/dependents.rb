@@ -23,10 +23,11 @@ module BGS
     def create
       report_674 if @payload['report674']
       add_children if @payload['add_child']
-      # report_deaths if @payload['report_death']
+      report_deaths if @payload['report_death']
       # report_divorce if @payload['report_divorce']
-      # report_stepchild if @payload['report_stepchild_not_in_household']
-      # report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
+      report_stepchild if @payload['report_stepchild_not_in_household']
+      report_child_event('child_marriage') if @payload['report_marriage_of_child_under18']
+      report_child_event('not_attending_school') if @payload['report_child18_or_older_is_not_attending_school']
 
       @dependents
     end
@@ -34,7 +35,6 @@ module BGS
     private
 
     def add_children
-      binding.pry
       @dependents_application['children_to_add'].each do |child_info|
         formatted_info = format_child_info(child_info)
         participant = create_participant(@proc_id)
@@ -73,7 +73,7 @@ module BGS
           participant,
           relationship_types[:participant],
           relationship_types[:family],
-          { type: 'death' }
+          {type: 'death'}
         )
       end
     end
@@ -114,12 +114,10 @@ module BGS
       end
     end
 
-    def report_child18_or_older_is_not_attending_school
-      # What do we do about family relationship type? We don't ask the question on the form
-      formatted_child_info = format_child_not_attending(
-        @dependents_application['child_stopped_attending_school']
-      )
+    def report_child_event(event_type)
+      formatted_child_info = format_child_event(event_type)
       participant = create_participant(@proc_id)
+
       create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_child_info)
 
       @dependents << serialize_dependent_result(
@@ -128,9 +126,15 @@ module BGS
         'Other',
         {
           'event_date': formatted_child_info['event_date'],
-          'type': 'not_attending_school'
+          'type': event_type
         }
       )
+    end
+
+    def format_child_event(event_type)
+      return format_child_marriage_info(@dependents_application['child_marriage']) if event_type == 'child_marriage'
+
+      format_child_not_attending(@dependents_application['child_stopped_attending_school'])
     end
 
     def report_674
@@ -144,7 +148,7 @@ module BGS
         participant,
         'Child',
         'Other',
-        { 'type': '674' }
+        {'type': '674'}
       )
     end
 
@@ -171,6 +175,12 @@ module BGS
         'birth_date': name_and_ssn['birth_date'],
         'ever_married_ind': was_married == true ? 'Y' : 'N'
       }.merge(name_and_ssn['full_name']).with_indifferent_access
+    end
+
+    def format_child_marriage_info(child_marriage)
+      {
+        'event_date': child_marriage['date_married']
+      }.merge(child_marriage['full_name']).with_indifferent_access
     end
 
     def format_child_not_attending(child)
@@ -217,7 +227,7 @@ module BGS
 
     def relationship_type(info)
       if info['dependent_type']
-        return { participant: 'Guardian', family: 'Other' } if info['dependent_type'] == 'DEPENDENT_PARENT'
+        return {participant: 'Guardian', family: 'Other'} if info['dependent_type'] == 'DEPENDENT_PARENT'
 
         {
           participant: info['dependent_type'].capitalize.gsub('_', ' '),

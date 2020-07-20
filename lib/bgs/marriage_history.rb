@@ -14,7 +14,6 @@ module BGS
     def create
       report_marriage_history('veteran_marriage_history') if @payload['veteran_was_married_before']
       report_marriage_history('spouse_marriage_history') if @payload['spouse_was_married_before']
-      report_child_marriage if @payload['report_marriage_of_child_under18']
       add_spouse if @payload['add_spouse']
     end
 
@@ -85,29 +84,6 @@ module BGS
         'divorce_city': former_spouse.dig('start_location', 'city'),
         'marriage_termination_type_code': former_spouse['reason_marriage_ended_other']
       }.merge(former_spouse['full_name']).with_indifferent_access
-    end
-
-    def report_child_marriage
-      # What do we do about family relationship type? We don't ask the question on the form
-      child_marriage_info = format_child_marriage_info(@dependents_application['child_marriage'])
-      participant = create_participant(@proc_id)
-      create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
-
-      @dependents << serialize_dependent_result(
-        participant,
-        'Child',
-        'Other',
-        {
-          'event_date': child_marriage_info['event_date'],
-          'type': 'child_marriage'
-        }
-      )
-    end
-
-    def format_child_marriage_info(child_marriage)
-      {
-        'event_date': child_marriage['date_married']
-      }.merge(child_marriage['full_name']).with_indifferent_access
     end
   end
 end
