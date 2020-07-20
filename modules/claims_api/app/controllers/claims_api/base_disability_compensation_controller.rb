@@ -16,7 +16,7 @@ module ClaimsApi
     end
 
     def validate_form_526
-      service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+      service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       auto_claim = ClaimsApi::AutoEstablishedClaim.new(
         status: ClaimsApi::AutoEstablishedClaim::PENDING,
         auth_headers: auth_headers,
@@ -69,7 +69,7 @@ module ClaimsApi
           auth_headers
         )
       else
-        EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
+        EVSS::DisabilityCompensationForm::Service.new(
           auth_headers
         )
       end
