@@ -23,7 +23,26 @@ module V0
       end
     end
 
+    # If we were unable to submit the user's claim digitally, we allow them to the download
+    # the 10-10CG PDF, pre-filled with their data, for them to mail in.
+    def download_pdf
+      claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
+
+      if claim.valid?
+        filename  = file_name_for_pdf(claim.veteran_data)
+        file_path = claim.to_pdf
+
+        send_file "#{Rails.root}/#{file_path}", filename: filename, type: 'application/pdf'
+      else
+        raise(Common::Exceptions::ValidationErrors, claim)
+      end
+    end
+
     private
+
+    def file_name_for_pdf(veteran_data)
+      "10-10CG_#{veteran_data['fullName']['first']}_#{veteran_data['fullName']['last']}.pdf"
+    end
 
     def form_submission
       params.require(:caregivers_assistance_claim).require(:form)
