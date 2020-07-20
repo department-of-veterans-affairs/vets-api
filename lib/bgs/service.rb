@@ -111,9 +111,9 @@ module BGS
       if attempt < MAX_ATTEMPTS
         notify_of_service_exception(e, __method__.to_s, attempt, :warn)
         retry
-      else
-        notify_of_service_exception(e, __method__.to_s)
       end
+
+      notify_of_service_exception(e, __method__.to_s)
     end
 
     def bgs_auth
@@ -129,8 +129,8 @@ module BGS
 
     def notify_of_service_exception(error, method, attempt = nil, status = :error)
       msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
-      context = { icn: @user[:icn] }
-      tags = { team: 'vfs-ebenefits' }
+      context = {icn: @user[:icn]}
+      tags = {team: 'vfs-ebenefits'}
 
       return log_message_to_sentry(msg, :warn, context, tags) if status == :warn
 
@@ -141,7 +141,7 @@ module BGS
     def raise_backend_exception(key, source, error)
       exception = BGS::ServiceException.new(
         key,
-        { source: source.to_s },
+        {source: source.to_s},
         403,
         error.message
       )
