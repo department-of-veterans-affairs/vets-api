@@ -1528,12 +1528,7 @@ module PdfFill
         spouse['birth_date'] = split_date(spouse['birth_date'])
 
         # extract ssn
-        ssn = spouse['ssn']
-        spouse['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
-
-        # extract marriage date
-        @form_data['dependents_application']['current_marriage_information']['date'] =
-          split_date(@form_data['dependents_application']['current_marriage_information']['date'])
+        spouse['ssn'] = split_ssn(spouse['ssn'].delete('-')) if spouse['ssn'].present?
 
         # extract postal code
         if @form_data['dependents_application']['does_live_with_spouse']['address'].present?
@@ -1549,7 +1544,7 @@ module PdfFill
         }
 
         expand_va_file_number(spouse)
-        expand_marriage_type
+        expand_marriage_info
         expand_does_live_with_spouse
       end
 
@@ -1793,7 +1788,11 @@ module PdfFill
         end
       end
 
-      def expand_marriage_type
+      def expand_marriage_info
+        # extract marriage date
+        @form_data['dependents_application']['current_marriage_information']['date'] =
+          split_date(@form_data['dependents_application']['current_marriage_information']['date'])
+
         marriage_type = @form_data['dependents_application']['current_marriage_information']['type']
         @form_data['dependents_application']['current_marriage_information']['type'] = {
           'religious_ceremony' => select_checkbox(marriage_type == 'CEREMONIAL'),
