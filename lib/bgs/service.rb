@@ -127,6 +127,30 @@ module BGS
       }
     end
 
+    def serialize_dependent_result(
+      participant,
+      participant_relationship_type,
+      family_relationship_type,
+      optional_fields = {}
+    )
+
+      {
+        vnp_participant_id: participant[:vnp_ptcpnt_id],
+        participant_relationship_type_name: participant_relationship_type,
+        family_relationship_type_name: family_relationship_type,
+        begin_date: optional_fields[:begin_date],
+        end_date: optional_fields[:end_date],
+        event_date: optional_fields[:event_date],
+        marriage_state: optional_fields[:marriage_state],
+        marriage_city: optional_fields[:marriage_city],
+        divorce_state: optional_fields[:divorce_state],
+        divorce_city: optional_fields[:divorce_city],
+        marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
+        living_expenses_paid_amount: optional_fields[:living_expenses_paid],
+        type: optional_fields[:type]
+      }
+    end
+
     def notify_of_service_exception(error, method, attempt = nil, status = :error)
       msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
       context = { icn: @user[:icn] }

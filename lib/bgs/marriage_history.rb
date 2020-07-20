@@ -26,7 +26,7 @@ module BGS
         participant = create_participant(@proc_id)
         create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
 
-        @dependents << serialize_result(
+        @dependents << serialize_dependent_result(
           participant,
           'Spouse',
           'Ex-Spouse',
@@ -62,7 +62,7 @@ module BGS
         dependent_address(lives_with_vet, @dependents_application.dig('does_live_with_spouse', 'address'))
       )
 
-      @dependents << serialize_result(
+      @dependents << serialize_dependent_result(
         participant,
         'Spouse',
         lives_with_vet ? 'Spouse' : 'Estranged Spouse',
@@ -93,7 +93,7 @@ module BGS
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
 
-      @dependents << serialize_result(
+      @dependents << serialize_dependent_result(
         participant,
         'Child',
         'Other',
@@ -108,30 +108,6 @@ module BGS
       {
         'event_date': child_marriage['date_married']
       }.merge(child_marriage['full_name']).with_indifferent_access
-    end
-
-    def serialize_result(
-      participant,
-      participant_relationship_type,
-      family_relationship_type,
-      optional_fields = {}
-    )
-
-      {
-        vnp_participant_id: participant[:vnp_ptcpnt_id],
-        participant_relationship_type_name: participant_relationship_type,
-        family_relationship_type_name: family_relationship_type,
-        begin_date: optional_fields[:begin_date],
-        end_date: optional_fields[:end_date],
-        event_date: optional_fields[:event_date],
-        marriage_state: optional_fields[:marriage_state],
-        marriage_city: optional_fields[:marriage_city],
-        divorce_state: optional_fields[:divorce_state],
-        divorce_city: optional_fields[:divorce_city],
-        marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
-        living_expenses_paid_amount: optional_fields[:living_expenses_paid],
-        type: optional_fields[:type]
-      }
     end
   end
 end

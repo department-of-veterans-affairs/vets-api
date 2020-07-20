@@ -21,13 +21,12 @@ module BGS
     end
 
     def create
-      add_children if @payload['add_child']
-      report_deaths if @payload['report_death']
-      report_divorce if @payload['report_divorce']
-      report_stepchild if @payload['report_stepchild_not_in_household']
-
-      report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
       report_674 if @payload['report674']
+      add_children if @payload['add_child']
+      # report_deaths if @payload['report_death']
+      # report_divorce if @payload['report_divorce']
+      # report_stepchild if @payload['report_stepchild_not_in_household']
+      # report_child18_or_older_is_not_attending_school if @payload['report_child18_or_older_is_not_attending_school']
 
       @dependents
     end
@@ -35,6 +34,7 @@ module BGS
     private
 
     def add_children
+      binding.pry
       @dependents_application['children_to_add'].each do |child_info|
         formatted_info = format_child_info(child_info)
         participant = create_participant(@proc_id)
@@ -45,7 +45,7 @@ module BGS
           dependent_address(child_info['does_child_live_with_you'], child_info.dig('child_address_info', 'address'))
         )
 
-        @dependents << serialize_result(
+        @dependents << serialize_dependent_result(
           participant,
           'Child',
           formatted_info['family_relationship_type'],
@@ -69,7 +69,7 @@ module BGS
         # There is no support in the API for death location
         # create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
 
-        @dependents << serialize_result(
+        @dependents << serialize_dependent_result(
           participant,
           relationship_types[:participant],
           relationship_types[:family],
@@ -83,7 +83,7 @@ module BGS
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], divorce_info)
 
-      @dependents << serialize_result(
+      @dependents << serialize_dependent_result(
         participant,
         'Spouse',
         'Spouse',
@@ -102,7 +102,7 @@ module BGS
         create_person(@proc_id, participant[:vnp_ptcpnt_id], step_child_formatted)
         generate_address(participant[:vnp_ptcpnt_id], stepchild_info['address'])
 
-        @dependents << serialize_result(
+        @dependents << serialize_dependent_result(
           participant,
           'Child',
           'Stepchild',
@@ -114,23 +114,6 @@ module BGS
       end
     end
 
-    # def report_child_marriage
-    #   # What do we do about family relationship type? We don't ask the question on the form
-    #   child_marriage_info = format_child_marriage_info(@dependents_application['child_marriage'])
-    #   participant = create_participant(@proc_id)
-    #   create_person(@proc_id, participant[:vnp_ptcpnt_id], child_marriage_info)
-    #
-    #   @dependents << serialize_result(
-    #     participant,
-    #     'Child',
-    #     'Other',
-    #     {
-    #       'event_date': child_marriage_info['event_date'],
-    #       'type': 'child_marriage'
-    #     }
-    #   )
-    # end
-
     def report_child18_or_older_is_not_attending_school
       # What do we do about family relationship type? We don't ask the question on the form
       formatted_child_info = format_child_not_attending(
@@ -139,7 +122,7 @@ module BGS
       participant = create_participant(@proc_id)
       create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_child_info)
 
-      @dependents << serialize_result(
+      @dependents << serialize_dependent_result(
         participant,
         'Child',
         'Other',
@@ -157,7 +140,7 @@ module BGS
       create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_674_info)
       generate_address(participant[:vnp_ptcpnt_id], student_address)
 
-      @dependents << serialize_result(
+      @dependents << serialize_dependent_result(
         participant,
         'Child',
         'Other',
@@ -241,30 +224,6 @@ module BGS
           family: info['dependent_type'].capitalize.gsub('_', ' ')
         }
       end
-    end
-
-    def serialize_result(
-      participant,
-      participant_relationship_type,
-      family_relationship_type,
-      optional_fields = {}
-    )
-
-      {
-        vnp_participant_id: participant[:vnp_ptcpnt_id],
-        participant_relationship_type_name: participant_relationship_type,
-        family_relationship_type_name: family_relationship_type,
-        begin_date: optional_fields[:begin_date],
-        end_date: optional_fields[:end_date],
-        event_date: optional_fields[:event_date],
-        marriage_state: optional_fields[:marriage_state],
-        marriage_city: optional_fields[:marriage_city],
-        divorce_state: optional_fields[:divorce_state],
-        divorce_city: optional_fields[:divorce_city],
-        marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
-        living_expenses_paid_amount: optional_fields[:living_expenses_paid],
-        type: optional_fields[:type]
-      }
     end
   end
 end
