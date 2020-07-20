@@ -13,6 +13,15 @@ module EVSS
       @user = user
       @headers = EVSS::AuthHeaders.new(user)
       @transaction_id = @headers.transaction_id
+      Rails.logger.info([
+        'user',
+        @user.class,
+        @user.as_json.to_json,
+        'headers',
+        @headers.as_json.to_json,
+        'transaction_id',
+        @transaction_id.as_json.to_json
+      ].join(' '))
     end
 
     def perform(method, path, body = nil, headers = {}, options = {})
