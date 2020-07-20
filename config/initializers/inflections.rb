@@ -13,7 +13,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'EVSS'
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
-  inflect.acronym 'HCA'
   inflect.acronym 'IHub'
   inflect.acronym 'MDOT'
   inflect.acronym 'PagerDuty'
