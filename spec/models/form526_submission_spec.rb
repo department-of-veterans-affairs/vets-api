@@ -179,7 +179,7 @@ RSpec.describe Form526Submission do
         allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
           expect(args[1]['first_name']).to eql('Beyonce')
           expect(args[1]['last_name']).to eql('Knowles')
-          expect(args[1]['submitted_claim_id']).to eql(123_654_879)
+          expect(args[1]['submitted_claim_id']).to be(123_654_879)
           expect(args[1]['email']).to eql('test@email.com')
         end
         subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
