@@ -6,7 +6,7 @@ FactoryBot.define do
     saved_claim { create(:va526ez) }
     submitted_claim_id { nil }
     auth_headers_json do
-      user = build(:disabilities_compensation_user, ssn: '796126777')
+      user = build(:disabilities_compensation_user)
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h).to_json
     end
     form_json do

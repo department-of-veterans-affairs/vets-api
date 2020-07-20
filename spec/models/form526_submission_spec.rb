@@ -12,7 +12,7 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:disabilities_compensation_user) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -174,7 +174,7 @@ RSpec.describe Form526Submission do
     end
 
     context 'with multiple successful jobs' do
-      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: '1234765') }
+      subject { create(:form526_submission, :with_multiple_succesful_jobs) }
 
       it 'sets the submission.complete to true' do
         expect(subject.workflow_complete).to be_falsey
