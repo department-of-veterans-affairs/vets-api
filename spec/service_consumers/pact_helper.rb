@@ -26,6 +26,9 @@ Pact.service_provider 'VA.gov API' do
   # honours_pact_with 'HCA Post' do
   #   pact_uri 'tmp/hca-va.gov_api.json'
   # end
+  honours_pact_with 'Forms' do
+    pact_uri 'tmp/forms.gov_api.json'
+  end
 
   app_version provider_version
   publish_verification_results true
