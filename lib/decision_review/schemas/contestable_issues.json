@@ -10,17 +10,21 @@
         "required": ["type", "attributes"],
         "properties": {
           "type": {
+            "type": "string",
             "enum": [
-              "ContestableIssue"
+              "contestableIssue"
             ]
+          },
+          "id": {
+            "type": ["string", "null"]
           },
           "attributes": {
             "type": "object",
             "required": [
-              "rating_issue_id",
+              "rating_issue_reference_id",
               "rating_issue_profile_date",
               "rating_issue_diagnostic_code",
-              "rating_decision_id",
+              "rating_decision_reference_id",
               "decision_issue_id",
               "approx_decision_date",
               "description",
@@ -32,7 +36,7 @@
               "is_rating"
             ],
             "properties": {
-              "rating_issue_id": {
+              "rating_issue_reference_id": {
                 "type": ["string", "null"]
               },
               "rating_issue_profile_date": {
@@ -41,7 +45,7 @@
               "rating_issue_diagnostic_code": {
                 "type": ["string", "null"]
               },
-              "rating_decision_id": {
+              "rating_decision_reference_id": {
                 "type": ["string", "null"]
               },
               "decision_issue_id": {
@@ -75,10 +79,16 @@
                       "type": ["string", "null"]
                     },
                     "approx_decision_date": {
-                      "type": ["string", "approx_decision_date"]
+                      "type": ["string", "null"]
                     }
                   }
                 }
+              },
+              "rating_issue_subject_text": {
+                "type": ["string", "null"]
+              },
+              "rating_issue_percent_number": {
+                "type": ["string", "null"]
               },
               "is_rating": {
                 "type": "boolean"

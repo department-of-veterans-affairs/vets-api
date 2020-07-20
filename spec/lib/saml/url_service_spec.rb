@@ -225,18 +225,18 @@ RSpec.describe SAML::URLService do
 
           context 'for a user authenticating with inbound ssoe' do
             let(:user) { build(:user, :loa3) }
-            let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}', inbound: 'true' } }
+            let(:params) { { action: 'saml_callback', RelayState: '{"type":"custom"}', type: 'custom' } }
 
             it 'is successful' do
               expect(subject.login_redirect_url)
-                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=custom')
             end
 
             it 'is a failure' do
               expect(subject.login_redirect_url(auth: 'fail', code: '001'))
                 .to eq(values[:base_redirect] +
                        SAML::URLService::LOGIN_REDIRECT_PARTIAL +
-                       '?auth=force-needed&code=001&type=idme')
+                       '?auth=force-needed&code=001&type=custom')
             end
           end
         end
@@ -293,6 +293,15 @@ RSpec.describe SAML::URLService do
           expect(subject.idme_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
             .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
+        end
+
+        it 'has sign in url: custom_url' do
+          allow(user).to receive(:authn_context).and_return('X')
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context=).with('X')
+          expect(subject.custom_url('X'))
+            .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+            .with_relay_state('originating_request_id' => '123', 'type' => 'custom')
         end
 
         it 'has sign up url: signup_url' do

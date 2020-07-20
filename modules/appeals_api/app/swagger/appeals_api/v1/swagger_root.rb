@@ -7,13 +7,32 @@ module AppealsApi::V1::SwaggerRoot
   read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
   read_json_schema = ->(filename) { JSON.parse read_file[['config', 'schemas', filename]] }
 
-  swagger_root openapi: '3.0.0' do
-    info title: 'Decision Reviews', version: '1.0.0', description: read_file_from_same_dir['api_description.md']
+  # rubocop:disable Metrics/BlockLength
+  swagger_root do
+    key :openapi, '3.0.0'
+    info do
+      key :title, 'Decision Reviews'
+      key :version, '1.0.0'
+      key :description, read_file_from_same_dir['api_description.md']
+      key :termsOfService, 'https://developer.va.gov/terms-of-service'
+      contact do
+        key :name, 'VA API Benefits Team'
+      end
+      license do
+        key :name, 'Creative Commons'
+      end
+    end
 
-    server description: 'VA.gov API sandbox environment' do
-      key :url, 'https://sandbox-api.va.gov/services/appeals/{version}/decision_review'
+    url = ->(prefix = '') { "https://#{prefix}api.va.gov/services/appeals/{version}/decision_reviews" }
+
+    server description: 'VA.gov API sandbox environment', url: url['sandbox-'] do
       variable(:version) { key :default, 'v1' }
     end
+    key :basePath, '/services/appeals/v1'
+    key :consumes, ['application/json']
+    key :produces, ['application/json']
+
+    server description: 'VA.gov API production environment', url: url[] { variable(:version) { key :default, 'v1' } }
 
     hlr_create_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
       read_json_schema['200996.json']
@@ -35,6 +54,15 @@ module AppealsApi::V1::SwaggerRoot
       }
     }.merge(hlr_create_header_schemas).merge(hlr_create_schemas).merge(non_blank_string)
 
-    key :components, schemas: schemas
+    security_scheme = {
+      apikey: {
+        type: :apiKey,
+        name: :apikey,
+        in: :header
+      }
+    }
+
+    key :components, { schemas: schemas, securitySchemes: security_scheme }
   end
+  # rubocop:enable Metrics/BlockLength
 end

@@ -1,6 +1,6 @@
 {
     "data": {
-      "type": "HigherLevelReview",
+      "type": "higherLevelReview",
       "attributes": {
         "informalConference": true,
         "sameOffice": true,
@@ -33,44 +33,44 @@
     },
     "included": [
       {
-        "type": "ContestableIssue",
+        "type": "contestableIssue",
         "attributes": {
           "issue": "tinnitus",
           "decisionDate": "1900-01-01",
           "decisionIssueId": 1,
-          "ratingIssueId": "2",
-          "ratingDecisionIssueId": "3"
+          "ratingIssueReferenceId": "2",
+          "ratingDecisionReferenceId": "3"
         }
       },
       {
-        "type": "ContestableIssue",
+        "type": "contestableIssue",
         "attributes": {
           "issue": "left knee",
           "decisionDate": "1900-01-02",
           "decisionIssueId": 4,
-          "ratingIssueId": "5"
+          "ratingIssueReferenceId": "5"
         }
       },
       {
-        "type": "ContestableIssue",
+        "type": "contestableIssue",
         "attributes": {
           "issue": "right knee",
           "decisionDate": "1900-01-03",
-          "ratingIssueId": "6",
-          "ratingDecisionIssueId": "7"
+          "ratingIssueReferenceId": "6",
+          "ratingDecisionReferenceId": "7"
         }
       },
       {
-        "type": "ContestableIssue",
+        "type": "contestableIssue",
         "attributes": {
           "issue": "PTSD",
           "decisionDate": "1900-01-04",
           "decisionIssueId": 8,
-          "ratingDecisionIssueId": "9"
+          "ratingDecisionReferenceId": "9"
         }
       },
       {
-        "type": "ContestableIssue",
+        "type": "contestableIssue",
         "attributes": {
           "issue": "Traumatic Brain Injury",
           "decisionDate": "1900-01-05",
@@ -78,14 +78,14 @@
         }
       },
       {
-        "type": "ContestableIssue",
+        "type": "contestableIssue",
         "attributes": {
           "issue": "right shoulder",
           "decisionDate": "1900-01-06"
         }
       },
       {
-        "type": "ContestableIssue",
+        "type": "contestableIssue",
         "attributes": {
           "issue": "sleep apnea",
           "decisionDate": "1900-01-07"

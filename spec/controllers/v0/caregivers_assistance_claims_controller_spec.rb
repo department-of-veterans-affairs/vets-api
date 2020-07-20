@@ -14,6 +14,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
           expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(false)
           expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
 
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+
           post :create, params: { caregivers_assistance_claim: { form: '{ "my": "data" }' } }
 
           expect(response).to have_http_status(:service_unavailable)
@@ -28,6 +30,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
         it 'requires "caregivers_assistance_claim" param' do
           expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
 
           post :create, params: {}
 
@@ -48,6 +53,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
         it 'requires "caregivers_assistance_claim.form" param' do
           expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
 
           post :create, params: { caregivers_assistance_claim: { form: nil } }
 
@@ -80,6 +88,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
               )
 
               expect(Form1010cg::Service).not_to receive(:new).with(claim)
+
+              expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+              expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
 
               post :create, params: params
 
@@ -117,6 +128,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
               expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
               expect(service).to receive(:process_claim!).and_return(submission)
 
+              expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+              expect(StatsD).to receive(:increment).with('api.form1010cg.submission.success')
+
               post :create, params: params
 
               expect(response).to have_http_status(:ok)
@@ -128,6 +142,91 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
               expect(res_body['data']['attributes']).to be_present
               expect(res_body['data']['attributes']['confirmation_number']).to eq(submission.carma_case_id)
               expect(res_body['data']['attributes']['submitted_at']).to eq(submission.submitted_at)
+            end
+          end
+        end
+
+        context 'when Form1010cg::Service raises InvalidVeteranStatus' do
+          it 'renders backend service outage' do
+            claim = build(:caregivers_assistance_claim)
+            form_data = claim.form
+            params = { caregivers_assistance_claim: { form: form_data } }
+            service = double
+
+            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+              form: form_data
+            ).and_return(
+              claim
+            )
+
+            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+            expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+
+            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
+
+            post :create, params: params
+
+            expect(response.status).to eq(503)
+            expect(
+              JSON.parse(
+                response.body
+              )
+            ).to eq(
+              'errors' => [
+                {
+                  'title' => 'Service unavailable',
+                  'detail' => 'Backend Service Outage',
+                  'code' => '503',
+                  'status' => '503'
+                }
+              ]
+            )
+          end
+
+          it 'matches the response of a Common::Client::Errors::ClientError' do
+            claim = build(:caregivers_assistance_claim)
+            form_data = claim.form
+            params = { caregivers_assistance_claim: { form: form_data } }
+            service = double
+
+            expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
+
+            ## Backend Client Error Scenario
+
+            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+              form: form_data
+            ).and_return(
+              claim
+            )
+
+            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+            expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
+
+            backend_client_error_response = post :create, params: params
+
+            ## Invalid Veteran Status Scenario
+
+            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+              form: form_data
+            ).and_return(
+              claim
+            )
+
+            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+            expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+
+            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
+
+            invalid_veteran_status_response = post :create, params: params
+
+            %w[status body headers].each do |response_attr|
+              expect(
+                invalid_veteran_status_response.send(response_attr)
+              ).to eq(
+                backend_client_error_response.send(response_attr)
+              )
             end
           end
         end

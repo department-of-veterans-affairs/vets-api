@@ -10,7 +10,7 @@ module MVI
     # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
     class FindProfileResponse
       include Virtus.model(nullify_blank: true)
-      include Common::Client::ServiceStatus
+      include Common::Client::Concerns::ServiceStatus
 
       # @return [String] The status of the response
       attribute :status, String

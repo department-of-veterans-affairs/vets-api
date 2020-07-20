@@ -18,18 +18,10 @@ StatsD.backend = if host.present? && port.present?
   V1::SessionsController::REDIRECT_URLS.each do |t|
     StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
                      tags: ["version:#{v}", "context:#{t}"])
-    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_FORCEAUTH, 0,
-                     tags: ["version:#{v}", "context:#{t}"])
-    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_INBOUND, 0,
-                     tags: ["version:#{v}", "context:#{t}"])
     StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
                      tags: ["version:#{v}", "context:#{t}"])
     StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
                      tags: ["version:#{v}", "context:#{t}"])
-    %w[success failure].each do |s|
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_INBOUND, 0,
-                       tags: ["version:#{v}", "context:#{t}", "status:#{s}"])
-    end
   end
   %w[success failure].each do |s|
     (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
@@ -38,6 +30,10 @@ StatsD.backend = if host.present? && port.present?
       StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
                        tags: ["version:#{v}", "context:#{ctx}"])
     end
+  end
+  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
+                     tags: ["version:#{v}", "context:#{ctx}"])
   end
   SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
     StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,
@@ -109,6 +105,12 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
+
+# init Form1010cg
+StatsD.increment(Form1010cg::Service.metrics.attempt, 0)
+StatsD.increment(Form1010cg::Service.metrics.success, 0)
+StatsD.increment(Form1010cg::Service.metrics.failure.client.data, 0)
+StatsD.increment(Form1010cg::Service.metrics.failure.client.qualification, 0)
 
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
