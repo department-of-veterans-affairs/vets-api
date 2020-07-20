@@ -184,6 +184,22 @@ RSpec.describe Form526Submission do
       end
     end
 
+    context 'with multiple successful jobs and email' do
+      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123654879) }
+
+      it 'calls confirmation email job with correct values' do
+        Flipper.enable(:form526_confirmation_email)
+
+        allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
+          expect 'Beyonce'.eql?(args[1]['first_name'])
+          expect 'Knowles'.eql?(args[1]['last_name'])
+          expect 123654879.eql?(args[1]['submitted_claim_id'])
+          expect 'test@email.com'.eql?(args[1]['email'])
+        end
+        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)  
+      end
+    end
+
     context 'with mixed result jobs' do
       subject { create(:form526_submission, :with_mixed_status) }
 
