@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Fake scanning file with fake_clamdscan script"
+exit 0

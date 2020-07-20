@@ -16,7 +16,7 @@ module VAOS
         :provider_id, :provider_name, :second_request, :second_request_submitted, :requested_phone_call,
         :type_of_care_id, :additional_information, :address, :city, :state, :zip_code, :distance_willing_to_travel,
         :new_message, :office_hours, :preferred_city, :preferred_state, :preferred_zip_code, :provider_option,
-        :preferred_language, :reason_for_visit, :service,
+        :preferred_language, :reason_for_visit, :additional_information, :service,
         best_timeto_call: [],
         appointment_request_detail_code: [], preferred_providers: [
           :id, :first_name, :last_name, :practice_name, :provider_street, :provider_city, :provider_state,
