@@ -35,18 +35,18 @@ class TransactionalEmailAnalyticsJob
       break if we_should_break?
     end
   end
-  
-   # constantize all the mailers so TransactionalEmailMailer.descendants has something
+
+  # constantize all the mailers so TransactionalEmailMailer.descendants has something
   def self.all_mailers
-   [
-     FailedClaimsReportMailer, 
-     SpoolSubmissionsReportMailer, 
-     TransactionalEmailMailer, 
-     ApplicationMailer, 
-     DirectDepositMailer, 
-     HcaSubmissionFailureMailer, 
-     YearToDateReportMailer
-   ]
+    [
+      FailedClaimsReportMailer,
+      SpoolSubmissionsReportMailer,
+      TransactionalEmailMailer,
+      ApplicationMailer,
+      DirectDepositMailer,
+      HcaSubmissionFailureMailer,
+      YearToDateReportMailer
+    ]
   end
 
   private
