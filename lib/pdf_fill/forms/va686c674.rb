@@ -1510,14 +1510,11 @@ module PdfFill
 
         expand_phone_number(veteran_contact_information)
 
-        # extract postal code
+        # extract postal code and country
         veteran_contact_information['veteran_address']['zip_code'] =
           split_postal_code(veteran_contact_information['veteran_address'])
-
-        # @TODO FE is working on a fix for 2 digit country codes
-        if veteran_contact_information['veteran_address']['country_name'] == 'USA'
-          veteran_contact_information['veteran_address']['country_name'] = 'US'
-        end
+        veteran_contact_information['veteran_address']['country_name'] =
+          extract_country(veteran_contact_information['veteran_address'])
       end
 
       def merge_spouse_helpers
