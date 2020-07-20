@@ -5,15 +5,14 @@
 		"last": "last"
 	},
 	"veteranSocialSecurityNumber": "111223333",
-	"benefit": "chapter33",
+	"benefit": "transferOfEntitlement",
 	"isEnrolledStem": true,
-	"isPursuingTeachingCert": true,
-	"benefitLeft": "moreThanSixMonths",
+	"benefitLeft": "none",
 	"degreeName": "Degree Name",
 	"schoolName": "School Name",
 	"schoolCity": "Test",
 	"schoolState": "TN",
-	"isActiveDuty": true,
+	"isActiveDuty": false,
 	"veteranAddress": {
 		"city": "Milwaukee",
 		"country": "USA",
@@ -22,7 +21,6 @@
 		"street": "123 Main St"
 	},
 	"email": "test@sample.com",
-	"mobilePhone": "5551110001",
 	"bankAccount": {
 		"accountNumber": "88888888888",
 		"accountType": "checking",
