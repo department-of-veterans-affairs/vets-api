@@ -1482,7 +1482,8 @@ module PdfFill
         veteran_information['birth_date'] = split_date(veteran_information.dig('birth_date'))
 
         # extract ssn
-        veteran_information['ssn'] = split_ssn(veteran_information['ssn'].delete('-')) if veteran_information['ssn'].present?
+        ssn = veteran_information['ssn']
+        veteran_information['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
 
         expand_phone_number(veteran_contact_information)
 
