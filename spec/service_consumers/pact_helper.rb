@@ -27,7 +27,7 @@ Pact.service_provider 'VA.gov API' do
   #   pact_uri 'tmp/hca-va.gov_api.json'
   # end
   honours_pact_with 'Forms' do
-    pact_uri 'tmp/forms.gov_api.json'
+    pact_uri 'spec/service_consumers/do_not_merge/forms.gov_api.json'
   end
 
   app_version provider_version
