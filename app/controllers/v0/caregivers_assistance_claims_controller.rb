@@ -8,17 +8,17 @@ module V0
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
     def create
-      increment Form1010cg::Service.metrics.attempt
+      increment Form1010cg::Service.metrics.submission.attempt
       return service_unavailable unless Flipper.enabled?(:allow_online_10_10cg_submissions)
 
       claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
 
       if claim.valid?
         submission = ::Form1010cg::Service.new(claim).process_claim!
-        increment Form1010cg::Service.metrics.success
+        increment Form1010cg::Service.metrics.submission.success
         render json: submission, serializer: ::Form1010cg::SubmissionSerializer
       else
-        increment Form1010cg::Service.metrics.failure.client.data
+        increment Form1010cg::Service.metrics.submission.failure.client.data
         raise(Common::Exceptions::ValidationErrors, claim)
       end
     end
@@ -34,8 +34,11 @@ module V0
         # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
         uuid = SecureRandom.uuid
         claim.to_pdf(uuid)
+
         source_file_path = Rails.root.join 'tmp', 'pdfs', "10-10CG_#{uuid}.pdf"
         client_file_name = file_name_for_pdf(claim.veteran_data)
+
+        increment Form1010cg::Service.metrics.pdf_download
 
         send_file source_file_path, filename: client_file_name, type: 'application/pdf'
       else
@@ -52,7 +55,7 @@ module V0
     def form_submission
       params.require(:caregivers_assistance_claim).require(:form)
     rescue
-      increment Form1010cg::Service.metrics.failure.client.data
+      increment Form1010cg::Service.metrics.submission.failure.client.data
       raise
     end
 
@@ -61,7 +64,7 @@ module V0
     end
 
     def backend_service_outage
-      increment Form1010cg::Service.metrics.failure.client.qualification
+      increment Form1010cg::Service.metrics.submission.failure.client.qualification
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
     end
 
