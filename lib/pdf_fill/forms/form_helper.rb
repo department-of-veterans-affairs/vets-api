@@ -29,8 +29,9 @@ module PdfFill
       def extract_country(address)
         return if address.blank?
 
-        country = address['country']
-        country = address['country_name'] if country.blank?
+        country = address['country'] || address['country_name']
+
+        return if country.blank?
 
         if country.present? && country.size == 3
           IsoCountryCodes.find(country).alpha2
@@ -44,8 +45,7 @@ module PdfFill
       def split_postal_code(address)
         return if address.blank?
 
-        postal_code = address['postalCode']
-        postal_code = address['zip_code'] if postal_code.blank?
+        postal_code = address['postalCode'] || address['zip_code']
 
         return if postal_code.blank?
 

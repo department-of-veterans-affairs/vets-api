@@ -455,9 +455,7 @@ module PdfFill
                 question_suffix: 'C',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE LAST NAME'
               }
-              # 'suffix' => {
-              # @TODO
-              # } # end of suffix
+              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of end of full name
             'start_date' => {
               'month' => {
@@ -506,7 +504,6 @@ module PdfFill
             },
             'reason_marriage_ended_other' => {
               key: 'veteran_marriage_history.reason_marriage_ended_other[%iterator%]',
-              # limit: 12, # @TODO THIS BREAKS
               question_num: 14,
               question_suffix: 'A',
               question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
@@ -575,10 +572,8 @@ module PdfFill
                 question_num: 15,
                 question_suffix: 'C',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  SPOUSES PREVIOUS SPOUSE LAST NAME'
-              },
-              'suffix' => {
-                # @TODO not in the form
-              } # end of suffix
+              }
+              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'start_date' => {
               'month' => {
@@ -618,7 +613,7 @@ module PdfFill
                 question_suffix: 'E',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
               }
-              # @TODO country key: 'spouse_marriage_history.start_location.country[%iterator%]'
+              # @TODO FE to add country key: 'spouse_marriage_history.start_location.country[%iterator%]'
             }, # end of start location
             'reason_marriage_ended' => {
               'death' => { key: 'spouse_marriage_history.reason_marriage_ended.death[%iterator%]' },
@@ -628,8 +623,7 @@ module PdfFill
             },
             'reason_marriage_ended_other' => {
               key: 'spouse_marriage_history.reason_marriage_ended_other[%iterator%]',
-              # limit: 12, # @TODO THIS BREAKS
-              question_num: 14,
+              question_num: 15,
               question_suffix: 'A',
               question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
             },
@@ -671,7 +665,7 @@ module PdfFill
                 question_suffix: 'E',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
               }
-              # @TODO country key: 'spouse_marriage_history.end_location.country[%iterator%]'
+              # @TODO FE to add country key: 'spouse_marriage_history.end_location.country[%iterator%]'
             } # end of location
           }, # end spouse_marriage_history
           # -----------------  SECTION III: INFORMATION NEEDED TO ADD CHILD(REN)  ----------------- #
@@ -700,9 +694,7 @@ module PdfFill
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > LAST NAME'
               }
-              # 'suffix' => {
-              #  @TODO suffix
-              # }
+              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'ssn' => {
               'first' => {
@@ -765,7 +757,7 @@ module PdfFill
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > PLACE OF BIRTH > STATE'
               }
-              # @TODO country
+              # @TODO FE to add country
             }, # end place_of_birth
             'child_address_info' => {
               'person_child_lives_with' => {
@@ -934,10 +926,8 @@ module PdfFill
                 question_num: 20,
                 question_suffix: 'C',
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > NAME OF FORMER SPOUSE'
-              },
-              'suffix' => {
-                # @TODO  does not exist on pdf
               }
+              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end full_name
             'location' => {
               'city' => {
@@ -1097,7 +1087,6 @@ module PdfFill
                 }
               } # end of zip_code
             }, # end of address
-            # @TODO
             # 21F. DATE STEPCHILD LEFT VETERAN'S HOUSEHOLD (MM-DD-YYYY)
             'living_expenses_paid' => {
               'more_than_half' => { 'key': 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
@@ -1148,9 +1137,7 @@ module PdfFill
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT DEPEDENT DEATH > NAME > LAST'
               }
-              # 'suffix' => {
-              # @TODO
-              # }
+              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end of full name
             'date' => {
               'month' => {
@@ -1190,7 +1177,7 @@ module PdfFill
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO REPORT DEPEDENT DEATH > PLACE > STATE'
               }
-              # @TODO country
+              # @TODO FE to add country
             } # end location
           }, # end of deaths
           # -----------------  SECTION VII: VETERAN/CLAIMANT REPORTING MARRIAGE OF CHILD  ----------------- #
@@ -1216,10 +1203,8 @@ module PdfFill
                 question_num: 23,
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT MARRIAGE OF A CHILD > NAME > LAST'
-              } # end of last name of married child
-              # 'suffix' => {
-              # @TODO
-              # } # end of suffix
+              }
+              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
             }, # end full_name
             'date_married' => {
               'month' => {
@@ -1269,9 +1254,7 @@ module PdfFill
                 question_suffix: 'C',
                 question_text: 'INFORMATION NEEDED TO REPORT CHILD STOPPED ATTENDING SCHOOL > NAME > LAST'
               }
-              # 'suffix' => {
-              # @TODO
-              # }
+              # @TODO 'suffix' =>  FE has suffix but no place for it on PDF
             },
             'date_child_left_school' => {
               'month' => {
@@ -1697,6 +1680,7 @@ module PdfFill
 
           # extract step_children zip codes
           stepchild['address']['zip_code'] = split_postal_code(stepchild['address'])
+          # @TODO stepchild['address']['country_name'] = extract_country(stepchild['address'])
 
           # expand living_expenses_paid
           living_expenses_paid = stepchild['living_expenses_paid']
