@@ -1479,19 +1479,18 @@ module PdfFill
         veteran_information['full_name']['middle'] = extract_middle_i(veteran_information, 'full_name')
 
         # extract birth date
-        veteran_information['birth_date'] = split_date(veteran_information['birth_date'])
+        veteran_information['birth_date'] = split_date(veteran_information.dig('birth_date'))
 
         # extract ssn
-        ssn = veteran_information['ssn']
-        veteran_information['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
+        veteran_information['ssn'] = split_ssn(veteran_information['ssn'].delete('-')) if veteran_information['ssn'].present?
 
         expand_phone_number(veteran_contact_information)
 
         # extract postal code and country
         veteran_contact_information['veteran_address']['zip_code'] =
-          split_postal_code(veteran_contact_information['veteran_address'])
+          split_postal_code(veteran_contact_information.dig('veteran_address'))
         veteran_contact_information['veteran_address']['country_name'] =
-          extract_country(veteran_contact_information['veteran_address'])
+          extract_country(veteran_contact_information.dig('veteran_address'))
       end
 
       def merge_spouse_helpers
@@ -1502,7 +1501,7 @@ module PdfFill
         spouse['full_name']['middle'] = extract_middle_i(spouse, 'full_name')
 
         # extract birth date
-        spouse['birth_date'] = split_date(spouse['birth_date'])
+        spouse['birth_date'] = split_date(spouse.dig('birth_date'))
 
         # extract ssn
         spouse['ssn'] = split_ssn(spouse['ssn'].delete('-')) if spouse['ssn'].present?
@@ -1510,11 +1509,11 @@ module PdfFill
         # extract postal code
         if @form_data['dependents_application']['does_live_with_spouse']['address'].present?
           @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code'] =
-            split_postal_code(@form_data['dependents_application']['does_live_with_spouse']['address'])
+            split_postal_code(@form_data.dig('dependents_application', 'does_live_with_spouse', 'address'))
         end
 
         # expand is_veteran
-        is_veteran = @form_data['dependents_application']['spouse_information']['is_veteran']
+        is_veteran = @form_data.dig('dependents_application', 'spouse_information', 'is_veteran')
         @form_data['dependents_application']['spouse_information']['is_veteran'] = {
           'is_veteran_yes' => select_checkbox(is_veteran),
           'is_veteran_no' => select_checkbox(!is_veteran)
@@ -1534,10 +1533,10 @@ module PdfFill
           spouse['full_name'] = extract_middle_i(spouse, 'full_name')
 
           # extract veteran marriage history dates
-          spouse['start_date'] = split_date(spouse['start_date'])
-          spouse['end_date'] = split_date(spouse['end_date'])
+          spouse['start_date'] = split_date(spouse.dig('start_date'))
+          spouse['end_date'] = split_date(spouse.dig('end_date'))
 
-          reason_marriage_ended = spouse['reason_marriage_ended']
+          reason_marriage_ended = spouse.dig('reason_marriage_ended')
           # @TODO why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
             'death' => select_radio_button(reason_marriage_ended == 'Death'),
@@ -1557,11 +1556,11 @@ module PdfFill
           spouse['full_name'] = extract_middle_i(spouse, 'full_name')
 
           # extract spouse marriage history dates
-          spouse['start_date'] = split_date(spouse['start_date'])
-          spouse['end_date'] = split_date(spouse['end_date'])
+          spouse['start_date'] = split_date(spouse.dig('start_date'))
+          spouse['end_date'] = split_date(spouse.dig('end_date'))
 
           # expand reason marriage ended
-          reason_marriage_ended = spouse['reason_marriage_ended']
+          reason_marriage_ended = spouse.dig('reason_marriage_ended')
           # @TODO why is annulment not an option on FE ('Annulment or other')
           spouse['reason_marriage_ended'] = {
             'death' => select_radio_button(reason_marriage_ended == 'Death'),
@@ -1581,7 +1580,7 @@ module PdfFill
           child['full_name'] = extract_middle_i(child, 'full_name')
 
           # extract birth date
-          child['birth_date'] = split_date(child['birth_date'])
+          child['birth_date'] = split_date(child.dig('birth_date'))
 
           # extract ssn
           child['ssn'] = split_ssn(child['ssn'].delete('-')) if child['ssn'].present?
@@ -1589,18 +1588,17 @@ module PdfFill
           # extract postal code
           unless child['does_child_live_with_you']
             child['child_address_info']['address']['zip_code'] =
-              split_postal_code(child['child_address_info']['address'])
+              split_postal_code(child.dig('child_address_info', 'address'))
           end
 
           expand_child_status(child)
-
-          expand_child_previously_married(child) if child['previously_married'] == 'Yes'
+          expand_child_previously_married(child)
         end
       end
 
       def expand_child_status(child)
         # expand child status
-        child_status = child['child_status']
+        child_status = child.dig('child_status')
 
         # @TODO 18-23 YEARS OLD AND IN SCHOOL
         child['child_status'] = {
@@ -1614,14 +1612,16 @@ module PdfFill
       end
 
       def expand_child_previously_married(child)
+        return unless child['previously_married'] == 'Yes'
+
         child['child_status']['child_previously_married'] = 0
 
         # extract date
         child['previous_marriage_details']['date_marriage_ended'] =
-          split_date(child['previous_marriage_details']['date_marriage_ended'])
+          split_date(child.dig('previous_marriage_details', 'date_marriage_ended'))
 
         # expand reason child marriage ended
-        reason_marriage_ended = child['previous_marriage_details']['reason_marriage_ended']
+        reason_marriage_ended = child.dig('previous_marriage_details', 'reason_marriage_ended')
         if reason_marriage_ended.include?('Divorce') || reason_marriage_ended.include?('Death')
           # we show 'Divorce' and 'Death' as options on the FE as opposed to 'Declared Void'
           reason_marriage_ended = 'Declared Void'
@@ -1636,7 +1636,7 @@ module PdfFill
       end
 
       def expand_other_reason_marriage_ended(child)
-        other_reason_marriage_ended = child['previous_marriage_details']['other_reason_marriage_ended']
+        other_reason_marriage_ended = child.dig('previous_marriage_details', 'other_reason_marriage_ended')
         if other_reason_marriage_ended.present?
           child['previous_marriage_details']['other_reason_marriage_ended'] = {}
           if other_reason_marriage_ended.length > 8 && other_reason_marriage_ended.length < 16
@@ -1656,7 +1656,7 @@ module PdfFill
         return if divorce.blank?
 
         # extract date
-        divorce['date'] = split_date(divorce['date'])
+        divorce['date'] = split_date(divorce.dig('date'))
 
         # extract middle initial
         divorce['full_name'] = extract_middle_i(divorce, 'full_name')
@@ -1673,11 +1673,11 @@ module PdfFill
             extract_middle_i(stepchild, 'who_does_the_stepchild_live_with')
 
           # extract step_children zip codes
-          stepchild['address']['zip_code'] = split_postal_code(stepchild['address'])
-          stepchild['address']['country_name'] = extract_country(stepchild['address'])
+          stepchild['address']['zip_code'] = split_postal_code(stepchild.dig('address'))
+          stepchild['address']['country_name'] = extract_country(stepchild.dig('address'))
 
           # expand living_expenses_paid
-          living_expenses_paid = stepchild['living_expenses_paid']
+          living_expenses_paid = stepchild.dig('living_expenses_paid')
           stepchild['living_expenses_paid'] = {
             'more_than_half' => select_radio_button(living_expenses_paid == 'More than half'),
             'half' => select_radio_button(living_expenses_paid == 'Half'),
@@ -1698,13 +1698,13 @@ module PdfFill
           death['full_name'] = extract_middle_i(death, 'full_name')
 
           # extract date
-          death['date'] = split_date(death['date'])
+          death['date'] = split_date(death.dig('date'))
 
           # expand dependent type
-          dependent_type = death['dependent_type']
+          dependent_type = death.dig('dependent_type')
           if dependent_type == 'CHILD'
             # ex. "dependent_type":"CHILD","child_status":{"child_under18":true,"step_child":true}
-            dependent_type = death['child_status']
+            dependent_type = death.dig('child_status')
           end
           death['dependent_type'] = {
             'spouse' => select_radio_button(dependent_type == 'SPOUSE'),
@@ -1726,7 +1726,7 @@ module PdfFill
         child_marriage['full_name'] = extract_middle_i(child_marriage, 'full_name')
 
         # extract date
-        child_marriage['date_married'] = split_date(child_marriage['date_married'])
+        child_marriage['date_married'] = split_date(child_marriage.dig('date_married'))
       end
 
       def merge_child_stopped_attending_school_helpers
@@ -1738,11 +1738,11 @@ module PdfFill
 
         # extract date
         child_stopped_attending_school['date_child_left_school'] =
-          split_date(child_stopped_attending_school['date_child_left_school'])
+          split_date(child_stopped_attending_school.dig('date_child_left_school'))
       end
 
       def expand_phone_number(veteran_contact_information)
-        phone_number = veteran_contact_information['phone_number']
+        phone_number = veteran_contact_information.dig('phone_number')
         if phone_number.present?
           phone_number = phone_number.delete('^0-9')
           veteran_contact_information['phone_number'] = {
@@ -1767,9 +1767,9 @@ module PdfFill
       def expand_marriage_info
         # extract marriage date
         @form_data['dependents_application']['current_marriage_information']['date'] =
-          split_date(@form_data['dependents_application']['current_marriage_information']['date'])
+          split_date(@form_data.dig('dependents_application', 'current_marriage_information', 'date'))
 
-        marriage_type = @form_data['dependents_application']['current_marriage_information']['type']
+        marriage_type = @form_data.dig('dependents_application', 'current_marriage_information', 'type')
         @form_data['dependents_application']['current_marriage_information']['type'] = {
           'religious_ceremony' => select_checkbox(marriage_type == 'CEREMONIAL'),
           'common_law' => select_checkbox(marriage_type == 'COMMON-LAW'),
@@ -1781,7 +1781,7 @@ module PdfFill
 
       def expand_does_live_with_spouse
         does_live_with_spouse =
-          @form_data['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran']
+          @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_does_live_with_veteran')
         @form_data['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = {
           'spouse_does_live_with_veteran_yes' => select_checkbox(does_live_with_spouse),
           'spouse_does_live_with_veteran_no' => select_checkbox(!does_live_with_spouse)
