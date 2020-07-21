@@ -5,6 +5,7 @@ class SchoolCertifyingOfficialsMailer < ApplicationMailer
 
   STAGING_RECIPIENTS = %w[
       Delli-Gatti_Michael@bah.com
+      roth_matthew@bah.com
       shawkey_daniel@bah.com
       sonntag_adam@bah.com
   ].freeze
@@ -14,7 +15,7 @@ class SchoolCertifyingOfficialsMailer < ApplicationMailer
 
     mail(
         {
-            to: ['roth_matthew@bah.com'],
+            to: recipients,
             cc: application["email"],
             subject: SUBJECT,
             body: "TEst ajsflkajs;ldfj test tests alfja;l"
