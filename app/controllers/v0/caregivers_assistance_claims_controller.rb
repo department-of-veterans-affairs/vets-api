@@ -42,8 +42,9 @@ module V0
 
     private
 
-    def file_name_for_pdf(veteran_data)
-      "10-10CG_#{veteran_data['fullName']['first']}_#{veteran_data['fullName']['last']}.pdf"
+    def file_name_for_pdf(_veteran_data)
+      # "10-10CG_#{veteran_data['fullName']['first']}_#{veteran_data['fullName']['last']}.pdf"
+      'Some-random-file'
     end
 
     def form_submission
