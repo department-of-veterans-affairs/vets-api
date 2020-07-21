@@ -20,6 +20,33 @@
       "other_assets": "4566",
       "remarks": "Some remarks about the student's net worth"
     },
+    "report_divorce": {
+      "full_name": {
+        "first": "Jenifer",
+        "middle": "a",
+        "last": "Myers"
+      },
+      "date": "2020-01-01",
+      "location": {
+        "state": "FL",
+        "city": "Tampa"
+      },
+      "reason_marriage_ended": "Divorce"
+    },
+    "veteran_contact_information": {
+      "veteran_address": {
+        "country_name": "USA",
+        "address_line1": "1019 Robin Cir",
+        "city": "Arroyo Grande",
+        "state_code": "CA",
+        "zip_code": "93420"
+      },
+      "phone_number": "2146866521",
+      "email_address": "cohnjesse@gmail.xom"
+    },
+    "view:selectable686_options": {
+      "report_divorce": true
+    },
     "student_does_earn_income": true,
     "student_earnings_from_school_year": {
       "earnings_from_all_employment": "12000",
@@ -304,7 +331,6 @@
     },
     "add_child": true,
     "add_spouse": true,
-    "report_divorce": true,
     "report_death": true,
     "report_stepchild_not_in_household": true,
     "report_marriage_of_child_under18": true,

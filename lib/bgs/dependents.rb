@@ -25,7 +25,7 @@ module BGS
       report_674 if @payload['report674']
       add_children if @payload['add_child']
       report_deaths if @payload['report_death']
-      # report_divorce if @payload['report_divorce']
+      report_divorce if @payload['report_divorce']
       report_stepchild if @payload['report_stepchild_not_in_household']
       report_child_event('child_marriage') if @payload['report_marriage_of_child_under18']
       report_child_event('not_attending_school') if @payload['report_child18_or_older_is_not_attending_school']
@@ -92,7 +92,7 @@ module BGS
         {
           divorce_state: divorce_info['divorce_state'],
           divorce_city: divorce_info['divorce_city'],
-          marriage_termination_type_cd: divorce_info['marriage_termination_type_code']
+          marriage_termination_type_code: divorce_info['marriage_termination_type_code']
         }
       )
     end
@@ -202,14 +202,15 @@ module BGS
     end
 
     def format_divorce_info
+      report_divorce = @dependents_application['report_divorce']
       {
-        divorce_state: report_divorce.dig('location_of_divorce', 'state'),
-        divorce_city: report_divorce.dig('location_of_divorce', 'city'),
-        marriage_termination_type_code: report_divorce['explanation_of_annullment_or_void'],
-        event_dt: report_divorce['date_of_divorce'],
+        divorce_state: report_divorce.dig('location', 'state'),
+        divorce_city: report_divorce.dig('location', 'city'),
+        marriage_termination_type_code: report_divorce['reason_marriage_ended'],
+        event_dt: report_divorce['date'],
         vet_ind: 'N',
         type: 'divorce'
-      }.merge(report_divorce['former_spouse_name'])
+      }.merge(report_divorce['full_name']).with_indifferent_access
     end
 
     def relationship_type(info)

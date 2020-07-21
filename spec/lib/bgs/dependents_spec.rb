@@ -92,21 +92,21 @@ RSpec.describe BGS::Dependents do
       end
     end
 
-    xcontext 'reporting a divorce' do
+    context 'reporting a divorce' do
       it 'returns an hash with divorce data' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: all_flows_payload,
             user: user_hash
           ).create
 
           # TODO: this expectation will change when we get the new data keys from the FE
           expect(dependents).to include(
-            an_object_having_attributes(
-              divorce_state: 'MI',
-              divorce_city: 'Clawson',
-              marriage_termination_type_code: 'Divorce'
+            a_hash_including(
+              divorce_state: 'FL',
+              divorce_city: 'Tampa',
+              # marriage_termination_type_code: 'Divorce'
             )
           )
         end
