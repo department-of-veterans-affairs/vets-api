@@ -66,7 +66,7 @@ RSpec.describe BGS::BenefitClaim do
                 ptcpnt_id_claimant: '600061742',
                 ssn: '796043735',
                 file_number: '796043735',
-                date_of_claim: '07/19/2020',
+                date_of_claim: Time.current.strftime('%m/%d/%Y'),
                 end_product: '133',
                 end_product_code: '130DPNEBNADJ',
                 end_product_name: '130 - Automated Dependency 686c',

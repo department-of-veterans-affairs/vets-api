@@ -10,9 +10,7 @@ module BGS
       proc_id = create_proc_id_and_form
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
 
-      process_relationships(payload)
-
-      process_674(proc_id, dependents, payload)
+      process_relationships(proc_id, veteran, payload)
 
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
@@ -62,13 +60,13 @@ module BGS
       end
     end
 
-    def process_relationships(payload)
+    def process_relationships(proc_id, veteran, payload)
       dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
       marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create
 
-      dependents << marriages
+      all_dependents = dependents + marriages
 
-      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: dependents, user: @user).create
+      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: all_dependents, user: @user).create
       process_674(proc_id, dependents, payload)
     end
 
