@@ -24,22 +24,22 @@ RSpec.describe BGS::VnpBenefitClaim do
   end
   let(:vnp_benefit_claim) do
     {
-      :vnp_proc_id=>"3828033",
-      :vnp_benefit_claim_id=>"425718",
-      :vnp_benefit_claim_type_code=>"130DPNEBNADJ",
-      :claim_jrsdtn_lctn_id=>"335",
-      :intake_jrsdtn_lctn_id=>"335",
-      :participant_claimant_id=>"146189"
+      vnp_proc_id: '3828033',
+      vnp_benefit_claim_id: '425718',
+      vnp_benefit_claim_type_code: '130DPNEBNADJ',
+      claim_jrsdtn_lctn_id: '335',
+      intake_jrsdtn_lctn_id: '335',
+      participant_claimant_id: '146189'
     }
   end
   let(:benefit_claim) do
     {
-      :benefit_claim_id=>"600196508",
-      :claim_type_code=>"130DPNEBNADJ",
-      :participant_claimant_id=>"600061742",
-      :program_type_code=>"CPL",
-      :service_type_code=>"CP",
-      :status_type_code=>"PEND"
+      benefit_claim_id: '600196508',
+      claim_type_code: '130DPNEBNADJ',
+      participant_claimant_id: '600061742',
+      program_type_code: 'CPL',
+      service_type_code: 'CP',
+      status_type_code: 'PEND'
     }
   end
 
@@ -66,13 +66,13 @@ RSpec.describe BGS::VnpBenefitClaim do
         expect_any_instance_of(BGS::VnpBnftClaimService).to receive(:vnp_bnft_claim_create)
           .with(
             a_hash_including(
-              pgm_type_cd: "COMP",
-              ptcpnt_clmant_id: "146189",
-              ptcpnt_mail_addrs_id: "113372",
-              status_type_cd: "CURR",
-              svc_type_cd: "CP",
-              vnp_proc_id: "3828033",
-              vnp_ptcpnt_vet_id: "146189"
+              pgm_type_cd: 'COMP',
+              ptcpnt_clmant_id: '146189',
+              ptcpnt_mail_addrs_id: '113372',
+              status_type_cd: 'CURR',
+              svc_type_cd: 'CP',
+              vnp_proc_id: '3828033',
+              vnp_ptcpnt_vet_id: '146189'
             )
           )
           .and_call_original
@@ -100,8 +100,8 @@ RSpec.describe BGS::VnpBenefitClaim do
           bnft_claim_type_cd: '130DPNEBNADJ',
           claim_jrsdtn_lctn_id: '335',
           intake_jrsdtn_lctn_id: '335',
-          bnft_claim_id: "600196508",
-          vnp_proc_id: "3828033"
+          bnft_claim_id: '600196508',
+          vnp_proc_id: '3828033'
         )
       end
     end
@@ -111,10 +111,10 @@ RSpec.describe BGS::VnpBenefitClaim do
         expect_any_instance_of(BGS::VnpBnftClaimService).to receive(:vnp_bnft_claim_update)
           .with(
             a_hash_including(
-              bnft_claim_id: "600196508",
-              ptcpnt_clmant_id: "146189",
-              vnp_bnft_claim_id: "425718",
-              vnp_proc_id: "3828033"
+              bnft_claim_id: '600196508',
+              ptcpnt_clmant_id: '146189',
+              vnp_bnft_claim_id: '425718',
+              vnp_proc_id: '3828033'
             )
           )
           .and_call_original

@@ -20,6 +20,7 @@ module BGS
       super(user)
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def create
       report_674 if @payload['report674']
       add_children if @payload['add_child']
@@ -31,6 +32,7 @@ module BGS
 
       @dependents
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     private
 
@@ -73,7 +75,7 @@ module BGS
           participant,
           relationship_types[:participant],
           relationship_types[:family],
-          {type: 'death'}
+          { type: 'death' }
         )
       end
     end
@@ -148,7 +150,7 @@ module BGS
         participant,
         'Child',
         'Other',
-        {'type': '674'}
+        { 'type': '674' }
       )
     end
 
@@ -212,7 +214,7 @@ module BGS
 
     def relationship_type(info)
       if info['dependent_type']
-        return {participant: 'Guardian', family: 'Other'} if info['dependent_type'] == 'DEPENDENT_PARENT'
+        return { participant: 'Guardian', family: 'Other' } if info['dependent_type'] == 'DEPENDENT_PARENT'
 
         {
           participant: info['dependent_type'].capitalize.gsub('_', ' '),
