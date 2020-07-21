@@ -1109,12 +1109,6 @@ module PdfFill
               },
               '18_23_years_old_in_school' => { 'key': 'deaths.dependent_type.18_23_years_old_in_school[%iterator%]' }
             },
-            'child_status' => {
-              # child
-              'child_under18' => {
-                # @TODO true
-              } # end of
-            },
             'full_name' => {
               'first' => {
                 key: 'deaths.full_name.first[%iterator%]',
@@ -1680,7 +1674,7 @@ module PdfFill
 
           # extract step_children zip codes
           stepchild['address']['zip_code'] = split_postal_code(stepchild['address'])
-          # @TODO stepchild['address']['country_name'] = extract_country(stepchild['address'])
+          stepchild['address']['country_name'] = extract_country(stepchild['address'])
 
           # expand living_expenses_paid
           living_expenses_paid = stepchild['living_expenses_paid']
@@ -1692,7 +1686,7 @@ module PdfFill
         end
 
         # @TODO we ask this on our form for each child, the pdf only has this in one place
-        # expand supporting stepchild
+        # expand_supporting_stepchild
       end
 
       def merge_death_helpers
@@ -1796,7 +1790,7 @@ module PdfFill
 
       def expand_remarks
         @form_data['remarks'] = {}
-        # @TODO this needs logic to add any sections to remarks based on user input
+        # @TODO FE changes for remarks
         # 12.times do |i|
         #   @form_data['remarks']['remarks_line' + (i + 1).to_s] = ""
         # end
