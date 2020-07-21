@@ -85,7 +85,7 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.string "active_status"
     t.string "visn"
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
-    t.index ["name"], name: "index_base_facilities_on_name", using: :gin
+    t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
   end
 
@@ -104,7 +104,7 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.index ["state"], name: "index_central_mail_submissions_on_state"
   end
 
-  create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+  create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "status"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
@@ -144,12 +144,12 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
-  create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+  create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "encrypted_file_data", null: false
     t.string "encrypted_file_data_iv", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.uuid "auto_established_claim_id", null: false
+    t.uuid "auto_established_claim_id"
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
@@ -159,8 +159,8 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_disability_contentions_on_code", unique: true
-    t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", using: :gin
-    t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", using: :gin
+    t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", opclass: :gin_trgm_ops, using: :gin
+    t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "drivetime_bands", force: :cascade do |t|
