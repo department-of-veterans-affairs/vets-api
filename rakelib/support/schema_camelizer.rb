@@ -23,14 +23,24 @@ class SchemaCamelizer
     @camel_schema = OliveBranch::Transformations.transform(hashed_schema, camelizer)
   end
 
+  # The method for camelizing the schema keys
+  #
+  # @return [method] the method for camelizing schema keys
   def camelizer
     OliveBranch::Transformations.method(:camelize)
   end
 
+  # Getter for path to which new camel schema will be saved
+  #
+  # @return [string] the path for saving the camel schema
   def camel_path
     @camel_path ||= original_path.gsub('schemas', 'schemas_camelized')
   end
 
+  # Saves the #camel_schema to #camel_path
+  # raises an error when original schema is not from spec/support/schemas
+  #
+  # @return not used
   def save!
     raise 'expected spec/support/schemas to be original path!' if original_path == camel_path
 
