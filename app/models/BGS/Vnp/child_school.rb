@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BGS
   module Vnp
     class ChildSchool < BGS::Vnp::Base
