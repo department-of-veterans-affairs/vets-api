@@ -24,7 +24,6 @@ RSpec.describe 'Fetching user data', type: :request do
 
     it 'GET /v0/user - returns proper json' do
       assert_response :success
-      # TODO: load a camel schema file instead of modifying the existing one using the same camelizing method to generate the result
       expect(response).to match_camelized_response_schema('user_loa3')
     end
   end

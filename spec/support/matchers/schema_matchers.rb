@@ -10,14 +10,12 @@ module SchemaMatchers
     JSON::Validator.validate!(schema_path.to_s, json, { strict: true }.merge(opts))
   end
 
-  # TODO: don't actualy use this method, use the SchemaCamelizer to generate an alternate cameled-schema file
   # OliveBranch is used as middleware to allow the header 'X-Key-Inflection' to recieve 'camel'
-  #  and return the response in camel format.  This method applies that tranform to a schema before
-  #  using the JSON::Validator on the given json.  OliveBranch info @ https://github.com/vigetlabs/olive_branch
+  #  and return the response in camel format.  This method validates against a transformed schema
+  #  using the JSON::Validator.  OliveBranch info @ https://github.com/vigetlabs/olive_branch
   def valid_against_olivebranched_schema?(json, schema_name, opts = {})
-    schema_path = Rails.root.join('spec', 'support', 'schemas', "#{schema_name}.json")
-    camel_schema = SchemaCamelizer.new(schema_path).camel_schema
-    JSON::Validator.validate!(camel_schema, json, { strict: true }.merge(opts))
+    schema_path = Rails.root.join('spec', 'support', 'schemas_camelized', "#{schema_name}.json")
+    JSON::Validator.validate!(schema_path.to_s, json, { strict: true }.merge(opts))
   end
 
   matcher :match_schema do |schema_name, opts = {}|
@@ -40,30 +38,6 @@ module SchemaMatchers
 
     failure_message do |_actual|
       @errors
-    end
-  end
-
-  class SchemaCamelizer
-    def initialize(schema_path)
-      raw_schema = File.read(schema_path)
-      raw_schema.gsub!(/"required": \[(["\w*"\,? ?\n?]*)\]/) do |match|
-        keys = $1.split(',').map(&:strip).map { |key| camelizer.call(key.gsub('"', '')) }
-        "\"required\": [#{keys.map{ |key| "\"#{key}\"" }.join(', ')}]"
-      end
-      @camel_schema = JSON.parse(raw_schema)
-      @cameled = false
-    end
-
-    def camel_schema
-      unless @cameled
-        OliveBranch::Transformations.transform(@camel_schema, camelizer)
-        @cameled = true
-      end
-      @camel_schema
-    end
-
-    def camelizer
-      OliveBranch::Transformations.method(:camelize)
     end
   end
 end
