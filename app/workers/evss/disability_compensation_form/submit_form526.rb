@@ -48,7 +48,7 @@ module EVSS
       def retryable_error_handler(error)
         # update JobStatus, log and metrics in JobStatus#retryable_error_handler
         super(error)
-        raise error
+        raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
       def service(_auth_headers)
