@@ -34,8 +34,12 @@ module VaForms
       @connection ||= Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
         faraday.request :url_encoded
         faraday.use basic_auth_class, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
-        faraday.adapter :net_http_socks unless Rails.env.production?
+        faraday.adapter faraday_adapter
       end
+    end
+
+    def faraday_adapter
+      Rails.env.production? ? Faraday.default_adapter : :net_http_socks
     end
 
     def faraday_options
