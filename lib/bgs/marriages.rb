@@ -2,6 +2,8 @@
 
 module BGS
   class Marriages < Service
+    include Helpers::Formatters
+
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
       @payload = payload
@@ -34,22 +36,6 @@ module BGS
       end
     end
 
-    def format_marriage_info(spouse_information, lives_with_vet)
-      marriage_info = {
-        'ssn': spouse_information['ssn'],
-        'birth_date': spouse_information['birth_date'],
-        'ever_married_ind': 'Y',
-        'martl_status_type_cd': lives_with_vet ? 'Married' : 'Separated',
-        'vet_ind': spouse_information['is_veteran'] ? 'Y' : 'N'
-      }.merge(spouse_information['full_name']).with_indifferent_access
-
-      if spouse_information['is_veteran']
-        marriage_info.merge!({ 'va_file_number': spouse_information['va_file_number'] })
-      end
-
-      marriage_info
-    end
-
     def add_spouse
       lives_with_vet = @dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
       marriage_info = format_marriage_info(@dependents_application['spouse_information'], lives_with_vet)
@@ -72,18 +58,6 @@ module BGS
           type: 'spouse'
         }
       )
-    end
-
-    def format_former_marriage_info(former_spouse)
-      {
-        'start_date': former_spouse['start_date'],
-        'end_date': former_spouse['end_date'],
-        'marriage_state': former_spouse.dig('start_location', 'state'),
-        'marriage_city': former_spouse.dig('start_location', 'city'),
-        'divorce_state': former_spouse.dig('start_location', 'state'),
-        'divorce_city': former_spouse.dig('start_location', 'city'),
-        'marriage_termination_type_code': former_spouse['reason_marriage_ended_other']
-      }.merge(former_spouse['full_name']).with_indifferent_access
     end
   end
 end
