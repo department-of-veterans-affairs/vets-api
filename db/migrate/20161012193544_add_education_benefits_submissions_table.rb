@@ -1,4 +1,5 @@
 class AddEducationBenefitsSubmissionsTable < ActiveRecord::Migration[4.2]
+  safety_assured
   def change
     create_table :education_benefits_submissions do |t|
       t.string(:region, null: false)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateVeteranServiceObjects < ActiveRecord::Migration
+class CreateVeteranServiceObjects < ActiveRecord::Migration[4.2]
   def change
     create_table :veteran_organizations, id: false do |t|
       t.string :poa, limit: 3

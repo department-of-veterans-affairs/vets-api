@@ -1,4 +1,5 @@
 class CreateTermsAndConditions < ActiveRecord::Migration[4.2]
+  safety_assured
   def change
     create_table :terms_and_conditions do |t|
       t.string :name

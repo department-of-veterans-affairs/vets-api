@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class EnablePostGisExtension < ActiveRecord::Migration
+class EnablePostGisExtension < ActiveRecord::Migration[4.2]
   def up
     enable_extension('postgis') unless extensions.include?('postgis')
   end

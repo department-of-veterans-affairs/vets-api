@@ -1,4 +1,4 @@
-class CreateSessionActivities < ActiveRecord::Migration
+class CreateSessionActivities < ActiveRecord::Migration[4.2]
   def change
     create_table :session_activities do |t|
       t.uuid     :originating_request_id, null: false

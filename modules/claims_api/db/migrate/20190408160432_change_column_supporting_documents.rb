@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ChangeColumnSupportingDocuments < ActiveRecord::Migration
+class ChangeColumnSupportingDocuments < ActiveRecord::Migration[4.2]
   def change
     remove_column :claims_api_supporting_documents, :auto_established_claim_id, :integer, null: false
     add_column :claims_api_supporting_documents, :auto_established_claim_id, :uuid

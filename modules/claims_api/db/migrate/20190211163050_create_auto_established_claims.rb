@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class CreateAutoEstablishedClaims < ActiveRecord::Migration
+class CreateAutoEstablishedClaims < ActiveRecord::Migration[4.2]
   def change
+    enable_extension 'pgcrypto'
     enable_extension 'uuid-ossp'
-
     create_table :claims_api_auto_established_claims, id: :uuid do |t|
       t.string :status
       t.string :encrypted_form_data

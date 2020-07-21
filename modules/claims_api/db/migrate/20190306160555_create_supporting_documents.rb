@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateSupportingDocuments < ActiveRecord::Migration
+class CreateSupportingDocuments < ActiveRecord::Migration[4.2]
   def change
     create_table :claims_api_supporting_documents, id: :uuid do |t|
       t.string   :encrypted_file_data, null: false
