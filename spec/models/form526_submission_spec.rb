@@ -171,11 +171,11 @@ RSpec.describe Form526Submission do
     end
 
     context 'with multiple successful jobs and email' do
+      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
+
       before { Timecop.freeze(Time.zone.parse('2012-07-20 14:15:00 UTC')) }
 
       after { Timecop.return }
-
-      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
 
       it 'calls confirmation email job with correct values' do
         Flipper.enable(:form526_confirmation_email)
