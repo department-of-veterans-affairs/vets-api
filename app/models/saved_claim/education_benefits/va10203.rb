@@ -90,9 +90,16 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     unless primary.blank? && secondary.blank?
       recipients.push(primary[:email]) if primary.present?
       recipients.push(secondary[:email]) if secondary.present?
+      body = create_email_body
 
-      SchoolCertifyingOfficialsMailer.build(recipients, application).deliver_now
+      SchoolCertifyingOfficialsMailer.build(recipients, application["email"], body).deliver_now
       email_sent(true)
     end
+  end
+
+  def create_email_body
+    form = EducationForm::Forms::VA10203SCO.new(self)
+    binding.pry
+    form
   end
 end

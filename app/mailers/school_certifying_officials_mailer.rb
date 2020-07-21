@@ -10,15 +10,15 @@ class SchoolCertifyingOfficialsMailer < ApplicationMailer
       sonntag_adam@bah.com
   ].freeze
 
-  def build(recipients = [], application = {})
+  def build(recipients, applicant, body)
     recipients = recipients + STAGING_RECIPIENTS.clone if FeatureFlipper.staging_email?
 
     mail(
         {
             to: recipients,
-            cc: application["email"],
+            cc: applicant,
             subject: SUBJECT,
-            body: "TEst ajsflkajs;ldfj test tests alfja;l"
+            body: body
       }
     )
   end
