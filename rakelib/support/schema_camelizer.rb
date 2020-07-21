@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# Transforms a schema from `spec/support/schemas` into one with camelized keys like when
+#  OliveBranch is used with the X-Key-Inflection header for `camel`
 class SchemaCamelizer
   attr_reader :original_path, :camel_schema
 
