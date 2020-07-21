@@ -31,8 +31,6 @@ module PdfFill
 
         country = address['country'] || address['country_name']
 
-        return if country.blank?
-
         if country.present? && country.size == 3
           IsoCountryCodes.find(country).alpha2
         else
