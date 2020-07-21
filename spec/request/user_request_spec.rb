@@ -6,30 +6,9 @@ require 'backend_services'
 RSpec.describe 'Fetching user data', type: :request do
   include SchemaMatchers
 
-  context 'GET /v0/user in camel - when an LOA 3 user is logged in' do
-    let(:mhv_user) { build(:user, :mhv) }
-
-    before do
-      allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      mhv_account = double('MhvAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
-      allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-      allow(mhv_account).to receive(:user_uuid).and_return(mhv_user.uuid)
-      allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
-      allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
-      allow(mhv_account).to receive(:user=).and_return(mhv_user)
-      create(:account, idme_uuid: mhv_user.uuid)
-      sign_in_as(mhv_user)
-      get v0_user_url, params: nil, headers: { 'X-Key-Inflection' => 'camel' }
-    end
-
-    it 'GET /v0/user - returns proper json' do
-      assert_response :success
-      expect(response).to match_camelized_response_schema('user_loa3')
-    end
-  end
-
   context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
+    let(:v0_user_request_headers) { {} }
 
     before do
       allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
@@ -41,7 +20,7 @@ RSpec.describe 'Fetching user data', type: :request do
       allow(mhv_account).to receive(:user=).and_return(mhv_user)
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
-      get v0_user_url, params: nil
+      get v0_user_url, params: nil, headers: v0_user_request_headers
     end
 
     it 'GET /v0/user - returns proper json' do
@@ -91,6 +70,15 @@ RSpec.describe 'Fetching user data', type: :request do
     it 'returns mhv account state info' do
       va_profile = JSON.parse(response.body)['data']['attributes']['va_profile']
       expect(va_profile['mhv_account_state']).to eq('OK')
+    end
+
+    context 'with camel header inflection' do
+      let(:v0_user_request_headers) { { 'X-Key-Inflection' => 'camel' } }
+
+      it 'GET /v0/user - returns proper json' do
+        assert_response :success
+        expect(response).to match_camelized_response_schema('user_loa3')
+      end
     end
 
     context 'with deactivated MHV account' do
