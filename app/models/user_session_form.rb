@@ -22,7 +22,11 @@ class UserSessionForm
     @user_identity = UserIdentity.new(normalized_attributes)
     @user = User.new(uuid: @user_identity.attributes[:uuid])
     @user.instance_variable_set(:@identity, @user_identity)
-    if saml_user.changing_multifactor?
+    if saml_user.changing_multifactor? && existing_user.present?
+      # when authenticating to enroll in multifactor auth, an existing
+      # user session should be present, however because Redis is ephemeral,
+      # its possible that the existing user record will be deleted, thus
+      # we need to check for its existence
       @user.mhv_last_signed_in = existing_user.last_signed_in
       @user.last_signed_in = existing_user.last_signed_in
     else
