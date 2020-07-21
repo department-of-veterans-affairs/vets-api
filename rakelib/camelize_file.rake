@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 namespace :camelize_file do
-  desc 'Given a json schema file it is transformed into a camelCase version: `bundle exec rake camelize_file:schema[user_loa3]`'
+  desc 'Given a json schema file it is transformed into a camelCase version'
+  # example `bundle exec rake camelize_file:schema[user_loa3]`
   task :schema, [:json_schema_file] => [:environment] do |_, args|
     raise IOError, 'No json-schema file provided' unless args[:json_schema_file]
 
