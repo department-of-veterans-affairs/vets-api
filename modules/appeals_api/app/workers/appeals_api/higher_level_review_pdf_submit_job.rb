@@ -4,7 +4,7 @@ require 'sidekiq'
 require 'appeals_api/higher_level_review_pdf_constructor'
 require 'appeals_api/upload_error'
 
-module AppealsApi
+module AppealsApi::HigherLevelReviewPdfSubmitJob
   class HigherLevelReviewPdfSubmitJob
     include Sidekiq::Worker
     include CentralMail::Utilities
@@ -31,13 +31,15 @@ module AppealsApi
         'veteranLastName' => higher_level_review.last_name,
         'fileNumber' => higher_level_review.file_number.presence || higher_level_review.ssn,
         'zipCode' => higher_level_review.zip_code_5,
-        'source' => higher_level_review.consumer_name,
+        'source' => higher_level_review.consumer_name || 'lighthouse-hlr',
         'uuid' => higher_level_review.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
+        'numberAttachments' => 1,
+        'receiveDt' => higher_level_review.created_at.strftime('%Y-%m-%d %H:%M:%S'),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
         'docType' => '20-0996'
       }
-      body = { 'metadata' => metadata, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
+      body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
       response = CentralMail::Service.new.upload(body)
       process_response(response, higher_level_review)
       log_submission(higher_level_review, metadata)
