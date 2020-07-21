@@ -61,12 +61,12 @@ module VaForms
     end
 
     def build_and_save_form(form)
-      va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormName']
+      va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
       current_sha256 = va_form.sha256
       url = form['fieldVaFormUrl']['uri']
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
       va_form.url = Addressable::URI.parse(va_form_url).normalize.to_s
-      va_form.title = form['fieldVaFormNumber']
+      va_form.title = form['fieldVaFormName']
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       va_form.first_issued_on = parse_date(issued_string) if issued_string.present?
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
