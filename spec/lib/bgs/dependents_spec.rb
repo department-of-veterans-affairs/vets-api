@@ -105,7 +105,7 @@ RSpec.describe BGS::Dependents do
           expect(dependents).to include(
             a_hash_including(
               divorce_state: 'FL',
-              divorce_city: 'Tampa',
+              divorce_city: 'Tampa'
               # marriage_termination_type_code: 'Divorce'
             )
           )

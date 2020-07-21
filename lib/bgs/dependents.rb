@@ -20,6 +20,7 @@ module BGS
       super(user)
     end
 
+    # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/CyclomaticComplexity
     def create
       report_674 if @payload['report674']
@@ -33,6 +34,7 @@ module BGS
       @dependents
     end
     # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     private
 
