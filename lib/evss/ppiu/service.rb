@@ -57,6 +57,11 @@ module EVSS
         end
       end
 
+      def right_error_type?(error)
+        (error.is_a?(Common::Client::Errors::ClientError) && error.status != 403) ||
+          error.is_a?(EVSS::ErrorMiddleware::EVSSError)
+      end
+
       def request_body(pay_info)
         pay_info.delete('financial_institution_name') if pay_info['financial_institution_name'].blank?
 
