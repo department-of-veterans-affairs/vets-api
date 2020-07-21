@@ -30,7 +30,9 @@ module V0
 
       if claim.valid?
         filename  = file_name_for_pdf(claim.veteran_data)
-        file_path = claim.to_pdf
+        # Generate a uuid seprate from the claim's guid for this one time pdf generation
+        # so we don't provide the claim's real guid.
+        file_path = claim.to_pdf(SecureRandom.uuid)
 
         send_file "#{Rails.root}/#{file_path}", filename: filename, type: 'application/pdf'
       else
