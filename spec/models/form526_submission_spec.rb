@@ -171,7 +171,9 @@ RSpec.describe Form526Submission do
     end
 
     context 'with multiple successful jobs and email' do
-      Timecop.freeze(Time.zone.parse('2012-07-20 14:15:00 UTC'))
+      before { Timecop.freeze(Time.zone.parse('2012-07-20 14:15:00 UTC')) }
+
+      after { Timecop.return }
 
       subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
 
@@ -186,8 +188,6 @@ RSpec.describe Form526Submission do
           expect(args[1]['updated_at']).to eql('July 20, 2012')
         end
         subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-
-        Timecop.return
       end
     end
 
