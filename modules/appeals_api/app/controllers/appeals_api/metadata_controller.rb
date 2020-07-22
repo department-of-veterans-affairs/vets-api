@@ -8,6 +8,38 @@ module AppealsApi
     skip_after_action :set_csrf_header
     skip_before_action(:authenticate)
 
+    def decision_reviews
+      render json: {
+        meta: {
+          versions: [
+            {
+              version: '1.0.0',
+              internal_only: true,
+              status: VERSION_STATUS[:current],
+              path: '/services/appeals/docs/v1/decision_reviews',
+              healthcheck: '/services/appeals/v1/healthcheck'
+            }
+          ]
+        }
+      }
+    end
+
+    def appeals_status
+      render json: {
+        meta: {
+          versions: [
+            {
+              version: '0.0.1',
+              internal_only: true,
+              status: VERSION_STATUS[:current],
+              path: '/services/appeals/docs/v0/api',
+              healthcheck: '/services/appeals/v0/healthcheck'
+            }
+          ]
+        }
+      }
+    end
+
     def healthcheck
       if AppealsApi::HealthChecker.services_are_healthy?
         render json: healthy_service_response
