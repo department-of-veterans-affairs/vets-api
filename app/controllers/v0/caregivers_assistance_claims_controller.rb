@@ -33,14 +33,18 @@ module V0
         # Use an arbitrary uuid for the source file name and don't use the return value of claim#to_pdf
         # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
         uuid = SecureRandom.uuid
+
         claim.to_pdf(uuid)
 
         source_file_path = Rails.root.join 'tmp', 'pdfs', "10-10CG_#{uuid}.pdf"
         client_file_name = file_name_for_pdf(claim.veteran_data)
+        file_contents    = File.read(source_file_path)
+
+        File.delete(source_file_path)
 
         increment Form1010cg::Service.metrics.pdf_download
 
-        send_file source_file_path, filename: client_file_name, type: 'application/pdf'
+        send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
       else
         raise(Common::Exceptions::ValidationErrors, claim)
       end
