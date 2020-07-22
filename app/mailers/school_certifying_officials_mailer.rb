@@ -11,9 +11,10 @@ class SchoolCertifyingOfficialsMailer < TransactionalEmailMailer
       sonntag_adam@bah.com
   ].freeze
 
-  def build(recipients, google_analytics_client_id, cc)
+  def build(applicant, recipients, ga_client_id)
+    @applicant = applicant
     recipients = recipients + STAGING_RECIPIENTS.clone if FeatureFlipper.staging_email?
-
-    super(recipients, google_analytics_client_id, cc)
+    opt = {cc: applicant.email}
+    super(recipients, ga_client_id, opt)
   end
 end

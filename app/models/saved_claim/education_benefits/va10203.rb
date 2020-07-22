@@ -83,8 +83,6 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     return if FeatureFlipper.send_email?
 
     recipients = []
-    application = parsed_form
-
     scos = @institution[:versioned_school_certifying_officials]
     primary = scos.find{ |sco| sco[:priority] == 'Primary' && sco[:email].present?}
     secondary = scos.find{ |sco| sco[:priority] == 'Secondary' && sco[:email].present?}
@@ -93,7 +91,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
       recipients.push(primary[:email]) if primary.present?
       recipients.push(secondary[:email]) if secondary.present?
 
-      SchoolCertifyingOfficialsMailer.build(recipients, nil, application["email"]).deliver_now
+      SchoolCertifyingOfficialsMailer.build(open_struct_form,recipients,nil).deliver_now
       email_sent(true)
     end
   end
