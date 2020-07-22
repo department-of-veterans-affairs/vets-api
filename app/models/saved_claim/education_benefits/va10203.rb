@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+include EducationForm
+
 class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   add_form_and_validation('22-10203')
 
@@ -84,22 +86,16 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     application = parsed_form
 
     scos = @institution[:versioned_school_certifying_officials]
-    primary = scos.find{ |sco| sco[:priority] == 'Primary' && sco[:email.present?]}
-    secondary = scos.find{ |sco| sco[:priority] == 'Secondary' && sco[:email.present?]}
+    primary = scos.find{ |sco| sco[:priority] == 'Primary' && sco[:email].present?}
+    secondary = scos.find{ |sco| sco[:priority] == 'Secondary' && sco[:email].present?}
 
     unless primary.blank? && secondary.blank?
       recipients.push(primary[:email]) if primary.present?
       recipients.push(secondary[:email]) if secondary.present?
-      body = create_email_body
 
-      SchoolCertifyingOfficialsMailer.build(recipients, application["email"], body).deliver_now
+      SchoolCertifyingOfficialsMailer.build(recipients, nil, application["email"]).deliver_now
       email_sent(true)
     end
   end
 
-  def create_email_body
-    form = EducationForm::Forms::VA10203SCO.new(self)
-    binding.pry
-    form
-  end
 end
