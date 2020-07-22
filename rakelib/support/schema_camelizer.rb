@@ -53,7 +53,7 @@ class SchemaCamelizer
   def save!
     raise 'expected spec/support/schemas to be original path!' if original_path == camel_path
 
-    File.open(camel_path, 'w') { |file| file.write(camel_schema.to_json) }
+    File.open(camel_path, 'w') { |file| file.write(JSON.pretty_generate(camel_schema)); file.write("\n") }
     [camel_path].concat(@referenced_schemas.collect(&:save!)).flatten
   end
 end
