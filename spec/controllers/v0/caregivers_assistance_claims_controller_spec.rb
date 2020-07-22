@@ -2,14 +2,17 @@
 
 require 'rails_helper'
 
-shared_examples 'invalid 10-10CG form submission' do
+shared_examples 'invalid 10-10CG form submission' do |controller_action, expected_stat_increments = []|
+  before do
+    expected_stat_increments.each do |stat|
+      expect(StatsD).to receive(:increment).with(stat)
+    end
+  end
+
   it 'requires "caregivers_assistance_claim" param' do
     expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
 
-    expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-    expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
-
-    post :create, params: {}
+    post controller_action, params: {}
 
     expect(response).to have_http_status(:bad_request)
 
@@ -29,10 +32,7 @@ shared_examples 'invalid 10-10CG form submission' do
   it 'requires "caregivers_assistance_claim.form" param' do
     expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
 
-    expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-    expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
-
-    post :create, params: { caregivers_assistance_claim: { form: nil } }
+    post controller_action, params: { caregivers_assistance_claim: { form: nil } }
 
     expect(response).to have_http_status(:bad_request)
 
@@ -62,10 +62,7 @@ shared_examples 'invalid 10-10CG form submission' do
 
     expect(Form1010cg::Service).not_to receive(:new).with(claim)
 
-    expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-    expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
-
-    post :create, params: params
+    post controller_action, params: params
 
     res_body = JSON.parse(response.body)
 
@@ -110,7 +107,10 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
           expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
         end
 
-        it_behaves_like 'invalid 10-10CG form submission'
+        it_behaves_like 'invalid 10-10CG form submission', :create, [
+          'api.form1010cg.submission.attempt',
+          'api.form1010cg.submission.failure.client.data'
+        ]
 
         it 'submits claim with Form1010cg::Service' do
           claim = build(:caregivers_assistance_claim)
@@ -240,7 +240,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       File.delete(response_pdf) if File.exist?(response_pdf)
     end
 
-    it_behaves_like 'invalid 10-10CG form submission'
+    it_behaves_like 'invalid 10-10CG form submission', :download_pdf
 
     it 'generates a filled out 10-10CG and sends file as response', run_at: '2017-07-25 00:00:00 -0400' do
       form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
