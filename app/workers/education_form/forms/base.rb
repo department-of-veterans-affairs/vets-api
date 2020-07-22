@@ -75,11 +75,11 @@ module EducationForm::Forms
     #
     # Convert the JSON/OStruct document into the text format that we submit to the backend
     # rubocop:enable Style/AsciiComments
-    def format(path = @record.form_type)
+    def format
       @applicant = @form
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
-      wrapped = word_wrap(parse_with_template_path(path), line_width: 78)
+      wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
       wrapped = wrapped.gsub(/’|‘/, "'").gsub(/”|“/, '"')
       # We can only send ASCII, so make a best-effort at that.
       transliterated = ActiveSupport::Inflector.transliterate(wrapped, locale: :en)
@@ -137,6 +137,10 @@ module EducationForm::Forms
       return '' if name.nil?
 
       [name.first, name.middle, name.last, name&.suffix].compact.join(' ')
+    end
+
+    def school_name
+      school&.name&.upcase&.strip
     end
 
     def school_name_and_addr(school)
