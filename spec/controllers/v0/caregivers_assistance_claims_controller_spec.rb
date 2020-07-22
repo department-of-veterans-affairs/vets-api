@@ -253,7 +253,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         claim
       )
 
-      expect(SecureRandom).to receive(:uuid).and_return('my-uuid')
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
       expect(StatsD).to receive(:increment).with('api.form1010cg.pdf_download')
 
       post :download_pdf, params: params
@@ -270,7 +270,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
       # ensure that the tmp file was deleted
       expect(
-        File.exist?('tmp/pdfs/10-10CG_my-uuid.pdf')
+        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
       ).to eq(false)
     end
   end
