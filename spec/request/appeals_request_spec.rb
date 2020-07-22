@@ -131,7 +131,7 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
 
-      it 'returns a successful response' do
+      it 'returns a successful camel-inflected response' do
         VCR.use_cassette('caseflow/appeals_no_alert_details_due_date') do
           get appeals_endpoint
           expect(response).to have_http_status(:ok)
