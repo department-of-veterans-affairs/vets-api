@@ -24,9 +24,10 @@ module ClaimsApi
       )
       service.validate_form526(auto_claim.to_internal)
       render json: valid_526_response
-    rescue EVSS::ErrorMiddleware::EVSSError => e
-      track_526_validation_errors(e.details)
-      render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
+    rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
+      error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages
+      track_526_validation_errors(error_details)
+      render json: { errors: format_526_errors(error_details) }, status: :unprocessable_entity
     rescue ::Common::Exceptions::GatewayTimeout, ::Timeout::Error, ::Faraday::TimeoutError => e
       req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
       PersonalInformationLog.create(
