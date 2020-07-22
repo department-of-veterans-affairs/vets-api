@@ -7,6 +7,7 @@ class SchemaCamelizer
 
   def initialize(schema_path)
     @original_path = schema_path
+    name = %r{/([^/]*)\.json$}.match(schema_path)[1]
     raw_schema = File.read(schema_path)
     # OliveBranch only changes keys, but the required key's value is an arrray of keys,
     #  these need to be camelized to match the keys to which they refer
@@ -20,6 +21,11 @@ class SchemaCamelizer
       # rubocop:enable Style/PerlBackrefs
       # rebuild the matched required key-value with quoted and camelized keys in the area
       "\"required\": [#{keys.map { |key| "\"#{key}\"" }.join(', ')}]"
+    end
+    # some schemas use "$ref" to include a definition from another file, transform any needed also
+    @referenced_schemas = raw_schema.scan(/"\$ref": "(.*)\.json"/).flatten.map do |schema_name|
+      reference_schema_path = schema_path.gsub(name, schema_name)
+      SchemaCamelizer.new(reference_schema_path)
     end
     hashed_schema = JSON.parse(raw_schema)
     @camel_schema = OliveBranch::Transformations.transform(hashed_schema, camelizer)
@@ -41,11 +47,13 @@ class SchemaCamelizer
 
   # Saves the #camel_schema to #camel_path
   # raises an error when original schema is not from spec/support/schemas
+  # also saves a camelized version of any referenced schemas
   #
-  # @return not used
+  # @return [array] files created
   def save!
     raise 'expected spec/support/schemas to be original path!' if original_path == camel_path
 
     File.open(camel_path, 'w') { |file| file.write(camel_schema.to_json) }
+    [camel_path].concat(@referenced_schemas.collect(&:save!)).flatten
   end
 end
