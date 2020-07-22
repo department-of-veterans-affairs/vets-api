@@ -133,8 +133,7 @@ class Form526Submission < ApplicationRecord
       'email' => email_address,
       'submitted_claim_id' => submitted_claim_id,
       'updated_at' => updated_at.strftime('%B %-d, %Y'),
-      'first_name' => auth_headers['va_eauth_firstName'],
-      'last_name' => auth_headers['va_eauth_lastName']
+      'full_name' => auth_headers['va_eauth_fullName']
     }
     Form526ConfirmationEmailJob.perform_async(id, personalization_parameters)
   end
