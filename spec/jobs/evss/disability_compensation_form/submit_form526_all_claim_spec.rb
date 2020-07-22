@@ -78,6 +78,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
+    context 'with a breakers outage' do
+      it 'runs the retryable_error_handler and raises a ' do
+        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+        subject.perform_async(submission.id)
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+        expect(Form526JobStatus).to receive(:upsert).twice
+        expect(Rails.logger).to receive(:error).once
+        expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+      end
+    end
+
     context 'with a client error' do
       it 'sets the job_status to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
