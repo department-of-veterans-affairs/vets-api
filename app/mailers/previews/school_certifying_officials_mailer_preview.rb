@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class SchoolCertifyingOfficialsMailerPreview < ActionMailer::Preview
   def build
     applicant = SavedClaim::EducationBenefits::VA10203.last.open_struct_form
