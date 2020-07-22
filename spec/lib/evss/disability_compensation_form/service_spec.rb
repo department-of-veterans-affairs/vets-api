@@ -105,6 +105,7 @@ describe EVSS::DisabilityCompensationForm::Service do
                                          times: 1,
                                          value: 1,
                                          tags: ['error:Breakers::OutageException'])
+        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
       end
     end
   end
