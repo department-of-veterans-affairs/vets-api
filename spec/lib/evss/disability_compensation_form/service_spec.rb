@@ -91,5 +91,21 @@ describe EVSS::DisabilityCompensationForm::Service do
         expect { subject.submit_form526(valid_form_content) }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
+
+    context 'with an breakers error' do
+      it 'logs an error and raise GatewayTimeout' do
+        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+        expect { subject.submit_form526(valid_form_content) }
+          .to raise_error(Breakers::OutageException)
+          .and trigger_statsd_increment(
+            'api.external_http_request.EVSS/DisabilityCompensationForm.skipped',
+            times: 1,
+            value: 1
+          ).and trigger_statsd_increment('api.evss.submit_form526.fail',
+                                         times: 1,
+                                         value: 1,
+                                         tags: ['error:Breakers::OutageException'])
+      end
+    end
   end
 end
