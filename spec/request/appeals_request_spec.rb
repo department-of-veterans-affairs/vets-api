@@ -41,15 +41,6 @@ RSpec.describe 'Appeals Status', type: :request do
           expect(response).to match_response_schema('appeals')
         end
       end
-
-      it 'returns a successful camel-inflected response' do
-        VCR.use_cassette('caseflow/appeals') do
-          get appeals_endpoint, headers: { 'X-Key-Inflection' => 'camel' }
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to be_a(String)
-          expect(response).to match_camelized_response_schema('appeals')
-        end
-      end
     end
 
     context 'with a not authorized response' do
@@ -110,15 +101,6 @@ RSpec.describe 'Appeals Status', type: :request do
           expect(response).to match_response_schema('appeals')
         end
       end
-
-      it 'returns a successful camel-inflected response' do
-        VCR.use_cassette('caseflow/appeals_null_eta') do
-          get appeals_endpoint
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to be_a(String)
-          expect(response).to match_camelized_response_schema('appeals')
-        end
-      end
     end
 
     context 'with no alert details due_date' do
@@ -128,15 +110,6 @@ RSpec.describe 'Appeals Status', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('appeals')
-        end
-      end
-
-      it 'returns a successful camel-inflected response' do
-        VCR.use_cassette('caseflow/appeals_no_alert_details_due_date') do
-          get appeals_endpoint
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to be_a(String)
-          expect(response).to match_camelized_response_schema('appeals')
         end
       end
     end
