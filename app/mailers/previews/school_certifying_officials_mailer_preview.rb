@@ -2,6 +2,8 @@
 
 class SchoolCertifyingOfficialsMailerPreview < ActionMailer::Preview
   def build
+    return unless FeatureFlipper.staging_email?
+
     applicant = SavedClaim::EducationBenefits::VA10203.last.open_struct_form
     recipients = []
     ga_client_id = nil
