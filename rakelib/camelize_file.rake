@@ -12,7 +12,14 @@ namespace :camelize_file do
     raise IOError, "No json-schema file at #{schema_path}" unless File.exist? schema_path
 
     transformer = SchemaCamelizer.new(schema_path.to_s)
-    transformer.save!
-    print "Saved camelized schema to #{transformer.camel_path}\n"
+    saved_schemas = transformer.save!
+    if saved_schemas.count == 1
+      print "Saved camelized schema to #{saved_schemas.first}\n"
+    else
+      print "Saved camelized schema and its references:\n"
+      saved_schemas.each do |save_path|
+        print " - #{save_path}\n"
+      end
+    end
   end
 end
