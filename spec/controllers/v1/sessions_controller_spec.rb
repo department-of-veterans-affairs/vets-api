@@ -52,7 +52,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       level_of_assurance: ['3'],
       attributes: build(:ssoe_idme_loa1, va_eauth_ial: 3),
       in_response_to: login_uuid,
-      issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
+      issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
     )
   end
 
@@ -329,7 +329,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             level_of_assurance: ['3'],
             attributes: invalid_attributes,
             in_response_to: login_uuid,
-            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
           )
         end
 
@@ -347,7 +347,8 @@ RSpec.describe V1::SessionsController, type: :controller do
           )
           expect(controller).to receive(:log_message_to_sentry)
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: ['context:mhv', 'version:v1', 'error:101'])
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
+                                         tags: ['context:mhv', 'version:v1', 'error:101'])
 
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
