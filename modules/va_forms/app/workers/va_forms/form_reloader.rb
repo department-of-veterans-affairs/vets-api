@@ -34,8 +34,12 @@ module VaForms
       @connection ||= Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
         faraday.request :url_encoded
         faraday.use basic_auth_class, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
-        faraday.adapter :net_http_socks unless Rails.env.production?
+        faraday.adapter faraday_adapter
       end
+    end
+
+    def faraday_adapter
+      Rails.env.production? ? Faraday.default_adapter : :net_http_socks
     end
 
     def faraday_options
@@ -57,20 +61,42 @@ module VaForms
     end
 
     def build_and_save_form(form)
-      va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormName']
-      current_sha256 = va_form.sha256
+      va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
+
       url = form['fieldVaFormUrl']['uri']
-      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
-      va_form.url = Addressable::URI.parse(va_form_url).normalize.to_s
-      va_form.title = form['fieldVaFormNumber']
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
-      va_form.first_issued_on = parse_date(issued_string) if issued_string.present?
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
-      va_form.last_revision_on = parse_date(revision_string) if revision_string.present?
-      va_form.pages = form['fieldVaFormNumPages']
+      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
+      attrs = {
+        url: Addressable::URI.parse(va_form_url).normalize.to_s,
+        title: form['fieldVaFormName'],
+        pages: form['fieldVaFormNumPages'],
+        language: form.dig('langcode', 'value'),
+        form_type: form['fieldVaFormType'],
+        form_usage: form.dig('fieldVaFormUsage', 'processed'),
+        form_tool_intro: form['fieldVaFormToolIntro'],
+        form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
+        deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
+        related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
+        benefit_categories: map_benefit_categories(form['fieldBenefitCategories'])
+      }
+
+      attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
+      attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
+      va_form.assign_attributes(attrs)
       va_form = update_sha256(va_form)
-      va_form.save if current_sha256 != va_form.sha256
+
+      va_form.save
       va_form
+    end
+
+    def map_benefit_categories(categories)
+      categories.map do |field|
+        {
+          label: field.dig('entity', 'fieldHomePageHubLabel'),
+          description: field.dig('entity', 'entityLabel')
+        }
+      end
     end
 
     def parse_date(date_string)
