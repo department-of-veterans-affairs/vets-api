@@ -9,13 +9,13 @@ module BGS
     end
 
     def get_dependents
-      service.claimants.find_dependents_by_participant_id(current_user.participant_id, current_user.ssn)
+      service.claimants.find_dependents_by_participant_id(@user.participant_id, @user.ssn)
     end
 
     def submit_686c_form(payload)
       va_file_number_with_payload = add_va_file_number_to_payload(payload.to_h)
 
-      VBMS::Form686cPdfJob.perform_async(veteran_hash, va_file_number_with_payload)
+
     rescue => e
       report_error(e)
     end
@@ -23,16 +23,17 @@ module BGS
     private
 
     def service
-      external_key = @current_user.common_name || @current_user.email
+      external_key = @user.common_name || @user.email
 
       @service ||= BGS::Services.new(
-        external_uid: @current_user.icn,
+        external_uid: @user.icn,
         external_key: external_key
       )
     end
 
     def add_va_file_number_to_payload(payload)
       va_file_number = service.people.find_person_by_ptcpnt_id(@user.participant_id)
+
       payload[:veteran_contact_information][:va_file_number] = va_file_number[:file_nbr]
 
       payload
@@ -54,7 +55,7 @@ module BGS
       log_exception_to_sentry(
         error,
         {
-          icn: @current_user.icn
+          icn: @user.icn
         },
         { team: 'vfs-ebenefits' }
       )

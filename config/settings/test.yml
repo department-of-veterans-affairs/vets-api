@@ -73,13 +73,12 @@ bgs:
   application: VAgovAPI
   client_station_id: 281
   client_username: VAgovAPI
-  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
+  ssl_verify_mode: 'none'
+  log: true
+  url: https://localhost:4447
+#  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
 
 flipper:
   admin_user_emails:
     - abraham.lincoln@vets.gov
 
-va_forms:
-  drupal_username: ~
-  drupal_password: ~
-  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
