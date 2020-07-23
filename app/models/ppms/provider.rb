@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'common/models/base'
 
 class PPMS::Provider < Common::Base
@@ -24,8 +26,9 @@ class PPMS::Provider < Common::Base
   attribute :pos_codes, String
   attribute :provider_identifier, String
   attribute :provider_name, String
-  attribute :provider_specialties, Array
+  # attribute :provider_specialties, Array
   attribute :provider_type, String
+  attribute :specialties, Array
 
   def initialize(attr)
     super(attr)
@@ -37,6 +40,16 @@ class PPMS::Provider < Common::Base
     new_attr[:phone] = new_attr.delete(:main_phone)
     new_attr[:id] = new_attr.delete(:provider_hexdigest) || new_attr[:provider_identifier]
 
+    new_attr[:specialties] = new_attr.delete(:provider_specialties).collect do |specialty|
+      PPMS::Specialty.new(
+        specialty.transform_keys { |k| k.to_s.snakecase.to_sym }
+      )
+    end
+
     self.attributes = new_attr
+  end
+
+  def specialty_ids
+    specialties.collect(&:specialty_code)
   end
 end

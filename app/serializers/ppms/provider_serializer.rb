@@ -22,11 +22,11 @@ class PPMS::ProviderSerializer
 
   attribute :address do |object|
     addr = {
-        street: object.address_street,
-        city: object.address_city,
-        state: object.address_state_province,
-        zip: object.address_postal_code
-      }
+      street: object.address_street,
+      city: object.address_city,
+      state: object.address_state_province,
+      zip: object.address_postal_code
+    }
     if addr.values.all?
       addr
     else
@@ -34,9 +34,7 @@ class PPMS::ProviderSerializer
     end
   end
 
-  attribute :caresite_phone do |object|
-    object.caresite_phone
-  end
+  attribute :caresite_phone, &:caresite_phone
 
   attribute :email
 
@@ -44,13 +42,9 @@ class PPMS::ProviderSerializer
 
   attribute :gender
 
-  attribute :lat do |object|
-    object.latitude
-  end
+  attribute :lat, &:latitude
 
-  attribute :long do |object|
-    object.longitude
-  end
+  attribute :long, &:longitude
 
   attribute :name do |object|
     possible_name =
@@ -63,27 +57,22 @@ class PPMS::ProviderSerializer
     [possible_name, object.name].find(&:present?)
   end
 
-  attribute :phone do |object|
-    object.main_phone
-  end
+  attribute :phone, &:main_phone
 
   attribute :pos_codes
 
-  attribute :pref_contact do |object|
-    object.contact_method
-  end
+  attribute :pref_contact, &:contact_method
 
-  attribute :specialty do |object|
-    object.provider_specialties.map do |specialty|
-      {
-        name: specialty['SpecialtyName'],
-        desc: specialty['SpecialtyDescription']
-      }
-    end
-  end
+  # attribute :specialty do |object|
+  #   object.provider_specialties.map do |specialty|
+  #     {
+  #       name: specialty['SpecialtyName'],
+  #       desc: specialty['SpecialtyDescription']
+  #     }
+  #   end
+  # end
 
-  attribute :unique_id do |object|
-    object.provider_identifier
-  end
+  attribute :unique_id, &:provider_identifier
 
+  has_many :specialties
 end

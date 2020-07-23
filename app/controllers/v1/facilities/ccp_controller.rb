@@ -1,18 +1,18 @@
 # frozen_string_literal: true
+
 require 'will_paginate/array'
 class V1::Facilities::CcpController < FacilitiesController
-
   # Provider supports the following query parameters:
   # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
   # @param services - Optional specialty services filter
   def index
     api_results = ppms_search.collect do |result|
       PPMS::Provider.new(
-        result.attributes.transform_keys {|k| k.to_s.snakecase.to_sym }
+        result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym }
       )
-    end.uniq { |r| r.id }.paginate(pagination_params)
+    end.uniq(&:id).paginate(pagination_params)
 
-    render_json(serializer, ppms_params, api_results)
+    render_json(serializer, ppms_params, api_results, { include: [:specialties] })
   end
 
   def show
@@ -21,19 +21,19 @@ class V1::Facilities::CcpController < FacilitiesController
     services = api.provider_services(params[:id])
     api_result.add_provider_service(services[0]) if services.present?
 
-    api_result = PPMS::Provider.new(api_result.attributes.transform_keys {|k| k.to_s.snakecase.to_sym })
+    api_result = PPMS::Provider.new(api_result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym })
 
-    render_json(serializer, ppms_params, api_result)
+    render_json(serializer, ppms_params, api_result, { include: [:specialties] })
   end
 
-  def services
+  def specialties
     api_results = api.specialties.collect do |result|
-      PPMS::Service.new(
-        result.transform_keys {|k| k.to_s.snakecase.to_sym}
+      PPMS::Specialty.new(
+        result.transform_keys { |k| k.to_s.snakecase.to_sym }
       )
     end
 
-    render_json(PPMS::ServiceSerializer, ppms_params, api_results)
+    render_json(PPMS::SpecialtySerializer, ppms_params, api_results)
   end
 
   private
@@ -91,5 +91,4 @@ class V1::Facilities::CcpController < FacilitiesController
   def resource_path(options)
     v1_facilities_ccp_index_url(options)
   end
-
 end

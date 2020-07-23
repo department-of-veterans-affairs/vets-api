@@ -37,7 +37,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
         end
 
         it 'returns a results from the pos_locator' do
-
           get '/v1/facilities/ccp', params: params
 
           bod = JSON.parse(response.body)
@@ -64,8 +63,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '17',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1629245311'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -89,8 +92,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '17',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1992993570'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -114,8 +121,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '20',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1043371826'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -139,8 +150,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '20',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1043371826'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -164,8 +179,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '17',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1629245311'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -189,8 +208,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '20',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1447660816'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -214,8 +237,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '17',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1992993570'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -239,8 +266,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '17',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1629245311'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -264,8 +295,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '20',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1871782490'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               },
               {
@@ -289,11 +324,16 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                   'phone' => nil,
                   'pos_codes' => '20',
                   'pref_contact' => nil,
-                  'specialty' => [],
                   'unique_id' => '1043371826'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
                 }
               }
-            ]
+            ],
+            'included' => []
           )
           expect(response).to be_successful
         end
@@ -364,6 +404,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
         get '/v1/facilities/ccp', params: params
 
         bod = JSON.parse(response.body)
+
         expect(bod).to include(
           'data' => [
             {
@@ -387,17 +428,35 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => '4809241552',
                 'pos_codes' => nil,
                 'pref_contact' => nil,
-                'specialty' => [
-                  {
-                    'name' => 'Podiatrist',
-                    'desc' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) ' \
-                              'degree, licensed by the state, and practicing within the scope of that license. ' \
-                              'Podiatrists diagnose and treat foot diseases and deformities. They perform medical, ' \
-                              'surgical and other operative procedures, prescribe corrective devices and prescribe ' \
-                              'and administer drugs and physical therapy.'
-                  }
-                ],
                 'unique_id' => '1407842941'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => [
+                    {
+                      'id' => '213E00000X',
+                      'type' => 'specialty'
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          'included' => [
+            {
+              'id' => '213E00000X',
+              'type' => 'specialty',
+              'attributes' => {
+                'classification' => 'Podiatrist',
+                'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+                'specialization' => nil,
+                'specialty_code' => '213E00000X',
+                'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
+                                           '(D.P.M.) degree, licensed by the state, and practicing within the scope ' \
+                                           'of that license. Podiatrists diagnose and treat foot diseases and ' \
+                                           'deformities. They perform medical, surgical and other operative ' \
+                                           'procedures, prescribe corrective devices and prescribe and administer ' \
+                                           'drugs and physical therapy.'
               }
             }
           ]
@@ -443,17 +502,35 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => '4809241552',
                 'pos_codes' => nil,
                 'pref_contact' => nil,
-                'specialty' => [
-                  {
-                    'name' => 'Podiatrist',
-                    'desc' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) ' \
-                              'degree, licensed by the state, and practicing within the scope of that license. ' \
-                              'Podiatrists diagnose and treat foot diseases and deformities. They perform ' \
-                              'medical, surgical and other operative procedures, prescribe corrective devices ' \
-                              'and prescribe and administer drugs and physical therapy.'
-                  }
-                ],
                 'unique_id' => '1407842941'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => [
+                    {
+                      'id' => '213E00000X',
+                      'type' => 'specialty'
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          'included' => [
+            {
+              'id' => '213E00000X',
+              'type' => 'specialty',
+              'attributes' => {
+                'classification' => 'Podiatrist',
+                'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+                'specialization' => nil,
+                'specialty_code' => '213E00000X',
+                'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
+                                           '(D.P.M.) degree, licensed by the state, and practicing within the scope ' \
+                                           'of that license. Podiatrists diagnose and treat foot diseases and ' \
+                                           'deformities. They perform medical, surgical and other operative ' \
+                                           'procedures, prescribe corrective devices and prescribe and administer ' \
+                                           'drugs and physical therapy.'
               }
             }
           ]
@@ -500,8 +577,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '17',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1629245311'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -525,8 +606,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '17',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1992993570'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -550,8 +635,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '20',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1043371826'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -575,8 +664,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '20',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1043371826'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -600,8 +693,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '17',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1629245311'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -625,8 +722,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '20',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1447660816'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -650,8 +751,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '17',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1992993570'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -675,8 +780,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '17',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1629245311'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -700,8 +809,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '20',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1871782490'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             },
             {
@@ -725,11 +838,16 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
                 'phone' => nil,
                 'pos_codes' => '20',
                 'pref_contact' => nil,
-                'specialty' => [],
                 'unique_id' => '1043371826'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
               }
             }
           ],
+          'included' => [],
           'meta' => {
             'pagination' => {
               'current_page' => 1,
@@ -742,7 +860,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
         expect(response).to be_successful
       end
     end
-
   end
 
   describe '#show' do
@@ -783,59 +900,74 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
             'phone' => '4809241552',
             'pos_codes' => nil,
             'pref_contact' => nil,
-            'specialty' => [
-              {
-                'name' => 'Podiatrist',
-                'desc' => 'A podiatrist is a person qualified by a Doctor of ' \
-                          'Podiatric Medicine (D.P.M.) degree, licensed by the ' \
-                          'state, and practicing within the scope of that ' \
-                          'license. Podiatrists diagnose and treat foot ' \
-                          'diseases and deformities. They perform medical, ' \
-                          'surgical and other operative procedures, prescribe ' \
-                          'corrective devices and prescribe and administer ' \
-                          'drugs and physical therapy.'
-              }
-            ],
             'unique_id' => '1407842941'
+          },
+          'relationships' => {
+            'specialties' => {
+              'data' => [
+                {
+                  'id' => '213E00000X',
+                  'type' => 'specialty'
+                }
+              ]
+            }
           }
-        }
+        },
+        'included' => [
+          {
+            'id' => '213E00000X',
+            'type' => 'specialty',
+            'attributes' => {
+              'classification' => 'Podiatrist',
+              'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+              'specialization' => nil,
+              'specialty_code' => '213E00000X',
+              'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
+                                         '(D.P.M.) degree, licensed by the state, and practicing within the scope ' \
+                                         'of that license. Podiatrists diagnose and treat foot diseases and ' \
+                                         'deformities. They perform medical, surgical and other operative ' \
+                                         'procedures, prescribe corrective devices and prescribe and administer ' \
+                                         'drugs and physical therapy.'
+            }
+          }
+        ]
       )
     end
   end
 
-  describe '#services' do
+  describe '#specialties' do
     it 'returns a list of available specializations' do
-      get '/v1/facilities/ccp/services'
+      get '/v1/facilities/ccp/specialties'
 
       bod = JSON.parse(response.body)
 
       expect(bod['data'][0..1]).to include(
         {
-           "id" => "101Y00000X",
-           "type" => "service",
-           "attributes" => {
-             "classification" => "Counselor",
-             "grouping" => "Behavioral Health & Social Service Providers",
-             "specialization" => nil,
-             "specialty_code" => "101Y00000X",
-             "specialty_description" => 'A provider who is trained and educated in the performance of behavior ' \
-                                        'health services through interpersonal communications and analysis. ' \
-                                        'Training and education at the specialty level usually requires a ' \
-                                        'master\'s degree and clinical experience and supervision for licensure ' \
-                                        'or certification.'
-           }
-         },
-         {
-           "id" => "101YA0400X",
-           "type" => "service",
-           "attributes" => {
-             "classification" => "Counselor",
-             "grouping" => "Behavioral Health & Social Service Providers",
-             "specialization" => "Addiction (Substance Use Disorder)",
-             "specialty_code" => "101YA0400X",
-             "specialty_description" => "Definition to come..."
-           }
-         }
+          'id' => '101Y00000X',
+          'type' => 'specialty',
+          'attributes' => {
+            'classification' => 'Counselor',
+            'grouping' => 'Behavioral Health & Social Service Providers',
+            'specialization' => nil,
+            'specialty_code' => '101Y00000X',
+            'specialty_description' => 'A provider who is trained and educated in the performance of behavior ' \
+         'health services through interpersonal communications and analysis. ' \
+         'Training and education at the specialty level usually requires a ' \
+         'master\'s degree and clinical experience and supervision for licensure ' \
+         'or certification.'
+          }
+        },
+        {
+          'id' => '101YA0400X',
+          'type' => 'specialty',
+          'attributes' => {
+            'classification' => 'Counselor',
+            'grouping' => 'Behavioral Health & Social Service Providers',
+            'specialization' => 'Addiction (Substance Use Disorder)',
+            'specialty_code' => '101YA0400X',
+            'specialty_description' => 'Definition to come...'
+          }
+        }
       )
     end
   end
