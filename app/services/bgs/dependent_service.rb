@@ -15,7 +15,7 @@ module BGS
     end
 
     def submit_686c_form(payload)
-      va_file_number_with_payload = add_va_file_number_to_payload(payload.to_h)
+      # va_file_number_with_payload = add_va_file_number_to_payload(payload.to_h)
 
       # VBMS::Form686cPdfJob.perform_async(veteran_hash, va_file_number_with_payload)
 
@@ -86,7 +86,7 @@ module BGS
       PdfFill::Filler.fill_form(claim)
     end
 
-    def upload_to_vbms(@user, path)
+    def upload_to_vbms(path)
       uploader = ClaimsApi::VbmsUploader.new(
         filepath: path,
         file_number: @user.ssn,
