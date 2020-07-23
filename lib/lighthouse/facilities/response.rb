@@ -31,15 +31,16 @@ module Lighthouse
       end
 
       def facilities
-        data.each_with_index.map do |facility, index|
+        facilities = data.each_with_index.map do |facility, index|
           fac = Lighthouse::Facilities::Facility.new(facility)
           fac.distance = meta['distances'][index]['distance'] unless meta['distances'].empty?
           fac
-        end.paginate(
-          current_page: current_page,
-          per_page: per_page,
-          total_entries: total_entries
-        )
+        end
+
+        WillPaginate::Collection.create(current_page, per_page) do |pager|
+            pager.replace(facilities)
+            pager.total_entries = total_entries
+        end
       end
 
       def facility
