@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DependentsApplicationFailureMailer < TransactionalEmailMailer
+class DependentsApplicationFailureMailer < ApplicationMailer
   def build(user_hash)
     @user_hash = user_hash
     template = File.read('app/mailers/views/dependents_application_failure.erb')
