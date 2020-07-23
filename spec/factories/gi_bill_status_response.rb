@@ -23,5 +23,6 @@ FactoryBot.define do
         amendments: []
       }]
     }
+    initialize_with { new(status: 200, response: {}) }
   end
 end
