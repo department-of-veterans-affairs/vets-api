@@ -16,8 +16,10 @@ end
 # Ensure your provider application version enables you to trace back to an exact
 # state of your provider codebase.
 # The easiest way to do this is to include the build number (or a SHA) in your version.
-provider_version = ENV['GIT_COMMIT'] || `git rev-parse --verify HEAD`
-# publish_flag = ENV['PUBLISH_VERIFICATION_RESULTS'] == "true"
+git_sha = ENV['GIT_COMMIT'] || `git rev-parse --verify HEAD`
+git_branch = ENV['GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`
+# don't publish results if running in local development env
+publish_flag = ENV['PUBLISH_PACT_VERIFICATION_RESULTS'] == "true" || (! Rails.env.development?)
 
 Pact.service_provider 'VA.gov API' do
   # This example points to a local file, however, on a real project with a continuous
@@ -30,8 +32,9 @@ Pact.service_provider 'VA.gov API' do
     pact_uri 'spec/service_consumers/do_not_merge/forms.gov_api.json'
   end
 
-  app_version provider_version
-  publish_verification_results true
+  app_version git_sha
+  app_version_tags git_branch
+  publish_verification_results publish_flag
 
   honours_pacts_from_pact_broker do
     pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com'
