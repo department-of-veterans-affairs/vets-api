@@ -12,15 +12,11 @@ module VaForms
     end
 
     def versions
-      if object.versions.any?
-        object.versions.map do |v|
-          {
-            sha256: v.changeset['sha256']&.last,
-            revision_on: v.created_at&.strftime('%Y-%m-%d')
-          }
-        end
-      else
-        []
+      object.versions.map do |v|
+        {
+          sha256: v.changeset['sha256']&.last,
+          revision_on: v.created_at&.strftime('%Y-%m-%d')
+        }
       end
     end
   end
