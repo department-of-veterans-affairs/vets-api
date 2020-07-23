@@ -34,7 +34,7 @@ RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
         expect(subject.body.raw_source).to include("Name of Student: #{veteran_full_name}")
       end
       it 'includes school email address' do
-        expect(subject.body.raw_source).to include("Student’s school email address:  #{applicant.schoolEmailAddress}")
+        expect(subject.body.raw_source).to include("Student’s school email address: #{applicant.schoolEmailAddress}")
       end
       it 'includes school student id' do
         expect(subject.body.raw_source).to include("Student’s school ID number: #{applicant.schoolStudentId}")
@@ -46,7 +46,7 @@ RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
 
     context 'when sending staging emails' do
       before do
-        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
+        expect(FeatureFlipper).to receive(:staging_email?).and_return(true)
       end
 
       it 'includes recipients' do
