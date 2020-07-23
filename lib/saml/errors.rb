@@ -8,18 +8,18 @@ module SAML
   class UserAttributeError < SAMLError
     ERRORS = {
       multiple_mhv_ids: { code: '101',
-                           tag: :multiple_mhv_ids,
-                           message: 'User attributes contain multiple distinct MHV ID values' }.freeze,
+                          tag: :multiple_mhv_ids,
+                          message: 'User attributes contain multiple distinct MHV ID values' }.freeze,
       multiple_edipis: { code: '102',
-                          tag: :multiple_edipis,
-                          message: 'User attributes contain multiple distinct EDIPI values' }.freeze,
+                         tag: :multiple_edipis,
+                         message: 'User attributes contain multiple distinct EDIPI values' }.freeze,
       mhv_icn_mismatch: { code: '103',
-                           tag: :mhv_icn_mismatch,
-                           message: 'MHV credential ICN does not match MPI record' }.freeze,
-      idme_uuid_missing:  { code: '104',
-                            tag: :idme_uuid_missing,
-                            message: 'User attributes is missing an ID.me UUID' }.freeze,
-    }
+                          tag: :mhv_icn_mismatch,
+                          message: 'MHV credential ICN does not match MPI record' }.freeze,
+      idme_uuid_missing: { code: '104',
+                           tag: :idme_uuid_missing,
+                           message: 'User attributes is missing an ID.me UUID' }.freeze
+    }.freeze
 
     attr_reader :identifier
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'saml/errors'
 
 host = Settings.statsd.host
@@ -12,8 +13,8 @@ StatsD.backend = if host.present? && port.present?
 
 # Initialize session controller metric counters at 0
 LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
-                UserSessionForm::ERRORS.values +
-                SAML::UserAttributeError::ERRORS.values
+               UserSessionForm::ERRORS.values +
+               SAML::UserAttributeError::ERRORS.values
 %w[v0 v1].each do |v|
   StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0,
                    tags: ["version:#{v}"])
