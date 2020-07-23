@@ -118,10 +118,12 @@ module VAOS
       end
     end
 
-    def get_request_eligibility_criteria(site_codes = nil)
+    def get_request_eligibility_criteria(site_codes: nil, parent_sites: nil)
       with_monitoring do
         url = '/facilities/v1/request-eligibility-criteria'
-        url_params = site_codes ? { 'site-codes' => site_codes } : nil
+        url_params = nil
+        url_params[:site_codes] = site_codes if site_codes
+        url_params[:parent_sites] = parent_sites if parent_sites
         options = { params_encoder: Faraday::FlatParamsEncoder }
         response = perform(:get, url, url_params, headers, options)
         response.body.map { |rec| OpenStruct.new(rec) }
