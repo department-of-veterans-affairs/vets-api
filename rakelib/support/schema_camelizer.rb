@@ -64,6 +64,9 @@ class SchemaCamelizer
     [camel_path].concat(@referenced_schemas.collect(&:save!).flatten)
   end
 
+  # Checks schema and it's references to see if any of them were already camelized
+  #
+  # @return [array] list of schema names with no changes
   def unchanged_schemas
     return @unchanged_schemas unless @unchanged_schemas.nil?
 
