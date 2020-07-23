@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/vbms_uploader'
+
 module BGS
   class DependentService
     include SentryLogging
@@ -15,7 +17,10 @@ module BGS
     def submit_686c_form(payload)
       va_file_number_with_payload = add_va_file_number_to_payload(payload.to_h)
 
+      # VBMS::Form686cPdfJob.perform_async(veteran_hash, va_file_number_with_payload)
 
+      output_path = to_pdf(claim)
+      vbms_response = upload_to_vbms(@user, output_path)
     rescue => e
       report_error(e)
     end
@@ -61,19 +66,19 @@ module BGS
       )
     end
 
-    def to_pdf(current_user, dependents_hash, claim)
+    def to_pdf(claim)
       veteran_info = {
         'veteran_information' => {
           'full_name' => {
-            'first' => current_user.first_name,
-            'middle' => current_user.middle_name,
-            'last' => current_user.last_name # ,
+            'first' => @user.first_name,
+            'middle' => @user.middle_name,
+            'last' => @user.last_name # ,
             # "suffix" => "Jr."
           },
-          'ssn' => current_user.ssn,
+          'ssn' => @user.ssn,
           # "va_file_number" => "796104437",
           # "service_number" => "12345678",
-          'birth_date' => current_user.birth_date
+          'birth_date' => @user.birth_date
         }
       }
 
@@ -81,18 +86,18 @@ module BGS
       PdfFill::Filler.fill_form(claim)
     end
 
-    def upload_to_vbms(current_user, path)
+    def upload_to_vbms(@user, path)
       uploader = ClaimsApi::VbmsUploader.new(
         filepath: path,
-        file_number: current_user.ssn,
+        file_number: @user.ssn,
         doc_type: '148'
       )
 
       upload_response = uploader.upload!
     rescue VBMS::Unknown
-      rescue_vbms_error(current_user)
+      rescue_vbms_error(@user)
     rescue Errno::ENOENT
-      rescue_file_not_found(current_user)
+      rescue_file_not_found(@user)
     end
 
     def fetch_file_path(uploader)
