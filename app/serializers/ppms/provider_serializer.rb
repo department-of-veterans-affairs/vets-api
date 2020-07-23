@@ -3,21 +3,6 @@
 class PPMS::ProviderSerializer
   include FastJsonapi::ObjectSerializer
 
-  # attributes :acc_new_patients,
-  #            :email,
-  #            :fax,
-  #            :gender,
-  #            :name,
-  #            :pos_codes,
-  #            :unique_id,
-  #            :address,
-  #            :caresite_phone,
-  #            :lat,
-  #            :long,
-  #            :phone,
-  #            :pref_contact,
-  #            :specialty
-
   attribute :acc_new_patients
 
   attribute :address do |object|
@@ -62,15 +47,6 @@ class PPMS::ProviderSerializer
   attribute :pos_codes
 
   attribute :pref_contact, &:contact_method
-
-  # attribute :specialty do |object|
-  #   object.provider_specialties.map do |specialty|
-  #     {
-  #       name: specialty['SpecialtyName'],
-  #       desc: specialty['SpecialtyDescription']
-  #     }
-  #   end
-  # end
 
   attribute :unique_id, &:provider_identifier
 
