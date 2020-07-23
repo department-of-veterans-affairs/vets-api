@@ -17,20 +17,9 @@ class TransactionalEmailMailer < ApplicationMailer
     )
   end
 
-  # N/A is used for "the user wasn't shown this option", which is distinct from Y/N.
-  def yesno(bool)
-    return 'N/A' if bool.nil?
-
-    bool ? 'YES' : 'NO'
-  end
-
-  def value_or_na(value)
-    value.nil? ? 'N/A' : value
-  end
-
   def full_name(name)
     return '' if name.nil?
 
-    [name.first, name.middle, name.last, name&.suffix].compact.join(' ')
+    [name.first, name.middle, name.last, name.suffix].compact.join(' ')
   end
 end

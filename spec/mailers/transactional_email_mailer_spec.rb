@@ -25,4 +25,25 @@ RSpec.describe TransactionalEmailMailer, type: [:mailer] do
       end
     end
   end
+
+  describe 'helper methods' do
+    context '#full_name' do
+      subject { described_class.full_name(name) }
+
+      let(:name) { OpenStruct.new(first: 'Mark', last: 'Olson') }
+
+      context 'with no middle name' do
+        it 'does not have extra spaces' do
+          expect(subject).to eq('Mark Olson')
+        end
+      end
+
+      context 'with a middle name' do
+        it 'is included' do
+          name.middle = 'Middle'
+          expect(subject).to eq 'Mark Middle Olson'
+        end
+      end
+    end
+  end
 end

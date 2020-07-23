@@ -147,4 +147,13 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
       end
     end
   end
+
+  context '#value_or_na' do
+    it 'returns value' do
+      expect(described_class.value_or_na('Value').to eq('Value'))
+    end
+    it 'returns N/A' do
+      expect(described_class.value_or_na(nil)).to eq('N/A')
+    end
+  end
 end
