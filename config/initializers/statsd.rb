@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'saml/errors'
 
 host = Settings.statsd.host
 port = Settings.statsd.port
