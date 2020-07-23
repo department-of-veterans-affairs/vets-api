@@ -79,7 +79,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
   def send_sco_email
-    return if FeatureFlipper.send_email? || more_than_six_months || @institution.blank? || school_changed?
+    return if !FeatureFlipper.send_email? || more_than_six_months || @institution.blank? || school_changed?
 
     recipients = []
     scos = @institution[:versioned_school_certifying_officials]
