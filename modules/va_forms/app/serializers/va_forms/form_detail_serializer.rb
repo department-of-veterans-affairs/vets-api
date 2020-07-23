@@ -5,7 +5,10 @@ module VaForms
     type :va_form
 
     attributes :form_name, :url, :title, :first_issued_on,
-               :last_revision_on, :pages, :sha256, :versions, :valid_pdf
+               :last_revision_on, :pages, :sha256, :valid_pdf,
+               :form_usage, :form_tool_intro, :form_tool_url,
+               :form_type, :language, :deleted_at, :related_forms,
+               :benefit_categories
 
     def id
       object.form_name
@@ -14,7 +17,7 @@ module VaForms
     def versions
       object.versions.map do |v|
         {
-          sha256: v.changeset['sha256'].last,
+          sha256: v.changeset['sha256'].try(:last),
           revision_on: v.created_at.strftime('%Y-%m-%d')
         }
       end
