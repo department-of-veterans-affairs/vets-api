@@ -3,11 +3,11 @@
 # Transforms a schema from `spec/support/schemas` into one with camelized keys like when
 #  OliveBranch is used with the X-Key-Inflection header for `camel`
 class SchemaCamelizer
-  attr_reader :original_path, :camel_schema
+  attr_reader :original_path, :camel_schema, :name, :referenced_schemas, :already_camelized
 
   def initialize(schema_path)
     @original_path = schema_path
-    name = %r{/([^/]*)\.json$}.match(schema_path)[1]
+    @name = %r{/([^/]*)\.json$}.match(schema_path)[1]
     raw_schema = File.read(schema_path)
     # OliveBranch only changes keys, but the required key's value is an arrray of keys,
     #  these need to be camelized to match the keys to which they refer
@@ -22,13 +22,16 @@ class SchemaCamelizer
       # rebuild the matched required key-value with quoted and camelized keys in the area
       "\"required\": [#{keys.map { |key| "\"#{key}\"" }.join(', ')}]"
     end
+
+    hashed_schema = JSON.parse(raw_schema)
+    @camel_schema = OliveBranch::Transformations.transform(hashed_schema, camelizer)
+    @already_camelized = hashed_schema == @camel_schema
+
     # some schemas use "$ref" to include a definition from another file, transform any needed also
     @referenced_schemas = raw_schema.scan(/"\$ref": "(.*)\.json"/).flatten.map do |schema_name|
       reference_schema_path = schema_path.gsub(name, schema_name)
       SchemaCamelizer.new(reference_schema_path)
     end
-    hashed_schema = JSON.parse(raw_schema)
-    @camel_schema = OliveBranch::Transformations.transform(hashed_schema, camelizer)
   end
 
   # The method for camelizing the schema keys
@@ -58,6 +61,17 @@ class SchemaCamelizer
       file.write("\n")
     end
 
-    [camel_path].concat(@referenced_schemas.collect(&:save!)).flatten
+    [camel_path].concat(@referenced_schemas.collect(&:save!).flatten)
+  end
+
+  def unchanged_schemas
+    return @unchanged_schemas unless @unchanged_schemas.nil?
+
+    @unchanged_schemas = []
+    @unchanged_schemas << name if @already_camelized
+    referenced_schemas.each do |referenced_camelizer|
+      @unchanged_schemas.concat referenced_camelizer.unchanged_schemas
+    end
+    @unchanged_schemas
   end
 end

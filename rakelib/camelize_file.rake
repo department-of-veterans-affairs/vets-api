@@ -21,5 +21,8 @@ namespace :camelize_file do
         print " - #{save_path}\n"
       end
     end
+    if transformer.unchanged_schemas.any?
+      print "These schemas were already camelized: [#{transformer.unchanged_schemas.join(', ')}]\n"
+    end
   end
 end
