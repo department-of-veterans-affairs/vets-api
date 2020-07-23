@@ -4,6 +4,20 @@ require 'rails_helper'
 require 'appeals_api/health_checker'
 
 RSpec.describe 'Appeals Metadata Endpoint', type: :request do
+  describe '#get /metadata' do
+    it 'returns decision reviews metadata JSON' do
+      get '/services/appeals/decision_reviews/metadata'
+      expect(response).to have_http_status(:ok)
+      JSON.parse(response.body)
+    end
+
+    it 'returns appeals status metadata JSON' do
+      get '/services/appeals/appeals_status/metadata'
+      expect(response).to have_http_status(:ok)
+      JSON.parse(response.body)
+    end
+  end
+
   context 'healthchecks' do
     context 'v0' do
       it 'returns correct response and status when healthy' do

@@ -51,7 +51,6 @@ module VaForms
 
     def build_and_save_form(form)
       va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
-
       url = form['fieldVaFormUrl']['uri']
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
@@ -65,12 +64,10 @@ module VaForms
         related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
         benefit_categories: map_benefit_categories(form['fieldBenefitCategories'])
       }
-
       attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
       attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
       va_form.assign_attributes(attrs)
       va_form = update_sha256(va_form)
-
       va_form.save
       va_form
     end
