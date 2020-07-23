@@ -1003,19 +1003,6 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           end
 
-          # Note: `increase only` and `all claims` use the same form prefilling
-          context 'when Vet360 prefill is disabled' do
-            it 'returns prefilled 21-526EZ' do
-              VCR.use_cassette('evss/pciu_address/address_domestic') do
-                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  VCR.use_cassette('evss/ppiu/payment_information') do
-                    expect_prefilled('21-526EZ')
-                  end
-                end
-              end
-            end
-          end
-
           context 'when Vet360 prefill is enabled' do
             before do
               Settings.vet360.prefill = true
@@ -1026,16 +1013,6 @@ RSpec.describe FormProfile, type: :model do
 
             after do
               Settings.vet360.prefill = false
-            end
-
-            it 'returns prefilled 21-526EZ' do
-              VCR.use_cassette('evss/pciu_address/address_domestic') do
-                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  VCR.use_cassette('evss/ppiu/payment_information') do
-                    expect_prefilled('21-526EZ')
-                  end
-                end
-              end
             end
           end
 

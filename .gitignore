@@ -63,3 +63,4 @@ dump.rdb
 /.project
 .generators
 .rakeTasks
+*.iml
