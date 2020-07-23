@@ -7,6 +7,6 @@ class SchoolCertifyingOfficialsMailerPreview < ActionMailer::Preview
     applicant = SavedClaim::EducationBenefits::VA10203.last&.open_struct_form
     recipients = []
     ga_client_id = nil
-    SchoolCertifyingOfficialsMailer.build(applicant, recipients, ga_client_id) unless applicant.blank?
+    SchoolCertifyingOfficialsMailer.build(applicant, recipients, ga_client_id) if applicant.present?
   end
 end
