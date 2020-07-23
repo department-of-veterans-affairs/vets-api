@@ -186,9 +186,11 @@ RSpec.describe 'Fetching user data', type: :request do
   end
 
   context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
+    let(:v0_user_request_headers) { {} }
+
     before do
       sign_in_as(new_user(:loa1))
-      get v0_user_url, params: nil
+      get v0_user_url, params: nil, headers: v0_user_request_headers
     end
 
     it 'returns proper json' do
@@ -216,6 +218,14 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::FORM_PREFILL
         ].sort
       )
+    end
+
+    context 'with camel inflection' do
+      let(:v0_user_request_headers) { { 'X-Key-Inflection' => 'camel' } }
+
+      it 'returns proper json' do
+        expect(response).to match_camelized_response_schema('user_loa1')
+      end
     end
   end
 
