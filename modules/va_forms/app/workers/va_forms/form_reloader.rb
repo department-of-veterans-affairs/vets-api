@@ -58,13 +58,9 @@ module VaForms
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
       attrs = {
         url: Addressable::URI.parse(va_form_url).normalize.to_s,
-        title: form['fieldVaFormName'],
-        pages: form['fieldVaFormNumPages'],
-        language: form.dig('langcode', 'value'),
-        form_type: form['fieldVaFormType'],
-        form_usage: form.dig('fieldVaFormUsage', 'processed'),
-        form_tool_intro: form['fieldVaFormToolIntro'],
-        form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
+        title: form['fieldVaFormName'], pages: form['fieldVaFormNumPages'], language: form.dig('langcode', 'value'),
+        form_type: form['fieldVaFormType'], form_usage: form.dig('fieldVaFormUsage', 'processed'),
+        form_tool_intro: form['fieldVaFormToolIntro'], form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
         deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
         related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
         benefit_categories: map_benefit_categories(form['fieldBenefitCategories'])
