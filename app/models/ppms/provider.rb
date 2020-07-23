@@ -3,8 +3,6 @@
 require 'common/models/base'
 
 class PPMS::Provider < Common::Base
-  include ActiveModel::Serializers::JSON
-
   attribute :acc_new_patients, String
   attribute :address, Hash
   attribute :address_city, String
@@ -26,21 +24,20 @@ class PPMS::Provider < Common::Base
   attribute :pos_codes, String
   attribute :provider_identifier, String
   attribute :provider_name, String
-  # attribute :provider_specialties, Array
   attribute :provider_type, String
   attribute :specialties, Array
 
   def initialize(attr)
     super(attr)
     new_attr = attr.dup
-    new_attr[:acc_new_patients] = new_attr.delete(:is_accepting_new_patients)
-    new_attr[:caresite_phone] = new_attr.delete(:care_site_phone_number)
-    new_attr[:fax] = new_attr.delete(:organization_fax)
-    new_attr[:gender] = new_attr.delete(:provider_gender)
-    new_attr[:phone] = new_attr.delete(:main_phone)
-    new_attr[:id] = new_attr.delete(:provider_hexdigest) || new_attr[:provider_identifier]
+    new_attr[:acc_new_patients] ||= new_attr.delete(:is_accepting_new_patients)
+    new_attr[:caresite_phone] ||= new_attr.delete(:care_site_phone_number)
+    new_attr[:fax] ||= new_attr.delete(:organization_fax)
+    new_attr[:gender] ||= new_attr.delete(:provider_gender)
+    new_attr[:phone] ||= new_attr.delete(:main_phone)
+    new_attr[:id] ||= new_attr.delete(:provider_hexdigest) || new_attr[:provider_identifier]
 
-    new_attr[:specialties] = new_attr.delete(:provider_specialties).collect do |specialty|
+    new_attr[:specialties] ||= new_attr.delete(:provider_specialties).collect do |specialty|
       PPMS::Specialty.new(
         specialty.transform_keys { |k| k.to_s.snakecase.to_sym }
       )

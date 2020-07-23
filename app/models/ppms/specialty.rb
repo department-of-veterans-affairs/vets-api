@@ -3,8 +3,6 @@
 require 'common/models/base'
 
 class PPMS::Specialty < Common::Base
-  include ActiveModel::Serializers::JSON
-
   attribute :specialty_code, String
   attribute :grouping, String
   attribute :classification, String
