@@ -55,19 +55,6 @@ RSpec.describe VaForms::FormReloader, type: :job do
       expect(final_url).to eq('https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf')
     end
 
-    describe 'stale forms' do
-      it 'marks missing forms as invalid' do
-        allow_any_instance_of(VaForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
-        form_1 =  FactoryBot.create(:va_form, form_name: '26-8736a')
-        form_2 =  FactoryBot.create(:va_form, form_name: '21-22a')
-        form_reloader.mark_stale_forms([form_1])
-        form_1.reload
-        form_2.reload
-        expect(form_1.valid_pdf).to eq(true)
-        expect(form_2.valid_pdf).to eq(false)
-      end
-    end
-
     describe 'date parsing checks' do
       it 'parses date when month day year' do
         date_string = '2018-7-30'
@@ -104,7 +91,7 @@ RSpec.describe VaForms::FormReloader, type: :job do
       it 'sets benefit categories' do
         expect(@form.benefit_categories).to eq(
           [
-            { 'label' => 'Pension', 'description' => 'VA pension benefits' }
+            { 'name' => 'Pension', 'description' => 'VA pension benefits' }
           ]
         )
       end

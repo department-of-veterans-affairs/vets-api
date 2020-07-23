@@ -14,10 +14,8 @@ module VaForms
       body = { query: query }
       response = connection.post('graphql', body.to_json)
       forms_data = JSON.parse(response.body)
-      processed_forms = []
       forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
-        va_form = build_and_save_form(form)
-        processed_forms << va_form
+        build_and_save_form(form)
       rescue => e
         log_message_to_sentry(
           "#{form['fieldVaFormNumber']} failed to import into forms database",
@@ -26,7 +24,6 @@ module VaForms
         )
         next
       end
-      mark_stale_forms(processed_forms)
     end
 
     def connection
@@ -50,14 +47,6 @@ module VaForms
       }
       options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
       options
-    end
-
-    def mark_stale_forms(processed_forms)
-      processed_form_names = processed_forms.map { |f| f['form_name'] }
-      missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
-      missing_forms.find_each do |form|
-        form.update(valid_pdf: false)
-      end
     end
 
     def build_and_save_form(form)
