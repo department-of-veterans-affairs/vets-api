@@ -3,6 +3,7 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     def create
+=begin
       dependents_application = DependentsApplication.new(
         params.require(:dependents_application).permit(:form).merge(
           user: current_user
@@ -18,11 +19,11 @@ module V0
       clear_saved_form(DependentsApplication::FORM_ID)
 
       render(json: dependents_application)
+=end
     end
 
     def show
-      dependent_service = BGS::DependentService.new
-      dependents = dependent_service.get_dependents(current_user)
+      dependents = dependent_service.get_dependents
       render json: dependents, serializer: DependentsSerializer
     rescue => e
       log_exception_to_sentry(e)
@@ -32,6 +33,12 @@ module V0
     def disability_rating
       res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
       render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
+    end
+
+    private
+
+    def dependent_service
+      @dependent_service ||= BGS::DependentService.new(current_user)
     end
   end
 end
