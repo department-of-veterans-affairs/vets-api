@@ -75,7 +75,5 @@ module VetsAPI
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
                                    http_only: true
-
-    config.action_mailer.preview_path = Rails.root.join('app', 'mailers', 'previews')
   end
 end
