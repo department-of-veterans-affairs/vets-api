@@ -162,13 +162,17 @@ module SAML
         { current: loa_current, highest: [loa_current, loa_highest].max }
       end
 
+      def transactionid
+        safe_attr('va_eauth_transactionid')
+      end
+
       def sign_in
         sign_in = if @authn_context == INBOUND_AUTHN_CONTEXT
                     { service_name: csid == 'mhv' ? 'myhealthevet' : csid }
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
                   end
-        sign_in.merge(account_type: account_type, ssoe: true)
+        sign_in.merge(account_type: account_type, ssoe: true, transactionid: transactionid)
       end
 
       def to_hash
