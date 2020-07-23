@@ -11,7 +11,7 @@ class SchemaCamelizer
     raw_schema = File.read(schema_path)
     # OliveBranch only changes keys, but the required key's value is an arrray of keys,
     #  these need to be camelized to match the keys to which they refer
-    raw_schema.gsub!(/"required": \[(["\w*"\,? ?\n?]*)\]/) do
+    modified_schema = raw_schema.gsub(/"required": \[(["\w*"\,? ?\n?]*)\]/) do
       # rubocop:disable Style/PerlBackrefs
       # use $1 to refer to the matched part of the gsub, which would be a string of quoted keys
       # split the string into an array of quoted keys
@@ -23,9 +23,8 @@ class SchemaCamelizer
       "\"required\": [#{keys.map { |key| "\"#{key}\"" }.join(', ')}]"
     end
 
-    hashed_schema = JSON.parse(raw_schema)
-    @camel_schema = OliveBranch::Transformations.transform(hashed_schema, camelizer)
-    @already_camelized = hashed_schema == @camel_schema
+    @camel_schema = OliveBranch::Transformations.transform(JSON.parse(modified_schema), camelizer)
+    @already_camelized = JSON.parse(raw_schema).to_json == @camel_schema.to_json
 
     # some schemas use "$ref" to include a definition from another file, transform any needed also
     @referenced_schemas = raw_schema.scan(/"\$ref": "(.*)\.json"/).flatten.map do |schema_name|
