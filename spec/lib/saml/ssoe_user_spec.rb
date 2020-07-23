@@ -107,8 +107,8 @@ RSpec.describe SAML::User do
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           multifactor: false,
           loa: { current: 1, highest: 1 },
-          sign_in: { 
-            service_name: 'idme', 
+          sign_in: {
+            service_name: 'idme',
             account_type: 'N/A',
             ssoe: true,
             transactionid: 'abcd1234xyz'
@@ -146,7 +146,7 @@ RSpec.describe SAML::User do
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           multifactor: true,
           loa: { current: 1, highest: 3 },
-          sign_in: { 
+          sign_in: {
             service_name: 'idme',
             account_type: 'N/A',
             ssoe: true,
@@ -660,7 +660,7 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 1, highest: 3 },
-          sign_in: { 
+          sign_in: {
             service_name: 'dslogon',
             account_type: '1',
             ssoe: true
@@ -696,7 +696,7 @@ RSpec.describe SAML::User do
           email: 'iam.tester@example.com',
           idme_uuid: '363761e8857642f7b77ef7d99200e711',
           loa: { current: 3, highest: 3 },
-          sign_in: { 
+          sign_in: {
             service_name: 'dslogon',
             account_type: '2',
             ssoe: true,
@@ -822,7 +822,7 @@ RSpec.describe SAML::User do
           email: nil,
           idme_uuid: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: { 
+          sign_in: {
             service_name: 'dslogon',
             account_type: 'N/A',
             ssoe: true,
