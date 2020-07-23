@@ -18,6 +18,7 @@ FactoryBot.define do
         schoolCity: 'Test',
         schoolState: 'TN',
         schoolEmailAddress: 'test@edu_sample.com',
+        schoolStudentId: '01010101',
         isActiveDuty: true,
         veteranAddress: {
           city: 'Milwaukee',
