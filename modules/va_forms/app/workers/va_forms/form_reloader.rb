@@ -93,7 +93,7 @@ module VaForms
     def map_benefit_categories(categories)
       categories.map do |field|
         {
-          label: field.dig('entity', 'fieldHomePageHubLabel'),
+          name: field.dig('entity', 'fieldHomePageHubLabel'),
           description: field.dig('entity', 'entityLabel')
         }
       end
