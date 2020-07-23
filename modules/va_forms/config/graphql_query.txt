@@ -1,0 +1,121 @@
+{
+  nodeQuery(limit: 1000, offset: 0, filter: {conditions: [{field: "type", value: ["va_form"]}]}) {
+    entities {
+      ... on NodePage {
+        fieldRelatedLinks {
+          entity {
+            parentFieldName          
+          }
+        }
+      }
+      ...vaForm
+    }
+  }
+}
+fragment vaForm on NodeVaForm {
+  entityBundle
+    entityId
+    entityPublished
+    title
+    status
+    revisionLog
+    langcode {
+      value
+    }
+  entityUrl {
+    ... on EntityCanonicalUrl {
+      breadcrumb {
+        url {
+          path
+          routed
+        }
+        text
+      }
+      path
+    }
+  }
+  
+  entityMetatags {
+    __typename
+      key
+      value
+  }
+  title
+    fieldVaFormName
+    fieldVaFormTitle
+    fieldVaFormType
+    fieldVaFormUrl {
+      uri
+      title
+      options
+    }
+  fieldVaFormUsage {
+    value
+      format
+      processed
+  }
+  fieldVaFormNumber
+    fieldVaFormToolIntro
+    fieldVaFormToolUrl {
+      uri
+      title
+      options
+    }
+  fieldBenefitCategories {
+    targetId
+      entity {
+        entityLabel
+          ... on NodeLandingPage {
+            fieldHomePageHubLabel
+          }
+      }
+  }
+  fieldVaFormRevisionDate {
+    value
+    date
+  }
+  fieldVaFormIssueDate {
+    value
+    date
+  }
+  fieldVaFormNumPages
+    
+    fieldVaFormLinkTeasers {
+      entity {
+        entityLabel
+        parentFieldName
+        ... on ParagraphLinkTeaser {
+          entityId
+          fieldLink {
+            url {
+              path
+            }
+            title
+            options
+          }
+          fieldLinkSummary
+        }
+      }
+    }
+  fieldVaFormRelatedForms {
+    targetId
+    entity {
+      ... on NodeVaForm {
+        fieldVaFormNumber
+        fieldVaFormName
+        fieldVaFormUsage {
+          value
+          format
+          processed
+        }
+        fieldVaFormToolUrl {
+          uri
+          title
+          options
+        }
+      }
+    }
+  }
+  changed
+  status
+}

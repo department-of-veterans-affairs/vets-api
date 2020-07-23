@@ -484,6 +484,7 @@ flipper:
     - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
     - mdewey@governmentcio.com
+    - micah@adhocteam.us
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
@@ -497,10 +498,11 @@ flipper:
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
+    - samara.strauss@va.gov
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
-    - zurbergram@gmail.com  
+    - zurbergram@gmail.com
 
 bgs:
   application: ~
@@ -556,3 +558,9 @@ vanotify:
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+
+# Settings to connect to the drupal forms graphql api
+va_forms:
+  drupal_username: ~
+  drupal_password: ~
+  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
