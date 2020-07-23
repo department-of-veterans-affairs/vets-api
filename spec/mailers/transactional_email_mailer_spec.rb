@@ -26,7 +26,7 @@ RSpec.describe TransactionalEmailMailer, type: [:mailer] do
     end
   end
 
-  context '#full_name' do
+  describe '#full_name' do
     subject { described_class.full_name(name) }
 
     let(:name) { OpenStruct.new(first: 'Mark', last: 'Olson') }
