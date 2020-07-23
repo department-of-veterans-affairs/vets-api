@@ -2,6 +2,9 @@
 
 class SchoolCertifyingOfficialsMailer < TransactionalEmailMailer
   SUBJECT = 'Applicant for VA Rogers STEM Scholarship'
+  GA_CAMPAIGN_NAME = ''
+  GA_DOCUMENT_PATH = ''
+  GA_LABEL = ''
   TEMPLATE = 'school_certifying_officials'
 
   STAGING_RECIPIENTS = %w[
