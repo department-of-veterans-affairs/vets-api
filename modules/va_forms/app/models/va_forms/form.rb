@@ -2,7 +2,7 @@
 
 module VaForms
   class Form < ApplicationRecord
-    has_paper_trail
+    has_paper_trail only: ['sha256']
 
     validates :title, presence: true
     validates :form_name, presence: true, uniqueness: true
