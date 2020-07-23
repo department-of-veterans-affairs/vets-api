@@ -46,13 +46,13 @@ RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
 
     context 'when sending staging emails' do
       before do
-        expect(FeatureFlipper).to receive(:staging_email?).and_return(true)
+        expect(FeatureFlipper).to receive(:staging_email?).twice.and_return(true)
       end
 
       it 'includes recipients' do
         described_class.build(applicant, recipients, ga_client_id).deliver_now
 
-        expect(subject.to).to eq(recipients + SchoolCertifyingOfficialsMailer::STAGING_RECIPIENTS.clone)
+        expect(subject.bcc).to eq(SchoolCertifyingOfficialsMailer::STAGING_RECIPIENTS)
       end
     end
   end
