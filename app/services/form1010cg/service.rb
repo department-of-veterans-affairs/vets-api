@@ -9,7 +9,21 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    NOT_FOUND = 'NOT_FOUND'
+    STATSD_KEY_PREFIX = 'api.form1010cg.submission'
+    NOT_FOUND         = 'NOT_FOUND'
+
+    def self.metrics
+      OpenStruct.new(
+        attempt: STATSD_KEY_PREFIX + '.attempt',
+        success: STATSD_KEY_PREFIX + '.success',
+        failure: OpenStruct.new(
+          client: OpenStruct.new(
+            data: STATSD_KEY_PREFIX + '.failure.client.data',
+            qualification: STATSD_KEY_PREFIX + '.failure.client.qualification'
+          )
+        )
+      )
+    end
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim

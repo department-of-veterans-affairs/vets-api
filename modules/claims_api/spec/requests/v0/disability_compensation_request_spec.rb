@@ -173,7 +173,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             it 'is logged to PersonalInformationLog' do
               allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
                 .to receive(:validate_form526).and_raise(error_klass)
-              allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim)
+              allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
                 .to receive(:validate_form526).and_raise(error_klass)
               post path, params: data, headers: headers
               expect(PersonalInformationLog.count).to be_positive
