@@ -103,7 +103,7 @@ module V1
       begin
         user_session_form = UserSessionForm.new(saml_response)
         raise_saml_error(user_session_form) unless user_session_form.valid?
-      rescue SAML::SAMLError => e
+      rescue SAML::UserAttributeError => e
         login_stats(:failure, saml_response, e)
         raise
       end
