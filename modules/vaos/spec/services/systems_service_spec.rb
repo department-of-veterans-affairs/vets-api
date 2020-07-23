@@ -379,9 +379,9 @@ describe VAOS::SystemsService do
 
     context 'with a site_codes param array' do
       it 'returns an array', :aggregate_failures do
-        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_id_array',
+        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_site_codes',
                          match_requests_on: %i[method uri]) do
-          response = subject.get_request_eligibility_criteria(%w[442 534])
+          response = subject.get_request_eligibility_criteria(site_codes: %w[442 534])
           expect(response.size).to eq(2)
           first_result = response.first
           expect(first_result.id).to eq('442')
@@ -405,7 +405,7 @@ describe VAOS::SystemsService do
       it 'returns the criteria for a single facility', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_id',
                          match_requests_on: %i[method uri]) do
-          response = subject.get_request_eligibility_criteria('688')
+          response = subject.get_request_eligibility_criteria(site_codes: '688')
           expect(response.first.to_h).to eq(
             { links: [{ title: 'request-eligibility-criteria',
                         href: '/facilities/v1/request-eligibility-criteria',

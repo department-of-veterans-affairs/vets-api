@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_08_201027) do
+ActiveRecord::Schema.define(version: 2020_06_17_105905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -140,6 +140,7 @@ ActiveRecord::Schema.define(version: 2020_05_08_201027) do
     t.string "encrypted_source_data"
     t.string "encrypted_source_data_iv"
     t.string "header_md5"
+    t.string "signature_errors", default: [], array: true
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
