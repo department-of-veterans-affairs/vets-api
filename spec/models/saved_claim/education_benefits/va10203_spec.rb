@@ -82,8 +82,6 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
           gids_response = build(:gids_response)
           allow_any_instance_of(::GI::Client).to receive(:get_institution_details)
             .and_return(gids_response)
-
-          expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         end
 
         it 'sco email sent is false' do
