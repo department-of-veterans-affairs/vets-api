@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require 'will_paginate/array'
 
 module Lighthouse
   module Facilities
@@ -38,8 +37,8 @@ module Lighthouse
         end
 
         WillPaginate::Collection.create(current_page, per_page) do |pager|
-            pager.replace(facilities)
-            pager.total_entries = total_entries
+          pager.replace(facilities)
+          pager.total_entries = total_entries
         end
       end
 
