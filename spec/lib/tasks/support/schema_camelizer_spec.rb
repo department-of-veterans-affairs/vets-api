@@ -70,8 +70,18 @@ describe SchemaCamelizer do
   end
 
   describe '#already_camelized' do
-    it 'when the source schema has camel keys it should be true'
-    it 'when the source schema has snake keys it should be false'
+    it 'when the source schema has camel keys will be true' do
+      schema = { 'camelSound' => 'ptoo', 'camelStyle' => { 'camelColor' => 'brown', 'camelTongue' => 'rough'} }
+      filename = create_source_schema('camel_keys', schema)
+      subject = SchemaCamelizer.new(filename)
+      expect(subject.already_camelized).to be true
+    end
+    it 'when the source schema has snake keys will be false' do
+      schema = { 'snake_sound' => 'hiss', 'snake_style' => { 'snake_color' => 'black', 'snake_tongue' => 'forked'} }
+      filename = create_source_schema('snake_keys', schema)
+      subject = SchemaCamelizer.new(filename)
+      expect(subject.already_camelized).to be false
+    end
   end
 
   describe '#camel_path' do
