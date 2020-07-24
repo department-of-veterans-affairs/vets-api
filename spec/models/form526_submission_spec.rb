@@ -182,11 +182,11 @@ RSpec.describe Form526Submission do
           input:
           {
             first_name: 'Joe',
-            middle_name: 'DJ',
+            middle_name: 'Doe',
             last_name: 'Smith',
-            suffix: 'III'
+            suffix: 'Jr.'
           },
-          expected: 'Joe DJ Smith III'
+          expected: 'JOE DOE SMITH JR.'
         },
         {
           input:
@@ -196,16 +196,16 @@ RSpec.describe Form526Submission do
             last_name: 'Smith',
             suffix: nil
           },
-          expected: 'Joe Smith'
+          expected: 'JOE SMITH'
         }, {
           input:
           {
             first_name: 'Joe',
-            middle_name: 'DJ',
+            middle_name: 'Doe',
             last_name: 'Smith',
             suffix: nil
           },
-          expected: 'Joe DJ Smith'
+          expected: 'JOE DOE SMITH'
         }
       ].each do |test_param|
         it 'calls confirmation email job with correct names' do
