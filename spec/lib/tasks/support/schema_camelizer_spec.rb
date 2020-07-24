@@ -35,7 +35,7 @@ describe SchemaCamelizer do
       expect(subject.camel_schema.keys).to match %w[catSound dogSound]
     end
     it 'camel-inflects nested keys' do
-      schema = { 'cat' => { 'mouth_sound' => 'meow', 'leg_count' => 4} }
+      schema = { 'cat' => { 'mouth_sound' => 'meow', 'leg_count' => 4 } }
       filename = create_source_schema('nested_keys', schema)
       subject = SchemaCamelizer.new(filename)
       expect(subject.camel_schema['cat'].keys).to match %w[mouthSound legCount]
@@ -49,8 +49,24 @@ describe SchemaCamelizer do
   end
 
   describe '#referenced_schemas' do
-    it 'should be empty with no references'
-    it 'should be an Array of SchemaCamelizers for referenced schemas'
+    it 'is empty with no references' do
+      schema = { 'refer_to' => 'nothing' }
+      filename = create_source_schema('no_references', schema)
+      subject = SchemaCamelizer.new(filename)
+      expect(subject.referenced_schemas).to be_empty
+    end
+    it 'is an Array of SchemaCamelizers for referenced schemas' do
+      referenced_schema = { 'refer_to' => 'me' }
+      referenced_schema_name = 'refer_to_me'
+      referenced_filename = create_source_schema(referenced_schema_name, referenced_schema)
+
+      schema = { 'refer_to' => 'something', '$ref' => referenced_filename.gsub(TEST_SCHEMA_DIRECTORY + '/', '') }
+      filename = create_source_schema('references', schema)
+      subject = SchemaCamelizer.new(filename)
+      expect(subject.referenced_schemas.count).to eq 1
+      expect(subject.referenced_schemas.first).to be_a SchemaCamelizer
+      expect(subject.referenced_schemas.first.name).to eq referenced_schema_name
+    end
   end
 
   describe '#already_camelized' do
