@@ -170,9 +170,12 @@ RSpec.describe 'Disability Claims ', type: :request do
       context 'Breakers outages are recorded (investigating)' do
         it 'is logged to PersonalInformationLog' do
           EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+          pii_log_count = PersonalInformationLog.count
           post path, params: data, headers: headers
-          expect(PersonalInformationLog.count).to be_positive
+          post '/services/claims/v1/forms/526/validate', params: data, headers: headers
+          expect(PersonalInformationLog.count).to eq(pii_log_count + 2)
           expect(PersonalInformationLog.last.error_class).to eq('validate_form_526 Breakers::OutageException')
+          expect(PersonalInformationLog.second_to_last.error_class).to eq('validate_form_526 Breakers::OutageException')
           EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
