@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe VBMS::SubmitDependentsPDFJob do
-  let(:gi_bill_feedback) { create(:gi_bill_feedback) }
-  let(:claim) { double('claim') }
   let(:dependency_claim) { create(:dependency_claim_no_vet_information) }
   let(:vet_info) do
     {
@@ -19,28 +17,12 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
     }
   end
 
-  before { allow(claim).to receive(:id).and_return('686C-674') }
-
   describe '#perform' do
     context 'with a valid submission' do
       it 'creates a PDF' do
         expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:format_and_upload_pdf).with(
           vet_info
         )
-
-        described_class.new.perform(dependency_claim.id, vet_info)
-      end
-
-      xit 'uploads to VBMS' do
-        expect_any_instance_of(described_class).to receive(:upload_to_vbms).with(
-          a_string_starting_with('tmp/pdfs/686C-674_'), vet_info, dependency_claim.id
-        )
-
-        described_class.new.perform(dependency_claim.id, vet_info)
-      end
-
-      xit 'fills out form' do
-        expect(PdfFill::Filler).to receive(:fill_form).with(dependency_claim)
 
         described_class.new.perform(dependency_claim.id, vet_info)
       end

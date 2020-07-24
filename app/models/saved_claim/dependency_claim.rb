@@ -9,6 +9,8 @@ class SavedClaim::DependencyClaim < SavedClaim
     upload_to_vbms(form_path, veteran_info)
   end
 
+  private
+
   def upload_to_vbms(path, veteran_info)
     uploader = ClaimsApi::VbmsUploader.new(
       filepath: path,
