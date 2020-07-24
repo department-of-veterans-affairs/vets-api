@@ -178,11 +178,12 @@ module SAML
       # Raise any fatal exceptions due to validation issues
       def validate!
         unless idme_uuid
-          raise SAML::UserAttributeError, SAML::UserAttributeError::IDME_UUID_MISSING.merge({ identifier: mhv_icn })
+          data = SAML::UserAttributeError::ERRORS[:idme_uuid_missing].merge({ identifier: mhv_icn })
+          raise SAML::UserAttributeError, data
         end
-        raise SAML::UserAttributeError, SAML::UserAttributeError::MULTIPLE_MHV_IDS if mhv_id_mismatch?
-        raise SAML::UserAttributeError, SAML::UserAttributeError::MULTIPLE_EDIPIS if edipi_mismatch?
-        raise SAML::UserAttributeError, SAML::UserAttributeError::MHV_ICN_MISMATCH if mhv_icn_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] if mhv_id_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_edipis] if edipi_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch] if mhv_icn_mismatch?
       end
 
       private
