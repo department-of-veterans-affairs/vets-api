@@ -35,7 +35,7 @@ class UserSessionForm
     saml_user.validate!
     saml_user.to_hash
   rescue SAML::UserAttributeError => e
-    raise unless e.code == SAML::UserAttributeError::IDME_UUID_MISSING[:code]
+    raise unless e.code == SAML::UserAttributeError::ERRORS[:idme_uuid_missing][:code]
 
     idme_uuid = idme_uuid_from_account(e&.identifier)
     raise if idme_uuid.blank?
