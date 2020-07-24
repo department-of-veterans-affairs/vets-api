@@ -30,18 +30,14 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
 
         described_class.new.perform(dependency_claim.id, vet_info)
       end
-    end
 
-    # context 'when the service has an error' do
-    #   it 'sets the submission to failed' do
-    #     expect_any_instance_of(Gibft::Service).to receive(:submit).and_raise('foo')
-    #     expect do
-    #       described_class.new.perform(gi_bill_feedback.guid, {}, nil)
-    #     end.to raise_error('foo')
-    #     updated_feedback = GIBillFeedback.find(gi_bill_feedback.guid)
-    #
-    #     expect(updated_feedback.state).to eq('failed')
-    #   end
-    # end
+      it 'uploads to VBMS' do
+        expect_any_instance_of(VBMS::SubmitDependentsPDFJob).to receive(:upload_to_vbms).with(
+          a_string_starting_with('tmp/pdfs/686C-674_'), vet_info, dependency_claim.id
+        )
+
+        described_class.new.perform(dependency_claim.id, vet_info)
+      end
+    end
   end
 end

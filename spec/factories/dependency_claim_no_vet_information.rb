@@ -18,7 +18,7 @@ FactoryBot.define do
           phone_number: '1112223333',
           email_address: 'vets.gov.user+228@gmail.com'
         },
-      dependents_application: {}
+        dependents_application: {}
       }.to_json
     }
   end
