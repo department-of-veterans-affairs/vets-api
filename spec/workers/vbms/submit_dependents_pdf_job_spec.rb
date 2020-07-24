@@ -44,9 +44,9 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
           job = described_class.new.perform(dependency_claim.id, vet_info)
 
           expect(job).to include(
-            :vbms_new_document_version_ref_id,
-            :vbms_document_series_ref_id
-          )
+                           :vbms_new_document_version_ref_id,
+                           :vbms_document_series_ref_id
+                         )
         end
       end
     end
@@ -61,6 +61,12 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
         )
 
         job.perform('f', vet_info)
+      end
+
+      it 'returns false' do
+        job = described_class.new.perform('f', vet_info)
+
+        expect(job).to eq(false)
       end
     end
   end
