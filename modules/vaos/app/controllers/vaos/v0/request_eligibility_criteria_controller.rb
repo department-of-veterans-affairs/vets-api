@@ -16,6 +16,7 @@ module VAOS
       def url_params
         params[:site_codes].is_a?(Array) ? params.permit(site_codes: []) : params.permit(:site_codes)
         params[:parent_sites].is_a?(Array) ? params.permit(parent_sites: []) : params.permit(:parent_sites)
+        params
       end
 
       def systems_service

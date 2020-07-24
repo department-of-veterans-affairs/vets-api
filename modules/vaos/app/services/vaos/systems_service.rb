@@ -122,7 +122,7 @@ module VAOS
       with_monitoring do
         url = '/facilities/v1/request-eligibility-criteria'
         url_params = nil
-        if (site_codes || parent_sites)
+        if site_codes || parent_sites
           url_params = {}
           url_params['site-codes'] = site_codes if site_codes
           url_params['parent-sites'] = parent_sites if parent_sites
