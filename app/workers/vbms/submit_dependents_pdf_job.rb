@@ -12,6 +12,8 @@ module VBMS
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       output_path = to_pdf(claim, veteran_info)
       upload_to_vbms(output_path, veteran_info, saved_claim_id)
+    rescue StandardError => e
+      send_error_to_sentry(e, saved_claim_id)
     end
 
     private

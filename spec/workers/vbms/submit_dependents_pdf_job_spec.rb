@@ -24,7 +24,7 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
   describe '#perform' do
     context 'with a valid submission' do
       it 'creates a PDF' do
-        expect_any_instance_of(VBMS::SubmitDependentsPDFJob).to receive(:to_pdf).with(
+        expect_any_instance_of(described_class).to receive(:to_pdf).with(
           dependency_claim, vet_info
         )
 
@@ -32,11 +32,24 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
       end
 
       it 'uploads to VBMS' do
-        expect_any_instance_of(VBMS::SubmitDependentsPDFJob).to receive(:upload_to_vbms).with(
+        expect_any_instance_of(described_class).to receive(:upload_to_vbms).with(
           a_string_starting_with('tmp/pdfs/686C-674_'), vet_info, dependency_claim.id
         )
 
         described_class.new.perform(dependency_claim.id, vet_info)
+      end
+    end
+
+    context 'with an invalid submission' do
+      it 'sends an error message if no claim exists' do
+        job = described_class.new
+
+        expect(job).to receive(:send_error_to_sentry).with(
+          anything,
+          'f'
+        )
+
+        job.perform('f', vet_info)
       end
     end
   end
