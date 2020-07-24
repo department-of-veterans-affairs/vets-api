@@ -217,7 +217,7 @@ RSpec.describe Form526Submission do
             expect(args[1]['full_name']).to eql(test_param[:expected])
             expect(args[1]['submitted_claim_id']).to be(123_654_879)
             expect(args[1]['email']).to eql('test@email.com')
-            expect(args[1]['updated_at']).to eql('July 20, 2012')
+            expect(args[1]['updated_at']).to eql('July 20, 2012 14:15 UTC')
           end
           subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
         end
