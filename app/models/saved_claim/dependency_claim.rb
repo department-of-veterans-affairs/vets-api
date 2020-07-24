@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
+require 'claims_api/vbms_uploader'
+
 class SavedClaim::DependencyClaim < SavedClaim
   FORM = '686C-674'
 
   def format_and_upload_pdf(veteran_info)
     parsed_form.merge!(veteran_info)
     form_path = PdfFill::Filler.fill_form(self)
+
     upload_to_vbms(form_path, veteran_info)
   end
 

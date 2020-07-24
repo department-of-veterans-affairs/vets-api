@@ -17,16 +17,19 @@ RSpec.describe SavedClaim::DependencyClaim do
     }
   end
 
-  it '#format_and_upload_pdf' do
-    expect_any_instance_of(described_class).to receive(:upload_to_vbms).with(
-      a_string_starting_with('tmp/pdfs/686C-674_'), vet_info)
+  describe '#format_and_uplad_pdf' do
+    it 'calls upload to vbms' do
+      expect_any_instance_of(described_class).to receive(:upload_to_vbms).with(
+        a_string_starting_with('tmp/pdfs/686C-674_'), vet_info
+      )
 
-    dependency_claim.format_and_upload_pdf(vet_info)
-  end
+      dependency_claim.format_and_upload_pdf(vet_info)
+    end
 
-  it 'fills out form' do
-    expect(PdfFill::Filler).to receive(:fill_form).with(dependency_claim)
+    it 'uploads to vbms' do
+      expect_any_instance_of(ClaimsApi::VbmsUploader).to receive(:upload!)
 
-    described_class.new.perform(dependency_claim.id, vet_info)
+      dependency_claim.format_and_upload_pdf(vet_info)
+    end
   end
 end
