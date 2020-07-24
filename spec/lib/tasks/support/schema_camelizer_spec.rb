@@ -134,5 +134,13 @@ describe SchemaCamelizer do
         expect(File.exist?(filename)).to be true
       end
     end
+    it 'raises an exception when it is not in a schemas directory' do
+      schema_file_in_weird_location = "#{TEST_DIRECTORY}/bad_location.json"
+      schema = { 'signficant_data' => 'no' }
+      File.open(schema_file_in_weird_location, 'w') { |file| file.write(JSON.pretty_generate(schema)) }
+
+      subject = SchemaCamelizer.new(schema_file_in_weird_location)
+      expect { subject.save! }.to raise_error('expected to move from a schemas directory to a schemas_camelized directory!')
+    end
   end
 end
