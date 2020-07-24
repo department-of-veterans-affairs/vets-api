@@ -18,10 +18,21 @@ describe SchemaCamelizer do
     FileUtils.remove_dir(TEST_DIRECTORY)
   end
 
+  let(:snake_key_file) do
+    schema = { 'snake_sound' => 'hiss', 'snake_style' => { 'snake_color' => 'black', 'snake_tongue' => 'forked'} }
+    create_source_schema('snake_keys', schema)
+  end
+
+  let(:camel_key_file) do
+    schema = { 'camelSound' => 'ptoo', 'camelStyle' => { 'camelColor' => 'brown', 'camelTongue' => 'rough'} }
+    create_source_schema('camel_keys', schema)
+  end
+
   def create_source_schema(name, hash)
     schema_file = "#{TEST_SCHEMA_DIRECTORY}/#{name}.json"
 
-    raise "test is reusing #{name} for source schema filename" if File.exist?(schema_file)
+    # TODO: do we need this? add arg to method?
+    # raise "test is reusing #{name} for source schema filename" if File.exist?(schema_file)
 
     File.open(schema_file, 'w') { |file| file.write(JSON.pretty_generate(hash)) }
     schema_file
@@ -50,9 +61,7 @@ describe SchemaCamelizer do
 
   describe '#referenced_schemas' do
     it 'is empty with no references' do
-      schema = { 'refer_to' => 'nothing' }
-      filename = create_source_schema('no_references', schema)
-      subject = SchemaCamelizer.new(filename)
+      subject = SchemaCamelizer.new(snake_key_file)
       expect(subject.referenced_schemas).to be_empty
     end
     it 'is an Array of SchemaCamelizers for referenced schemas' do
@@ -71,15 +80,11 @@ describe SchemaCamelizer do
 
   describe '#already_camelized' do
     it 'when the source schema has snake keys will be false' do
-      schema = { 'snake_sound' => 'hiss', 'snake_style' => { 'snake_color' => 'black', 'snake_tongue' => 'forked'} }
-      filename = create_source_schema('snake_keys', schema)
-      subject = SchemaCamelizer.new(filename)
+      subject = SchemaCamelizer.new(snake_key_file)
       expect(subject.already_camelized).to be false
     end
     it 'when the source schema has camel keys will be true' do
-      schema = { 'camelSound' => 'ptoo', 'camelStyle' => { 'camelColor' => 'brown', 'camelTongue' => 'rough'} }
-      filename = create_source_schema('camel_keys', schema)
-      subject = SchemaCamelizer.new(filename)
+      subject = SchemaCamelizer.new(camel_key_file)
       expect(subject.already_camelized).to be true
     end
   end
@@ -94,8 +99,15 @@ describe SchemaCamelizer do
   end
 
   describe '#unchanged_schemas' do
-    it 'should be an array of names of schemas that are already_camelized'
-    it 'should be empty if the original schema was snake case'
+    it 'is an array of names of schemas that are already_camelized' do
+      subject = SchemaCamelizer.new(camel_key_file)
+      expect(subject.unchanged_schemas.any?).to be true
+      expect(subject.unchanged_schemas).to include(subject.name)
+    end
+    it 'is empty if the original schema was snake case' do
+      subject = SchemaCamelizer.new(snake_key_file)
+      expect(subject.unchanged_schemas).to be_empty
+    end
   end
 
   describe '#save!' do
