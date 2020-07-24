@@ -6,7 +6,7 @@ module ConfigHelper
   module_function
 
   def setup_action_mailer(config)
-    config.action_mailer.preview_path = Rails.root.join('app', 'mailers', 'previews')
+    config.action_mailer.preview_path = Rails.root.join('spec', 'mailers', 'previews')
 
     if FeatureFlipper.send_email?
       config.action_mailer.delivery_method = :govdelivery_tms

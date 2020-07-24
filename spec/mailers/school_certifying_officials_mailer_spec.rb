@@ -21,12 +21,6 @@ RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
       expect(subject.to).to eq(recipients)
     end
 
-    it 'delivers the mail' do
-      expect { DirectDepositEmailJob.new.perform('test@example.com', 123_456_789) }.to change {
-        ActionMailer::Base.deliveries.count
-      }.by(1)
-    end
-
     context 'applicant information in email body' do
       it 'includes veteran full name' do
         name = applicant.veteranFullName
