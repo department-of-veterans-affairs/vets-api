@@ -31,9 +31,6 @@ describe SchemaCamelizer do
   def create_source_schema(name, hash)
     schema_file = "#{TEST_SCHEMA_DIRECTORY}/#{name}.json"
 
-    # TODO: do we need this? add arg to method?
-    # raise "test is reusing #{name} for source schema filename" if File.exist?(schema_file)
-
     File.open(schema_file, 'w') { |file| file.write(JSON.pretty_generate(hash)) }
     schema_file
   end
