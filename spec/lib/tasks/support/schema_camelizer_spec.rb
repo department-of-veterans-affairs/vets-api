@@ -20,19 +20,32 @@ describe SchemaCamelizer do
 
   def create_source_schema(name, hash)
     schema_file = "#{TEST_SCHEMA_DIRECTORY}/#{name}.json"
+
+    raise "test is reusing #{name} for source schema filename" if File.exist?(schema_file)
+
     File.open(schema_file, 'w') { |file| file.write(JSON.pretty_generate(hash)) }
     schema_file
   end
 
   describe '#camel_schema' do
-    it 'should camel-inflect keys' do
-      schema = {'cat_sound' => 'meow', 'dog_sound' => 'woof'}
-      filename = create_source_schema('basic_inflect', schema)
+    it 'camel-inflects keys' do
+      schema = { 'cat_sound' => 'meow', 'dog_sound' => 'woof' }
+      filename = create_source_schema('basic', schema)
       subject = SchemaCamelizer.new(filename)
-      expect(subject.camel_schema.keys).to match %w(catSound dogSound)
+      expect(subject.camel_schema.keys).to match %w[catSound dogSound]
     end
-    it 'should camel-inflect nested keys'
-    it 'should camel-inflect values in "required" keys'
+    it 'camel-inflects nested keys' do
+      schema = { 'cat' => { 'mouth_sound' => 'meow', 'leg_count' => 4} }
+      filename = create_source_schema('nested_keys', schema)
+      subject = SchemaCamelizer.new(filename)
+      expect(subject.camel_schema['cat'].keys).to match %w[mouthSound legCount]
+    end
+    it 'camel-inflects values in "required" keys' do
+      schema = { 'required' => %w[animal_sounds animal_names animal_outfits] }
+      filename = create_source_schema('required_keys', schema)
+      subject = SchemaCamelizer.new(filename)
+      expect(subject.camel_schema['required']).to match %w[animalSounds animalNames animalOutfits]
+    end
   end
 
   describe '#referenced_schemas' do
