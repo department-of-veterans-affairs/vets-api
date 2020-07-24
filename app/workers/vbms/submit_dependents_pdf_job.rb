@@ -31,8 +31,6 @@ module VBMS
       )
 
       uploader.upload!
-      # rescue => e
-      #   send_error_to_sentry(e, saved_claim_id)
     end
 
     def fetch_file_path(uploader)
