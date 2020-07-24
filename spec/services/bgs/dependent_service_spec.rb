@@ -20,13 +20,20 @@ RSpec.describe BGS::DependentService do
 
     it "fires PDF job" do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-        response = BGS::DependentService.new(user)
-        # binding.pry
-        # expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, 'xyz')
+        vet_info = {
+          "veteran_information" => {
+            "birth_date" => "1809-02-12",
+            "full_name" => {
+              "first" => "WESLEY", "last" => "FORD", "middle" => nil
+            },
+            "ssn" => "796043735",
+            "va_file_number" => "796043735"
+          }
+        }
 
-        response.submit_686c_form({veteran_contact_information: {}}, claim)
-        binding.pry
-        expect(response).to be_truthy
+        expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, vet_info)
+
+        BGS::DependentService.new(user).submit_686c_form({veteran_contact_information: {}}, claim)
       end
     end
   end

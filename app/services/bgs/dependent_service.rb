@@ -14,7 +14,7 @@ module BGS
 
     def submit_686c_form(payload, claim)
       va_file_number_with_payload = add_va_file_number_to_payload(payload.to_h)
-binding.pry
+
       VBMS::SubmitDependentsPDFJob.perform_async(claim.id, va_file_number_with_payload[:vet_info])
     rescue => e
       report_error(e)
