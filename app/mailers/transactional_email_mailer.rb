@@ -17,9 +17,9 @@ class TransactionalEmailMailer < ApplicationMailer
     )
   end
 
-  def full_name(name)
+  def first_initial_last_name(name)
     return '' if name.nil?
 
-    [name.first, name.middle, name.last, name.suffix].compact.join(' ')
+    "#{name.first[0, 1]} #{name.last}"
   end
 end

@@ -12,7 +12,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     if authorized
       @gi_bill_status = get_gi_bill_status(user)
 
-      if @gi_bill_status.remaining_entitlement.present?
+      if less_than_six_months?
         @facility_code = get_facility_code
 
         if @facility_code.present?
@@ -54,11 +54,13 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     GIDSRedis.new.get_institution_details({ id: @facility_code })[:data][:attributes]
   end
 
-  def more_than_six_months
+  def less_than_six_months?
+    return false if @gi_bill_status.remaining_entitlement.blank?
+
     months = @gi_bill_status.remaining_entitlement.months
     days = @gi_bill_status.remaining_entitlement.days
 
-    ((months * 30) + days) > 180
+    ((months * 30) + days) <= 180
   end
 
   def school_changed?
@@ -76,24 +78,26 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
       form_school_state != prefill_state
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
   def send_sco_email
-    return if !FeatureFlipper.send_email? || more_than_six_months || @institution.blank? || school_changed?
+    return if !FeatureFlipper.send_email? || @institution.blank? || school_changed?
 
-    recipients = []
+    emails = recipients
+
+    if emails.any?
+      SchoolCertifyingOfficialsMailer.build(open_struct_form, emails, nil).deliver_now
+      email_sent(true)
+    end
+  end
+
+  def recipients
+    emails = []
     scos = @institution[:versioned_school_certifying_officials]
     primary = scos.find { |sco| sco[:priority] == 'Primary' && sco[:email].present? }
     secondary = scos.find { |sco| sco[:priority] == 'Secondary' && sco[:email].present? }
 
-    unless primary.blank? && secondary.blank?
-      recipients.push(primary[:email]) if primary.present?
-      recipients.push(secondary[:email]) if secondary.present?
+    emails.push(primary[:email]) if primary.present?
+    emails.push(secondary[:email]) if secondary.present?
 
-      SchoolCertifyingOfficialsMailer.build(open_struct_form, recipients, nil).deliver_now
-      email_sent(true)
-    end
+    emails
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/PerceivedComplexity
 end
