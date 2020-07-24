@@ -223,7 +223,14 @@ RSpec.describe Form526Submission do
       it 'calls confirmation email job with correct values' do
         Flipper.enable(:form526_confirmation_email)
         allow(User).to receive(:find).with(anything).and_return(user)
-        allow_any_instance_of(User).to receive(:full_name_normalized).and_return( { first_name: 'Joe', middle_name: 'DJ', last_name: 'Smith', suffix: 'III'} )
+        allow_any_instance_of(User).to receive(:full_name_normalized).and_return(
+          {
+            first_name: 'Joe',
+            middle_name: 'DJ',
+            last_name: 'Smith',
+            suffix: 'III'
+          }
+        )
 
         allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
           expect(args[1]['full_name']).to eql('Joe DJ Smith III')
