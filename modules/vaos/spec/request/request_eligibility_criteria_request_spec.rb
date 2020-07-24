@@ -48,13 +48,25 @@ RSpec.describe 'request eligibility criteria', type: :request do
       end
     end
 
-    context 'with multiple ids' do
+    context 'with multiple site_codes' do
       it 'returns a 200 with the correct schema' do
-        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_id_array',
+        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_site_codes',
                          match_requests_on: %i[method uri]) do
           get '/vaos/v0/request_eligibility_criteria', params: { site_codes: %w[442 534] }
           expect(response).to have_http_status(:ok)
           expect(size).to eq(2)
+          expect(response).to match_response_schema('vaos/request_eligibility_criteria', { strict: false })
+        end
+      end
+    end
+
+    context 'with multiple parent_sites' do
+      it 'returns a 200 with the correct schema' do
+        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_parent_sites',
+          match_requests_on: %i[method uri]) do
+          get '/vaos/v0/request_eligibility_criteria', params: { parent_sites: %w[983 984] }
+          expect(response).to have_http_status(:ok)
+          expect(size).to eq(5)
           expect(response).to match_response_schema('vaos/request_eligibility_criteria', { strict: false })
         end
       end

@@ -124,8 +124,8 @@ module VAOS
         url_params = nil
         if (site_codes || parent_sites)
           url_params = {}
-          url_params[:site_codes] = site_codes if site_codes
-          url_params[:parent_sites] = parent_sites if parent_sites
+          url_params['site-codes'] = site_codes if site_codes
+          url_params['parent-sites'] = parent_sites if parent_sites
         end
         options = { params_encoder: Faraday::FlatParamsEncoder }
         response = perform(:get, url, url_params, headers, options)
