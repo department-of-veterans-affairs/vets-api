@@ -19,8 +19,7 @@ class Form526ConfirmationEmailJob
       personalisation: {
         'claim_id' => personalization_parameters['submitted_claim_id'],
         'date_submitted' => personalization_parameters['updated_at'],
-        'first_name' => personalization_parameters['first_name'],
-        'last_name' => personalization_parameters['last_name']
+        'full_name' => personalization_parameters['full_name']
       }
     )
   rescue => e

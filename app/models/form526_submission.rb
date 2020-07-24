@@ -128,13 +128,13 @@ class Form526Submission < ApplicationRecord
   end
 
   def send_form526_confirmation_email
+    user = User.find(user_uuid)
     email_address = form['form526']['form526']['veteran']['emailAddress']
     personalization_parameters = {
       'email' => email_address,
       'submitted_claim_id' => submitted_claim_id,
       'updated_at' => updated_at.strftime('%B %-d, %Y'),
-      'first_name' => auth_headers['va_eauth_firstName'],
-      'last_name' => auth_headers['va_eauth_lastName']
+      'full_name' => user&.full_name_normalized&.values&.compact&.join(' ')
     }
     Form526ConfirmationEmailJob.perform_async(id, personalization_parameters)
   end
