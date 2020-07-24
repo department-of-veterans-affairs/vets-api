@@ -85,8 +85,11 @@ describe SchemaCamelizer do
   end
 
   describe '#camel_path' do
-    it 'should be in schemas_camelized directory' do
-      
+    it 'is in schemas_camelized directory' do
+      schema = { 'file_path' => 'will be updated' }
+      filename = create_source_schema('use_a_new_camel_path', schema)
+      subject = SchemaCamelizer.new(filename)
+      expect(subject.camel_path).to include('schemas_camelized')
     end
   end
 
