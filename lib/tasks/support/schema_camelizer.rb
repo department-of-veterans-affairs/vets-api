@@ -48,12 +48,12 @@ class SchemaCamelizer
   end
 
   # Saves the #camel_schema to #camel_path
-  # raises an error when original schema is not from spec/support/schemas
+  # raises an error when original schema is not from a schemas directory
   # also saves a camelized version of any referenced schemas
   #
   # @return [array] files created
   def save!
-    raise 'expected spec/support/schemas to be original path!' if original_path == camel_path
+    raise 'expected to move from a schemas directory to a schemas_camelized directory!' if original_path == camel_path
 
     File.open(camel_path, 'w') do |file|
       file.write(JSON.pretty_generate(camel_schema))
