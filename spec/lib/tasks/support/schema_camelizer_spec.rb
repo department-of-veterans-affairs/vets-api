@@ -19,12 +19,12 @@ describe SchemaCamelizer do
   end
 
   let(:snake_key_file) do
-    schema = { 'snake_sound' => 'hiss', 'snake_style' => { 'snake_color' => 'black', 'snake_tongue' => 'forked'} }
+    schema = { 'snake_sound' => 'hiss', 'snake_style' => { 'snake_color' => 'black', 'snake_tongue' => 'forked' } }
     create_source_schema('snake_keys', schema)
   end
 
   let(:camel_key_file) do
-    schema = { 'camelSound' => 'ptoo', 'camelStyle' => { 'camelColor' => 'brown', 'camelTongue' => 'rough'} }
+    schema = { 'camelSound' => 'ptoo', 'camelStyle' => { 'camelColor' => 'brown', 'camelTongue' => 'rough' } }
     create_source_schema('camel_keys', schema)
   end
 
