@@ -18,7 +18,7 @@ class Form526ConfirmationEmailJob
       template_id: Settings.vanotify.template_id.form526_confirmation_email,
       personalisation: {
         'claim_id' => personalization_parameters['submitted_claim_id'],
-        'date_submitted' => personalization_parameters['updated_at'],
+        'date_submitted' => personalization_parameters['date_submitted'],
         'full_name' => personalization_parameters['full_name']
       }
     )

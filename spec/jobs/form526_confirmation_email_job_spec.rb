@@ -38,7 +38,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
                                .form526_confirmation_email,
           personalisation: {
             'claim_id' => '600191990',
-            'date_submitted' => 'July 12, 2020',
+            'date_submitted' => 'July 12, 2020 14:15 UTC',
             'full_name' => 'first last'
           }
         }
@@ -50,7 +50,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
                         {
                           'email' => @email_address,
                           'submitted_claim_id' => '600191990',
-                          'updated_at' => 'July 12, 2020',
+                          'date_submitted' => 'July 12, 2020 14:15 UTC',
                           'full_name' => 'first last'
                         })
       end
@@ -62,7 +62,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         personalization_parameters = {
           'email' => @email_address,
           'submitted_claim_id' => '600191990',
-          'updated_at' => 'July 12, 2020',
+          'date_submitted' => 'July 12, 2020 14:15 UTC',
           'full_name' => 'first last'
         }
         expect { subject.perform(123, personalization_parameters) }.not_to raise_error
@@ -78,7 +78,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           personalization_parameters = {
             'email' => @email_address,
             'submitted_claim_id' => '600191990',
-            'updated_at' => 'July 12, 2020',
+            'date_submitted' => 'July 12, 2020 14:15 UTC',
             'full_name' => 'first last'
           }
           Form526ConfirmationEmailJob.perform_async(123, personalization_parameters)
