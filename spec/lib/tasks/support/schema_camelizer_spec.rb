@@ -72,6 +72,7 @@ describe SchemaCamelizer do
       schema = { 'refer_to' => 'something', '$ref' => referenced_filename.gsub(TEST_SCHEMA_DIRECTORY + '/', '') }
       filename = create_source_schema('references', schema)
       subject = SchemaCamelizer.new(filename)
+
       expect(subject.referenced_schemas.count).to eq 1
       expect(subject.referenced_schemas.first).to be_a SchemaCamelizer
       expect(subject.referenced_schemas.first.name).to eq referenced_schema_name
@@ -111,7 +112,30 @@ describe SchemaCamelizer do
   end
 
   describe '#save!' do
-    it 'should write a file to the disk'
-    it 'should return an array of paths to saved files'
+    it 'returns an array of paths to saved files' do
+      referenced_filename1 = create_source_schema('refer_to_me_first', { 'refer_to' => 'me_first' })
+      referenced_filename2 = create_source_schema('refer_to_me_second', { 'refer_to' => 'me_second' })
+
+      schema = {
+        'refer_to' => 'something',
+        '$ref' => referenced_filename1.gsub(TEST_SCHEMA_DIRECTORY + '/', ''),
+        'deep_reference' => {
+          '$ref' => referenced_filename2.gsub(TEST_SCHEMA_DIRECTORY + '/', '')
+        }
+      }
+      filename = create_source_schema('references', schema)
+      subject = SchemaCamelizer.new(filename)
+
+      saved_files = subject.save!
+      expect(saved_files.count).to be > 1
+      expect(saved_files).to include(*subject.referenced_schemas.collect(&:camel_path))
+    end
+    it 'writes files to the disk' do
+      subject = SchemaCamelizer.new(snake_key_file)
+      result = subject.save!
+      result.each do |filename|
+        expect(File.exist?(filename)).to be true
+      end
+    end
   end
 end
