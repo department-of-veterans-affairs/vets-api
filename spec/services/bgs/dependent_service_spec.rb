@@ -38,5 +38,17 @@ RSpec.describe BGS::DependentService do
         BGS::DependentService.new(user).submit_686c_form({ veteran_contact_information: {} }, claim)
       end
     end
+
+    # context 'invalid submission' do
+    #   it 'sends error to sentry' do
+    #     fake_user = double('user')
+    #     allow(fake_user).to receive(:external_uid, :common_name)
+    #     bgs_dependent = BGS::DependentService.new(fake_user)
+    #
+    #     expect(bgs_dependent).to receive(:report_error).with('fooo')
+    #
+    #     bgs_dependent.submit_686c_form({ veteran_contact_information: {} }, claim)
+    #   end
+    # end
   end
 end

@@ -9,8 +9,7 @@ module VBMS
 
     # Generates PDF for 686c form and uploads to VBMS
     def perform(saved_claim_id, veteran_info)
-      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      output_path = to_pdf(claim, veteran_info)
+      output_path = to_pdf(saved_claim_id, veteran_info)
       upload_to_vbms(output_path, veteran_info, saved_claim_id)
     rescue => e
       send_error_to_sentry(e, saved_claim_id)
@@ -18,7 +17,9 @@ module VBMS
 
     private
 
-    def to_pdf(claim, veteran_info)
+    def to_pdf(saved_claim_id, veteran_info)
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+
       claim.parsed_form.merge!(veteran_info)
       PdfFill::Filler.fill_form(claim)
     end

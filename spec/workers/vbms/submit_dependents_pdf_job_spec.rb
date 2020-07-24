@@ -25,7 +25,7 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
     context 'with a valid submission' do
       it 'creates a PDF' do
         expect_any_instance_of(described_class).to receive(:to_pdf).with(
-          dependency_claim, vet_info
+          dependency_claim.id, vet_info
         )
 
         described_class.new.perform(dependency_claim.id, vet_info)
