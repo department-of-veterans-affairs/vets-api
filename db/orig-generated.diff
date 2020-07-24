@@ -1,0 +1,22 @@
+88c88
+<     t.index ["name"], name: "index_base_facilities_on_name", using: :gin
+---
+>     t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
+107c107
+<   create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+---
+>   create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+147c147
+<   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+---
+>   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+152c152
+<     t.uuid "auto_established_claim_id", null: false
+---
+>     t.uuid "auto_established_claim_id"
+162,163c162,163
+<     t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", using: :gin
+<     t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", using: :gin
+---
+>     t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", opclass: :gin_trgm_ops, using: :gin
+>     t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", opclass: :gin_trgm_ops, using: :gin

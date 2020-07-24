@@ -1,0 +1,16 @@
+13c13
+< ActiveRecord::Schema.define(version: 2020_05_08_201027) do
+---
+> ActiveRecord::Schema.define(version: 2020_06_17_105905) do
+17d16
+<   enable_extension "pg_stat_statements"
+108c107
+<   create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+---
+>   create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+143a143
+>     t.string "signature_errors", default: [], array: true
+147c147
+<   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
+---
+>   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

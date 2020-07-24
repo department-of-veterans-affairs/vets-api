@@ -1,0 +1,22 @@
+13c13
+< ActiveRecord::Schema.define(version: 2020_06_17_105905) do
+---
+> ActiveRecord::Schema.define(version: 2020_05_08_201027) do
+16a17
+>   enable_extension "pg_stat_statements"
+88c89
+<     t.index ["name"], name: "index_base_facilities_on_name", using: :gin
+---
+>     t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
+143d143
+<     t.string "signature_errors", default: [], array: true
+152c152
+<     t.uuid "auto_established_claim_id", null: false
+---
+>     t.uuid "auto_established_claim_id"
+162,163c162,163
+<     t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", using: :gin
+<     t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", using: :gin
+---
+>     t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", opclass: :gin_trgm_ops, using: :gin
+>     t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", opclass: :gin_trgm_ops, using: :gin
