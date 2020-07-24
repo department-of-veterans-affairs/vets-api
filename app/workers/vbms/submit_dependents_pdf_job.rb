@@ -5,12 +5,13 @@ require 'claims_api/vbms_uploader'
 module VBMS
   class SubmitDependentsPDFJob
     include Sidekiq::Worker
-    # Generates PDF for 686c form and uploads to VBMS
+    include SentryLogging
 
+    # Generates PDF for 686c form and uploads to VBMS
     def perform(saved_claim_id, veteran_info)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       output_path = to_pdf(claim, veteran_info)
-      upload_to_vbms(output_path, veteran_info)
+      upload_to_vbms(output_path, veteran_info, saved_claim_id)
     end
 
     private
@@ -20,18 +21,16 @@ module VBMS
       PdfFill::Filler.fill_form(claim)
     end
 
-    def upload_to_vbms(path, veteran_info)
+    def upload_to_vbms(path, veteran_info, saved_claim_id)
       uploader = ClaimsApi::VbmsUploader.new(
         filepath: path,
         file_number: veteran_info['veteran_information']['ssn'],
         doc_type: '148'
       )
 
-      upload_response = uploader.upload!
-    rescue VBMS::Unknown
-      rescue_vbms_error()
-    rescue Errno::ENOENT
-      rescue_file_not_found()
+      uploader.upload!
+    rescue => e
+      send_error_to_sentry(e, saved_claim_id)
     end
 
     def fetch_file_path(uploader)
@@ -43,15 +42,14 @@ module VBMS
       end
     end
 
-    def rescue_file_not_found()
-      # exception
-      # need to add logging
-    end
-
-    def rescue_vbms_error()
-      # exception
-      # need to add logging
+    def send_error_to_sentry(error, saved_claim_id)
+      log_exception_to_sentry(
+        error,
+        {
+          claim_id: saved_claim_id
+        },
+        { team: 'vfs-ebenefits' }
+      )
     end
   end
 end
-

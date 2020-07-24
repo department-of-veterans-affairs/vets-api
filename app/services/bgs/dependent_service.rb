@@ -16,8 +16,8 @@ module BGS
       va_file_number_with_payload = add_va_file_number_to_payload(payload.to_h)
 
       VBMS::SubmitDependentsPDFJob.perform_async(claim.id, va_file_number_with_payload[:vet_info])
-    rescue => e
-      report_error(e)
+      # rescue => e
+      #   report_error(e)
     end
 
     private
