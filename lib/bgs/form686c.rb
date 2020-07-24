@@ -72,7 +72,7 @@ module BGS
 
     def process_674(proc_id, dependents, payload)
       dependents.each do |dependent|
-        if dependent[:type] == '674'
+        if dependent_over_18_attending_school?(dependent[:type])
           StudentSchool.new(
             proc_id: proc_id,
             vnp_participant_id: dependent[:vnp_participant_id],
@@ -88,6 +88,12 @@ module BGS
       create_proc_form(vnp_response[:vnp_proc_id])
 
       vnp_response[:vnp_proc_id]
+    end
+
+    def dependent_over_18_attending_school?(dependent_type)
+      return true if dependent_type == '674'
+
+      false
     end
   end
 end

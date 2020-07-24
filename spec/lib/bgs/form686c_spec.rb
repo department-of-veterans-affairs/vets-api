@@ -42,6 +42,7 @@ RSpec.describe BGS::Form686c do
       expect_any_instance_of(BGS::VnpVeteran).to receive(:create).and_call_original
       expect_any_instance_of(BGS::Dependents).to receive(:create).and_call_original
       expect_any_instance_of(BGS::VnpRelationships).to receive(:create).and_call_original
+      expect_any_instance_of(BGS::StudentSchool).to receive(:create).and_call_original
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:create).and_call_original
       expect_any_instance_of(BGS::BenefitClaim).to receive(:create).and_call_original
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
