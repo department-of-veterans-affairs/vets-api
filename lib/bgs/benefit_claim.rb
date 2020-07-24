@@ -2,6 +2,17 @@
 
 module BGS
   class BenefitClaim < Service
+    BENEFIT_CLAIM_PARAM_CONSTANTS = {
+      benefit_claim_type: '1',
+      payee: '00',
+      disposition: 'M',
+      section_unit_no: '555',
+      folder_with_claim: 'N',
+      end_product_name: '130 - Automated Dependency 686c',
+      pre_discharge_indicator: 'N',
+      end_product_code: '130DPNEBNADJ'
+    }.freeze
+
     def initialize(vnp_benefit_claim:, veteran:, user:)
       @vnp_benefit_claim = vnp_benefit_claim
       @veteran = veteran
@@ -32,16 +43,12 @@ module BGS
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     def benefit_claim_params
       {
         file_number: @veteran[:file_number],
         ssn: @user[:ssn],
         ptcpnt_id_claimant: @user[:participant_id],
-        benefit_claim_type: '1',
-        payee: '00',
         end_product: @veteran[:benefit_claim_type_end_product],
-        end_product_code: '130DPNEBNADJ',
         first_name: @user[:first_name],
         last_name: @user[:last_name],
         address_line1: @veteran[:address_line_one],
@@ -52,14 +59,8 @@ module BGS
         postal_code: @veteran[:address_zip_code],
         email_address: @veteran[:email_address],
         country: @veteran[:address_country],
-        disposition: 'M',
-        section_unit_no: '555',
-        folder_with_claim: 'N',
-        end_product_name: '130 - Automated Dependency 686c',
-        pre_discharge_indicator: 'N',
         date_of_claim: Time.current.strftime('%m/%d/%Y')
-      }
+      }.merge(BENEFIT_CLAIM_PARAM_CONSTANTS)
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end
