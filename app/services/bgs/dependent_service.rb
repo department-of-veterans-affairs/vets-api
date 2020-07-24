@@ -53,18 +53,6 @@ module BGS
       }
     end
 
-    def veteran_hash
-      {
-        participant_id: @user.participant_id,
-        ssn: @user.ssn,
-        first_name: @user.first_name,
-        last_name: @user.last_name,
-        email: @user.email,
-        external_key: @user.common_name || @user.email,
-        icn: @user.icn
-      }
-    end
-
     def report_error(error)
       log_exception_to_sentry(
         error,
