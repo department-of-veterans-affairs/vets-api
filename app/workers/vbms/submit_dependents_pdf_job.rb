@@ -23,7 +23,7 @@ module VBMS
       PdfFill::Filler.fill_form(claim)
     end
 
-    def upload_to_vbms(path, veteran_info, saved_claim_id)
+    def upload_to_vbms(path, veteran_info, _saved_claim_id)
       uploader = ClaimsApi::VbmsUploader.new(
         filepath: path,
         file_number: veteran_info['veteran_information']['ssn'],
@@ -31,8 +31,8 @@ module VBMS
       )
 
       uploader.upload!
-    rescue => e
-      send_error_to_sentry(e, saved_claim_id)
+      # rescue => e
+      #   send_error_to_sentry(e, saved_claim_id)
     end
 
     def fetch_file_path(uploader)
