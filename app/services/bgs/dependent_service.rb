@@ -12,10 +12,10 @@ module BGS
       service.claimants.find_dependents_by_participant_id(@user.participant_id, @user.ssn)
     end
 
-    def submit_686c_form(payload, claim)
-      va_file_number_with_payload = add_va_file_number_to_payload(payload.to_h)
+    def submit_686c_form(claim)
+      va_file_number_with_payload = add_va_file_number_to_payload
 
-      VBMS::SubmitDependentsPDFJob.perform_async(claim.id, va_file_number_with_payload[:vet_info])
+      VBMS::SubmitDependentsPDFJob.perform_async(claim.id, va_file_number_with_payload)
     rescue => e
       report_error(e)
     end
@@ -31,10 +31,10 @@ module BGS
       )
     end
 
-    def add_va_file_number_to_payload(payload)
+    def add_va_file_number_to_payload
       va_file_number = service.people.find_person_by_ptcpnt_id(@user.participant_id)
 
-      vet_info = {
+      {
         'veteran_information' => {
           'full_name' => {
             'first' => @user.first_name,
@@ -45,11 +45,6 @@ module BGS
           'va_file_number' => va_file_number[:file_nbr],
           'birth_date' => @user.birth_date
         }
-      }
-
-      {
-        vet_info: vet_info,
-        payload_with_vet_info: payload.merge(vet_info)
       }
     end
 

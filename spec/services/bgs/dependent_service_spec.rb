@@ -24,22 +24,29 @@ RSpec.describe BGS::DependentService do
     it "makes call to get veteran's va file number" do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:add_va_file_number_to_payload)
-          .with({ veteran_contact_information: {} }).and_return(vet_info)
+        expect(service).to receive(:add_va_file_number_to_payload).and_return(vet_info)
 
-        service.submit_686c_form({ veteran_contact_information: {} }, claim)
+        service.submit_686c_form(claim)
+      end
+    end
+
+    it "calls find_person_by_participant_id" do
+      VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
+        service = BGS::DependentService.new(user)
+        expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
+
+        service.submit_686c_form(claim)
       end
     end
 
     it 'fires PDF job' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:add_va_file_number_to_payload)
-          .with({ veteran_contact_information: {} }).and_return({ vet_info: vet_info })
+        expect(service).to receive(:add_va_file_number_to_payload).and_return(vet_info)
 
-        expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, vet_info { :vet_info })
+        expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, vet_info)
 
-        service.submit_686c_form({ veteran_contact_information: {} }, claim)
+        service.submit_686c_form(claim)
       end
     end
   end
@@ -50,6 +57,15 @@ RSpec.describe BGS::DependentService do
         response = BGS::DependentService.new(user).get_dependents
 
         expect(response).to include(number_of_records: '6')
+      end
+    end
+
+    it 'calls get_dependents' do
+      VCR.use_cassette('bgs/dependent_service/get_dependents') do
+        expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
+                                                             .with(user.participant_id, user.ssn)
+
+        BGS::DependentService.new(user).get_dependents
       end
     end
   end
