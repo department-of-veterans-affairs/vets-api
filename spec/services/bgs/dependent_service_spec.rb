@@ -43,4 +43,14 @@ RSpec.describe BGS::DependentService do
       end
     end
   end
+
+  describe '#get_dependents' do
+    it 'returns dependents' do
+      VCR.use_cassette('bgs/dependent_service/get_dependents') do
+        response = BGS::DependentService.new(user).get_dependents
+
+        expect(response).to include(number_of_records: '6')
+      end
+    end
+  end
 end
