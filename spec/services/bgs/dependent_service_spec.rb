@@ -23,32 +23,24 @@ RSpec.describe BGS::DependentService do
   describe '#submit_686c_form' do
     it "makes call to get veteran's va file number" do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-        response = BGS::DependentService.new(user)
-        expect(response).to receive(:add_va_file_number_to_payload)
+        service = BGS::DependentService.new(user)
+        expect(service).to receive(:add_va_file_number_to_payload)
           .with({ veteran_contact_information: {} }).and_return(vet_info)
 
-        response.submit_686c_form({ veteran_contact_information: {} }, claim)
+        service.submit_686c_form({ veteran_contact_information: {} }, claim)
       end
     end
 
     it 'fires PDF job' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
-        expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, vet_info)
+        service = BGS::DependentService.new(user)
+        expect(service).to receive(:add_va_file_number_to_payload)
+          .with({ veteran_contact_information: {} }).and_return({ vet_info: vet_info })
 
-        BGS::DependentService.new(user).submit_686c_form({ veteran_contact_information: {} }, claim)
+        expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, vet_info { :vet_info })
+
+        service.submit_686c_form({ veteran_contact_information: {} }, claim)
       end
     end
-
-    # context 'invalid submission' do
-    #   it 'sends error to sentry' do
-    #     fake_user = double('user')
-    #     allow(fake_user).to receive(:external_uid, :common_name)
-    #     bgs_dependent = BGS::DependentService.new(fake_user)
-    #
-    #     expect(bgs_dependent).to receive(:report_error).with('fooo')
-    #
-    #     bgs_dependent.submit_686c_form({ veteran_contact_information: {} }, claim)
-    #   end
-    # end
   end
 end
