@@ -30,7 +30,7 @@ RSpec.describe BGS::DependentService do
       end
     end
 
-    it "calls find_person_by_participant_id" do
+    it 'calls find_person_by_participant_id' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
         expect_any_instance_of(BGS::PersonWebService).to receive(:find_person_by_ptcpnt_id)
@@ -63,7 +63,7 @@ RSpec.describe BGS::DependentService do
     it 'calls get_dependents' do
       VCR.use_cassette('bgs/dependent_service/get_dependents') do
         expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_dependents_by_participant_id)
-                                                             .with(user.participant_id, user.ssn)
+          .with(user.participant_id, user.ssn)
 
         BGS::DependentService.new(user).get_dependents
       end
