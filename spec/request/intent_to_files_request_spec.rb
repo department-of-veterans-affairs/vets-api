@@ -9,6 +9,8 @@ RSpec.describe 'Intent to file', type: :request do
     sign_in
   end
 
+  let(:camel_inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
   describe 'GET /v0/intent_to_file' do
     context 'with a valid evss response' do
       it 'matches the intent to files schema' do
@@ -16,6 +18,13 @@ RSpec.describe 'Intent to file', type: :request do
           get '/v0/intent_to_file'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('intent_to_files')
+        end
+      end
+      it 'matches the intent to files schema when camel-inflected' do
+        VCR.use_cassette('evss/intent_to_file/intent_to_file') do
+          get '/v0/intent_to_file', headers: camel_inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('intent_to_files')
         end
       end
     end
@@ -50,6 +59,13 @@ RSpec.describe 'Intent to file', type: :request do
           expect(response).to match_response_schema('intent_to_file')
         end
       end
+      it 'matches the intent to file schema with camel-inflection' do
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          get '/v0/intent_to_file/compensation/active', headers: camel_inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('intent_to_file')
+        end
+      end
     end
 
     context 'with a 403 response' do
@@ -80,6 +96,13 @@ RSpec.describe 'Intent to file', type: :request do
           post '/v0/intent_to_file/compensation'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('intent_to_file')
+        end
+      end
+      it 'matches the intent to file schema when camel-inflected' do
+        VCR.use_cassette('evss/intent_to_file/create_compensation') do
+          post '/v0/intent_to_file/compensation', headers: camel_inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('intent_to_file')
         end
       end
     end
