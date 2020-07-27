@@ -134,19 +134,6 @@ module BGS
       end
     end
 
-    def with_multiple_attempts_enabled
-      attempt ||= 0
-      yield
-    rescue => e
-      attempt += 1
-      if attempt < MAX_ATTEMPTS
-        notify_of_service_exception(e, __method__.to_s, attempt, :warn)
-        retry
-      end
-
-      notify_of_service_exception(e, __method__.to_s)
-    end
-
     def create_benefit_claim(vnp_benefit_params)
       with_multiple_attempts_enabled do
         service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params)
@@ -168,6 +155,19 @@ module BGS
         jrn_obj_id: Settings.bgs.application,
         ssn: @user[:ssn] # Just here to make the mocks work
       }
+    end
+
+    def with_multiple_attempts_enabled
+      attempt ||= 0
+      yield
+    rescue => e
+      attempt += 1
+      if attempt < MAX_ATTEMPTS
+        notify_of_service_exception(e, __method__.to_s, attempt, :warn)
+        retry
+      end
+
+      notify_of_service_exception(e, __method__.to_s)
     end
 
     def notify_of_service_exception(error, method, attempt = nil, status = :error)
