@@ -87,5 +87,39 @@ RSpec.describe BGS::BenefitClaim do
         ).create
       end
     end
+
+    context 'error' do
+      it 'handles error' do
+        user_hash[:file_number] = nil
+
+        VCR.use_cassette('bgs/benefit_claim/create/error') do
+          expect_any_instance_of(BGS::BenefitClaim).to receive(:handle_error).with(
+            anything, 'create'
+          )
+
+          BGS::BenefitClaim.new(
+            vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
+            veteran: vet_hash,
+            user: user_hash,
+            proc_id: proc_id
+          ).create
+        end
+      end
+
+      it 'handles updates proc to manual' do
+        user_hash[:file_number] = nil
+
+        VCR.use_cassette('bgs/benefit_claim/create/error') do
+          expect do
+            BGS::BenefitClaim.new(
+              vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
+              veteran: vet_hash,
+              user: user_hash,
+              proc_id: proc_id
+            ).create
+          end.to raise_error(BGS::ServiceException)
+        end
+      end
+    end
   end
 end

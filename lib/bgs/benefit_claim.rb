@@ -21,7 +21,7 @@ module BGS
     end
 
     def create
-      benefit_claim = insert_benefit_claim(@vnp_benefit_claim)
+      benefit_claim = bgs_service.insert_benefit_claim(benefit_claim_params)
 
       {
         benefit_claim_id: benefit_claim.dig(:benefit_claim_record, :benefit_claim_id),
@@ -31,15 +31,11 @@ module BGS
         service_type_code: benefit_claim.dig(:benefit_claim_record, :service_type_code),
         status_type_code: benefit_claim.dig(:benefit_claim_record, :status_type_code)
       }
-    end
-
-    def insert_benefit_claim(_vnp_benefit_claim)
-      bgs_service.claims.insert_benefit_claim(
-        benefit_claim_params
-      )
     rescue => e
       handle_error(e, __method__.to_s)
     end
+
+    private
 
     def benefit_claim_params
       {
@@ -61,29 +57,13 @@ module BGS
       }.merge(BENEFIT_CLAIM_PARAM_CONSTANTS)
     end
 
-    private
-
     def handle_error(error, method)
-      update_manual_proc
+      bgs_service.update_manual_proc(@proc_id)
       bgs_service.notify_of_service_exception(error, method)
     end
 
-    def update_manual_proc
-      bgs_service.vnp_proc_v2.vnp_proc_update(
-        {
-          vnp_proc_id: @proc_id,
-          vnp_proc_state_type_cd: 'Manual'
-        }.merge(bgs_service.bgs_auth)
-      )
-    rescue => e
-      bgs_service.notify_of_service_exception(e, __method__)
-    end
-
     def bgs_service
-      @bgs_service ||= BGS::Services.new(
-        external_uid: @user[:icn],
-        external_key: @user[:external_key]
-      )
+      @bgs_service ||= BGS::Service.new(@user)
     end
   end
 end

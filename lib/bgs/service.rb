@@ -140,6 +140,10 @@ module BGS
       end
     end
 
+    def insert_benefit_claim(benefit_claim_params)
+      service.claims.insert_benefit_claim(benefit_claim_params)
+    end
+
     def vnp_benefit_claim_update(vnp_benefit_params)
       with_multiple_attempts_enabled do
         service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params)
@@ -179,6 +183,17 @@ module BGS
 
       log_exception_to_sentry(error, context, tags)
       raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
+    end
+
+    def update_manual_proc(proc_id)
+      service.vnp_proc_v2.vnp_proc_update(
+        {
+          vnp_proc_id: proc_id,
+          vnp_proc_state_type_cd: 'Manual'
+        }.merge(bgs_auth)
+      )
+    rescue => e
+      notify_of_service_exception(e, __method__)
     end
 
     private
