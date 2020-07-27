@@ -1,5 +1,8 @@
 # Warn if a pull request is too big
-MAX_PR_SIZE = 250
+PR_SIZE = {
+  RECOMMENDED_MAXIMUM: 250,
+  ABSOLUTE_MAXIMUM:    1000,
+}
 EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/', 'app/swagger']
 
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
@@ -9,10 +12,8 @@ excluded_changed_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusi
 filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
 lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertions] + changes[:deletions]) }
 
-if lines_of_code > MAX_PR_SIZE
-  msg = <<~HTML
-    You changed `#{lines_of_code}` LoC. This exceeds our desired maximum of `#{MAX_PR_SIZE}`.
-
+if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
+  file_summary = <<~HTML
     <details><summary>File Summary</summary>
 
     #### Included Files
@@ -33,11 +34,17 @@ if lines_of_code > MAX_PR_SIZE
     ```
 
     </details>
-
-    Big PRs are difficult to review and often become stale. Consider breaking this PR up into smaller ones.
-
   HTML
-  warn(msg)
+
+  footer = 'Big PRs are difficult to review, often become stale, and cause delays.'
+
+  if lines_of_code > PR_SIZE[:ABSOLUTE_MAXIMUM]
+    msg = "You changed `#{lines_of_code}` LoC. PRs exceeding `#{PR_SIZE[:ABSOLUTE_MAXIMUM]}` will not be reviewed nor will they be allowed to merge. Either break the PR up into smaller ones or see [Large PR Override Request Process](TBD).\n"
+    fail(msg + file_summary + footer) 
+  else
+    msg = "You changed `#{lines_of_code}` LoC. We recommend not exceeding `#{PR_SIZE[:RECOMMENDED_MAXIMUM]}`. Expect some delays getting reviews.\n"
+    warn(msg + file_summary + footer)
+  end
 end
 
 # Warn when a PR includes a simultaneous DB migration and application code changes
