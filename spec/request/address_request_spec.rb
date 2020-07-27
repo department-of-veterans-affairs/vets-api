@@ -10,6 +10,8 @@ RSpec.describe 'address', type: :request do
   after(:all) { Settings.evss.reference_data_service.enabled = @cached_enabled_val }
 
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:camel_header) { { 'X-Key-Inflection' => 'camel' } }
+  let(:headers_with_camel) { headers.merge(camel_header) }
   let(:current_user) { create(:evss_user) }
 
   before do
@@ -32,7 +34,7 @@ RSpec.describe 'address', type: :request do
         end
         it 'matches the address schema when camel-inflected' do
           VCR.use_cassette('evss/pciu_address/address') do
-            get '/v0/address', headers: { 'X-Key-Inflection' => 'camel' }
+            get '/v0/address', headers: camel_header
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('address_response')
           end
@@ -40,23 +42,37 @@ RSpec.describe 'address', type: :request do
       end
 
       context 'with a domestic address' do
+        # domestic and international addresses are manually edited as EVSS CI only includes one military response
         it 'matches the address schema' do
-          # domestic and international addresses are manually edited as EVSS CI only includes one military response
           VCR.use_cassette('evss/pciu_address/address_domestic') do
             get '/v0/address'
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('address_response')
           end
         end
+        it 'matches the address schema when camel-inflected' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            get '/v0/address', headers: camel_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('address_response')
+          end
+        end
       end
 
       context 'with an international address' do
+        # domestic and international addresses are manually edited as EVSS CI only includes one military response
         it 'matches the address schema' do
-          # domestic and international addresses are manually edited as EVSS CI only includes one military response
           VCR.use_cassette('evss/pciu_address/address_international') do
             get '/v0/address'
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('address_response')
+          end
+        end
+        it 'matches the address schema when camel-inflected' do
+          VCR.use_cassette('evss/pciu_address/address_international') do
+            get '/v0/address', headers: camel_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('address_response')
           end
         end
       end
@@ -81,6 +97,13 @@ RSpec.describe 'address', type: :request do
             put '/v0/address', params: domestic_address.to_json, headers: headers
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('address_response')
+          end
+        end
+        it 'matches the address schema when camel-infelcted' do
+          VCR.use_cassette('evss/pciu_address/address_update') do
+            put '/v0/address', params: domestic_address.to_json, headers: headers_with_camel
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('address_response')
           end
         end
       end
