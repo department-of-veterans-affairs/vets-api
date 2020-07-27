@@ -41,7 +41,11 @@ module AuthenticationAndSSOConcerns
   end
 
   def load_user
-    @session_object = Session.find(session[:token])
+    if Rails.env.test?
+      @session_object = Session.find(session.to_hash[:token])
+    else
+      @session_object = Session.find(session[:token])
+    end
     @current_user = User.find(@session_object.uuid) if @session_object
   end
 
