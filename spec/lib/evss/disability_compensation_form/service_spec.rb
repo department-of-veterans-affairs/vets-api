@@ -92,7 +92,7 @@ describe EVSS::DisabilityCompensationForm::Service do
       end
     end
 
-    context 'with an breakers error' do
+    context 'with a breakers error' do
       it 'logs an error and raise GatewayTimeout' do
         EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
         expect { subject.submit_form526(valid_form_content) }

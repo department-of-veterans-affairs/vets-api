@@ -79,7 +79,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     end
 
     context 'with a breakers outage' do
-      it 'runs the retryable_error_handler and raises a ' do
+      it 'runs the retryable_error_handler and raises a gateway timeout' do
         EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
         subject.perform_async(submission.id)
         expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
