@@ -193,6 +193,13 @@ RSpec.describe 'address', type: :request do
             expect(response).to match_response_schema('countries')
           end
         end
+        it 'matches the countries schema when camel-inflected' do
+          VCR.use_cassette('evss/pciu_address/countries') do
+            get '/v0/address/countries', headers: camel_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('countries')
+          end
+        end
       end
     end
   end
@@ -209,6 +216,13 @@ RSpec.describe 'address', type: :request do
             get '/v0/address/countries'
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('countries')
+          end
+        end
+        it 'matches the countries schema when camel-inflected' do
+          VCR.use_cassette('evss/reference_data/countries') do
+            get '/v0/address/countries', headers: camel_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('countries')
           end
         end
       end
