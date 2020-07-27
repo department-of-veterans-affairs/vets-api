@@ -16,12 +16,16 @@ describe EVSS::DisabilityCompensationForm::Service do
     context 'with a valid evss response' do
       it 'returns a rated disabilities response object' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-          response = subject.get_rated_disabilities
-          expect(response).to be_ok
-          expect(response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
-          expect(response.rated_disabilities.count).to eq 2
-          expect(response.rated_disabilities.first.special_issues).to be_an Array
-          expect(response.rated_disabilities.first.special_issues.first)
+          expect { @response = subject.get_rated_disabilities }.to trigger_statsd_increment(
+            'api.external_http_request.EVSS/DisabilityCompensationForm.success',
+            times: 1,
+            value: 1
+          )
+          expect(@response).to be_ok
+          expect(@response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
+          expect(@response.rated_disabilities.count).to eq 2
+          expect(@response.rated_disabilities.first.special_issues).to be_an Array
+          expect(@response.rated_disabilities.first.special_issues.first)
             .to be_an EVSS::DisabilityCompensationForm::SpecialIssue
         end
       end
@@ -85,6 +89,23 @@ describe EVSS::DisabilityCompensationForm::Service do
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.submit_form526.total')
         expect { subject.submit_form526(valid_form_content) }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
+
+    context 'with a breakers error' do
+      it 'logs an error and raise GatewayTimeout' do
+        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+        expect { subject.submit_form526(valid_form_content) }
+          .to raise_error(Breakers::OutageException)
+          .and trigger_statsd_increment(
+            'api.external_http_request.EVSS/DisabilityCompensationForm.skipped',
+            times: 1,
+            value: 1
+          ).and trigger_statsd_increment('api.evss.submit_form526.fail',
+                                         times: 1,
+                                         value: 1,
+                                         tags: ['error:Breakers::OutageException'])
+        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
       end
     end
   end
