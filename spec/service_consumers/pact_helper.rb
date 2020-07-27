@@ -66,7 +66,7 @@ Pact.service_provider 'VA.gov API' do
 
   app_version git_sha
   app_version_tags git_branch
-  # publish_verification_results publish_flag
+  publish_verification_results publish_flag
 
   # honours_pacts_from_pact_broker do
   #   pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com'
