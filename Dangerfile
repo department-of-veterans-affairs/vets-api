@@ -39,7 +39,7 @@ if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
   footer = 'Big PRs are difficult to review, often become stale, and cause delays.'
 
   if lines_of_code > PR_SIZE[:ABSOLUTE_MAXIMUM]
-    msg = "You changed `#{lines_of_code}` LoC. PRs exceeding `#{PR_SIZE[:ABSOLUTE_MAXIMUM]}` will not be reviewed nor will they be allowed to merge. Either break the PR up into smaller ones or see [Large PR Override Request Process](TBD).\n"
+    msg = "You changed `#{lines_of_code}` LoC. PRs exceeding `#{PR_SIZE[:ABSOLUTE_MAXIMUM]}` will not be reviewed nor will they be allowed to merge. Please break the PR up into smaller ones or see [Large PR Override Request Process](TBD).\n"
     fail(msg + file_summary + footer) 
   else
     msg = "You changed `#{lines_of_code}` LoC. We recommend not exceeding `#{PR_SIZE[:RECOMMENDED_MAXIMUM]}`. Expect some delays getting reviews.\n"
