@@ -1,61 +1,66 @@
 <%= header %>
-CH33
+STEM
 *START*
 VA Form 22-10203
-DEC 2016
+JUN 2020
 
 
-            REQUEST FOR STEM SCHOLARSHIP
-      FOR VETERANS, SERVICEPERSONS & MEMBERS OF THE SELECTED RESERVE
-                    -------------------------------------
+              APPLICATION FOR EDITH NOURSE ROGERS STEM SCHOLARSHIP
+              ----------------------------------------------------
 
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: <%= value_or_na(@applicant.veteranSocialSecurityNumber) %>    VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
+SSN: <%= value_or_na(@applicant.veteranSocialSecurityNumber) %>    VA File Number: N/A
 
 Name:   <%= full_name(@applicant.veteranFullName) %>
 
 Address:
 <%= full_address(@applicant.veteranAddress) %>
 
-<%= parse_with_template_path('phone_numbers') %>
+Telephone Numbers:     Home:    <%= @applicant.homePhone %>
+                       Mobile:  <%= @applicant.mobilePhone %>
 
 Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
-<%= parse_with_template_path('bank_account') %>
-
-                  TYPE AND PROGRAM OF EDUCATION OR TRAINING
-                  -----------------------------------------
-
-Benefit You Are Receiving: STEM
-Are you applying for the Edith Nourse Rogers STEM Scholarship
-(Chapter 33)?: <%= yesno(@applicant.isEdithNourseRogersScholarship) %>
-Are you enrolled in an undergraduate STEM degree program?: <%= yesno(@applicant.isEnrolledStem) %>
-Do you have a STEM undergraduate degree and are now pursuing a
-teaching certification?: <%= yesno(@applicant.isPursuingTeachingCert) %>
-
-
-                       ACTIVE DUTY SERVICE INFORMATION
-                       -------------------------------
+Direct Deposit:
+Type of Account: <%= @applicant.bankAccount&.accountType %>
+Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>   Account #: <%= @applicant.bankAccount&.accountNumber %>
 
 Are you currently on active duty or do you anticipate you will
 be going on active duty?: <%= yesno(@applicant.isActiveDuty) %>
 
+Do you currently have remaining entitlement under any VA Education Benefits?:
+<%= any_remaining_benefit %>
 
-          ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
-          ----------------------------------------------------------
+Benefit: <%= form_benefit %>
 
-For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.nonVaAssistance) %>
+              APPLICANT’S COURSE OF STUDY, CERTIFICATION AND SIGNATURE
+              --------------------------------------------------------
 
-For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
+Type of Education Program that you are currently enrolled in:
+<% if @applicant.isEnrolledStem -%>
+   -  Education program that leads to an 'Undergraduate Degree' in a
+      standard, undergraduate college degree
+<% end -%>
+<% if @applicant.isPursuingTeachingCert -%>
+   -  Earned a degree from an Education Program listed under 'Approved Stem
+      Programs' and I am now enrolled in a program leading to a 'Teaching
+      Certification'
+<% end -%>
 
+Program Name: <%= @applicant.degreeName %>
+
+Provide the location where you plan to or will start training:
+<%= @applicant.schoolName %>
+<%= @applicant.schoolCity %>, <%= @applicant.schoolState %>
+Auto Email Sent to SCO:
+Applicant School Email Address: <%= @applicant.schoolEmailAddress %>
+Applicant School ID: <%= @applicant.schoolStudentId %>
 
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
 
-      Certification for Persons on Active Duty
-Signature/Title/Branch of Armed Forces Education Service Officer     Date
 
 <%= parse_with_template_path('footer') %>

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_358
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vha_358
     body:
       encoding: US-ASCII
       string: ''
@@ -56,7 +56,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
         VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
         Services (OOS)","website":null,"lat":14.544080000000065,"long":120.99139000000002,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
@@ -68,7 +68,7 @@ http_interactions:
   recorded_at: Tue, 14 Apr 2020 18:58:03 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/bha_358
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/bha_358
     body:
       encoding: US-ASCII
       string: ''
@@ -119,7 +119,7 @@ http_interactions:
       - TS016f4012=0119a2687f8323e3dc0424f42b4fb67de2e9c889061a50c6e77487ecb78948c6405ee101fae610e9e9060f534f9433888004474a8a;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"errors":[{"title":"Record not found","detail":"The record identified
         by bha_358 could not be found","code":"404","status":"404"}]}'
     http_version: null
@@ -170,14 +170,14 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"errors":[{"title":"Not found","detail":"There are no routes matching
         your request: va_facilities/v0/facilities","code":"411","status":"404"}]}'
     http_version: null
   recorded_at: Wed, 15 Apr 2020 13:10:13 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities?taco=true
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?taco=true
     body:
       encoding: US-ASCII
       string: ''
@@ -234,7 +234,7 @@ http_interactions:
   recorded_at: Wed, 15 Apr 2020 13:13:54 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&bbox%5B%5D=60.99
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&bbox%5B%5D=60.99
     body:
       encoding: US-ASCII
       string: ''
@@ -288,7 +288,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":[{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
         VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
         Services (OOS)","website":null,"lat":14.544080000000065,"long":120.99139000000002,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
@@ -378,7 +378,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":[{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
         VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
         Services (OOS)","website":null,"lat":14.544080000000065,"long":120.99139000000002,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
@@ -419,7 +419,7 @@ http_interactions:
   recorded_at: Fri, 17 Apr 2020 13:49:20 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648A4
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vha_648A4
     body:
       encoding: US-ASCII
       string: ''
@@ -473,7 +473,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vha_648A4","type":"va_facilities","attributes":{"name":"Portland
         VA Medical Center-Vancouver","facility_type":"va_health_facility","classification":"VA
         Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/vancouver.asp","lat":45.63942553000004,"long":-122.65533567999995,"address":{"mailing":{},"physical":{"zip":"98661-3753","city":"Vancouver","state":"WA","address_1":"1601
@@ -482,7 +482,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:47:46 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_888
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_888
     body:
       encoding: US-ASCII
       string: ''
@@ -536,7 +536,7 @@ http_interactions:
       - TS016f4012=0119a2687fb6a1837a9e1c022008ec40317214964bb663c2d271fc313507740de77445b6fe68ece2bca89c81f7ea1dfc97ae71ed01;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"nca_888","type":"va_facilities","attributes":{"name":"Ft.
         Logan","facility_type":"va_cemetery","classification":"National Cemetery","website":"https://www.cem.va.gov/cems/nchp/ftlogan.asp","lat":39.645574000000067,"long":-105.05285939999999,"address":{"mailing":{"zip":"80236","city":"Denver","state":"CO","address_1":"4400
         W Kenyon Ave","address_2":null,"address_3":null},"physical":{"zip":"80236","city":"Denver","state":"CO","address_1":"4400
@@ -548,7 +548,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:21 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_314c
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_314c
     body:
       encoding: US-ASCII
       string: ''
@@ -602,7 +602,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_314c","type":"va_facilities","attributes":{"name":"VetSuccss
         on Campus at Norfolk State University","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":36.847657500000025,"long":-76.269505119999963,"address":{"mailing":{},"physical":{"zip":"23504","city":"Norfolk","state":"VA","address_1":"700
         Park Avenue","address_2":null,"address_3":null}},"phone":{"fax":"757-823-2078","main":"757-823-8551"},"hours":{"monday":"Closed","tuesday":"Closed","wednesday":"7:00AM-4:30PM","thursday":"7:00AM-4:30PM","friday":"Closed","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","HomelessAssistance","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
@@ -610,7 +610,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:22 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vc_0543V
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vc_0543V
     body:
       encoding: US-ASCII
       string: ''
@@ -664,7 +664,7 @@ http_interactions:
       - TS016f4012=01c8917e48c047cee361a04706b74af22246ece397570dde1f5aa6e5c616ce3f6e3e69b669683eb0083f35bba3ab2f7610ff7ec5e0;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vc_0543V","type":"va_facilities","attributes":{"name":"Fort
         Collins Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":40.552718430000027,"long":-105.08768014999998,"address":{"mailing":{},"physical":{"zip":"80526","city":"Fort
         Collins","state":"CO","address_1":"702 West Drake Road","address_2":"Building
@@ -673,7 +673,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:33 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348e
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348e
     body:
       encoding: US-ASCII
       string: ''
@@ -727,7 +727,7 @@ http_interactions:
       - TS016f4012=01c8917e4808c9b5a324c0c48d728279288aacfc7d792cc9d345ab8cd601dd2bcca64562586c09da0ba30ae31488ebab905443a3b3;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_348e","type":"va_facilities","attributes":{"name":"VetSuccess
         on Campus at Portland Community College Cascade Campus","facility_type":"va_benefits_facility","classification":"Vetsuccess
         On Campus","website":null,"lat":45.562737150000032,"long":-122.66764959999995,"address":{"mailing":{},"physical":{"zip":"97217","city":"Portland","state":"OR","address_1":"75
@@ -736,7 +736,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:44 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648GI
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vha_648GI
     body:
       encoding: US-ASCII
       string: ''
@@ -790,7 +790,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vha_648GI","type":"va_facilities","attributes":{"name":"Portland
         VA Clinic","facility_type":"va_health_facility","classification":"Primary
         Care CBOC","website":"https://www.portland.va.gov/locations/crrc.asp","lat":45.520173040000032,"long":-122.67221793999994,"address":{"mailing":{},"physical":{"zip":"97204-3432","city":"Portland","state":"OR","address_1":"308
@@ -800,7 +800,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:45 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348
     body:
       encoding: US-ASCII
       string: ''
@@ -854,7 +854,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
         Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
         Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
@@ -863,7 +863,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:46 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348a
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348a
     body:
       encoding: US-ASCII
       string: ''
@@ -917,7 +917,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_348a","type":"va_facilities","attributes":{"name":"Portland
         Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
         Rehab And Employment","website":null,"lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
@@ -926,7 +926,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:47 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vc_0617V
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vc_0617V
     body:
       encoding: US-ASCII
       string: ''
@@ -980,7 +980,7 @@ http_interactions:
       - TS016f4012=01c8917e4839db839ba4f5db1a046e00eb237e091f57432c5ceb03fe9e043ac80081b75baa57ccc0fae0408ef9deabf2a1091c9c25;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vc_0617V","type":"va_facilities","attributes":{"name":"Portland
         Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":45.533762390000049,"long":-122.53767270999998,"address":{"mailing":{},"physical":{"zip":"97230","city":"Portland","state":"OR","address_1":"1505
         NE 122nd Avenue","address_2":null,"address_3":null}},"phone":{"main":"503-688-5361"},"hours":{"monday":"800AM-430PM","tuesday":"800AM-730PM","wednesday":"800AM-430PM","thursday":"800AM-800PM","friday":"800AM-430PM","saturday":"Closed","sunday":"Closed"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
@@ -988,7 +988,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:48 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348d
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348d
     body:
       encoding: US-ASCII
       string: ''
@@ -1042,7 +1042,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_348d","type":"va_facilities","attributes":{"name":"VetSuccess
         on Campus at Portland State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
         On Campus","website":null,"lat":45.511442720000048,"long":-122.68447749999996,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"724
@@ -1051,7 +1051,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:49 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vha_648
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vha_648
     body:
       encoding: US-ASCII
       string: ''
@@ -1105,7 +1105,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vha_648","type":"va_facilities","attributes":{"name":"Portland
         VA Medical Center","facility_type":"va_health_facility","classification":"VA
         Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/directions.asp","lat":45.49746145000006,"long":-122.68287207999998,"address":{"mailing":{},"physical":{"zip":"97239-2964","city":"Portland","state":"OR","address_1":"3710
@@ -1114,7 +1114,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:50 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_348h
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_348h
     body:
       encoding: US-ASCII
       string: ''
@@ -1168,7 +1168,7 @@ http_interactions:
       - TS016f4012=01c8917e48006987f6f1269042f690d78b812c86e9344b3e9469a76c36159cf783dc7835af9caed944b24c4a249cb5205b0c01ad5a;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_348h","type":"va_facilities","attributes":{"name":"Vancouver
         Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
         Rehab And Employment","website":null,"lat":45.639416260000075,"long":-122.65528739999996,"address":{"mailing":{},"physical":{"zip":"98661","city":"Vancouver","state":"WA","address_1":"1601
@@ -1177,7 +1177,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:51 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_907
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_907
     body:
       encoding: US-ASCII
       string: ''
@@ -1231,7 +1231,7 @@ http_interactions:
       - TS016f4012=01c8917e482a1b198bcd36cbbe67b7f2e483da408141cd27276e1688038e272d77722b15e17869637104184e5fbe5ec233b43e93c5;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"nca_907","type":"va_facilities","attributes":{"name":"Willamette","facility_type":"va_cemetery","classification":"National
         Cemetery","website":"https://www.cem.va.gov/cems/nchp/willamette.asp","lat":45.456838600000026,"long":-122.54084469999998,"address":{"mailing":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
         SE Mt Scott Blvd","address_2":null,"address_3":null},"physical":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
@@ -1243,7 +1243,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:52 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_824
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_824
     body:
       encoding: US-ASCII
       string: ''
@@ -1297,7 +1297,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"nca_824","type":"va_facilities","attributes":{"name":"Woodlawn","facility_type":"va_cemetery","classification":"National
         Cemetery","website":"https://www.cem.va.gov/cems/nchp/woodlawn.asp","lat":42.111095600000056,"long":-76.826563099999987,"address":{"mailing":{"zip":"14810","city":"Bath","state":"NY","address_1":"VA
         Medical Center","address_2":null,"address_3":null},"physical":{"zip":"14901","city":"Elmira","state":"NY","address_1":"1825
@@ -1309,7 +1309,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:54 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_088
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_088
     body:
       encoding: US-ASCII
       string: ''
@@ -1363,7 +1363,7 @@ http_interactions:
       - TS016f4012=01c8917e4875e295704b9d64c89cdf02be547d5b44ca56b505f532093665f723f778136ebce606b58f5a577df789a0698fc0ff1634;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"nca_088","type":"va_facilities","attributes":{"name":"Albany
         Rural","facility_type":"va_cemetery","classification":"Rural","website":"https://www.cem.va.gov/cems/lots/albany_rural.asp","lat":42.703844900000036,"long":-73.723564999999951,"address":{"mailing":{"zip":"12871-1721","city":"Schuylerville","state":"NY","address_1":"200
         Duell Road","address_2":null,"address_3":null},"physical":{"zip":"12204","city":"Albany","state":"NY","address_1":"Cemetery
@@ -1375,7 +1375,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:55 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_808
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_808
     body:
       encoding: US-ASCII
       string: ''
@@ -1429,7 +1429,7 @@ http_interactions:
       - TS016f4012=01c8917e488c6b1723f2af6364cd55bbc8fe815ed29ead9d4444ffcbfa4647d04b93bde4c3e2afddd167b62e488b0e0d69134f4ad1;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"nca_808","type":"va_facilities","attributes":{"name":"Cypress
         Hills","facility_type":"va_cemetery","classification":"National Cemetery","website":"https://www.cem.va.gov/cems/nchp/cypresshills.asp","lat":40.685954500000037,"long":-73.88123319999994,"address":{"mailing":{"zip":"11208","city":"Farmingdale","state":"NY","address_1":"2040
         Wellwood Ave","address_2":null,"address_3":null},"physical":{"zip":"11208","city":"Brooklyn","state":"NY","address_1":"625
@@ -1441,7 +1441,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:56 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_803
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_803
     body:
       encoding: US-ASCII
       string: ''
@@ -1495,7 +1495,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"nca_803","type":"va_facilities","attributes":{"name":"Bath","facility_type":"va_cemetery","classification":"National
         Cemetery","website":"https://www.cem.va.gov/cems/nchp/bath.asp","lat":42.347251500000027,"long":-77.350304199999982,"address":{"mailing":{"zip":"14810","city":"Bath","state":"NY","address_1":"VA
         Medical Center","address_2":null,"address_3":null},"physical":{"zip":"14810","city":"Bath","state":"NY","address_1":"VA
@@ -1507,7 +1507,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:57 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_917
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_917
     body:
       encoding: US-ASCII
       string: ''
@@ -1561,7 +1561,7 @@ http_interactions:
       - TS016f4012=01c8917e4863b1e1d2ed278d6f0bf52925c2c50f8204b5f5225b54eec12daa12f9115491aeee6dfd0989f809f6e966824bdcfac31f;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"nca_917","type":"va_facilities","attributes":{"name":"Gerald
         B.H. Solomon Saratoga","facility_type":"va_cemetery","classification":"National
         Cemetery","website":"https://www.cem.va.gov/cems/nchp/geraldbhsolomonsaratoga.asp","lat":43.026389900000027,"long":-73.617079899999965,"address":{"mailing":{"zip":"12871-1721","city":"Schuylerville","state":"NY","address_1":"200
@@ -1574,7 +1574,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:58 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/nca_815
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_815
     body:
       encoding: US-ASCII
       string: ''
@@ -1628,7 +1628,7 @@ http_interactions:
       - TS016f4012=01c8917e48759fb5b4db15298f9ad024c39ee97945c8e756da40cbdbb7fcabe2d9c8d7095460832455f100202ef363c4aae7fc8843;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"nca_815","type":"va_facilities","attributes":{"name":"Long
         Island","facility_type":"va_cemetery","classification":"National Cemetery","website":"https://www.cem.va.gov/cems/nchp/longisland.asp","lat":40.750563700000043,"long":-73.401496399999985,"address":{"mailing":{"zip":"11735-1211","city":"Farmingdale","state":"NY","address_1":"2040
         Wellwood Ave","address_2":null,"address_3":null},"physical":{"zip":"11735-1211","city":"Farmingdale","state":"NY","address_1":"2040
@@ -1640,7 +1640,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:48:59 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_310e
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_310e
     body:
       encoding: US-ASCII
       string: ''
@@ -1694,7 +1694,7 @@ http_interactions:
       - TS016f4012=01c8917e48b3eb0bdeb17958ff91e23ae4b17848a1b906519ca259d00366baacbe46dd2ec4eb192ce78cacc511af508359919a2c40;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_310e","type":"va_facilities","attributes":{"name":"Wilkes
         Barre VA Medical Center Vocational Rehabilitation and Employment Services
         Office","facility_type":"va_benefits_facility","classification":"Voc Rehab
@@ -1706,7 +1706,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:00 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306f
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306f
     body:
       encoding: US-ASCII
       string: ''
@@ -1760,7 +1760,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306f","type":"va_facilities","attributes":{"name":"New
         York Regional Office at Castle Point VAMC","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":41.540456550000044,"long":-73.96222124999997,"address":{"mailing":{},"physical":{"zip":"12590","city":"Wappingers
         Falls","state":"NY","address_1":"41 Castle Point Rd","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"845-831-2000
@@ -1769,7 +1769,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:01 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306a
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306a
     body:
       encoding: US-ASCII
       string: ''
@@ -1823,7 +1823,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306a","type":"va_facilities","attributes":{"name":"New
         York Regional Office at Montrose VAMC","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":41.245177880000028,"long":-73.926430399999958,"address":{"mailing":{},"physical":{"zip":"10548","city":"Montrose","state":"NY","address_1":"2094
         Albany Post Road","address_2":"Bldg. 14, Room 144","address_3":null}},"phone":{"fax":"914-788-4861","main":"1-800-827-1000"},"hours":{"monday":"8:30AM-4:00PM","tuesday":"8:30AM-4:00PM","wednesday":"8:30AM-4:00PM","thursday":"8:30AM-4:00PM","friday":"8:30AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["EducationAndCareerCounseling","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
@@ -1831,7 +1831,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:02 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306d
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306d
     body:
       encoding: US-ASCII
       string: ''
@@ -1885,7 +1885,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306d","type":"va_facilities","attributes":{"name":"New
         York Regional Office IDES at Montrose VAMC","facility_type":"va_benefits_facility","classification":null,"website":null,"lat":41.245177880000028,"long":-73.926430399999958,"address":{"mailing":{},"physical":{"zip":"10548","city":"Montrose","state":"NY","address_1":"2094
         Albany Post Road","address_2":"Building 14","address_3":null}},"phone":{"fax":"914-788-4861","main":"914-737-4400
@@ -1894,7 +1894,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:03 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306g
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306g
     body:
       encoding: US-ASCII
       string: ''
@@ -1948,7 +1948,7 @@ http_interactions:
       - TS016f4012=01c8917e48f4474ef78988f21424fbd7bcc725398db0a9513dc81f26ec709f4e89acd0b6a999c42ef587fc61644d6aff0f83f1b69c;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306g","type":"va_facilities","attributes":{"name":"New
         York Regional Office Outbased at Montrose VAMC","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":41.245177880000028,"long":-73.926430399999958,"address":{"mailing":{},"physical":{"zip":"10548","city":"Montrose","state":"NY","address_1":"2094
         Albany Post Road","address_2":"Building 1, Room 19A","address_3":null}},"phone":{"fax":null,"main":"914-737-4400
@@ -1957,7 +1957,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:04 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_309
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_309
     body:
       encoding: US-ASCII
       string: ''
@@ -2011,7 +2011,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_309","type":"va_facilities","attributes":{"name":"Newark
         Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
         Benefit Office","website":"https://www.benefits.va.gov/newark","lat":40.742663360000051,"long":-74.17077895999995,"address":{"mailing":{},"physical":{"zip":"07102","city":"Newark","state":"NJ","address_1":"20
@@ -2020,7 +2020,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:05 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306
     body:
       encoding: US-ASCII
       string: ''
@@ -2074,7 +2074,7 @@ http_interactions:
       - TS016f4012=01c8917e482f0f533c836bc1ad640cb9521e78f1e57c6a873e52ca23474cf3507e01b798fad71047e2b8b6268c2c14f878755380de;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306","type":"va_facilities","attributes":{"name":"New
         York Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
         Benefit Office","website":"https://www.benefits.va.gov/newyork","lat":40.728392880000058,"long":-74.006219899999962,"address":{"mailing":{},"physical":{"zip":"10014","city":"New
@@ -2083,7 +2083,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:06 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306b
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306b
     body:
       encoding: US-ASCII
       string: ''
@@ -2137,7 +2137,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306b","type":"va_facilities","attributes":{"name":"New
         York Regional Office at Albany VAMC Hicksville","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":42.651408840000045,"long":-73.776232849999985,"address":{"mailing":{},"physical":{"zip":"12208","city":"Albany","state":"NY","address_1":"113
         Holland Avenue","address_2":"Room C308","address_3":null}},"phone":{"fax":"518-626-5695","main":"518-626-5692"},"hours":{"monday":"8:30AM-4:00PM","tuesday":"8:30AM-4:00PM","wednesday":"8:30AM-4:00PM","thursday":"8:30AM-4:00PM","friday":"8:30AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["EducationAndCareerCounseling","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
@@ -2145,7 +2145,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:12 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306e
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306e
     body:
       encoding: US-ASCII
       string: ''
@@ -2199,7 +2199,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306e","type":"va_facilities","attributes":{"name":"New
         York Regional Office at Albany VAMC","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":42.651408840000045,"long":-73.776232849999985,"address":{"mailing":{},"physical":{"zip":"12208","city":"Albany","state":"NY","address_1":"113
         Holland Avenue","address_2":null,"address_3":null}},"phone":{"fax":"518-626-5695","main":"518-626-5524"},"hours":{"monday":"7:30AM-4:00PM","tuesday":"7:30AM-4:00PM","wednesday":"7:30AM-4:00PM","thursday":"7:30AM-4:00PM","friday":"7:30AM-4:00PM","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","FamilyMemberClaimAssistance","UpdatingDirectDepositInformation"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
@@ -2207,7 +2207,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:14 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306h
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306h
     body:
       encoding: US-ASCII
       string: ''
@@ -2261,7 +2261,7 @@ http_interactions:
       - TS016f4012=0119a2687f3b8950e343e7556af44e699a18138b08f530c6e592bdfe4466b8bbda3dbee7afb4442394d5a469a9e00bc5286bba9a6e;
         Max-Age=900; Path=/
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306h","type":"va_facilities","attributes":{"name":"New
         York Regional Office Outbased at Manhattan VAMC, Office 1","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":40.737090390000049,"long":-73.976947259999974,"address":{"mailing":{},"physical":{"zip":"10010","city":"New
         York","state":"NY","address_1":"423 East 23rd Street","address_2":"2nd Floor,
@@ -2271,7 +2271,7 @@ http_interactions:
   recorded_at: Tue, 21 Apr 2020 15:49:15 GMT
 - request:
     method: get
-    uri: https://dev-api.va.gov/services/va_facilities/v0/facilities/vba_306i
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/vba_306i
     body:
       encoding: US-ASCII
       string: ''
@@ -2325,11 +2325,1583 @@ http_interactions:
       Transfer-Encoding:
       - chunked
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"data":{"id":"vba_306i","type":"va_facilities","attributes":{"name":"New
         York Regional Office Outbased at Manhattan VAMC, Office 2","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":40.737090390000049,"long":-73.976947259999974,"address":{"mailing":{},"physical":{"zip":"10010","city":"New
         York","state":"NY","address_1":"423 East 23rd Street","address_2":"Floor 15(s),
         Room 15108AS","address_3":null}},"phone":{"fax":null,"main":"212-868-7500"},"hours":{"monday":"8:45AM-4:45PM","tuesday":"Closed","wednesday":"Closed","thursday":"Closed","friday":"Closed","saturday":"Closed","sunday":"Closed"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","FamilyMemberClaimAssistance","HomelessAssistance","UpdatingDirectDepositInformation"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}}'
     http_version: null
   recorded_at: Tue, 21 Apr 2020 15:49:16 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?action=index&bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64&controller=v0/facilities/va&format=json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 28 Apr 2020 23:14:20 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '34'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e487092add8ec19ffccb41df5cef263873afd54548c3c432140470222f5a30e26821c600025800054f2a091364329fa9bc2;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vba_348e","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland Community College Cascade Campus","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.562737150000032,"long":-122.66764959999995,"address":{"mailing":{},"physical":{"zip":"97217","city":"Portland","state":"OR","address_1":"75
+        N. Killingsworth St.","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648GI","type":"va_facilities","attributes":{"name":"Portland
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.portland.va.gov/locations/crrc.asp","lat":45.520173040000032,"long":-122.67221793999994,"address":{"mailing":{},"physical":{"zip":"97204-3432","city":"Portland","state":"OR","address_1":"308
+        Southwest 1st Avenue","address_2":"Community Resource & Referral Center","address_3":"Lawrence
+        Building, Suite 155"}},"phone":{"fax":"503-808-1900","main":"503-808-1256","pharmacy":"503-273-5183","after_hours":"800-273-8255","patient_advocate":"503-273-5308","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"1000AM-300PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["EmergencyCare","PrimaryCare","UrgentCare"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_routine":0.87000000476837158},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"PrimaryCare","new":20.2,"established":3.297872}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348a","type":"va_facilities","attributes":{"name":"Portland
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main St","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4740","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vc_0617V","type":"va_facilities","attributes":{"name":"Portland
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":45.533762390000049,"long":-122.53767270999998,"address":{"mailing":{},"physical":{"zip":"97230","city":"Portland","state":"OR","address_1":"1505
+        NE 122nd Avenue","address_2":null,"address_3":null}},"phone":{"main":"503-688-5361"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-730PM","saturday":"Closed","thursday":"800AM-800PM","wednesday":"800AM-430PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"We''re
+        currently open for limited in-person service, and screening all visitors for
+        symptoms, due to the coronavirus COVID-19. For individual and group counseling,
+        we recommend using our telehealth services. If you need to talk with someone
+        confidentially, please call us anytime 24/7 at 877-927-8387."},"visn":null}},{"id":"vba_348d","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.511442720000048,"long":-122.68447749999996,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"724
+        SW Harrison","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/directions.asp","lat":45.49746145000006,"long":-122.68287207999998,"address":{"mailing":{},"physical":{"zip":"97239-2964","city":"Portland","state":"OR","address_1":"3710
+        Southwest US Veterans Hospital Road","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5319","main":"503-721-1498","pharmacy":"503-273-5183","after_hours":"503-220-8262","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology","WomensHealth"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_routine":0.82999998331069946,"specialty_care_urgent":0.82999998331069946,"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":1.0,"established":12.434782},{"service":"Cardiology","new":12.333333,"established":9.594936},{"service":"Dermatology","new":4.261904,"established":5.693548},{"service":"Gynecology","new":3.833333,"established":0.578947},{"service":"MentalHealthCare","new":13.738636,"established":0.462395},{"service":"Ophthalmology","new":1.545454,"established":4.04016},{"service":"Optometry","new":39.0,"established":13.625},{"service":"Orthopedics","new":4.4,"established":0.0},{"service":"PrimaryCare","new":5.466666,"established":4.288135},{"service":"SpecialtyCare","new":7.520295,"established":4.353773},{"service":"Urology","new":8.857142,"established":3.096491},{"service":"WomensHealth","new":4.75,"established":0.333333}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vba_348h","type":"va_facilities","attributes":{"name":"Vancouver
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.639416260000075,"long":-122.65528739999996,"address":{"mailing":{},"physical":{"zip":"98661","city":"Vancouver","state":"WA","address_1":"1601
+        E Fourth Pain Blvd","address_2":"V3CH31, Bldg 18","address_3":null}},"phone":{"fax":"360-759-1679","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648A4","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center-Vancouver","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/vancouver.asp","lat":45.63942553000004,"long":-122.65533567999995,"address":{"mailing":{},"physical":{"zip":"98661-3753","city":"Vancouver","state":"WA","address_1":"1601
+        East 4th Plain Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"360-690-0864","main":"360-759-1901","pharmacy":"503-273-5183","after_hours":"360-696-4061","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-630PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"services":{"other":[],"health":["Audiology","DentalServices","Dermatology","EmergencyCare","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_urgent":0.85000002384185791,"primary_care_routine":0.88999998569488525},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.0,"established":null},{"service":"Dermatology","new":1.0,"established":0.0},{"service":"MentalHealthCare","new":7.2,"established":1.735849},{"service":"Ophthalmology","new":null,"established":2.264705},{"service":"Optometry","new":0.8,"established":1.823529},{"service":"PrimaryCare","new":4.074074,"established":1.107954},{"service":"SpecialtyCare","new":2.444444,"established":4.479338}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"nca_907","type":"va_facilities","attributes":{"name":"Willamette","facility_type":"va_cemetery","classification":"National
+        Cemetery","website":"https://www.cem.va.gov/cems/nchp/willamette.asp","lat":45.456838600000026,"long":-122.54084469999998,"address":{"mailing":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
+        SE Mt Scott Blvd","address_2":null,"address_3":null},"physical":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
+        SE Mt Scott Blvd","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5251","main":null},"hours":{"friday":"7:00am
+        - 5:00pm","monday":"7:00am - 5:00pm","sunday":"7:00am - 5:00pm","tuesday":"7:00am
+        - 5:00pm","saturday":"7:00am - 5:00pm","thursday":"7:00am - 5:00pm","wednesday":"7:00am
+        - 5:00pm"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=1&per_page=10","prev":null,"next":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=2&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":2,"total_entries":11},"distances":[]}}'
+    http_version: null
+  recorded_at: Tue, 28 Apr 2020 23:14:20 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?action=index&bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64&controller=v0/facilities/va&format=json&type=health
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 29 Apr 2020 04:11:12 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '8'
+      X-Kong-Upstream-Latency:
+      - '32'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c16e2d8159ae9bee214c2a65ec07b8c0d7ff20beec377dbaf63bfcefbbf33fc4b532be3a240287084aed39f2651cbd1c91e4b249;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_648GI","type":"va_facilities","attributes":{"name":"Portland
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.portland.va.gov/locations/crrc.asp","lat":45.520173040000032,"long":-122.67221793999994,"address":{"mailing":{},"physical":{"zip":"97204-3432","city":"Portland","state":"OR","address_1":"308
+        Southwest 1st Avenue","address_2":"Community Resource & Referral Center","address_3":"Lawrence
+        Building, Suite 155"}},"phone":{"fax":"503-808-1900","main":"503-808-1256","pharmacy":"503-273-5183","after_hours":"800-273-8255","patient_advocate":"503-273-5308","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"1000AM-300PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["EmergencyCare","PrimaryCare","UrgentCare"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_routine":0.87000000476837158},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"PrimaryCare","new":20.2,"established":3.297872}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vha_648","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/directions.asp","lat":45.49746145000006,"long":-122.68287207999998,"address":{"mailing":{},"physical":{"zip":"97239-2964","city":"Portland","state":"OR","address_1":"3710
+        Southwest US Veterans Hospital Road","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5319","main":"503-721-1498","pharmacy":"503-273-5183","after_hours":"503-220-8262","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology","WomensHealth"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_routine":0.82999998331069946,"specialty_care_urgent":0.82999998331069946,"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":1.0,"established":12.434782},{"service":"Cardiology","new":12.333333,"established":9.594936},{"service":"Dermatology","new":4.261904,"established":5.693548},{"service":"Gynecology","new":3.833333,"established":0.578947},{"service":"MentalHealthCare","new":13.738636,"established":0.462395},{"service":"Ophthalmology","new":1.545454,"established":4.04016},{"service":"Optometry","new":39.0,"established":13.625},{"service":"Orthopedics","new":4.4,"established":0.0},{"service":"PrimaryCare","new":5.466666,"established":4.288135},{"service":"SpecialtyCare","new":7.520295,"established":4.353773},{"service":"Urology","new":8.857142,"established":3.096491},{"service":"WomensHealth","new":4.75,"established":0.333333}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vha_648A4","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center-Vancouver","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/vancouver.asp","lat":45.63942553000004,"long":-122.65533567999995,"address":{"mailing":{},"physical":{"zip":"98661-3753","city":"Vancouver","state":"WA","address_1":"1601
+        East 4th Plain Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"360-690-0864","main":"360-759-1901","pharmacy":"503-273-5183","after_hours":"360-696-4061","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-630PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"services":{"other":[],"health":["Audiology","DentalServices","Dermatology","EmergencyCare","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_urgent":0.85000002384185791,"primary_care_routine":0.88999998569488525},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.0,"established":null},{"service":"Dermatology","new":1.0,"established":0.0},{"service":"MentalHealthCare","new":7.2,"established":1.735849},{"service":"Ophthalmology","new":null,"established":2.264705},{"service":"Optometry","new":0.8,"established":1.823529},{"service":"PrimaryCare","new":4.074074,"established":1.107954},{"service":"SpecialtyCare","new":2.444444,"established":4.479338}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vha_648GE","type":"va_facilities","attributes":{"name":"Fairview
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.portland.va.gov/locations/Fairview_Clinic.asp","lat":45.533497000000068,"long":-122.44203199999998,"address":{"mailing":{},"physical":{"zip":"97024-7000","city":"Fairview","state":"OR","address_1":"1800
+        Northeast Market Drive","address_2":null,"address_3":null}},"phone":{"fax":"503-252-9422","main":"503-660-0600","pharmacy":"503-273-5183","after_hours":"503-660-0600","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["EmergencyCare","MentalHealthCare","Nutrition","PrimaryCare"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_urgent":0.8399999737739563,"primary_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"MentalHealthCare","new":8.166666,"established":0.0},{"service":"PrimaryCare","new":7.7,"established":2.111111}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=health&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=health&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=health&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":4},"distances":[]}}'
+    http_version: null
+  recorded_at: Wed, 29 Apr 2020 04:11:12 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?action=index&controller=v0/facilities/va&format=json&lat=33.298639&long=-111.789659
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 30 Apr 2020 18:28:16 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '10'
+      X-Kong-Upstream-Latency:
+      - '222'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c16e2d812a723fbc541e3197b4ddee7392a356b2571d365299ee01e40e86c5480812107c1d2cf850940e8d60c4504ebe11117a14;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_644BY","type":"va_facilities","attributes":{"name":"Southeast
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.phoenix.va.gov/locations/Southeast.asp","lat":33.293220790000078,"long":-111.75544797999999,"address":{"mailing":{},"physical":{"zip":"85297-7000","city":"Gilbert","state":"AZ","address_1":"3285
+        South Val Vista Drive","address_2":null,"address_3":null}},"phone":{"fax":"602-222-6496","main":"480-397-2800","pharmacy":"800-359-8262","after_hours":"888-214-7264","patient_advocate":"602-222-2774","mental_health_clinic":"928-532-2559","enrollment_coordinator":"602-277-5551
+        x6508"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"730AM-400PM","thursday":"730AM-600PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Audiology","Dermatology","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_urgent":0.699999988079071,"primary_care_routine":0.74000000953674316},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.6,"established":8.921568},{"service":"Dermatology","new":0.0,"established":null},{"service":"MentalHealthCare","new":12.515151,"established":0.843902},{"service":"PrimaryCare","new":33.571428,"established":1.280303},{"service":"SpecialtyCare","new":3.627118,"established":5.609929}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}},{"id":"vc_0524V","type":"va_facilities","attributes":{"name":"Mesa
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":33.391270150000025,"long":-111.86370740999996,"address":{"mailing":{},"physical":{"zip":"85202","city":"Mesa","state":"AZ","address_1":"1303
+        South Longmore","address_2":"Suite 5","address_3":null}},"phone":{"main":"480-610-6727"},"hours":{"friday":"800AM-400PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"We''re
+        currently open for limited in-person service, and screening all visitors for
+        symptoms, due to the coronavirus COVID-19. For individual and group counseling,
+        we recommend using our telehealth services. If you need to talk with someone
+        confidentially, please call us anytime 24/7 at 877-927-8387."},"visn":null}},{"id":"vba_345f","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Arizona State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":33.418317430000059,"long":-111.93389269999994,"address":{"mailing":{},"physical":{"zip":"85281","city":"Tempe","state":"AZ","address_1":"301
+        E. Orange St","address_2":"1290 S. Normal Ave, Room 75","address_3":null}},"phone":{"fax":"215-842-7212","main":"480-727-5627"},"hours":{"friday":"8:00AM-5:00PM","monday":"8:00AM-5:00PM","sunday":"Closed","tuesday":"8:00AM-5:00PM","saturday":"Closed","thursday":"8:00AM-5:00PM","wednesday":"8:00AM-5:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","IntegratedDisabilityEvaluationSystemAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_345g","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Arizona State University Memorial Student Union","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":33.418317430000059,"long":-111.93389269999994,"address":{"mailing":{},"physical":{"zip":"85287","city":"Tempe","state":"AZ","address_1":"301
+        E. Orange St","address_2":"Memorial Student Union, Lower Level, Room 75","address_3":null}},"phone":{"fax":"215-842-7212","main":"480-727-5627"},"hours":{"friday":"8:00AM-5:00PM","monday":"8:00AM-5:00PM","sunday":"Closed","tuesday":"8:00AM-5:00PM","saturday":"Closed","thursday":"8:00AM-5:00PM","wednesday":"8:00AM-5:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_345","type":"va_facilities","attributes":{"name":"Phoenix
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/phoenix","lat":33.416630720000057,"long":-112.07346799999999,"address":{"mailing":{},"physical":{"zip":"85012","city":"Phoenix","state":"AZ","address_1":"3333
+        North Central Avenue","address_2":null,"address_3":null}},"phone":{"fax":"602-627-3040","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","FamilyMemberClaimAssistance","HomelessAssistance","VAHomeLoanAssistance","IntegratedDisabilityEvaluationSystemAssistance","PreDischargeClaimAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_644QA","type":"va_facilities","attributes":{"name":"Phoenix
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":null,"lat":33.480257480000034,"long":-112.04959022999998,"address":{"mailing":{},"physical":{"zip":"85014-5748","city":"Phoenix","state":"AZ","address_1":"1500
+        East Thomas Road","address_2":"Community Resource & Referral Center (CRRC)","address_3":"Suite
+        106"}},"phone":{"fax":"602-279-8089","main":"602-248-6040","pharmacy":"800-359-8262","after_hours":"888-214-7264","patient_advocate":"602-222-2774","enrollment_coordinator":"602-277-5554
+        x6508"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":[],"last_updated":null},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[],"effective_date":null},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}},{"id":"vc_0517V","type":"va_facilities","attributes":{"name":"Phoenix
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":33.493600510000078,"long":-112.03893374999996,"address":{"mailing":{},"physical":{"zip":"85016","city":"Phoenix","state":"AZ","address_1":"4020
+        North 20th Street","address_2":"Suite 110","address_3":null}},"phone":{"main":"602-640-2981"},"hours":{"friday":"730AM-630PM","monday":"730AM-600PM","sunday":"Closed","tuesday":"730AM-600PM","saturday":"Closed","thursday":"730AM-630PM","wednesday":"730AM-530PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"We''re
+        currently open for limited in-person service, and screening all visitors for
+        symptoms, due to the coronavirus COVID-19. For individual and group counseling,
+        we recommend using our telehealth services. If you need to talk with someone
+        confidentially, please call us anytime 24/7 at 877-927-8387."},"visn":null}},{"id":"vha_644GG","type":"va_facilities","attributes":{"name":"Northeast
+        Phoenix VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.phoenix.va.gov/locations/Northeast.asp","lat":33.58979714000003,"long":-111.83438119999994,"address":{"mailing":{},"physical":{"zip":"85259-4075","city":"Scottsdale","state":"AZ","address_1":"11390
+        East Via Linda Road","address_2":null,"address_3":"Suite 105"}},"phone":{"fax":"480-359-8262","main":"480-579-2200","pharmacy":"800-359-8262","after_hours":"800-554-7174","patient_advocate":"602-222-2774","mental_health_clinic":"480-579-2205","enrollment_coordinator":"602-277-5551
+        x6508"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Dermatology","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_urgent":0.73000001907348633,"primary_care_routine":0.93000000715255737},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Dermatology","new":25.0,"established":22.0},{"service":"MentalHealthCare","new":19.230769,"established":3.413461},{"service":"PrimaryCare","new":9.8,"established":1.384615},{"service":"SpecialtyCare","new":25.0,"established":22.0}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}},{"id":"vha_644","type":"va_facilities","attributes":{"name":"Carl
+        T. Hayden Veterans'' Administration Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.phoenix.va.gov/locations/directions.asp","lat":33.494757890000074,"long":-112.06591002999994,"address":{"mailing":{},"physical":{"zip":"85012-1839","city":"Phoenix","state":"AZ","address_1":"650
+        East Indian School Road","address_2":null,"address_3":null}},"phone":{"fax":"602-222-6489","main":"602-277-5551","pharmacy":"800-359-8262","after_hours":"602-277-5551","patient_advocate":"602-222-2774","mental_health_clinic":"602-222-2752
+        x 7405","enrollment_coordinator":"602-277-5551 x6508"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","Gastroenterology","MentalHealthCare","Ophthalmology","Optometry","PrimaryCare","SpecialtyCare","Urology"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_urgent":0.87999999523162842,"primary_care_routine":0.93999999761581421,"specialty_care_urgent":0.699999988079071,"specialty_care_routine":0.81999999284744263},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":1.375,"established":4.309523},{"service":"Cardiology","new":24.241379,"established":3.886227},{"service":"Dermatology","new":20.0,"established":2.335714},{"service":"Gastroenterology","new":14.076923,"established":4.857142},{"service":"MentalHealthCare","new":5.081632,"established":2.03295},{"service":"Ophthalmology","new":16.625,"established":6.16129},{"service":"Optometry","new":32.0625,"established":9.315789},{"service":"PrimaryCare","new":7.888888,"established":2.741239},{"service":"SpecialtyCare","new":10.47138,"established":3.673612},{"service":"Urology","new":12.0,"established":3.821428}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}},{"id":"vha_644QB","type":"va_facilities","attributes":{"name":"Phoenix
+        VA Mobile Clinic","facility_type":"va_health_facility","classification":"Other
+        Outpatient Services (OOS)","website":null,"lat":33.494757890000074,"long":-112.06591002999994,"address":{"mailing":{},"physical":{"zip":"85012-1892","city":"Phoenix","state":"AZ","address_1":"650
+        E. Indian School Road","address_2":null,"address_3":null}},"phone":{"fax":"602-222-6489","main":"602-277-5551","pharmacy":"800-359-8262","after_hours":"602-277-5551","patient_advocate":"602-222-2774","enrollment_coordinator":"602-277-5551
+        x6508"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":[],"last_updated":null},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[],"effective_date":null},"mobile":true,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659&page=1&per_page=10","prev":null,"next":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659&page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659&page=242&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":242,"total_entries":2416},"distances":[{"id":"vha_644BY","distance":2.01},{"id":"vc_0524V","distance":7.70},{"id":"vba_345f","distance":11.73},{"id":"vba_345g","distance":11.73},{"id":"vba_345","distance":18.30},{"id":"vha_644QA","distance":19.55},{"id":"vc_0517V","distance":19.70},{"id":"vha_644GG","distance":20.28},{"id":"vha_644","distance":20.92},{"id":"vha_644QB","distance":20.92}]}}'
+    http_version: null
+  recorded_at: Thu, 30 Apr 2020 18:28:16 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?action=index&controller=v0/facilities/va&format=json&zip=85297
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 30 Apr 2020 18:36:08 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '7'
+      X-Kong-Upstream-Latency:
+      - '27'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e485c269eb5b41aca41c79f45bc474a4aa4ab023da441045a39565035d74ea69095f461af1118f7404c14b241f032257ae6;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_644BY","type":"va_facilities","attributes":{"name":"Southeast
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.phoenix.va.gov/locations/Southeast.asp","lat":33.293220790000078,"long":-111.75544797999999,"address":{"mailing":{},"physical":{"zip":"85297-7000","city":"Gilbert","state":"AZ","address_1":"3285
+        South Val Vista Drive","address_2":null,"address_3":null}},"phone":{"fax":"602-222-6496","main":"480-397-2800","pharmacy":"800-359-8262","after_hours":"888-214-7264","patient_advocate":"602-222-2774","mental_health_clinic":"928-532-2559","enrollment_coordinator":"602-277-5551
+        x6508"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"730AM-400PM","thursday":"730AM-600PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Audiology","Dermatology","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-20"},"satisfaction":{"health":{"primary_care_urgent":0.699999988079071,"primary_care_routine":0.74000000953674316},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.6,"established":8.921568},{"service":"Dermatology","new":0.0,"established":null},{"service":"MentalHealthCare","new":12.515151,"established":0.843902},{"service":"PrimaryCare","new":33.571428,"established":1.280303},{"service":"SpecialtyCare","new":3.627118,"established":5.609929}],"effective_date":"2020-04-20"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?zip=85297&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?zip=85297&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?zip=85297&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":1},"distances":[]}}'
+    http_version: null
+  recorded_at: Thu, 30 Apr 2020 18:36:09 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?action=index&bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64&controller=v0/facilities/va&format=json&type=benefits
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Fri, 01 May 2020 15:35:51 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '9'
+      X-Kong-Upstream-Latency:
+      - '52'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c16e2d815066f0ffc6e042cb8ad22b435aa20ee591f8000b3edeee127355a1dd148ee6a15266d81163c4a46571305060d2b988fb;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vba_348e","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland Community College Cascade Campus","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.562737150000032,"long":-122.66764959999995,"address":{"mailing":{},"physical":{"zip":"97217","city":"Portland","state":"OR","address_1":"75
+        N. Killingsworth St.","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348a","type":"va_facilities","attributes":{"name":"Portland
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main St","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4740","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348d","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.511442720000048,"long":-122.68447749999996,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"724
+        SW Harrison","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348h","type":"va_facilities","attributes":{"name":"Vancouver
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.639416260000075,"long":-122.65528739999996,"address":{"mailing":{},"physical":{"zip":"98661","city":"Vancouver","state":"WA","address_1":"1601
+        E Fourth Pain Blvd","address_2":"V3CH31, Bldg 18","address_3":null}},"phone":{"fax":"360-759-1679","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":5},"distances":[]}}'
+    http_version: null
+  recorded_at: Fri, 01 May 2020 15:35:52 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?action=index&bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64&controller=v0/facilities/va&format=json&services%5B%5D=DisabilityClaimAssistance&type=benefits
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Fri, 01 May 2020 15:38:54 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '96'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48e3e14c113fbd44319c09ab5427aa4653a7751d0a39adc10aa994499ab18092428e8a4034689dc36e6d244d6d3f27bed7;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":1},"distances":[]}}'
+    http_version: null
+  recorded_at: Fri, 01 May 2020 15:38:54 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?action=index&controller=v0/facilities/va&format=json&vha_644BY
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Fri, 01 May 2020 15:54:33 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '423'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '26'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=01c8917e4823cd5a1bf00b7843943c90838d7f4f870d15bccc51987b384f7a93344be329b6bd710d99d6832e2b111ec11122efa0ba;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Missing parameter","detail":"Parameter conditions
+        \"bbox[], !lat, !long, !state, !zip\" OR \"!bbox[], ids, !lat, !long, !state,
+        !zip\" OR \"!bbox[], lat, long, !state, !zip\" OR \"!bbox[], !lat, !long,
+        state, !zip\" OR \"!bbox[], !lat, !long, !state, zip\" not met for actual
+        request parameters: action={index}, controller={v0/facilities/va}, format={json},
+        vha_644BY={}","code":"108","status":"400"}]}'
+    http_version: null
+  recorded_at: Fri, 01 May 2020 15:54:33 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 04 May 2020 16:07:05 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '22'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48f16366885b82eaf815986095daf4f7d47df0f9c1f06731b6eabadb1a8c1169c2c0870797e9b16ce4b5dc0058fcf11a59;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vba_348e","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland Community College Cascade Campus","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.562737150000032,"long":-122.66764959999995,"address":{"mailing":{},"physical":{"zip":"97217","city":"Portland","state":"OR","address_1":"75
+        N. Killingsworth St.","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648GI","type":"va_facilities","attributes":{"name":"Portland
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.portland.va.gov/locations/crrc.asp","lat":45.520173040000032,"long":-122.67221793999994,"address":{"mailing":{},"physical":{"zip":"97204-3432","city":"Portland","state":"OR","address_1":"308
+        Southwest 1st Avenue","address_2":"Community Resource & Referral Center","address_3":"Lawrence
+        Building, Suite 155"}},"phone":{"fax":"503-808-1900","main":"503-808-1256","pharmacy":"503-273-5183","after_hours":"800-273-8255","patient_advocate":"503-273-5308","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"1000AM-300PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["EmergencyCare","PrimaryCare","UrgentCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_routine":0.87000000476837158},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"PrimaryCare","new":20.2,"established":2.632653}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348a","type":"va_facilities","attributes":{"name":"Portland
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main St","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4740","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vc_0617V","type":"va_facilities","attributes":{"name":"Portland
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":45.533762390000049,"long":-122.53767270999998,"address":{"mailing":{},"physical":{"zip":"97230","city":"Portland","state":"OR","address_1":"1505
+        NE 122nd Avenue","address_2":null,"address_3":null}},"phone":{"main":"503-688-5361"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-730PM","saturday":"Closed","thursday":"800AM-800PM","wednesday":"800AM-430PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"We''re
+        currently open for limited in-person service, and screening all visitors for
+        symptoms, due to the coronavirus COVID-19. For individual and group counseling,
+        we recommend using our telehealth services. If you need to talk with someone
+        confidentially, please call us anytime 24/7 at 877-927-8387."},"visn":null}},{"id":"vba_348d","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.511442720000048,"long":-122.68447749999996,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"724
+        SW Harrison","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/directions.asp","lat":45.49746145000006,"long":-122.68287207999998,"address":{"mailing":{},"physical":{"zip":"97239-2964","city":"Portland","state":"OR","address_1":"3710
+        Southwest US Veterans Hospital Road","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5319","main":"503-721-1498","pharmacy":"503-273-5183","after_hours":"503-220-8262","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology","WomensHealth"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_routine":0.82999998331069946,"specialty_care_urgent":0.82999998331069946,"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":1.0,"established":10.96875},{"service":"Cardiology","new":13.125,"established":6.472972},{"service":"Dermatology","new":3.24,"established":8.944444},{"service":"Gynecology","new":4.333333,"established":0.692307},{"service":"MentalHealthCare","new":12.87912,"established":0.644155},{"service":"Ophthalmology","new":1.875,"established":4.357446},{"service":"Optometry","new":39.0,"established":22.166666},{"service":"Orthopedics","new":4.75,"established":0.0},{"service":"PrimaryCare","new":5.75,"established":1.90625},{"service":"SpecialtyCare","new":7.547445,"established":4.97156},{"service":"Urology","new":8.923076,"established":3.682242},{"service":"WomensHealth","new":5.5,"established":0.545454}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20","covid19":{"confirmedCases":11,"deaths":1}}},{"id":"vba_348h","type":"va_facilities","attributes":{"name":"Vancouver
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.639416260000075,"long":-122.65528739999996,"address":{"mailing":{},"physical":{"zip":"98661","city":"Vancouver","state":"WA","address_1":"1601
+        E Fourth Pain Blvd","address_2":"V3CH31, Bldg 18","address_3":null}},"phone":{"fax":"360-759-1679","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648A4","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center-Vancouver","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/vancouver.asp","lat":45.63942553000004,"long":-122.65533567999995,"address":{"mailing":{},"physical":{"zip":"98661-3753","city":"Vancouver","state":"WA","address_1":"1601
+        East 4th Plain Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"360-690-0864","main":"360-759-1901","pharmacy":"503-273-5183","after_hours":"360-696-4061","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-630PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"services":{"other":[],"health":["Audiology","DentalServices","Dermatology","EmergencyCare","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_urgent":0.85000002384185791,"primary_care_routine":0.88999998569488525},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.0,"established":0.0},{"service":"Dermatology","new":1.0,"established":0.0},{"service":"MentalHealthCare","new":7.066666,"established":1.006172},{"service":"Ophthalmology","new":null,"established":2.147058},{"service":"Optometry","new":1.0,"established":1.666666},{"service":"PrimaryCare","new":3.735294,"established":1.227722},{"service":"SpecialtyCare","new":4.3125,"established":5.068965}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"nca_907","type":"va_facilities","attributes":{"name":"Willamette","facility_type":"va_cemetery","classification":"National
+        Cemetery","website":"https://www.cem.va.gov/cems/nchp/willamette.asp","lat":45.456838600000026,"long":-122.54084469999998,"address":{"mailing":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
+        SE Mt Scott Blvd","address_2":null,"address_3":null},"physical":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
+        SE Mt Scott Blvd","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5251","main":null},"hours":{"friday":"7:00am
+        - 5:00pm","monday":"7:00am - 5:00pm","sunday":"7:00am - 5:00pm","tuesday":"7:00am
+        - 5:00pm","saturday":"7:00am - 5:00pm","thursday":"7:00am - 5:00pm","wednesday":"7:00am
+        - 5:00pm"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=1&per_page=10","prev":null,"next":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&page=2&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":2,"total_entries":11},"distances":[]}}'
+    http_version: null
+  recorded_at: Mon, 04 May 2020 16:07:05 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64&type=health
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 04 May 2020 16:07:07 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '29'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48528c194f32c534fb958f7df5f17727403b94577ac20e0ee5a1cd1e7cecd334837ff4c6b8d19042ec8927bdf418ac3ed8;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_648GI","type":"va_facilities","attributes":{"name":"Portland
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.portland.va.gov/locations/crrc.asp","lat":45.520173040000032,"long":-122.67221793999994,"address":{"mailing":{},"physical":{"zip":"97204-3432","city":"Portland","state":"OR","address_1":"308
+        Southwest 1st Avenue","address_2":"Community Resource & Referral Center","address_3":"Lawrence
+        Building, Suite 155"}},"phone":{"fax":"503-808-1900","main":"503-808-1256","pharmacy":"503-273-5183","after_hours":"800-273-8255","patient_advocate":"503-273-5308","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"1000AM-300PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["EmergencyCare","PrimaryCare","UrgentCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_routine":0.87000000476837158},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"PrimaryCare","new":20.2,"established":2.632653}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vha_648","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/directions.asp","lat":45.49746145000006,"long":-122.68287207999998,"address":{"mailing":{},"physical":{"zip":"97239-2964","city":"Portland","state":"OR","address_1":"3710
+        Southwest US Veterans Hospital Road","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5319","main":"503-721-1498","pharmacy":"503-273-5183","after_hours":"503-220-8262","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology","WomensHealth"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_routine":0.82999998331069946,"specialty_care_urgent":0.82999998331069946,"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":1.0,"established":10.96875},{"service":"Cardiology","new":13.125,"established":6.472972},{"service":"Dermatology","new":3.24,"established":8.944444},{"service":"Gynecology","new":4.333333,"established":0.692307},{"service":"MentalHealthCare","new":12.87912,"established":0.644155},{"service":"Ophthalmology","new":1.875,"established":4.357446},{"service":"Optometry","new":39.0,"established":22.166666},{"service":"Orthopedics","new":4.75,"established":0.0},{"service":"PrimaryCare","new":5.75,"established":1.90625},{"service":"SpecialtyCare","new":7.547445,"established":4.97156},{"service":"Urology","new":8.923076,"established":3.682242},{"service":"WomensHealth","new":5.5,"established":0.545454}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20","covid19":{"confirmedCases":11,"deaths":1}}},{"id":"vha_648A4","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center-Vancouver","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/vancouver.asp","lat":45.63942553000004,"long":-122.65533567999995,"address":{"mailing":{},"physical":{"zip":"98661-3753","city":"Vancouver","state":"WA","address_1":"1601
+        East 4th Plain Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"360-690-0864","main":"360-759-1901","pharmacy":"503-273-5183","after_hours":"360-696-4061","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-630PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"services":{"other":[],"health":["Audiology","DentalServices","Dermatology","EmergencyCare","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_urgent":0.85000002384185791,"primary_care_routine":0.88999998569488525},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.0,"established":0.0},{"service":"Dermatology","new":1.0,"established":0.0},{"service":"MentalHealthCare","new":7.066666,"established":1.006172},{"service":"Ophthalmology","new":null,"established":2.147058},{"service":"Optometry","new":1.0,"established":1.666666},{"service":"PrimaryCare","new":3.735294,"established":1.227722},{"service":"SpecialtyCare","new":4.3125,"established":5.068965}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vha_648GE","type":"va_facilities","attributes":{"name":"Fairview
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.portland.va.gov/locations/Fairview_Clinic.asp","lat":45.533497000000068,"long":-122.44203199999998,"address":{"mailing":{},"physical":{"zip":"97024-7000","city":"Fairview","state":"OR","address_1":"1800
+        Northeast Market Drive","address_2":null,"address_3":null}},"phone":{"fax":"503-252-9422","main":"503-660-0600","pharmacy":"503-273-5183","after_hours":"503-660-0600","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["EmergencyCare","MentalHealthCare","Nutrition","PrimaryCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_urgent":0.8399999737739563,"primary_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"MentalHealthCare","new":6.111111,"established":0.045454},{"service":"PrimaryCare","new":3.5,"established":1.561151}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=health&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=health&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=health&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":4},"distances":[]}}'
+    http_version: null
+  recorded_at: Mon, 04 May 2020 16:07:07 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64&type=benefits
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 04 May 2020 16:07:09 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '31'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '57'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48aae678ce217a5ba7d8c057c6ac14759c1605f3aa5badc70f237450464a4e60250923de74e8e5e16237095c9d63be6be5;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vba_348e","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland Community College Cascade Campus","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.562737150000032,"long":-122.66764959999995,"address":{"mailing":{},"physical":{"zip":"97217","city":"Portland","state":"OR","address_1":"75
+        N. Killingsworth St.","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348a","type":"va_facilities","attributes":{"name":"Portland
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main St","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4740","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348d","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.511442720000048,"long":-122.68447749999996,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"724
+        SW Harrison","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348h","type":"va_facilities","attributes":{"name":"Vancouver
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.639416260000075,"long":-122.65528739999996,"address":{"mailing":{},"physical":{"zip":"98661","city":"Vancouver","state":"WA","address_1":"1601
+        E Fourth Pain Blvd","address_2":"V3CH31, Bldg 18","address_3":null}},"phone":{"fax":"360-759-1679","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":5},"distances":[]}}'
+    http_version: null
+  recorded_at: Mon, 04 May 2020 16:07:09 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 04 May 2020 16:07:13 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '3165'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '263'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '56'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48b7a87ef3c5e40b0875fad7f095d6be09a9a048a9328a98335f0c37a2cb136749305de8839599be7bed67ed982667a281;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_644BY","type":"va_facilities","attributes":{"name":"Southeast
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.phoenix.va.gov/locations/Southeast.asp","lat":33.293220790000078,"long":-111.75544797999999,"address":{"mailing":{},"physical":{"zip":"85297-7000","city":"Gilbert","state":"AZ","address_1":"3285
+        South Val Vista Drive","address_2":null,"address_3":null}},"phone":{"fax":"602-222-6496","main":"480-397-2800","pharmacy":"800-359-8262","after_hours":"888-214-7264","patient_advocate":"602-222-2774","mental_health_clinic":"928-532-2559","enrollment_coordinator":"602-277-5551
+        x6508"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"730AM-400PM","thursday":"730AM-600PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Audiology","Dermatology","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_urgent":0.699999988079071,"primary_care_routine":0.74000000953674316},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":13.0,"established":11.574468},{"service":"Dermatology","new":0.0,"established":null},{"service":"MentalHealthCare","new":12.709677,"established":1.003091},{"service":"PrimaryCare","new":0.666666,"established":0.645941},{"service":"SpecialtyCare","new":3.962264,"established":5.751592}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}},{"id":"vc_0524V","type":"va_facilities","attributes":{"name":"Mesa
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":33.391270150000025,"long":-111.86370740999996,"address":{"mailing":{},"physical":{"zip":"85202","city":"Mesa","state":"AZ","address_1":"1303
+        South Longmore","address_2":"Suite 5","address_3":null}},"phone":{"main":"480-610-6727"},"hours":{"friday":"800AM-400PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"We''re
+        currently open for limited in-person service, and screening all visitors for
+        symptoms, due to the coronavirus COVID-19. For individual and group counseling,
+        we recommend using our telehealth services. If you need to talk with someone
+        confidentially, please call us anytime 24/7 at 877-927-8387."},"visn":null}},{"id":"vba_345f","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Arizona State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":33.418317430000059,"long":-111.93389269999994,"address":{"mailing":{},"physical":{"zip":"85281","city":"Tempe","state":"AZ","address_1":"301
+        E. Orange St","address_2":"1290 S. Normal Ave, Room 75","address_3":null}},"phone":{"fax":"215-842-7212","main":"480-727-5627"},"hours":{"friday":"8:00AM-5:00PM","monday":"8:00AM-5:00PM","sunday":"Closed","tuesday":"8:00AM-5:00PM","saturday":"Closed","thursday":"8:00AM-5:00PM","wednesday":"8:00AM-5:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","IntegratedDisabilityEvaluationSystemAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_345g","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Arizona State University Memorial Student Union","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":33.418317430000059,"long":-111.93389269999994,"address":{"mailing":{},"physical":{"zip":"85287","city":"Tempe","state":"AZ","address_1":"301
+        E. Orange St","address_2":"Memorial Student Union, Lower Level, Room 75","address_3":null}},"phone":{"fax":"215-842-7212","main":"480-727-5627"},"hours":{"friday":"8:00AM-5:00PM","monday":"8:00AM-5:00PM","sunday":"Closed","tuesday":"8:00AM-5:00PM","saturday":"Closed","thursday":"8:00AM-5:00PM","wednesday":"8:00AM-5:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_345","type":"va_facilities","attributes":{"name":"Phoenix
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/phoenix","lat":33.416630720000057,"long":-112.07346799999999,"address":{"mailing":{},"physical":{"zip":"85012","city":"Phoenix","state":"AZ","address_1":"3333
+        North Central Avenue","address_2":null,"address_3":null}},"phone":{"fax":"602-627-3040","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","FamilyMemberClaimAssistance","HomelessAssistance","VAHomeLoanAssistance","IntegratedDisabilityEvaluationSystemAssistance","PreDischargeClaimAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_644QA","type":"va_facilities","attributes":{"name":"Phoenix
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":null,"lat":33.480257480000034,"long":-112.04959022999998,"address":{"mailing":{},"physical":{"zip":"85014-5748","city":"Phoenix","state":"AZ","address_1":"1500
+        East Thomas Road","address_2":"Community Resource & Referral Center (CRRC)","address_3":"Suite
+        106"}},"phone":{"fax":"602-279-8089","main":"602-248-6040","pharmacy":"800-359-8262","after_hours":"888-214-7264","patient_advocate":"602-222-2774","enrollment_coordinator":"602-277-5554
+        x6508"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":[],"last_updated":null},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[],"effective_date":null},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}},{"id":"vc_0517V","type":"va_facilities","attributes":{"name":"Phoenix
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":33.493600510000078,"long":-112.03893374999996,"address":{"mailing":{},"physical":{"zip":"85016","city":"Phoenix","state":"AZ","address_1":"4020
+        North 20th Street","address_2":"Suite 110","address_3":null}},"phone":{"main":"602-640-2981"},"hours":{"friday":"730AM-630PM","monday":"730AM-600PM","sunday":"Closed","tuesday":"730AM-600PM","saturday":"Closed","thursday":"730AM-630PM","wednesday":"730AM-530PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"We''re
+        currently open for limited in-person service, and screening all visitors for
+        symptoms, due to the coronavirus COVID-19. For individual and group counseling,
+        we recommend using our telehealth services. If you need to talk with someone
+        confidentially, please call us anytime 24/7 at 877-927-8387."},"visn":null}},{"id":"vha_644GG","type":"va_facilities","attributes":{"name":"Northeast
+        Phoenix VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.phoenix.va.gov/locations/Northeast.asp","lat":33.58979714000003,"long":-111.83438119999994,"address":{"mailing":{},"physical":{"zip":"85259-4075","city":"Scottsdale","state":"AZ","address_1":"11390
+        East Via Linda Road","address_2":null,"address_3":"Suite 105"}},"phone":{"fax":"480-359-8262","main":"480-579-2200","pharmacy":"800-359-8262","after_hours":"800-554-7174","patient_advocate":"602-222-2774","mental_health_clinic":"480-579-2205","enrollment_coordinator":"602-277-5551
+        x6508"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Dermatology","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_urgent":0.73000001907348633,"primary_care_routine":0.93000000715255737},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Dermatology","new":null,"established":22.0},{"service":"MentalHealthCare","new":29.5,"established":1.395348},{"service":"PrimaryCare","new":4.230769,"established":0.424242},{"service":"SpecialtyCare","new":null,"established":22.0}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}},{"id":"vha_644","type":"va_facilities","attributes":{"name":"Carl
+        T. Hayden Veterans'' Administration Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.phoenix.va.gov/locations/directions.asp","lat":33.494757890000074,"long":-112.06591002999994,"address":{"mailing":{},"physical":{"zip":"85012-1839","city":"Phoenix","state":"AZ","address_1":"650
+        East Indian School Road","address_2":null,"address_3":null}},"phone":{"fax":"602-222-6489","main":"602-277-5551","pharmacy":"800-359-8262","after_hours":"602-277-5551","patient_advocate":"602-222-2774","mental_health_clinic":"602-222-2752
+        x 7405","enrollment_coordinator":"602-277-5551 x6508"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","Gastroenterology","MentalHealthCare","Ophthalmology","Optometry","PrimaryCare","SpecialtyCare","Urology"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_urgent":0.87999999523162842,"primary_care_routine":0.93999999761581421,"specialty_care_urgent":0.699999988079071,"specialty_care_routine":0.81999999284744263},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":2.0,"established":4.285714},{"service":"Cardiology","new":18.48,"established":4.304964},{"service":"Dermatology","new":19.833333,"established":3.764705},{"service":"Gastroenterology","new":8.760563,"established":4.47807},{"service":"MentalHealthCare","new":3.630303,"established":1.694565},{"service":"Ophthalmology","new":12.8,"established":3.206896},{"service":"Optometry","new":38.636363,"established":8.85},{"service":"PrimaryCare","new":6.352941,"established":1.83492},{"service":"SpecialtyCare","new":8.789835,"established":3.507524},{"service":"Urology","new":10.461538,"established":2.931707}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22","covid19":{"confirmedCases":42,"deaths":2}}},{"id":"vha_644QB","type":"va_facilities","attributes":{"name":"Phoenix
+        VA Mobile Clinic","facility_type":"va_health_facility","classification":"Other
+        Outpatient Services (OOS)","website":null,"lat":33.494757890000074,"long":-112.06591002999994,"address":{"mailing":{},"physical":{"zip":"85012-1892","city":"Phoenix","state":"AZ","address_1":"650
+        E. Indian School Road","address_2":null,"address_3":null}},"phone":{"fax":"602-222-6489","main":"602-277-5551","pharmacy":"800-359-8262","after_hours":"602-277-5551","patient_advocate":"602-222-2774","enrollment_coordinator":"602-277-5551
+        x6508"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":[],"last_updated":null},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[],"effective_date":null},"mobile":true,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659&page=1&per_page=10","prev":null,"next":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659&page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=33.298639&long=-111.789659&page=242&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":242,"total_entries":2418},"distances":[{"id":"vha_644BY","distance":2.01},{"id":"vc_0524V","distance":7.70},{"id":"vba_345f","distance":11.73},{"id":"vba_345g","distance":11.73},{"id":"vba_345","distance":18.30},{"id":"vha_644QA","distance":19.55},{"id":"vc_0517V","distance":19.70},{"id":"vha_644GG","distance":20.28},{"id":"vha_644","distance":20.92},{"id":"vha_644QB","distance":20.92}]}}'
+    http_version: null
+  recorded_at: Mon, 04 May 2020 16:07:13 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?zip=85297
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 04 May 2020 16:07:15 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '23'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '55'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e4801ba1cbfabae3e8e917742c433c29a08b7b9f4ba131634c2246579768d66b2421db5fe7c294ba6308097d7971fb90335;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_644BY","type":"va_facilities","attributes":{"name":"Southeast
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.phoenix.va.gov/locations/Southeast.asp","lat":33.293220790000078,"long":-111.75544797999999,"address":{"mailing":{},"physical":{"zip":"85297-7000","city":"Gilbert","state":"AZ","address_1":"3285
+        South Val Vista Drive","address_2":null,"address_3":null}},"phone":{"fax":"602-222-6496","main":"480-397-2800","pharmacy":"800-359-8262","after_hours":"888-214-7264","patient_advocate":"602-222-2774","mental_health_clinic":"928-532-2559","enrollment_coordinator":"602-277-5551
+        x6508"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"730AM-400PM","thursday":"730AM-600PM","wednesday":"730AM-400PM"},"services":{"other":[],"health":["Audiology","Dermatology","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_urgent":0.699999988079071,"primary_care_routine":0.74000000953674316},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":13.0,"established":11.574468},{"service":"Dermatology","new":0.0,"established":null},{"service":"MentalHealthCare","new":12.709677,"established":1.003091},{"service":"PrimaryCare","new":0.666666,"established":0.645941},{"service":"SpecialtyCare","new":3.962264,"established":5.751592}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"22"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?zip=85297&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?zip=85297&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?zip=85297&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":1},"distances":[]}}'
+    http_version: null
+  recorded_at: Mon, 04 May 2020 16:07:15 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=-122.78675&bbox%5B%5D=45.451913&bbox%5B%5D=45.64
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 04 May 2020 16:18:39 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '11'
+      X-Kong-Upstream-Latency:
+      - '23'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c8917e48df481a86e1d3edb2c5ae078796516631204c1bb5c29d1350ca00918a9a573d450c0a326d305363c9c8229f98a720284e;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vba_348e","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland Community College Cascade Campus","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.562737150000032,"long":-122.66764959999995,"address":{"mailing":{},"physical":{"zip":"97217","city":"Portland","state":"OR","address_1":"75
+        N. Killingsworth St.","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648GI","type":"va_facilities","attributes":{"name":"Portland
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.portland.va.gov/locations/crrc.asp","lat":45.520173040000032,"long":-122.67221793999994,"address":{"mailing":{},"physical":{"zip":"97204-3432","city":"Portland","state":"OR","address_1":"308
+        Southwest 1st Avenue","address_2":"Community Resource & Referral Center","address_3":"Lawrence
+        Building, Suite 155"}},"phone":{"fax":"503-808-1900","main":"503-808-1256","pharmacy":"503-273-5183","after_hours":"800-273-8255","patient_advocate":"503-273-5308","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"1000AM-300PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["EmergencyCare","PrimaryCare","UrgentCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_routine":0.87000000476837158},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"PrimaryCare","new":20.2,"established":2.632653}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vba_348a","type":"va_facilities","attributes":{"name":"Portland
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main St","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4740","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vc_0617V","type":"va_facilities","attributes":{"name":"Portland
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":45.533762390000049,"long":-122.53767270999998,"address":{"mailing":{},"physical":{"zip":"97230","city":"Portland","state":"OR","address_1":"1505
+        NE 122nd Avenue","address_2":null,"address_3":null}},"phone":{"main":"503-688-5361"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-730PM","saturday":"Closed","thursday":"800AM-800PM","wednesday":"800AM-430PM"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"We''re
+        currently open for limited in-person service, and screening all visitors for
+        symptoms, due to the coronavirus COVID-19. For individual and group counseling,
+        we recommend using our telehealth services. If you need to talk with someone
+        confidentially, please call us anytime 24/7 at 877-927-8387."},"visn":null}},{"id":"vba_348d","type":"va_facilities","attributes":{"name":"VetSuccess
+        on Campus at Portland State University","facility_type":"va_benefits_facility","classification":"Vetsuccess
+        On Campus","website":null,"lat":45.511442720000048,"long":-122.68447749999996,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"724
+        SW Harrison","address_2":null,"address_3":null}},"phone":{"fax":null,"main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["ApplyingForBenefits","EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/directions.asp","lat":45.49746145000006,"long":-122.68287207999998,"address":{"mailing":{},"physical":{"zip":"97239-2964","city":"Portland","state":"OR","address_1":"3710
+        Southwest US Veterans Hospital Road","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5319","main":"503-721-1498","pharmacy":"503-273-5183","after_hours":"503-220-8262","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology","WomensHealth"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_routine":0.82999998331069946,"specialty_care_urgent":0.82999998331069946,"specialty_care_routine":0.9100000262260437},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":1.0,"established":10.96875},{"service":"Cardiology","new":13.125,"established":6.472972},{"service":"Dermatology","new":3.24,"established":8.944444},{"service":"Gynecology","new":4.333333,"established":0.692307},{"service":"MentalHealthCare","new":12.87912,"established":0.644155},{"service":"Ophthalmology","new":1.875,"established":4.357446},{"service":"Optometry","new":39.0,"established":22.166666},{"service":"Orthopedics","new":4.75,"established":0.0},{"service":"PrimaryCare","new":5.75,"established":1.90625},{"service":"SpecialtyCare","new":7.547445,"established":4.97156},{"service":"Urology","new":8.923076,"established":3.682242},{"service":"WomensHealth","new":5.5,"established":0.545454}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20","covid19":{"confirmedCases":11,"deaths":1}}},{"id":"vba_348h","type":"va_facilities","attributes":{"name":"Vancouver
+        Vocational Rehabilitation and Employment Office","facility_type":"va_benefits_facility","classification":"Voc
+        Rehab And Employment","website":null,"lat":45.639416260000075,"long":-122.65528739999996,"address":{"mailing":{},"physical":{"zip":"98661","city":"Vancouver","state":"WA","address_1":"1601
+        E Fourth Pain Blvd","address_2":"V3CH31, Bldg 18","address_3":null}},"phone":{"fax":"360-759-1679","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}},{"id":"vha_648A4","type":"va_facilities","attributes":{"name":"Portland
+        VA Medical Center-Vancouver","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.portland.va.gov/locations/vancouver.asp","lat":45.63942553000004,"long":-122.65533567999995,"address":{"mailing":{},"physical":{"zip":"98661-3753","city":"Vancouver","state":"WA","address_1":"1601
+        East 4th Plain Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"360-690-0864","main":"360-759-1901","pharmacy":"503-273-5183","after_hours":"360-696-4061","patient_advocate":"503-273-5308","mental_health_clinic":"503-273-5187","enrollment_coordinator":"503-273-5069"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-630PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"services":{"other":[],"health":["Audiology","DentalServices","Dermatology","EmergencyCare","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-04-27"},"satisfaction":{"health":{"primary_care_urgent":0.85000002384185791,"primary_care_routine":0.88999998569488525},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.0,"established":0.0},{"service":"Dermatology","new":1.0,"established":0.0},{"service":"MentalHealthCare","new":7.066666,"established":1.006172},{"service":"Ophthalmology","new":null,"established":2.147058},{"service":"Optometry","new":1.0,"established":1.666666},{"service":"PrimaryCare","new":3.735294,"established":1.227722},{"service":"SpecialtyCare","new":4.3125,"established":5.068965}],"effective_date":"2020-04-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}},{"id":"nca_907","type":"va_facilities","attributes":{"name":"Willamette","facility_type":"va_cemetery","classification":"National
+        Cemetery","website":"https://www.cem.va.gov/cems/nchp/willamette.asp","lat":45.456838600000026,"long":-122.54084469999998,"address":{"mailing":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
+        SE Mt Scott Blvd","address_2":null,"address_3":null},"physical":{"zip":"97086-6937","city":"Portland","state":"OR","address_1":"11800
+        SE Mt Scott Blvd","address_2":null,"address_3":null}},"phone":{"fax":"503-273-5251","main":null},"hours":{"friday":"7:00am
+        - 5:00pm","monday":"7:00am - 5:00pm","sunday":"7:00am - 5:00pm","tuesday":"7:00am
+        - 5:00pm","saturday":"7:00am - 5:00pm","thursday":"7:00am - 5:00pm","wednesday":"7:00am
+        - 5:00pm"},"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=45.451913&bbox%5B%5D=-122.78675&bbox%5B%5D=45.64&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=45.451913&bbox%5B%5D=-122.78675&bbox%5B%5D=45.64&page=1&per_page=10","prev":null,"next":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=45.451913&bbox%5B%5D=-122.78675&bbox%5B%5D=45.64&page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=45.451913&bbox%5B%5D=-122.78675&bbox%5B%5D=45.64&page=2&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":2,"total_entries":11},"distances":[]}}'
+    http_version: null
+  recorded_at: Mon, 04 May 2020 16:18:40 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/nca_9999999
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      Date:
+      - Mon, 04 May 2020 16:18:41 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '129'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '38'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=01c8917e486ee26f220abafcbbd9576e25b32f459faa23c68b91d6b31d2be6d341035b2561014635539343f23d84cfe7010db2fdc1;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Record not found","detail":"The record identified
+        by nca_9999999 could not be found","code":"404","status":"404"}]}'
+    http_version: null
+  recorded_at: Mon, 04 May 2020 16:18:41 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?services%5B%5D=OilChange&type=health
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Tue, 19 May 2020 17:26:16 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '386'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '18'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=01c16e2d8148969a102081239af79ca70c6e30acd88811f93673d323b1f4e07a3f8a011993f489ed863d7ac1a7eb6a85ca4ee5bcae;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Missing parameter","detail":"Parameter conditions
+        \"bbox[], !lat, !long, !state, !zip\" OR \"!bbox[], ids, !lat, !long, !state,
+        !zip\" OR \"!bbox[], lat, long, !state, !zip\" OR \"!bbox[], !lat, !long,
+        state, !zip\" OR \"!bbox[], !lat, !long, !state, zip\" not met for actual
+        request parameters: services[]={OilChange}, type={health}","code":"108","status":"400"}]}'
+    http_version: null
+  recorded_at: Tue, 19 May 2020 17:26:16 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Tue, 19 May 2020 17:26:18 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '348'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '77'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=01c16e2d818a15fdc52f570535a09f366cff922c100b009abb9ada345c32d844ec703742d9cdce86b1147febd494014a86d608b5ef;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Missing parameter","detail":"Parameter conditions
+        \"bbox[], !lat, !long, !state, !zip\" OR \"!bbox[], ids, !lat, !long, !state,
+        !zip\" OR \"!bbox[], lat, long, !state, !zip\" OR \"!bbox[], !lat, !long,
+        state, !zip\" OR \"!bbox[], !lat, !long, !state, zip\" not met for actual
+        request parameters:","code":"108","status":"400"}]}'
+    http_version: null
+  recorded_at: Tue, 19 May 2020 17:26:18 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?services%5B%5D=Haircut&type=benefits
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Tue, 19 May 2020 17:26:19 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '386'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '16'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '57'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=01c16e2d810940bec35b6bd38938deed71ce1cef93dec7e373cb5aea27733bbf1d0d48cb0390889c6e44e3c6b3fb638d8070d86367;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Missing parameter","detail":"Parameter conditions
+        \"bbox[], !lat, !long, !state, !zip\" OR \"!bbox[], ids, !lat, !long, !state,
+        !zip\" OR \"!bbox[], lat, long, !state, !zip\" OR \"!bbox[], !lat, !long,
+        state, !zip\" OR \"!bbox[], !lat, !long, !state, zip\" not met for actual
+        request parameters: services[]={Haircut}, type={benefits}","code":"108","status":"400"}]}'
+    http_version: null
+  recorded_at: Tue, 19 May 2020 17:26:19 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?type=bogus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Tue, 19 May 2020 17:26:20 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '361'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '15'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '56'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS016f4012=01c16e2d81bb04c1f5facaf33d5521e513f9925d3ee92a62fc7c78447e140de80683b3da65e21fb6f2dbd82ffb98daca156eb0d7cc;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Missing parameter","detail":"Parameter conditions
+        \"bbox[], !lat, !long, !state, !zip\" OR \"!bbox[], ids, !lat, !long, !state,
+        !zip\" OR \"!bbox[], lat, long, !state, !zip\" OR \"!bbox[], !lat, !long,
+        state, !zip\" OR \"!bbox[], !lat, !long, !state, zip\" not met for actual
+        request parameters: type={bogus}","code":"108","status":"400"}]}'
+    http_version: null
+  recorded_at: Tue, 19 May 2020 17:26:20 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 19 May 2020 17:26:21 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '41'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '55'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c16e2d814d633169f349b8c13c61af99694ad6dbcd2b21b54ee6c7213aec901af907b334e5310668cdb1c0e4e457a1db84a4c497;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_442","type":"va_facilities","attributes":{"name":"Cheyenne
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.cheyenne.va.gov/locations/directions.asp","lat":41.145728000000076,"long":-104.78959489999994,"address":{"mailing":{},"physical":{"zip":"82001-5356","city":"Cheyenne","state":"WY","address_1":"2360
+        East Pershing Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"307-778-7381","main":"307-778-7550","pharmacy":"866-420-6337","after_hours":"307-778-7550","patient_advocate":"307-778-7550
+        x7517","mental_health_clinic":"307-778-7349","enrollment_coordinator":"307-778-7550
+        x7579"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","WomensHealth"],"last_updated":"2020-05-11"},"satisfaction":{"health":{"primary_care_urgent":0.6800000071525574,"primary_care_routine":0.8100000023841858,"specialty_care_urgent":0.6800000071525574,"specialty_care_routine":0.8500000238418579},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":0.0,"established":2.894736},{"service":"Cardiology","new":9.777777,"established":3.043478},{"service":"Gastroenterology","new":25.0,"established":6.564102},{"service":"Gynecology","new":null,"established":0.0},{"service":"MentalHealthCare","new":5.261904,"established":2.826291},{"service":"Ophthalmology","new":3.5,"established":3.666666},{"service":"Optometry","new":2.75,"established":3.696969},{"service":"Orthopedics","new":24.2,"established":0.76923},{"service":"PrimaryCare","new":6.5,"established":0.691588},{"service":"SpecialtyCare","new":8.5,"established":3.025766},{"service":"WomensHealth","new":null,"established":0.0}],"effective_date":"2020-05-11"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"19"}},{"id":"vha_552","type":"va_facilities","attributes":{"name":"Dayton
+        VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.dayton.va.gov/locations/directions.asp","lat":39.749395250000077,"long":-84.253244299999949,"address":{"mailing":{},"physical":{"zip":"45428-9000","city":"Dayton","state":"OH","address_1":"4100
+        West Third Street","address_2":null,"address_3":null}},"phone":{"fax":"937-262-2179","main":"937-268-6511","pharmacy":"800-368-8262
+        x5325","after_hours":"888-838-6446","patient_advocate":"800-368-8262 x2164","mental_health_clinic":"937-262-2186","enrollment_coordinator":"800-368-8262
+        x3450"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","Urology","WomensHealth"],"last_updated":"2020-05-11"},"satisfaction":{"health":{"primary_care_urgent":0.7200000286102295,"primary_care_routine":0.8500000238418579,"specialty_care_urgent":0.7099999785423279,"specialty_care_routine":0.8899999856948853},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":2.363636,"established":2.317073},{"service":"Cardiology","new":19.45,"established":4.114035},{"service":"Dermatology","new":4.0,"established":0.0},{"service":"Gastroenterology","new":37.2,"established":36.333333},{"service":"Gynecology","new":6.25,"established":0.664233},{"service":"MentalHealthCare","new":5.921052,"established":1.985236},{"service":"Ophthalmology","new":null,"established":0.50909},{"service":"Optometry","new":18.2,"established":4.806451},{"service":"Orthopedics","new":24.051282,"established":3.721311},{"service":"PrimaryCare","new":4.384615,"established":0.71409},{"service":"SpecialtyCare","new":9.77931,"established":2.621271},{"service":"Urology","new":1.2,"established":1.791666},{"service":"WomensHealth","new":3.0,"established":0.674074}],"effective_date":"2020-05-11"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"10"}},{"id":"vha_552GB","type":"va_facilities","attributes":{"name":"Lima
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.dayton.va.gov/locations/Lima_cboc.asp","lat":40.742000000000075,"long":-84.115199999999959,"address":{"mailing":{},"physical":{"zip":"45801-2967","city":"Lima","state":"OH","address_1":"750
+        West High Street","address_2":null,"address_3":"Suite 350"}},"phone":{"fax":"419-222-9504","main":"419-222-5788","pharmacy":"800-368-8262
+        x5325","after_hours":"937-268-6511 x1904","patient_advocate":"800-368-8262
+        x2164","mental_health_clinic":"937-262-2186 x 6820","enrollment_coordinator":"800-368-8262
+        x3450"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["Nutrition","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-11"},"satisfaction":{"health":{"primary_care_urgent":0.9599999785423279,"primary_care_routine":0.9399999976158142},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"PrimaryCare","new":19.0,"established":0.205357},{"service":"SpecialtyCare","new":null,"established":0.340909}],"effective_date":"2020-05-11"},"mobile":false,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"CBOCs
+        under the operation of the Dayton VA will temporarily move to virtual care
+        only. Veterans who have questions about routine medical care, pharmacy refills,
+        or to speak to a medical provider, please call your local CBOC."},"visn":"10"}},{"id":"vha_442GC","type":"va_facilities","attributes":{"name":"Fort
+        Collins VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.cheyenne.va.gov/locations/Fort_Collins_VA_CBOC.asp","lat":40.554413120000049,"long":-105.08653908999997,"address":{"mailing":{},"physical":{"zip":"80526-8108","city":"Fort
+        Collins","state":"CO","address_1":"2509 Research Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"970-407-7440","main":"970-224-1550","pharmacy":"866-420-6337","after_hours":"307-778-7550","patient_advocate":"307-778-7550
+        x7517","mental_health_clinic":"307-778-7349","enrollment_coordinator":"307-778-7550
+        x7579"},"hours":{"friday":"730AM-445PM","monday":"730AM-445PM","sunday":"Closed","tuesday":"730AM-445PM","saturday":"Closed","thursday":"730AM-445PM","wednesday":"730AM-445PM"},"services":{"other":[],"health":["Audiology","EmergencyCare","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-11"},"satisfaction":{"health":{"primary_care_urgent":0.6200000047683716,"primary_care_routine":0.800000011920929},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":null,"established":5.2},{"service":"MentalHealthCare","new":5.0,"established":3.53},{"service":"PrimaryCare","new":1.0,"established":0.561403},{"service":"SpecialtyCare","new":20.75,"established":5.2}],"effective_date":"2020-05-11"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"19"}},{"id":"vha_442GB","type":"va_facilities","attributes":{"name":"Sidney
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":"https://www.cheyenne.va.gov/locations/Sidney_VA_MSOC.asp","lat":41.142469170000027,"long":-102.97668644999999,"address":{"mailing":{},"physical":{"zip":"69162-2001","city":"Sidney","state":"NE","address_1":"1116
+        10th Avenue","address_2":null,"address_3":null}},"phone":{"fax":"308-254-7803","main":"308-254-6085","pharmacy":"866-420-6337","after_hours":"307-778-7550","patient_advocate":"307-778-7550
+        x7517","enrollment_coordinator":"307-778-7550 x7579"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["Audiology","EmergencyCare","MentalHealthCare","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-11"},"satisfaction":{"health":{"primary_care_routine":0.9599999785423279},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"Audiology","new":null,"established":0.0},{"service":"MentalHealthCare","new":null,"established":0.0},{"service":"PrimaryCare","new":null,"established":1.0},{"service":"SpecialtyCare","new":null,"established":0.0}],"effective_date":"2020-05-11"},"mobile":false,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"Must
+        Call prior to arrival due to COVID-19"},"visn":"19"}},{"id":"vha_552GA","type":"va_facilities","attributes":{"name":"Middletown
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.dayton.va.gov/locations/midtwn_cboc.asp","lat":39.506034180000029,"long":-84.316476419999958,"address":{"mailing":{},"physical":{"zip":"45005-5211","city":"Middletown","state":"OH","address_1":"4337
+        North Union Road","address_2":null,"address_3":null}},"phone":{"fax":"513-423-3309","main":"513-423-8387","pharmacy":"800-368-8262
+        x5325","after_hours":"937-268-6511 x1904","patient_advocate":"800-368-8262
+        x2164","mental_health_clinic":"513-423-8387 x 6109","enrollment_coordinator":"800-368-8262
+        x3450"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-11"},"satisfaction":{"health":{"primary_care_urgent":0.9100000262260437,"primary_care_routine":0.949999988079071},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"MentalHealthCare","new":null,"established":1.6},{"service":"PrimaryCare","new":7.181818,"established":2.369369},{"service":"SpecialtyCare","new":null,"established":0.0}],"effective_date":"2020-05-11"},"mobile":false,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"CBOCs
+        under the operation of the Dayton VA will temporarily move to virtual care
+        only. Veterans who have questions about routine medical care, pharmacy refills,
+        or to speak to a medical provider, please call your local CBOC."},"visn":"10"}},{"id":"vha_552GD","type":"va_facilities","attributes":{"name":"Springfield
+        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
+        CBOC","website":"https://www.dayton.va.gov/locations/spgfld_cboc.asp","lat":39.943800000000067,"long":-83.804699999999968,"address":{"mailing":{},"physical":{"zip":"45503-2624","city":"Springfield","state":"OH","address_1":"1620
+        North Limestone Street","address_2":null,"address_3":null}},"phone":{"fax":"937-328-3387","main":"937-328-3385","pharmacy":"800-368-8262
+        x5325","after_hours":"937-268-6511 x1904","patient_advocate":"800-368-8262
+        x2164","mental_health_clinic":"937-262-2186 x 2321","enrollment_coordinator":"800-368-8262
+        x3450"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"services":{"other":[],"health":["MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2020-05-11"},"satisfaction":{"health":{"primary_care_urgent":0.7599999904632568,"primary_care_routine":0.8500000238418579},"effective_date":"2019-06-20"},"wait_times":{"health":[{"service":"MentalHealthCare","new":0.0,"established":6.545454},{"service":"PrimaryCare","new":8.0,"established":0.444444},{"service":"SpecialtyCare","new":null,"established":0.030303}],"effective_date":"2020-05-11"},"mobile":false,"active_status":"A","operating_status":{"code":"LIMITED","additional_info":"CBOCs
+        under the operation of the Dayton VA will temporarily move to virtual care
+        only. Veterans who have questions about routine medical care, pharmacy refills,
+        or to speak to a medical provider, please call your local CBOC."},"visn":"10"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442%2Cvha_552%2Cvha_552GB%2Cvha_442GC%2Cvha_442GB%2Cvha_552GA%2Cvha_552GD&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442%2Cvha_552%2Cvha_552GB%2Cvha_442GC%2Cvha_442GB%2Cvha_552GA%2Cvha_552GD&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442%2Cvha_552%2Cvha_552GB%2Cvha_442GC%2Cvha_442GB%2Cvha_552GA%2Cvha_552GD&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":7},"distances":[]}}'
+    http_version: null
+  recorded_at: Tue, 19 May 2020 17:26:21 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.440689&bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 19 May 2020 17:26:29 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '19'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '54'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS016f4012=01c16e2d81805928de261f1eba65eaeae7de67a3b2ea6ee5942aea1e64dd8214dc4a35f7cab5082d804f25a9260e65b0df752c79e1;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vba_348","type":"va_facilities","attributes":{"name":"Portland
+        Regional Benefit Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/portland","lat":45.515162290000035,"long":-122.67551729999997,"address":{"mailing":{},"physical":{"zip":"97204","city":"Portland","state":"OR","address_1":"100
+        SW Main Street","address_2":"Floor 2","address_3":null}},"phone":{"fax":"503-412-4733","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"services":{"benefits":["ApplyingForBenefits","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","HomelessAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":"T","operating_status":{"code":"CLOSED","additional_info":"We''re
+        not open for in-person service at this time. Our staff are still available
+        by phone and by our online customer service tool."},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&services%5B%5D=DisabilityClaimAssistance&type=benefits&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":1},"distances":[]}}'
+    http_version: null
+  recorded_at: Tue, 19 May 2020 17:26:29 GMT
 recorded_with: VCR 5.1.0

@@ -9,11 +9,12 @@ vcr_options = {
   record: :none
 }
 
-RSpec.describe 'VA GIS Integration', type: :request, team: :facilities, vcr: vcr_options do
+RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilities, vcr: vcr_options do
   include SchemaMatchers
 
   before do
     Flipper.enable(:facility_locator_pull_operating_status_from_lighthouse, true)
+    Flipper.enable(:facility_locator_ppms_location_query, false)
   end
 
   BASE_QUERY_PATH = '/v0/facilities/va?'

@@ -20,6 +20,9 @@ module ClaimsApi
           key :tags, [
             'Intent to File'
           ]
+          security do
+            key :bearer_token, []
+          end
 
           response 200 do
             key :description, 'schema response'
@@ -58,14 +61,14 @@ module ClaimsApi
 
         operation :post do
           key :summary, 'Accepts 0966 Intent to File form submission'
-          key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
+          key :description, 'Accepts JSON payload. Full URL, including query parameters.'
           key :operationId, 'post0966itf'
           key :tags, [
             'Intent to File'
           ]
 
           security do
-            key :apikey, []
+            key :bearer_token, []
           end
 
           parameter do
@@ -174,11 +177,14 @@ module ClaimsApi
       swagger_path '/forms/0966/active' do
         operation :get do
           key :summary, 'Returns last active 0966 Intent to File form submission'
-          key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
+          key :description, 'Returns last active JSON payload. Full URL, including query parameters.'
           key :operationId, 'active0966itf'
           key :tags, [
             'Intent to File'
           ]
+          security do
+            key :bearer_token, []
+          end
 
           parameter do
             key :name, 'X-VA-SSN'

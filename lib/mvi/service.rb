@@ -16,7 +16,7 @@ module MVI
   # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
   # * PRPA_IN201305UV02 (aliased as .find_profile)
   class Service < Common::Client::Base
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     # The MVI Service SOAP operations vets.gov has access to
     unless const_defined?(:OPERATIONS)

@@ -44,13 +44,9 @@ class Form526Submission < ApplicationRecord
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
   # one (cleanup job) or more ancillary jobs such as uploading supporting evidence or submitting ancillary forms.
   #
-  # @param klass [Class] the submit job class to start with
-  #   {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly} or
-  #   {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly}
-  #
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   #
-  def start(klass)
+  def start
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
@@ -58,7 +54,7 @@ class Form526Submission < ApplicationRecord
       'submission_id' => id
     )
     jids = workflow_batch.jobs do
-      klass.perform_async(id)
+      EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(id)
     end
 
     jids.first
@@ -125,9 +121,15 @@ class Form526Submission < ApplicationRecord
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     if submission.form526_job_statuses.all?(&:success?)
+      submission.send_form526_confirmation_email if Flipper.enabled?(:form526_confirmation_email, @current_user)
       submission.workflow_complete = true
       submission.save
     end
+  end
+
+  def send_form526_confirmation_email
+    email_address = form['form526']['form526']['veteran']['emailAddress']
+    Form526ConfirmationEmailJob.perform_async(id, email_address)
   end
 
   private

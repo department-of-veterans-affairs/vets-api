@@ -12,7 +12,8 @@ module PdfFill
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
       '21-8940' => PdfFill::Forms::Va218940,
-      '10-10CG' => PdfFill::Forms::Va1010cg
+      '10-10CG' => PdfFill::Forms::Va1010cg,
+      '686C-674' => PdfFill::Forms::Va686c674
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
@@ -31,21 +32,21 @@ module PdfFill
       end
     end
 
-    def fill_form(saved_claim)
+    def fill_form(saved_claim, file_name_extension = nil)
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
 
-      process_form(form_id, saved_claim.parsed_form, form_class, saved_claim.id)
+      process_form(form_id, saved_claim.parsed_form, form_class, file_name_extension || saved_claim.id)
     end
 
     def fill_ancillary_form(form_data, claim_id, form_id)
       process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id)
     end
 
-    def process_form(form_id, form_data, form_class, claim_id)
+    def process_form(form_id, form_data, form_class, file_name_extension)
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/#{form_id}_#{claim_id}.pdf"
+      file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
       hash_converter = HashConverter.new(form_class.date_strftime)
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields,

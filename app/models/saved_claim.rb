@@ -87,8 +87,8 @@ class SavedClaim < ApplicationRecord
     errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form))
   end
 
-  def to_pdf
-    PdfFill::Filler.fill_form(self)
+  def to_pdf(file_name = nil)
+    PdfFill::Filler.fill_form(self, file_name)
   end
 
   private

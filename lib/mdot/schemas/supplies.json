@@ -52,6 +52,9 @@
         "type": "boolean"
       }
     },
+    "vetEmail": {
+      "type": "string"
+    },
     "supplies": {
       "type": "array",
       "uniqueItems": true,
@@ -69,7 +72,7 @@
             "type": "string"
           },
           "product_id": {
-            "type": "string"
+            "type": "integer"
           },
           "available_for_reorder": {
             "type": "boolean"

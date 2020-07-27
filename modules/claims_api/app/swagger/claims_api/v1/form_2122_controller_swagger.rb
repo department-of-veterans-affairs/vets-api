@@ -18,6 +18,9 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+          security do
+            key :bearer_token, []
+          end
 
           response 200 do
             key :description, 'schema response'
@@ -55,7 +58,7 @@ module ClaimsApi
         end
 
         operation :post do
-          key :summary, 'Accepts 2122 Power of Power of Attorney payload'
+          key :summary, 'Accepts 2122 Power of Attorney payload'
           key :description, 'Accepts JSON payload. Full URL, including query parameters.'
           key :operationId, 'post2122'
           key :tags, [
@@ -63,7 +66,7 @@ module ClaimsApi
           ]
 
           security do
-            key :apikey, []
+            key :bearer_token, []
           end
 
           parameter do
@@ -163,6 +166,10 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
+          security do
+            key :bearer_token, []
+          end
+
           parameter do
             key :name, :id
             key :in, :path
@@ -219,6 +226,14 @@ module ClaimsApi
             key :type, :string
           end
 
+          parameter do
+            key :name, 'attachment'
+            key :in, :formData
+            key :type, :file
+            key :example, 'data:application/pdf;base64,JVBERi0xLjYNJeL...VmDQo0NTc2DQolJUVPRg0K'
+            key :description, 'Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in'
+          end
+
           response 200 do
             key :description, '2122 response'
             content 'application/json' do
@@ -252,6 +267,10 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+
+          security do
+            key :bearer_token, []
+          end
 
           parameter do
             key :name, 'X-VA-SSN'
@@ -336,6 +355,10 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+
+          security do
+            key :bearer_token, []
+          end
 
           parameter do
             key :name, 'X-VA-SSN'

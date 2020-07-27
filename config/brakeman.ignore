@@ -31,8 +31,24 @@
       "user_input": null,
       "confidence": "Medium",
       "note": "We are using the cookie serialization default from Rails 4.x"
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 113,
+      "fingerprint": "fea6a166c0704d9525d109c17d6ee95eda217dfb1ef56a4d4c91ec9bd384cbf8",
+      "check_name": "JSONEntityEscape",
+      "message": "HTML entities in JSON are not escaped by default",
+      "file": "config/environments/production.rb",
+      "line": 1,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross-site_scripting/",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Medium",
+      "note": "Explicitly configured years ago in https://github.com/department-of-veterans-affairs/vets-api/commit/c73c8fc5cc23262e8f708fad0f7c1052f9c88a7b"
     }
   ],
-  "updated": "2019-09-30 16:21:49 -0400",
-  "brakeman_version": "4.6.1"
+  "updated": "2020-05-13 15:38:02 -0400",
+  "brakeman_version": "4.8.2"
 }
