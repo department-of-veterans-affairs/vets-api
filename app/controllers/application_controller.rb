@@ -13,7 +13,7 @@ class ApplicationController < ActionController::API
   include Pundit
   include ActionController::RequestForgeryProtection
 
-  protect_from_forgery with: :exception, if: -> { ActionController::Base.allow_forgery_protection }
+  protect_from_forgery with: LoggingForgeryStrategy, if: -> { ActionController::Base.allow_forgery_protection }
   after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
 
   SKIP_SENTRY_EXCEPTION_TYPES = [
@@ -33,7 +33,6 @@ class ApplicationController < ActionController::API
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
-  skip_before_action :verify_authenticity_token, only: :routing_error
   before_action :set_tags_and_extra_context
 
   def cors_preflight
@@ -98,8 +97,6 @@ class ApplicationController < ActionController::API
       case exception
       when Pundit::NotAuthorizedError
         Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
-      when ActionController::InvalidAuthenticityToken
-        Common::Exceptions::Forbidden.new(detail: 'Invalid Authenticity Token')
       when Common::Exceptions::TokenValidationError
         Common::Exceptions::Unauthorized.new(detail: exception.detail)
       when ActionController::ParameterMissing
@@ -123,13 +120,9 @@ class ApplicationController < ActionController::API
     end
 
     headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
-    render_errors(va_exception)
-  end
-  # rubocop:enable Metrics/BlockLength
-
-  def render_errors(va_exception)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
+  # rubocop:enable Metrics/BlockLength
 
   def set_tags_and_extra_context
     RequestStore.store['request_id'] = request.uuid

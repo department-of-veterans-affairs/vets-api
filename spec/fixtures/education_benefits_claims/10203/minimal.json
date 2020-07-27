@@ -1,31 +1,17 @@
 {
+	"privacyAgreementAccepted": true,
 	"veteranFullName": {
-		"first": "first",
-		"middle": "middle",
-		"last": "last"
+		"first": "Test",
+		"last": "Fake"
 	},
-	"veteranSocialSecurityNumber": "111223333",
-	"benefit": "transferOfEntitlement",
-	"isEnrolledStem": true,
-	"benefitLeft": "none",
-	"degreeName": "Degree Name",
-	"schoolName": "School Name",
-	"schoolCity": "Test",
-	"schoolState": "TN",
-	"isActiveDuty": false,
+	"vaFileNumber": "12345678",
+	"preferredContactMethod": "mail",
 	"veteranAddress": {
-		"city": "Milwaukee",
+		"street": "123 Central St",
+		"city": "Baltimore",
 		"country": "USA",
-		"postalCode": "53130",
-		"state": "WI",
-		"street": "123 Main St"
+		"state": "MD",
+		"postalCode": "21231"
 	},
 	"email": "test@sample.com",
-	"bankAccount": {
-		"accountNumber": "88888888888",
-		"accountType": "checking",
-		"bankName": "First Bank of JSON",
-		"routingNumber": "123456789"
-	},
-	"privacyAgreementAccepted": true
-}
+	"bankAccount": {}}

@@ -16,7 +16,7 @@ module DecisionReview
   #
   class Service < Common::Client::Base
     include SentryLogging
-    include Common::Client::Concerns::Monitoring
+    include Common::Client::Monitoring
 
     configuration DecisionReview::Configuration
 
@@ -75,8 +75,8 @@ module DecisionReview
 
     def request_headers(user)
       {
-        'x-va-ssn' => user.ssn,
-        'x-va-receipt-date' => Time.current.strftime('%Y-%m-%d')
+        'veteranId' => user.ssn,
+        'receiptDate' => Time.current.strftime('%Y-%m-%d')
       }
     end
 
@@ -120,7 +120,6 @@ module DecisionReview
       when Common::Client::Errors::ClientError
         save_error_details(error)
         raise Common::Exceptions::Forbidden if error.status == 403
-        raise raise_backend_exception('DR_401', self.class, error) if error.status == 401
 
         code = error.body['errors'].first.dig('code')
         raise_backend_exception("DR_#{code}", self.class, error)

@@ -93,22 +93,23 @@ module VBADocuments
 
     def validate_metadata(metadata_input)
       metadata = JSON.parse(metadata_input)
-      raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object') unless metadata.is_a?(Hash)
-
       missing_keys = REQUIRED_KEYS - metadata.keys
       if missing_keys.present?
-        raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Missing required keys: #{missing_keys.join(',')}")
+        raise VBADocuments::UploadError.new(code: 'DOC102',
+                                            detail: "Missing required keys: #{missing_keys.join(',')}")
       end
-
-      rejected = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
-      if rejected.present?
-        raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Non-string values for keys: #{rejected.join(',')}")
+      non_string_vals = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
+      if non_string_vals.present?
+        raise VBADocuments::UploadError.new(code: 'DOC102',
+                                            detail: "Non-string values for keys: #{non_string_vals.join(',')}")
       end
       if (FILE_NUMBER_REGEX =~ metadata['fileNumber']).nil?
-        raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
+        raise VBADocuments::UploadError.new(code: 'DOC102',
+                                            detail: 'Non-numeric or invalid-length fileNumber')
       end
     rescue JSON::ParserError
-      raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
+      raise VBADocuments::UploadError.new(code: 'DOC102',
+                                          detail: 'Invalid JSON content')
     end
 
     def perfect_metadata(parts, timestamp)

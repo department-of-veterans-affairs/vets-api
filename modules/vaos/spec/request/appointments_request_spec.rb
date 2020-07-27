@@ -45,8 +45,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     let(:current_user) { build(:user, :vaos) }
 
     describe 'GET appointments' do
-      let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
-      let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
+      let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
+      let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
       let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
 
       context 'with flipper disabled' do

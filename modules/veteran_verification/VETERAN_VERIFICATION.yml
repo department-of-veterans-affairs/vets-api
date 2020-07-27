@@ -114,8 +114,8 @@ paths:
             application/jwt:
               schema:
                 $ref: '#/components/schemas/DisabilityRatingToken'
-        '502':
-          description: BGS service responded with something other than the expected disability rating response.
+        '404':
+          description: No disability ratings found
   /service_history:
     get:
       tags:
@@ -175,31 +175,12 @@ components:
         type:
           description: JSON API type specification
           type: string
-          example: 'disability-rating'
+          example: 'document_upload'
         attributes:
-          $ref: '#/components/schemas/DisabilityRatingAttributes'
-    DisabilityRatingAttributes:
+          $ref: '#/components/schemas/RatingAttributes'
+    RatingAttributes:
       description: |
         Body of the disability rating response
-      required:
-        - combined_disability_rating
-        - individual_ratings
-      properties:
-        combined_disability_rating:
-          description: Overall severity rating determined by VA calculation of each service related conditions. Used to help determine disability compensation (pay) and related benefits.
-          type: integer
-          example: 100
-        combined_effective_date:
-          description: When the Veteran could begin claiming benefits for combined disability rating
-          type: datetime
-          example: "2018-03-27T21:00:41.000+0000"
-        individual_ratings:
-          description: list of individual service connected disabilty ratings
-          type: array
-          items:
-            $ref: '#/components/schemas/individual_ratings'
-    individual_ratings:
-      description: list of service connected disability ratings
       required:
         - decision
         - effective_date

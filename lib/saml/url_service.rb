@@ -53,21 +53,12 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
-      if auth == 'success'
-        return verify_url if user.loa[:current] < user.loa[:highest]
+      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
-        # if the original auth request specified a redirect, use that
-        redirect_target = @tracker&.payload_attr(:redirect)
-        return redirect_target if redirect_target.present?
-      end
-
-      # if the original auth request was an inbound ssoe autologin (type custom)
-      # and authentication failed, set 'force-needed' so the FE can silently fail
-      # authentication and NOT show the user an error page
-      auth = 'force-needed' if auth != 'success' && @tracker&.payload_attr(:type) == 'custom'
+      return @tracker&.payload_attr(:redirect) if @tracker&.payload_attr(:redirect)
 
       @query_params[:type] = type if type
-      @query_params[:auth] = auth if auth != 'success'
+      @query_params[:auth] = auth if auth == 'fail'
       @query_params[:code] = code if code
 
       if Settings.saml.relay.present?
@@ -96,11 +87,6 @@ module SAML
     def idme_url
       @type = 'idme'
       build_sso_url(LOA::IDME_LOA1_VETS)
-    end
-
-    def custom_url(authn)
-      @type = 'custom'
-      build_sso_url(authn)
     end
 
     def signup_url
@@ -169,7 +155,7 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
+      save_saml_request_tracker(saml_auth_request.uuid)
       saml_auth_request.create(new_url_settings, query_params)
     end
 
@@ -203,33 +189,22 @@ module SAML
       end
     end
 
-    def build_redirect(params)
-      default = Settings.ssoe.redirects[params[:application]]
-      return default unless default && params[:to]
-
-      prefix = default.delete_suffix('/')
-      suffix = params[:to].delete_prefix('/').gsub("\r\n", '')
-      [prefix, suffix].join('/')
-    end
-
     # Initialize a new SAMLRequestTracker, if a valid previous SAML UUID is
     # given, copy over the redirect and created_at timestamp.  This is useful
     # for a user that has to go through the upleveling process.
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
-      redirect = previous&.payload_attr(:redirect) || build_redirect(params)
-      type = previous&.payload_attr(:type) || params[:type]
+      redirect = previous&.payload_attr(:redirect) || Settings.ssoe.redirects[params[:application]]
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: { redirect: redirect, type: type }.compact,
+        payload: redirect ? { redirect: redirect } : {},
         created_at: previous&.created_at
       )
     end
 
-    def save_saml_request_tracker(uuid, authn_context)
+    def save_saml_request_tracker(uuid)
       @tracker.uuid = uuid
-      @tracker.payload[:authn_context] = authn_context
       @tracker.save
     end
   end

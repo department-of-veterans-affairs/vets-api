@@ -38,18 +38,19 @@ namespace :form526 do
 
     # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
     # This should be fine as created_at dates correlate directly to PKs
-    submissions.find_each do |submission|
+    submissions.find_each do |s|
       version = 'version 1: IO'
-      submission.form526_job_statuses.each do |job_status|
-        version = 'version 2: AC' if job_status.job_class == 'SubmitForm526AllClaim'
-        if job_status.job_class == 'SubmitForm526AllClaim' && job_status.error_message.present?
-          job_status.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
+      s.form526_job_statuses.each do |j|
+        version = 'version 2: AC' if j.job_class == 'SubmitForm526AllClaim'
+        if (j.job_class == 'SubmitForm526IncreaseOnly' || j.job_class == 'SubmitForm526AllClaim') &&
+           j.error_message.present?
+          j.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         end
       end
-      auth_headers = JSON.parse(submission.auth_headers_json)
+      auth_headers = JSON.parse(s.auth_headers_json)
       print_row(
-        submission.created_at, submission.updated_at, submission.id, submission.submitted_claim_id,
-        auth_headers['va_eauth_pid'], submission.workflow_complete, version
+        s.created_at, s.updated_at, s.id, s.submitted_claim_id,
+        auth_headers['va_eauth_pid'], s.workflow_complete, version
       )
     end
 
@@ -78,7 +79,7 @@ namespace :form526 do
       printf "%-20s %s\n", header, total
     end
 
-    progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID).order(:created_at)
+    progress_forms = InProgressForm.where(form_id: '21-526EZ').order(:created_at)
 
     puts '------------------------------------------------------------'
     print_row('created at:', 'updated at:', 'id:')
@@ -94,24 +95,6 @@ namespace :form526 do
 
     puts '------------------------------------------------------------'
     print_total('Total V1 forms:', total_v1_forms)
-  end
-
-  desc 'Show all bdd forms'
-  task show_bdd: :environment do
-    bdd_in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ezbdd::FORM_ID).order(:created_at)
-    row_format = "%-24s %-24s %s\n"
-    puts '------------------------------------------------------------'
-    printf(row_format, 'created at:', 'updated at:', 'id:')
-
-    bdd_in_progress_forms.each do |bdd_in_progress_form|
-      printf row_format,
-             bdd_in_progress_form.created_at,
-             bdd_in_progress_form.updated_at,
-             bdd_in_progress_form.id
-    end
-
-    puts '------------------------------------------------------------'
-    printf "%-20s %s\n", 'Total bdd forms:', bdd_in_progress_forms.count
   end
 
   desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
@@ -135,51 +118,50 @@ namespace :form526 do
       end
     end
 
-    def clean_message(msg)
-      if msg[1].present?
-        # strip the GUID from BGS errors for grouping purposes
-        "#{msg[0]}: #{msg[1].gsub(/GUID.*/, '')}"
-      else
-        msg[0]
-      end
-    end
-
     # This regex will parse out the errors returned from EVSS.
     # The error message will be in an ugly stringified hash. There can be multiple
     # errors in a message. Each error will have a `key` and a `text` key. The
     # following regex will group all key/text pairs together that are present in
     # the string.
-    MSGS_REGEX = /key\"=>\"(.*?)\".*?text\"=>\"(.*?)\"/.freeze
+    MSGS_REGEX = /key\\"=>\\"(.*?)\\".*?text\\"=>\\"(.*?)\\"/.freeze
 
     start_date = args[:start_date]&.to_date || 30.days.ago.utc
     end_date = args[:end_date]&.to_date || Time.zone.now.utc
-
-    errors = Hash.new { |hash, message_name| hash[message_name] = { submission_ids: [], participant_ids: Set[] } }
 
     submissions = Form526Submission.where(
       'created_at BETWEEN ? AND ?', start_date.beginning_of_day, end_date.end_of_day
     )
 
-    submissions.find_each do |submission|
-      auth_headers = JSON.parse(submission.auth_headers_json)
-      submission.form526_job_statuses.each do |job_status|
-        next if job_status.error_class.blank?
+    errors = {}
+
+    submissions.find_each do |s|
+      auth_headers = JSON.parse(s.auth_headers_json)
+      s.form526_job_statuses.each do |j|
+        next if j.error_class.blank?
 
         # Check if its an EVSS error and parse, otherwise store the entire message
-        messages = if job_status.error_message.include?('=>') &&
-                      job_status.error_class != 'Common::Exceptions::BackendServiceException'
-                     job_status.error_message.scan(MSGS_REGEX)
+        messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::BackendServiceException'
+                     j.error_message.scan(MSGS_REGEX)
                    else
-                     [[job_status.error_message]]
+                     [[j.error_message]]
                    end
-        messages.each do |msg|
-          message = clean_message(msg)
-          errors[message][:submission_ids].append(
-            sub_id: submission.id,
-            p_id: auth_headers['va_eauth_pid'],
-            date: submission.created_at
-          )
-          errors[message][:participant_ids].add(auth_headers['va_eauth_pid'])
+        messages.each do |m|
+          message = m[1].present? ? "#{m[0]}: #{m[1]}" : m[0]
+          if errors[message].blank?
+            errors[message] = {
+              submission_ids: [
+                { sub_id: s.id, p_id: auth_headers['va_eauth_pid'], date: s.created_at }
+              ],
+              participant_ids: Set[auth_headers['va_eauth_pid']]
+            }
+          else
+            errors[message][:submission_ids].append(
+              sub_id: s.id,
+              p_id: auth_headers['va_eauth_pid'],
+              date: s.created_at
+            )
+            errors[message][:participant_ids].add(auth_headers['va_eauth_pid'])
+          end
         end
       end
     end
@@ -191,21 +173,14 @@ namespace :form526 do
     print_errors(errors)
   end
 
-  desc 'Get one or more submission details given an array of ids (either submission_ids or job_ids)'
+  desc 'Get one or more submission details given an array of ids'
   task submission: :environment do |_, args|
     raise 'No submission ids provided' unless args.extras.count.positive?
 
-    def integer?(obj)
-      obj.to_s == obj.to_i.to_s
-    end
     Rails.application.eager_load!
 
     args.extras.each do |id|
-      submission = if integer?(id)
-                     Form526Submission.find(id)
-                   else
-                     Form526JobStatus.where(job_id: id).first.form526_submission
-                   end
+      submission = Form526Submission.find(id)
 
       saved_claim_form = JSON.parse(submission.saved_claim.form)
       saved_claim_form['veteran'] = 'FILTERED'
@@ -241,5 +216,40 @@ namespace :form526 do
       puts JSON.pretty_generate(saved_claim_form)
       puts "\n\n"
     end
+  end
+
+  def create_submission_hash(claim_id, submission, user_uuid)
+    {
+      user_uuid: user_uuid,
+      saved_claim_id: submission.disability_compensation_id,
+      submitted_claim_id: claim_id,
+      auth_headers_json: { metadata: 'migrated data auth headers unavailable' }.to_json,
+      form_json: { metadata: 'migrated data form unavailable' }.to_json,
+      workflow_complete: submission.job_statuses.all? { |js| js.status == 'success' },
+      created_at: submission.created_at,
+      updated_at: submission.updated_at
+    }
+  end
+
+  def create_status_hash(submission_id, job_status)
+    {
+      form526_submission_id: submission_id,
+      job_id: job_status.job_id,
+      job_class: job_status.job_class,
+      status: job_status.status,
+      error_class: nil,
+      error_message: job_status.error_message,
+      updated_at: job_status.updated_at
+    }
+  end
+
+  desc 'update all disability compensation claims to have the correct type'
+  task update_types: :environment do
+    # `update_all` is being used because the `type` field will reset to `SavedClaim::DisabilityCompensation`
+    # if a `claim.save` is done
+    # rubocop:disable Rails/SkipsModelValidations
+    SavedClaim::DisabilityCompensation.where(type: 'SavedClaim::DisabilityCompensation')
+                                      .update_all(type: 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly')
+    # rubocop:enable Rails/SkipsModelValidations
   end
 end

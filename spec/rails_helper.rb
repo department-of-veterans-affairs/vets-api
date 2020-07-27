@@ -17,11 +17,9 @@ require 'support/model_helpers'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/vcr'
-require 'support/mdot_helpers'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
-require 'super_diff/rspec-rails'
 require 'common/exceptions'
 require './spec/support/default_configuration_helper'
 
@@ -36,7 +34,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 #   expect(something).to equal(2)
 # end
 def with_settings(settings, temp_values)
-  old_settings = temp_values.keys.index_with { |k| settings[k] }
+  old_settings = temp_values.keys.map { |k| [k, settings[k]] }.to_h
 
   # The `Config` object doesn't support `.merge!`, so manually copy
   # the updated values.
@@ -71,6 +69,7 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Testing.server_middleware do |chain|
   chain.add Sidekiq::SemanticLogging
+  # chain.add Sidekiq::Instrument::ServerMiddleware
   chain.add Sidekiq::ErrorTag
 end
 
@@ -98,10 +97,6 @@ RSpec.configure do |config|
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)
-
-  %i[controller mdot_helpers request].each do |type|
-    config.include(MDOTHelpers, type: type)
-  end
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
@@ -145,6 +140,18 @@ RSpec.configure do |config|
 
   config.before :each, type: :controller do
     request.host = Settings.hostname
+  end
+
+  config.before(:all) do
+    unless defined?(Sidekiq::Batch)
+      Sidekiq::Batch = Class.new do
+        def on(_callback, _klass, _options) end
+
+        def jobs
+          yield
+        end
+      end
+    end
   end
 
   config.before do |example|

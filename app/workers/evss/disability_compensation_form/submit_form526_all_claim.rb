@@ -5,7 +5,7 @@ module EVSS
     class SubmitForm526AllClaim < EVSS::DisabilityCompensationForm::SubmitForm526
       # :nocov:
       def service(auth_headers)
-        EVSS::DisabilityCompensationForm::Service.new(
+        EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
           auth_headers
         )
       end

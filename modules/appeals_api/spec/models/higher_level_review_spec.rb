@@ -7,43 +7,11 @@ describe AppealsApi::HigherLevelReview, type: :model do
   include FixtureHelpers
 
   let(:higher_level_review) { default_higher_level_review }
-  let(:default_higher_level_review) { create :higher_level_review, :status_received }
+  let(:default_higher_level_review) { create :higher_level_review }
   let(:auth_headers) { default_auth_headers }
   let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json' }
   let(:form_data) { default_form_data }
   let(:default_form_data) { fixture_as_json 'valid_200996.json' }
-
-  describe '.refresh_statuses_using_central_mail!' do
-    subject { described_class.refresh_statuses_using_central_mail!(higher_level_reviews) }
-
-    let(:higher_level_reviews) { AppealsApi::HigherLevelReview.all }
-    let(:central_mail) { instance_double('CentralMail::Service') }
-    let(:faraday_response) { instance_double('Faraday::Response') }
-
-    before do
-      allow(CentralMail::Service).to receive(:new).and_return central_mail
-      allow(central_mail).to receive(:status).and_return faraday_response
-      allow(faraday_response).to receive(:success?).and_return true
-    end
-
-    it 'updates with CentralMail status update' do
-      higher_level_review
-      returned_status = {
-        "uuid": higher_level_review.id,
-        "status": 'In Process',
-        "lastUpdated": Time.zone.yesterday.strftime('%F %T')
-      }
-      expect(faraday_response).to receive(:body).and_return [[returned_status]].to_json
-      subject
-      expect(higher_level_review.reload.status).to eq('processing')
-    end
-
-    it 'handles an empty CentralMail response' do
-      higher_level_review
-      expect(faraday_response).to receive(:body).and_return [[]].to_json
-      expect { subject }.not_to raise_error
-    end
-  end
 
   describe '#first_name' do
     subject { higher_level_review.first_name }
@@ -149,8 +117,8 @@ describe AppealsApi::HigherLevelReview, type: :model do
   describe '#number_and_street' do
     subject { higher_level_review.number_and_street }
 
-    it('matches json') do
-      expect(subject).to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'addressLine1').to_s
+    it('instructs to use address on file (because there\'s no address)') do
+      expect(subject).to eq described_class::NO_ADDRESS_PROVIDED_SENTENCE
     end
   end
 
@@ -256,16 +224,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
     it('matches json') { is_expected.to eq form_data['included'] }
   end
 
-  describe '#date_signed' do
-    subject { higher_level_review.date_signed }
-
-    it('matches json') do
-      expect(subject).to eq(
-        Time.now.in_time_zone(form_data['data']['attributes']['veteran']['timezone']).strftime('%m/%d/%Y')
-      )
-    end
-  end
-
   context 'validations' do
     let(:higher_level_review) { described_class.new(form_data: form_data, auth_headers: auth_headers) }
 
@@ -348,21 +306,21 @@ describe AppealsApi::HigherLevelReview, type: :model do
           'data' => default_form_data['data'],
           'included' => [
             {
-              'type' => 'contestableIssue',
+              'type' => 'ContestableIssue',
               'attributes' => {
                 'issue' => 'tinnitus',
                 'decisionDate' => 'banana'
               }
             },
             {
-              'type' => 'contestableIssue',
+              'type' => 'ContestableIssue',
               'attributes' => {
                 'issue' => 'PTSD',
                 'decisionDate' => (Time.zone.today + 2).to_s
               }
             },
             {
-              'type' => 'contestableIssue',
+              'type' => 'ContestableIssue',
               'attributes' => {
                 'issue' => 'right knee',
                 'decisionDate' => '1901-01-31'
@@ -378,25 +336,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
         expect(higher_level_review.errors.to_a.first).to include 'decisionDate'
         expect(higher_level_review.errors.to_a.second).to include 'decisionDate'
       end
-    end
-  end
-
-  describe 'removing persisted data' do
-    it 'removed the persisted data when success status reached' do
-      received_hlr = FactoryBot.create(:higher_level_review, :status_received)
-      received_hlr.status = 'success'
-      received_hlr.save
-      received_hlr.reload
-      expect(received_hlr.form_data).to be_nil
-      expect(received_hlr.auth_headers).to be_nil
-    end
-
-    it 'removed the persisted data when error status reached' do
-      received_hlr = FactoryBot.create(:higher_level_review, :status_received)
-      received_hlr.status = 'error'
-      received_hlr.save
-      received_hlr.reload
-      expect(received_hlr.form_data).to be_nil
     end
   end
 end

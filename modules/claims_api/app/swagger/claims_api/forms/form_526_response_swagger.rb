@@ -203,14 +203,14 @@ module ClaimsApi
 
                     property :homelessSituationType do
                       key :type, :string
-                      key :example, 'fleeing'
+                      key :example, 'FLEEING_CURRENT_RESIDENCE'
                       key :description, 'Current state of the veteran\'s homelessness'
                       key :enum, %w[
-                        fleeing
-                        shelter
-                        notShelter
-                        anotherPerson
-                        other
+                        FLEEING_CURRENT_RESIDENCE
+                        LIVING_IN_A_HOMELESS_SHELTER
+                        NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT
+                        STAYING_WITH_ANOTHER_PERSON
+                        OTHER
                       ]
                     end
 
@@ -341,7 +341,7 @@ module ClaimsApi
 
                   property :unitPhone do
                     key :type, :object
-                    key :description, 'Phone number Object for Veteran\'s old unit'
+                    key :description, 'Phone number Object for Vetern\'s old unit'
 
                     property :areaCode do
                       key :type, :string

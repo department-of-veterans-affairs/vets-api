@@ -6,7 +6,7 @@ require 'vet360/contact_information/transaction_response'
 module Vet360
   module ContactInformation
     class Service < Vet360::Service
-      include Common::Client::Concerns::Monitoring
+      include Common::Client::Monitoring
 
       configuration Vet360::ContactInformation::Configuration
 

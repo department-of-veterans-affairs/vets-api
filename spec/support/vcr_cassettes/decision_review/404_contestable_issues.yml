@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/contestable_issues
+    uri: https://dev-api.va.gov/services/appeals/v3/decision_review/contestable_issues
     body:
       encoding: US-ASCII
       string: ''
@@ -14,8 +14,8 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - "<DECISION_REVIEW_KEY>"
-      X-Va-Ssn:
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
+      Veteranid:
       - '111223333'
       Receiptdate:
       - '2020-01-14'
@@ -46,7 +46,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"errors":[{"status":404,"code":"veteran_not_found","title":"Veteran
-        not found"}]}'
-    http_version:
+        not found"}]}'  
+    http_version: 
   recorded_at: Tue, 14 Jan 2020 19:53:13 GMT
 recorded_with: VCR 5.0.0

@@ -121,7 +121,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Incorrect content-type for metdata part')
     end
 
     it 'sets error status for unparseable JSON metadata part' do
@@ -132,18 +131,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Invalid JSON object')
-    end
-
-    it 'sets error status for parsable JSON metadata but not an object' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'metadata' => [valid_metadata].to_json, 'content' => valid_doc }
-      }
-      described_class.new.perform(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Invalid JSON object')
     end
 
     it 'sets error status for too-short fileNumber metadata' do
@@ -156,7 +143,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Non-numeric or invalid-length fileNumber')
     end
 
     it 'sets error status for too-long fileNumber metadata' do
@@ -169,7 +155,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Non-numeric or invalid-length fileNumber')
     end
 
     it 'sets error status for non-numeric fileNumber metadata' do
@@ -182,7 +167,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Non-numeric or invalid-length fileNumber')
     end
 
     it 'sets error status for dashes in fileNumber metadata' do
@@ -195,7 +179,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Non-numeric or invalid-length fileNumber')
     end
 
     it 'sets error status for non-PDF document parts' do
@@ -224,7 +207,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Missing required keys: fileNumber')
     end
 
     it 'sets error status for out-of-spec JSON metadata' do
@@ -233,7 +215,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Non-string values for keys: fileNumber')
     end
 
     it 'sets error status for missing metadata part' do
@@ -244,7 +225,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('No metadata part present')
     end
 
     it 'sets error status for missing document part' do

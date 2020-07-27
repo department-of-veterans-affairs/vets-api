@@ -1,6 +1,6 @@
 {
   "data": {
-    "type": "higherLevelReview",
+    "type": "HigherLevelReview",
     "attributes": {
       "sameOffice": false,
       "legacyOptInApproved": true,
@@ -9,7 +9,7 @@
   },
   "included": [
     {
-      "type": "contestableIssue",
+      "type": "ContestableIssue",
       "attributes": {
         "decisionIssueId": 205
       }

@@ -5,8 +5,6 @@ require 'common/models/base'
 module Lighthouse
   module Facilities
     class Facility < Common::Base
-      include ActiveModel::Serializers::JSON
-
       attribute :access, Object
       attribute :active_status, String
       attribute :address, Object

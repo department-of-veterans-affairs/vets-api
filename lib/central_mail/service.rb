@@ -3,7 +3,7 @@
 module CentralMail
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.central_mail'
-    include Common::Client::Concerns::Monitoring
+    include Common::Client::Monitoring
 
     configuration CentralMail::Configuration
 

@@ -19,7 +19,6 @@ module ClaimsApi
             key :name, 'Creative Commons'
           end
         end
-
         tag do
           key :name, 'Claims'
           key :description, 'Benefits Claims'

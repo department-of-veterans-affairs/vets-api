@@ -11,7 +11,7 @@ module EVSS
   # @param attributes [Hash] Additional response attributes
   #
   class Response < Common::Base
-    include Common::Client::Concerns::ServiceStatus
+    include Common::Client::ServiceStatus
 
     attribute :status, Integer
 

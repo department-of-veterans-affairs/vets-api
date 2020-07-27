@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require 'common/exceptions/gateway_timeout'
+require 'common/exceptions/external/gateway_timeout'
 require 'mdot/configuration'
 require 'mdot/response'
 require 'mdot/exceptions/key'
@@ -17,7 +17,7 @@ module MDOT
   #
 
   class Client < Common::Client::Base
-    include Common::Client::Concerns::Monitoring
+    include Common::Client::Monitoring
 
     configuration MDOT::Configuration
 
@@ -39,8 +39,7 @@ module MDOT
 
         MDOT::Response.new(
           response: raw_response,
-          schema: :supplies,
-          uuid: @user.uuid
+          schema: :supplies
         )
       end
     end
@@ -51,17 +50,8 @@ module MDOT
     # @return [Faraday::Response] Faraday response instance.
     #
     def submit_order(request_body)
-      request_body.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
-
-      if request_body['order'].empty?
-        raise_backend_exception(
-          MDOT::ExceptionKey.new('MDOT_supplies_not_selected'),
-          self.class
-        )
-      end
-
       with_monitoring_and_error_handling do
-        perform(:post, @supplies, request_body, submission_headers).body
+        perform(:post, @supplies, request_body, headers).body
       end
     end
 
@@ -69,18 +59,8 @@ module MDOT
 
     def headers
       {
-        VA_VETERAN_FIRST_NAME: @user.first_name,
-        VA_VETERAN_MIDDLE_NAME: @user.middle_name,
-        VA_VETERAN_LAST_NAME: @user.last_name,
         VA_VETERAN_ID: @user.ssn.last(4),
-        VA_VETERAN_BIRTH_DATE: @user.birth_date,
-        VA_ICN: @user.icn
-      }
-    end
-
-    def submission_headers
-      {
-        VAAPIKEY: MDOT::Token.find(@user.uuid).token
+        VA_VETERAN_BIRTH_DATE: @user.birth_date
       }
     end
 
@@ -105,7 +85,7 @@ module MDOT
     end
 
     def raise_backend_exception(key, source, error = nil)
-      exception = MDOT::Exceptions::ServiceException.new(
+      exception = MDOT::ServiceException.new(
         key,
         { source: source.to_s },
         error&.status,
@@ -127,8 +107,7 @@ module MDOT
 
     def handle_client_error(error)
       save_error_details(error)
-      code = error&.status != 503 ? error.body['result'].downcase : 'service_unavailable'
-
+      code = error.body['errors'].first.dig('code')
       raise_backend_exception(
         MDOT::ExceptionKey.new("MDOT_#{code}"),
         self.class,

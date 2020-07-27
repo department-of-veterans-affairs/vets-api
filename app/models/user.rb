@@ -47,15 +47,15 @@ class User < Common::RedisStore
   end
 
   def pciu_email
-    pciu&.get_email_address&.email
+    pciu.get_email_address.email
   end
 
   def pciu_primary_phone
-    pciu&.get_primary_phone&.to_s
+    pciu.get_primary_phone.to_s
   end
 
   def pciu_alternate_phone
-    pciu&.get_alternate_phone&.to_s
+    pciu.get_alternate_phone.to_s
   end
 
   def first_name
@@ -107,14 +107,6 @@ class User < Common::RedisStore
     identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
   end
 
-  def mhv_account_state
-    return 'DEACTIVATED' if (va_profile.mhv_ids.to_a - va_profile.active_mhv_ids.to_a).any?
-    return 'MULTIPLE' if va_profile.active_mhv_ids.to_a.size > 1
-    return 'NONE' if mhv_correlation_id.blank?
-
-    'OK'
-  end
-
   def loa
     identity&.loa || {}
   end
@@ -125,7 +117,6 @@ class User < Common::RedisStore
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
   delegate :authenticated_by_ssoe, to: :identity, allow_nil: true
-  delegate :common_name, to: :identity, allow_nil: true
 
   # mvi attributes
   delegate :birls_id, to: :mvi
@@ -326,6 +317,6 @@ class User < Common::RedisStore
   private
 
   def pciu
-    @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
+    @pciu ||= EVSS::PCIU::Service.new self
   end
 end

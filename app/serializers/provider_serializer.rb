@@ -4,12 +4,7 @@ class ProviderSerializer < ActiveModel::Serializer
   type 'cc_provider'
 
   def id
-    if Flipper.enabled?(:facility_locator_ppms_forced_unique_id)
-      obj_id = object.ProviderHexdigest || object.ProviderIdentifier
-      "ccp_#{obj_id}"
-    else
-      "ccp_#{object.ProviderIdentifier}"
-    end
+    "ccp_#{object.ProviderIdentifier}"
   end
 
   def unique_id

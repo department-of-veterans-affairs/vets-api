@@ -12,7 +12,6 @@ RSpec.describe VaForms::Form, type: :model do
       form.first_issued_on = Time.zone.today - 1.day
       form.pages = 2
       form.sha256 = 'somelongsha'
-      form.valid_pdf = true
       form.save
       form.reload
       expect(form.last_revision_on).to eq(form.first_issued_on)

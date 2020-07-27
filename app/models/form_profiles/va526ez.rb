@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module VA526ez
+  FORM_ID = '21-526EZ'
+
   class FormSpecialIssue
     include Virtus.model
 
@@ -63,7 +65,6 @@ module VA526ez
 end
 
 class FormProfiles::VA526ez < FormProfile
-  FORM_ID = '21-526EZ'
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
   attribute :veteran_contact_information, VA526ez::FormContactInformation
   attribute :payment_information, VA526ez::FormPaymentAccountInformation
@@ -223,8 +224,4 @@ class FormProfiles::VA526ez < FormProfile
   def mask(number)
     number.gsub(/.(?=.{4})/, '*')
   end
-end
-
-class FormProfiles::VA526ezbdd < FormProfiles::VA526ez
-  FORM_ID = '21-526EZ-BDD'
 end

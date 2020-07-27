@@ -2,7 +2,6 @@
 
 # This module only gets mixed in to one place, but is that cleanest way to organize everything in one place related
 # to this responsibility alone.
-# rubocop:disable Metrics/ModuleLength
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
   include ActionController::Cookies
@@ -26,8 +25,8 @@ module AuthenticationAndSSOConcerns
     load_user
 
     if @session_object.nil?
-      Rails.logger.debug('SSO: INVALID SESSION', sso_logging_info)
-      clear_session
+      Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
+      reset_session
       return false
     end
 
@@ -50,22 +49,15 @@ module AuthenticationAndSSOConcerns
     @current_user = User.find(@session_object.uuid) if @session_object
   end
 
-  # Destroys the user's session in Redis and the MHV SSO Cookie
-  def clear_session
-    Rails.logger.debug('SSO: ApplicationController#clear_session', sso_logging_info)
+  # Destroys the users session in 1) Redis, 1) the MHV SSO Cookie, 3) and the Session Cookie
+  def reset_session
+    Rails.logger.info('SSO: ApplicationController#reset_session', sso_logging_info)
 
     cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
     @session_object&.destroy
     @current_user&.destroy
     @session_object = nil
     @current_user = nil
-  end
-
-  # Destroys the users session in 1) Redis, 2) the MHV SSO Cookie, 3) and the Session Cookie
-  def reset_session
-    Rails.logger.info('SSO: ApplicationController#reset_session', sso_logging_info)
-
-    clear_session
     super
   end
 
@@ -152,4 +144,3 @@ module AuthenticationAndSSOConcerns
     }
   end
 end
-# rubocop:enable Metrics/ModuleLength

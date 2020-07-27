@@ -2,7 +2,7 @@
 
 module Salesforce
   class Service < Common::Client::Base
-    include Common::Client::Concerns::Monitoring
+    include Common::Client::Monitoring
 
     SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
 

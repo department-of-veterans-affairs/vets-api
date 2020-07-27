@@ -5,7 +5,7 @@ require 'common/models/base'
 
 module Vet360
   class Response < Common::Base
-    include Common::Client::Concerns::ServiceStatus
+    include Common::Client::ServiceStatus
 
     attribute :status, Integer
 

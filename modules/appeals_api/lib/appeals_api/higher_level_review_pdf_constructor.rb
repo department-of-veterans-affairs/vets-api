@@ -10,35 +10,13 @@ module AppealsApi
 
     def fill_pdf
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      temp_path = "#{Rails.root}/tmp/#{hlr.id}"
-      output_path = temp_path + '-final.pdf'
+      output_path = "/tmp/#{hlr.id}.pdf"
       pdftk.fill_form(
         "#{PDF_TEMPLATE}/200996.pdf",
-        temp_path,
+        output_path,
         pdf_options,
         flatten: true
       )
-      merge_page(temp_path, output_path)
-    end
-
-    def merge_page(temp_path, output_path)
-      new_path = if pdf_options[:additional_page]
-                   pdf = CombinePDF.new
-                   pdf << CombinePDF.load(temp_path)
-                   pdf << CombinePDF.load(add_page(pdf_options[:additional_page], temp_path))
-                   pdf.save(output_path)
-                   output_path
-                 else
-                   temp_path
-                 end
-      new_path
-    end
-
-    def add_page(text, temp_path)
-      output_path = temp_path + '-additional_page.pdf'
-      Prawn::Document.generate output_path do
-        text text
-      end
       output_path
     end
 
@@ -63,8 +41,6 @@ module AppealsApi
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
     def pdf_options
-      return @pdf_options if @pdf_options
-
       options = {
         "F[0].#subform[2].VeteransFirstName[0]": hlr.first_name,
         "F[0].#subform[2].VeteransMiddleInitial1[0]": hlr.middle_initial,
@@ -78,13 +54,13 @@ module AppealsApi
         "F[0].#subform[2].VAFileNumber[0]": hlr.file_number,
         "F[0].#subform[2].VeteransServiceNumber[0]": hlr.service_number,
         "F[0].#subform[2].InsurancePolicyNumber[0]": hlr.insurance_policy_number,
-        "F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]": HigherLevelReview::NO_ADDRESS_PROVIDED_SENTENCE,
-        "F[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]": '',
-        "F[0].#subform[2].CurrentMailingAddress_City[0]": '',
-        "F[0].#subform[2].CurrentMailingAddress_StateOrProvince[0]": '',
-        "F[0].#subform[2].CurrentMailingAddress_Country[0]": '',
-        "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": '',
-        "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": '',
+        "F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]": hlr.number_and_street,
+        "F[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]": hlr.apt_unit_number,
+        "F[0].#subform[2].CurrentMailingAddress_City[0]": hlr.city,
+        "F[0].#subform[2].CurrentMailingAddress_StateOrProvince[0]": hlr.state_code,
+        "F[0].#subform[2].CurrentMailingAddress_Country[0]": hlr.country_code,
+        "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": hlr.zip_code_5,
+        "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": hlr.zip_code_4,
         "F[0].#subform[2].TELEPHONE[0]": hlr.veteran_phone_number,
         "F[0].#subform[2].EMAIL[0]": hlr.email,
         "F[0].#subform[2].BenefitType[0]": hlr.benefit_type == 'nca' ? 9 : 'Off',
@@ -104,26 +80,23 @@ module AppealsApi
         "F[0].#subform[2].TIME2TO430PM[0]": hlr.informal_conference_times.include?('1400-1630 ET') ? 1 : 'Off',
         "F[0].#subform[2].REPRESENTATIVENAMEANDTELEPHONENUMBER[0]": hlr.informal_conference_rep_name_and_phone_number,
         "F[0].#subform[3].SIGNATUREOFVETERANORCLAIMANT[0]": hlr.full_name,
-        "F[0].#subform[3].DateSigned[0]": hlr.date_signed
+        "F[0].#subform[3].DateSigned[0]": Time.zone.now.strftime('%m/%d/%Y')
       }
       hlr.contestable_issues.each_with_index do |issue, index|
-        if index < 6
-          if index.zero?
-            options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[1]"] = issue['attributes']['issue']
-            options[:'F[0].#subform[3].DateofDecision[5]'] = issue['attributes']['decisionDate']
-          elsif index == 1
-            options[:"F[0].#subform[3].SPECIFICISSUE#{index}[0]"] = issue['attributes']['issue']
-            options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
-          else
-            options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[0]"] = issue['attributes']['issue']
-            options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
-          end
+        next if index >= 6
+
+        if index.zero?
+          options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[1]"] = issue['attributes']['issue']
+          options[:'F[0].#subform[3].DateofDecision[5]'] = issue['attributes']['decisionDate']
+        elsif index == 1
+          options[:"F[0].#subform[3].SPECIFICISSUE#{index}[0]"] = issue['attributes']['issue']
+          options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
         else
-          text = "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
-          options[:additional_page] = "#{text}\n#{options[:additional_page]}"
+          options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[0]"] = issue['attributes']['issue']
+          options[:"F[0].#subform[3].DateofDecision[#{index - 1}]"] = issue['attributes']['decisionDate']
         end
       end
-      @pdf_options = options
+      options
     end
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/AbcSize

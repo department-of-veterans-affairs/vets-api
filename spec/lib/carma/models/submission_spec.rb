@@ -66,20 +66,20 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       }
 
       # metadata
-      expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
+      expect(subject.metadata).to be_instance_of(described_class::Metadata)
       expect(subject.metadata.claim_id).to eq(123)
       # metadata.veteran
-      expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
+      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
       expect(subject.metadata.veteran.is_veteran).to eq(true)
       # metadata.primary_caregiver
-      expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
+      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
       expect(subject.metadata.primary_caregiver.icn).to eq('PC1234')
       # metadata.secondary_caregiver_one
-      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(CARMA::Models::Caregiver)
+      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(described_class::Metadata::Caregiver)
       expect(subject.metadata.secondary_caregiver_one.icn).to eq('SCO1234')
       # metadata.secondary_caregiver_two
-      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(CARMA::Models::Caregiver)
+      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(described_class::Metadata::Caregiver)
       expect(subject.metadata.secondary_caregiver_two.icn).to eq('SCT1234')
     end
   end
@@ -90,14 +90,14 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(subject.submitted_at).to eq(nil)
       expect(subject.data).to eq(nil)
       # metadata
-      expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
+      expect(subject.metadata).to be_instance_of(described_class::Metadata)
       expect(subject.metadata.claim_id).to eq(nil)
       # metadata.veteran
-      expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
+      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
       expect(subject.metadata.veteran.icn).to eq(nil)
       expect(subject.metadata.veteran.is_veteran).to eq(nil)
       # metadata.primary_caregiver
-      expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
+      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
       expect(subject.metadata.primary_caregiver.icn).to eq(nil)
       # metadata.secondary_caregiver_one
       expect(subject.metadata.secondary_caregiver_one).to eq(nil)
@@ -140,20 +140,20 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(subject.submitted_at).to eq(expected[:submitted_at])
       expect(subject.data).to eq(expected[:data])
       # metadata
-      expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
+      expect(subject.metadata).to be_instance_of(described_class::Metadata)
       expect(subject.metadata.claim_id).to eq(123)
       # metadata.veteran
-      expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
+      expect(subject.metadata.veteran).to be_instance_of(described_class::Metadata::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
       expect(subject.metadata.veteran.is_veteran).to eq(true)
       # metadata.primary_caregiver
-      expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
+      expect(subject.metadata.primary_caregiver).to be_instance_of(described_class::Metadata::Caregiver)
       expect(subject.metadata.primary_caregiver.icn).to eq('PC1234')
       # metadata.secondary_caregiver_one
-      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(CARMA::Models::Caregiver)
+      expect(subject.metadata.secondary_caregiver_one).to be_instance_of(described_class::Metadata::Caregiver)
       expect(subject.metadata.secondary_caregiver_one.icn).to eq('SCO1234')
       # metadata.secondary_caregiver_two
-      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(CARMA::Models::Caregiver)
+      expect(subject.metadata.secondary_caregiver_two).to be_instance_of(described_class::Metadata::Caregiver)
       expect(subject.metadata.secondary_caregiver_two.icn).to eq('SCT1234')
     end
   end
@@ -169,7 +169,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.carma_case_id).to eq(nil)
       expect(submission.submitted_at).to eq(nil)
 
-      expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
+      expect(submission.metadata).to be_instance_of(described_class::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
     end
 
@@ -183,7 +183,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.carma_case_id).to eq(nil)
       expect(submission.submitted_at).to eq(nil)
 
-      expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
+      expect(submission.metadata).to be_instance_of(described_class::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
     end
   end
@@ -246,56 +246,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         }
       )
     end
-
-    context 'when metadata.veteran.is_veteran is false' do
-      it 'will set metadata.veteran.icn to nil' do
-        subject = described_class.new(
-          data: {
-            'my' => 'data'
-          },
-          metadata: {
-            claim_id: 123,
-            veteran: {
-              icn: 'VET1234',
-              is_veteran: false
-            },
-            primary_caregiver: {
-              icn: 'PC1234'
-            },
-            secondary_caregiver_one: {
-              icn: 'SCO1234'
-            },
-            secondary_caregiver_two: {
-              icn: 'SCT1234'
-            }
-          }
-        )
-
-        expect(subject.to_request_payload).to eq(
-          {
-            'data' => {
-              'my' => 'data'
-            },
-            'metadata' => {
-              'claimId' => 123,
-              'veteran' => {
-                'icn' => nil,
-                'isVeteran' => false
-              },
-              'primaryCaregiver' => {
-                'icn' => 'PC1234'
-              },
-              'secondaryCaregiverOne' => {
-                'icn' => 'SCO1234'
-              },
-              'secondaryCaregiverTwo' => {
-                'icn' => 'SCT1234'
-              }
-            }
-          }
-        )
-      end
-    end
   end
 
   describe '#submit!' do
@@ -325,13 +275,19 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         submission.submitted_at = DateTime.now.iso8601
         submission.carma_case_id = 'aB935000000A9GoCAK'
 
-        expect { submission.submit!(double) }.to raise_error('This submission has already been submitted to CARMA')
+        expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission_stub)
+
+        expect { submission.submit! }.to raise_error('This submission has already been submitted to CARMA')
       end
     end
 
-    context 'when :stub_carma_responses Flipper is disabled' do
+    context 'when submission is valid' do
       it 'submits to CARMA, and updates :carma_case_id and :submitted_at' do
-        expected_response = {
+        expect(submission.carma_case_id).to eq(nil)
+        expect(submission.submitted_at).to eq(nil)
+        expect(submission.submitted?).to eq(false)
+
+        expected_res_body = {
           'data' => {
             'carmacase' => {
               'id' => 'aB935000000F3VnCAK',
@@ -340,60 +296,12 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           }
         }
 
-        expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false)
+        VCR.use_cassette 'carma/submissions/create/201' do
+          submission.submit!
+        end
 
-        carma_client = double
-        expect(carma_client).not_to receive(:create_submission_stub)
-
-        expect(submission.carma_case_id).to eq(nil)
-        expect(submission.submitted_at).to eq(nil)
-        expect(submission.submitted?).to eq(false)
-
-        expect(carma_client).to receive(:create_submission).and_return(
-          expected_response
-        )
-
-        submission.submit!(carma_client)
-
-        expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
-        expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
-        expect(submission.submitted?).to eq(true)
-      end
-    end
-
-    context 'when :stub_carma_responses Flipper is enabled' do
-      it 'returns a hardcoded CARMA response, and updates :carma_case_id and :submitted_at' do
-        expected_response = {
-          'data' => {
-            'carmacase' => {
-              'id' => 'aB935000000F3VnCAK',
-              'createdAt' => '2020-03-09T10:48:59Z'
-            }
-          }
-        }
-
-        expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true)
-
-        expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
-
-        carma_client = double
-        expect(carma_client).not_to receive(:create_submission)
-        expect(carma_client).to receive(
-          :create_submission_stub
-        ).with(
-          :REQUEST_PAYLOAD
-        ).and_return(
-          expected_response
-        )
-
-        expect(submission.carma_case_id).to eq(nil)
-        expect(submission.submitted_at).to eq(nil)
-        expect(submission.submitted?).to eq(false)
-
-        submission.submit!(carma_client)
-
-        expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
-        expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
+        expect(submission.carma_case_id).to eq(expected_res_body['data']['carmacase']['id'])
+        expect(submission.submitted_at).to eq(expected_res_body['data']['carmacase']['createdAt'])
         expect(submission.submitted?).to eq(true)
       end
     end

@@ -13,7 +13,6 @@
       "state": "WA",
       "postalCode": "98101"
     },
-    "primaryPhoneNumber": "1234567890",
     "plannedClinic": "740"
   },
   "primaryCaregiver": {
@@ -30,7 +29,6 @@
       "state": "WA",
       "postalCode": "98101"
     },
-    "primaryPhoneNumber": "1234567890",
     "vetRelationship": "Spouse",
     "medicaidEnrolled": false,
     "medicareEnrolled": true,

@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module DisabilityCompensation
-    class MockOverrideConfiguration < EVSS::DisabilityCompensationForm::Configuration
+    class MockOverrideConfiguration < EVSS::DisabilityCompensationForm::ConfigurationAllClaim
       def mock_enabled?
         true
       end

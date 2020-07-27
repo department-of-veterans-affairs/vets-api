@@ -19,8 +19,6 @@ module VBADocuments
         Sidekiq::Batch.new.jobs do
           submissions = filtered_submissions
           slice_size = (submissions.count / DIVISION_SIZE).ceil
-          next unless slice_size.positive?
-
           submissions.each_slice(slice_size) do |slice|
             VBADocuments::UploadStatusUpdater.perform_async(slice)
           end

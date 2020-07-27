@@ -4,10 +4,10 @@ require 'pdf_forms'
 require 'rails_helper'
 require 'vsopdf/vso_appointment_form'
 
-describe VSOAppointmentForm do
+describe VsoAppointmentForm do
   include SchemaMatchers
 
-  form = VSOAppointmentForm.new(VSOAppointment.new(
+  form = VsoAppointmentForm.new(VsoAppointment.new(
                                   veteran_full_name: {
                                     first: 'Graham',
                                     last: 'Test'
@@ -30,7 +30,7 @@ describe VSOAppointmentForm do
                                   disclosure_exception_hiv: true
                                 ))
 
-  it 'translates a VSOAppointment object' do
+  it 'translates a VsoAppointment object' do
     # Spot check the arg translation
     args = form.to_pdf_args
 

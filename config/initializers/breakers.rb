@@ -28,12 +28,9 @@ require 'evss/documents_service'
 require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
-# .to_h because hashes from config_for don't support non-symbol keys
-redis_options = REDIS_CONFIG[:redis].to_h
-redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
+redis_namespace = Redis::Namespace.new('breakers', redis: Redis.current)
 
 services = [
-  Debts::Configuration.instance.breakers_service,
   Caseflow::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
   BB::Configuration.instance.breakers_service,
@@ -47,11 +44,12 @@ services = [
   EVSS::PCIUAddress::Configuration.instance.breakers_service,
   EVSS::GiBillStatus::Configuration.instance.breakers_service,
   EVSS::Dependents::Configuration.instance.breakers_service,
-  EVSS::ReferenceData::Configuration.instance.breakers_service,
   Gibft::Configuration.instance.breakers_service,
+  VIC::Configuration.instance.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
   Facilities::PPMS::Configuration.instance.breakers_service,
+  VIC::Configuration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,

@@ -130,11 +130,6 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   class: VBADocuments::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful submissions"
 
-AppealsApi::HigherLevelReviewUploadStatusBatch:
-  every: "60m"
-  class: AppealsApi::HigherLevelReviewUploadStatusBatch
-  description: "Update HigherLevelReview statuses with their Central Mail status"
-
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"

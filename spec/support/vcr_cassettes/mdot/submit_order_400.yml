@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466/supplies
+    uri: https://dlc-dummy.herokuapp.com/supplies
     body:
       encoding: UTF-8
       string: '{}'
@@ -13,10 +13,12 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
+      Apikey:
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Va-Api-Key:
-      - abcd1234abcd1234abcd1234
+      VeteranId:
+      - 000555555
   response:
     status:
       code: 400
@@ -60,7 +62,8 @@ http_interactions:
         Max-Age=900; Path=/
     body:
       encoding: UTF-8
-      string: '{"timestamp":"2020-06-04T18:00:35.014+0000","message":"400","details":"uri=/supplies","result":"400"}'
+      string: '{"errors":[{"status":400,"code":"malformed_request","title":"Malformed
+        request"}]}'
     http_version:
   recorded_at: Fri, 22 Nov 2019 22:51:55 GMT
 recorded_with: VCR 3.0.3

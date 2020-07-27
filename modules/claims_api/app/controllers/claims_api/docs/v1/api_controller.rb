@@ -18,7 +18,6 @@ module ClaimsApi
           ClaimsApi::V1::Form526ControllerSwagger,
           ClaimsApi::V1::Form0966ControllerSwagger,
           ClaimsApi::V1::Form2122ControllerSwagger,
-          ClaimsApi::V1::SecuritySchemeSwagger,
           ClaimsApi::V1::SwaggerRoot
         ].freeze
 

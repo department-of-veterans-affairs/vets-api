@@ -62,7 +62,7 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21P-530 21P-527EZ 10-10CG 686C-674].each do |form_id|
+    %w[21P-530 21P-527EZ 10-10CG].each do |form_id|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
@@ -74,8 +74,7 @@ describe PdfFill::Filler do
               fact_names = {
                 '21P-527EZ' => :pension_claim,
                 '21P-530' => :burial_claim,
-                '10-10CG' => :caregivers_assistance_claim,
-                '686C-674' => :dependency_claim
+                '10-10CG' => :caregivers_assistance_claim
               }
 
               saved_claim = create(fact_names[form_id], form: form_data.to_json)

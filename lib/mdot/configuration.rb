@@ -8,6 +8,10 @@ module MDOT
       'MDOT'
     end
 
+    def self.base_request_headers
+      super.merge('VA_API_KEY' => Settings.mdot.api_key)
+    end
+
     def base_path
       Settings.mdot.url
     end

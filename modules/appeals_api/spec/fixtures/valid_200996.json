@@ -1,20 +1,18 @@
 {
   "data": {
-    "type": "higherLevelReview",
+    "type": "HigherLevelReview",
     "attributes": {
       "informalConference": true,
       "sameOffice": true,
-      "benefitType": "compensation",
+      "benefitType": "nca",
       "veteran": {
-        "address": { "zipCode5": "66002" },
         "phone": {
           "countryCode": "34",
           "areaCode": "555",
           "phoneNumber": "8001111",
           "phoneNumberExt": "2"
         },
-        "emailAddressText": "josie@example.com",
-        "timezone": "America/Chicago"
+        "emailAddressText": "josie@example.com"
       },
       "informalConferenceTimes": [
         "1230-1400 ET",
@@ -33,44 +31,44 @@
   },
   "included": [
     {
-      "type": "contestableIssue",
+      "type": "ContestableIssue",
       "attributes": {
         "issue": "tinnitus",
         "decisionDate": "1900-01-01",
         "decisionIssueId": 1,
-        "ratingIssueReferenceId": "2",
-        "ratingDecisionReferenceId": "3"
+        "ratingIssueId": "2",
+        "ratingDecisionIssueId": "3"
       }
     },
     {
-      "type": "contestableIssue",
+      "type": "ContestableIssue",
       "attributes": {
         "issue": "left knee",
         "decisionDate": "1900-01-02",
         "decisionIssueId": 4,
-        "ratingIssueReferenceId": "5"
+        "ratingIssueId": "5"
       }
     },
     {
-      "type": "contestableIssue",
+      "type": "ContestableIssue",
       "attributes": {
         "issue": "right knee",
         "decisionDate": "1900-01-03",
-        "ratingIssueReferenceId": "6",
-        "ratingDecisionReferenceId": "7"
+        "ratingIssueId": "6",
+        "ratingDecisionIssueId": "7"
       }
     },
     {
-      "type": "contestableIssue",
+      "type": "ContestableIssue",
       "attributes": {
         "issue": "PTSD",
         "decisionDate": "1900-01-04",
         "decisionIssueId": 8,
-        "ratingDecisionReferenceId": "9"
+        "ratingDecisionIssueId": "9"
       }
     },
     {
-      "type": "contestableIssue",
+      "type": "ContestableIssue",
       "attributes": {
         "issue": "Traumatic Brain Injury",
         "decisionDate": "1900-01-05",
@@ -78,7 +76,7 @@
       }
     },
     {
-      "type": "contestableIssue",
+      "type": "ContestableIssue",
       "attributes": {
         "issue": "right shoulder",
         "decisionDate": "1900-01-06"

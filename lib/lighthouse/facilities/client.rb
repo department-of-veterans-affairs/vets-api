@@ -18,7 +18,7 @@ module Lighthouse
       #
       def get_by_id(id)
         response = perform(:get, "/services/va_facilities/v0/facilities/#{id}", nil)
-        Lighthouse::Facilities::Response.new(response.body, response.status).facility
+        Lighthouse::Facilities::Response.new(response.body, response.status).new_facility
       end
 
       ##
@@ -32,7 +32,7 @@ module Lighthouse
       #
       def get_facilities(params)
         response = perform(:get, '/services/va_facilities/v0/facilities', params)
-        Lighthouse::Facilities::Response.new(response.body, response.status).facilities
+        Lighthouse::Facilities::Response.new(response.body, response.status).get_facilities_list
       end
     end
   end

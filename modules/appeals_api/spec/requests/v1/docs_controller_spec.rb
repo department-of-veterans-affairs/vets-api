@@ -4,37 +4,43 @@ require 'rails_helper'
 
 describe AppealsApi::Docs::V1::DocsController, type: :request do
   describe '#decision_reviews' do
-    before { get '/services/appeals/docs/v1/decision_reviews' }
-
-    let(:json) { JSON.parse(response.body) }
+    let(:decision_reviews_docs) { '/services/appeals/docs/v1/decision_reviews' }
 
     it 'successfully returns openapi spec' do
+      get decision_reviews_docs
       expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
       expect(json['openapi']).to eq('3.0.0')
     end
 
-    context 'servers' do
-      let(:server_urls) { json['servers'].map { |server| server['url'] } }
-
-      it('lists the sandbox environment') do
-        expect(server_urls).to include('https://sandbox-api.va.gov/services/appeals/{version}/decision_reviews')
+    describe '/higher_level_reviews documentation' do
+      before do
+        get decision_reviews_docs
       end
 
-      it('lists the production environment') do
-        expect(server_urls).to include('https://api.va.gov/services/appeals/{version}/decision_reviews')
+      let(:hlr_doc) do
+        json = JSON.parse(response.body)
+        json['paths']['/higher_level_reviews']
+      end
+
+      it 'supports POST' do
+        expect(hlr_doc).to include('post')
       end
     end
 
-    it('/higher_level_reviews supports POST') do
-      expect(json['paths']['/higher_level_reviews']).to include('post')
-    end
+    describe '/contestable_issues documentation' do
+      before do
+        get decision_reviews_docs
+      end
 
-    it '/higher_level_reviews/contestable_issues supports GET' do
-      expect(json['paths']['/higher_level_reviews/contestable_issues/{benefit_type}']).to include('get')
-    end
+      let(:contestable_issues_doc) do
+        json = JSON.parse(response.body)
+        json['paths']['/contestable_issues']
+      end
 
-    it 'HLR statuses match model (if this test fails, has there been a version change?)' do
-      expect(json['components']['schemas']['hlrStatus']['enum']).to eq AppealsApi::HigherLevelReview::STATUSES
+      it 'supports GET' do
+        expect(contestable_issues_doc).to include('get')
+      end
     end
   end
 end

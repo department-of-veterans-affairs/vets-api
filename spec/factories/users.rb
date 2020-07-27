@@ -25,7 +25,6 @@ FactoryBot.define do
       search_token { nil }
       icn_with_aaid { nil }
       authenticated_by_ssoe { false }
-      common_name { nil }
 
       sign_in do
         {
@@ -58,8 +57,7 @@ FactoryBot.define do
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
                              dslogon_edipi: t.dslogon_edipi,
-                             sign_in: t.sign_in,
-                             common_name: t.common_name)
+                             sign_in: t.sign_in)
       user.instance_variable_set(:@identity, user_identity)
     end
 
@@ -240,26 +238,6 @@ FactoryBot.define do
 
       after(:build) do
         stub_mvi(build(:mvi_profile, birls_id: '796068948'))
-      end
-    end
-
-    factory :unauthorized_bgs_user, traits: [:loa3] do
-      first_name { 'Charles' }
-      last_name { 'Bronson' }
-      last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
-      ssn { nil }
-
-      after(:build) do
-        stub_mvi(
-          build(
-            :mvi_profile,
-            edipi: '1007697216',
-            birls_id: '796043735',
-            participant_id: nil,
-            icn: nil,
-            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
-          )
-        )
       end
     end
 

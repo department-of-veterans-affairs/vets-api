@@ -36,8 +36,6 @@ module ClaimsApi
           end
 
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
-          data = power_of_attorney.form_data
-          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id) if data['signatureImages'].present?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -48,7 +46,7 @@ module ClaimsApi
           power_of_attorney.status = 'submitted'
           power_of_attorney.save!
           power_of_attorney.reload
-          ClaimsApi::VbmsUploadJob.perform_async(power_of_attorney.id)
+          ClaimsApi::VbmsUploader.perform_async(power_of_attorney.id)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 

@@ -33,7 +33,7 @@ module ClaimsApi
           auth_headers
         )
       else
-        EVSS::DisabilityCompensationForm::Service.new(
+        EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
           auth_headers
         )
       end

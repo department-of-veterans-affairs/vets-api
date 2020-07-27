@@ -55,36 +55,6 @@ RSpec.describe SAML::User do
       end
     end
 
-    context 'user with birth date' do
-      let(:saml_attributes) { build(:ssoe_idme_loa3) }
-
-      it 'coerces birth date to ISO 8601 format' do
-        expect(subject.to_hash[:birth_date]).to eq('1969-04-07')
-      end
-    end
-
-    context 'user without birth date' do
-      let(:saml_attributes) do
-        build(:ssoe_idme_loa3,
-              va_eauth_birthDate_v1: ['NOT_FOUND'])
-      end
-
-      it 'returns nil' do
-        expect(subject.to_hash[:birth_date]).to be_nil
-      end
-    end
-
-    context 'user with partial birth date' do
-      let(:saml_attributes) do
-        build(:ssoe_idme_loa3,
-              va_eauth_birthDate_v1: ['1980'])
-      end
-
-      it 'returns nil' do
-        expect(subject.to_hash[:birth_date]).to be_nil
-      end
-    end
-
     context 'unproofed IDme LOA1 user' do
       let(:saml_attributes) { build(:ssoe_idme_loa1_unproofed) }
 
@@ -107,15 +77,9 @@ RSpec.describe SAML::User do
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           multifactor: false,
           loa: { current: 1, highest: 1 },
-          sign_in: {
-            service_name: 'idme',
-            account_type: 'N/A',
-            ssoe: true,
-            transactionid: 'abcd1234xyz'
-          },
+          sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
-          authenticated_by_ssoe: true,
-          common_name: nil
+          authenticated_by_ssoe: true
         )
       end
 
@@ -146,15 +110,9 @@ RSpec.describe SAML::User do
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           multifactor: true,
           loa: { current: 1, highest: 3 },
-          sign_in: {
-            service_name: 'idme',
-            account_type: 'N/A',
-            ssoe: true,
-            transactionid: 'abcd1234xyz'
-          },
+          sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
-          authenticated_by_ssoe: true,
-          common_name: nil
+          authenticated_by_ssoe: true
         )
       end
 
@@ -170,7 +128,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           authn_context: authn_context,
-          birth_date: '1969-04-07',
+          birth_date: '19690407',
           first_name: 'JERRY',
           last_name: 'GPKTESTNINE',
           middle_name: nil,
@@ -186,10 +144,9 @@ RSpec.describe SAML::User do
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           multifactor: true,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'idme', account_type: 'N/A', ssoe: true, transactionid: 'abcd1234xyz' },
+          sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: '1008830476',
-          authenticated_by_ssoe: true,
-          common_name: 'vets.gov.user+262@example.com'
+          authenticated_by_ssoe: true
         )
       end
 
@@ -222,11 +179,10 @@ RSpec.describe SAML::User do
           email: 'alexmac_0@example.com',
           idme_uuid: '881571066e5741439652bc80759dd88c',
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced', ssoe: true, transactionid: 'abcd1234xyz' },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: nil,
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: nil
+          authenticated_by_ssoe: true
         )
       end
 
@@ -245,7 +201,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1988-11-24',
+          birth_date: '19881124',
           authn_context: authn_context,
           dslogon_edipi: nil,
           first_name: 'ALEX',
@@ -261,11 +217,10 @@ RSpec.describe SAML::User do
           email: 'alexmac_0@example.com',
           idme_uuid: '881571066e5741439652bc80759dd88c',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced', ssoe: true, transactionid: 'abcd1234xyz' },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: '1013183292',
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: 'alexmac_0@example.com'
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -295,16 +250,10 @@ RSpec.describe SAML::User do
           email: 'pv+mhvtestb@example.com',
           idme_uuid: '72782a87a807407f83e8a052d804d7f7',
           loa: { current: 1, highest: 1 },
-          sign_in: {
-            service_name: 'myhealthevet',
-            account_type: 'Basic',
-            ssoe: true,
-            transactionid: 'abcd1234xyz'
-          },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Basic' },
           sec_id: nil,
           multifactor: true,
-          authenticated_by_ssoe: true,
-          common_name: nil
+          authenticated_by_ssoe: true
         )
       end
 
@@ -321,7 +270,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1977-03-07',
+          birth_date: '19770307',
           authn_context: authn_context,
           dslogon_edipi: '2107307560',
           first_name: 'TRISTAN',
@@ -337,16 +286,10 @@ RSpec.describe SAML::User do
           email: 'k+tristanmhv@example.com',
           idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'myhealthevet',
-            account_type: 'Premium',
-            ssoe: true,
-            transactionid: 'VDeAfteF14dJV9gke1tQ4rBX2UntryiGMkD5anKJiHQ='
-          },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
           sec_id: '1012853550',
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: 'k+tristan@example.com'
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -364,7 +307,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1977-03-07',
+          birth_date: '19770307',
           authn_context: authn_context,
           dslogon_edipi: '2107307560',
           first_name: 'TRISTAN',
@@ -380,16 +323,10 @@ RSpec.describe SAML::User do
           email: 'k+tristanmhv@example.com',
           idme_uuid: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'myhealthevet',
-            account_type: 'Premium',
-            ssoe: true,
-            transactionid: 'VDeAfteF14dJV9gke1tQ4rBX2UntryiGMkD5anKJiHQ='
-          },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
           sec_id: '1012853550',
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: 'k+tristan@example.com'
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -469,170 +406,8 @@ RSpec.describe SAML::User do
         it 'does not validate' do
           expect { subject.validate! }.to raise_error { |error|
             expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
+            expect(error.message).to eq('MHV Identifier mismatch')
           }
-        end
-      end
-
-      context 'with mismatching ICNs' do
-        let(:saml_attributes) do
-          build(:ssoe_idme_mhv_loa3,
-                va_eauth_mhvicn: ['111111111V666666'],
-                va_eauth_icn: ['22222222V888888'])
-        end
-
-        it 'does not validate' do
-          expect { subject.validate! }.to raise_error { |error|
-            expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('MHV credential ICN does not match MPI record')
-          }
-        end
-      end
-
-      context 'with multi-value mhvien' do
-        let(:saml_attributes) do
-          build(:ssoe_idme_mhv_loa3,
-                va_eauth_mhvuuid: [uuid],
-                va_eauth_mhvien: [ien])
-        end
-
-        context 'with matching values' do
-          let(:uuid) { 'NOT_FOUND' }
-          let(:ien) { '888777,888777' }
-
-          it 'de-duplicates values' do
-            expect(subject.to_hash).to include(
-              mhv_correlation_id: '888777'
-            )
-          end
-
-          it 'validates' do
-            expect { subject.validate! }.not_to raise_error
-          end
-        end
-
-        context 'with uuid only' do
-          let(:uuid) { '888777' }
-          let(:ien) { 'NOT_FOUND' }
-
-          it 'de-duplicates values' do
-            expect(subject.to_hash).to include(
-              mhv_correlation_id: '888777'
-            )
-          end
-
-          it 'validates' do
-            expect { subject.validate! }.not_to raise_error
-          end
-        end
-
-        context 'with no mhv ids' do
-          let(:uuid) { 'NOT_FOUND' }
-          let(:ien) { 'NOT_FOUND' }
-
-          it 'de-duplicates values' do
-            expect(subject.to_hash).to include(
-              mhv_correlation_id: nil
-            )
-          end
-
-          it 'validates' do
-            expect { subject.validate! }.not_to raise_error
-          end
-        end
-
-        context 'with matching mhvien and mhvuuid' do
-          let(:uuid) { '888777' }
-          let(:ien) { '888777,888777' }
-
-          it 'de-duplicates values' do
-            expect(subject.to_hash).to include(
-              mhv_correlation_id: '888777'
-            )
-          end
-
-          it 'validates' do
-            expect { subject.validate! }.not_to raise_error
-          end
-        end
-
-        context 'with mis-matching mhvien and mhvuuid' do
-          let(:uuid) { '888777' }
-          let(:ien) { '888777,999888' }
-
-          let(:saml_attributes) do
-            build(:ssoe_idme_mhv_loa3,
-                  va_eauth_mhvuuid: ['888777'],
-                  va_eauth_mhvien: ['999888,888777'])
-          end
-
-          it 'does not validate' do
-            expect { subject.validate! }
-              .to raise_error { |error|
-                    expect(error).to be_a(SAML::UserAttributeError)
-                    expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
-                  }
-          end
-        end
-
-        context 'with mis-matching mhvien values' do
-          let(:uuid) { 'NOT_FOUND' }
-          let(:ien) { '999888,888777' }
-
-          it 'does not validate' do
-            expect { subject.validate! }
-              .to raise_error { |error|
-                    expect(error).to be_a(SAML::UserAttributeError)
-                    expect(error.message).to eq('User attributes contain multiple distinct MHV ID values')
-                  }
-          end
-        end
-      end
-    end
-
-    context 'with multi-value edipi' do
-      let(:saml_attributes) do
-        build(:ssoe_idme_mhv_loa3,
-              va_eauth_dodedipnid: [edipi])
-      end
-
-      context 'with different values' do
-        let(:edipi) { '0123456789,0000000054' }
-
-        it 'does not validate' do
-          expect { subject.validate! }
-            .to raise_error { |error|
-                  expect(error).to be_a(SAML::UserAttributeError)
-                  expect(error.message).to eq('User attributes contain multiple distinct EDIPI values')
-                }
-        end
-      end
-
-      context 'with matching values' do
-        let(:edipi) { '0123456789,0123456789' }
-
-        it 'de-duplicates values' do
-          expect(subject.to_hash).to include(
-            dslogon_edipi: '0123456789'
-          )
-        end
-
-        it 'validates' do
-          expect { subject.validate! }.not_to raise_error
-        end
-      end
-
-      context 'with empty value' do
-        let(:edipi) { 'NOT_FOUND' }
-
-        it 'de-duplicates values' do
-          expect(subject.to_hash).to include(
-            dslogon_edipi: nil
-          )
-        end
-
-        it 'validates' do
-          expect { subject.validate! }.not_to raise_error
         end
       end
     end
@@ -660,11 +435,7 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 1, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: '1',
-            ssoe: true
-          },
+          sign_in: { service_name: 'dslogon', account_type: '1' },
           sec_id: nil,
           multifactor: multifactor,
           authenticated_by_ssoe: true
@@ -680,7 +451,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1951-06-04',
+          birth_date: '19510604',
           authn_context: authn_context,
           dslogon_edipi: '2106798217',
           first_name: 'BRANDIN',
@@ -696,16 +467,10 @@ RSpec.describe SAML::User do
           email: 'iam.tester@example.com',
           idme_uuid: '363761e8857642f7b77ef7d99200e711',
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: '2',
-            ssoe: true,
-            transactionid: '3oiTInhBKGiA/FbtYGVloGdOqUtvKCw4rcuchfwPNAo='
-          },
+          sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '1013173963',
           multifactor: false,
-          authenticated_by_ssoe: true,
-          common_name: 'iam.tester@example.com'
+          authenticated_by_ssoe: true
         )
       end
 
@@ -723,7 +488,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1956-07-10',
+          birth_date: '19560710',
           authn_context: authn_context,
           dslogon_edipi: '1005169255',
           first_name: 'JOHNNIE',
@@ -739,16 +504,10 @@ RSpec.describe SAML::User do
           email: 'Test0206@gmail.com',
           idme_uuid: '1655c16aa0784dbe973814c95bd69177',
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: '2',
-            ssoe: true,
-            transactionid: 'abcd1234xyz'
-          },
+          sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '0000028007',
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: 'dslogon10923109@gmail.com'
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -765,7 +524,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1956-07-10',
+          birth_date: '19560710',
           authn_context: authn_context,
           dslogon_edipi: '1005169255',
           first_name: 'JOHNNIE',
@@ -781,16 +540,10 @@ RSpec.describe SAML::User do
           email: 'Test0206@gmail.com',
           idme_uuid: '1655c16aa0784dbe973814c95bd69177',
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: '2',
-            ssoe: true,
-            transactionid: 'abcd1234xyz'
-          },
+          sign_in: { service_name: 'dslogon', account_type: '2' },
           sec_id: '0000028007',
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: 'dslogon10923109@gmail.com'
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -806,7 +559,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1946-10-20',
+          birth_date: '19461020',
           authn_context: authn_context,
           dslogon_edipi: '1606997570',
           first_name: 'SOFIA',
@@ -822,32 +575,11 @@ RSpec.describe SAML::User do
           email: nil,
           idme_uuid: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'dslogon',
-            account_type: 'N/A',
-            ssoe: true,
-            transactionid: 'yGXMk81W0r3aArfVXHdZuCl5utlNQ1adITH8QHsLlB0'
-          },
+          sign_in: { service_name: 'dslogon', account_type: 'N/A' },
           sec_id: '1012779219',
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: 'SOFIA MCKIBBENS'
+          authenticated_by_ssoe: true
         )
-      end
-
-      context 'with missing ID.me UUID' do
-        let(:saml_attributes) do
-          build(:ssoe_inbound_dslogon_level2,
-                va_eauth_uid: ['NOT_FOUND'])
-        end
-
-        it 'does not validate' do
-          expect { subject.validate! }.to raise_error { |error|
-            expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('User attributes is missing an ID.me UUID')
-            expect(error.identifier).to eq('1012779219V964737')
-          }
-        end
       end
     end
 
@@ -862,7 +594,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1982-05-23',
+          birth_date: '19820523',
           authn_context: authn_context,
           dslogon_edipi: nil,
           first_name: 'ZACK',
@@ -878,16 +610,10 @@ RSpec.describe SAML::User do
           email: nil,
           idme_uuid: '53f065475a794e14a32d707bfd9b215f',
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'myhealthevet',
-            account_type: 'N/A',
-            ssoe: true,
-            transactionid: '6e/7qHvlmQR0NPaplboby1mJJlKDKz2UEXk9Ul9e5tU='
-          },
+          sign_in: { service_name: 'myhealthevet', account_type: 'N/A' },
           sec_id: '1013062086',
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: 'mhvzack@mhv.va.gov'
+          authenticated_by_ssoe: true
         )
       end
     end
@@ -903,7 +629,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          birth_date: '1969-04-07',
+          birth_date: '19690407',
           authn_context: authn_context,
           dslogon_edipi: '1320002060',
           first_name: 'JERRY',
@@ -919,16 +645,10 @@ RSpec.describe SAML::User do
           email: 'vets.gov.user+262@gmail.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           loa: { current: 3, highest: 3 },
-          sign_in: {
-            service_name: 'idme',
-            account_type: 'N/A',
-            ssoe: true,
-            transactionid: 'HZmR3a1TZAnLNzLfliYLFXO6Xu1cUEA1p18v2B3bekI='
-          },
+          sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: '1012827134',
           multifactor: multifactor,
-          authenticated_by_ssoe: true,
-          common_name: 'vets.gov.user+262@gmail.com'
+          authenticated_by_ssoe: true
         )
       end
     end

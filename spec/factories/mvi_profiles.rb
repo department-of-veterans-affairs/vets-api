@@ -40,9 +40,9 @@ FactoryBot.define do
     given_names { Array.new(2) { Faker::Name.first_name } }
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }
-    gender { %w[M F].sample }
+    gender { Faker::Medical::Patient.gender }
     birth_date { Faker::Date.between(from: 80.years.ago, to: 30.years.ago).strftime('%Y%m%d') }
-    ssn { Faker::IDNumber.valid.delete('-') }
+    ssn { Faker::Medical::SSN.ssn.delete('-') }
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
     full_mvi_ids {

@@ -32,10 +32,6 @@ module SAML
         attributes['email']
       end
 
-      def common_name
-        email
-      end
-
       # ID.me level of assurance, provided by all authn_contexts
       def idme_loa
         attributes['level_of_assurance']&.to_i
@@ -61,7 +57,7 @@ module SAML
       end
 
       def to_hash
-        serializable_attributes.index_with { |k| send(k) }
+        Hash[serializable_attributes.map { |k| [k, send(k)] }]
       end
 
       # Raise any fatal exceptions due to validation issues

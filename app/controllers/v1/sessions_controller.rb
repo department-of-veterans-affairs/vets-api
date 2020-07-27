@@ -2,7 +2,6 @@
 
 require 'base64'
 require 'saml/url_service'
-require 'saml/errors'
 require 'saml/responses/login'
 require 'saml/responses/logout'
 
@@ -10,16 +9,14 @@ module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
-    STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
-    STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
-    STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
+    STATSD_LOGIN_STATUS = 'api.auth.login'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
@@ -30,19 +27,19 @@ module V1
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
+      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
+
+      StatsD.increment(STATSD_SSO_NEW_KEY,
+                       tags: ["context:#{type}", "forceauthn:#{force_authn?}", VERSION_TAG])
+      url = redirect_url(type)
 
       if type == 'slo'
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
-        url = url_service.ssoe_slo_url
-        # due to shared url service implementation
-        # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
-        # extensions with their browser.
-        redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
-      else
-        render_login(type)
       end
-      new_stats(type)
+      # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
+      # extensions with their browser.
+      redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
     end
 
     def ssoe_slo_callback
@@ -51,19 +48,16 @@ module V1
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      saml_response_logging(saml_response)
-      raise_saml_error(saml_response) unless saml_response.valid?
-      user_login(saml_response)
-      callback_stats(:success, saml_response)
-    rescue SAML::SAMLError => e
-      log_message_to_sentry(e.message, e.level, extra_context: e.context)
-      redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
-      callback_stats(:failure, saml_response, e.tag || e.code)
+      if saml_response.valid?
+        user_login(saml_response)
+      else
+        log_error(saml_response)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
+        callback_stats(:failure, saml_response, saml_response.error_instrumentation_code)
+      end
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
-      unless performed?
-        redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: '007')
-      end
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
       callback_stats(:failed_unknown)
     ensure
       callback_stats(:total)
@@ -76,17 +70,46 @@ module V1
 
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
+    def redirect_url(type)
+      case type
+      when 'signup'
+        url_service.signup_url
+      when 'mhv'
+        url_service.mhv_url
+      when 'dslogon'
+        url_service.dslogon_url
+      when 'idme'
+        url_service.idme_url
+      when 'mfa'
+        url_service.mfa_url
+      when 'verify'
+        url_service.verify_url
+      when 'slo'
+        url_service.ssoe_slo_url # due to shared url service implementation
+      else
+        raise Common::Exceptions::RoutingError, params[:path]
+      end
+    end
+    # rubocop:enable Metrics/CyclomaticComplexity
+
+    def force_authn?
+      params[:force]&.downcase == 'true'
+    end
+
     def saml_settings(options = {})
       # add a forceAuthn value to the saml settings based on the initial options or
-      # default to false
-      options[:force_authn] ||= false
+      # the "force" value in the query params
+      options[:force_authn] ||= force_authn?
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
-    def raise_saml_error(form)
-      code = form.error_code
-      code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code] if code == '005' && validate_session
-      raise SAML::FormError.new(form, code)
+    def auth_error_code(code)
+      if code == '005' && validate_session
+        UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
+      else
+        code
+      end
     end
 
     def authenticate
@@ -99,84 +122,32 @@ module V1
       end
     end
 
+    def log_error(saml_response)
+      log_message_to_sentry(saml_response.errors_message,
+                            saml_response.errors_hash[:level],
+                            saml_error_context: saml_response.errors_context)
+    end
+
     def user_login(saml_response)
-      begin
-        user_session_form = UserSessionForm.new(saml_response)
-        raise_saml_error(user_session_form) unless user_session_form.valid?
-      rescue SAML::UserAttributeError => e
-        login_stats(:failure, saml_response, e)
-        raise
-      end
-
-      @current_user, @session_object = user_session_form.persist
-      set_cookies
-      after_login_actions
-      helper = url_service(user_session_form.saml_uuid)
-      if helper.should_uplevel?
-        render_login('verify', user_session_form.saml_uuid)
+      user_session_form = UserSessionForm.new(saml_response)
+      if user_session_form.valid?
+        @current_user, @session_object = user_session_form.persist
+        set_cookies
+        after_login_actions
+        redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
+        if location.start_with?(url_service.base_redirect_url)
+          # only record success stats if the user is being redirect to the site
+          # some users will need to be up-leveled and this will be redirected
+          # back to the identity provider
+          login_stats(:success, saml_response, user_session_form)
+        end
       else
-        redirect_to helper.login_redirect_url
-        login_stats(:success, saml_response)
+        log_message_to_sentry(
+          user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
+        )
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
+        login_stats(:failure, saml_response, user_session_form)
       end
-    end
-
-    def render_login(type, previous_saml_uuid = nil)
-      force = (type != 'custom')
-      helper = url_service(previous_saml_uuid, force)
-      login_url, post_params = login_params(type, helper)
-      renderer = ActionController::Base.renderer
-      renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
-      result = renderer.render template: 'sso_post_form',
-                               locals: { url: login_url, params: post_params },
-                               format: :html
-      render body: result, content_type: 'text/html'
-      saml_request_stats(helper.tracker)
-    end
-
-    # rubocop:disable Metrics/CyclomaticComplexity
-    def login_params(type, helper)
-      raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
-
-      case type
-      when 'signup'
-        helper.signup_url
-      when 'mhv'
-        helper.mhv_url
-      when 'dslogon'
-        helper.dslogon_url
-      when 'idme'
-        helper.idme_url
-      when 'mfa'
-        helper.mfa_url
-      when 'verify'
-        helper.verify_url
-      when 'custom'
-        raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
-
-        helper.custom_url params[:authn]
-      end
-    end
-    # rubocop:enable Metrics/CyclomaticComplexity
-
-    def saml_request_stats(tracker)
-      values = {
-        'id' => tracker&.uuid,
-        'authn' => tracker&.payload_attr(:authn_context),
-        'type' => tracker&.payload_attr(:type)
-      }
-      Rails.logger.info("SSOe: SAML Request => #{values}")
-      StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
-                       tags: ["context:#{tracker&.payload_attr(:authn_context)}",
-                              VERSION_TAG])
-    end
-
-    def saml_response_logging(saml_response)
-      values = {
-        'id' => saml_response.in_response_to,
-        'authn' => saml_response.authn_context,
-        'type' => JSON.parse(params[:RelayState] || '{}')['type']
-      }
-      Rails.logger.info("SSOe: SAML Response => #{values}")
     end
 
     def user_logout(saml_response)
@@ -191,24 +162,34 @@ module V1
       end
     end
 
-    def new_stats(type)
-      tags = ["context:#{type}", VERSION_TAG]
-      StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
+    def login_stats_success(saml_response, user_session_form = nil)
+      tracker = url_service(user_session_form&.saml_uuid).tracker
+      tags = [
+        "loa:#{@current_user.loa[:current]}",
+        "idp:#{@current_user.identity.sign_in[:service_name]}",
+        "context:#{saml_response.authn_context}",
+        VERSION_TAG
+      ]
+      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if request_type == 'signup'
+      # track users who have a shared sso cookie
+      StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
+      StatsD.increment(STATSD_LOGIN_STATUS, tags: tags + ['status:success'])
+      StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
+      callback_stats(:success, saml_response)
     end
 
-    def login_stats(status, saml_response, error = nil)
-      tracker = url_service(saml_response&.in_response_to).tracker
-      type = tracker.payload_attr(:type)
-      tags = ["context:#{type}", VERSION_TAG]
+    def login_stats(status, saml_response, user_session_form = nil)
       case status
       when :success
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-        # track users who have a shared sso cookie
-        StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
-        StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
-        StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
+        login_stats_success(saml_response, user_session_form)
       when :failure
-        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags << "error:#{error.code}")
+        StatsD.increment(STATSD_LOGIN_STATUS,
+                         tags: ['status:failure',
+                                "idp:#{params[:type]}",
+                                "context:#{saml_response.authn_context}",
+                                "error:#{user_session_form.error_instrumentation_code}",
+                                VERSION_TAG])
+        callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end
     end
 
@@ -263,13 +244,19 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service(previous_saml_uuid = nil, force_authn = false)
-      SAML::PostURLService.new(saml_settings(force_authn: force_authn),
-                               session: @session_object,
-                               user: current_user,
-                               params: params,
-                               loa3_context: LOA::IDME_LOA3,
-                               previous_saml_uuid: previous_saml_uuid)
+    def request_type
+      JSON.parse(params[:RelayState] || '{}')['type']
+    rescue
+      'UNKNOWN'
+    end
+
+    def url_service(previous_saml_uuid = nil)
+      SAML::URLService.new(saml_settings,
+                           session: @session_object,
+                           user: current_user,
+                           params: params,
+                           loa3_context: LOA::IDME_LOA3,
+                           previous_saml_uuid: previous_saml_uuid)
     end
   end
 end

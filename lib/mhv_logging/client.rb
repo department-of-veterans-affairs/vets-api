@@ -16,7 +16,7 @@ module MHVLogging
   # Core class responsible for MHV logging interface operations
   #
   class Client < Common::Client::Base
-    include Common::Client::Concerns::MHVSessionBasedClient
+    include Common::Client::MHVSessionBasedClient
 
     configuration Rx::Configuration
     client_session Rx::ClientSession

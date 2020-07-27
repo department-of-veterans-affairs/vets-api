@@ -7,9 +7,12 @@ module VbaDocuments
 
       swagger_component do
         schema :DocumentUploadMetadata do
+          key :name, 'Metadata'
           key :type, :object
           key :description, 'Identifying properties about the document payload being submitted'
           key :required, %i[veteranFirstName veteranLastName fileNumber zipCode source]
+
+          key :in, :formData
 
           property :veteranFirstName do
             key :type, :string

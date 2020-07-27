@@ -11,14 +11,23 @@ module V0
              serializer: RatedDisabilitiesSerializer
     end
 
-    def separation_locations
-      response = EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
-      render json: response, each_serializer: EVSSSeparationLocationSerializer
-    end
-
     def suggested_conditions
       results = DisabilityContention.suggested(params[:name_part])
       render json: results, each_serializer: DisabilityContentionSerializer
+    end
+
+    # Submission path for `form526 increase only`
+    # TODO: This is getting deprecated in favor of `form526 all claims` (defined below)
+    #       and can eventually be removed completely
+    def submit
+      form_content = JSON.parse(request.body.string)
+      saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_hash(form_content)
+      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
+      submission = create_submission(saved_claim)
+      jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly)
+
+      render json: { data: { attributes: { job_id: jid } } },
+             status: :ok
     end
 
     def submit_all_claim
@@ -27,7 +36,7 @@ module V0
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
 
-      jid = submission.start
+      jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim)
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok

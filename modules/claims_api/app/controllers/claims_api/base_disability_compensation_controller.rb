@@ -16,7 +16,7 @@ module ClaimsApi
     end
 
     def validate_form_526
-      service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
+      service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
       auto_claim = ClaimsApi::AutoEstablishedClaim.new(
         status: ClaimsApi::AutoEstablishedClaim::PENDING,
         auth_headers: auth_headers,
@@ -60,6 +60,18 @@ module ClaimsApi
       errors.each do |error|
         key = error['key'].gsub(/\[(.*?)\]/, '')
         StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
+      end
+    end
+
+    def service(auth_headers)
+      if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
+        ClaimsApi::DisabilityCompensation::MockOverrideService.new(
+          auth_headers
+        )
+      else
+        EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
+          auth_headers
+        )
       end
     end
   end

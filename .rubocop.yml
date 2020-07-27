@@ -5,10 +5,9 @@ inherit_from: .rubocop_todo.yml
 require:
   - rubocop-rails
   - rubocop-rspec
-  - rubocop-thread_safety
 
 AllCops:
-  TargetRailsVersion: 6.0
+  TargetRailsVersion: 5.2
   Include:
     - '**/Gemfile'
     - '**/config.ru'
@@ -138,7 +137,7 @@ Style/FormatStringToken:
 
 Lint/BooleanSymbol:
   Exclude:
-    - "app/swagger/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
+    - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
 
 # Use `Time` when dealing with current dates and times; it has support for timezones (system/local and utc), whereas `DateTime` only supports offsets from UTC.
 # However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO.
@@ -328,8 +327,6 @@ RSpec/SubjectStub:
     - 'spec/services/evss_claim_service_spec.rb'
     - 'spec/services/mhv_accounts_service_spec.rb'
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
-    - 'spec/lib/carma/client/client_spec.rb'
-    - 'spec/services/form1010cg/service_spec.rb'
 
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:
@@ -356,15 +353,4 @@ Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 
 Style/ExponentialNotation:
-  Enabled: true
-
-# Added in v0.83
-Layout/EmptyLinesAroundAttributeAccessor:
-  Enabled: true
-
-Style/SlicingWithRange:
-  Enabled: true
-
-# Added in v0.84
-Lint/DeprecatedOpenSSLConstant:
   Enabled: true

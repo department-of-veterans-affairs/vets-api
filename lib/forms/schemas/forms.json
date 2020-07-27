@@ -34,9 +34,6 @@
               "pages": {
                 "type": "number"
               },
-              "valid_pdf": {
-                "type": "boolean"
-              },
               "sha256": {
                 "type":"string"
               }

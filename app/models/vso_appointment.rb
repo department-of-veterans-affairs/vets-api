@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class VSOAppointment
+class VsoAppointment
   extend ActiveModel::Callbacks
 
   include ActiveModel::Validations

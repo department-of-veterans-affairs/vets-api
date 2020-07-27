@@ -64,7 +64,6 @@ module VbaDocuments
           end
 
           response 400 do
-            key :description, 'Document upload failed'
             content 'application/xml' do
               schema do
                 key :$ref, :DocumentUploadFailure
@@ -93,10 +92,7 @@ module VbaDocuments
             key :description, 'ID as returned by a previous create upload request'
             key :required, true
             key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
-            schema do
-              key :type, :string
-              key :format, :uuid
-            end
+            key :type, :string
           end
 
           response 200 do
@@ -143,19 +139,13 @@ module VbaDocuments
             key :description, 'ID as returned by a previous create upload request'
             key :required, true
             key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
-            schema do
-              key :type, :string
-              key :format, :uuid
-            end
+            key :type, :string
           end
 
           response 200 do
             key :description, 'Zip file with the contents of your payload as parsed by our server'
-            content 'application/zip' do
-              schema do
-                key :type, :string
-                key :format, :binary
-              end
+            schema do
+              key :type, :file
             end
           end
 

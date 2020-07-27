@@ -8,7 +8,6 @@ FactoryBot.define do
     first_issued_on { Time.zone.today - 1.day }
     last_revision_on { Time.zone.today }
     pages { 2 }
-    valid_pdf { true }
     sha256 { 'somelongsha' }
   end
 end

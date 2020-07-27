@@ -15,13 +15,14 @@ Sidekiq.configure_server do |config|
   end
 
   config.server_middleware do |chain|
+    chain.remove Sidekiq::Middleware::Server::Logging
     chain.add Sidekiq::SemanticLogging
-    chain.add SidekiqStatsInstrumentation::ServerMiddleware
+    chain.add Sidekiq::Instrument::ServerMiddleware
     chain.add Sidekiq::ErrorTag
   end
 
   config.client_middleware do |chain|
-    chain.add SidekiqStatsInstrumentation::ClientMiddleware
+    chain.add Sidekiq::Instrument::ClientMiddleware
   end
 end
 
@@ -29,7 +30,7 @@ Sidekiq.configure_client do |config|
   config.redis = REDIS_CONFIG[:redis]
 
   config.client_middleware do |chain|
-    chain.add SidekiqStatsInstrumentation::ClientMiddleware
+    chain.add Sidekiq::Instrument::ClientMiddleware
     chain.add Sidekiq::SetRequestId
     chain.add Sidekiq::SetRequestAttributes
   end

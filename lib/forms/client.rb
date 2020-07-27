@@ -9,7 +9,7 @@ module Forms
   #
   class Client < Common::Client::Base
     include SentryLogging
-    include Common::Client::Concerns::Monitoring
+    include Common::Client::Monitoring
 
     configuration Forms::Configuration
 

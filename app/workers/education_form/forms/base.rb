@@ -64,25 +64,14 @@ module EducationForm::Forms
       @text = format unless self.class == Base
     end
 
-    # rubocop:disable Style/AsciiComments
-
-    # @note
-    #   The input fixtures in {spec/fixtures/education_benefits_claims/**/*.json contain
-    #   Windows-1252 encoding "double right-single-quotation-mark", (’) Unicode %u2019
-    #   but .spl file (expected output) contains ASCII apostrophe ('), code %27.
-    #
-    #   Workaround is to sub the ASCII apostrophe, though other non-UTF-8 chars might break specs
-    #
     # Convert the JSON/OStruct document into the text format that we submit to the backend
-    # rubocop:enable Style/AsciiComments
     def format
       @applicant = @form
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
-      wrapped = wrapped.gsub(/’|‘/, "'").gsub(/”|“/, '"')
       # We can only send ASCII, so make a best-effort at that.
-      transliterated = ActiveSupport::Inflector.transliterate(wrapped, locale: :en)
+      transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
       # Trim any lines that end in whitespace, but keep the lines themselves
       transliterated.gsub!(/[ ]+\n/, "\n")
       # The spool file must actually use windows style linebreaks
@@ -137,10 +126,6 @@ module EducationForm::Forms
       return '' if name.nil?
 
       [name.first, name.middle, name.last, name&.suffix].compact.join(' ')
-    end
-
-    def school_name
-      school&.name&.upcase&.strip
     end
 
     def school_name_and_addr(school)

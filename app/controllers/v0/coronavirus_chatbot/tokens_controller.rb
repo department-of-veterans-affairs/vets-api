@@ -61,8 +61,7 @@ module V0
       end
 
       def service_exception_handler(exception)
-        context = 'An error occurred with the Microsoft service that issues chatbot tokens'
-        log_exception_to_sentry(exception, 'context' => context)
+        logger.error "An error occured with the microsoft service that issues chatbot tokens #{exception.message}"
         render nothing: true, status: :service_unavailable
       end
 

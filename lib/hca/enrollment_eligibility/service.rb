@@ -3,7 +3,7 @@
 module HCA
   module EnrollmentEligibility
     class Service < Common::Client::Base
-      include Common::Client::Concerns::Monitoring
+      include Common::Client::Monitoring
 
       XPATH_PREFIX = 'env:Envelope/env:Body/getEESummaryResponse/summary/'
       configuration HCA::EnrollmentEligibility::Configuration

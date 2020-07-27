@@ -5,17 +5,5 @@ module EducationForm::Forms
     def header_form_type
       'V10203'
     end
-
-    def form_benefit
-      @applicant.benefit&.titleize
-    end
-
-    def school_name
-      @applicant.schoolName.upcase.strip
-    end
-
-    def any_remaining_benefit
-      yesno(%w[moreThanSixMonths sixMonthsOrLess].include?(@applicant.benefitLeft))
-    end
   end
 end

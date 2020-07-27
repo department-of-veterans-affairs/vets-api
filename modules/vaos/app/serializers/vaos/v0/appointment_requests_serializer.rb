@@ -37,8 +37,6 @@ module VAOS
                  :status,
                  :appointment_type,
                  :visit_type,
-                 :reason_for_visit,
-                 :additional_information,
                  :email,
                  :text_messaging_allowed,
                  :phone_number,

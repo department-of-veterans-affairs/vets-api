@@ -3,7 +3,7 @@
 module PagerDuty
   module ExternalServices
     class Service < PagerDuty::Service
-      include Common::Client::Concerns::Monitoring
+      include Common::Client::Monitoring
 
       # Equivalent to 'External:'
       QUERY = 'External%3A'

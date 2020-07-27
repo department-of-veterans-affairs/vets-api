@@ -1,70 +1,84 @@
 *INIT*
-FIRST
-MIDDLE
-LAST
-111223333
-111223333
+TEST
+
+FAKE
+
+
 V10203
 
-SCHOOL NAME
-STEM
+
+CH33
 *START*
 VA Form 22-10203
-JUN 2020
+DEC 2016
 
 
-              APPLICATION FOR EDITH NOURSE ROGERS STEM SCHOLARSHIP
-              ----------------------------------------------------
+            REQUEST FOR STEM SCHOLARSHIP
+      FOR VETERANS, SERVICEPERSONS & MEMBERS OF THE SELECTED RESERVE
+                    -------------------------------------
 
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 111223333    VA File Number: N/A
+SSN: N/A    VA File Number: 12345678
 
-Name:   first middle last
+Name:   Test Fake
 
 Address:
-123 MAIN ST
-MILWAUKEE, WI, 53130
+123 CENTRAL ST
+BALTIMORE, MD, 21231
 USA
 
-Telephone Numbers:     Home:
-                       Mobile:
+Telephone Numbers:     Primary:
+                       Secondary:
 
 Email Address:  test@sample.com
-Preferred Method of Contact:
+Preferred Method of Contact: mail
 
-Direct Deposit:
-Type of Account: checking
-Routing/Transit #: 123456789   Account #: 88888888888
+Direct Deposit:     Type of Account:
+Name of Financial Inst.:
+Routing/Transit #:    Account #:
+
+                  TYPE AND PROGRAM OF EDUCATION OR TRAINING
+                  -----------------------------------------
+
+Benefit You Are Receiving: STEM
+Are you applying for the Edith Nourse Rogers STEM Scholarship
+(Chapter 33)?: N/A
+Are you enrolled in an undergraduate STEM degree program?: N/A
+Do you have a STEM undergraduate degree and are now pursuing a
+teaching certification?: N/A
+
+
+                       ACTIVE DUTY SERVICE INFORMATION
+                       -------------------------------
 
 Are you currently on active duty or do you anticipate you will
-be going on active duty?: NO
+be going on active duty?: N/A
 
-Do you currently have remaining entitlement under any VA Education Benefits?:
-NO
 
-Benefit: Transfer Of Entitlement
+          ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
+          ----------------------------------------------------------
 
-              APPLICANT'S COURSE OF STUDY, CERTIFICATION AND SIGNATURE
-              --------------------------------------------------------
+For Active Duty Claimants Only. Are you receiving or do you anticipate
+receiving any money (including but not limited to Federal Tuition Assistance)
+from the Armed Forces or Public Health Service for the course for which you
+have applied to the VA for Education Benefits?  If you receive such benefits
+during any part of your training, check 'Yes.' Note:  If you are only applying
+for Tuition Assistance Top-Up, check 'No' to this item.    N/A
 
-Type of Education Program that you are currently enrolled in:
-   -  Education program that leads to an 'Undergraduate Degree' in a
-      standard, undergraduate college degree
+For Civilian Employees of the U.S. Federal Government Only. Are you receiving
+or do you anticipate receiving any money from your agency (including but not
+limited to the Government Employees Training Act) for the same period for
+which you have applied to the VA for Education Benefits? If you will receive
+such benefits during any part of your training, check Yes.    N/A
 
-Program Name: Degree Name
-
-Provide the location where you plan to or will start training:
-School Name
-Test, TN
-Auto Email Sent to SCO:
-Applicant School Email Address:
-Applicant School ID:
 
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
 
+      Certification for Persons on Active Duty
+Signature/Title/Branch of Armed Forces Education Service Officer     Date
 
 Electronically Received by VA:  2017-01-17
 Confirmation #:  V-EBC-1

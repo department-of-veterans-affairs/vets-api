@@ -5,7 +5,7 @@ require 'common/models/base'
 
 module Search
   class ResultsResponse < Common::Base
-    include Common::Client::Concerns::ServiceStatus
+    include Common::Client::ServiceStatus
 
     attribute :status, Integer
     attribute :body, Hash

@@ -49,7 +49,6 @@ module Facilities
           providers.each do |provider|
             provider.posCodes = request_params[:posCodes]
             provider.ProviderType = 'GroupPracticeOrAgency'
-            provider.set_hexdigest!
           end
           new_array.concat(providers)
         end.sort
@@ -159,7 +158,7 @@ module Facilities
         {
           latitude: lat,
           longitude: lon,
-          radius: rad.round
+          radius: rad
         }
       end
 
@@ -171,7 +170,7 @@ module Facilities
         longs = bbox_num.values_at(2, 0)
         xlen = (lats.max - lats.min) * 69 / 2
         ylen = (longs.max - longs.min) * 69 / 2
-        (Math.sqrt(xlen * xlen + ylen * ylen) * 1.1).round # go a little bit beyond the corner;
+        Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
       end
 
       def pos_locator_params(params, pos_code)

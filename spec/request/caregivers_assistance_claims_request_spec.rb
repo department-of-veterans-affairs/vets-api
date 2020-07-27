@@ -3,13 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Caregivers Assistance Claims', type: :request do
-  let(:vcr_options) do
-    {
-      record: :none,
-      allow_unused_http_interactions: false,
-      match_requests_on: %i[method uri host path]
-    }
-  end
   let(:headers) do
     {
       'ACCEPT' => 'application/json',
@@ -84,7 +77,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   end
 
   describe 'POST /v0/caregivers_assistance_claims' do
-    context 'when :stub_carma_responses is disabled' do
+    context 'when unauthenticated' do
       it_behaves_like 'any invalid submission'
 
       timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
@@ -94,23 +87,8 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
 
-        expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
-        expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false).twice
-
-        VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'emis/get_veteran_status/valid', vcr_options do
-            VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
-              VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
-                VCR.use_cassette 'carma/auth/token/200', vcr_options do
-                  VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-                    VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
-                      post endpoint, params: body, headers: headers
-                    end
-                  end
-                end
-              end
-            end
-          end
+        VCR.use_cassette 'carma/submissions/create/201' do
+          post endpoint, params: body, headers: headers
         end
 
         expect(response.code).to eq('200')
@@ -120,41 +98,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(res_body['data']).to be_present
         expect(res_body['data']['type']).to eq 'form1010cg_submissions'
         expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-        expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
-      end
-    end
-
-    context 'when :stub_carma_responses is enabled' do
-      it_behaves_like 'any invalid submission'
-
-      timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
-
-      it 'will mock responses from CARMA', run_at: timestamp.iso8601 do
-        form_data = build_valid_form_submission.call
-
-        body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
-
-        expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
-        expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true).twice
-
-        VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'emis/get_veteran_status/valid', vcr_options do
-            VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
-              VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
-                post endpoint, params: body, headers: headers
-              end
-            end
-          end
-        end
-
-        expect(response.code).to eq('200')
-
-        res_body = JSON.parse(response.body)
-
-        expect(res_body['data']).to be_present
-        expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-        expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-        expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
+        expect(res_body['data']['attributes']['confirmationNumber']).to be_present
       end
     end
   end

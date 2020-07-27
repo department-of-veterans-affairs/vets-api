@@ -10,7 +10,7 @@ module SM
   # Core class responsible for SM API interface operations
   #
   class Client < Common::Client::Base
-    include Common::Client::Concerns::MHVSessionBasedClient
+    include Common::Client::MHVSessionBasedClient
 
     configuration SM::Configuration
     client_session SM::ClientSession

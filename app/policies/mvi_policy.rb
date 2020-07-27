@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 MviPolicy = Struct.new(:user, :mvi) do
-  def access_add_person?
-    user.edipi.present? && user.ssn.present? && (user.birls_id.blank? || user.participant_id.blank?)
-  end
-
   def queryable?
     user.icn.present? || required_attrs_present?(user)
   end

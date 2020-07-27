@@ -6,7 +6,7 @@ require 'common/models/base'
 module IHub
   module Appointments
     class Response < Common::Base
-      include Common::Client::Concerns::ServiceStatus
+      include Common::Client::ServiceStatus
 
       attribute :status, Integer
       attribute :appointments, Array

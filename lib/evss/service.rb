@@ -6,7 +6,7 @@ require 'evss/auth_headers'
 module EVSS
   class Service < Common::Client::Base
     attr_reader :transaction_id
-    include Common::Client::Concerns::Monitoring
+    include Common::Client::Monitoring
     STATSD_KEY_PREFIX = 'api.evss'
 
     def initialize(user)

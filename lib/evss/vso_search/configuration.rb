@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module EVSS
-  module VSOSearch
+  module VsoSearch
     ##
-    # HTTP client configuration for the {VSOSearch::Service},
+    # HTTP client configuration for the {VsoSearch::Service},
     # sets the base path and a service name for breakers and metrics.
     #
     class Configuration < EVSS::Configuration
@@ -20,11 +20,11 @@ module EVSS
       # @return [String] Service name to use in breakers and metrics.
       #
       def service_name
-        'EVSS/VSOSearch'
+        'EVSS/VsoSearch'
       end
 
       ##
-      # HTTP client configuration for the {VSOSearch::Service},
+      # HTTP client configuration for the {VsoSearch::Service},
       # sets the base path, a default timeout, and a service name for breakers and metrics.
       #
       def mock_enabled?

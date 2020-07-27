@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_21_133558) do
+ActiveRecord::Schema.define(version: 2020_04_17_130928) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -34,7 +34,7 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
   end
 
   create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "status", default: "pending", null: false
+    t.integer "status", default: 0
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"
@@ -140,7 +140,6 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.string "encrypted_source_data"
     t.string "encrypted_source_data_iv"
     t.string "header_md5"
-    t.string "signature_errors", default: [], array: true
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
@@ -506,14 +505,6 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "valid_pdf", default: false
-    t.text "form_usage"
-    t.text "form_tool_intro"
-    t.string "form_tool_url"
-    t.string "form_type"
-    t.string "language"
-    t.datetime "deleted_at"
-    t.string "related_forms", array: true
-    t.jsonb "benefit_categories"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 

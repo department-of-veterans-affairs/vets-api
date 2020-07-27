@@ -2,7 +2,7 @@
 
 module ClaimsApi
   module DisabilityCompensation
-    class MockOverrideService < EVSS::DisabilityCompensationForm::Service
+    class MockOverrideService < EVSS::DisabilityCompensationForm::ServiceAllClaim
       configuration ClaimsApi::DisabilityCompensation::MockOverrideConfiguration
     end
   end

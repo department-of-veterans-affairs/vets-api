@@ -9,26 +9,20 @@ module V0
 
       private
 
-      def address_params
-        %i[
-          street
-          street2
-          city
-          state
-          country
-          postal_code
-        ]
-      end
-
       def supply_params
         params.permit(
-          :use_veteran_address,
+          :use_permanent_address,
           :use_temporary_address,
           :additional_requests,
-          :vet_email,
           order: [:product_id],
-          permanent_address: address_params,
-          temporary_address: address_params
+          permanent_address: %i[
+            street
+            street2
+            city
+            state
+            country
+            postal_code
+          ]
         ).to_hash
       end
 

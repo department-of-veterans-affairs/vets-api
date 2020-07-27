@@ -3,7 +3,7 @@
 module BipClaims
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.bip_claims'
-    include Common::Client::Concerns::Monitoring
+    include Common::Client::Monitoring
 
     configuration BipClaims::Configuration
 

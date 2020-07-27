@@ -7,19 +7,6 @@ module CARMA
       attr_accessor :data, :carma_case_id, :submitted_at
 
       request_payload_key :data, :metadata
-      after_to_request_payload :clear_veteran_icn
-
-      def clear_veteran_icn(data)
-        # The values metadata.veteran.icn and metadata.veteran.isVeteran are used together
-        # to create the proper Person type in CARMA.
-        #
-        # CARMA requires metadata.veteran.icn to be null if metadata.veteran.isVeteran is false
-        # If metadata.veteran.isVeteran is true, an icn must be present.
-        #
-        # This is only the case for metadata.veteran and not other metadata namespaces.
-        data['metadata']['veteran']['icn'] = nil unless data['metadata']['veteran']['isVeteran'] == true
-        data
-      end
 
       # Returns a new CARMA::Models::Submission built from a CaregiversAssistanceClaim.
       #
@@ -42,14 +29,10 @@ module CARMA
         self.metadata = args[:metadata] || {}
       end
 
-      def submit!(client)
+      def submit!
         raise 'This submission has already been submitted to CARMA' if submitted?
 
-        response =  if Flipper.enabled?(:stub_carma_responses)
-                      client.create_submission_stub(to_request_payload)
-                    else
-                      client.create_submission(to_request_payload)
-                    end
+        response = client.create_submission(to_request_payload)
 
         @carma_case_id = response['data']['carmacase']['id']
         @submitted_at = response['data']['carmacase']['createdAt']
@@ -63,6 +46,12 @@ module CARMA
 
       def metadata=(metadata_hash)
         @metadata = Metadata.new(metadata_hash)
+      end
+
+      private
+
+      def client
+        @client ||= CARMA::Client::Client.new
       end
     end
   end
