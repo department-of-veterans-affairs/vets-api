@@ -15,6 +15,7 @@ module ClaimsApi
       render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
     end
 
+    # rubocop:disable Metrics/MethodLength
     def validate_form_526
       service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       auto_claim = ClaimsApi::AutoEstablishedClaim.new(
@@ -28,13 +29,17 @@ module ClaimsApi
       error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages
       track_526_validation_errors(error_details)
       render json: { errors: format_526_errors(error_details) }, status: :unprocessable_entity
-    rescue ::Common::Exceptions::GatewayTimeout, ::Timeout::Error, ::Faraday::TimeoutError => e
+    rescue ::Common::Exceptions::GatewayTimeout,
+           ::Timeout::Error,
+           ::Faraday::TimeoutError,
+           Breakers::OutageException => e
       req = { auth: auth_headers, form: form_attributes, source: source_name, auto_claim: auto_claim.as_json }
       PersonalInformationLog.create(
         error_class: "validate_form_526 #{e.class.name}", data: { request: req, error: e.try(:as_json) || e }
       )
       raise e
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
