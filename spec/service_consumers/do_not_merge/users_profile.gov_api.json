@@ -24,14 +24,14 @@
         },
         "body": {
           "data": {
-            "type": "users_scaffolds",
+            "id": "526ez",
+            "type": "va_form",
             "attributes": {
-		      "profile": {
-		        "email": "abraham.lincoln@vets.gov",
-			    "firstName": "abraham",
-			    "lastName": "lincoln",
-			    "birthDate": "1809-02-12"
-		      }
+              "formName": "526ez",
+              "url": "https://va.gov/v0/user",
+              "title": "Disability Compensation",
+              "pages": 2,
+              "sha256": "somelongsha"
             }
           }
         },
