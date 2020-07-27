@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGS
-  class BenefitClaim < Service
+  class BenefitClaim
     BENEFIT_CLAIM_PARAM_CONSTANTS = {
       benefit_claim_type: '1',
       payee: '00',
@@ -13,11 +13,11 @@ module BGS
       end_product_code: '130DPNEBNADJ'
     }.freeze
 
-    def initialize(vnp_benefit_claim:, veteran:, user:)
+    def initialize(vnp_benefit_claim:, veteran:, user:, proc_id:)
       @vnp_benefit_claim = vnp_benefit_claim
       @veteran = veteran
-
-      super(user)
+      @user = user
+      @proc_id = proc_id
     end
 
     def create
@@ -33,14 +33,12 @@ module BGS
       }
     end
 
-    private
-
     def insert_benefit_claim(_vnp_benefit_claim)
-      with_multiple_attempts_enabled do
-        service.claims.insert_benefit_claim(
-          benefit_claim_params
-        )
-      end
+      bgs_service.claims.insert_benefit_claim(
+        benefit_claim_params
+      )
+    rescue => e
+      handle_error(e, __method__.to_s)
     end
 
     def benefit_claim_params
@@ -61,6 +59,31 @@ module BGS
         country: @veteran[:address_country],
         date_of_claim: Time.current.strftime('%m/%d/%Y')
       }.merge(BENEFIT_CLAIM_PARAM_CONSTANTS)
+    end
+
+    private
+
+    def handle_error(error, method)
+      update_manual_proc
+      bgs_service.notify_of_service_exception(error, method)
+    end
+
+    def update_manual_proc
+      bgs_service.vnp_proc_v2.vnp_proc_update(
+        {
+          vnp_proc_id: @proc_id,
+          vnp_proc_state_type_cd: 'Manual'
+        }.merge(bgs_service.bgs_auth)
+      )
+    rescue => e
+      bgs_service.notify_of_service_exception(e, __method__)
+    end
+
+    def bgs_service
+      @bgs_service ||= BGS::Services.new(
+        external_uid: @user[:icn],
+        external_key: @user[:external_key]
+      )
     end
   end
 end

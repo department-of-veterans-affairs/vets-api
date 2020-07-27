@@ -1,37 +1,20 @@
 # frozen_string_literal: true
 
 module BGS
-  class StudentSchool < Service
+  class StudentSchool
     def initialize(proc_id:, vnp_participant_id:, payload:, user:)
+      @user = user
       @proc_id = proc_id
       @vnp_participant_id = vnp_participant_id
       @dependents_application = payload['dependents_application']
-
-      super(user)
     end
 
     def create
-      create_child_school
-      create_child_student
+      bgs_service.create_child_school(child_school.params_for_686c)
+      bgs_service.create_child_student(child_student.params_for_686c)
     end
 
     private
-
-    def create_child_school
-      with_multiple_attempts_enabled do
-        service.vnp_child_school.child_school_create(
-          child_school.params_for_686c
-        )
-      end
-    end
-
-    def create_child_student
-      with_multiple_attempts_enabled do
-        service.vnp_child_student.child_student_create(
-          child_student.params_for_686c
-        )
-      end
-    end
 
     def child_school
       @child_student = BGS::Vnp::ChildSchool.new(
@@ -51,7 +34,11 @@ module BGS
       {
         vnp_proc_id: @proc_id,
         vnp_ptcpnt_id: @vnp_participant_id
-      }.merge(bgs_auth)
+      }.merge(bgs_service.bgs_auth)
+    end
+
+    def bgs_service
+      @service ||= BGS::Service.new(@user)
     end
   end
 end

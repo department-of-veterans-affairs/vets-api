@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
 module BGS
-  class Dependents < Service
-    include Helpers::Formatters
-
+  class Dependents
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
       @payload = payload
       @dependents = []
       @dependents_application = @payload['dependents_application']
-
-      super(user)
+      @user = user
     end
 
     # rubocop:disable Metrics/PerceivedComplexity
@@ -34,16 +31,18 @@ module BGS
 
     def add_children
       @dependents_application['children_to_add'].each do |child_info|
-        formatted_info = format_child_info(child_info)
-        participant = create_participant(@proc_id)
+        child = BGS::DependentEvents::Child.new(child_info)
+        formatted_info = child.format_info
+        participant = bgs_service.create_participant(@proc_id)
 
-        create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_info)
-        generate_address(
+        bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_info)
+        bgs_service.generate_address(
+          @proc_id,
           participant[:vnp_ptcpnt_id],
-          dependent_address(child_info['does_child_live_with_you'], child_info.dig('child_address_info', 'address'))
+          child.address(@dependents_application)
         )
 
-        @dependents << serialize_dependent_result(
+        @dependents << child.serialize_dependent_result(
           participant,
           'Child',
           formatted_info['family_relationship_type'],
@@ -57,17 +56,18 @@ module BGS
 
     def report_deaths
       @dependents_application['deaths'].each do |death_info|
-        formatted_death_info = format_death_info(death_info)
-        relationship_types = relationship_type(death_info)
+        death = BGS::DependentEvents::Death.new(death_info)
+        formatted_death_info = death.format_info
+        relationship_types = death.relationship_type(death_info)
         death_info['location']['state_code'] = death_info['location'].delete('state')
 
-        participant = create_participant(@proc_id)
-        create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_death_info)
+        participant = bgs_service.create_participant(@proc_id)
+        bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_death_info)
         # I think we need the death_location instead of creating an address
         # There is no support in the API for death location
         # create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
 
-        @dependents << serialize_dependent_result(
+        @dependents << death.serialize_dependent_result(
           participant,
           relationship_types[:participant],
           relationship_types[:family],
@@ -77,11 +77,12 @@ module BGS
     end
 
     def report_divorce
-      divorce_info = format_divorce_info(@dependents_application['report_divorce'])
-      participant = create_participant(@proc_id)
-      create_person(@proc_id, participant[:vnp_ptcpnt_id], divorce_info)
+      divorce = BGS::DependentEvents::Divorce.new(@dependents_application['report_divorce'])
+      divorce_info = divorce.format_info
+      participant = bgs_service.create_participant(@proc_id)
+      bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], divorce_info)
 
-      @dependents << serialize_dependent_result(
+      @dependents << divorce.serialize_dependent_result(
         participant,
         'Spouse',
         'Spouse',
@@ -95,12 +96,13 @@ module BGS
 
     def report_stepchild
       @dependents_application['step_children'].each do |stepchild_info|
-        step_child_formatted = format_stepchild_info(stepchild_info)
-        participant = create_participant(@proc_id)
-        create_person(@proc_id, participant[:vnp_ptcpnt_id], step_child_formatted)
-        generate_address(participant[:vnp_ptcpnt_id], stepchild_info['address'])
+        step_child = BGS::DependentEvents::StepChild.new(stepchild_info)
+        step_child_formatted = step_child.format_info
+        participant = bgs_service.create_participant(@proc_id)
+        bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], step_child_formatted)
+        bgs_service.generate_address(@proc_id, participant[:vnp_ptcpnt_id], stepchild_info['address'])
 
-        @dependents << serialize_dependent_result(
+        @dependents << step_child.serialize_dependent_result(
           participant,
           'Child',
           'Stepchild',
@@ -113,12 +115,13 @@ module BGS
     end
 
     def report_child_event(event_type)
-      formatted_child_info = child_event_info(event_type)
-      participant = create_participant(@proc_id)
+      child_event = child_event_type(event_type)
+      formatted_child_info = child_event.format_info
+      participant = bgs_service.create_participant(@proc_id)
 
-      create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_child_info)
+      bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_child_info)
 
-      @dependents << serialize_dependent_result(
+      @dependents << child_event.serialize_dependent_result(
         participant,
         'Child',
         'Other',
@@ -130,16 +133,16 @@ module BGS
     end
 
     def report_674
-      formatted_674_info = format_674_info(
-        @dependents_application['student_name_and_ssn'],
-        @dependents_application.dig('student_address_marriage_tuition', 'was_married')
+      adult_attending_school = BGS::DependentEvents::AdultChildAttendingSchool.new(
+        @dependents_application
       )
+      formatted_674_info = adult_attending_school.format_info
       student_address = @dependents_application['student_address_marriage_tuition']['address']
-      participant = create_participant(@proc_id)
-      create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_674_info)
-      generate_address(participant[:vnp_ptcpnt_id], student_address)
+      participant = bgs_service.create_participant(@proc_id)
+      bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_674_info)
+      bgs_service.generate_address(@proc_id, participant[:vnp_ptcpnt_id], student_address)
 
-      @dependents << serialize_dependent_result(
+      @dependents << adult_attending_school.serialize_dependent_result(
         participant,
         'Child',
         'Other',
@@ -147,10 +150,16 @@ module BGS
       )
     end
 
-    def child_event_info(event_type)
-      return format_child_marriage_info(@dependents_application['child_marriage']) if event_type == 'child_marriage'
+    def child_event_type(event_type)
+      if event_type == 'child_marriage'
+        return BGS::DependentEvents::ChildMarriage.new(@dependents_application['child_marriage'])
+      end
 
-      format_child_not_attending(@dependents_application['child_stopped_attending_school'])
+      BGS::DependentEvents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
+    end
+
+    def bgs_service
+      @bgs_service ||= BGS::Service.new(@user)
     end
   end
 end

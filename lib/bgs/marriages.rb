@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 
 module BGS
-  class Marriages < Service
-    include Helpers::Formatters
-
+  class Marriages
     def initialize(proc_id:, payload:, user:)
+      @user = user
+      @dependents = []
       @proc_id = proc_id
       @payload = payload
-      @dependents = []
       @dependents_application = @payload['dependents_application']
-
-      super(user)
     end
 
     def create
@@ -23,11 +20,12 @@ module BGS
 
     def report_marriage_history(type)
       @dependents_application[type].each do |former_spouse|
-        marriage_info = format_former_marriage_info(former_spouse)
-        participant = create_participant(@proc_id)
-        create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+        former_marriage = BGS::DependentEvents::MarriageHistory.new(former_spouse)
+        marriage_info = former_marriage.format_info
+        participant = bgs_service.create_participant(@proc_id)
+        bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
 
-        @dependents << serialize_dependent_result(
+        @dependents << former_marriage.serialize_dependent_result(
           participant,
           'Spouse',
           'Ex-Spouse',
@@ -37,20 +35,21 @@ module BGS
     end
 
     def add_spouse
-      lives_with_vet = @dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
-      marriage_info = format_marriage_info(@dependents_application['spouse_information'], lives_with_vet)
-      participant = create_participant(@proc_id)
+      marriage = BGS::DependentEvents::Marriage.new(@dependents_application)
+      marriage_info = marriage.format_info
+      participant = bgs_service.create_participant(@proc_id)
 
-      create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
-      generate_address(
+      bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+      bgs_service.generate_address(
+        @proc_id,
         participant[:vnp_ptcpnt_id],
-        dependent_address(lives_with_vet, @dependents_application.dig('does_live_with_spouse', 'address'))
+        marriage.address(marriage_info)
       )
 
-      @dependents << serialize_dependent_result(
+      @dependents << marriage.serialize_dependent_result(
         participant,
         'Spouse',
-        lives_with_vet ? 'Spouse' : 'Estranged Spouse',
+        marriage_info['lives_with_vet'] ? 'Spouse' : 'Estranged Spouse',
         {
           begin_date: @dependents_application['current_marriage_information']['date'],
           marriage_state: @dependents_application['current_marriage_information']['location']['state'],
@@ -58,6 +57,10 @@ module BGS
           type: 'spouse'
         }
       )
+    end
+
+    def bgs_service
+      @bgs_service = BGS::Service.new(@user)
     end
   end
 end

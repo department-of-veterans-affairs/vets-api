@@ -11,6 +11,39 @@ module BGS
       @user = user
     end
 
+    def create_proc
+      with_multiple_attempts_enabled do
+        service.vnp_proc_v2.vnp_proc_create(
+          {
+            vnp_proc_type_cd: 'DEPCHG',
+            vnp_proc_state_type_cd: 'Started'
+          }.merge(bgs_auth)
+        )
+      end
+    end
+
+    def create_proc_form(vnp_proc_id)
+      with_multiple_attempts_enabled do
+        service.vnp_proc_form.vnp_proc_form_create(
+          {
+            vnp_proc_id: vnp_proc_id,
+            form_type_cd: '21-686c'
+          }.merge(bgs_auth)
+        )
+      end
+    end
+
+    def update_proc(proc_id)
+      with_multiple_attempts_enabled do
+        service.vnp_proc_v2.vnp_proc_update(
+          {
+            vnp_proc_id: proc_id,
+            vnp_proc_state_type_cd: 'Ready'
+          }.merge(bgs_auth)
+        )
+      end
+    end
+
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt.vnp_ptcpnt_create(
@@ -53,11 +86,99 @@ module BGS
       end
     end
 
-    def service
-      @service ||= BGS::Services.new(
-        external_uid: @user[:icn],
-        external_key: @user[:external_key]
-      )
+    def generate_address(proc_id, participant_id, address)
+      if address['view:lives_on_military_base'] == true
+        address['military_postal_code'] = address.delete('state_code')
+        address['military_post_office_type_code'] = address.delete('city')
+      end
+
+      create_address(proc_id, participant_id, address)
+    end
+
+    def create_child_school(child_school_params)
+      with_multiple_attempts_enabled do
+        service.vnp_child_school.child_school_create(child_school_params)
+      end
+    end
+
+    def create_child_student(child_student_params)
+      with_multiple_attempts_enabled do
+        service.vnp_child_student.child_student_create(child_student_params)
+      end
+    end
+
+    def create_relationship(relationship_params)
+      with_multiple_attempts_enabled do
+        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params)
+      end
+    end
+
+    def find_benefit_claim_type_increment
+      with_multiple_attempts_enabled do
+        service.data.find_benefit_claim_type_increment(
+          {
+            ptcpnt_id: @user[:participant_id],
+            bnft_claim_type_cd: '130DPNEBNADJ',
+            pgm_type_cd: 'CPL',
+            ssn: @user[:ssn] # Just here to make the mocks work
+          }
+        )
+      end
+    end
+
+    def get_va_file_number
+      with_multiple_attempts_enabled do
+        person = service.people.find_person_by_ptcpnt_id(@user[:participant_id])
+
+        person[:file_nbr]
+      end
+    end
+
+    def with_multiple_attempts_enabled
+      attempt ||= 0
+      yield
+    rescue => e
+      attempt += 1
+      if attempt < MAX_ATTEMPTS
+        notify_of_service_exception(e, __method__.to_s, attempt, :warn)
+        retry
+      end
+
+      notify_of_service_exception(e, __method__.to_s)
+    end
+
+    def create_benefit_claim(vnp_benefit_params)
+      with_multiple_attempts_enabled do
+        service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params)
+      end
+    end
+
+    def vnp_benefit_claim_update(vnp_benefit_params)
+      with_multiple_attempts_enabled do
+        service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params)
+      end
+    end
+
+    def bgs_auth
+      {
+        jrn_dt: Time.current.iso8601,
+        jrn_lctn_id: Settings.bgs.client_station_id,
+        jrn_status_type_cd: 'U',
+        jrn_user_id: Settings.bgs.client_username,
+        jrn_obj_id: Settings.bgs.application,
+        ssn: @user[:ssn] # Just here to make the mocks work
+      }
+    end
+
+    def notify_of_service_exception(error, method, attempt = nil, status = :error)
+      msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
+      context = { icn: @user[:icn] }
+      tags = { team: 'vfs-ebenefits' }
+
+      return log_message_to_sentry(msg, :warn, context, tags) if status == :warn
+
+      log_exception_to_sentry(error, context, tags)
+      raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
     end
 
     private
@@ -103,80 +224,6 @@ module BGS
       }.merge(bgs_auth)
     end
 
-    def with_multiple_attempts_enabled
-      attempt ||= 0
-      yield
-    rescue => e
-      attempt += 1
-      if attempt < MAX_ATTEMPTS
-        notify_of_service_exception(e, __method__.to_s, attempt, :warn)
-        retry
-      end
-
-      notify_of_service_exception(e, __method__.to_s)
-    end
-
-    def bgs_auth
-      {
-        jrn_dt: Time.current.iso8601,
-        jrn_lctn_id: Settings.bgs.client_station_id,
-        jrn_status_type_cd: 'U',
-        jrn_user_id: Settings.bgs.client_username,
-        jrn_obj_id: Settings.bgs.application,
-        ssn: @user[:ssn] # Just here to make the mocks work
-      }
-    end
-
-    def serialize_dependent_result(
-      participant,
-      participant_relationship_type,
-      family_relationship_type,
-      optional_fields = {}
-    )
-
-      {
-        vnp_participant_id: participant[:vnp_ptcpnt_id],
-        participant_relationship_type_name: participant_relationship_type,
-        family_relationship_type_name: family_relationship_type,
-        begin_date: optional_fields[:begin_date],
-        end_date: optional_fields[:end_date],
-        event_date: optional_fields[:event_date],
-        marriage_state: optional_fields[:marriage_state],
-        marriage_city: optional_fields[:marriage_city],
-        divorce_state: optional_fields[:divorce_state],
-        divorce_city: optional_fields[:divorce_city],
-        marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
-        living_expenses_paid_amount: optional_fields[:living_expenses_paid],
-        type: optional_fields[:type]
-      }
-    end
-
-    def dependent_address(lives_with_vet, alt_address)
-      return @dependents_application.dig('veteran_contact_information', 'veteran_address') if lives_with_vet
-
-      alt_address
-    end
-
-    def generate_address(participant_id, address)
-      if address['view:lives_on_military_base'] == true
-        address['military_postal_code'] = address.delete('state_code')
-        address['military_post_office_type_code'] = address.delete('city')
-      end
-
-      create_address(@proc_id, participant_id, address)
-    end
-
-    def notify_of_service_exception(error, method, attempt = nil, status = :error)
-      msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
-      context = { icn: @user[:icn] }
-      tags = { team: 'vfs-ebenefits' }
-
-      return log_message_to_sentry(msg, :warn, context, tags) if status == :warn
-
-      log_exception_to_sentry(error, context, tags)
-      raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
-    end
-
     def raise_backend_exception(key, source, error)
       exception = BGS::ServiceException.new(
         key,
@@ -192,6 +239,13 @@ module BGS
       return nil if date.nil?
 
       Date.parse(date).to_time.iso8601
+    end
+
+    def service
+      @service ||= BGS::Services.new(
+        external_uid: @user[:icn],
+        external_key: @user[:external_key]
+      )
     end
   end
 end

@@ -75,6 +75,8 @@ RSpec.describe BGS::Marriages do
           'first' => 'Jenny',
           'middle' => 'Lauren',
           'last' => 'McCarthy',
+          'alt_address' => nil,
+          'lives_with_vet' => true,
           'suffix' => 'Sr.',
           'ssn' => '323454323',
           'birth_date' => '1981-04-04',

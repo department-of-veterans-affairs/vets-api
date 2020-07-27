@@ -37,8 +37,8 @@ RSpec.describe BGS::Form686c do
 
   it 'calls all methods in flow' do
     VCR.use_cassette('bgs/form686c/submit') do
-      expect_any_instance_of(BGS::Form686c).to receive(:create_proc).and_call_original
-      expect_any_instance_of(BGS::Form686c).to receive(:create_proc_form).and_call_original
+      expect_any_instance_of(BGS::Service).to receive(:create_proc).and_call_original
+      expect_any_instance_of(BGS::Service).to receive(:create_proc_form).and_call_original
       expect_any_instance_of(BGS::VnpVeteran).to receive(:create).and_call_original
       expect_any_instance_of(BGS::Dependents).to receive(:create).and_call_original
       expect_any_instance_of(BGS::VnpRelationships).to receive(:create).and_call_original

@@ -41,7 +41,8 @@ RSpec.describe BGS::BenefitClaim do
         benefit_claim = BGS::BenefitClaim.new(
           vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
           veteran: vet_hash,
-          user: user_hash
+          user: user_hash,
+          proc_id: proc_id
         ).create
 
         expect(benefit_claim).to include(
@@ -81,7 +82,8 @@ RSpec.describe BGS::BenefitClaim do
         BGS::BenefitClaim.new(
           vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
           veteran: vet_hash,
-          user: user_hash
+          user: user_hash,
+          proc_id: proc_id
         ).create
       end
     end

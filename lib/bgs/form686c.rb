@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGS
-  class Form686c < Service
+  class Form686c
     def initialize(user)
       @user = user.with_indifferent_access
     end
@@ -18,47 +18,15 @@ module BGS
       benefit_claim_record = BenefitClaim.new(
         vnp_benefit_claim: vnp_benefit_claim_record,
         veteran: veteran,
-        user: @user
+        user: @user,
+        proc_id: proc_id
       ).create
 
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-      update_proc(proc_id)
+      bgs_service.update_proc(proc_id)
     end
 
     private
-
-    def create_proc
-      with_multiple_attempts_enabled do
-        service.vnp_proc_v2.vnp_proc_create(
-          {
-            vnp_proc_type_cd: 'DEPCHG',
-            vnp_proc_state_type_cd: 'Started'
-          }.merge(bgs_auth)
-        )
-      end
-    end
-
-    def create_proc_form(vnp_proc_id)
-      with_multiple_attempts_enabled do
-        service.vnp_proc_form.vnp_proc_form_create(
-          {
-            vnp_proc_id: vnp_proc_id,
-            form_type_cd: '21-686c'
-          }.merge(bgs_auth)
-        )
-      end
-    end
-
-    def update_proc(proc_id)
-      with_multiple_attempts_enabled do
-        service.vnp_proc_v2.vnp_proc_update(
-          {
-            vnp_proc_id: proc_id,
-            vnp_proc_state_type_cd: 'Ready'
-          }.merge(bgs_auth)
-        )
-      end
-    end
 
     def process_relationships(proc_id, veteran, payload)
       dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
@@ -84,8 +52,8 @@ module BGS
     end
 
     def create_proc_id_and_form
-      vnp_response = create_proc
-      create_proc_form(vnp_response[:vnp_proc_id])
+      vnp_response = bgs_service.create_proc
+      bgs_service.create_proc_form(vnp_response[:vnp_proc_id])
 
       vnp_response[:vnp_proc_id]
     end
@@ -94,6 +62,10 @@ module BGS
       return true if dependent_type == '674'
 
       false
+    end
+
+    def bgs_service
+      BGS::Service.new(@user)
     end
   end
 end
