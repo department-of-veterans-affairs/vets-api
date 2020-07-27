@@ -30,6 +30,13 @@ RSpec.describe 'address', type: :request do
             expect(response).to match_response_schema('address_response')
           end
         end
+        it 'matches the address schema when camel-inflected' do
+          VCR.use_cassette('evss/pciu_address/address') do
+            get '/v0/address', headers: { 'X-Key-Inflection' => 'camel' }
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('address_response')
+          end
+        end
       end
 
       context 'with a domestic address' do
