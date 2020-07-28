@@ -43,7 +43,7 @@ module CARMA
         }
       end
 
-      def submit!
+      def submit!(client)
         return response if response
 
         @response = if Flipper.enabled?(:stub_carma_responses)
@@ -70,12 +70,6 @@ module CARMA
           has_errors: has_errors,
           data: all.map(&:to_hash)
         }
-      end
-
-      private
-
-      def client
-        CARMA::Client::Client.instance
       end
     end
   end

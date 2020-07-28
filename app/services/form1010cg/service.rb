@@ -9,7 +9,21 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    NOT_FOUND = 'NOT_FOUND'
+    STATSD_KEY_PREFIX = 'api.form1010cg.submission'
+    NOT_FOUND         = 'NOT_FOUND'
+
+    def self.metrics
+      OpenStruct.new(
+        attempt: STATSD_KEY_PREFIX + '.attempt',
+        success: STATSD_KEY_PREFIX + '.success',
+        failure: OpenStruct.new(
+          client: OpenStruct.new(
+            data: STATSD_KEY_PREFIX + '.failure.client.data',
+            qualification: STATSD_KEY_PREFIX + '.failure.client.qualification'
+          )
+        )
+      )
+    end
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -41,7 +55,7 @@ module Form1010cg
 
       assert_veteran_status
 
-      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!
+      carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!(carma_client)
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
@@ -75,7 +89,7 @@ module Form1010cg
 
         carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
 
-        carma_attachments.submit!
+        carma_attachments.submit!(carma_client)
         submission.attachments = carma_attachments.to_hash
       rescue
         # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
@@ -118,7 +132,6 @@ module Form1010cg
       # Set the ICN's for each form_subject on the metadata hash
       metadata = claim.form_subjects.each_with_object({}) do |form_subject, obj|
         icn = icn_for(form_subject)
-
         obj[form_subject.snakecase.to_sym] = {
           icn: icn == NOT_FOUND ? nil : icn
         }
@@ -162,9 +175,10 @@ module Form1010cg
       return cached_veteran_status unless cached_veteran_status.nil?
 
       icn = icn_for(form_subject)
+
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
-      response = EMIS::VeteranStatusService.new.get_veteran_status(icn: icn)
+      response = emis_service.get_veteran_status(icn: icn)
 
       is_veteran = response&.items&.first&.title38_status_code == 'V1'
 
@@ -175,6 +189,14 @@ module Form1010cg
 
     def mvi_service
       @mvi_service ||= MVI::Service.new
+    end
+
+    def carma_client
+      @carma_client ||= CARMA::Client::Client.new
+    end
+
+    def emis_service
+      @emis_service ||= EMIS::VeteranStatusService.new
     end
 
     # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.

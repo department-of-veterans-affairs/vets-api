@@ -40,7 +40,7 @@ module AppealsApi
       private
 
       def parse_central_mail_response(response)
-        JSON.parse(response.body).map do |(hash)|
+        JSON.parse(response.body).flatten.map do |hash|
           Struct.new(:id, :status, :error_message).new(*hash.values_at('uuid', 'status', 'errorMessage'))
         end
       end

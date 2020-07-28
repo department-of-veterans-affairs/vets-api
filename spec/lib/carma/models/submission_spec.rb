@@ -325,7 +325,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         submission.submitted_at = DateTime.now.iso8601
         submission.carma_case_id = 'aB935000000A9GoCAK'
 
-        expect { submission.submit! }.to raise_error('This submission has already been submitted to CARMA')
+        expect { submission.submit!(double) }.to raise_error('This submission has already been submitted to CARMA')
       end
     end
 
@@ -342,17 +342,18 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false)
 
-        expect(CARMA::Client::Client.instance).not_to receive(:create_submission_stub)
+        carma_client = double
+        expect(carma_client).not_to receive(:create_submission_stub)
 
         expect(submission.carma_case_id).to eq(nil)
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
 
-        expect(CARMA::Client::Client.instance).to receive(:create_submission).and_return(
+        expect(carma_client).to receive(:create_submission).and_return(
           expected_response
         )
 
-        submission.submit!
+        submission.submit!(carma_client)
 
         expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
         expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
@@ -375,8 +376,9 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
         expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
 
-        expect(CARMA::Client::Client.instance).not_to receive(:create_submission)
-        expect(CARMA::Client::Client.instance).to receive(
+        carma_client = double
+        expect(carma_client).not_to receive(:create_submission)
+        expect(carma_client).to receive(
           :create_submission_stub
         ).with(
           :REQUEST_PAYLOAD
@@ -388,7 +390,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
 
-        submission.submit!
+        submission.submit!(carma_client)
 
         expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
         expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])

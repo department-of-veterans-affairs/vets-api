@@ -5,7 +5,7 @@ require 'common/client/base'
 module IHub
   module Appointments
     class Service < IHub::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
 
       configuration IHub::Appointments::Configuration
 

@@ -51,7 +51,8 @@ RSpec.describe V1::SessionsController, type: :controller do
       authn_context: authn_context,
       level_of_assurance: ['3'],
       attributes: build(:ssoe_idme_loa1, va_eauth_ial: 3),
-      in_response_to: login_uuid
+      in_response_to: login_uuid,
+      issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
     )
   end
 
@@ -327,13 +328,28 @@ RSpec.describe V1::SessionsController, type: :controller do
             authn_context: authn_context,
             level_of_assurance: ['3'],
             attributes: invalid_attributes,
-            in_response_to: login_uuid
+            in_response_to: login_uuid,
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
           )
         end
 
         it 'redirects to an auth failure page' do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+
+        it 'logs a status failure stat' do
+          SAMLRequestTracker.create(
+            uuid: login_uuid,
+            payload: { type: 'mhv' }
+          )
+          expect(controller).to receive(:log_message_to_sentry)
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
+                                         tags: ['context:mhv', 'version:v1', 'error:101'])
+
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
