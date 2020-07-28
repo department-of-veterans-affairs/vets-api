@@ -10,7 +10,7 @@ module BGSDependents
 
     def relationship_type(info)
       if info['dependent_type']
-        return {participant: 'Guardian', family: 'Other'} if info['dependent_type'] == 'DEPENDENT_PARENT'
+        return { participant: 'Guardian', family: 'Other' } if info['dependent_type'] == 'DEPENDENT_PARENT'
 
         {
           participant: info['dependent_type'].capitalize.gsub('_', ' '),
