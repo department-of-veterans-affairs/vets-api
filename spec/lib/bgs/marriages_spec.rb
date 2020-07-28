@@ -91,7 +91,7 @@ RSpec.describe BGS::Marriages do
 
         VCR.use_cassette('bgs/dependents/create/spouse/is_veteran') do
           expect_any_instance_of(BGS::Service).to receive(:create_person)
-            .with(spouse_vet_hash)
+            .with(a_hash_including(spouse_vet_hash))
             .and_call_original
 
           BGS::Marriages.new(
