@@ -45,11 +45,21 @@ module VAOS
         query_string.blank? ? perform(:get, @resource_type.to_s) : perform(:get, "#{@resource_type}?#{query_string}")
       end
 
+      # The create interaction creates a resource based on the FHIR resource passed in the request body.
+      # The interaction is preformed by and HTTP POST command.
+      # http://hl7.org/fhir/dstu2/http.html#create
+      #
+      # @request ActionDispatch Request containing POST request values.
+      #
+      def create(request)
+        perform(:post, @resource_type.to_s, request.body.read)
+      end
+
       private
 
-      def perform(method, path)
+      def perform(method, path, params = nil)
         StatsD.increment("#{action_statsd_key(path)}.total")
-        super(method, path, nil, headers)
+        super(method, path, params, headers)
       rescue => e
         StatsD.increment("#{action_statsd_key(path)}.failure")
         raise e
