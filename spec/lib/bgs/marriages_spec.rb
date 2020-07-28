@@ -74,7 +74,6 @@ RSpec.describe BGS::Marriages do
         spouse_vet_hash = {
           birth_city_nm: nil,
           birth_state_cd: nil,
-          brthdy_dt: '1981-04-04T00:00:00-05:00',
           death_dt: nil,
           ever_maried_ind: 'Y',
           file_nbr: '00000000',
