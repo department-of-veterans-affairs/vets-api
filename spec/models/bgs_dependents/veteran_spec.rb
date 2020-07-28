@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe BGSDependents::Veteran do
   let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:person) { {first_nm: 'foo', last_nm: 'bar'} }
-  let(:address) { {addrs_one_txt: '123 mainstreet', cntry_nm: 'USA', vnp_ptcpnt_addrs_id: '116343'} }
+  let(:person) { { first_nm: 'foo', last_nm: 'bar' } }
+  let(:address) { { addrs_one_txt: '123 mainstreet', cntry_nm: 'USA', vnp_ptcpnt_addrs_id: '116343' } }
   let(:all_flows_payload) do
     payload = File.read("#{fixtures_path}/all_flows_payload.json")
     JSON.parse(payload)
@@ -56,7 +56,7 @@ RSpec.describe BGSDependents::Veteran do
   describe '#veteran_response' do
     it 'formats params veteran response' do
       expect(
-        vet.veteran_response({vnp_ptcpnt_id: '149500'}, person, '1234', address, '134')
+        vet.veteran_response({ vnp_ptcpnt_id: '149500' }, person, '1234', address, '134')
       ).to include(veteran_response_result_sample)
     end
   end
