@@ -31,11 +31,11 @@ module BGS
 
     def add_children
       @dependents_application['children_to_add'].each do |child_info|
-        child = BGS::DependentEvents::Child.new(child_info)
+        child = BGSDependents::Child.new(child_info)
         formatted_info = child.format_info
         participant = bgs_service.create_participant(@proc_id)
 
-        bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_info)
+        bgs_service.create_person(person_params(child, participant, formatted_info))
         bgs_service.generate_address(
           @proc_id,
           participant[:vnp_ptcpnt_id],
@@ -56,13 +56,13 @@ module BGS
 
     def report_deaths
       @dependents_application['deaths'].each do |death_info|
-        death = BGS::DependentEvents::Death.new(death_info)
-        formatted_death_info = death.format_info
+        death = BGSDependents::Death.new(death_info)
+        formatted_info = death.format_info
         relationship_types = death.relationship_type(death_info)
         death_info['location']['state_code'] = death_info['location'].delete('state')
 
         participant = bgs_service.create_participant(@proc_id)
-        bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_death_info)
+        bgs_service.create_person(person_params(death, participant, formatted_info))
         # I think we need the death_location instead of creating an address
         # There is no support in the API for death location
         # create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
@@ -77,29 +77,29 @@ module BGS
     end
 
     def report_divorce
-      divorce = BGS::DependentEvents::Divorce.new(@dependents_application['report_divorce'])
-      divorce_info = divorce.format_info
+      divorce = BGSDependents::Divorce.new(@dependents_application['report_divorce'])
+      formatted_info = divorce.format_info
       participant = bgs_service.create_participant(@proc_id)
-      bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], divorce_info)
+      bgs_service.create_person(person_params(divorce, participant, formatted_info))
 
       @dependents << divorce.serialize_dependent_result(
         participant,
         'Spouse',
         'Spouse',
         {
-          divorce_state: divorce_info['divorce_state'],
-          divorce_city: divorce_info['divorce_city'],
-          marriage_termination_type_code: divorce_info['marriage_termination_type_code']
+          divorce_state: formatted_info['divorce_state'],
+          divorce_city: formatted_info['divorce_city'],
+          marriage_termination_type_code: formatted_info['marriage_termination_type_code']
         }
       )
     end
 
     def report_stepchild
       @dependents_application['step_children'].each do |stepchild_info|
-        step_child = BGS::DependentEvents::StepChild.new(stepchild_info)
-        step_child_formatted = step_child.format_info
+        step_child = BGSDependents::StepChild.new(stepchild_info)
+        formatted_info = step_child.format_info
         participant = bgs_service.create_participant(@proc_id)
-        bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], step_child_formatted)
+        bgs_service.create_person(person_params(step_child, participant, formatted_info))
         bgs_service.generate_address(@proc_id, participant[:vnp_ptcpnt_id], stepchild_info['address'])
 
         @dependents << step_child.serialize_dependent_result(
@@ -107,7 +107,7 @@ module BGS
           'Child',
           'Stepchild',
           {
-            living_expenses_paid: step_child_formatted['living_expenses_paid'],
+            living_expenses_paid: formatted_info['living_expenses_paid'],
             'type': 'stepchild'
           }
         )
@@ -116,30 +116,30 @@ module BGS
 
     def report_child_event(event_type)
       child_event = child_event_type(event_type)
-      formatted_child_info = child_event.format_info
+      formatted_info = child_event.format_info
       participant = bgs_service.create_participant(@proc_id)
 
-      bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_child_info)
+      bgs_service.create_person(person_params(child_event, participant, formatted_info))
 
       @dependents << child_event.serialize_dependent_result(
         participant,
         'Child',
         'Other',
         {
-          'event_date': formatted_child_info['event_date'],
+          'event_date': formatted_info['event_date'],
           'type': event_type
         }
       )
     end
 
     def report_674
-      adult_attending_school = BGS::DependentEvents::AdultChildAttendingSchool.new(
+      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(
         @dependents_application
       )
-      formatted_674_info = adult_attending_school.format_info
+      formatted_info = adult_attending_school.format_info
       student_address = @dependents_application['student_address_marriage_tuition']['address']
       participant = bgs_service.create_participant(@proc_id)
-      bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], formatted_674_info)
+      bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
       bgs_service.generate_address(@proc_id, participant[:vnp_ptcpnt_id], student_address)
 
       @dependents << adult_attending_school.serialize_dependent_result(
@@ -152,10 +152,14 @@ module BGS
 
     def child_event_type(event_type)
       if event_type == 'child_marriage'
-        return BGS::DependentEvents::ChildMarriage.new(@dependents_application['child_marriage'])
+        return BGSDependents::ChildMarriage.new(@dependents_application['child_marriage'])
       end
 
-      BGS::DependentEvents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
+      BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
+    end
+
+    def person_params(calling_object, participant, dependent_info)
+      calling_object.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], dependent_info)
     end
 
     def bgs_service

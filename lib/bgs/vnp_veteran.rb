@@ -13,7 +13,7 @@ module BGS
       participant = bgs_service.create_participant(@proc_id, nil)
       claim_type_end_product = bgs_service.find_benefit_claim_type_increment
       va_file_number = bgs_service.get_va_file_number
-      person = bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
+      person = bgs_service.create_person(person_params(participant))
       bgs_service.create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = bgs_service.create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
 
@@ -22,8 +22,12 @@ module BGS
 
     private
 
+    def person_params(participant)
+      vnp_veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
+    end
+
     def vnp_veteran
-      @vnp_veteran ||= BGS::Vnp::Veteran.new(@proc_id, @user)
+      @vnp_veteran ||= BGSDependents::Veteran.new(@proc_id, @user)
     end
 
     def bgs_service

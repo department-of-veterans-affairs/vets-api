@@ -20,26 +20,28 @@ module BGS
 
     def report_marriage_history(type)
       @dependents_application[type].each do |former_spouse|
-        former_marriage = BGS::DependentEvents::MarriageHistory.new(former_spouse)
+        former_marriage = BGSDependents::MarriageHistory.new(former_spouse)
         marriage_info = former_marriage.format_info
         participant = bgs_service.create_participant(@proc_id)
-        bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+
+        create_person(former_marriage, participant, marriage_info)
 
         @dependents << former_marriage.serialize_dependent_result(
           participant,
           'Spouse',
           'Ex-Spouse',
-          { 'type': type }
+          {'type': type}
         )
       end
     end
 
     def add_spouse
-      marriage = BGS::DependentEvents::Marriage.new(@dependents_application)
+      marriage = BGSDependents::Marriage.new(@dependents_application)
       marriage_info = marriage.format_info
       participant = bgs_service.create_participant(@proc_id)
 
-      bgs_service.create_person(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+      create_person(marriage, participant, marriage_info)
+
       bgs_service.generate_address(
         @proc_id,
         participant[:vnp_ptcpnt_id],
@@ -57,6 +59,12 @@ module BGS
           type: 'spouse'
         }
       )
+    end
+
+    def create_person(calling_object, participant, marriage_info)
+      params = calling_object.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
+
+      bgs_service.create_person(params)
     end
 
     def bgs_service

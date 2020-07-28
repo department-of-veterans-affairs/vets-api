@@ -59,7 +59,7 @@ module BGS
     end
 
     def vnp_relationship
-      BGS::Vnp::Relationship.new(
+      BGSDependents::Relationship.new(
         @proc_id,
         bgs_service.bgs_auth
       )

@@ -47,21 +47,23 @@ RSpec.describe BGS::Service do
   describe '#create_person' do
     it 'creates a person and returns given data' do
       payload = {
-        'first' => 'vet first name',
-        'middle' => 'vet middle name',
-        'last' => 'vet last name',
-        'suffix' => 'Jr',
-        'birth_date' => '07/04/1969',
-        'place_of_birth_state' => 'FL',
-        'va_file_number' => '12345',
-        'ssn' => '123341234',
-        'death_date' => '01/01/2020',
-        'ever_maried_ind' => 'Y',
-        'vet_ind' => 'Y'
+        vnp_proc_id: proc_id,
+        vnp_ptcpnt_id: participant_id,
+        first_nm: 'vet first name',
+        middle_nm: 'vet middle name',
+        last_nm: 'vet last name',
+        suffix_nm: 'Jr',
+        brthdy_dt: '07/04/1969',
+        birth_state_cd: 'FL',
+        file_nbr: '12345',
+        ssn_nbr: '123341234',
+        death_dt: '01/01/2020',
+        ever_maried_ind: 'Y',
+        vet_ind: 'Y'
       }
 
       VCR.use_cassette('bgs/service/create_person') do
-        response = bgs_service.create_person(proc_id, participant_id, payload)
+        response = bgs_service.create_person(payload)
 
         expect(response).to include(last_nm: 'vet last name')
       end

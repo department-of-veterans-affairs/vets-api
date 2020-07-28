@@ -83,9 +83,26 @@ RSpec.describe BGS::VnpVeteran do
     end
 
     it 'calls BGS::Service: #create_person, #create_phone, and #create_address' do
+      vet_person_hash = {
+        vnp_proc_id: '12345',
+        vnp_ptcpnt_id: '149500',
+        first_nm: 'WESLEY',
+        middle_nm: nil,
+        last_nm: 'FORD',
+        suffix_nm: nil,
+        brthdy_dt: nil,
+        birth_state_cd: nil,
+        birth_city_nm: nil,
+        file_nbr: nil,
+        ssn_nbr: nil,
+        death_dt: nil,
+        ever_maried_ind: nil,
+        vet_ind: 'Y',
+        martl_status_type_cd: 'Married'
+      }
       VCR.use_cassette('bgs/vnp_veteran/create') do
         expect_any_instance_of(BGS::Service).to receive(:create_person)
-          .with(anything, anything, formatted_payload)
+          .with(vet_person_hash)
           .and_call_original
 
         expect_any_instance_of(BGS::Service).to receive(:create_phone)

@@ -72,23 +72,26 @@ RSpec.describe BGS::Marriages do
         json = File.read("#{fixtures_path}/spouse/spouse_is_veteran.json")
         payload = JSON.parse(json)
         spouse_vet_hash = {
-          'first' => 'Jenny',
-          'middle' => 'Lauren',
-          'last' => 'McCarthy',
-          'alt_address' => nil,
-          'lives_with_vet' => true,
-          'suffix' => 'Sr.',
-          'ssn' => '323454323',
-          'birth_date' => '1981-04-04',
-          'ever_married_ind' => 'Y',
-          'vet_ind' => 'Y',
-          'va_file_number' => '00000000',
-          'martl_status_type_cd' => 'Married'
+          birth_city_nm: nil,
+          birth_state_cd: nil,
+          brthdy_dt: '1981-04-04T00:00:00-05:00',
+          death_dt: nil,
+          ever_maried_ind: 'Y',
+          file_nbr: '00000000',
+          first_nm: 'Jenny',
+          last_nm: 'McCarthy',
+          martl_status_type_cd: 'Married',
+          middle_nm: 'Lauren',
+          ssn_nbr: '323454323',
+          suffix_nm: 'Sr.',
+          vet_ind: 'Y',
+          vnp_proc_id: '3828033',
+          vnp_ptcpnt_id: '149487'
         }
 
         VCR.use_cassette('bgs/dependents/create/spouse/is_veteran') do
           expect_any_instance_of(BGS::Service).to receive(:create_person)
-            .with('3828033', '149487', spouse_vet_hash)
+            .with(spouse_vet_hash)
             .and_call_original
 
           BGS::Marriages.new(

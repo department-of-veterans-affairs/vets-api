@@ -56,10 +56,10 @@ module BGS
       end
     end
 
-    def create_person(proc_id, participant_id, payload)
+    def create_person(person_params)
       with_multiple_attempts_enabled do
         service.vnp_person.vnp_person_create(
-          create_person_params(proc_id, participant_id, payload)
+          person_params.merge(bgs_auth)
         )
       end
     end
@@ -219,25 +219,25 @@ module BGS
       }.merge(bgs_auth)
     end
 
-    def create_person_params(proc_id, participant_id, payload)
-      {
-        vnp_proc_id: proc_id,
-        vnp_ptcpnt_id: participant_id,
-        first_nm: payload['first'],
-        middle_nm: payload['middle'],
-        last_nm: payload['last'],
-        suffix_nm: payload['suffix'],
-        brthdy_dt: format_date(payload['birth_date']),
-        birth_state_cd: payload['place_of_birth_state'],
-        birth_city_nm: payload['place_of_birth_city'],
-        file_nbr: payload['va_file_number'],
-        ssn_nbr: payload['ssn'],
-        death_dt: format_date(payload['death_date']),
-        ever_maried_ind: payload['ever_married_ind'],
-        vet_ind: payload['vet_ind'],
-        martl_status_type_cd: 'Married'
-      }.merge(bgs_auth)
-    end
+    # def create_person_params(proc_id, participant_id, payload)
+    #   {
+    #     vnp_proc_id: proc_id,
+    #     vnp_ptcpnt_id: participant_id,
+    #     first_nm: payload['first'],
+    #     middle_nm: payload['middle'],
+    #     last_nm: payload['last'],
+    #     suffix_nm: payload['suffix'],
+    #     brthdy_dt: format_date(payload['birth_date']),
+    #     birth_state_cd: payload['place_of_birth_state'],
+    #     birth_city_nm: payload['place_of_birth_city'],
+    #     file_nbr: payload['va_file_number'],
+    #     ssn_nbr: payload['ssn'],
+    #     death_dt: format_date(payload['death_date']),
+    #     ever_maried_ind: payload['ever_married_ind'],
+    #     vet_ind: payload['vet_ind'],
+    #     martl_status_type_cd: 'Married'
+    #   }.merge(bgs_auth)
+    # end
 
     def raise_backend_exception(key, source, error)
       exception = BGS::ServiceException.new(

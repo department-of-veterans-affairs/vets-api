@@ -25,7 +25,7 @@ module BGS
     private
 
     def bgs_vnp_benefit_claim
-      BGS::Vnp::BenefitClaim.new(
+      BGSDependents::BenefitClaim.new(
         @proc_id,
         @veteran,
         bgs_service.bgs_auth

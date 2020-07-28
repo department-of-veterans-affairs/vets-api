@@ -17,14 +17,14 @@ module BGS
     private
 
     def child_school
-      @child_student = BGS::Vnp::ChildSchool.new(
+      @child_student = BGSDependents::ChildSchool.new(
         @dependents_application,
         proc_participant_auth
       )
     end
 
     def child_student
-      @child_student = BGS::Vnp::ChildStudent.new(
+      @child_student = BGSDependents::ChildStudent.new(
         @dependents_application,
         proc_participant_auth
       )
