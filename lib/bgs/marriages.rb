@@ -30,7 +30,7 @@ module BGS
           participant,
           'Spouse',
           'Ex-Spouse',
-          {'type': type}
+          { 'type': type }
         )
       end
     end

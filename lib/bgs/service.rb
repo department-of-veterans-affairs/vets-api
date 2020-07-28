@@ -150,6 +150,17 @@ module BGS
       end
     end
 
+    def update_manual_proc(proc_id)
+      service.vnp_proc_v2.vnp_proc_update(
+        {
+          vnp_proc_id: proc_id,
+          vnp_proc_state_type_cd: 'Manual'
+        }.merge(bgs_auth)
+      )
+    rescue => e
+      notify_of_service_exception(e, __method__)
+    end
+
     def bgs_auth
       {
         jrn_dt: Time.current.iso8601,
@@ -185,17 +196,6 @@ module BGS
       raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
     end
 
-    def update_manual_proc(proc_id)
-      service.vnp_proc_v2.vnp_proc_update(
-        {
-          vnp_proc_id: proc_id,
-          vnp_proc_state_type_cd: 'Manual'
-        }.merge(bgs_auth)
-      )
-    rescue => e
-      notify_of_service_exception(e, __method__)
-    end
-
     private
 
     def create_address_params(proc_id, participant_id, payload)
@@ -219,26 +219,6 @@ module BGS
       }.merge(bgs_auth)
     end
 
-    # def create_person_params(proc_id, participant_id, payload)
-    #   {
-    #     vnp_proc_id: proc_id,
-    #     vnp_ptcpnt_id: participant_id,
-    #     first_nm: payload['first'],
-    #     middle_nm: payload['middle'],
-    #     last_nm: payload['last'],
-    #     suffix_nm: payload['suffix'],
-    #     brthdy_dt: format_date(payload['birth_date']),
-    #     birth_state_cd: payload['place_of_birth_state'],
-    #     birth_city_nm: payload['place_of_birth_city'],
-    #     file_nbr: payload['va_file_number'],
-    #     ssn_nbr: payload['ssn'],
-    #     death_dt: format_date(payload['death_date']),
-    #     ever_maried_ind: payload['ever_married_ind'],
-    #     vet_ind: payload['vet_ind'],
-    #     martl_status_type_cd: 'Married'
-    #   }.merge(bgs_auth)
-    # end
-
     def raise_backend_exception(key, source, error)
       exception = BGS::ServiceException.new(
         key,
@@ -248,12 +228,6 @@ module BGS
       )
 
       raise exception
-    end
-
-    def format_date(date)
-      return nil if date.nil?
-
-      Date.parse(date).to_time.iso8601
     end
 
     def service
