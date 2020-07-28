@@ -28,6 +28,16 @@ git_branch = ENV['GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`
 # don't publish results if running in local development env
 publish_flag = ENV['PUBLISH_PACT_VERIFICATION_RESULTS'] == "true" || (! Rails.env.development?)
 
+require 'sidekiq/testing'
+Sidekiq::Testing.fake!
+Sidekiq::Testing.server_middleware do |chain|
+  chain.add Sidekiq::SemanticLogging
+  # chain.add Sidekiq::Instrument::ServerMiddleware
+  chain.add Sidekiq::ErrorTag
+end
+
+
+
 RSpec.configure do |config|
   config.include AuthenticatedSessionHelper
   config.define_derived_metadata do |metadata|
@@ -35,7 +45,6 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
-
     user = FactoryBot.build(:user, :loa3)
     session_object = sign_in(user, nil, nil, true)
     allow_any_instance_of(ActionDispatch::Request).to receive(:session).and_return(session_object.to_hash)
@@ -44,6 +53,20 @@ RSpec.configure do |config|
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
   end
+  
+
+  config.before(:all) do
+    unless defined?(Sidekiq::Batch)
+      Sidekiq::Batch = Class.new do
+        def on(_callback, _klass, _options) end
+
+        def jobs
+          yield
+        end
+      end
+    end
+  end
+  
 end
 
 Pact.service_provider 'VA.gov API' do
@@ -62,6 +85,17 @@ Pact.service_provider 'VA.gov API' do
 
   honours_pact_with 'Users' do
     pact_uri 'spec/service_consumers/do_not_merge/users_profile.gov_api.json'
+  end
+
+  
+  honours_pact_with 'HCA' do
+    
+    #TODO define matching rules for hca submit anon
+	  #"formSubmissionId": 3806115661,
+	  #"timestamp": "2015-08-06T16:53:10.123+01:00"
+    pact_uri 'spec/service_consumers/do_not_merge/hca_submit_anon.gov_api.json'
+    
+    pact_uri 'spec/service_consumers/do_not_merge/hca_submit_async.gov_api.json'
   end
 
   app_version git_sha
