@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::Relationship do
+  let(:event_date) { '2001/02/03' }
   let(:dependent) do
     {
       vnp_participant_id: '146189',
@@ -10,7 +11,7 @@ RSpec.describe BGSDependents::Relationship do
       family_relationship_type_name: 'Spouse',
       marriage_state: 'FL',
       marriage_city: 'Tampa',
-      event_date: '2001/02/03'
+      event_date: event_date
     }
   end
   let(:params_response) do
@@ -20,7 +21,7 @@ RSpec.describe BGSDependents::Relationship do
       vnp_ptcpnt_id_b: '146189',
       ptcpnt_rlnshp_type_nm: 'Spouse',
       family_rlnshp_type_nm: 'Spouse',
-      event_dt: '2001-02-03T00:00:00+00:00'
+      event_dt: Date.parse(event_date).to_time.iso8601
     }
   end
 
