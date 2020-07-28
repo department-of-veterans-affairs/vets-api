@@ -14,6 +14,9 @@ describe 'user_preferences', type: :request do
       'Accept' => 'application/json'
     }
   end
+  let(:inflection_header) do
+    { 'X-Key-Inflection' => 'camel' }
+  end
   let(:preference_1) { create :preference }
   let(:preference_2) { create :preference }
   let(:choice_1) { create :preference_choice, preference: preference_1 }
@@ -53,6 +56,13 @@ describe 'user_preferences', type: :request do
       expect(response).to match_response_schema('user_preferences')
     end
 
+    it 'returns the expected shape of attributes with camel-inflection', :aggregate_failures do
+      post '/v0/user/preferences', params: request_body.to_json, headers: headers.merge(inflection_header)
+
+      expect(response).to have_http_status(:ok)
+      expect(response).to match_camelized_response_schema('user_preferences')
+    end
+
     context 'current user does not have an Account record' do
       let(:user) { build(:user, :loa3) }
 
@@ -68,6 +78,14 @@ describe 'user_preferences', type: :request do
         expect(user.account).to be_present
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('user_preferences')
+      end
+
+      it 'creates an Account record for the current user with camel-inflection', :aggregate_failures do
+        post '/v0/user/preferences', params: request_body.to_json, headers: headers.merge(inflection_header)
+
+        expect(user.account).to be_present
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('user_preferences')
       end
     end
 
@@ -252,6 +270,13 @@ describe 'user_preferences', type: :request do
 
       expect(response).to be_ok
       expect(response).to match_response_schema('user_preferences')
+    end
+
+    it 'returns an index of all of the user\'s preferences' do
+      get '/v0/user/preferences', headers: headers.merge(inflection_header)
+
+      expect(response).to be_ok
+      expect(response).to match_camelized_response_schema('user_preferences')
     end
   end
 end
