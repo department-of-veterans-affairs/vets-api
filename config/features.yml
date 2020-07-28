@@ -144,7 +144,7 @@ features:
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
-    actor_type: user
+    actor_type: cookie_id
     description: >
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   stub_carma_responses:
