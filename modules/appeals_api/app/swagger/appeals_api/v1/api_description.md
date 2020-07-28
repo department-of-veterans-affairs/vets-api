@@ -11,4 +11,4 @@ Because this application is designed to allow third-parties to request informati
 To gain access to the decision reviews API you must [request an API Key](/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
 
 ### Data refresh
-The Lighthouse Sandbox environment points to the Caseflow Demo environment which refreshes daily. The data in this environment is mock data and does not contain any PII.
+The Lighthouse Sandbox environment points to the Caseflow UAT environment which refreshes daily. The data in this environment is mock data and does not contain any PII.
