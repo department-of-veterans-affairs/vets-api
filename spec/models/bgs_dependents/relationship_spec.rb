@@ -20,7 +20,7 @@ RSpec.describe BGSDependents::Relationship do
       vnp_ptcpnt_id_b: '146189',
       ptcpnt_rlnshp_type_nm: 'Spouse',
       family_rlnshp_type_nm: 'Spouse',
-      event_dt: '2001-02-03T00:00:00-05:00'
+      event_dt: '2001-02-03T00:00:00+00:00'
     }
   end
 
