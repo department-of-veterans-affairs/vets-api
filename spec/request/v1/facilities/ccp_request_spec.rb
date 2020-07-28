@@ -22,17 +22,17 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
           address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
           bbox: ['-112.54', '32.53', '-111.04', '34.03'],
           type: 'provider',
-          services: ['213E00000X']
+          specialties: ['213E00000X']
         }
       end
 
-      context 'services=261QU0200X' do
+      context 'specialties=261QU0200X' do
         let(:params) do
           {
             address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
             bbox: ['-112.54', '32.53', '-111.04', '34.03'],
             type: 'provider',
-            services: ['261QU0200X']
+            specialties: ['261QU0200X']
           }
         end
 

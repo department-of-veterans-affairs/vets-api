@@ -60,17 +60,17 @@ class V1::Facilities::CcpController < FacilitiesController
       :per_page,
       :type,
       bbox: [],
-      services: []
+      specialties: []
     )
   end
 
   def ppms_search
-    if ppms_params[:type] == 'provider' && ppms_params['services'] == ['261QU0200X']
+    if ppms_params[:type] == 'provider' && ppms_params[:specialties] == ['261QU0200X']
       api.pos_locator(ppms_params)
     elsif ppms_params[:type] == 'provider'
       provider_search
     elsif ppms_params[:type] == 'pharmacy'
-      provider_search('services' => ['3336C0003X'])
+      provider_search(:specialties => ['3336C0003X'])
     elsif ppms_params[:type] == 'urgent_care'
       api.pos_locator(ppms_params)
     end
