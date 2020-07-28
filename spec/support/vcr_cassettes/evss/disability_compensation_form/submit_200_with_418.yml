@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-form526-services-web/rest/form526/v1/submit"
+    uri: "<EVSS_BASE_URL>/wss-form526-services-web-v2/rest/form526/v2/submit"
     body:
       encoding: UTF-8
       string: '{"form526":{"veteran":{"emailAddress":"string","alternateEmailAddress":"string","mailingAddress":{"addressLine1":"string","addressLine2":"string","addressLine3":"string","city":"string","state":"IL","zipFirstFive":"11111","zipLastFour":"1111","country":"string","militaryStateCode":"AA","militaryPostOfficeTypeCode":"APO","type":"DOMESTIC"},"forwardingAddress":{"addressLine1":"string","addressLine2":"string","addressLine3":"string","city":"string","state":"IL","zipFirstFive":"11111","zipLastFour":"1111","country":"string","militaryStateCode":"AA","militaryPostOfficeTypeCode":"APO","type":"DOMESTIC","effectiveDate":"2018-03-29T18:50:03.014Z"},"primaryPhone":{"areaCode":"202","phoneNumber":"4561111"},"homelessness":{"hasPointOfContact":false},"serviceNumber":"string"},"attachments":[],"militaryPayments":{"payments":[],"receiveCompensationInLieuOfRetired":false,"receivingInactiveDutyTrainingPay":false,"waveBenifitsToRecInactDutyTraiPay":false},"directDeposit":{"accountType":"CHECKING","accountNumber":"1234","bankName":"string","routingNumber":"123456789"},"serviceInformation":{"servicePeriods":[{"serviceBranch":"string","activeDutyBeginDate":"2018-03-29T18:50:03.015Z","activeDutyEndDate":"2018-03-29T18:50:03.015Z"}],"reservesNationalGuardService":{"title10Activation":{"title10ActivationDate":"2018-03-29T18:50:03.015Z","anticipatedSeparationDate":"2018-03-29T18:50:03.015Z"},"obligationTermOfServiceFromDate":"2018-03-29T18:50:03.015Z","obligationTermOfServiceToDate":"2018-03-29T18:50:03.015Z","unitName":"string","unitPhone":{"areaCode":"202","phoneNumber":"4561111"}},"servedInCombatZone":true,"separationLocationName":"OTHER","separationLocationCode":"SOME
@@ -46,8 +46,8 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Server error
+      code: 200
+      message: OK
     headers:
       Date:
       - Mon, 02 Apr 2018 22:46:34 GMT
@@ -66,15 +66,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |-
+
         {
           "messages": [
             {
               "key": "form526.submit.establishClaim.serviceError",
-              "text": "Benefit Type, Payee code or EP Code is not valid.  Benefit Type must be CPD, Payee code must be 00, 10 - 29, 50, 60 or 70 - 78.",
-              "severity": "FATAL"
+              "severity": "FATAL",
+              "text": "unused [418]"
             }
           ]
         }
     http_version:
-  recorded_at: Mon, 02 Apr 2018 22:46:34 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 16 Jul 2020 00:00:00 GMT
+recorded_with: Hand-editied, based upon sentry

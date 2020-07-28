@@ -127,6 +127,16 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(parsed['errors'].size).to eq(5)
       end
 
+      context 'Breakers outages are recorded (investigating)' do
+        it 'is logged to PersonalInformationLog' do
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+          post path, params: data, headers: headers
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('validate_form_526 Breakers::OutageException')
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
+        end
+      end
+
       context 'Timeouts are recorded (investigating)' do
         [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
           context error_klass.to_s do
