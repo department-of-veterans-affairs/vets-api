@@ -85,9 +85,8 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'reporting a death' do
-      # Skipping for now because BGS does not support child death
-      xit 'returns a hash with a child type death' do
-        VCR.use_cassette('bgs/dependents/create') do
+      it 'returns a hash with a spouse type death' do
+        VCR.use_cassette('bgs/dependents/create/death') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: all_flows_payload,
@@ -96,8 +95,8 @@ RSpec.describe BGS::Dependents do
 
           expect(dependents).to include(
             a_hash_including(
-              family_relationship_type_name: 'Child',
-              participant_relationship_type_name: 'Child',
+              family_relationship_type_name: 'Spouse',
+              participant_relationship_type_name: 'Spouse',
               type: 'death'
             )
           )

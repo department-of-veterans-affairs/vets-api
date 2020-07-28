@@ -54,6 +54,7 @@ module BGS
       @dependents_application['deaths'].each do |death_info|
         death = BGSDependents::Death.new(death_info)
         relationship_types = death.relationship_type(death_info)
+
         next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
 
         formatted_info = death.format_info
