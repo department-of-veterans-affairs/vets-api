@@ -15,7 +15,7 @@ module BGS
       va_file_number = bgs_service.get_va_file_number
       person = bgs_service.create_person(person_params(participant))
       bgs_service.create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
-      address = bgs_service.create_address(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
+      address = vet_address(participant[:vnp_ptcpnt_id])
 
       vnp_veteran.veteran_response(participant, person, va_file_number, address, claim_type_end_product)
     end
@@ -24,6 +24,12 @@ module BGS
 
     def person_params(participant)
       vnp_veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
+    end
+
+    def vet_address(participant_id)
+      address_params = vnp_veteran.create_address_params(@proc_id, participant_id, @veteran_info)
+
+      bgs_service.create_address(address_params)
     end
 
     def vnp_veteran

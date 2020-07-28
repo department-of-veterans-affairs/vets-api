@@ -15,5 +15,9 @@ module BGSDependents
         'ever_married_ind': @was_married == true ? 'Y' : 'N'
       }.merge(@name_and_ssn['full_name']).with_indifferent_access
     end
+
+    def address
+      @dependents_application['student_address_marriage_tuition']['address']
+    end
   end
 end

@@ -41,12 +41,7 @@ module BGS
       participant = bgs_service.create_participant(@proc_id)
 
       create_person(marriage, participant, marriage_info)
-
-      bgs_service.generate_address(
-        @proc_id,
-        participant[:vnp_ptcpnt_id],
-        marriage.address(marriage_info)
-      )
+      send_address(marriage, participant, marriage_info)
 
       @dependents << marriage.serialize_dependent_result(
         participant,
@@ -65,6 +60,13 @@ module BGS
       params = calling_object.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], marriage_info)
 
       bgs_service.create_person(params)
+    end
+
+    def send_address(calling_object, participant, address_info)
+      address = calling_object.generate_address(address_info)
+      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address)
+
+      bgs_service.create_address(address_params)
     end
 
     def bgs_service

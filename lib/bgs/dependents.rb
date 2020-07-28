@@ -36,11 +36,7 @@ module BGS
         participant = bgs_service.create_participant(@proc_id)
 
         bgs_service.create_person(person_params(child, participant, formatted_info))
-        bgs_service.generate_address(
-          @proc_id,
-          participant[:vnp_ptcpnt_id],
-          child.address(@dependents_application)
-        )
+        send_address(child, participant, child.address(@dependents_application))
 
         @dependents << child.serialize_dependent_result(
           participant,
@@ -100,7 +96,7 @@ module BGS
         formatted_info = step_child.format_info
         participant = bgs_service.create_participant(@proc_id)
         bgs_service.create_person(person_params(step_child, participant, formatted_info))
-        bgs_service.generate_address(@proc_id, participant[:vnp_ptcpnt_id], stepchild_info['address'])
+        send_address(step_child, participant, stepchild_info['address'])
 
         @dependents << step_child.serialize_dependent_result(
           participant,
@@ -137,10 +133,9 @@ module BGS
         @dependents_application
       )
       formatted_info = adult_attending_school.format_info
-      student_address = @dependents_application['student_address_marriage_tuition']['address']
       participant = bgs_service.create_participant(@proc_id)
       bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
-      bgs_service.generate_address(@proc_id, participant[:vnp_ptcpnt_id], student_address)
+      send_address(adult_attending_school, participant, adult_attending_school.address)
 
       @dependents << adult_attending_school.serialize_dependent_result(
         participant,
@@ -160,6 +155,13 @@ module BGS
 
     def person_params(calling_object, participant, dependent_info)
       calling_object.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], dependent_info)
+    end
+
+    def send_address(calling_object, participant, address_info)
+      address = calling_object.generate_address(address_info)
+      address_params = calling_object.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], address)
+
+      bgs_service.create_address(address_params)
     end
 
     def bgs_service

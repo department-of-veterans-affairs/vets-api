@@ -2,9 +2,8 @@
 
 require 'common/exceptions/backend_service_exception'
 
+# Custom exception that maps BGS errors to error details defined in config/locales/exceptions.en.yml
 module BGS
-  # Custom exception that maps BGS errors to error details defined in config/locales/exceptions.en.yml
-
   class ServiceException < Common::Exceptions::BackendServiceException
     include SentryLogging
 

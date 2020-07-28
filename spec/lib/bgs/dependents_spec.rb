@@ -42,17 +42,29 @@ RSpec.describe BGS::Dependents do
       end
 
       it 'returns a hash for adopted child that does live with veteran' do
-        veteran_address_info = all_flows_payload.dig(
-          'dependents_application',
-          'veteran_contact_information',
-          'veteran_address'
-        )
+        veteran_address_info = {
+          addrs_one_txt: '8200 Doby LN',
+          addrs_three_txt: nil,
+          addrs_two_txt: nil,
+          city_nm: 'Pasadena',
+          cntry_nm: 'USA',
+          email_addrs_txt: nil,
+          mlty_post_office_type_cd: nil,
+          mlty_postal_type_cd: nil,
+          postal_cd: 'CA',
+          prvnc_nm: 'CA',
+          ptcpnt_addrs_type_nm: 'Mailing',
+          shared_addrs_ind: 'N',
+          vnp_proc_id: '3828033',
+          vnp_ptcpnt_id: '149600',
+          zip_prefix_nbr: '21122'
+        }
 
         json = File.read("#{fixtures_path}/children/adopted_child_lives_with_veteran.json")
         payload = JSON.parse(json)
         VCR.use_cassette('bgs/dependents/children/apdopted_child_lives_with_veteran') do
           expect_any_instance_of(BGS::Service).to receive(:create_address)
-            .with(anything, anything, veteran_address_info).at_most(4).times
+            .with(a_hash_including(veteran_address_info)).at_most(4).times
             .and_call_original
 
           dependents = BGS::Dependents.new(

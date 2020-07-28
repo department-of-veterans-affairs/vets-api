@@ -100,6 +100,24 @@ RSpec.describe BGS::VnpVeteran do
         vet_ind: 'Y',
         martl_status_type_cd: 'Married'
       }
+
+      expected_address = {
+        addrs_one_txt: '8200 Doby LN',
+        addrs_three_txt: nil,
+        addrs_two_txt: nil,
+        city_nm: 'Pasadena',
+        cntry_nm: 'USA',
+        email_addrs_txt: 'foo@foo.com',
+        mlty_post_office_type_cd: nil,
+        mlty_postal_type_cd: nil,
+        postal_cd: 'CA',
+        prvnc_nm: 'CA',
+        ptcpnt_addrs_type_nm: 'Mailing',
+        shared_addrs_ind: 'N',
+        vnp_proc_id: '12345',
+        vnp_ptcpnt_id: '149500',
+        zip_prefix_nbr: '21122'
+      }
       VCR.use_cassette('bgs/vnp_veteran/create') do
         expect_any_instance_of(BGS::Service).to receive(:create_person)
           .with(vet_person_hash)
@@ -110,7 +128,7 @@ RSpec.describe BGS::VnpVeteran do
           .and_call_original
 
         expect_any_instance_of(BGS::Service).to receive(:create_address)
-          .with(anything, anything, formatted_payload)
+          .with(a_hash_including(expected_address))
           .and_call_original
 
         BGS::VnpVeteran.new(proc_id: '12345', payload: all_flows_payload, user: user_hash).create

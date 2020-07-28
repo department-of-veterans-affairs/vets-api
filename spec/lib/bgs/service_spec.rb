@@ -73,15 +73,20 @@ RSpec.describe BGS::Service do
   describe '#create_address' do
     it 'crates an address record and returns given data' do
       payload = {
-        'address_line1' => '123 mainstreet rd.',
-        'city' => 'Tampa',
-        'state_code' => 'FL',
-        'zip_code' => '11234',
-        'email_address' => 'foo@foo.com'
+        address_line1: '123 mainstreet rd.',
+        city: 'Tampa',
+        state_code: 'FL',
+        vnp_ptcpnt_id: participant_id,
+        vnp_proc_id: proc_id,
+        efctv_dt: Time.current.iso8601,
+        ptcpnt_addrs_type_nm: 'Mailing',
+        shared_addrs_ind: 'N',
+        zip_code: '11234',
+        email_address: 'foo@foo.com'
       }
 
       VCR.use_cassette('bgs/service/create_address') do
-        response = bgs_service.create_address(proc_id, participant_id, payload)
+        response = bgs_service.create_address(payload)
 
         expect(response).to include(addrs_one_txt: '123 mainstreet rd.')
       end

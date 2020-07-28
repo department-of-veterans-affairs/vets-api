@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-require 'bgs/exceptions/service_exception'
-
 module BGS
   class Service
-    include SentryLogging
-    MAX_ATTEMPTS = 3
+    include BGS::Exceptions::BGSErrors
 
     def initialize(user)
       @user = user
@@ -14,10 +11,7 @@ module BGS
     def create_proc
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_create(
-          {
-            vnp_proc_type_cd: 'DEPCHG',
-            vnp_proc_state_type_cd: 'Started'
-          }.merge(bgs_auth)
+          { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
         )
       end
     end
@@ -25,10 +19,7 @@ module BGS
     def create_proc_form(vnp_proc_id)
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
-          {
-            vnp_proc_id: vnp_proc_id,
-            form_type_cd: '21-686c'
-          }.merge(bgs_auth)
+          { vnp_proc_id: vnp_proc_id,  form_type_cd: '21-686c' }.merge(bgs_auth)
         )
       end
     end
@@ -47,27 +38,21 @@ module BGS
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt.vnp_ptcpnt_create(
-          {
-            vnp_proc_id: proc_id,
-            ptcpnt_type_nm: 'Person',
-            corp_ptcpnt_id: corp_ptcpnt_id
-          }.merge(bgs_auth)
+          { vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id }.merge(bgs_auth)
         )
       end
     end
 
     def create_person(person_params)
       with_multiple_attempts_enabled do
-        service.vnp_person.vnp_person_create(
-          person_params.merge(bgs_auth)
-        )
+        service.vnp_person.vnp_person_create(person_params.merge(bgs_auth))
       end
     end
 
-    def create_address(proc_id, participant_id, payload)
+    def create_address(address_params)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
-          create_address_params(proc_id, participant_id, payload).merge(bgs_auth)
+          address_params.merge(bgs_auth)
         )
       end
     end
@@ -84,15 +69,6 @@ module BGS
           }.merge(bgs_auth)
         )
       end
-    end
-
-    def generate_address(proc_id, participant_id, address)
-      if address['view:lives_on_military_base'] == true
-        address['military_postal_code'] = address.delete('state_code')
-        address['military_post_office_type_code'] = address.delete('city')
-      end
-
-      create_address(proc_id, participant_id, address)
     end
 
     def create_child_school(child_school_params)
@@ -152,10 +128,7 @@ module BGS
 
     def update_manual_proc(proc_id)
       service.vnp_proc_v2.vnp_proc_update(
-        {
-          vnp_proc_id: proc_id,
-          vnp_proc_state_type_cd: 'Manual'
-        }.merge(bgs_auth)
+        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual' }.merge(bgs_auth)
       )
     rescue => e
       notify_of_service_exception(e, __method__)
@@ -172,69 +145,10 @@ module BGS
       }
     end
 
-    def with_multiple_attempts_enabled
-      attempt ||= 0
-      yield
-    rescue => e
-      attempt += 1
-      if attempt < MAX_ATTEMPTS
-        notify_of_service_exception(e, __method__.to_s, attempt, :warn)
-        retry
-      end
-
-      notify_of_service_exception(e, __method__.to_s)
-    end
-
-    def notify_of_service_exception(error, method, attempt = nil, status = :error)
-      msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
-      context = { icn: @user[:icn] }
-      tags = { team: 'vfs-ebenefits' }
-
-      return log_message_to_sentry(msg, :warn, context, tags) if status == :warn
-
-      log_exception_to_sentry(error, context, tags)
-      raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
-    end
-
     private
 
-    # def create_address_params(proc_id, participant_id, payload)
-    #   {
-    #     efctv_dt: Time.current.iso8601,
-    #     vnp_ptcpnt_id: participant_id,
-    #     vnp_proc_id: proc_id,
-    #     ptcpnt_addrs_type_nm: 'Mailing',
-    #     shared_addrs_ind: 'N',
-    #     addrs_one_txt: payload['address_line1'],
-    #     addrs_two_txt: payload['address_line2'],
-    #     addrs_three_txt: payload['address_line3'],
-    #     city_nm: payload['city'],
-    #     cntry_nm: payload['country_name'],
-    #     postal_cd: payload['state_code'],
-    #     mlty_postal_type_cd: payload['military_postal_code'],
-    #     mlty_post_office_type_cd: payload['military_post_office_type_code'],
-    #     zip_prefix_nbr: payload['zip_code'],
-    #     prvnc_nm: payload['state_code'],
-    #     email_addrs_txt: payload['email_address']
-    #   }.merge(bgs_auth)
-    # end
-
-    def raise_backend_exception(key, source, error)
-      exception = BGS::ServiceException.new(
-        key,
-        { source: source.to_s },
-        403,
-        error.message
-      )
-
-      raise exception
-    end
-
     def service
-      @service ||= BGS::Services.new(
-        external_uid: @user[:icn],
-        external_key: @user[:external_key]
-      )
+      @service ||= BGS::Services.new(external_uid: @user[:icn], external_key: @user[:external_key])
     end
   end
 end

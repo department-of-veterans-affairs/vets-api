@@ -69,6 +69,15 @@ module BGSDependents
       Date.parse(date).to_time.iso8601
     end
 
+    def generate_address(address)
+      if address['view:lives_on_military_base'] == true
+        address['military_postal_code'] = address.delete('state_code')
+        address['military_post_office_type_code'] = address.delete('city')
+      end
+
+      address
+    end
+
     def create_address_params(proc_id, participant_id, payload)
       {
         efctv_dt: Time.current.iso8601,
@@ -87,7 +96,7 @@ module BGSDependents
         zip_prefix_nbr: payload['zip_code'],
         prvnc_nm: payload['state_code'],
         email_addrs_txt: payload['email_address']
-      }.merge(bgs_auth)
+      }
     end
   end
 end
