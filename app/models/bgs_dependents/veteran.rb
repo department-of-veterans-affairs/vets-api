@@ -3,8 +3,8 @@
 module BGSDependents
   class Veteran < Base
     def initialize(proc_id, user)
-      @proc_id = proc_id
       @user = user
+      @proc_id = proc_id
     end
 
     def formatted_params(payload, user)
@@ -20,7 +20,7 @@ module BGSDependents
       ]
 
       if dependents_application['current_marriage_information']
-        vet_info << ['martl_status_type_cd', dependents_application['current_marriage_information']['type']]
+        vet_info << ['martl_status_type_cd', dependents_application.dig('current_marriage_information', 'type')]
       end
 
       vet_info.to_h
