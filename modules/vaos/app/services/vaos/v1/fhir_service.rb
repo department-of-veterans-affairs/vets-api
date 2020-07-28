@@ -49,10 +49,10 @@ module VAOS
       # The interaction is preformed by and HTTP POST command.
       # http://hl7.org/fhir/dstu2/http.html#create
       #
-      # @request ActionDispatch Request containing POST request values.
+      # @body JSON string containing POST request values in the body key.
       #
-      def create(request)
-        perform(:post, @resource_type.to_s, request.body.read)
+      def create(body: nil)
+        perform(:post, @resource_type.to_s, body)
       end
 
       private

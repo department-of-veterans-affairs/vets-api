@@ -9,7 +9,7 @@ module VAOS
       end
 
       def create
-        response = fhir_service.create(request)
+        response = fhir_service.create(body: request.body.read)
         render json: response.body, status: response.status
       end
     end
