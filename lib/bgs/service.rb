@@ -14,7 +14,7 @@ module BGS
 
     def update_manual_proc(proc_id)
       service.vnp_proc_v2.vnp_proc_update(
-        {vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual'}.merge(bgs_auth)
+        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual' }.merge(bgs_auth)
       )
     rescue => e
       notify_of_service_exception(e, __method__)
