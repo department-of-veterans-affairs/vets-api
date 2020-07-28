@@ -12,10 +12,9 @@ module BGSDependents
       atchms_ind: 'N'
     }.freeze
 
-    def initialize(proc_id, veteran, bgs_auth)
+    def initialize(proc_id, veteran)
       @veteran = veteran
       @proc_id = proc_id
-      @bgs_auth = bgs_auth
     end
 
     def create_params_for_686c
@@ -41,7 +40,7 @@ module BGSDependents
         ptcpnt_clmant_id: vnp_benefit_claim_record[:participant_claimant_id],
         status_type_cd: benefit_claim_record[:status_type_code],
         svc_type_cd: 'CP'
-      }.merge(@bgs_auth)
+      }.merge
     end
 
     def vnp_benefit_claim_response(vnp_benefit_claim)

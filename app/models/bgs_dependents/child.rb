@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class Child
+  class Child < Base
     CHILD_STATUS = {
       'child_under18' => 'Other',
       'step_child' => 'Stepchild',

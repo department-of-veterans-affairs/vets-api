@@ -3,11 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::BenefitClaim do
-
-
-  describe 'stuff' do
-    it 'formats relationship params for submission' do
-
+  describe '#create_params_for_686c' do
+    it 'creates params for submission to BGS for 686c' do
+      described_class.new
     end
   end
 end
