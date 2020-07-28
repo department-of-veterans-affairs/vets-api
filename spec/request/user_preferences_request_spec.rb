@@ -253,6 +253,20 @@ describe 'user_preferences', type: :request do
         expect(error_details_for(response, key: 'status')).to eq '422'
         expect(error_details_for(response, key: 'detail')).to include 'ActiveRecord::RecordNotDestroyed'
       end
+
+      it 'returns a 422 unprocessable with camel-inflection', :aggregate_failures do
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+
+        delete '/v0/user/preferences/notifications/delete_all', headers: headers.merge(inflection_header)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(error_details_for(response, key: 'title')).to eq 'Unprocessable Entity'
+        expect(error_details_for(response, key: 'status')).to eq '422'
+        expect(error_details_for(response, key: 'detail')).to include 'ActiveRecord::RecordNotDestroyed'
+      end
     end
   end
 
