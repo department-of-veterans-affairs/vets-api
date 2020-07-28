@@ -219,6 +219,14 @@ describe 'user_preferences', type: :request do
         expect(response).to match_response_schema('delete_all_user_preferences')
         expect(UserPreference.where(account_id: user.account.id).count).to eq 0
       end
+
+      it 'deletes all of a User\'s UserPreferences with camel-inflection', :aggregate_failures do
+        delete '/v0/user/preferences/notifications/delete_all', headers: headers.merge(inflection_header)
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('delete_all_user_preferences')
+        expect(UserPreference.where(account_id: user.account.id).count).to eq 0
+      end
     end
 
     context 'when given a nonexistent code' do
@@ -272,7 +280,7 @@ describe 'user_preferences', type: :request do
       expect(response).to match_response_schema('user_preferences')
     end
 
-    it 'returns an index of all of the user\'s preferences' do
+    it 'returns an index of all of the user\'s preferences with camel-inflection' do
       get '/v0/user/preferences', headers: headers.merge(inflection_header)
 
       expect(response).to be_ok
