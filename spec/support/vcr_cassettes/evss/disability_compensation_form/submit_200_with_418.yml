@@ -46,8 +46,8 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Server error
+      code: 200
+      message: OK
     headers:
       Date:
       - Mon, 02 Apr 2018 22:46:34 GMT
@@ -66,15 +66,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |-
+
         {
           "messages": [
             {
               "key": "form526.submit.establishClaim.serviceError",
-              "text": "Benefit Type, Payee code or EP Code is not valid.  Benefit Type must be CPD, Payee code must be 00, 10 - 29, 50, 60 or 70 - 78.",
-              "severity": "FATAL"
+              "severity": "FATAL",
+              "text": "unused [418]"
             }
           ]
         }
     http_version:
-  recorded_at: Mon, 02 Apr 2018 22:46:34 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 16 Jul 2020 00:00:00 GMT
+recorded_with: Hand-editied, based upon sentry

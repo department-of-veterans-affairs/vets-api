@@ -46,6 +46,7 @@ module EVSS
       end
 
       def retryable_error_handler(error)
+        # update JobStatus, log and metrics in JobStatus#retryable_error_handler
         super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
@@ -62,16 +63,11 @@ module EVSS
       # @param error [EVSS::DisabilityCompensationForm::ServiceException]
       #
       def retry_form526_error_handler!(error)
-        if (error.key == 'evss.external_service_unavailable' && ep_code_valid?(error)) ||
-           error.key == 'evss.disability_compensation_form.pif_in_use'
+        if error.retryable?
           retryable_error_handler(error)
         else
           non_retryable_error_handler(error)
         end
-      end
-
-      def ep_code_valid?(error)
-        error.messages.none? { |msg| msg['text'].include?('EP Code is not valid') }
       end
     end
   end
