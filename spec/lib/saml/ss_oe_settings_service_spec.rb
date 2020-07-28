@@ -15,5 +15,44 @@ RSpec.describe SAML::SSOeSettingsService do
       settings = SAML::SSOeSettingsService.saml_settings('sp_entity_id' => 'testIssuer')
       expect(settings.sp_entity_id).to equal('testIssuer')
     end
+
+    context 'with no signing or encryption configured' do
+      before do
+        Settings.saml_ssoe.certificate = 'foobar'
+        Settings.saml_ssoe.request_signing = false
+        Settings.saml_ssoe.response_signing = false
+        Settings.saml_ssoe.response_encryption = false
+      end
+
+      it 'omits certificate from settings' do
+        expect(SAML::SSOeSettingsService.saml_settings.certificate).to be_nil
+      end
+    end
+
+    context 'with signing configured' do
+      before do
+        Settings.saml_ssoe.certificate = 'foobar'
+        Settings.saml_ssoe.request_signing = true
+        Settings.saml_ssoe.response_signing = false
+        Settings.saml_ssoe.response_encryption = false
+      end
+
+      it 'includes certificate in settings' do
+        expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
+      end
+    end
+
+    context 'with encryption configured' do
+      before do
+        Settings.saml_ssoe.certificate = 'foobar'
+        Settings.saml_ssoe.request_signing = false
+        Settings.saml_ssoe.response_signing = false
+        Settings.saml_ssoe.response_encryption = true
+      end
+
+      it 'includes certificate in settings' do
+        expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
+      end
+    end
   end
 end
