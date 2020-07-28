@@ -5,20 +5,21 @@ require 'rails_helper'
 RSpec.describe BGSDependents::Relationship do
   let(:dependent) do
     {
-      :vnp_participant_id => "146189",
-      :participant_relationship_type_name => "Spouse",
-      :family_relationship_type_name => "Spouse",
-      :marriage_state => "FL",
-      :marriage_city => "Tampa",
+      vnp_participant_id: '146189',
+      participant_relationship_type_name: 'Spouse',
+      family_relationship_type_name: 'Spouse',
+      marriage_state: 'FL',
+      marriage_city: 'Tampa',
+      event_date: '2001-02-03T00:00:00-08:00'
     }
   end
   let(:params_response) do
     {
-      vnp_proc_id: "1234",
-      vnp_ptcpnt_id_a: "1234",
-      vnp_ptcpnt_id_b: "146189",
-      ptcpnt_rlnshp_type_nm: "Spouse",
-      family_rlnshp_type_nm: "Spouse"
+      vnp_proc_id: '1234',
+      vnp_ptcpnt_id_a: '1234',
+      vnp_ptcpnt_id_b: '146189',
+      ptcpnt_rlnshp_type_nm: 'Spouse',
+      family_rlnshp_type_nm: 'Spouse'
     }
   end
 
