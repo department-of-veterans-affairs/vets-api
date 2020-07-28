@@ -10,7 +10,7 @@ module BGSDependents
 
     def relationship_type(info)
       if info['dependent_type']
-        return { participant: 'Guardian', family: 'Other' } if info['dependent_type'] == 'DEPENDENT_PARENT'
+        return {participant: 'Guardian', family: 'Other'} if info['dependent_type'] == 'DEPENDENT_PARENT'
 
         {
           participant: info['dependent_type'].capitalize.gsub('_', ' '),
@@ -67,6 +67,27 @@ module BGSDependents
       return nil if date.nil?
 
       Date.parse(date).to_time.iso8601
+    end
+
+    def create_address_params(proc_id, participant_id, payload)
+      {
+        efctv_dt: Time.current.iso8601,
+        vnp_ptcpnt_id: participant_id,
+        vnp_proc_id: proc_id,
+        ptcpnt_addrs_type_nm: 'Mailing',
+        shared_addrs_ind: 'N',
+        addrs_one_txt: payload['address_line1'],
+        addrs_two_txt: payload['address_line2'],
+        addrs_three_txt: payload['address_line3'],
+        city_nm: payload['city'],
+        cntry_nm: payload['country_name'],
+        postal_cd: payload['state_code'],
+        mlty_postal_type_cd: payload['military_postal_code'],
+        mlty_post_office_type_cd: payload['military_post_office_type_code'],
+        zip_prefix_nbr: payload['zip_code'],
+        prvnc_nm: payload['state_code'],
+        email_addrs_txt: payload['email_address']
+      }.merge(bgs_auth)
     end
   end
 end

@@ -67,7 +67,7 @@ module BGS
     def create_address(proc_id, participant_id, payload)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
-          create_address_params(proc_id, participant_id, payload)
+          create_address_params(proc_id, participant_id, payload).merge(bgs_auth)
         )
       end
     end
@@ -198,26 +198,26 @@ module BGS
 
     private
 
-    def create_address_params(proc_id, participant_id, payload)
-      {
-        efctv_dt: Time.current.iso8601,
-        vnp_ptcpnt_id: participant_id,
-        vnp_proc_id: proc_id,
-        ptcpnt_addrs_type_nm: 'Mailing',
-        shared_addrs_ind: 'N',
-        addrs_one_txt: payload['address_line1'],
-        addrs_two_txt: payload['address_line2'],
-        addrs_three_txt: payload['address_line3'],
-        city_nm: payload['city'],
-        cntry_nm: payload['country_name'],
-        postal_cd: payload['state_code'],
-        mlty_postal_type_cd: payload['military_postal_code'],
-        mlty_post_office_type_cd: payload['military_post_office_type_code'],
-        zip_prefix_nbr: payload['zip_code'],
-        prvnc_nm: payload['state_code'],
-        email_addrs_txt: payload['email_address']
-      }.merge(bgs_auth)
-    end
+    # def create_address_params(proc_id, participant_id, payload)
+    #   {
+    #     efctv_dt: Time.current.iso8601,
+    #     vnp_ptcpnt_id: participant_id,
+    #     vnp_proc_id: proc_id,
+    #     ptcpnt_addrs_type_nm: 'Mailing',
+    #     shared_addrs_ind: 'N',
+    #     addrs_one_txt: payload['address_line1'],
+    #     addrs_two_txt: payload['address_line2'],
+    #     addrs_three_txt: payload['address_line3'],
+    #     city_nm: payload['city'],
+    #     cntry_nm: payload['country_name'],
+    #     postal_cd: payload['state_code'],
+    #     mlty_postal_type_cd: payload['military_postal_code'],
+    #     mlty_post_office_type_cd: payload['military_post_office_type_code'],
+    #     zip_prefix_nbr: payload['zip_code'],
+    #     prvnc_nm: payload['state_code'],
+    #     email_addrs_txt: payload['email_address']
+    #   }.merge(bgs_auth)
+    # end
 
     def raise_backend_exception(key, source, error)
       exception = BGS::ServiceException.new(
