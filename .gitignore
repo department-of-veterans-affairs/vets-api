@@ -63,4 +63,6 @@ dump.rdb
 /.project
 .generators
 .rakeTasks
+
+# Ignore IDE files
 *.iml
