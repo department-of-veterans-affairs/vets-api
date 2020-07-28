@@ -85,7 +85,8 @@ RSpec.describe BGS::Dependents do
     end
 
     context 'reporting a death' do
-      it 'returns a hash with a child type death' do
+      # Skipping for now because BGS does not support child death
+      xit 'returns a hash with a child type death' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,

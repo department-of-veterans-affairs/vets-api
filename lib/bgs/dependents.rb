@@ -53,10 +53,11 @@ module BGS
     def report_deaths
       @dependents_application['deaths'].each do |death_info|
         death = BGSDependents::Death.new(death_info)
-        formatted_info = death.format_info
         relationship_types = death.relationship_type(death_info)
-        death_info['location']['state_code'] = death_info['location'].delete('state')
+        next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
 
+        formatted_info = death.format_info
+        death_info['location']['state_code'] = death_info['location'].delete('state')
         participant = bgs_service.create_participant(@proc_id)
         bgs_service.create_person(person_params(death, participant, formatted_info))
         # I think we need the death_location instead of creating an address
