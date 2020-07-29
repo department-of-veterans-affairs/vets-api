@@ -5,10 +5,16 @@ require 'rails_helper'
 RSpec.describe BGSDependents::StepChild do
   let(:stepchild_info) do
     {
-      'supporting_stepchild'=>true,
+      'supporting_stepchild' => true,
       'living_expenses_paid' => '.5',
-      'who_does_the_stepchild_live_with'=> { 'first' => 'Adam', 'middle' => 'Steven', 'last' => 'Huberws' },
-      'address'=> { 'country_name' => 'USA', 'address_line1' => '412 Crooks Road', 'city' => 'Clawson', 'state_code' => 'AL', 'zip_code' => '48017' },
+      'who_does_the_stepchild_live_with' => { 'first' => 'Adam', 'middle' => 'Steven', 'last' => 'Huberws' },
+      'address' => {
+        'country_name' => 'USA',
+        'address_line1' => '412 Crooks Road',
+        'city' => 'Clawson',
+        'state_code' => 'AL',
+        'zip_code' => '48017'
+      },
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' }
     }
   end
