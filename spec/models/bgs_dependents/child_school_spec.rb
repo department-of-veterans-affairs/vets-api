@@ -25,15 +25,11 @@ RSpec.describe BGSDependents::ChildSchool do
       prev_school_nm: 'Another Amazing School',
       prev_school_cntry_nm: 'USA',
       prev_school_addrs_one_txt: '2037 29th St',
-      prev_school_addrs_two_txt: nil,
-      prev_school_addrs_three_txt: nil,
       prev_school_city_nm: 'Rock Island',
       prev_school_postal_cd: 'IL',
       prev_school_addrs_zip_nbr: '61201',
       curnt_school_nm: 'My Great School',
       curnt_school_addrs_one_txt: '2037 29th St',
-      curnt_school_addrs_two_txt: nil,
-      curnt_school_addrs_three_txt: nil,
       curnt_school_postal_cd: 'AR',
       curnt_school_city_nm: 'Rock Island',
       curnt_school_addrs_zip_nbr: '61201',
@@ -53,7 +49,7 @@ RSpec.describe BGSDependents::ChildSchool do
     it 'formats child school params for submission' do
       formatted_info = child_school_info.params_for_686c
 
-      expect(formatted_info).to eq(formatted_params_result)
+      expect(formatted_info).to include(formatted_params_result)
     end
   end
 end

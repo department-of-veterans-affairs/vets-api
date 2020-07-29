@@ -7,7 +7,6 @@ module BGSDependents
       @proc_participant = proc_participant
     end
 
-
     # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/MethodLength
     def params_for_686c
