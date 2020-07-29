@@ -17,41 +17,32 @@ RSpec.describe SAML::SSOeSettingsService do
     end
 
     context 'with no signing or encryption configured' do
-      before do
-        Settings.saml_ssoe.certificate = 'foobar'
-        Settings.saml_ssoe.request_signing = false
-        Settings.saml_ssoe.response_signing = false
-        Settings.saml_ssoe.response_encryption = false
-      end
-
       it 'omits certificate from settings' do
-        expect(SAML::SSOeSettingsService.saml_settings.certificate).to be_nil
+        with_settings(Settings.saml_ssoe, certificate: 'foobar',
+                                          request_signing: false, response_signing: false,
+                                          response_encryption: false) do
+          expect(SAML::SSOeSettingsService.saml_settings.certificate).to be_nil
+        end
       end
     end
 
     context 'with signing configured' do
-      before do
-        Settings.saml_ssoe.certificate = 'foobar'
-        Settings.saml_ssoe.request_signing = true
-        Settings.saml_ssoe.response_signing = false
-        Settings.saml_ssoe.response_encryption = false
-      end
-
       it 'includes certificate in settings' do
-        expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
+        with_settings(Settings.saml_ssoe, certificate: 'foobar',
+                                          request_signing: true, response_signing: false,
+                                          response_encryption: false) do
+          expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
+        end
       end
     end
 
     context 'with encryption configured' do
-      before do
-        Settings.saml_ssoe.certificate = 'foobar'
-        Settings.saml_ssoe.request_signing = false
-        Settings.saml_ssoe.response_signing = false
-        Settings.saml_ssoe.response_encryption = true
-      end
-
       it 'includes certificate in settings' do
-        expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
+        with_settings(Settings.saml_ssoe, certificate: 'foobar',
+                                          request_signing: false, response_signing: false,
+                                          response_encryption: true) do
+          expect(SAML::SSOeSettingsService.saml_settings.certificate).to eq('foobar')
+        end
       end
     end
   end
