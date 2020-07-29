@@ -19,22 +19,22 @@ module BGS
     def child_school
       @child_student = BGSDependents::ChildSchool.new(
         @dependents_application,
-        proc_participant_auth
+        proc_participant
       )
     end
 
     def child_student
       @child_student = BGSDependents::ChildStudent.new(
         @dependents_application,
-        proc_participant_auth
+        proc_participant
       )
     end
 
-    def proc_participant_auth
+    def proc_participant
       {
         vnp_proc_id: @proc_id,
         vnp_ptcpnt_id: @vnp_participant_id
-      }.merge(bgs_service.bgs_auth)
+      }
     end
 
     def bgs_service
