@@ -62,6 +62,10 @@ Pact.service_provider 'VA.gov API' do
     pact_uri "https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/Search/latest"
   end
   
+  honours_pact_with 'Users' do
+    pact_uri 'spec/service_consumers/do_not_merge/users_profile.gov_api.json'
+  end
+  
   #
   # honours_pacts_from_pact_broker do
   #   pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com'
