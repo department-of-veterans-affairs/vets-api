@@ -27,7 +27,7 @@ class PPMS::Provider < Common::Base
   attribute :provider_type, String
   attribute :specialties, Array
 
-  def initialize(attr)
+  def initialize(attr = {})
     super(attr)
     new_attr = attr.dup
     new_attr[:acc_new_patients] ||= new_attr.delete(:is_accepting_new_patients)
@@ -37,7 +37,7 @@ class PPMS::Provider < Common::Base
     new_attr[:phone] ||= new_attr.delete(:main_phone)
     new_attr[:id] ||= new_attr.delete(:provider_hexdigest) || new_attr[:provider_identifier]
 
-    new_attr[:specialties] ||= new_attr.delete(:provider_specialties).collect do |specialty|
+    new_attr[:specialties] ||= new_attr.delete(:provider_specialties)&.collect do |specialty|
       PPMS::Specialty.new(
         specialty.transform_keys { |k| k.to_s.snakecase.to_sym }
       )

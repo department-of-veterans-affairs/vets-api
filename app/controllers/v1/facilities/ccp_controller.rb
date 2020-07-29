@@ -12,7 +12,7 @@ class V1::Facilities::CcpController < FacilitiesController
       )
     end.uniq(&:id).paginate(pagination_params)
 
-    render_json(serializer, ppms_params, api_results, { include: [:specialties] })
+    render_json(PPMS::ProviderSerializer, ppms_params, api_results, { include: [:specialties] })
   end
 
   def show
@@ -23,7 +23,7 @@ class V1::Facilities::CcpController < FacilitiesController
 
     api_result = PPMS::Provider.new(api_result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym })
 
-    render_json(serializer, ppms_params, api_result, { include: [:specialties] })
+    render_json(PPMS::ProviderSerializer, ppms_params, api_result, { include: [:specialties] })
   end
 
   def specialties
@@ -70,7 +70,7 @@ class V1::Facilities::CcpController < FacilitiesController
     elsif ppms_params[:type] == 'provider'
       provider_search
     elsif ppms_params[:type] == 'pharmacy'
-      provider_search(:specialties => ['3336C0003X'])
+      provider_search(specialties: ['3336C0003X'])
     elsif ppms_params[:type] == 'urgent_care'
       api.pos_locator(ppms_params)
     end
@@ -82,10 +82,6 @@ class V1::Facilities::CcpController < FacilitiesController
       provider.add_details(prov_info)
       provider
     end
-  end
-
-  def serializer
-    PPMS::ProviderSerializer
   end
 
   def resource_path(options)
