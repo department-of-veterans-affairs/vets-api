@@ -2,22 +2,16 @@
 
 module BGS
   class Service
-    include BGS::Exceptions::BGSErrors
-
     def initialize(user)
       @user = user
     end
 
     def vnp_create_benefit_claim(vnp_benefit_params)
-      with_multiple_attempts_enabled do
-        service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params)
-      end
+      service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params.merge(bgs_auth))
     end
 
     def vnp_benefit_claim_update(vnp_benefit_params)
-      with_multiple_attempts_enabled do
-        service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params)
-      end
+      service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
     end
 
     def bgs_auth
