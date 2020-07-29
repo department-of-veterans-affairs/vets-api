@@ -59,9 +59,7 @@ module VCR
   end
 end
 
-VCR.configure do |c|
-  c.configure_rspec_metadata!
-end
+VCR.configure(&:configure_rspec_metadata!)
 
 ActiveRecord::Migration.maintain_test_schema!
 
