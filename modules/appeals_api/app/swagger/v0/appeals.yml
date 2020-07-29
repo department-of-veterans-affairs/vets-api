@@ -20,7 +20,7 @@ info:
 
     ### Data refresh
 
-    The Lighthouse Sandbox environment points to the Caseflow Demo environment which refreshes daily. The data in this environment is mock data and does not contain any PII.
+    The Lighthouse Sandbox environment points to the Caseflow UAT environment which refreshes daily. The data in this environment is mock data and does not contain any PII.
 
     1. Client Request: GET https://sandbox-api.va.gov/services/appeals/v0/appeals
         * Provide the Veteran's SSN as the X-VA-SSN header
