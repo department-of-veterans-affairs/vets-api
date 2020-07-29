@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class ChildStoppedAttendingSchool < Base
+  class ChildStoppedAttendingSchool
     def initialize(child_info)
       @child_info = child_info
     end

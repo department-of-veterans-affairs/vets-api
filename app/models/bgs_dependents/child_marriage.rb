@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class ChildMarriage < Base
+  class ChildMarriage
     def initialize(child_marriage)
       @child_marriage = child_marriage
     end
