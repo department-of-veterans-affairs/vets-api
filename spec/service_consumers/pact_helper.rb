@@ -27,24 +27,6 @@ git_branch = ENV['GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`
 # don't publish results if running in local development env
 publish_flag = ENV['PUBLISH_PACT_VERIFICATION_RESULTS'] == "true" || (! Rails.env.development?)
 
-RSpec.configure do |config|
-  config.include AuthenticatedSessionHelper
-  config.define_derived_metadata do |metadata|
-    metadata[:type] = :request
-  end
-
-  config.before do |example|
-
-    user = FactoryBot.build(:user, :loa3)
-    session_object = sign_in(user, nil, nil, true)
-    allow_any_instance_of(ActionDispatch::Request).to receive(:session).and_return(session_object.to_hash)
-
-    stub_mvi unless example.metadata[:skip_mvi]
-    stub_emis unless example.metadata[:skip_emis]
-    stub_vet360 unless example.metadata[:skip_vet360]
-  end
-end
-
 Pact.service_provider 'VA.gov API' do
   # This example points to a local file, however, on a real project with a continuous
   # integration box, you would use a [Pact Broker](https://github.com/pact-foundation/pact_broker)
