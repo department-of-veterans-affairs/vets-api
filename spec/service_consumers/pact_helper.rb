@@ -12,7 +12,7 @@ require 'support/vcr'
 require 'support/mvi/stub_mvi'
 require 'support/stub_emis'
 require 'support/vet360/stub_vet360'
-Dir.glob(File.expand_path('../provider_states_for/*.rb', __FILE__), &method(:require))
+Dir.glob(File.expand_path('provider_states_for/*.rb', __dir__), &method(:require))
 
 VCR.configure do |c|
   # PACT requests are performed before insert_cassette is invoked
@@ -25,7 +25,7 @@ end
 git_sha = ENV['GIT_COMMIT'] || `git rev-parse --verify HEAD`
 git_branch = ENV['GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`
 # don't publish results if running in local development env
-publish_flag = ENV['PUBLISH_PACT_VERIFICATION_RESULTS'] == "true" || (! Rails.env.development?)
+publish_flag = ENV['PUBLISH_PACT_VERIFICATION_RESULTS'] == 'true' || !Rails.env.development?
 
 Pact.service_provider 'VA.gov API' do
   # This example points to a local file, however, on a real project with a continuous
@@ -38,12 +38,12 @@ Pact.service_provider 'VA.gov API' do
   app_version git_sha
   app_version_tags git_branch
   publish_verification_results publish_flag
-  
-  #temporarily define the url or else we will get failing verification
+
+  # temporarily define the url or else we will get failing verification
   honours_pact_with 'Search' do
-    pact_uri "https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/Search/latest"
+    pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/Search/latest'
   end
-  
+
   #
   # honours_pacts_from_pact_broker do
   #   pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com'
