@@ -24,7 +24,7 @@ module BGSDependents
         ptcpnt_clmant_id: @veteran[:vnp_participant_id],
         ptcpnt_mail_addrs_id: @veteran[:vnp_participant_address_id],
         vnp_ptcpnt_vet_id: @veteran[:vnp_participant_id]
-      }.merge(create_auth_params)
+      }.merge(VNP_BENEFIT_CREATE_PARAMS)
     end
 
     def update_params_for_686c(vnp_benefit_claim_record, benefit_claim_record)
@@ -52,10 +52,6 @@ module BGSDependents
         intake_jrsdtn_lctn_id: vnp_benefit_claim[:intake_jrsdtn_lctn_id],
         participant_claimant_id: vnp_benefit_claim[:ptcpnt_clmant_id]
       }
-    end
-
-    def create_auth_params
-      VNP_BENEFIT_CREATE_PARAMS.merge(@bgs_auth)
     end
   end
 end

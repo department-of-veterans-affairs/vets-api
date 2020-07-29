@@ -7,9 +7,8 @@ RSpec.describe BGSDependents::Child do
     {
       'does_child_live_with_you' => false,
       'child_address_info' => {
-        'person_child_lives_with' => {
-          'first' => 'Bill', 'middle' => 'Oliver', 'last' => 'Bradsky'
-        }, 'address' => {
+        'person_child_lives_with' => { 'first' => 'Bill', 'middle' => 'Oliver', 'last' => 'Bradsky' },
+        'address' => {
           'country_name' => 'USA',
           'address_line1' => '1100 Robin Cir',
           'city' => 'Los Angelas',
@@ -20,12 +19,8 @@ RSpec.describe BGSDependents::Child do
       'place_of_birth' => { 'state' => 'CA', 'city' => 'Slawson' },
       'child_status' => { 'biological' => true },
       'previously_married' => 'Yes',
-      'previous_marriage_details' => {
-        'date_marriage_ended' => '2018-03-04', 'reason_marriage_ended' => 'Death'
-      },
-      'full_name' => {
-        'first' => 'John', 'middle' => 'oliver', 'last' => 'Hamm', 'suffix' => 'Sr.'
-      },
+      'previous_marriage_details' => { 'date_marriage_ended' => '2018-03-04', 'reason_marriage_ended' => 'Death' },
+      'full_name' => { 'first' => 'John', 'middle' => 'oliver', 'last' => 'Hamm', 'suffix' => 'Sr.' },
       'ssn' => '370947142',
       'birth_date' => '2009-03-03'
     }
