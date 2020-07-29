@@ -2,9 +2,9 @@
 
 module BGSDependents
   class ChildStudent < Base
-    def initialize(dependents_application, proc_participant_auth)
+    def initialize(dependents_application, proc_participant)
       @dependents_application = dependents_application
-      @proc_participant_auth = proc_participant_auth
+      @proc_participant = proc_participant
     end
 
     def params_for_686c
@@ -26,7 +26,7 @@ module BGSDependents
         next_year_emplmt_income_amt: earnings_next_year&.dig('earnings_from_all_employment'),
         next_year_other_income_amt: earnings_next_year&.dig('all_other_income'),
         next_year_ssa_income_amt: earnings_next_year&.dig('annual_social_security_payments')
-      }.merge(@proc_participant_auth)
+      }.merge(@proc_participant)
     end
 
     private
