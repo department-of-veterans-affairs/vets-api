@@ -18,8 +18,8 @@ RSpec.describe BGSDependents::ChildSchool do
   end
   let(:formatted_params_result) do
     {
-      last_term_start_dt: '2016-03-04T00:00:00-08:00',
-      last_term_end_dt: '2017-04-05T00:00:00-07:00',
+      last_term_start_dt: Date.parse('2016-03-04').to_time.iso8601,
+      last_term_end_dt: Date.parse('2017-04-05').to_time.iso8601,
       prev_hours_per_wk_num: 40,
       prev_sessns_per_wk_num: 4,
       prev_school_nm: 'Another Amazing School',
@@ -38,8 +38,8 @@ RSpec.describe BGSDependents::ChildSchool do
       curnt_sessns_per_wk_num: 4,
       curnt_hours_per_wk_num: 37,
       school_actual_expctd_start_dt: '2019-03-03',
-      school_term_start_dt: '2019-03-05T00:00:00-08:00',
-      gradtn_dt: '2023-03-03T00:00:00-08:00',
+      school_term_start_dt: Date.parse('2019-03-05').to_time.iso8601,
+      gradtn_dt: Date.parse('2023-03-03').to_time.iso8601,
       vnp_proc_id: '3829729',
       vnp_ptcpnt_id: '149471'
     }
