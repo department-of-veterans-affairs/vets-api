@@ -26,26 +26,26 @@ RSpec.describe BGSDependents::Marriage do
   end
   let(:marriage_info) do
     {
-      "ssn" => "323454323",
-      "birth_date" => "1981-04-04",
-      "ever_married_ind" => "Y",
-      "martl_status_type_cd" => "Married",
-      "vet_ind" => "Y",
-      "lives_with_vet" => true,
-      "alt_address" => nil,
-      "first" => "Jenny",
-      "middle" => "Lauren",
-      "last" => "McCarthy",
-      "suffix" => "Sr."
+      'ssn' => '323454323',
+      'birth_date' => '1981-04-04',
+      'ever_married_ind' => 'Y',
+      'martl_status_type_cd' => 'Married',
+      'vet_ind' => 'Y',
+      'lives_with_vet' => true,
+      'alt_address' => nil,
+      'first' => 'Jenny',
+      'middle' => 'Lauren',
+      'last' => 'McCarthy',
+      'suffix' => 'Sr.'
     }
   end
   let(:address_output) do
     {
-      "country_name" => "USA",
-      "address_line1" => "8200 Doby LN",
-      "city" => "Pasadena",
-      "state_code" => "CA",
-      "zip_code" => "21122"
+      'country_name' => 'USA',
+      'address_line1' => '8200 Doby LN',
+      'city' => 'Pasadena',
+      'state_code' => 'CA',
+      'zip_code' => '21122'
     }
   end
 

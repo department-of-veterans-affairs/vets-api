@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BGSDependents
   class Base
     def dependent_address(dependents_application, lives_with_vet, alt_address)
