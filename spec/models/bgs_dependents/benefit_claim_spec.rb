@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::BenefitClaim do
-  let(:veteran) { {vnp_participant_id: '146189', vnp_participant_address_id: '113372'} }
+  let(:veteran) { { vnp_participant_id: '146189', vnp_participant_address_id: '113372' } }
   let(:benefit_claim) { described_class.new('3828033', veteran) }
   let(:create_params_output) do
     {
@@ -42,28 +42,28 @@ RSpec.describe BGSDependents::BenefitClaim do
   end
   let(:response_output) do
     {
-      vnp_proc_id: "3828033",
-      vnp_benefit_claim_id: "425718",
-      vnp_benefit_claim_type_code: "130DPNEBNADJ",
-      claim_jrsdtn_lctn_id: "335",
-      intake_jrsdtn_lctn_id: "335",
-      participant_claimant_id: "146189"
+      vnp_proc_id: '3828033',
+      vnp_benefit_claim_id: '425718',
+      vnp_benefit_claim_type_code: '130DPNEBNADJ',
+      claim_jrsdtn_lctn_id: '335',
+      intake_jrsdtn_lctn_id: '335',
+      participant_claimant_id: '146189'
     }
   end
   let(:vnp_benefit_claim_response_param) do
     {
-      :vnp_bnft_claim_id => "425718",
-      :bnft_claim_type_cd => "130DPNEBNADJ",
-      :claim_jrsdtn_lctn_id => "335",
-      :intake_jrsdtn_lctn_id => "335",
-      :jrn_lctn_id => "281",
-      :jrn_obj_id => "VAgovAPI",
-      :jrn_status_type_cd => "U",
-      :jrn_user_id => "VAgovAPI",
-      :pgm_type_cd => "COMP",
-      :ptcpnt_clmant_id => "146189",
-      :vnp_ptcpnt_vet_id => "146189",
-      :vnp_proc_id => "3828033"
+      vnp_bnft_claim_id: '425718',
+      bnft_claim_type_cd: '130DPNEBNADJ',
+      claim_jrsdtn_lctn_id: '335',
+      intake_jrsdtn_lctn_id: '335',
+      jrn_lctn_id: '281',
+      jrn_obj_id: 'VAgovAPI',
+      jrn_status_type_cd: 'U',
+      jrn_user_id: 'VAgovAPI',
+      pgm_type_cd: 'COMP',
+      ptcpnt_clmant_id: '146189',
+      vnp_ptcpnt_vet_id: '146189',
+      vnp_proc_id: '3828033'
     }
   end
 
