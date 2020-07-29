@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class Base
+  class Base < Common::Base
     def format_date(date)
       return nil if date.nil?
 
