@@ -2,18 +2,26 @@
 
 module BGSDependents
   class Veteran < Base
+    attribute :participant_id, String
+    attribute :ssn, String
+    attribute :first_name, String
+    attribute :middle_name, String
+    attribute :last_name, String
+    attribute :external_key, String
+    attribute :icn, String
+
     def initialize(proc_id, user)
-      @user = user
       @proc_id = proc_id
+      self.attributes = user
     end
 
-    def formatted_params(payload, user)
+    def formatted_params(payload)
       dependents_application = payload['dependents_application']
       vet_info = [
         *payload['veteran_information'],
-        ['first', user[:first_name]],
-        ['middle', user[:middle_name]],
-        ['last', user[:last_name]],
+        ['first', first_name],
+        ['middle', middle_name],
+        ['last', last_name],
         *dependents_application.dig('veteran_contact_information'),
         *dependents_application.dig('veteran_contact_information', 'veteran_address'),
         %w[vet_ind Y]
@@ -26,11 +34,11 @@ module BGSDependents
       vet_info.to_h
     end
 
-    def veteran_response(participant, person, va_file_number, address, end_product)
+    def veteran_response(participant, va_file_number, address, end_product)
       {
         vnp_participant_id: participant[:vnp_ptcpnt_id],
-        first_name: person[:first_nm],
-        last_name: person[:last_nm],
+        first_name: first_name,
+        last_name: last_name,
         vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id],
         file_number: va_file_number,
         address_line_one: address[:addrs_one_txt],

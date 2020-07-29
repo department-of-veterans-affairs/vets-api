@@ -48,7 +48,7 @@ RSpec.describe BGSDependents::Veteran do
 
   describe '#formatted_params' do
     it 'formats params given a payload' do
-      expect(vet.formatted_params(all_flows_payload, user))
+      expect(vet.formatted_params(all_flows_payload))
         .to include(formatted_params_result)
     end
   end
@@ -56,7 +56,7 @@ RSpec.describe BGSDependents::Veteran do
   describe '#veteran_response' do
     it 'formats params veteran response' do
       expect(
-        vet.veteran_response({ vnp_ptcpnt_id: '149500' }, person, '1234', address, '134')
+        vet.veteran_response({ vnp_ptcpnt_id: '149500' }, '1234', address, '134')
       ).to include(veteran_response_result_sample)
     end
   end
