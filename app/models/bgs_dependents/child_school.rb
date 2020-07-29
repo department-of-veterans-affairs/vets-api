@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class ChildSchool
+  class ChildSchool < Base
     def initialize(dependents_application, proc_participant)
       @dependents_application = dependents_application
       @proc_participant = proc_participant
