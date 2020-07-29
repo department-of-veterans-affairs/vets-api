@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EducationForm
   class SendSCOEmail
     include Sidekiq::Worker
@@ -70,10 +72,9 @@ module EducationForm
       prefill_state = @institution[:state]
 
       form_school_name != prefill_name ||
-          form_school_city != prefill_city ||
-          form_school_state != prefill_state
+        form_school_city != prefill_city ||
+        form_school_state != prefill_state
     end
-
 
     def send_sco_email
       return if @institution.blank? || school_changed?
