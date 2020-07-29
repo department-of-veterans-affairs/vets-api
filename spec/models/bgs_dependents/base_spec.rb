@@ -27,7 +27,6 @@ RSpec.describe BGSDependents::Base do
     }
   end
 
-
   describe '#dependent_address' do
     it "returns the vets's address" do
       address = base.dependent_address(sample_dependent_application, true, nil)
@@ -35,8 +34,8 @@ RSpec.describe BGSDependents::Base do
       expect(address).to eq(sample_dependent_application['veteran_contact_information']['veteran_address'])
     end
 
-    it "returns the alternative address" do
-      address = base.dependent_address(sample_dependent_application, false , alternative_address)
+    it 'returns the alternative address' do
+      address = base.dependent_address(sample_dependent_application, false, alternative_address)
 
       expect(address).to eq(alternative_address)
     end
