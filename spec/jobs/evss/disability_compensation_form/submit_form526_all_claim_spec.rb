@@ -78,6 +78,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
+    context 'with a breakers outage' do
+      it 'runs the retryable_error_handler and raises a gateway timeout' do
+        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+        subject.perform_async(submission.id)
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+        expect(Form526JobStatus).to receive(:upsert).twice
+        expect(Rails.logger).to receive(:error).once
+        expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+      end
+    end
+
     context 'with a client error' do
       it 'sets the job_status to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
@@ -103,7 +114,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
     context 'with an upstream service error for EP code not valid' do
       it 'sets the transaction to "non_retryable_error"' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_500_with_ep_not_valid') do
+        VCR.use_cassette('evss/disability_compensation_form/submit_200_with_ep_not_valid') do
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
@@ -119,6 +130,28 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+        end
+      end
+    end
+
+    context 'with a unused [418] error' do
+      it 'sets the transaction to "retryable_error"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_200_with_418') do
+          subject.perform_async(submission.id)
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
+        end
+      end
+    end
+
+    context 'with a BGS error' do
+      it 'sets the transaction to "retryable_error"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_200_with_bgs_error') do
+          subject.perform_async(submission.id)
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
         end
       end
     end
