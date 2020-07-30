@@ -142,6 +142,7 @@ group :test do
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick'
+  gem 'pact'
 end
 
 # rubocop:disable Metrics/BlockLength
