@@ -30,7 +30,9 @@ RSpec.describe BGS::StudentSchool do
       curnt_school_city_nm: 'Rock Island',
       curnt_school_nm: 'My Great School',
       curnt_school_postal_cd: 'AR',
-      curnt_sessns_per_wk_num: 4
+      curnt_sessns_per_wk_num: 4,
+      vnp_proc_id: '3829729',
+      vnp_ptcpnt_id: '149471'
     }
   end
   let(:student_params) do
@@ -49,7 +51,9 @@ RSpec.describe BGS::StudentSchool do
       term_year_annty_income_amt: '30595',
       term_year_emplmt_income_amt: '12000',
       term_year_other_income_amt: '5596',
-      term_year_ssa_income_amt: '3453'
+      term_year_ssa_income_amt: '3453',
+      vnp_proc_id: '3829729',
+      vnp_ptcpnt_id: '149471'
     }
   end
 

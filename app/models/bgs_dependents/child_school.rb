@@ -7,8 +7,7 @@ module BGSDependents
     attribute :program_information, Hash
     attribute :current_term_dates, Hash
 
-    def initialize(dependents_application, proc_participant)
-      @proc_participant = proc_participant
+    def initialize(dependents_application)
       self.attributes = dependents_application
     end
 
@@ -42,7 +41,7 @@ module BGSDependents
         school_actual_expctd_start_dt: current_term_dates&.dig('official_school_start_date'),
         school_term_start_dt: format_date(current_term_dates&.dig('expected_student_start_date')),
         gradtn_dt: format_date(current_term_dates&.dig('expected_graduation_date'))
-      }.merge(@proc_participant)
+      }
     end
 
     # rubocop:enable Metrics/AbcSize

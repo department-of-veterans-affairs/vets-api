@@ -8,13 +8,8 @@ RSpec.describe BGSDependents::ChildStudent do
     payload = File.read("#{fixtures_path}/all_flows_payload.json")
     JSON.parse(payload)
   end
-  let(:proc_participant) do
-    {
-      vnp_proc_id: '3829729', vnp_ptcpnt_id: '149471'
-    }
-  end
   let(:child_student_info) do
-    described_class.new(all_flows_payload['dependents_application'], proc_participant)
+    described_class.new(all_flows_payload['dependents_application'])
   end
   let(:formatted_params_result) do
     {
@@ -34,9 +29,7 @@ RSpec.describe BGSDependents::ChildStudent do
       next_year_annty_income_amt: '3989',
       next_year_emplmt_income_amt: '12000',
       next_year_other_income_amt: '984',
-      next_year_ssa_income_amt: '3940',
-      vnp_proc_id: '3829729',
-      vnp_ptcpnt_id: '149471'
+      next_year_ssa_income_amt: '3940'
     }
   end
 

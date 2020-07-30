@@ -7,8 +7,7 @@ module BGSDependents
     attribute :student_networth_information, Hash
     attribute :student_expected_earnings_next_year, Hash
 
-    def initialize(dependents_application, proc_participant)
-      @proc_participant = proc_participant
+    def initialize(dependents_application)
       self.attributes = dependents_application
     end
 
@@ -31,7 +30,7 @@ module BGSDependents
         next_year_emplmt_income_amt: student_expected_earnings_next_year&.dig('earnings_from_all_employment'),
         next_year_other_income_amt: student_expected_earnings_next_year&.dig('all_other_income'),
         next_year_ssa_income_amt: student_expected_earnings_next_year&.dig('annual_social_security_payments')
-      }.merge(@proc_participant)
+      }
     end
 
     private
