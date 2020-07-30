@@ -30,7 +30,6 @@ module BGS
     private
 
     def add_children
-=begin
       @dependents_application['children_to_add'].each do |child_info|
         child = BGSDependents::Child.new(child_info)
         formatted_info = child.format_info
@@ -49,7 +48,6 @@ module BGS
           }
         )
       end
-=end
     end
 
     def report_deaths
@@ -133,7 +131,6 @@ module BGS
     end
 
     def report_674
-=begin
       adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(
         @dependents_application
       )
@@ -148,7 +145,6 @@ module BGS
         'Other',
         { 'type': '674' }
       )
-=end
     end
 
     def child_event_type(event_type)
@@ -156,7 +152,7 @@ module BGS
         return BGSDependents::ChildMarriage.new(@dependents_application['child_marriage'])
       end
 
-      # BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
+      BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
     end
 
     def person_params(calling_object, participant, dependent_info)
