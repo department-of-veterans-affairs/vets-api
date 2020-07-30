@@ -131,6 +131,7 @@ group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
   gem 'fakeredis'
+  gem 'pact'
   gem 'pdf-inspector'
   gem 'rspec-retry'
   gem 'rspec_junit_formatter'
@@ -142,7 +143,6 @@ group :test do
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick'
-  gem 'pact'
 end
 
 # rubocop:disable Metrics/BlockLength
