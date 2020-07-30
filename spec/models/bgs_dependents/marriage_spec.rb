@@ -53,7 +53,7 @@ RSpec.describe BGSDependents::Marriage do
     it 'formats relationship params for submission' do
       formatted_info = marriage.format_info
 
-      expect(formatted_info).to eq(format_info_output)
+      expect(formatted_info).to include(format_info_output)
     end
   end
 
