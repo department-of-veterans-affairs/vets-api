@@ -21,11 +21,7 @@ module AppealsApi
     private
 
     def higher_level_review_ids
-      @higher_level_review_ids ||= HigherLevelReview
-                                   .received_or_processing
-                                   .where('created_at < ?', 1.week.ago.utc)
-                                   .order(created_at: :asc)
-                                   .pluck(:id)
+      @higher_level_review_ids ||= HigherLevelReview.received_or_processing.order(created_at: :asc).pluck(:id)
     end
 
     def slice_size
