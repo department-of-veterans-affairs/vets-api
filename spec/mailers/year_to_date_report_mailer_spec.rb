@@ -29,9 +29,21 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
 
         expect(mail.to).to eq(
           %w[
-            lihan@adhocteam.us
+            Brian.Grubb@va.gov
             Delli-Gatti_Michael@bah.com
+            Joseph.Preisser@va.gov
+            Joseph.Welton@va.gov
+            kyle.pietrosanto@va.gov
+            Lucas.Tickner@va.gov
+            lihan@adhocteam.us
+            matthew.ziolkowski@va.gov
+            Michael.Johnson19@va.gov
+            neel_darrell@bah.com
+            Ricardo.DaSilva@va.gov
+            shawkey_daniel@bah.com
             sonntag_adam@bah.com
+            tammy.hurley1@va.gov
+            turner_desiree@bah.com
           ]
         )
       end
@@ -46,29 +58,22 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
         subject
         expect(mail.to).to eq(
           %w[
-            Christopher.Marino2@va.gov
-            224B.VBAVACO@va.gov
-            Carolyn.McCollam@va.gov
-            shay.norton@va.gov
-            Christina.DiTucci@va.gov
-            Brandye.Terrell@va.gov
-            michele.mendola@va.gov
-            Christopher.Sutherland@va.gov
-            John.McNeal@va.gov
-            Anne.kainic@va.gov
-            ian@adhocteam.us
-            Brandon.Scott2@va.gov
-            224C.VBAVACO@va.gov
-            peter.chou1@va.gov
-            Joseph.Welton@va.gov
             222A.VBAVACO@va.gov
-            Ricardo.DaSilva@va.gov
-            peter.nastasi@va.gov
-            Lucas.Tickner@va.gov
+            224B.VBAVACO@va.gov
+            224C.VBAVACO@va.gov
+            Brandon.Scott2@va.gov
+            Brian.Grubb@va.gov
+            Christina.DiTucci@va.gov
+            John.McNeal@va.gov
+            Joseph.Preisser@va.gov
+            Joseph.Welton@va.gov
+            kathleen.dalfonso@va.gov
             kyle.pietrosanto@va.gov
-            robert.shinners@va.gov
-            johnny@oddball.io
-            John.Holton2@va.gov
+            Lucas.Tickner@va.gov
+            michele.mendola@va.gov
+            Ricardo.DaSilva@va.gov
+            shay.norton@va.gov
+            tammy.hurley1@va.gov
           ]
         )
       end

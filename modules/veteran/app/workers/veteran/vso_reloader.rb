@@ -3,7 +3,7 @@
 require 'sidekiq'
 
 module Veteran
-  class VsoReloader < BaseReloader
+  class VSOReloader < BaseReloader
     def perform
       array_of_organizations = reload_representatives
       # This Where Not statement is for removing anyone no longer on the lists pulled down from OGC

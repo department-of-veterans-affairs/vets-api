@@ -1,0 +1,119 @@
+{"200": {
+    "description": "JSON:API response returning all contestable issues for a specific veteran.",
+    "content": {
+      "application/vnd.api+json": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "description": "A contestable issue (to contest this, you include it as a RequestIssue when creating a HigherLevelReview, SupplementalClaim, or Appeal)",
+                "properties": {
+                  "type": { "type": "string", "enum": [ "contestableIssue" ] },
+                  "id": { "type": "string", "nullable": true },
+                  "attributes": {
+                    "type": "object",
+                    "properties": {
+                      "ratingIssueReferenceId": { "type": "string", "nullable": true, "description": "RatingIssue ID" },
+                      "ratingIssueProfileDate": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "date",
+                        "description": "(yyyy-mm-dd) RatingIssue profile date"},
+                      "ratingIssueDiagnosticCode": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "RatingIssue diagnostic code"},
+                      "ratingDecisionReferenceId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The BGS ID for the contested rating decision. This may be populated while ratingIssueReferenceId is nil"},
+                      "decisionIssueId": {
+                        "type": "integer",
+                        "nullable": true,
+                        "description": "DecisionIssue ID"},
+                      "approxDecisionDate": {
+                        "type": "string",
+                        "nullable": true,
+                        "format": "date",
+                        "description": "(yyyy-mm-dd) Approximate decision date"},
+                      "description": { "type": "string", "nullable": true, "description": "Description"},
+                      "rampClaimId": { "type": "string", "nullable": true, "description": "RampClaim ID"},
+                      "titleOfActiveReview": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Title of DecisionReview that this issue is still active on"},
+                      "sourceReviewType": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "The type of DecisionReview (HigherLevelReview, SupplementalClaim, Appeal) the issue was last decided on (if any)"},
+                      "timely": {
+                        "type": "boolean",
+                        "description": "An issue is timely if the receipt date is within 372 dates of the decision date."},
+                      "latestIssuesInChain": {
+                        "type": "array",
+                        "description": "Shows the chain of decision and rating issues that preceded this issue. Only the most recent issue can be contested (the object itself that contains the latestIssuesInChain attribute).",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "string", "nullable": true },
+                            "approxDecisionDate": {
+                              "type": "string",
+                              "nullable": true,
+                              "format": "date" }}}},
+                      "ratingIssueSubjectText": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Short description of RatingIssue" },
+                      "ratingIssuePercentNumber": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Numerical rating for RatingIssue" },
+                      "isRating": { "type": "boolean", "description": "Whether or not this is a RatingIssue" }}}}}}}}}}},
+  "404": {
+    "description": "Veteran not found",
+    "content": {
+      "application/vnd.api+json": {
+        "schema": {
+          "type": "object",
+          "properties": { "errors": { "$ref": "#/components/schemas/errorWithTitleAndDetail" } }},
+        "examples": {
+          "bad file number or SSN": {
+            "value": {
+              "errors": { "status": 404, "code": "veteran_not_found", "title": "Veteran Not Found" }}}}}}},
+  "422": {
+    "description": "Bad receipt date",
+    "content": {
+      "application/vnd.api+json": {
+        "schema": {
+          "type": "object",
+          "properties": { "errors": { "$ref": "#/components/schemas/errorWithTitleAndDetail" } }},
+        "examples": {
+          "before AMA": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_receipt_date", "title": "Invalid Receipt Date", "detail": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)." }}},
+          "future receipt date": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_receipt_date", "title": "Invalid Receipt Date", "detail": "\"2020-07-02\" is in the future (today: 2020-07-01; time zone: (GMT-05:00) America/New_York)." }}},
+          "unparsable date": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_receipt_date", "title": "Invalid Receipt Date", "detail": "\"Widdershins\" is not a valid date." }}},
+          "invalid benefit_type": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_benefit_type", "title": "Invalid Benefit Type", "detail": "Benefit type nil is invalid. Must be one of: [\"compensation\", \"pension\", \"fiduciary\", \"insurance\", \"education\", \"voc_rehab\", \"loan_guaranty\", \"vha\", \"nca\"]" }}},
+          "invalid veteran ssn": {
+            "value": {
+              "errors": { "status": 422, "code": "invalid_veteran_ssn", "title": "Invalid Veteran SSN", "detail": "SSN regex: /^\\d{9}$/)." }}}}}}},
+  "500": {
+    "description": "Unknown error",
+    "content": {
+      "application/vnd.api+json": {
+        "schema": {
+          "type": "object",
+          "properties": { "errors": { "$ref": "#/components/schemas/errorWithTitleAndDetail" } }},
+        "examples": {
+          "unknown error": {
+            "value": {
+              "errors": { "status": 500, "code": "unknown_error", "title": "Unknown error" }}}}}}}}

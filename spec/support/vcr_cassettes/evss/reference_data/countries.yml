@@ -2,15 +2,43 @@
 http_interactions:
 - request:
     method: get
-    uri: "<EVSS_AWS_BASE_URL>/countries"
+    uri: "<EVSS_BASE_URL>/wss-referencedata-services-web/rest/referencedata/v1/countries"
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Faraday v0.9.2
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTgxMzM0NzYsImV4cCI6MTUxODEzMzc3NiwiaXNzIjoiVmV0cy5nb3YiLCJqdGkiOiIyZDc5OGU3NC1hZTUxLTRmMTQtYjgzNi1iZTZkNTI2ZGQyZDMiLCJhc3N1cmFuY2VMZXZlbCI6MywiZW1haWwiOiJhYnJhaGFtLmxpbmNvbG5AdmV0cy5nb3YiLCJmaXJzdE5hbWUiOiJhYnJhaGFtIiwibWlkZGxlTmFtZSI6bnVsbCwibGFzdE5hbWUiOiJsaW5jb2xuIiwiYmlydGhEYXRlIjoiMTgwOS0wMi0xMiIsImdlbmRlciI6Ik0iLCJwcmVmaXgiOiIiLCJzdWZmaXgiOiIiLCJjb3JyZWxhdGlvbklkcyI6WyI2OTUzODkwMDk2NyJdfQ.5u900DoDGBt9lEqVIN3WKfYocMcBmqCrf8jwXjPvuCM
+      - Faraday v0.17.0
+      va-eauth-csid:
+      - DSLogon
+      va-eauth-authenticationmethod:
+      - DSLogon
+      va-eauth-pnidtype:
+      - SSN
+      va-eauth-assurancelevel:
+      - '3'
+      va-eauth-firstName:
+      - WESLEY
+      va-eauth-lastName:
+      - FORD
+      va-eauth-issueinstant:
+      - '2017-12-07T00:55:09Z'
+      va-eauth-dodedipnid:
+      - '1007697216'
+      va-eauth-birlsfilenumber:
+      - '796043735'
+      va-eauth-pid:
+      - '600061742'
+      va-eauth-pnid:
+      - '796043735'
+      va-eauth-birthdate:
+      - '1986-05-06T00:00:00+00:00'
+      va-eauth-authorization:
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796043735","edi":"1007697216","firstName":"WESLEY","lastName":"FORD","birthDate":"1986-05-06T00:00:00+00:00"}}'
+      va-eauth-authenticationauthority:
+      - eauth
+      va-eauth-service-transaction-id:
+      - vagov-2dccfa35-b8f4-4255-9088-37a0e2bbdbb5
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -18,43 +46,30 @@ http_interactions:
   response:
     status:
       code: 200
-      message: ''
+      message: OK
     headers:
-      Cache-Control:
-      - no-cache, no-store, max-age=0, must-revalidate
-      Content-Type:
-      - application/json;charset=UTF-8
       Date:
-      - Thu, 08 Feb 2018 23:44:16 GMT
-      Expires:
-      - '0'
-      Pragma:
-      - no-cache
-      Set-Cookie:
-      - JSESSIONID=1247B84B1C66595A821CFCAD07C8D530; Path=/; HttpOnly
-      X-Application-Context:
-      - ascent-gateway:aws-stage:8762
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - DENY
-      X-Xss-Protection:
-      - 1; mode=block
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
+      - Tue, 09 Jun 2020 18:36:18 GMT
+      Server:
+      - Apache
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Content-Type:
+      - application/json
+      Via:
+      - 1.1 pint.ebenefits.va.gov:444
+      Vary:
+      - Accept-Encoding,User-Agent
+      X-Ua-Compatible:
+      - IE=Edge
+      Content-Length:
+      - '1261'
     body:
-      encoding: UTF-8
+      encoding: ASCII-8BIT
       string: |-
         {
-          "messages" : [ {
-            "key" : "referencedata.common.partner.failed.local.storage.error",
-            "text" : "Partner failed to return data. List is retrieved from local static storage",
-            "severity" : "WARN"
-          } ],
-          "countries" : [ "Afghanistan", "Albania", "Algeria", "Angola", "Anguilla", "Antigua", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Azores", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Barbuda", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia-Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burma", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic of", "Congo, People's Republic of", "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "England", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "French Guiana", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Great Britain", "Great Britain and Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guatemala", "Guinea", "Guinea, Republic of Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel (Jerusalem)", "Israel (Tel Aviv)", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Leeward Islands", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Mali", "Malta", "Martinique", "Mauritania", "Mauritius", "Mexico", "Moldavia", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Namibia", "Nepal", "Netherlands", "Netherlands Antilles", "Nevis", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "Northern Ireland", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Philippines (restricted payments)", "Poland", "Portugal", "Qatar", "Republic of Yemen", "Romania", "Russia", "Rwanda", "Sao-Tome/Principe", "Saudi Arabia", "Scotland", "Senegal", "Serbia", "Serbia/Montenegro", "Seychelles", "Sicily", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Somalia", "South Africa", "South Korea", "Spain", "Sri Lanka", "St. Kitts", "St. Lucia", "St. Vincent", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Trinidad and Tobago", "Tunisia", "Turkey (Adana only)", "Turkey (except Adana)", "Turkmenistan", "USA", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Wales", "Western Samoa", "Yemen Arab Republic", "Zambia", "Zimbabwe" ]
+          "countries" : [ "Afghanistan", "Albania", "Algeria", "Angola", "Anguilla", "Antigua", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Azores", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Barbuda", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia-Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burma", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic of", "Congo, People's Republic of", "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "England", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "French Guiana", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Great Britain", "Great Britain and Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guatemala", "Guinea", "Guinea, Republic of Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel (Jerusalem)", "Israel (Tel Aviv)", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Leeward Islands", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Mali", "Malta", "Martinique", "Mauritania", "Mauritius", "Mexico", "Moldavia", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Namibia", "Nepal", "Netherlands", "Netherlands Antilles", "Nevis", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "Northern Ireland", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Philippines (restricted payments)", "Poland", "Portugal", "Qatar", "Republic of Yemen", "Romania", "Russia", "Rwanda", "Sao-Tome/Principe", "Saudi Arabia", "Scotland", "Senegal", "Serbia", "Serbia/Montenegro", "Seychelles", "Sicily", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Somalia", "South Africa", "South Korea", "Spain", "Sri Lanka", "St. Kitts", "St. Lucia", "St. Vincent", "Sudan", "Suriname", "Swaziland", "Sweden", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Trinidad and Tobago", "Tunisia", "Turkey (Adana only)", "Turkey (except Adana)", "Turkmenistan", "USA", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Wales", "Western Samoa", "Yemen Arab Republic", "Zambia", "Zimbabwe" ]
         }
-    http_version: 
-  recorded_at: Thu, 08 Feb 2018 23:44:37 GMT
-recorded_with: VCR 3.0.3
+    http_version: null
+  recorded_at: Tue, 09 Jun 2020 18:36:19 GMT
+recorded_with: VCR 5.1.0

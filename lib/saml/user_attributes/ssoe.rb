@@ -7,7 +7,7 @@ module SAML
   module UserAttributes
     class SSOe
       include SentryLogging
-      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name zip gender ssn birth_date
+      SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
                                    dslogon_edipi loa sign_in multifactor].freeze
       IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
@@ -34,6 +34,10 @@ module SAML
         safe_attr('va_eauth_lastname')
       end
 
+      def common_name
+        safe_attr('va_eauth_commonname')
+      end
+
       def zip
         safe_attr('va_eauth_postalcode')
       end
@@ -50,7 +54,12 @@ module SAML
       end
 
       def birth_date
-        safe_attr('va_eauth_birthDate_v1')
+        bd = safe_attr('va_eauth_birthDate_v1')
+        begin
+          Date.parse(bd).strftime('%Y-%m-%d')
+        rescue TypeError, ArgumentError
+          nil
+        end
       end
 
       def email
@@ -93,7 +102,7 @@ module SAML
       end
 
       def mhv_correlation_id
-        safe_attr('va_eauth_mhvuuid') || safe_attr('va_eauth_mhvien')
+        safe_attr('va_eauth_mhvuuid') || safe_attr('va_eauth_mhvien')&.split(',')&.first
       end
 
       def mhv_account_type
@@ -105,7 +114,7 @@ module SAML
       end
 
       def dslogon_edipi
-        safe_attr('va_eauth_dodedipnid')
+        safe_attr('va_eauth_dodedipnid')&.split(',')&.first
       end
 
       # va_eauth_credentialassurancelevel is supposed to roll up the
@@ -153,22 +162,32 @@ module SAML
         { current: loa_current, highest: [loa_current, loa_highest].max }
       end
 
+      def transactionid
+        safe_attr('va_eauth_transactionid')
+      end
+
       def sign_in
         sign_in = if @authn_context == INBOUND_AUTHN_CONTEXT
                     { service_name: csid == 'mhv' ? 'myhealthevet' : csid }
                   else
                     SAML::User::AUTHN_CONTEXTS.fetch(@authn_context).fetch(:sign_in)
                   end
-        sign_in.merge(account_type: account_type)
+        sign_in.merge(account_type: account_type, ssoe: true, transactionid: transactionid)
       end
 
       def to_hash
-        Hash[SERIALIZABLE_ATTRIBUTES.map { |k| [k, send(k)] }]
+        SERIALIZABLE_ATTRIBUTES.index_with { |k| send(k) }
       end
 
       # Raise any fatal exceptions due to validation issues
       def validate!
-        raise SAML::UserAttributeError, 'MHV Identifier mismatch' if mhv_id_mismatch?
+        unless idme_uuid
+          data = SAML::UserAttributeError::ERRORS[:idme_uuid_missing].merge({ identifier: mhv_icn })
+          raise SAML::UserAttributeError, data
+        end
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] if mhv_id_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_edipis] if edipi_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch] if mhv_icn_mismatch?
       end
 
       private
@@ -177,10 +196,23 @@ module SAML
         @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]
       end
 
+      # Gather all available MHV IDs, de-duplicate, and see if n > 1
       def mhv_id_mismatch?
         uuid = safe_attr('va_eauth_mhvuuid')
-        ien = safe_attr('va_eauth_mhvien')
-        uuid.present? && ien.present? && uuid != ien
+        iens = safe_attr('va_eauth_mhvien')&.split(',') || []
+        iens.append(uuid).reject(&:nil?).uniq.size > 1
+      end
+
+      # Gather all available EDIPIs, de-duplicate, and see if n > 1
+      def edipi_mismatch?
+        edipis = safe_attr('va_eauth_dodedipnid')&.split(',') || []
+        edipis.reject(&:nil?).uniq.size > 1
+      end
+
+      def mhv_icn_mismatch?
+        mhvicn_val = safe_attr('va_eauth_mhvicn')
+        icn_val = safe_attr('va_eauth_icn')
+        icn_val.present? && mhvicn_val.present? && icn_val != mhvicn_val
       end
 
       def csid

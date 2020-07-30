@@ -9,6 +9,7 @@
       "type": "object",
       "properties": {
         "start_date": { "type": "string", "format": "date-time" },
+        "sta6aid": { "type": ["string", null] },
         "clinic_id": { "type": ["string", null] },
         "clinic_friendly_name": { "type": ["string", null] },
         "facility_id": { "type": ["string", null] },

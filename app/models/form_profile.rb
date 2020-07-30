@@ -91,9 +91,10 @@ class FormProfile
   ALL_FORMS = {
     edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203],
-    evss: ['21-526EZ'],
+    evss: %w[21-526EZ 21-526EZ-BDD],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
+    dependents: ['686C-674'],
     decision_review: ['20-0996'],
     mdot: ['MDOT']
   }.freeze
@@ -102,6 +103,7 @@ class FormProfile
     '1010EZ' => ::FormProfiles::VA1010ez,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
+    '21-526EZ-BDD' => ::FormProfiles::VA526ezbdd,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
@@ -111,6 +113,7 @@ class FormProfile
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530' => ::FormProfiles::VA21p530,
     '21-686C' => ::FormProfiles::VA21686c,
+    '686C-674' => ::FormProfiles::VA686c674,
     '40-10007' => ::FormProfiles::VA4010007,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '22-0993' => ::FormProfiles::VA0993,
@@ -153,7 +156,11 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+    if form_id == '1010EZ' # our first form. lessons learned.
+      form_id = form_id.downcase
+    elsif form_id == '21-526EZ-BDD'
+      form_id = '21-526EZ' # the front end treats the forms differently, but the back end doesn't
+    end
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
@@ -283,7 +290,7 @@ class FormProfile
 
   def extract_pciu_data(user, method)
     user&.send(method)
-  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
+  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
     ''
   end
 

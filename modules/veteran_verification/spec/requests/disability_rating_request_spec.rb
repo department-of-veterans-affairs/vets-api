@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true do
+RSpec.describe 'Disability Rating API endpoint', type: :request do
   include SchemaMatchers
 
   let(:token) { 'token' }
@@ -24,17 +24,17 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
     }]
   end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}", 'Accept' => '*/*' } }
-  let(:user) { create(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3)) }
+  let(:user) { create(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3, ssn: '796126777')) }
 
   before do
     allow(JWT).to receive(:decode).and_return(jwt)
     Session.create(uuid: user.uuid, token: token)
   end
 
-  context 'with valid emis responses' do
-    it 'returns the current users service history with one episode' do
+  context 'with valid bgs responses' do
+    it 'returns all the current user disability ratings and overall service connected combined degree' do
       with_okta_configured do
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+        VCR.use_cassette('bgs/rating_web_service/rating_data') do
           get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
@@ -47,7 +47,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
   context 'with request for a jws' do
     it 'returns a jwt with the claims in the payload' do
       with_okta_configured do
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+        VCR.use_cassette('bgs/rating_web_service/rating_data') do
           get '/services/veteran_verification/v0/disability_rating', params: nil, headers: {
             'Authorization' => "Bearer #{token}",
             'Accept' => 'application/jwt'
@@ -67,43 +67,18 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
 
           claims = JWT.decode(response.body, rsa_public, true, algorithm: 'RS256').first
 
-          expect(claims['data'].first['type']).to eq('disability_ratings')
+          expect(claims['data']['type']).to eq('disability_ratings')
         end
       end
     end
   end
 
-  context 'with a 500 response' do
-    it 'returns a bad gateway response' do
+  context 'with error bgs response' do
+    it 'returns all the current user disability ratings and overall service connected combined degree' do
       with_okta_configured do
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+        VCR.use_cassette('bgs/rating_web_service/rating_data_not_found') do
           get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
-          expect(response).to have_http_status(:bad_gateway)
-          expect(response).to match_response_schema('evss_errors', strict: false)
-        end
-      end
-    end
-  end
-
-  context 'with a 403 unauthorized response' do
-    it 'returns a not authorized response' do
-      with_okta_configured do
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
-          get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
-          expect(response).to have_http_status(:forbidden)
-          expect(response).to match_response_schema('evss_errors', strict: false)
-        end
-      end
-    end
-  end
-
-  context 'with a generic 400 response' do
-    it 'returns a bad request response' do
-      with_okta_configured do
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
-          get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
-          expect(response).to have_http_status(:bad_request)
-          expect(response).to match_response_schema('evss_errors', strict: false)
+          expect(response).to have_http_status(:internal_server_error)
         end
       end
     end

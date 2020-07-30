@@ -4,8 +4,8 @@ require 'pdf_forms'
 require 'tempfile'
 require 'securerandom'
 
-class VsoAppointmentForm
-  include Common::Client::Monitoring
+class VSOAppointmentForm
+  include Common::Client::Concerns::Monitoring
   STATSD_KEY_PREFIX = 'api.vso_appoinment_form'
 
   def initialize(appt)

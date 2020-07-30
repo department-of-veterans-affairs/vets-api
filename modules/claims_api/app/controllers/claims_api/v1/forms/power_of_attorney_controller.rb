@@ -37,6 +37,8 @@ module ClaimsApi
 
           # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless header_request?
+          data = power_of_attorney.form_data
+          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id) if data['signatureImages'].present?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end

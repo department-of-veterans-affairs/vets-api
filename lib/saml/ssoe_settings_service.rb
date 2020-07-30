@@ -25,6 +25,7 @@ module SAML
         settings.certificate_new = Settings.saml_ssoe.certificate_new
         settings.sp_entity_id = Settings.saml_ssoe.issuer
         settings.assertion_consumer_service_url = Settings.saml_ssoe.callback_url
+        settings.compress_request = false
 
         settings.security[:authn_requests_signed] = true
         settings.security[:logout_requests_signed] = true
