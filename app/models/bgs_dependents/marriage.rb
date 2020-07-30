@@ -26,15 +26,11 @@ module BGSDependents
       attributes.with_indifferent_access
     end
 
-    def alt_address
-      @dependents_application.dig('does_live_with_spouse', 'address')
-    end
-
-    def address(marriage_info)
+    def address
       dependent_address(
         @dependents_application,
-        marriage_info['lives_with_vet'],
-        marriage_info['alt_address']
+        lives_with_vet,
+        alt_address
       )
     end
 
@@ -48,8 +44,8 @@ module BGSDependents
         'martl_status_type_cd': marital_status,
         'vet_ind': spouse_is_veteran,
         'lives_with_vet': lives_with_vet,
-        'alt_address': alt_address
-      }.merge(@spouse_information['full_name']).with_indifferent_access
+        'alt_address': @dependents_application.dig('does_live_with_spouse', 'address')
+      }.merge(@spouse_information['full_name'])
 
       marriage_info.merge!({ 'va_file_number': @spouse_information['va_file_number'] }) if spouse_is_veteran == 'Y'
 
@@ -57,7 +53,7 @@ module BGSDependents
     end
 
     def lives_with_vet
-      @dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
+      @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran']
     end
 
     def spouse_is_veteran

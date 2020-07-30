@@ -59,7 +59,7 @@ RSpec.describe BGSDependents::Marriage do
 
   describe '#address' do
     it 'returns an address for vet or spouse if separated' do
-      address = marriage.address(marriage_info)
+      address = marriage.address
 
       expect(address).to eq(address_output)
     end
