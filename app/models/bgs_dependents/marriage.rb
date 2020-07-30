@@ -11,7 +11,6 @@ module BGSDependents
     attribute :birth_date, String
     attribute :address, Hash
     attribute :va_file_number, String
-    attribute :lives_with_vet, String
     attribute :ever_married_ind, String
     attribute :martl_status_type_cd, String
 

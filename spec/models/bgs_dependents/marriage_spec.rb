@@ -15,8 +15,6 @@ RSpec.describe BGSDependents::Marriage do
       'ever_married_ind' => 'Y',
       'martl_status_type_cd' => 'Married',
       'vet_ind' => 'Y',
-      'lives_with_vet' => true,
-      'alt_address' => nil,
       'first' => 'Jenny',
       'middle' => 'Lauren',
       'last' => 'McCarthy',
