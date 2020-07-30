@@ -26,7 +26,8 @@ Bundler.require(*Rails.groups)
 module VetsAPI
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.2
+    config.load_defaults 6.0
+    config.autoloader = :classic
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
@@ -49,7 +50,8 @@ module VetsAPI
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, Rack::Cors, logger: (-> { Rails.logger }) do
       allow do
-        origins { |source, _env| Settings.web_origin.split(',').include?(source) }
+        regex = Regexp.new(Settings.web_origin_regex)
+        origins { |source, _env| Settings.web_origin.split(',').include?(source) || source.match?(regex) }
         resource '*', headers: :any,
                       methods: :any,
                       credentials: true,

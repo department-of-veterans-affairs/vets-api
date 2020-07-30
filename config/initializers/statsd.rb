@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'saml/errors'
+
 host = Settings.statsd.host
 port = Settings.statsd.port
 
@@ -10,32 +12,41 @@ StatsD.backend = if host.present? && port.present?
                  end
 
 # Initialize session controller metric counters at 0
+LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
+               UserSessionForm::ERRORS.values +
+               SAML::UserAttributeError::ERRORS.values
+%w[v0 v1].each do |v|
+  StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0,
+                   tags: ["version:#{v}"])
+  StatsD.increment(V1::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0,
+                   tags: ["version:#{v}"])
+  V1::SessionsController::REDIRECT_URLS.each do |t|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
 
-StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0)
-StatsD.increment(V0::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0)
-StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS, 0)
-StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0)
-
-SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
-  StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ["error:#{known_error[:tag]}"])
-end
-
-%w[success failure].each do |s|
-  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
-    StatsD.increment(
-      V0::SessionsController::STATSD_SSO_CALLBACK_KEY,
-      0,
-      tags: ["status:#{s}", "context:#{ctx}"]
-    )
+    LOGIN_ERRORS.each do |err|
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
+                       tags: ["version:#{v}", "context:#{t}", "error:#{err[:code]}"])
+    end
   end
-end
-
-V0::SessionsController::REDIRECT_URLS.each do |ctx|
-  StatsD.increment(
-    V0::SessionsController::STATSD_SSO_NEW_KEY,
-    0,
-    tags: ["context:#{ctx}"]
-  )
+  %w[success failure].each do |s|
+    (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+      StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
+                       tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
+                       tags: ["version:#{v}", "context:#{ctx}"])
+    end
+  end
+  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
+                     tags: ["version:#{v}", "context:#{ctx}"])
+  end
+  LOGIN_ERRORS.each do |err|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,
+                     tags: ["version:#{v}", "error:#{err[:tag]}"])
+  end
 end
 
 # init GiBillStatus stats to 0
@@ -103,6 +114,12 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
 
+# init Form1010cg
+StatsD.increment(Form1010cg::Service.metrics.attempt, 0)
+StatsD.increment(Form1010cg::Service.metrics.success, 0)
+StatsD.increment(Form1010cg::Service.metrics.failure.client.data, 0)
+StatsD.increment(Form1010cg::Service.metrics.failure.client.qualification, 0)
+
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
           "status:#{payload[:status]}"]
@@ -135,4 +152,9 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_,
                   'facilities.ppms.providers'
                 end
   StatsD.measure(measurement, duration, tags: ['facilities.ppms']) if measurement
+end
+ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, _|
+  duration = end_time - start_time
+
+  StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
 end

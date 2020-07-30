@@ -131,6 +131,14 @@ describe EVSS::PPIU::Service do
       end
     end
 
+    context 'with an EVSSError' do
+      it 'handles the error correctly' do
+        VCR.use_cassette('evss/ppiu/routing_number_error') do
+          expect { subject.update_payment_information(request_payload) }.to raise_error(EVSS::PPIU::ServiceException)
+        end
+      end
+    end
+
     context 'with a client error' do
       it 'logs the message to sentry', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_service_error') do

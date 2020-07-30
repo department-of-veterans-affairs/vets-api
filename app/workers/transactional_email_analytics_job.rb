@@ -50,7 +50,7 @@ class TransactionalEmailAnalyticsJob
       page_size: 50
     )
 
-    grouped_emails = TransactionalEmailMailer.descendants.each_with_object({}) { |mailer, hash| hash[mailer] = [] }
+    grouped_emails = TransactionalEmailMailer.descendants.index_with { |_mailer| [] }
 
     @all_emails.collection.each do |email|
       created_at = Time.zone.parse(email.created_at)

@@ -69,6 +69,46 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(JSON.parse(response.body)['errors'].size).to eq(5)
       end
 
+      it 'requires homelessness currentlyHomeless subfields' do
+        par = json_data
+        par['data']['attributes']['veteran']['homelessness'] = {
+          "pointOfContact": {
+            "pointOfContactName": 'John Doe',
+            "primaryPhone": {
+              "areaCode": '555',
+              "phoneNumber": '555-5555'
+            }
+          },
+          "currentlyHomeless": {
+            "homelessSituationType": 'NOT_A_HOMELESS_TYPE',
+            "otherLivingSituation": 'other living situations'
+          }
+        }
+        post path, params: par.to_json, headers: headers
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].size).to eq(1)
+      end
+
+      it 'requires homelessness homelessnessRisk subfields' do
+        par = json_data
+        par['data']['attributes']['veteran']['homelessness'] = {
+          "pointOfContact": {
+            "pointOfContactName": 'John Doe',
+            "primaryPhone": {
+              "areaCode": '555',
+              "phoneNumber": '555-5555'
+            }
+          },
+          "homelessnessRisk": {
+            "homelessnessRiskSituationType": 'NOT_RISK_TYPE',
+            "otherLivingSituation": 'other living situations'
+          }
+        }
+        post path, params: par.to_json, headers: headers
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].size).to eq(1)
+      end
+
       it 'requires disability subfields' do
         params = json_data
         params['data']['attributes']['disabilities'] = [{}]
@@ -127,13 +167,23 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(parsed['errors'].size).to eq(5)
       end
 
+      context 'Breakers outages are recorded (investigating)' do
+        it 'is logged to PersonalInformationLog' do
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+          post path, params: data, headers: headers
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('validate_form_526 Breakers::OutageException')
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
+        end
+      end
+
       context 'Timeouts are recorded (investigating)' do
         [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
           context error_klass.to_s do
             it 'is logged to PersonalInformationLog' do
               allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
                 .to receive(:validate_form526).and_raise(error_klass)
-              allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim)
+              allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
                 .to receive(:validate_form526).and_raise(error_klass)
               post path, params: data, headers: headers
               expect(PersonalInformationLog.count).to be_positive
@@ -147,23 +197,43 @@ RSpec.describe 'Disability Claims ', type: :request do
 
   describe '#upload_documents' do
     let(:auto_claim) { create(:auto_established_claim) }
-    let(:params) do
-      { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+    let(:binary_params) do
+      { 'attachment1': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
+        'attachment2': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+    end
+    let(:base64_params) do
+      { 'attachment1': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf"),
+        'attachment2': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
     end
 
-    it 'upload 526 form through PUT' do
+    it 'upload 526 binary form through PUT' do
       allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
-      put "/services/claims/v0/forms/526/#{auto_claim.id}", params: params, headers: headers
+      put "/services/claims/v0/forms/526/#{auto_claim.id}", params: binary_params, headers: headers
       auto_claim.reload
       expect(auto_claim.file_data).to be_truthy
     end
 
-    it 'upload support docs and increases the supporting document count' do
+    it 'upload 526 base64 form through PUT' do
+      allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+      put "/services/claims/v0/forms/526/#{auto_claim.id}", params: base64_params, headers: headers
+      auto_claim.reload
+      expect(auto_claim.file_data).to be_truthy
+    end
+
+    it 'upload support binary docs and increases the supporting document count' do
       allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
       count = auto_claim.supporting_documents.count
-      post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: params, headers: headers
+      post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: binary_params, headers: headers
       auto_claim.reload
-      expect(auto_claim.supporting_documents.count).to eq(count + 1)
+      expect(auto_claim.supporting_documents.count).to eq(count + 2)
+    end
+
+    it 'upload support base64 docs and increases the supporting document count' do
+      allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+      count = auto_claim.supporting_documents.count
+      post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: base64_params, headers: headers
+      auto_claim.reload
+      expect(auto_claim.supporting_documents.count).to eq(count + 2)
     end
   end
 end

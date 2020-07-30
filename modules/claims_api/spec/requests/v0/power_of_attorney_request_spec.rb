@@ -61,7 +61,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       it 'requires poa_code subfield' do
         params = json_data
-        params['data']['attributes']['poaCode'] = nil
+        params['data']['attributes']['serviceOrganization']['poaCode'] = nil
         post path, params: params.to_json, headers: headers
         expect(response.status).to eq(422)
         expect(JSON.parse(response.body)['errors'].size).to eq(1)
@@ -83,15 +83,28 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
     describe '#upload_power_of_attorney_document' do
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
-      let(:params) do
+      let(:binary_params) do
         { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
+      let(:base64_params) do
+        { 'attachment': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+      end
 
-      it 'increases the supporting document count' do
+      it 'submit binary and change the document status' do
         allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
         expect(power_of_attorney.file_data).to be_nil
         put("/services/claims/v0/forms/2122/#{power_of_attorney.id}",
-            params: params, headers: headers)
+            params: binary_params, headers: headers)
+        power_of_attorney.reload
+        expect(power_of_attorney.file_data).not_to be_nil
+        expect(power_of_attorney.status).to eq('submitted')
+      end
+
+      it 'submit base64 and change the document status' do
+        allow_any_instance_of(ClaimsApi::PowerOfAttorneyUploader).to receive(:store!)
+        expect(power_of_attorney.file_data).to be_nil
+        put("/services/claims/v0/forms/2122/#{power_of_attorney.id}",
+            params: base64_params, headers: headers)
         power_of_attorney.reload
         expect(power_of_attorney.file_data).not_to be_nil
         expect(power_of_attorney.status).to eq('submitted')

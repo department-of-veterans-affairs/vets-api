@@ -96,7 +96,9 @@
                     "gender": { "type": "string" },
                     "is_cerner_patient": { "type": "boolean" },
                     "facilities": { "type": "array" },
-                    "given_names": { "type": "array" }
+                    "given_names": { "type": "array" },
+                    "va_patient": { "type": "boolean" },
+                    "mhv_account_state": { "type": "string" }
                   }
                 }
               ]

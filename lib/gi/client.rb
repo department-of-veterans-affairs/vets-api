@@ -20,16 +20,6 @@ module GI
       gids_response(response)
     end
 
-    def get_institution_search_results(params = {})
-      response = perform(:get, 'institutions', params)
-      gids_response(response)
-    end
-
-    def get_institution_program_search_results(params = {})
-      response = perform(:get, 'institution_programs', params)
-      gids_response(response)
-    end
-
     def get_institution_details(params = {})
       facility_code = params[:id]
       response = perform(:get, "institutions/#{facility_code}", params.except(:id))

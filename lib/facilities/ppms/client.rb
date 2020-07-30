@@ -49,6 +49,7 @@ module Facilities
           providers.each do |provider|
             provider.posCodes = request_params[:posCodes]
             provider.ProviderType = 'GroupPracticeOrAgency'
+            provider.set_hexdigest!
           end
           new_array.concat(providers)
         end.sort
@@ -158,7 +159,7 @@ module Facilities
         {
           latitude: lat,
           longitude: lon,
-          radius: rad
+          radius: rad.round
         }
       end
 
@@ -170,7 +171,7 @@ module Facilities
         longs = bbox_num.values_at(2, 0)
         xlen = (lats.max - lats.min) * 69 / 2
         ylen = (longs.max - longs.min) * 69 / 2
-        Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
+        (Math.sqrt(xlen * xlen + ylen * ylen) * 1.1).round # go a little bit beyond the corner;
       end
 
       def pos_locator_params(params, pos_code)
@@ -197,7 +198,10 @@ module Facilities
       def provider_locator_address_params(params)
         page = Integer(params[:page] || 1)
         per_page = Integer(params[:per_page] || BaseFacility.per_page)
-        specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
+
+        specialty_code = params.slice(:services, :specialties).values.first
+        specialty = "'#{specialty_code ? specialty_code[0] : 'null'}'"
+
         {
           address: "'#{params[:address]}'",
           radius: radius(params[:bbox]),
@@ -217,7 +221,10 @@ module Facilities
       def provider_locator_location_params(params)
         page = Integer(params[:page] || 1)
         per_page = Integer(params[:per_page] || BaseFacility.per_page)
-        specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
+
+        specialty_code = params.slice(:services, :specialties).values.first
+        specialty = "'#{specialty_code ? specialty_code[0] : 'null'}'"
+
         cnr = center_and_radius(params[:bbox])
 
         {

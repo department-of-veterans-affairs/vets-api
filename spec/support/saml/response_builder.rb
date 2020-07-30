@@ -81,7 +81,7 @@ module SAML
     def saml_response_click_deny
       build_invalid_saml_response(
         in_response_to: uuid,
-        decrypted_document: nil,
+        decrypted_document: document_partial,
         errors: ['The status code of the Response was not Success, was Responder => AuthnFailed '\
                  '-> Subject did not consent to attribute release',
                  'SAML Response must contain 1 assertion',

@@ -29,8 +29,10 @@ module PdfFill
       def extract_country(address)
         return if address.blank?
 
-        country = address['country']
-        if country.present? && country.size == 3
+        country = address['country'] || address['country_name']
+        return if country.blank?
+
+        if country.size == 3
           IsoCountryCodes.find(country).alpha2
         else
           IsoCountryCodes.search_by_name(country)[0].alpha2
@@ -42,7 +44,7 @@ module PdfFill
       def split_postal_code(address)
         return if address.blank?
 
-        postal_code = address['postalCode']
+        postal_code = address['postalCode'] || address['zip_code']
 
         return if postal_code.blank?
 
@@ -111,6 +113,14 @@ module PdfFill
         hash['checkbox'] = {
           value => true
         }
+      end
+
+      def select_radio_button(value)
+        value ? 0 : 'Off'
+      end
+
+      def select_checkbox(value)
+        value ? 1 : 'Off'
       end
     end
   end

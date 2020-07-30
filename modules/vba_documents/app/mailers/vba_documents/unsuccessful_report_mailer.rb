@@ -11,6 +11,7 @@ module VBADocuments
       ed.mangimelli@adhocteam.us
       emily@oddball.io
       valerie.hase@va.gov
+      mark.greenburg@adhocteam.us
     ].freeze
 
     def build(consumer_totals, stuck_submissions, unsuccessful_submissions, date_from, date_to)

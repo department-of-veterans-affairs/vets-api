@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe CARMA::Models::Base, type: :model do
-  describe '#request_payload_key' do
+  describe '::request_payload_key' do
     context 'will set the class variable :request_payload_keys to the provided args' do
       it 'requires an arg' do
         class TestOne < CARMA::Models::Base
@@ -123,6 +123,75 @@ RSpec.describe CARMA::Models::Base, type: :model do
             }
           },
           'age' => 90
+        }
+      )
+    end
+  end
+
+  describe '::after_to_request_payload' do
+    it 'will call the provided method after running #to_request_payload, and return its result' do
+      class PersonThree < CARMA::Models::Base
+        attr_accessor :name, :is_veteran, :age, :state, :favorites
+
+        request_payload_key :name, :age, :favorites
+        after_to_request_payload :mutate_result
+
+        def initialize
+          @name = 'Kevin'
+          @is_veteran = true
+          @age = 90
+          @state = 'FL'
+          @favorites = Favorites.new
+        end
+
+        def mutate_result(data)
+          data['age'] = data['age'].to_s
+          data
+        end
+
+        class Favorites < CARMA::Models::Base
+          attr_accessor :restaurant, :color
+
+          request_payload_key :color
+
+          def initialize
+            @restaurant = Restaurant.new
+            @color = Color.new
+          end
+
+          class Color < CARMA::Models::Base
+            attr_accessor :color_type, :color_code
+
+            request_payload_key :color_type
+
+            def initialize
+              @color_type = 'red'
+              @color_code = 1
+            end
+          end
+
+          class Restaurant < CARMA::Models::Base
+            attr_accessor :name, :address_zip
+
+            request_payload_key :address_zip
+
+            def initialize
+              @name = 'Pizza Place'
+              @address_zip = 12_345
+            end
+          end
+        end
+      end
+
+      expect(PersonThree.new.to_request_payload).to eq(
+        {
+          'name' => 'Kevin',
+          'favorites' => {
+            'color' => {
+              'colorType' => 'red'
+            }
+          },
+          'age' => '90'
         }
       )
     end

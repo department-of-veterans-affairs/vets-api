@@ -61,6 +61,14 @@ class V0::Facilities::VaController < FacilitiesController
 
   private
 
+  def api
+    Lighthouse::Facilities::Client.new
+  end
+
+  def lighthouse_params
+    params.permit :lat, :long, :page, :per_page, :services, :type, :zip, bbox: []
+  end
+
   def validate_types_name_part
     raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
     raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
