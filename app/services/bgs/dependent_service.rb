@@ -32,17 +32,17 @@ module BGS
     end
 
     def add_va_file_number_to_payload
-      va_file_number = service.people.find_person_by_ptcpnt_id(@user.participant_id)
+      bgs_person = service.people.find_person_by_ptcpnt_id(@user.participant_id)
 
       {
         'veteran_information' => {
           'full_name' => {
             'first' => @user.first_name,
             'middle' => @user.middle_name,
-            'last' => @user.last_name # ,
+            'last' => @user.last_name
           },
           'ssn' => @user.ssn,
-          'va_file_number' => va_file_number[:file_nbr],
+          'va_file_number' => bgs_person[:file_nbr],
           'birth_date' => @user.birth_date
         }
       }
