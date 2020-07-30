@@ -371,7 +371,6 @@ GEM
       activesupport (>= 4.2)
     fastimage (2.1.7)
     ffi (1.12.2)
-    find_a_port (1.0.1)
     flipper (0.17.2)
     flipper-active_record (0.17.2)
       activerecord (>= 4.2, < 7)
@@ -510,31 +509,6 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.13.2)
-    pact (1.32.0)
-      json (> 1.8.5)
-      pact-mock_service (~> 2.0)
-      pact-support (~> 1.4)
-      rack-test (~> 0.6, >= 0.6.3)
-      randexp (~> 0.1.7)
-      rspec (>= 2.14)
-      term-ansicolor (~> 1.0)
-      thor
-      webrick
-    pact-mock_service (2.1.0)
-      find_a_port (~> 1.0.1)
-      json
-      pact-support (~> 1.0)
-      rack
-      rack-test (~> 0.6.2)
-      rspec (>= 2.14)
-      term-ansicolor (~> 1.0)
-      thor
-      webrick
-    pact-support (1.15.1)
-      awesome_print (~> 1.1)
-      randexp (~> 0.1.7)
-      rspec (>= 2.14)
-      term-ansicolor (~> 1.0)
     paper_trail (10.3.1)
       activerecord (>= 4.2)
       request_store (~> 1.1)
@@ -581,8 +555,8 @@ GEM
       rack (>= 2.0.0)
     rack-protection (2.0.8.1)
       rack
-    rack-test (0.6.3)
-      rack (>= 1.0)
+    rack-test (1.1.0)
+      rack (>= 1.0, < 3)
     rack-vcr (0.1.5)
       vcr (>= 2.9)
     rails (6.0.3.2)
@@ -618,7 +592,6 @@ GEM
       thor (>= 0.20.3, < 2.0)
     rainbow (3.0.0)
     rake (13.0.1)
-    randexp (0.1.7)
     rb-fsevent (0.10.3)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
@@ -764,9 +737,6 @@ GEM
       diff-lcs
       patience_diff
     swagger-blocks (3.0.0)
-    sync (0.5.0)
-    term-ansicolor (1.7.1)
-      tins (~> 1.0)
     terminal-table (1.8.0)
       unicode-display_width (~> 1.1, >= 1.1.1)
     thor (1.0.1)
@@ -774,8 +744,6 @@ GEM
     thwait (0.1.0)
     tilt (2.0.10)
     timecop (0.9.1)
-    tins (1.25.0)
-      sync
     trollop (1.16.2)
     ttfunk (1.5.1)
     typhoeus (1.3.1)
@@ -902,7 +870,6 @@ DEPENDENCIES
   origami
   overcommit
   ox
-  pact
   paper_trail
   pdf-forms
   pdf-inspector
