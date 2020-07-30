@@ -4,25 +4,31 @@ module ClaimsApi
   module JsonFormatValidation
     extend ActiveSupport::Concern
 
+    MALFORMED_JSON_RESPONSE = {
+      status: 422,
+      json: {
+        errors: [
+          {
+            type: 'malformed',
+            detail: "The payload body isn't valid JSON:API format",
+            links: {
+              about: 'https://jsonapi.org/format/'
+            }
+          }
+        ]
+      }.to_json
+    }.freeze
+
     included do
       def validate_json_format
-        body = request.body
-        begin
-          @json_body = JSON.parse(body.string)
-        rescue
-          error = {
-            errors: [
-              {
-                type: 'malformed',
-                detail: "The payload body isn't valid JSON:API format",
-                links: {
-                  about: 'https://jsonapi.org/format/'
-                }
-              }
-            ]
-          }
-          render json: error.to_json, status: 422
+        if request.body.is_a?(Puma::NullIO)
+          render MALFORMED_JSON_RESPONSE
+          return
         end
+
+        @json_body = JSON.parse(request.body.string)
+      rescue JSON::ParserError
+        render MALFORMED_JSON_RESPONSE
       end
     end
   end
