@@ -17,11 +17,11 @@ module ClaimsApi
           }
         ]
       }.to_json
-    }.freeze
+    }
 
     included do
       def validate_json_format
-        if request.body.is_a?(Puma::NullIO)
+        unless request.body.respond_to? :string
           render MALFORMED_JSON_RESPONSE
           return
         end

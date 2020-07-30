@@ -154,6 +154,20 @@ RSpec.describe 'Disability Claims ', type: :request do
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
         end
       end
+
+      it 'responds with a 422 when the request body isn\'t stringable' do
+        object_that_does_not_have_string_method = nil
+        allow_any_instance_of(ActionDispatch::Request).to(
+          receive(:body).and_return(object_that_does_not_have_string_method)
+        )
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims') do
+            post path, params: data, headers: headers.merge(auth_header)
+            expect(response.status).to eq 422
+            expect(JSON.parse(response.body)['errors']).to be_an Array
+          end
+        end
+      end
     end
 
     context 'form 526 validation' do
