@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class Base
+  class Base < Common::Base
     def dependent_address(dependents_application, lives_with_vet, alt_address)
       return dependents_application.dig('veteran_contact_information', 'veteran_address') if lives_with_vet
 
       alt_address
+    end
+
+    def format_date(date)
+      return nil if date.nil?
+
+      Date.parse(date).to_time.iso8601
     end
   end
 end
