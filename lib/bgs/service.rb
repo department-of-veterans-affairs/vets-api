@@ -9,15 +9,11 @@ module BGS
     end
 
     def create_child_school(child_school_params)
-      # with_multiple_attempts_enabled do
-        service.vnp_child_school.child_school_create(child_school_params.merge(bgs_auth))
-      # end
+      service.vnp_child_school.child_school_create(child_school_params.merge(bgs_auth))
     end
 
     def create_child_student(child_student_params)
-      # with_multiple_attempts_enabled do
-        service.vnp_child_student.child_student_create(child_student_params.merge(bgs_auth))
-      # end
+      service.vnp_child_student.child_student_create(child_student_params.merge(bgs_auth))
     end
 
     def bgs_auth
