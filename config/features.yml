@@ -171,3 +171,11 @@ features:
     actor_type: user
     description: >
       Comparison Tool Filter Enhancements to improve usability    
+  debt_letters_show_letters:
+    actor_type: user
+    description: >
+      Enables debt letters
+  gibct_ch33_benefit_rate_update:
+    actor_type: user
+    description: >
+      Update to Chapter 33/Post-9/11 GI Bill benefit rates set to go live 8/1

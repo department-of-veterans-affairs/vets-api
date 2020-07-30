@@ -29,7 +29,7 @@ module BGS
         {
           icn: @current_user.icn
         },
-        { team: 'eBenefits' }
+        { team: 'vfs-ebenefits' }
       )
 
       PersonalInformationLog.create(

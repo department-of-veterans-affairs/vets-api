@@ -198,7 +198,10 @@ module Facilities
       def provider_locator_address_params(params)
         page = Integer(params[:page] || 1)
         per_page = Integer(params[:per_page] || BaseFacility.per_page)
-        specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
+
+        specialty_code = params.slice(:services, :specialties).values.first
+        specialty = "'#{specialty_code ? specialty_code[0] : 'null'}'"
+
         {
           address: "'#{params[:address]}'",
           radius: radius(params[:bbox]),
@@ -218,7 +221,10 @@ module Facilities
       def provider_locator_location_params(params)
         page = Integer(params[:page] || 1)
         per_page = Integer(params[:per_page] || BaseFacility.per_page)
-        specialty = "'#{params[:services] ? params[:services][0] : 'null'}'"
+
+        specialty_code = params.slice(:services, :specialties).values.first
+        specialty = "'#{specialty_code ? specialty_code[0] : 'null'}'"
+
         cnr = center_and_radius(params[:bbox])
 
         {
