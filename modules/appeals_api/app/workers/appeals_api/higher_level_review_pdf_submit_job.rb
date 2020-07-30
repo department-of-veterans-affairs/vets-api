@@ -20,7 +20,7 @@ module AppealsApi
       pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
       higher_level_review = HigherLevelReview.find higher_level_review_id
-      higher_level_review.update!(status: 'processing')
+      higher_level_review.update!(status: 'submitting')
       pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
     end
 
