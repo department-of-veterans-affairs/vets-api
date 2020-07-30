@@ -20,8 +20,6 @@ module EducationForm
           send_sco_email
         end
       end
-
-      @claim.save
     end
 
     private
@@ -30,6 +28,7 @@ module EducationForm
       application = @claim.parsed_form
       application['scoEmailSent'] = sco_email_sent
       @claim.form = JSON.generate(application)
+      @claim.save
     end
 
     def get_gi_bill_status
