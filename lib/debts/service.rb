@@ -39,8 +39,8 @@ module Debts
       save_error_details(error)
 
       raise_backend_exception(
-        "DEBTS#{error&.status}", 
-        self.class, 
+        "DEBTS#{error&.status}",
+        self.class,
         error
       )
     end
