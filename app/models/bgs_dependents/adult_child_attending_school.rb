@@ -38,7 +38,7 @@ module BGSDependents
         ssn: @name_and_ssn['ssn'],
         birth_date: @name_and_ssn['birth_date'],
         ever_married_ind: @was_married == true ? 'Y' : 'N'
-      }.merge(@name_and_ssn.dig('full_name'))
+      }.merge(@name_and_ssn['full_name'])
     end
   end
 end
