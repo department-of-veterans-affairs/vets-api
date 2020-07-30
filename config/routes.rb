@@ -295,6 +295,9 @@ Rails.application.routes.draw do
 
     namespace :facilities, module: 'facilities' do
       resources :va, only: %i[index show]
+      resources :ccp, only: %i[index show] do
+        get 'specialties', on: :collection, to: 'ccp#specialties'
+      end
     end
   end
 
