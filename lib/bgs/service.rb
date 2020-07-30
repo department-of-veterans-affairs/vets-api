@@ -11,74 +11,16 @@ module BGS
         { vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id }.merge(bgs_auth)
       )
     end
-=begin
+
     def create_person(person_params)
-      with_multiple_attempts_enabled do
-        service.vnp_person.vnp_person_create(person_params.merge(bgs_auth))
-      end
+      service.vnp_person.vnp_person_create(person_params.merge(bgs_auth))
     end
 
     def create_address(address_params)
-      with_multiple_attempts_enabled do
-        service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
-          address_params.merge(bgs_auth)
-        )
-      end
+      service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
+        address_params.merge(bgs_auth)
+      )
     end
-
-    def create_phone(proc_id, participant_id, payload)
-      with_multiple_attempts_enabled do
-        service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
-          {
-            vnp_proc_id: proc_id,
-            vnp_ptcpnt_id: participant_id,
-            phone_type_nm: 'Daytime',
-            phone_nbr: payload['phone_number'],
-            efctv_dt: Time.current.iso8601
-          }.merge(bgs_auth)
-        )
-      end
-    end
-
-    def create_child_school(child_school_params)
-      with_multiple_attempts_enabled do
-        service.vnp_child_school.child_school_create(child_school_params)
-      end
-    end
-
-    def create_child_student(child_student_params)
-      with_multiple_attempts_enabled do
-        service.vnp_child_student.child_student_create(child_student_params)
-      end
-    end
-
-    def create_relationship(relationship_params)
-      with_multiple_attempts_enabled do
-        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params)
-      end
-    end
-
-    def find_benefit_claim_type_increment
-      with_multiple_attempts_enabled do
-        service.data.find_benefit_claim_type_increment(
-          {
-            ptcpnt_id: @user[:participant_id],
-            bnft_claim_type_cd: '130DPNEBNADJ',
-            pgm_type_cd: 'CPL',
-            ssn: @user[:ssn] # Just here to make the mocks work
-          }
-        )
-      end
-    end
-
-    def get_va_file_number
-      with_multiple_attempts_enabled do
-        person = service.people.find_person_by_ptcpnt_id(@user[:participant_id])
-
-        person[:file_nbr]
-      end
-    end
-=end
 
     def bgs_auth
       {
