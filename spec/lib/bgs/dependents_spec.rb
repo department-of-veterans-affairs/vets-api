@@ -165,7 +165,8 @@ RSpec.describe BGS::Dependents do
         end
       end
     end
-
+=begin
+    # commenting this out because the report_child_event('not_attending_school') is commented out in dependents.rb
     context 'report child 18 or older has stopped attending school' do
       it 'returns an hash that represents a married child under 18' do
         VCR.use_cassette('bgs/dependents/create') do
@@ -186,7 +187,7 @@ RSpec.describe BGS::Dependents do
         end
       end
     end
-
+=end
     context 'report 674' do
       it 'returns a hash that represents child over 18 attending school' do
         VCR.use_cassette('bgs/dependents/create') do
