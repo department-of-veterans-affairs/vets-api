@@ -22,6 +22,17 @@ module EducationForm
       end
     end
 
+    def self.sco_emails(scos)
+      emails = []
+      primary = scos.find { |sco| sco[:priority] == 'Primary' && sco[:email].present? }
+      secondary = scos.find { |sco| sco[:priority] == 'Secondary' && sco[:email].present? }
+
+      emails.push(primary[:email]) if primary.present?
+      emails.push(secondary[:email]) if secondary.present?
+
+      emails
+    end
+
     private
 
     def email_sent(sco_email_sent)
@@ -87,15 +98,8 @@ module EducationForm
     end
 
     def recipients
-      emails = []
       scos = @institution[:versioned_school_certifying_officials]
-      primary = scos.find { |sco| sco[:priority] == 'Primary' && sco[:email].present? }
-      secondary = scos.find { |sco| sco[:priority] == 'Secondary' && sco[:email].present? }
-
-      emails.push(primary[:email]) if primary.present?
-      emails.push(secondary[:email]) if secondary.present?
-
-      emails
+      EducationForm::SendSCOEmail.sco_emails(scos)
     end
   end
 end
