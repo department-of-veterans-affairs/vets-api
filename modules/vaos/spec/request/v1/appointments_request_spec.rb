@@ -74,5 +74,54 @@ RSpec.describe 'Appointment', type: :request do
         end
       end
     end
+
+    describe 'POST /vaos/v1/Appointment' do
+      context 'with flipper disabled' do
+        it 'returns HTTP status 403, forbidden' do
+          Flipper.disable('va_online_scheduling')
+          post '/vaos/v1/Appointment'
+          expect(response).to have_http_status(:forbidden)
+          expect(JSON.parse(response.body)['issue'].first.dig('details', 'text'))
+            .to eq('You do not have access to online scheduling')
+        end
+      end
+
+      context 'with valid appointment' do
+        let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_create.yml') }
+
+        let(:expected_body) do
+          YAML.load_file(
+            Rails.root.join(
+              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'appointment',
+              'post_appointment_create_request_201.yml'
+            )
+          )['http_interactions'].first.dig('response', 'body', 'string')
+        end
+
+        it 'returns HTTP status 201, Created, and the new resource content in body' do
+          VCR.use_cassette('vaos/fhir/appointment/post_appointment_create_request_201',
+                           match_requests_on: %i[method uri]) do
+            headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
+            post '/vaos/v1/Appointment', params: request_body, headers: headers
+            expect(response).to have_http_status(:created)
+            expect(response.body).to eq(expected_body)
+          end
+        end
+      end
+
+      context 'with invalid appointment' do
+        let(:invalid_request_body) { File.read('spec/fixtures/fhir/dstu2/invalid_appointment_create.yml') }
+
+        it 'returns HTTP status 400, bad request' do
+          VCR.use_cassette('vaos/fhir/appointment/post_appointment_invalid_request_400',
+                           match_requests_on: %i[method uri]) do
+            headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
+            post '/vaos/v1/Appointment', params: invalid_request_body, headers: headers
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_400')
+          end
+        end
+      end
+    end
   end
 end
