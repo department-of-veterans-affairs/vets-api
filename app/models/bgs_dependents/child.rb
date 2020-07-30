@@ -29,7 +29,7 @@ module BGSDependents
     end
 
     def format_info
-      self.attributes.with_indifferent_access
+      attributes.with_indifferent_access
     end
 
     def address(dependents_application)
