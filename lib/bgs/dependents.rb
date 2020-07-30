@@ -19,7 +19,7 @@ module BGS
       report_divorce if @payload['report_divorce']
       report_stepchild if @payload['report_stepchild_not_in_household']
       report_child_event('child_marriage') if @payload['report_marriage_of_child_under18']
-      # report_child_event('not_attending_school') if @payload['report_child18_or_older_is_not_attending_school']
+      report_child_event('not_attending_school') if @payload['report_child18_or_older_is_not_attending_school']
 
       @dependents
     end
