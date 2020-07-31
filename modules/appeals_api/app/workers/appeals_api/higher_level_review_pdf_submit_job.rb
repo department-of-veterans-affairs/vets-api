@@ -44,6 +44,7 @@ module AppealsApi
       process_response(response, higher_level_review)
       log_submission(higher_level_review, metadata)
     rescue AppealsApi::UploadError => e
+      e.detail = "#{e.detail} (retry attempt #{@retries})"
       retry_errors(e, higher_level_review)
     end
 
