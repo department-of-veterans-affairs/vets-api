@@ -186,18 +186,18 @@ FactoryBot.define do
                 'child_under18' => true
               }
             },
-             {
-               'date' => '2020-01-01',
-               'location' => {
-                 'state' => 'CA',
-                 'city' => 'Aomplea'
-               },
-               'full_name' => {
-                 'first' => 'Frida',
-                 'last' => 'Mission'
-               },
-               'dependent_type' => 'SPOUSE'
-             }
+            {
+              'date' => '2020-01-01',
+              'location' => {
+                'state' => 'CA',
+                'city' => 'Aomplea'
+              },
+              'full_name' => {
+                'first' => 'Frida',
+                'last' => 'Mission'
+              },
+              'dependent_type' => 'SPOUSE'
+            }
           ],
           'veteran_was_married_before' => true,
           'veteran_marriage_history' => [
