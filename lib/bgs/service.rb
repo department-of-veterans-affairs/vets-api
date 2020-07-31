@@ -5,7 +5,7 @@ module BGS
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
     # (I = Input, U = Update, D = Delete)
-    JOURNAL_STATUS_TYPE_CODE = 'U'.freeze
+    JOURNAL_STATUS_TYPE_CODE = 'U'
 
     def initialize(user)
       @user = user
