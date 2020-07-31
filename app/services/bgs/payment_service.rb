@@ -4,6 +4,7 @@ module BGS
   class PaymentService
     include SentryLogging
     class NoPaymentHistory < StandardError; end
+    class NoReturnedPaymentHistory < StandardError; end
 
     def initialize(current_user)
       @current_user = current_user
@@ -11,19 +12,23 @@ module BGS
 
     def payment_history
       response = service.payment_history.find_by_ssn(@current_user.ssn)
+      payments = response.dig(:payment_record, :payments)
+      returned_payments = response.dig(:payment_record, :return_payments)
 
-      raise NoPaymentHistory if response.nil?
 
-      response
+      raise NoPaymentHistory if payments.nil?
+      raise NoReturnedPaymentHistory if returned_payments.nil?
+      binding.pry
+      { payments: payments, returned_payments: returned_payments }
     rescue NoPaymentHistory => e
-      report_no_va_file_user(e)
+      report_no_payment_history(e)
 
       []
     end
 
     private
 
-    def report_no_va_file_user(e)
+    def report_no_payment_history(e)
       log_exception_to_sentry(
         e,
         {
