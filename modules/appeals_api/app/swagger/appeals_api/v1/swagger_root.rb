@@ -18,9 +18,6 @@ module AppealsApi::V1::SwaggerRoot
       contact do
         key :name, 'VA API Benefits Team'
       end
-      license do
-        key :name, 'Creative Commons'
-      end
     end
 
     url = ->(prefix = '') { "https://#{prefix}api.va.gov/services/appeals/{version}/decision_reviews" }
