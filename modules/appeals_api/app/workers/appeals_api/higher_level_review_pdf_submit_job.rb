@@ -40,8 +40,7 @@ module AppealsApi
         'docType' => '20-0996'
       }
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
-      response = CentralMail::Service.new.upload(body)
-      process_response(response, higher_level_review)
+      process_response(CentralMail::Service.new.upload(body), higher_level_review)
       log_submission(higher_level_review, metadata)
     rescue AppealsApi::UploadError => e
       e.detail = "#{e.detail} (retry attempt #{@retries})"
