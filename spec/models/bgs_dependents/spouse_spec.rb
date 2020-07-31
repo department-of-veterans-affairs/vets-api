@@ -3,11 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::Spouse do
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:veteran_spouse) do
-    payload = File.read("#{fixtures_path}/spouse/spouse_is_veteran.json")
-    JSON.parse(payload)
-  end
+  let(:veteran_spouse) { FactoryBot.build(:spouse) }
   let(:spouse) { described_class.new(veteran_spouse['dependents_application']) }
   let(:format_info_output) do
     {
