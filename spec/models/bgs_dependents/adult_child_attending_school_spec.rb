@@ -3,11 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::AdultChildAttendingSchool do
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:adult_child_attending_school) do
     described_class.new(all_flows_payload['dependents_application'])
   end

@@ -2,6 +2,29 @@
 
 module BGSDependents
   class Child < Base
+    # The Child class represents a veteran's dependent/child including name, address, and birth info
+    #
+    # @!attribute ssn
+    #   @return [String] the person's social security number
+    # @!attribute first
+    #   @return [String] the person's first name
+    # @!attribute middle
+    #   @return [String] the person's middle name
+    # @!attribute last
+    #   @return [String] the person's last name
+    # @!attribute suffix
+    #   @return [String] the person's name suffix
+    # @!attribute ever_married_ind
+    #   @return [String] Y/N indicates whether the person has ever been married
+    # @!attribute place_of_birth_city
+    #   @return [String] city where child was born
+    # @!attribute place_of_birth_state
+    #   @return [String] state where child was born
+    # @!attribute reason_marriage_ended
+    #   @return [String] reason child marriage ended
+    # @!attribute family_relationship_type
+    #   @return [String] family relationship type: Biological/Stepchild/Adopted Child/Other
+    #
     attribute :ssn, String
     attribute :first, String
     attribute :middle, String
@@ -28,15 +51,24 @@ module BGSDependents
       self.attributes = child_attributes
     end
 
+    # Sets a hash with child attributes
+    #
+    # @return [Hash] child attributes including name, address and birth info
+    #
     def format_info
       attributes.with_indifferent_access
     end
 
+    # Sets a hash with address information based on the submitted form information
+    #
+    # @param dependents_application [Hash] the submitted form information
+    # @return [Hash] child address
+    #
     def address(dependents_application)
       dependent_address(
-        dependents_application,
-        @child_info.dig('does_child_live_with_you'),
-        @child_info.dig('child_address_info', 'address')
+        dependents_application: dependents_application,
+        lives_with_vet: @child_info.dig('does_child_live_with_you'),
+        alt_address: @child_info.dig('child_address_info', 'address')
       )
     end
 
