@@ -146,7 +146,7 @@ describe MVI::Service do
 
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(subject).to receive(:log_console_and_sentry).with(
+        expect(subject).to receive(:log_message_to_sentry).with(
           'MVI add_person error: Gateway timeout',
           :warn
         )
@@ -431,7 +431,7 @@ describe MVI::Service do
 
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(subject).to receive(:log_console_and_sentry).with(
+        expect(subject).to receive(:log_message_to_sentry).with(
           'MVI find_profile error: Gateway timeout',
           :warn
         )
