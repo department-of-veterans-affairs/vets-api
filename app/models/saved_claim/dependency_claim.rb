@@ -13,7 +13,7 @@ class SavedClaim::DependencyClaim < SavedClaim
   end
 
   def valid_vet_info?(veteran_info)
-    return false if parsed_form['veteran_contact_information']['veteran_address']
+    return false if parsed_form['veteran_contact_information']['veteran_address'].blank?
     return false if veteran_info['veteran_information'].blank?
     return false if parsed_form['dependents_application'].blank?
 

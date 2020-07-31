@@ -22,9 +22,9 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
   describe '#perform' do
     context 'with a valid submission' do
       it 'creates a PDF' do
-        # expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:format_and_upload_pdf).with(
-        #   vet_info
-        # )
+        expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:format_and_upload_pdf).with(
+          vet_info
+        )
 
         described_class.new.perform(dependency_claim.id, vet_info)
       end
