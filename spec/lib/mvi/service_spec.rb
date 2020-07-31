@@ -276,7 +276,7 @@ describe MVI::Service do
       it 'responds with a SERVER_ERROR if ICN is invalid', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound)', :error
+          'MVI Invalid Request (Possible RecordNotFound) find_profile', :error
         )
 
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
@@ -289,7 +289,7 @@ describe MVI::Service do
       it 'responds with a SERVER_ERROR if ICN has no matches', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound)', :error
+          'MVI Invalid Request (Possible RecordNotFound) find_profile', :error
         )
 
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
