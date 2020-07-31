@@ -38,17 +38,6 @@ FactoryBot.define do
             },
             'reason_marriage_ended' => 'Divorce'
           },
-          'veteran_contact_information' => {
-            'veteran_address' => {
-              'country_name' => 'USA',
-              'address_line1' => '1019 Robin Cir',
-              'city' => 'Arroyo Grande',
-              'state_code' => 'CA',
-              'zip_code' => '93420'
-            },
-            'phone_number' => '2146866521',
-            'email_address' => 'cohnjesse@gmail.xom'
-          },
           'view:selectable686_options' => {
             'report_divorce' => true
           },
