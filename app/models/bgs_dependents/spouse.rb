@@ -58,10 +58,10 @@ module BGSDependents
 
     # Sets a hash with spouse attributes
     #
-    # @return [Hash] marriage info
+    # @return [Hash] spouse info including name and address info
     #
     def spouse_attributes
-      marriage_info = {
+      spouse_info = {
         ssn: @spouse_information['ssn'],
         birth_date: @spouse_information['birth_date'],
         ever_married_ind: 'Y',
@@ -70,9 +70,9 @@ module BGSDependents
         address: spouse_address
       }.merge(@spouse_information['full_name'])
 
-      marriage_info.merge!({ 'va_file_number': @spouse_information['va_file_number'] }) if spouse_is_veteran == 'Y'
+      spouse_info.merge!({ 'va_file_number': @spouse_information['va_file_number'] }) if spouse_is_veteran == 'Y'
 
-      marriage_info
+      spouse_info
     end
 
     def lives_with_vet
