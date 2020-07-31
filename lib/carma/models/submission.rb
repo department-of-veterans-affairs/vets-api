@@ -31,7 +31,7 @@ module CARMA
       def self.from_claim(claim, metadata = {})
         new(
           data: claim.parsed_form,
-          metadata: metadata.merge(claim_id: claim.id)
+          metadata: metadata.merge(claim_id: claim.id, claim_guid: claim.guid)
         )
       end
 
