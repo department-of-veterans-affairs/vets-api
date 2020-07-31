@@ -155,10 +155,17 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
-      it 'responds with a 422 when the request body isn\'t stringable' do
-        object_that_does_not_have_string_method = nil
+      it 'responds with a 422 when request.body is a Puma::NullIO' do
+        fake_puma_null_io_object = Object.new.tap do |null_io_obj|
+          null_io_obj.define_singleton_method(:class) do
+            Object.new.tap do |klass|
+              klass.define_singleton_method(:name) { 'Puma::NullIO' }
+            end
+          end
+        end
+        expect(fake_puma_null_io_object.class.name).to eq 'Puma::NullIO'
         allow_any_instance_of(ActionDispatch::Request).to(
-          receive(:body).and_return(object_that_does_not_have_string_method)
+          receive(:body).and_return(fake_puma_null_io_object)
         )
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
