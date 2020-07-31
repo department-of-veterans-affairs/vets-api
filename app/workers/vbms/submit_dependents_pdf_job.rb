@@ -2,12 +2,15 @@
 
 module VBMS
   class SubmitDependentsPDFJob
+    class Invalid686cClaim < StandardError; end
     include Sidekiq::Worker
     include SentryLogging
 
     # Generates PDF for 686c form and uploads to VBMS
     def perform(saved_claim_id, veteran_info)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      raise Invalid686cClaim unless claim.valid_vet_info?(veteran_info)
+
       claim.format_and_upload_pdf(veteran_info)
     rescue => e
       send_error_to_sentry(e, claim&.id)

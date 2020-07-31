@@ -12,6 +12,14 @@ class SavedClaim::DependencyClaim < SavedClaim
     upload_to_vbms(form_path, veteran_info)
   end
 
+  def valid_vet_info?(veteran_info)
+    return false if parsed_form['veteran_contact_information']['veteran_address']
+    return false if veteran_info['veteran_information'].blank?
+    return false if parsed_form['dependents_application'].blank?
+
+    true
+  end
+
   private
 
   def upload_to_vbms(path, veteran_info)
