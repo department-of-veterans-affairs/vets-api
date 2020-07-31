@@ -35,7 +35,7 @@ module BGSDependents
       @was_married = @dependents_application['student_address_marriage_tuition']['was_married']
       @name_and_ssn = @dependents_application['student_name_and_ssn']
 
-      self.attributes = child_attributes
+      self.attributes = described_class_attribute_hash
     end
 
     # Sets a hash with AdultChildAttendingSchool attributes
@@ -56,7 +56,7 @@ module BGSDependents
 
     private
 
-    def child_attributes
+    def described_class_attribute_hash
       # we will raise an error here if not #valid? when we merge in exception PR
 
       {
