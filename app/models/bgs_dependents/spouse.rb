@@ -1,7 +1,32 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class Marriage < Base
+  class Spouse < Base
+    # The Spouse class represents a person including name, address, and marital status info
+    #
+    # @!attribute ssn
+    #   @return [String] the person's social security number
+    # @!attribute first
+    #   @return [String] the person's first name
+    # @!attribute middle
+    #   @return [String] the person's middle name
+    # @!attribute last
+    #   @return [String] the person's last name
+    # @!attribute suffix
+    #   @return [String] the person's name suffix
+    # @!attribute vet_ind
+    #   @return [String] Y/N indicates whether the person is a veteran
+    # @!attribute birth_date
+    #   @return [String] the person's birth date
+    # @!attribute address
+    #   @return [Hash] the person's address
+    # @!attribute va_file_number
+    #   @return [String] the person's va file number
+    # @!attribute ever_married_ind
+    #   @return [String] Y/N indicates whether the person has ever been married
+    # @!attribute martl_status_type_cd
+    #   @return [String] marital status type: Married, Divorced, Widowed, Separated, Never Married
+    #
     attribute :ssn, String
     attribute :first, String
     attribute :middle, String
@@ -21,12 +46,20 @@ module BGSDependents
       self.attributes = spouse_attributes
     end
 
+    # Sets a hash with spouse attributes
+    #
+    # @return [Hash] spouse attributes including name, address and marital info
+    #
     def format_info
       attributes.with_indifferent_access
     end
 
     private
 
+    # Sets a hash with spouse attributes
+    #
+    # @return [Hash] marriage info
+    #
     def spouse_attributes
       marriage_info = {
         ssn: @spouse_information['ssn'],
@@ -56,9 +89,9 @@ module BGSDependents
 
     def spouse_address
       dependent_address(
-        @dependents_application,
-        @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran'],
-        @dependents_application.dig('does_live_with_spouse', 'address')
+        dependents_application: @dependents_application,
+        lives_with_vet: @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran'],
+        alt_address: @dependents_application.dig('does_live_with_spouse', 'address')
       )
     end
   end

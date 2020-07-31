@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe BGSDependents::Marriage do
+RSpec.describe BGSDependents::Spouse do
   let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
   let(:veteran_spouse) do
     payload = File.read("#{fixtures_path}/spouse/spouse_is_veteran.json")
     JSON.parse(payload)
   end
-  let(:marriage) { described_class.new(veteran_spouse['dependents_application']) }
+  let(:spouse) { described_class.new(veteran_spouse['dependents_application']) }
   let(:format_info_output) do
     {
       'ssn' => '323454323',
@@ -22,7 +22,7 @@ RSpec.describe BGSDependents::Marriage do
       'va_file_number' => '00000000'
     }
   end
-  let(:marriage_info) do
+  let(:spouse_info) do
     {
       'ssn' => '323454323',
       'birth_date' => '1981-04-04',
@@ -49,7 +49,7 @@ RSpec.describe BGSDependents::Marriage do
 
   describe '#format_info' do
     it 'formats relationship params for submission' do
-      formatted_info = marriage.format_info
+      formatted_info = spouse.format_info
 
       expect(formatted_info).to include(format_info_output)
     end
@@ -57,7 +57,7 @@ RSpec.describe BGSDependents::Marriage do
 
   describe '#address' do
     it 'returns an address for vet or spouse if separated' do
-      address = marriage.address
+      address = spouse.address
 
       expect(address).to eq(address_output)
     end
