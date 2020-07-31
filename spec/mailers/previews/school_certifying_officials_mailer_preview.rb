@@ -13,6 +13,7 @@ class SchoolCertifyingOfficialsMailerPreview < ActionMailer::Preview
   private
 
   def recipients(facility_code)
+    return [] if facility_code.blank?
     institution = GIDSRedis.new.get_institution_details({ id: facility_code })[:data][:attributes]
     return [] if institution.blank?
 
