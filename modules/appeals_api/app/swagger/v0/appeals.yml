@@ -18,10 +18,6 @@ info:
 
     To gain access to the Appeals Status API you must [request an API Key](/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
 
-    ### Data refresh
-
-    The Lighthouse Sandbox environment points to the Caseflow UAT environment which refreshes daily. The data in this environment is mock data and does not contain any PII.
-
     1. Client Request: GET https://sandbox-api.va.gov/services/appeals/v0/appeals
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the person requesting the appeals status as the X-VA-User header
