@@ -28,7 +28,7 @@ RSpec.describe BGSDependents::Base do
   end
 
   describe '#dependent_address' do
-    it "returns the vets's address" do
+    it 'returns the vet\'s address' do
       address = base.dependent_address(
         dependents_application: sample_dependent_application,
         lives_with_vet: true,
