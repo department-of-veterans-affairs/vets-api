@@ -149,35 +149,35 @@ RSpec.describe Form526Submission do
 
   describe '#get_full_name' do
     [
-        {
-            input:
-                {
-                    first_name: 'Joe',
-                    middle_name: 'Doe',
-                    last_name: 'Smith',
-                    suffix: 'Jr.'
-                },
-            expected: 'JOE DOE SMITH JR.'
-        },
-        {
-            input:
-                {
-                    first_name: 'Joe',
-                    middle_name: nil,
-                    last_name: 'Smith',
-                    suffix: nil
-                },
-            expected: 'JOE SMITH'
-        }, {
-            input:
-                {
-                    first_name: 'Joe',
-                    middle_name: 'Doe',
-                    last_name: 'Smith',
-                    suffix: nil
-                },
-            expected: 'JOE DOE SMITH'
-        }
+      {
+        input:
+          {
+            first_name: 'Joe',
+            middle_name: 'Doe',
+            last_name: 'Smith',
+            suffix: 'Jr.'
+          },
+        expected: 'JOE DOE SMITH JR.'
+      },
+      {
+        input:
+          {
+            first_name: 'Joe',
+            middle_name: nil,
+            last_name: 'Smith',
+            suffix: nil
+          },
+        expected: 'JOE SMITH'
+      }, {
+        input:
+          {
+            first_name: 'Joe',
+            middle_name: 'Doe',
+            last_name: 'Smith',
+            suffix: nil
+          },
+        expected: 'JOE DOE SMITH'
+      }
     ].each do |test_param|
       it 'gets correct full name' do
         allow(User).to receive(:find).with(anything).and_return(user)
@@ -229,8 +229,8 @@ RSpec.describe Form526Submission do
         end
 
         options = {
-            'submission_id' => subject.id,
-            'full_name' => 'some name'
+          'submission_id' => subject.id,
+          'full_name' => 'some name'
         }
         subject.workflow_complete_handler(nil, options)
       end
