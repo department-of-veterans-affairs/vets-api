@@ -131,7 +131,7 @@ group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
   gem 'fakeredis'
-  gem 'pact', "1.32.0"
+  gem 'pact', '1.32.0'
   gem 'pdf-inspector'
   gem 'rspec-retry'
   gem 'rspec_junit_formatter'
