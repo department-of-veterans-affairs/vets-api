@@ -36,9 +36,7 @@ module BGS
     end
 
     def vnp_relationship
-      BGSDependents::Relationship.new(
-        @proc_id
-      )
+      BGSDependents::Relationship.new(@proc_id)
     end
   end
 end
