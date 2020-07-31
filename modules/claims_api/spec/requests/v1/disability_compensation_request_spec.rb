@@ -156,11 +156,9 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
 
       it 'responds with a 422 when request.body is a Puma::NullIO' do
-        fake_puma_null_io_object = Object.new.tap do |null_io_obj|
-          null_io_obj.define_singleton_method(:class) do
-            Object.new.tap do |klass|
-              klass.define_singleton_method(:name) { 'Puma::NullIO' }
-            end
+        fake_puma_null_io_object = Object.new.tap do |obj|
+          def obj.class
+            OpenStruct.new name: 'Puma::NullIO'
           end
         end
         expect(fake_puma_null_io_object.class.name).to eq 'Puma::NullIO'
