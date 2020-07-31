@@ -9,7 +9,7 @@ module BGS
       @dependents = dependents
     end
 
-    def create
+    def create_all
       spouse_marriages, vet_dependents = @dependents.partition do |dependent|
         dependent[:type] == 'spouse_marriage_history'
       end

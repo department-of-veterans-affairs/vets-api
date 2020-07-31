@@ -2,6 +2,11 @@
 
 module BGS
   class Service
+    # Journal Status Type Code
+    # The alphabetic character representing the last action taken on the record
+    # (I = Input, U = Update, D = Delete)
+    JOURNAL_STATUS_TYPE_CODE = 'U'.freeze
+
     def initialize(user)
       @user = user
     end
@@ -14,7 +19,7 @@ module BGS
       {
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
-        jrn_status_type_cd: 'U',
+        jrn_status_type_cd: JOURNAL_STATUS_TYPE_CODE,
         jrn_user_id: Settings.bgs.client_username,
         jrn_obj_id: Settings.bgs.application,
         ssn: @user[:ssn] # Just here to make the mocks work

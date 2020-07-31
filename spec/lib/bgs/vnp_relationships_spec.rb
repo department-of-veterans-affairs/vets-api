@@ -18,7 +18,7 @@ RSpec.describe BGS::VnpRelationships do
   let(:participant_id) { '146189' }
   let(:veteran_hash) { { vnp_participant_id: '146189' } }
 
-  describe '#create' do
+  describe '#create_all' do
     context 'adding children' do
       it 'returns a relationship hash with correct :ptcpnt_rlnshp_type_nm and :family_rlnshp_type_nm' do
         VCR.use_cassette('bgs/vnp_relationships/create/child') do
@@ -42,7 +42,7 @@ RSpec.describe BGS::VnpRelationships do
 
           dependents = BGS::VnpRelationships.new(
             proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_hash
-          ).create
+          ).create_all
 
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Child',
@@ -73,7 +73,7 @@ RSpec.describe BGS::VnpRelationships do
           dependent_array = [divorce]
           dependents = BGS::VnpRelationships.new(
             proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user
-          ).create
+          ).create_all
 
           expect(dependents.first).to include(
             ptcpnt_rlnshp_type_nm: 'Spouse',
@@ -110,7 +110,7 @@ RSpec.describe BGS::VnpRelationships do
             veteran: veteran_hash,
             dependents: dependent_array,
             user: user_hash
-          ).create
+          ).create_all
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
@@ -144,7 +144,7 @@ RSpec.describe BGS::VnpRelationships do
             veteran: veteran_hash,
             dependents: dependent_array,
             user: user_hash
-          ).create
+          ).create_all
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
@@ -177,7 +177,7 @@ RSpec.describe BGS::VnpRelationships do
           dependents = BGS::VnpRelationships.new(proc_id: proc_id,
                                                  veteran: veteran_hash,
                                                  dependents: dependent_array,
-                                                 user: user_hash).create
+                                                 user: user_hash).create_all
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
             family_relationship_type_name: 'Spouse',
