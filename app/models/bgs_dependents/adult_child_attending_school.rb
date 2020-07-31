@@ -2,6 +2,23 @@
 
 module BGSDependents
   class AdultChildAttendingSchool < Base
+    # The AdultChildAttendingSchool class represents a person including name and address info
+    #
+    # @!attribute first
+    #   @return [String] the person's first name
+    # @!attribute middle
+    #   @return [String] the person's middle name
+    # @!attribute last
+    #   @return [String] the person's last name
+    # @!attribute suffix
+    #   @return [String] the person's name suffix
+    # @!attribute ssn
+    #   @return [String] the person's social security number
+    # @!attribute birth_date
+    #   @return [String] the person's birth date
+    # @!attribute ever_married_ind
+    #   @return [String] Y/N indicates whether the person has ever been married
+    #
     attribute :first, String
     attribute :middle, String
     attribute :last, String
@@ -18,20 +35,28 @@ module BGSDependents
       @was_married = @dependents_application['student_address_marriage_tuition']['was_married']
       @name_and_ssn = @dependents_application['student_name_and_ssn']
 
-      self.attributes = child_attributes
+      self.attributes = described_class_attribute_hash
     end
 
+    # Sets a hash with AdultChildAttendingSchool attributes
+    #
+    # @return [Hash] AdultChildAttendingSchool attributes including name and address info
+    #
     def format_info
       attributes.with_indifferent_access
     end
 
+    # Sets a hash with the student's address based on the submitted form information
+    #
+    # @return [Hash] the student's address
+    #
     def address
       @dependents_application['student_address_marriage_tuition']['address']
     end
 
     private
 
-    def child_attributes
+    def described_class_attribute_hash
       # we will raise an error here if not #valid? when we merge in exception PR
 
       {

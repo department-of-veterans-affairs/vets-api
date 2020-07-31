@@ -25,11 +25,7 @@ RSpec.describe BGSDependents::Child do
       'birth_date' => '2009-03-03'
     }
   end
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
 
   let(:address_result) do
     {
