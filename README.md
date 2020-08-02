@@ -31,7 +31,7 @@ Developers who work with vets-api daily tend to prefer the native setup because 
      authn_requests_signed: false
    ```
 
-1. If have access to the va.gov-team-sensitive repo install [install the sidekiq enterprise license](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md) 
+1. If have access to the va.gov-team-sensitive repo [install the sidekiq enterprise license](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md) 
 
  Sidekiq Enterprise is used for worker rate limiting and additional reliability in production and requires a license be configured on your development machine. If you do not have a license configured, the open source version of Sidekiq will be installed instead. This is not an issue unless you are specifically developing features that need Sidekiq Enterprise.
 
