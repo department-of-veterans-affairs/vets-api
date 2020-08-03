@@ -47,7 +47,9 @@ module AppealsApi::V1::SwaggerRoot
     schemas = {
       uuid: { type: :string, pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$' },
       timeStamp: { type: :string, pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z' },
-      hlrStatus: { type: :string, enum: %w[pending submitted processing error uploaded received success vbms expired] },
+      hlrStatus: {
+        type: :string, enum: %w[pending submitting submitted processing error uploaded received success vbms expired]
+      },
       errorWithTitleAndDetail: {
         type: :array,
         items: { type: :object, properties: { title: { type: :string }, detail: { type: :string } } }

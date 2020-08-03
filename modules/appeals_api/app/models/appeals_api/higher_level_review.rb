@@ -53,7 +53,7 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    STATUSES = %w[pending submitted processing error uploaded received success vbms expired].freeze
+    STATUSES = %w[pending submitting submitted processing error uploaded received success vbms expired].freeze
     validates :status, inclusion: { 'in': STATUSES }
     after_save :clean_persisted_data
 
