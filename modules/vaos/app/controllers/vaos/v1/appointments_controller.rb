@@ -7,6 +7,11 @@ module VAOS
         response = fhir_service.search(request.query_string)
         render json: response.body
       end
+
+      def create
+        response = fhir_service.create(body: request.body.read)
+        render json: response.body, status: response.status
+      end
     end
   end
 end
