@@ -92,14 +92,21 @@ module EducationForm
       emails = recipients
 
       if emails.any?
+        StatsD.increment("#{stats_key}.success")
         SchoolCertifyingOfficialsMailer.build(@claim.open_struct_form, emails, nil).deliver_now
         email_sent(true)
+      else
+        StatsD.increment("#{stats_key}.failure")
       end
     end
 
     def recipients
       scos = @institution[:versioned_school_certifying_officials]
       EducationForm::SendSCOEmail.sco_emails(scos)
+    end
+
+    def stats_key
+      "api.education_benefits_claim.22-10203.school_certifying_officials_mailer"
     end
   end
 end
