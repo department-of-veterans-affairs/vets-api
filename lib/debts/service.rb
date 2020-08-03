@@ -2,6 +2,8 @@
 
 module Debts
   class Service < Common::Client::Base
+    include Common::Client::Concerns::Monitoring
+
     configuration Debts::Configuration
 
     def get_letters(body)
