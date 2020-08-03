@@ -24,14 +24,14 @@ class SchoolCertifyingOfficialsMailerPreview < ActionMailer::Preview
 
   def fake_applicant
     name = OpenStruct.new({
-                                                          first: 'T',
-                                                          last: 'McTestyFace'
-                                                      })
-    OpenStruct.new( {
-        email: 'test@sample.com',
-        schoolEmailAddress: nil,
-        schoolStudentId: nil,
-        veteranFullName: name,
-    })
+                            first: 'T',
+                            last: 'McTestyFace'
+                          })
+    OpenStruct.new({
+                     email: 'test@sample.com',
+                     schoolEmailAddress: nil,
+                     schoolStudentId: nil,
+                     veteranFullName: name
+                   })
   end
 end
