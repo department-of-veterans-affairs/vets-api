@@ -125,6 +125,8 @@ RSpec.describe 'Appointment', type: :request do
     end
 
     describe 'PUT /vaos/v1/Appointment/id' do
+      let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_update.yml') }
+
       context 'with flipper disabled' do
         it 'returns HTTP status 403, forbidden' do
           Flipper.disable('va_online_scheduling')
@@ -136,8 +138,6 @@ RSpec.describe 'Appointment', type: :request do
       end
 
       context 'with valid Appointment update' do
-        let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_update.yml') }
-
         let(:expected_body) do
           YAML.load_file(
             Rails.root.join(
@@ -158,8 +158,6 @@ RSpec.describe 'Appointment', type: :request do
       end
 
       context 'with invalid appointment update' do
-        let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_update.yml') }
-
         it 'returns HTTP status 400' do
           VCR.use_cassette('vaos/fhir/appointment/put_appointment_invalid_request_400',
                            match_requests_on: %i[method uri]) do
