@@ -6,6 +6,7 @@ module ClaimsApi
   module V1
     class Form0966ControllerSwagger
       include Swagger::Blocks
+      EXAMPLE_PATH = ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'forms', 'form_0966_v1_example.json')
 
       swagger_path '/forms/0966' do
         operation :get do
@@ -129,8 +130,9 @@ module ClaimsApi
                 property :data do
                   key :type, :object
                   key :required, [:attributes]
-                  key :example, type: 'form/0966', attributes: { type: 'compensation' }
+                  key :example, JSON.parse(File.read(EXAMPLE_PATH))
                   property :attributes do
+                    key :required, %i[participant_claimant_id participant_vet_id signature_indicated]
                     key :type, :object
                     property :type do
                       key :type, :string
@@ -141,6 +143,22 @@ module ClaimsApi
                         burial
                         pension
                       ]
+                    end
+                    property :participant_claimant_id do
+                      key :type, :string
+                      key :example, '123456789'
+                      key :description, I18n.t('claims_api.field_descriptions.participant_claimant_id')
+                    end
+                    property :participant_vet_id do
+                      key :type, :string
+                      key :example, '987654321'
+                      key :description, I18n.t('claims_api.field_descriptions.participant_vet_id')
+                    end
+                    property :signature_indicated do
+                      key :type, :string
+                      key :example, 'YES'
+                      key :enum, %w[YES NO]
+                      key :description, I18n.t('claims_api.field_descriptions.signature_indicated')
                     end
                   end
                 end
