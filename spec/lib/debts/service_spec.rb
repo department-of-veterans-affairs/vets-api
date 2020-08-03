@@ -22,6 +22,11 @@ RSpec.describe Debts::Service do
           'debts/get_letters_empty_ssn',
           VCR::MATCH_EVERYTHING
         ) do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.debts.get_letters.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:400'
+            ]
+          )
           res = described_class.new.get_letters(fileNumber: '')
           expect(JSON.parse(res.to_json)['message']).to eq('Bad request')
         end
