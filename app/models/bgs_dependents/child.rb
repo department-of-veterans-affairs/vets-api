@@ -45,6 +45,10 @@ module BGSDependents
       'child_over18_in_school' => 'Other'
     }.freeze
 
+    # These are required fields in BGS
+    validates :first, presence: true
+    validates :last, presence: true
+
     def initialize(child_info)
       @child_info = child_info
 
