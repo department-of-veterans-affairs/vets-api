@@ -3,13 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::Veteran do
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
   let(:person) { { first_nm: 'foo', last_nm: 'bar' } }
   let(:address) { { addrs_one_txt: '123 mainstreet', cntry_nm: 'USA', vnp_ptcpnt_addrs_id: '116343' } }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:veteran_response_result_sample) do
     {
       vnp_participant_id: '149500',
