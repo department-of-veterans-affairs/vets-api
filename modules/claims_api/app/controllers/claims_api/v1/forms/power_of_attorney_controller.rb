@@ -54,7 +54,7 @@ module ClaimsApi
           @power_of_attorney.reload
 
           # This job will trigger whether submission is from a Veteran or Representative when a document is sent.
-          ClaimsApi::VbmsUploader.perform_async(@power_of_attorney.id)
+          ClaimsApi::VbmsUploadJob.perform_async(@power_of_attorney.id)
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
