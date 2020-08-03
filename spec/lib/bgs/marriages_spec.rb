@@ -15,14 +15,11 @@ RSpec.describe BGS::Marriages do
     }
   end
   let(:proc_id) { '3828033' }
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
 
   describe '#create' do
     context 'adding a spouse' do
+      let(:spouse_payload) { FactoryBot.build(:spouse_lives_with_veteran) }
       it 'returns hash for spouse who lives with veteran' do
         json = File.read("#{fixtures_path}/spouse/spouse_lives_with_veteran.json")
         payload = JSON.parse(json)
@@ -30,7 +27,7 @@ RSpec.describe BGS::Marriages do
         VCR.use_cassette('bgs/dependents/create/spouse/lives_with_veteran') do
           dependents = BGS::Marriages.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: spouse_payload,
             user: user_hash
           ).create
 
