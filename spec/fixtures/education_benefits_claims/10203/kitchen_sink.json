@@ -33,5 +33,6 @@
     "routingNumber": "123456789"
   },
   "preferredContactMethod": "mail",
-  "privacyAgreementAccepted": true
+  "privacyAgreementAccepted": true,
+  "scoEmailSent": true
 }

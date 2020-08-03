@@ -2,6 +2,10 @@
 
 module BGS
   class Service
+    # Journal Status Type Code
+    # The alphabetic character representing the last action taken on the record
+    # (I = Input, U = Update, D = Delete)
+    JOURNAL_STATUS_TYPE_CODE = 'U'
     def initialize(user)
       @user = user
     end
@@ -21,32 +25,16 @@ module BGS
         address_params.merge(bgs_auth)
       )
     end
-=begin
-    def create_phone(proc_id, participant_id, payload)
-      with_multiple_attempts_enabled do
-        service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
-          {
-            vnp_proc_id: proc_id,
-            vnp_ptcpnt_id: participant_id,
-            phone_type_nm: 'Daytime',
-            phone_nbr: payload['phone_number'],
-            efctv_dt: Time.current.iso8601
-          }.merge(bgs_auth)
-        )
-      end
-    end
 
     def create_relationship(relationship_params)
-      with_multiple_attempts_enabled do
-        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params)
-      end
+      service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params.merge(bgs_auth))
     end
-=end
+
     def bgs_auth
       {
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
-        jrn_status_type_cd: 'U',
+        jrn_status_type_cd: JOURNAL_STATUS_TYPE_CODE,
         jrn_user_id: Settings.bgs.client_username,
         jrn_obj_id: Settings.bgs.application,
         ssn: @user[:ssn] # Just here to make the mocks work
