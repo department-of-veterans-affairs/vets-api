@@ -1,4 +1,4 @@
-# frozen_string_literal => true
+# frozen_string_literal: true
 
 FactoryBot.define do
   factory :adopted_child_lives_with_veteran, class: Hash do

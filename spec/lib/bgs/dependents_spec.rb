@@ -19,6 +19,8 @@ RSpec.describe BGS::Dependents do
 
   describe '#create' do
     context 'adding children' do
+      let(:adopted_payload) { FactoryBot.build(:adopted_child_lives_with_veteran) }
+
       it 'returns a hash for biological child that does not live with veteran' do
         VCR.use_cassette('bgs/dependents/create') do
           dependents = BGS::Dependents.new(
@@ -37,7 +39,6 @@ RSpec.describe BGS::Dependents do
         end
       end
 
-      let(:adopted_payload) { FactoryBot.build(:adopted_child_lives_with_veteran) }
       it 'returns a hash for adopted child that does live with veteran' do
         veteran_address_info = {
           addrs_one_txt: '8200 Doby LN',
