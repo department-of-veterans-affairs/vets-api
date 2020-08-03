@@ -48,7 +48,7 @@ module BGS
       @dependents << spouse.serialize_dependent_result(
         participant,
         'Spouse',
-        @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran'] ? 'Spouse' : 'Estranged Spouse',
+        does_live_with_vet ? 'Spouse' : 'Estranged Spouse',
         {
           begin_date: @dependents_application['current_marriage_information']['date'],
           marriage_state: @dependents_application['current_marriage_information']['location']['state'],
@@ -73,6 +73,10 @@ module BGS
 
     def bgs_service
       @bgs_service = BGS::Service.new(@user)
+    end
+
+    def does_live_with_vet
+      @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran']
     end
   end
 end
