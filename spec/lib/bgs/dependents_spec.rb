@@ -15,11 +15,7 @@ RSpec.describe BGS::Dependents do
     }
   end
   let(:proc_id) { '3828033' }
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
 
   describe '#create' do
     context 'adding children' do
@@ -41,6 +37,7 @@ RSpec.describe BGS::Dependents do
         end
       end
 
+      let(:adopted_payload) { FactoryBot.build(:adopted_child_lives_with_veteran) }
       it 'returns a hash for adopted child that does live with veteran' do
         veteran_address_info = {
           addrs_one_txt: '8200 Doby LN',
@@ -60,8 +57,6 @@ RSpec.describe BGS::Dependents do
           zip_prefix_nbr: '21122'
         }
 
-        json = File.read("#{fixtures_path}/children/adopted_child_lives_with_veteran.json")
-        payload = JSON.parse(json)
         VCR.use_cassette('bgs/dependents/children/apdopted_child_lives_with_veteran') do
           expect_any_instance_of(BGS::Service).to receive(:create_address)
             .with(a_hash_including(veteran_address_info)).at_most(4).times
@@ -69,7 +64,7 @@ RSpec.describe BGS::Dependents do
 
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
-            payload: payload,
+            payload: adopted_payload,
             user: user_hash
           ).create
 
