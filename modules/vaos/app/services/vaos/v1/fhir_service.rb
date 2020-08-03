@@ -62,7 +62,7 @@ module VAOS
       #
       # @id The id of the resource to update (must match the id continained in the put body)
       # @body The resource with an id element that has the same value as the id in the URL.
-      # 
+      #
       def update(id: nil, body: nil)
         perform(:put, "#{@resource_type}/#{id}", body)
       end
