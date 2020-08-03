@@ -24,6 +24,7 @@ module BGS
       service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
         address_params.merge(bgs_auth)
       )
+    end
 
     def create_relationship(relationship_params)
       service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params.merge(bgs_auth))

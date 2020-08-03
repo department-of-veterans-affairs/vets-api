@@ -14,6 +14,8 @@ module BGS
       report_marriage_history('veteran_marriage_history') if @payload['veteran_was_married_before']
       report_marriage_history('spouse_marriage_history') if @payload['spouse_was_married_before']
       add_spouse if @payload['add_spouse']
+
+      # @dependents
     end
 
     private
@@ -36,17 +38,17 @@ module BGS
     end
 
     def add_spouse
-      marriage = BGSDependents::Marriage.new(@dependents_application)
-      marriage_info = marriage.format_info
+      spouse = BGSDependents::Spouse.new(@dependents_application)
+      spouse_info = spouse.format_info
       participant = bgs_service.create_participant(@proc_id)
 
-      create_person(marriage, participant, marriage_info)
-      send_address(marriage, participant, marriage_info)
+      create_person(spouse, participant, spouse_info)
+      send_address(spouse, participant, spouse_info)
 
-      @dependents << marriage.serialize_dependent_result(
+      @dependents << spouse.serialize_dependent_result(
         participant,
         'Spouse',
-        marriage_info['lives_with_vet'] ? 'Spouse' : 'Estranged Spouse',
+        @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran'] ? 'Spouse' : 'Estranged Spouse',
         {
           begin_date: @dependents_application['current_marriage_information']['date'],
           marriage_state: @dependents_application['current_marriage_information']['location']['state'],
