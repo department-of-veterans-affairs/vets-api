@@ -7,7 +7,7 @@ class SchoolCertifyingOfficialsMailerPreview < ActionMailer::Preview
     applicant = SavedClaim::EducationBenefits::VA10203.last&.open_struct_form
     ga_client_id = nil
     emails = recipients(params[:facility_code])
-    SchoolCertifyingOfficialsMailer.build(applicant, emails, ga_client_id) if applicant.present?
+    SchoolCertifyingOfficialsMailer.build(applicant || fake_applicant, emails, ga_client_id)
   end
 
   private
@@ -20,5 +20,18 @@ class SchoolCertifyingOfficialsMailerPreview < ActionMailer::Preview
 
     scos = institution[:versioned_school_certifying_officials]
     EducationForm::SendSCOEmail.sco_emails(scos)
+  end
+
+  def fake_applicant
+    name = OpenStruct.new({
+                                                          first: 'T',
+                                                          last: 'McTestyFace'
+                                                      })
+    OpenStruct.new( {
+        email: 'test@sample.com',
+        schoolEmailAddress: nil,
+        schoolStudentId: nil,
+        veteranFullName: name,
+    })
   end
 end
