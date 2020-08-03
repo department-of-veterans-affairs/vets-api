@@ -5,13 +5,7 @@ ENV['RAILS_ENV'] ||= 'test'
 
 require File.expand_path('../../config/environment', __dir__)
 require 'pact/provider/rspec'
-require 'rspec/rails'
-require 'support/factory_bot'
-require 'support/authenticated_session_helper'
 require 'support/vcr'
-require 'support/mvi/stub_mvi'
-require 'support/stub_emis'
-require 'support/vet360/stub_vet360'
 Dir.glob(File.expand_path('provider_states_for/*.rb', __dir__), &method(:require))
 
 VCR.configure do |c|
