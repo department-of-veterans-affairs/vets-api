@@ -9,7 +9,7 @@
     {
       "_id": "f9d5e55a8899322449e2b25630d4be51e2b4b7b1",
       "description": "a user profile",
-      "providerState": "show user profile",
+      "providerState": "user is authenticated",
       "request": {
         "method": "GET",
         "path": "/v0/user",
