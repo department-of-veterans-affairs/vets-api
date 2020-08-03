@@ -6,6 +6,8 @@ module Debts
 
     configuration Debts::Configuration
 
+    STATSD_KEY_PREFIX = 'api.debts'
+
     def get_letters(body)
       with_monitoring do
         GetLettersResponse.new(perform(:post, 'letterdetails/get', body).body)
