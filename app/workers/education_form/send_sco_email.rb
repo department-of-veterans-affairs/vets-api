@@ -106,7 +106,7 @@ module EducationForm
     end
 
     def stats_key
-      "api.education_benefits_claim.22-10203.school_certifying_officials_mailer"
+      'api.education_benefits_claim.22-10203.school_certifying_officials_mailer'
     end
   end
 end
