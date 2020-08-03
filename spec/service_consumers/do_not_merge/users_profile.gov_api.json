@@ -1,6 +1,6 @@
 {
   "consumer": {
-    "name": "Users"
+    "name": "User"
   },
   "provider": {
     "name": "VA.gov API"
