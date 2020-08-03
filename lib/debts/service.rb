@@ -35,7 +35,7 @@ module Debts
       end
     end
 
-    def handle_client_error(status)
+    def handle_client_error(error)
       save_error_details(error)
 
       raise_backend_exception(
