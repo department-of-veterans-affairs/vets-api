@@ -32,8 +32,10 @@ module BGSDependents
 
     def initialize(dependents_application)
       @dependents_application = dependents_application
+      @ssn = @dependents_application.dig('student_name_and_ssn', 'ssn')
+      @full_name = @dependents_application['student_name_and_ssn']['full_name']
+      @birth_date = @dependents_application.dig('student_name_and_ssn', 'birth_date')
       @was_married = @dependents_application['student_address_marriage_tuition']['was_married']
-      @name_and_ssn = @dependents_application['student_name_and_ssn']
 
       self.attributes = described_class_attribute_hash
     end
@@ -60,10 +62,10 @@ module BGSDependents
       # we will raise an error here if not #valid? when we merge in exception PR
 
       {
-        ssn: @name_and_ssn['ssn'],
-        birth_date: @name_and_ssn['birth_date'],
+        ssn: @ssn,
+        birth_date: @birth_date,
         ever_married_ind: @was_married == true ? 'Y' : 'N'
-      }.merge(@name_and_ssn['full_name'])
+      }.merge(@full_name)
     end
   end
 end
