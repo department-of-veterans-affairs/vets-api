@@ -21,9 +21,6 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
     context 'feature flag edu_benefits_stem_scholarship disabled' do
       before do
         expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(false)
-        mail = double('mail')
-        allow(mail).to receive(:deliver_now)
-        allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
       it 'does not call SendSCOEmail' do
