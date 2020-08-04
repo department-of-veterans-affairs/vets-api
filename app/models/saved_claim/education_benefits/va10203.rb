@@ -9,5 +9,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     authorized = user.authorize(:evss, :access?)
 
     EducationForm::SendSCOEmail.perform_async(user.uuid, id) if authorized
+
+    StemApplicantConfirmationMailer.build(self, nil).deliver_now
   end
 end
