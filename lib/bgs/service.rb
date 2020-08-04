@@ -11,6 +11,14 @@ module BGS
       @user = user
     end
 
+    def vnp_create_benefit_claim(vnp_benefit_params)
+      service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params.merge(bgs_auth))
+    end
+
+    def vnp_benefit_claim_update(vnp_benefit_params)
+      service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
+    end
+
     def create_relationship(relationship_params)
       service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params.merge(bgs_auth))
     end
