@@ -9,5 +9,6 @@ module CovidVaccineTrial
 
     def payload
       JSON.parse(request.body.string) # Ditch :format, :controller and friends
+    end
   end
 end
