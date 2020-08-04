@@ -4,7 +4,20 @@ module AppealsApi
   class HigherLevelReview < ApplicationRecord
     include SentryLogging
 
+    REMOVE_PII = proc { update form_data: nil, auth_headers: nil }
+
     class << self
+      def new_dummy
+        fixture = lambda do |suffix|
+          JSON.parse(
+            File.read(
+              Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', "valid_200996#{suffix}.json")
+            )
+          )
+        end
+
+        new form_data: fixture.call(''), auth_headers: fixture.call('_headers')
+      end
       def refresh_statuses_using_central_mail!(higher_level_reviews)
         return if higher_level_reviews.empty?
 
@@ -37,6 +50,8 @@ module AppealsApi
         date < Time.zone.today
       end
 
+      define_method :remove_pii, &REMOVE_PII
+
       private
 
       def parse_central_mail_response(response)
@@ -55,7 +70,6 @@ module AppealsApi
 
     STATUSES = %w[pending submitting submitted processing error uploaded received success vbms expired].freeze
     validates :status, inclusion: { 'in': STATUSES }
-    after_save :clean_persisted_data
 
     CENTRAL_MAIL_STATUS_TO_HLR_ATTRIBUTES = lambda do
       hash = Hash.new { |_, _| raise ArgumentError, 'Unknown Central Mail status' }
@@ -81,7 +95,14 @@ module AppealsApi
     RECEIVED_OR_PROCESSING = %w[received processing].freeze
     raise unless RECEIVED_OR_PROCESSING - STATUSES == []
 
-    scope :received_or_processing, -> { where(status: RECEIVED_OR_PROCESSING) }
+    COMPLETE_STATUSES = %w[success error].freeze
+    raise unless COMPLETE_STATUSES - STATUSES == []
+
+    scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
+    scope :completed, -> { where status: COMPLETE_STATUSES }
+    scope :has_pii, -> { where.not encrypted_form_data: nil, encrypted_auth_headers: nil }
+    scope :has_not_been_updated_in_a_week, -> { where 'updated_at < ?', 1.week.ago }
+    scope :ready_to_have_pii_expunged, -> { has_pii.completed.has_not_been_updated_in_a_week }
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
     NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
@@ -249,13 +270,7 @@ module AppealsApi
       update! attributes
     end
 
-    def clean_persisted_data
-      if saved_change_to_status?(to: 'success') || saved_change_to_status?(to: 'error')
-        self.auth_headers = nil
-        self.form_data = nil
-        save
-      end
-    end
+    define_method :remove_pii, &REMOVE_PII
 
     private
 

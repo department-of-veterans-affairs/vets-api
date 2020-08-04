@@ -45,6 +45,69 @@ describe AppealsApi::HigherLevelReview, type: :model do
     end
   end
 
+  describe '.completed' do
+    subject { described_class.completed }
+
+    it 'returns a relation of complete HLRs' do
+      expect(subject).to be_empty
+      higher_level_review.update status: described_class::COMPLETE_STATUSES.sample
+      expect(subject).not_to be_empty
+    end
+  end
+
+  describe '.has_pii' do
+    subject { described_class.has_pii }
+
+    it 'returns a relation of HLRs that have PII' do
+      higher_level_review
+      expect(subject).not_to be_empty
+      higher_level_review.remove_pii
+      expect(subject).to be_empty
+    end
+  end
+
+  describe '.has_not_been_updated_in_a_week' do
+    subject { described_class.has_not_been_updated_in_a_week }
+
+    it 'returns a relation of HLRs that have been updated in a week' do
+      expect(subject).to be_empty
+      higher_level_review.update updated_at: 8.days.ago
+      expect(subject).not_to be_empty
+    end
+  end
+
+  describe '.ready_to_have_pii_expunged' do
+    subject { described_class.ready_to_have_pii_expunged }
+
+    it 'returns a relation of HLRs that are ready to have PII expunged' do
+      expect(subject).to be_empty
+      higher_level_review.update updated_at: 8.days.ago, status: described_class::COMPLETE_STATUSES.sample
+      expect(subject).not_to be_empty
+    end
+  end
+
+  describe '.remove_pii' do
+    it 'removes pii' do
+      higher_level_review
+      expect(described_class.has_pii).not_to be_empty
+      described_class.remove_pii
+      expect(described_class.has_pii).to be_empty
+    end
+  end
+
+  describe '#remove_pii' do
+    it 'removes pii' do
+      expect(higher_level_review.auth_headers.values.compact).not_to be_empty
+      expect(higher_level_review.form_data.values.compact).not_to be_empty
+      higher_level_review.remove_pii
+      expect(higher_level_review.auth_headers).to be_nil
+      expect(higher_level_review.form_data).to be_nil
+      higher_level_review.reload
+      expect(higher_level_review.auth_headers).to be_nil
+      expect(higher_level_review.form_data).to be_nil
+    end
+  end
+
   describe '#first_name' do
     subject { higher_level_review.first_name }
 
