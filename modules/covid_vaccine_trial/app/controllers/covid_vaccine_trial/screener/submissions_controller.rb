@@ -6,16 +6,6 @@ require_dependency "covid_vaccine_trial/base_controller"
 module CovidVaccineTrial
   module Screener
     class SubmissionsController < BaseController
-      REQUIRED_PARAMS = [
-        :diagnosed, :hospitalized, :smoke, :health_issues, :work_situation,
-        :get_to_work, :home_population, :close_contact_count, :first_name,
-        :last_name, :email, :phone, :zip, :dob, :gender, :ethnicity
-      ].freeze
-
-      TEST_PARAMS = [
-        :first_name, :last_name
-      ].freeze
-
       def create
         form_service = FormService.new
 
