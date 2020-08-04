@@ -2,6 +2,7 @@
 
 module BGSDependents
   class Base < Common::Base
+    include ActiveModel::Validations
     # Gets the person's address based on the lives with veteran flag
     #
     # @param dependents_application [Hash] the submitted form information

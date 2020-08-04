@@ -39,6 +39,9 @@ features:
   facility_locator_fe_use_v1:
     actor_type: user
     description: Have the front end use the V1 api
+  facilities_ppms_suppress_community_care:
+    actor_type: user
+    description: Hide ppms community care searches
   profile_schema_forms:
     actor_type: user
     description: >
