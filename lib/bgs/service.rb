@@ -7,7 +7,6 @@ module BGS
     # (I = Input, U = Update, D = Delete)
     JOURNAL_STATUS_TYPE_CODE = 'U'
 
-
     def initialize(user)
       @user = user
     end
