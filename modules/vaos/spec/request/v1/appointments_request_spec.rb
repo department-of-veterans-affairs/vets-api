@@ -40,7 +40,7 @@ RSpec.describe 'Appointment', type: :request do
             '&date=lt2020-08-31T17:00:00Z&_include=Appointment:location'
         end
 
-        it 'returns a 200 and passes the body through' do
+        it 'returns HTTP status 200 and passes the body through' do
           VCR.use_cassette('vaos/fhir/appointment/search_200', match_requests_on: %i[method uri]) do
             get "/vaos/v1/Appointment?#{query_string}"
 
@@ -64,7 +64,7 @@ RSpec.describe 'Appointment', type: :request do
             '&date=lt2010-08-31T17:00:00Z&_include=Appointment:location'
         end
 
-        it 'returns a 200 and passes the body through' do
+        it 'returns HTTP status 200 and passes the body through' do
           VCR.use_cassette('vaos/fhir/appointment/search_no_records', match_requests_on: %i[method uri]) do
             get "/vaos/v1/Appointment?#{query_string}"
 
@@ -147,7 +147,7 @@ RSpec.describe 'Appointment', type: :request do
           )['http_interactions'].first.dig('response', 'body', 'string')
         end
 
-        it 'returns HTTP status 200 with the updated resource content in body' do
+        it 'returns HTTP status 200 along with the updated resource' do
           VCR.use_cassette('vaos/fhir/appointment/put_appointment_request_200', match_requests_on: %i[method uri]) do
             headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
             put '/vaos/v1/Appointment/1631', params: request_body, headers: headers
@@ -165,6 +165,20 @@ RSpec.describe 'Appointment', type: :request do
             put '/vaos/v1/Appointment/1631X', params: request_body, headers: headers
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_400')
+          end
+        end
+      end
+
+      context 'with appointment cancel request' do
+        let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_cancel_update.yml') }
+
+        it 'returns HTTP status 200 along with the cancelled resource' do
+          VCR.use_cassette('vaos/fhir/appointment/put_appointment_cancel_request_200',
+                           match_requests_on: %i[method uri]) do
+            headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
+            put '/vaos/v1/Appointment/1631', params: request_body, headers: headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['status']).to eq('cancelled')
           end
         end
       end
