@@ -21,5 +21,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'sidekiq'
 
   spec.add_development_dependency 'pg'
-  spec.add_development_dependency 'rpsec-rails'
+  spec.add_development_dependency 'rspec-rails'
 end
