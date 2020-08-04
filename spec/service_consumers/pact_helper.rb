@@ -34,11 +34,12 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
-    user = FactoryBot.build(:user, :loa3)
+    user = FactoryBot.build(:user, :loa3, va_patient: true, middle_name: "J" )
     session_object = sign_in(user, nil, nil, true)
     allow_any_instance_of(ActionDispatch::Request).to receive(:session).and_return(session_object.to_hash)
 
     stub_mvi unless example.metadata[:skip_mvi]
+    stub_mvi(mvi_profile) unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
   end
