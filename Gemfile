@@ -131,8 +131,8 @@ group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
   gem 'fakeredis'
-  gem 'pact', git: 'https://github.com/f1337/pact-ruby', branch: 'f1337/bump-thor-dependency'
-  gem 'pact-mock_service', git: 'https://github.com/f1337/pact-mock_service', branch: 'f1337/bump-thor-dependency'
+  gem 'pact', git: 'https://github.com/f1337/pact-ruby', branch: 'f1337/bump-thor-dependency', require: false
+  gem 'pact-mock_service', git: 'https://github.com/f1337/pact-mock_service', branch: 'f1337/bump-thor-dependency', require: false
   gem 'pdf-inspector'
   gem 'rspec-retry'
   gem 'rspec_junit_formatter'
