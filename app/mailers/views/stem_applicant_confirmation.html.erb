@@ -15,7 +15,7 @@
       <br>
       for <%= first_and_last_name %>
       <br>
-      Confirmation number <%= @claim.education_benefits_claim.confirmation_number %>
+      Confirmation number <%= confirmation_number %>
       <br>
       Date received <%= application_date %>
     </p>
@@ -23,13 +23,13 @@
     <p>
       <b>Your claim was sent to:</b>
       <br />
-      Eastern Region
+      <%= region_name %>>
       <br />
       VA Regional Office
       <br />
-      <%= EducationForm::EducationFacility::ADDRESSES[:eastern][0] %>
+      <%= region_address %>
       <br />
-      <%= EducationForm::EducationFacility::ADDRESSES[:eastern][1] %>
+      <%= region_city_state_zip %>
     </p>
 
     <p>

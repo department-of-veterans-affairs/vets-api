@@ -24,6 +24,22 @@ class StemApplicantConfirmationMailer < TransactionalEmailMailer
     @claim.created_at.strftime('%b %d, %Y')
   end
 
+  def region_name
+    EducationForm::EducationFacility::EMAIL_NAMES[region]
+  end
+
+  def region_address
+    EducationForm::EducationFacility::ADDRESSES[region][0]
+  end
+
+  def region_city_state_zip
+    EducationForm::EducationFacility::ADDRESSES[region][1]
+  end
+
+  def confirmation_number
+    @claim.education_benefits_claim.confirmation_number
+  end
+
   def build(claim, ga_client_id)
     @applicant = claim.open_struct_form
     @claim = claim
@@ -32,5 +48,11 @@ class StemApplicantConfirmationMailer < TransactionalEmailMailer
     opt[:bcc] = STAGING_RECIPIENTS.clone if FeatureFlipper.staging_email?
 
     super([@applicant.email], ga_client_id, opt)
+  end
+
+  private
+
+  def region
+    @claim.education_benefits_claim.regional_processing_office.to_sym
   end
 end
