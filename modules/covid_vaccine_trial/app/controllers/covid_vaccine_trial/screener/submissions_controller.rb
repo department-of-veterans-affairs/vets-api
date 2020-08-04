@@ -6,8 +6,6 @@ require_dependency "covid_vaccine_trial/base_controller"
 module CovidVaccineTrial
   module Screener
     class SubmissionsController < BaseController
-      before_action :validate_screener_schema, only: %i[create]
-
       REQUIRED_PARAMS = [
         :diagnosed, :hospitalized, :smoke, :health_issues, :work_situation,
         :get_to_work, :home_population, :close_contact_count, :first_name,
@@ -19,13 +17,16 @@ module CovidVaccineTrial
       ].freeze
 
       def create
-        render json: params_for_create
-      end
+        form_service = FormService.new
 
-      private
-
-      def params_for_create
-        params.permit(TEST_PARAMS)
+        if form_service.valid_submission?(payload)
+          render json: { status: 'accepted' }
+        else
+          error = {
+            errors: form_service.submission_errors(payload)
+          }
+          render json: error, status: 422
+        end
       end
     end
   end
