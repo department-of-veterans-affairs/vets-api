@@ -449,6 +449,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               'attributes' => {
                 'classification' => 'Podiatrist',
                 'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+                'name' => 'Podiatrist',
                 'specialization' => nil,
                 'specialty_code' => '213E00000X',
                 'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
@@ -523,6 +524,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               'attributes' => {
                 'classification' => 'Podiatrist',
                 'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+                'name' => 'Podiatrist',
                 'specialization' => nil,
                 'specialty_code' => '213E00000X',
                 'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
@@ -920,6 +922,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
             'attributes' => {
               'classification' => 'Podiatrist',
               'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+              'name' => 'Podiatrist',
               'specialization' => nil,
               'specialty_code' => '213E00000X',
               'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
@@ -941,13 +944,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
 
       bod = JSON.parse(response.body)
 
-      expect(bod['data'][0..1]).to include(
-        {
+      expect(bod['data'][0..1]).to match(
+        [{
           'id' => '101Y00000X',
           'type' => 'specialty',
           'attributes' => {
             'classification' => 'Counselor',
             'grouping' => 'Behavioral Health & Social Service Providers',
+            'name' => 'Counselor',
             'specialization' => nil,
             'specialty_code' => '101Y00000X',
             'specialty_description' => 'A provider who is trained and educated in the performance of behavior ' \
@@ -957,17 +961,18 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
          'or certification.'
           }
         },
-        {
-          'id' => '101YA0400X',
-          'type' => 'specialty',
-          'attributes' => {
-            'classification' => 'Counselor',
-            'grouping' => 'Behavioral Health & Social Service Providers',
-            'specialization' => 'Addiction (Substance Use Disorder)',
-            'specialty_code' => '101YA0400X',
-            'specialty_description' => 'Definition to come...'
-          }
-        }
+         {
+           'id' => '101YA0400X',
+           'type' => 'specialty',
+           'attributes' => {
+             'classification' => 'Counselor',
+             'grouping' => 'Behavioral Health & Social Service Providers',
+             'name' => 'Counselor - Addiction (Substance Use Disorder)',
+             'specialization' => 'Addiction (Substance Use Disorder)',
+             'specialty_code' => '101YA0400X',
+             'specialty_description' => 'Definition to come...'
+           }
+         }]
       )
     end
   end
