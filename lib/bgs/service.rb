@@ -9,7 +9,7 @@ module BGS
     def initialize(user)
       @user = user
     end
-
+    
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       service.vnp_ptcpnt.vnp_ptcpnt_create(
         { vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id }.merge(bgs_auth)
@@ -24,6 +24,14 @@ module BGS
       service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
         address_params.merge(bgs_auth)
       )
+    end
+    
+    def vnp_create_benefit_claim(vnp_benefit_params)
+      service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params.merge(bgs_auth))
+    end
+
+    def vnp_benefit_claim_update(vnp_benefit_params)
+      service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
     end
 
     def create_relationship(relationship_params)
