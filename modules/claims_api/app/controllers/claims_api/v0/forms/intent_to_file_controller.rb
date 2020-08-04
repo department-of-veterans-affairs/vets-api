@@ -8,7 +8,6 @@ module ClaimsApi
       class IntentToFileController < ClaimsApi::BaseFormController
         skip_before_action(:authenticate)
         before_action :validate_json_schema, only: %i[submit_form_0966]
-        before_action :check_future_type, only: [:submit_form_0966]
 
         FORM_NUMBER = '0966'
 
@@ -28,20 +27,6 @@ module ClaimsApi
 
         def active_param
           params.require(:type)
-        end
-
-        def check_future_type
-          unless form_type == 'compensation'
-            error = {
-              errors: [
-                {
-                  status: 422,
-                  details: "#{form_type.titleize} claims are not currently supported, but will be in a future version"
-                }
-              ]
-            }
-            render json: error, status: :unprocessable_entity
-          end
         end
 
         def form_type
