@@ -23,11 +23,7 @@ module ClaimsApi
     end
 
     def form_attributes
-      payload_attributes = @json_body.dig('data', 'attributes')
-
-      payload_attributes ||= {}
-
-      payload_attributes
+      @json_body.dig('data', 'attributes') || {}
     end
 
     def auth_headers
