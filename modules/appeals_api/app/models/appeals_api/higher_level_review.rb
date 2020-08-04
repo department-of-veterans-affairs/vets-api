@@ -7,17 +7,6 @@ module AppealsApi
     REMOVE_PII = proc { update form_data: nil, auth_headers: nil }
 
     class << self
-      def new_dummy
-        fixture = lambda do |suffix|
-          JSON.parse(
-            File.read(
-              Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', "valid_200996#{suffix}.json")
-            )
-          )
-        end
-
-        new form_data: fixture.call(''), auth_headers: fixture.call('_headers')
-      end
       def refresh_statuses_using_central_mail!(higher_level_reviews)
         return if higher_level_reviews.empty?
 
