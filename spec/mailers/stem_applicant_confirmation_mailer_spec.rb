@@ -37,6 +37,12 @@ RSpec.describe StemApplicantConfirmationMailer, type: [:mailer] do
         date_received = saved_claim.created_at.strftime('%b %d, %Y')
         expect(subject.body.raw_source).to include("Date received #{date_received}")
       end
+      it 'includes Eastern RO address' do
+        expect(subject.body.raw_source).to include(EducationForm::EducationFacility::ADDRESSES[:eastern][0])
+      end
+      it 'includes Eastern RO address city, state, and zip' do
+        expect(subject.body.raw_source).to include(EducationForm::EducationFacility::ADDRESSES[:eastern][1])
+      end
     end
 
     context 'when sending staging emails' do
