@@ -23,6 +23,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SFTP'
   inflect.acronym 'SM'
   inflect.acronym 'SSOe'
+  inflect.acronym 'SSOeOAuth'
   inflect.acronym 'SSO'
   inflect.acronym 'VAOS'
   inflect.acronym 'VBA'

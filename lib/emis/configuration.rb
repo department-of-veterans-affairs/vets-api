@@ -7,6 +7,8 @@ module EMIS
   # includes SSL options and the configured Faraday object
   #
   class Configuration < Common::Client::Configuration::SOAP
+    include Common::Client::Configuration::Concerns::Ssl
+
     # :nocov:
 
     # EMIS SSL certificate path
@@ -21,17 +23,6 @@ module EMIS
       Settings.emis.client_key_path
     end
     # :nocov:
-
-    # Faraday SSL options
-    # @return [Hash] Faraday SSL options
-    def ssl_options
-      if ssl_cert && ssl_key
-        {
-          client_cert: ssl_cert,
-          client_key: ssl_key
-        }
-      end
-    end
 
     # Faraday connection object configured to handle SOAP requests
     # @return [Faraday::Connection] Faraday connection object
