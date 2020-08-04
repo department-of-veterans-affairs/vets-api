@@ -130,6 +130,10 @@ features:
     actor_type: user
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
+  form526_benefits_delivery_at_discharge:
+    actor_type: user
+    description: >
+      Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
   form526_confirmation_email:
     actor_type: user
     description: >
