@@ -19,6 +19,8 @@ module AppealsApi
       )
     end
 
+    private
+
     def pii_was_removed?
       @updated_hlrs.present?
     end
