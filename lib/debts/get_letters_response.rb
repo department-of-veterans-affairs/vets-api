@@ -3,7 +3,6 @@
 module Debts
   class GetLettersResponse
     def initialize(res)
-      # modify response here
       @res = res
     end
 
