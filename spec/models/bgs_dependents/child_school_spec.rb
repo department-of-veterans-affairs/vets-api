@@ -9,10 +9,12 @@ RSpec.describe BGSDependents::ChildSchool do
     JSON.parse(payload)
   end
   let(:child_school_info) do
-    described_class.new(all_flows_payload['dependents_application'])
+    described_class.new(all_flows_payload['dependents_application'], 'proc_id', 'vnp_participant_id')
   end
   let(:formatted_params_result) do
     {
+      vnp_proc_id: 'proc_id',
+      vnp_ptcpnt_id: 'vnp_participant_id',
       last_term_start_dt: Date.parse('2016-03-04').to_time.iso8601,
       last_term_end_dt: Date.parse('2017-04-05').to_time.iso8601,
       prev_hours_per_wk_num: 40,

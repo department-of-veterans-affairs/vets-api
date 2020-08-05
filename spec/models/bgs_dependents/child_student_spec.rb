@@ -9,10 +9,12 @@ RSpec.describe BGSDependents::ChildStudent do
     JSON.parse(payload)
   end
   let(:child_student_info) do
-    described_class.new(all_flows_payload['dependents_application'])
+    described_class.new(all_flows_payload['dependents_application'], 'proc_id', 'vnp_participant_id')
   end
   let(:formatted_params_result) do
     {
+      vnp_proc_id: 'proc_id',
+      vnp_ptcpnt_id: 'vnp_participant_id',
       saving_amt: '3455',
       real_estate_amt: '5623',
       other_asset_amt: '4566',

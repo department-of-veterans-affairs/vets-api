@@ -7,12 +7,16 @@ module BGSDependents
     attribute :student_networth_information, Hash
     attribute :student_expected_earnings_next_year, Hash
 
-    def initialize(dependents_application)
+    def initialize(dependents_application, proc_id, vnp_participant_id)
+      @proc_id = proc_id
+      @vnp_participant_id = vnp_participant_id
       self.attributes = dependents_application
     end
 
     def params_for_686c
       {
+        vnp_proc_id: @proc_id,
+        vnp_ptcpnt_id: @vnp_participant_id,
         saving_amt: student_networth_information&.dig('savings'),
         real_estate_amt: student_networth_information&.dig('real_estate'),
         other_asset_amt: student_networth_information&.dig('other_assets'),

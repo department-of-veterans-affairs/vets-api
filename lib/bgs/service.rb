@@ -15,14 +15,21 @@ module BGS
     end
 
     def bgs_auth
-      {
+      auth_params = {
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
         jrn_status_type_cd: 'U',
         jrn_user_id: Settings.bgs.client_username,
-        jrn_obj_id: Settings.bgs.application,
-        ssn: @user[:ssn] # Just here to make the mocks work
+        jrn_obj_id: Settings.bgs.application
       }
+
+      auth_params.merge!(user_ssn) unless Rails.env.production?
+
+      auth_params
+    end
+
+    def user_ssn
+      { ssn: @user[:ssn] }
     end
 
     private
