@@ -14,7 +14,7 @@ module Debts
     private
 
     def validate_response_against_schema(response)
-      schema_path = Rails.root.join('lib', 'debts', 'schemas', "debts.json").to_s
+      schema_path = Rails.root.join('lib', 'debts', 'schemas', 'debts.json').to_s
       JSON::Validator.validate!(schema_path, response, strict: false)
     end
   end
