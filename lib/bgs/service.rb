@@ -2,8 +2,6 @@
 
 module BGS
   class Service
-    # include BGS::Exceptions::BGSErrors
-
     def initialize(user)
       @user = user
     end
