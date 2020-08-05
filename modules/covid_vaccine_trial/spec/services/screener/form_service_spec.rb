@@ -26,8 +26,11 @@ RSpec.describe CovidVaccineTrial::Screener::FormService do
       it "returns a list of error objects if the JSON is invalid" do
         expected = [
           {
-            type: 'invalid',
-            detail: {"missing_keys"=>["fullName"]}
+            detail: {
+              'missing_keys' => [
+                'fullName'
+              ]
+            }
           }
         ]
 

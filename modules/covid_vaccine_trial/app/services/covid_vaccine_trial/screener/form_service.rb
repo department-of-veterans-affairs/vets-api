@@ -15,13 +15,13 @@ module CovidVaccineTrial
         schema.validate(json).map do |e|
           if e['data_pointer'].blank?
             {
-              type: 'invalid',
               detail: e['details']
             }
           else
             {
-              type: 'invalid',
-              detail: e['data_pointer']
+              source: {
+                pinter: e['data_pointer']
+              }
             }
           end
         end
