@@ -16,7 +16,7 @@ module CovidVaccineTrial
           if e['data_pointer'].blank?
             {
               type: 'invalid',
-              detail: e['data']
+              detail: e['details']
             }
           else
             {
