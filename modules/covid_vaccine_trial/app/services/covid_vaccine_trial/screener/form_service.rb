@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json_schemer'
+require 'vets_json_schema'
 
 module CovidVaccineTrial
   module Screener
@@ -20,7 +21,7 @@ module CovidVaccineTrial
           else
             {
               source: {
-                pinter: e['data_pointer']
+                pointer: e['data_pointer']
               }
             }
           end
@@ -33,14 +34,8 @@ module CovidVaccineTrial
         @schema ||= JSONSchemer.schema(schema_data)
       end
 
-      # production branch becomes universal after vets-json-schema update
       def schema_data
-        if ENV['RAILS_ENV'] == 'production'
-          JSON.parse(VetsJsonSchema::SCHEMAS[SCHEMA])
-        else
-          dir = File.expand_path('../../../../config/schemas', __dir__)
-          JSON.parse(File.read(File.join(dir, 'covid-vaccine-trial-schema.json')))
-        end
+        VetsJsonSchema::SCHEMAS[SCHEMA]
       end
     end
   end
