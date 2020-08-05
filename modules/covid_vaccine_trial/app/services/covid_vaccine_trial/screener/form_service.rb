@@ -35,10 +35,10 @@ module CovidVaccineTrial
 
       # production branch becomes universal after vets-json-schema update
       def schema_data
-        if Rails.env.production?
+        if ENV['RAILS_ENV'] == 'production'
           JSON.parse(VetsJsonSchema::SCHEMAS[SCHEMA])
         else
-          dir = Rails.root.join('modules', 'covid_vaccine_trial', 'config', 'schemas')
+          dir = File.expand_path('../../../../config/schemas', __dir__)
           JSON.parse(File.read(File.join(dir, 'covid-vaccine-trial-schema.json')))
         end
       end
