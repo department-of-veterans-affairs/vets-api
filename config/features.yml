@@ -1,5 +1,5 @@
 ---
-# Add a new feture toggle here to ensure that it is initialized in all environments.
+# Add a new feature toggle here to ensure that it is initialized in all environments.
 # Features are defaulted to enabled in development and test environments and disabled in all others.
 # The description should contain any relevant information for an admin who may toggle the feature.
 #
@@ -130,6 +130,10 @@ features:
     actor_type: user
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
+  form526_benefits_delivery_at_discharge:
+    actor_type: user
+    description: >
+      Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
   form526_confirmation_email:
     actor_type: user
     description: >
@@ -186,3 +190,11 @@ features:
     actor_type: user
     description: >
       This determines when the wizard should show up on the 1990 introduction page
+  show_edu_benefits_1990E_wizard:
+    actor_type: user
+    description: >
+     This determines when the wizard should show up on the 1990e introduction page
+  get_help_ask_form:
+    actor_type: user
+    description: >
+      Enables inquiry form for users to submit questions, suggestions, and complaints.

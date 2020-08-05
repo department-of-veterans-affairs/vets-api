@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class MarriageHistory
+  class MarriageHistory < Base
     def initialize(former_spouse)
       @former_spouse = former_spouse
     end
