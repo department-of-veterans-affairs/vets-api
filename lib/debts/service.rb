@@ -9,7 +9,7 @@ module Debts
     STATSD_KEY_PREFIX = 'api.debts'
 
     def get_letters(body)
-      with_monitoring do
+      with_monitoring(2) do
         GetLettersResponse.new(perform(:post, 'letterdetails/get', body).body)
       end
     rescue => e
