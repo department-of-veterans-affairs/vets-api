@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class BenefitClaim
+  class VnpBenefitClaim
     VNP_BENEFIT_CREATE_PARAMS = {
       status_type_cd: 'CURR',
       svc_type_cd: 'CP',
