@@ -195,6 +195,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
           profile = mvi_profile
           profile['search_token'] = 'WSDOC1908201553145951848240311'
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'icn')
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(profile)
@@ -317,6 +318,7 @@ describe MVI::Service do
         allow(user).to receive(:dslogon_edipi).and_return('1025062341')
 
         VCR.use_cassette('mvi/find_candidate/edipi_present') do
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'edipi')
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile.given_names).to eq(%w[Benjamiin Two])
@@ -345,6 +347,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/valid') do
           profile = mvi_profile
           profile['search_token'] = 'WSDOC1908281447208280163390431'
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'user_attributes')
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(profile)
