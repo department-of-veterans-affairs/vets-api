@@ -186,6 +186,10 @@ features:
     actor_type: user
     description: >
       Update to Chapter 33/Post-9/11 GI Bill benefit rates set to go live 8/1
+  show_edu_benefits_1990_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 1990 introduction page
   show_edu_benefits_1990E_wizard:
     actor_type: user
     description: >
