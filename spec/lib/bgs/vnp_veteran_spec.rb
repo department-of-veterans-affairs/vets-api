@@ -13,11 +13,7 @@ RSpec.describe BGS::VnpVeteran do
       icn: user_object.icn
     }
   end
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:current_marriage_details) do
     {
       'current_marriage_details' => {

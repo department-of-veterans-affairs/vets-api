@@ -58,7 +58,9 @@ module BGSDependents
     def marital_status(dependents_application)
       return 'Never Married' if dependents_application.dig('veteran_was_married_before') == false
 
-      return 'Separated' if dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran') == false
+      if dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran') == false
+        return 'Separated'
+      end
 
       return 'Married' if dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran') == true
 

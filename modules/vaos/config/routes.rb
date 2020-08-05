@@ -35,5 +35,7 @@ VAOS::Engine.routes.draw do
     get '/Organization/:id', to: 'organizations#show'
     get '/Patient', to: 'patients#index'
     get '/Slot', to: 'slots#index'
+    post '/Appointment', to: 'appointments#create'
+    put '/Appointment/:id', to: 'appointments#update'
   end
 end

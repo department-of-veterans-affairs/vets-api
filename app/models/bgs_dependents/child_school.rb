@@ -7,8 +7,9 @@ module BGSDependents
     attribute :program_information, Hash
     attribute :current_term_dates, Hash
 
-    def initialize(dependents_application, proc_participant)
-      @proc_participant = proc_participant
+    def initialize(dependents_application, proc_id, vnp_participant_id)
+      @proc_id = proc_id
+      @vnp_participant_id = vnp_participant_id
       self.attributes = dependents_application
     end
 
@@ -16,6 +17,8 @@ module BGSDependents
     # rubocop:disable Metrics/MethodLength
     def params_for_686c
       {
+        vnp_proc_id: @proc_id,
+        vnp_ptcpnt_id: @vnp_participant_id,
         last_term_start_dt: format_date(last_term_school_information&.dig('term_begin')),
         last_term_end_dt: format_date(last_term_school_information&.dig('date_term_ended')),
         prev_hours_per_wk_num: last_term_school_information&.dig('hours_per_week'),
@@ -42,7 +45,7 @@ module BGSDependents
         school_actual_expctd_start_dt: current_term_dates&.dig('official_school_start_date'),
         school_term_start_dt: format_date(current_term_dates&.dig('expected_student_start_date')),
         gradtn_dt: format_date(current_term_dates&.dig('expected_graduation_date'))
-      }.merge(@proc_participant)
+      }
     end
 
     # rubocop:enable Metrics/AbcSize

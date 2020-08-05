@@ -329,6 +329,26 @@ module ClaimsApi
             end
           end
 
+          response 404 do
+            key :description, 'POA not found'
+            content 'application/json' do
+              key :examples, { default: { value: { errors: [{ status: 404, detail: 'POA not found' }] } } }
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :type, :object
+                    key :required, %i[status detail]
+                    property :status, type: :integer
+                    property :detail, type: :string
+                  end
+                end
+              end
+            end
+          end
+
           response :default do
             key :description, 'unexpected error'
             content 'application/json' do
