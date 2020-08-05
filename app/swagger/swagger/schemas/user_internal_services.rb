@@ -66,6 +66,13 @@ module Swagger
                          enum: %w[Basic Premium 1 2 3],
                          example: 'Basic',
                          description: 'myhealthevet account_types: Basic, Premium. dslogon account account_types: 1-3'
+                property :ssoe,
+                         type: :boolean,
+                         description: 'true if the user was authenticated using SSOe'
+                property :transactionid,
+                         type: :string,
+                         example: 'E35imPCwyUBl/Eo4AhlCJfioOcQEWDdyjFXUJRBky1k=',
+                         description: 'a unique id representing the authentication transaction with SSOe'
               end
               property :verified, type: :boolean, example: true
               property :loa, type: :object do
