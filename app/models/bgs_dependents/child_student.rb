@@ -13,6 +13,7 @@ module BGSDependents
       self.attributes = dependents_application
     end
 
+    # rubocop:disable Metrics/MethodLength
     def params_for_686c
       {
         vnp_proc_id: @proc_id,
@@ -36,6 +37,7 @@ module BGSDependents
         next_year_ssa_income_amt: student_expected_earnings_next_year&.dig('annual_social_security_payments')
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
