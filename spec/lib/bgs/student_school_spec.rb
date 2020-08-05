@@ -16,11 +16,7 @@ RSpec.describe BGS::StudentSchool do
   end
   let(:proc_id) { '3829729' }
   let(:vnp_participant_id) { '149471' }
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:school_params) do
     {
       course_name_txt: 'An amazing program',

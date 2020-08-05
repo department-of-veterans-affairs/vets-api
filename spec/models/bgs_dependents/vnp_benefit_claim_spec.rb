@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe BGSDependents::BenefitClaim do
+RSpec.describe BGSDependents::VnpBenefitClaim do
   let(:veteran) { { vnp_participant_id: '146189', vnp_participant_address_id: '113372' } }
   let(:benefit_claim) { described_class.new('3828033', veteran) }
   let(:create_params_output) do
