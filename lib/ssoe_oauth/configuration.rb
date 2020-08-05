@@ -10,14 +10,7 @@ module SSOeOAuth
   #   configuration SSOeOAuth::Configuration
   #
   class Configuration < Common::Client::Configuration::REST
-
-    def base_path
-      Settings.ssoe_auth.url
-    end
-
-    def service_name
-      'SSOeOAuth'
-    end
+    include Common::Client::Configuration::Concerns::Ssl
 
     def self.ssl_cert_path
       Settings.ssoe_auth.client_cert_path
@@ -27,13 +20,12 @@ module SSOeOAuth
       Settings.ssoe_auth.client_key_path
     end
 
-    def ssl_options
-      if ssl_cert && ssl_key
-        {
-          client_cert: ssl_cert,
-          client_key: ssl_key
-        }
-      end
+    def base_path
+      Settings.ssoe_auth.url
+    end
+
+    def service_name
+      'SSOeOAuth'
     end
 
     def connection

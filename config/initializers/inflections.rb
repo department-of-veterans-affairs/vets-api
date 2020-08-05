@@ -33,3 +33,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'VSO'
   inflect.uncountable 'terms_and_conditions'
 end
+
+ActiveSupport::Inflector.inflections do |inflect|
+  inflect.acronym 'SSOeOAuth'
+end

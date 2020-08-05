@@ -404,7 +404,8 @@ sentry:
 ssoe_auth:
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
-  url: 'https://int.fed.eauth.va.gov:444/oauthe/sps/oauth/oauth20/introspect'
+  client_id: 'Mobile_App_API_Server_LOWERS'
+  url: 'https://int.fed.eauth.va.gov:444'
 
 statsd:
   host: ~
