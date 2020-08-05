@@ -40,7 +40,7 @@ RSpec.describe 'Appointment', type: :request do
             '&date=lt2020-08-31T17:00:00Z&_include=Appointment:location'
         end
 
-        it 'returns a 200 and passes the body through' do
+        it 'returns HTTP status 200 and passes the body through' do
           VCR.use_cassette('vaos/fhir/appointment/search_200', match_requests_on: %i[method uri]) do
             get "/vaos/v1/Appointment?#{query_string}"
 
@@ -64,7 +64,7 @@ RSpec.describe 'Appointment', type: :request do
             '&date=lt2010-08-31T17:00:00Z&_include=Appointment:location'
         end
 
-        it 'returns a 200 and passes the body through' do
+        it 'returns HTTP status 200 and passes the body through' do
           VCR.use_cassette('vaos/fhir/appointment/search_no_records', match_requests_on: %i[method uri]) do
             get "/vaos/v1/Appointment?#{query_string}"
 
@@ -119,6 +119,66 @@ RSpec.describe 'Appointment', type: :request do
             post '/vaos/v1/Appointment', params: invalid_request_body, headers: headers
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_400')
+          end
+        end
+      end
+    end
+
+    describe 'PUT /vaos/v1/Appointment/id' do
+      let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_update.yml') }
+
+      context 'with flipper disabled' do
+        it 'returns HTTP status 403, forbidden' do
+          Flipper.disable('va_online_scheduling')
+          put '/vaos/v1/Appointment/12345'
+          expect(response).to have_http_status(:forbidden)
+          expect(JSON.parse(response.body)['issue'].first.dig('details', 'text'))
+            .to eq('You do not have access to online scheduling')
+        end
+      end
+
+      context 'with valid Appointment update' do
+        let(:expected_body) do
+          YAML.load_file(
+            Rails.root.join(
+              'spec', 'support', 'vcr_cassettes', 'vaos', 'fhir', 'appointment',
+              'put_appointment_request_200.yml'
+            )
+          )['http_interactions'].first.dig('response', 'body', 'string')
+        end
+
+        it 'returns HTTP status 200 along with the updated resource' do
+          VCR.use_cassette('vaos/fhir/appointment/put_appointment_request_200', match_requests_on: %i[method uri]) do
+            headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
+            put '/vaos/v1/Appointment/1631', params: request_body, headers: headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(JSON.parse(expected_body))
+          end
+        end
+      end
+
+      context 'with invalid appointment update' do
+        it 'returns HTTP status 400' do
+          VCR.use_cassette('vaos/fhir/appointment/put_appointment_invalid_request_400',
+                           match_requests_on: %i[method uri]) do
+            headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
+            put '/vaos/v1/Appointment/1631X', params: request_body, headers: headers
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['issue'].first['code']).to eq('VAOS_400')
+          end
+        end
+      end
+
+      context 'with appointment cancel request' do
+        let(:request_body) { File.read('spec/fixtures/fhir/dstu2/appointment_cancel_update.yml') }
+
+        it 'returns HTTP status 200 along with the cancelled resource' do
+          VCR.use_cassette('vaos/fhir/appointment/put_appointment_cancel_request_200',
+                           match_requests_on: %i[method uri]) do
+            headers = { 'Content-Type' => 'application/json+fhir', 'Accept' => 'application/json+fhir' }
+            put '/vaos/v1/Appointment/1631', params: request_body, headers: headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['status']).to eq('cancelled')
           end
         end
       end
