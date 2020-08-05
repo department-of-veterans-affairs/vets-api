@@ -18,7 +18,7 @@ module BGSDependents
         death_dt: format_date(payload['death_date']),
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
-        martl_status_type_cd: 'Married'
+        martl_status_type_cd: payload['martl_status_type_cd']
       }
     end
 

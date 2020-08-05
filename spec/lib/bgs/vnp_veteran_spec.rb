@@ -45,7 +45,7 @@ RSpec.describe BGS::VnpVeteran do
       'state_code' => 'CA',
       'zip_code' => '21122',
       'vet_ind' => 'Y',
-      'martl_status_type_cd' => 'OTHER',
+      'martl_status_type_cd' => 'Separated',
       'veteran_address' => {
         'country_name' => 'USA',
         'address_line1' => '8200 Doby LN',
@@ -98,7 +98,7 @@ RSpec.describe BGS::VnpVeteran do
         death_dt: nil,
         ever_maried_ind: nil,
         vet_ind: 'Y',
-        martl_status_type_cd: 'Married'
+        martl_status_type_cd: 'Separated'
       }
 
       expected_address = {

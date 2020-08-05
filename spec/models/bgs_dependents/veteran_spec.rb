@@ -42,7 +42,7 @@ RSpec.describe BGSDependents::Veteran do
       'state_code' => 'CA',
       'zip_code' => '21122',
       'vet_ind' => 'Y',
-      'martl_status_type_cd' => 'OTHER'
+      'martl_status_type_cd' => 'Separated'
     }
   end
 
