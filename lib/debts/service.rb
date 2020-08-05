@@ -9,14 +9,20 @@ module Debts
     STATSD_KEY_PREFIX = 'api.debts'
 
     def get_letters(body)
-      with_monitoring(2) do
+      with_monitoring_and_error_handling do
         GetLettersResponse.new(perform(:post, 'letterdetails/get', body).body)
+      end
+    end
+
+    private
+
+    def with_monitoring_and_error_handling
+      with_monitoring(2) do
+        yield
       end
     rescue => e
       handle_error(e)
     end
-
-    private
 
     def save_error_details(error)
       Raven.tags_context(
