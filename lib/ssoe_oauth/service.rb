@@ -6,9 +6,9 @@ module SSOeOAuth
   class Service < Common::Client::Base
     configuration SSOeOAuth::Configuration
 
-    CLIENT_ID = 'Mobile_App_API_Server_LOWERS'
+    CLIENT_ID = Settings.ssoe_auth.client_id
     TOKEN_TYPE_HINT = 'access_token'
-    INTROSPECT_PATH = 'https://int.fed.eauth.va.gov:444/oauthe/sps/oauth/oauth20/introspect'
+    INTROSPECT_PATH = '/oauthe/sps/oauth/oauth20/introspect'
 
     def post_introspect(token)
       params = {
