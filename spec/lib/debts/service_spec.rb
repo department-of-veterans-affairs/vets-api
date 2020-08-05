@@ -30,8 +30,11 @@ RSpec.describe Debts::Service do
           expect(StatsD).to receive(:increment).once.with(
             'api.debts.get_letters.total'
           )
-          res = described_class.new.get_letters(fileNumber: '')
-          expect(JSON.parse(res.to_json)['errors']['code']).to eq('DEBTS400')
+          expect { described_class.new.get_letters(fileNumber: '') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          ) do |e|
+            expect(e.message).to match(/DEBTS400/)
+          end
         end
       end
     end
