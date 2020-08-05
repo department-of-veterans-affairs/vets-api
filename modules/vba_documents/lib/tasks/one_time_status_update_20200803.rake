@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 namespace :vba_documents do
   desc(
     'An upstream DB is out of sync. That upstream partner has asked us if we could' \
@@ -2206,3 +2207,4 @@ namespace :vba_documents do
     abort unless not_found.empty? && update_failed.empty?
   end
 end
+# rubocop:enable Metrics/BlockLength
