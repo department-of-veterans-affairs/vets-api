@@ -18,6 +18,7 @@ require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/vcr'
 require 'support/mdot_helpers'
+require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
@@ -131,6 +132,10 @@ RSpec.configure do |config|
 
   # serializer_spec_helper
   config.include SerializerSpecHelper, type: :serializer
+
+  %i[model controller request].each do |type|
+    config.include PdfFillHelper, type: type
+  end
 
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request

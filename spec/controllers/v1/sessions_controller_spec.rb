@@ -430,7 +430,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
-            .to eq('https://pint.eauth.va.gov/pkmslogout')
+            .to eq('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
