@@ -56,15 +56,11 @@ module BGSDependents
     private
 
     def marital_status(dependents_application)
-      return 'Never Married' if dependents_application.dig('veteran_was_married_before') == false
+      spouse_lives_with_vet = dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
 
-      if dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran') == false
-        return 'Separated'
-      end
+      return nil if spouse_lives_with_vet.nil?
 
-      return 'Married' if dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran') == true
-
-      nil
+      spouse_lives_with_vet ? 'Married' : 'Separated'
     end
   end
 end
