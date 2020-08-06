@@ -21,10 +21,11 @@ RSpec.describe BGS::DependentService do
   before { allow(claim).to receive(:id).and_return('1234') }
 
   describe '#submit_686c_form' do
-    it "makes call to get veteran's va file number" do
+    it "formats vet info using VetInfo class" do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:add_va_file_number_to_payload).and_return(vet_info)
+
+        expect(VetInfo).to receive(:new).with(user, a_hash_including(file_nbr: "796043735"))
 
         service.submit_686c_form(claim)
       end
@@ -42,7 +43,6 @@ RSpec.describe BGS::DependentService do
     it 'fires PDF job' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
-        expect(service).to receive(:add_va_file_number_to_payload).and_return(vet_info)
 
         expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, vet_info)
 

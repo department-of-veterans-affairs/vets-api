@@ -13,9 +13,10 @@ module BGS
     end
 
     def submit_686c_form(claim)
-      va_file_number_with_payload = add_va_file_number_to_payload
+      bgs_person = service.people.find_person_by_ptcpnt_id(@user.participant_id)
+      vet_info = VetInfo.new(@user, bgs_person)
 
-      VBMS::SubmitDependentsPDFJob.perform_async(claim.id, va_file_number_with_payload)
+      VBMS::SubmitDependentsPDFJob.perform_async(claim.id, vet_info.to_686c_form_hash)
     rescue => e
       report_error(e)
     end
@@ -29,23 +30,6 @@ module BGS
         external_uid: @user.icn,
         external_key: external_key
       )
-    end
-
-    def add_va_file_number_to_payload
-      bgs_person = service.people.find_person_by_ptcpnt_id(@user.participant_id)
-
-      {
-        'veteran_information' => {
-          'full_name' => {
-            'first' => @user.first_name,
-            'middle' => @user.middle_name,
-            'last' => @user.last_name
-          },
-          'ssn' => @user.ssn,
-          'va_file_number' => bgs_person[:file_nbr],
-          'birth_date' => @user.birth_date
-        }
-      }
     end
 
     def report_error(error)
