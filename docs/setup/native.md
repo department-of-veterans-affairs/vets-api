@@ -90,6 +90,12 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    - `brew install redis`
 1. Install Postgresql & PostGIS
    1. It is MUCH easier to use the [Postgres.app](https://postgresapp.com/downloads.html) which installs the correct combination of Postgresql and PostGIS versions.
+   	  - Navigate to: https://postgresapp.com/downloads.html
+	  - Download the Postgres.app with PostgreSQL 10, 11 and 12
+	  - OSX: After download is complete, move the Postgres.app into your applications folder 
+	  - Once moved into the applications folder, create a new server with PostgreSQL version 11 selected
+	  - The above will install Postgresql 11 & PostGIS 2.5
+	  - Start the Server via Start button (optionally configure the server to start automatically)
    1. Alternatively Postgresql 11 & PostGIS 2.5 can be installed with homebrew
       - `brew install postgresql@11`
       - `brew services start postgresql@11`
