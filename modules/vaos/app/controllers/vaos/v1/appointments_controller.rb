@@ -12,6 +12,11 @@ module VAOS
         response = fhir_service.create(body: request.body.read)
         render json: response.body, status: response.status
       end
+
+      def update
+        response = fhir_service.update(id: params[:id], body: request.body.read)
+        render json: response.body, status: response.status
+      end
     end
   end
 end

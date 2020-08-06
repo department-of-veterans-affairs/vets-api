@@ -86,19 +86,19 @@ Specific notes for our most common native installation platforms are in this sec
 ### OSX
 
 All of the OSX instructions assume `homebrew` is your [package manager](https://brew.sh/)
-
-1. Postgresql 11 can be installed
-   `brew install postgresql@11`
 1. Install Redis
    - `brew install redis`
-1. Install PostGIS 2.5
-   - `brew services start postgresql@11`
-   - Install the `pex` manager to add your Postgresql 11 extensions from [here](https://github.com/petere/pex#installation)
-   - Install the `postgis` extension along with a number of patches using the instructions summarized [here](https://gist.github.com/skissane/0487c097872a7f6d0dcc9bcd120c2ccd):
-   - ```bash
-      PG_CPPFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' CFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' pex install postgis
+1. Install Postgresql & PostGIS
+   1. It is MUCH easier to use the [Postgres.app](https://postgresapp.com/downloads.html) which installs the correct combination of Postgresql and PostGIS versions.
+   1. Alternatively Postgresql 11 & PostGIS 2.5 can be installed with homebrew
+      - `brew install postgresql@11`
+      - `brew services start postgresql@11`
+      - Install the `pex` manager to add your Postgresql 11 extensions from [here](https://github.com/petere/pex#installation)
+      - Install the `postgis` extension along with a number of patches using the instructions summarized [here](https://gist.github.com/skissane/0487c097872a7f6d0dcc9bcd120c2ccd):
+      - ```bash
+         PG_CPPFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' CFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' pex install postgis
 
-   It may be MUCH easier to use the Postgres.app which makes installing the correct combination of Postgresql and PostGIS versions.
+      
 1. Install ImageMagick
    - `brew install imagemagick`
 1. Install Poppler
@@ -114,9 +114,11 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    ```
    NOTE: Run with `/usr/local/sbin/clamd -c /usr/local/etc/clamav/clamd.conf` and you will also have to override (temporarily) the `config/clamd.conf` file with `-LocalSocket /usr/local/etc/clamav/clamd.sock`
 
-2. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
+1. Install [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg)
    - `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
    - `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
+
+1. continue with [Base setup](README.md#base-setup)
 
 ### Alternative (Ubuntu 20.04 LTS)
 
@@ -160,3 +162,4 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    - `sudo apt install -y clamav`
 1. Install pdftk
    - `sudo apt install -y pdftk`
+1. continue with [Base setup](README.md#base-setup)

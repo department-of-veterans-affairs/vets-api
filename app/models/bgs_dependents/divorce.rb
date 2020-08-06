@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class Divorce
+  class Divorce < Base
     def initialize(divorce_info)
       @divorce_info = divorce_info
     end
