@@ -46,13 +46,25 @@ module VAOS
       end
 
       # The create interaction creates a resource based on the FHIR resource passed in the request body.
-      # The interaction is preformed by and HTTP POST command.
+      # The interaction is performed by and HTTP POST command.
       # http://hl7.org/fhir/dstu2/http.html#create
       #
       # @body JSON string containing POST request values in the body key.
       #
       def create(body: nil)
         perform(:post, @resource_type.to_s, body)
+      end
+
+      # The update interaction creates a new current version for an existing resource or creates an initial verson
+      # if no resource already exists for the given id.
+      # The interaction is performed by the HTTP PUT command.
+      # http://hl7.org/fhir/dstu2/http.html#update
+      #
+      # @id The id of the resource to update (must match the id continained in the put body)
+      # @body The resource with an id element that has the same value as the id in the URL.
+      #
+      def update(id: nil, body: nil)
+        perform(:put, "#{@resource_type}/#{id}", body)
       end
 
       private

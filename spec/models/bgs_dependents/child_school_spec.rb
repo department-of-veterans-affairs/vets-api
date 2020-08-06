@@ -4,16 +4,13 @@ require 'rails_helper'
 
 RSpec.describe BGSDependents::ChildSchool do
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
-  let(:proc_participant) do
-    {
-      vnp_proc_id: '3829729', vnp_ptcpnt_id: '149471'
-    }
-  end
   let(:child_school_info) do
-    described_class.new(all_flows_payload['dependents_application'], proc_participant)
+    described_class.new(all_flows_payload['dependents_application'], '3829729', '149471')
   end
   let(:formatted_params_result) do
     {
+      vnp_proc_id: '3829729',
+      vnp_ptcpnt_id: '149471',
       last_term_start_dt: Date.parse('2016-03-04').to_time.iso8601,
       last_term_end_dt: Date.parse('2017-04-05').to_time.iso8601,
       prev_hours_per_wk_num: 40,
@@ -35,9 +32,7 @@ RSpec.describe BGSDependents::ChildSchool do
       curnt_hours_per_wk_num: 37,
       school_actual_expctd_start_dt: '2019-03-03',
       school_term_start_dt: Date.parse('2019-03-05').to_time.iso8601,
-      gradtn_dt: Date.parse('2023-03-03').to_time.iso8601,
-      vnp_proc_id: '3829729',
-      vnp_ptcpnt_id: '149471'
+      gradtn_dt: Date.parse('2023-03-03').to_time.iso8601
     }
   end
 
