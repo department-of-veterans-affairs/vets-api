@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class StepChild
+  class StepChild < Base
     def initialize(stepchild_info)
       @stepchild_info = stepchild_info
     end
