@@ -52,6 +52,13 @@ module EducationForm
       western: 'MUSKOGEE (351)'
     }.freeze
 
+    EMAIL_NAMES = {
+      eastern: 'Eastern Region',
+      southern: 'Southern Region',
+      central: 'Central Region',
+      western: 'Western Region'
+    }.freeze
+
     FACILITY_IDS = {
       eastern: 307,
       southern: 316,
