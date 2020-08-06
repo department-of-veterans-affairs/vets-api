@@ -30,6 +30,12 @@ RSpec.describe Debts::Service do
           expect(StatsD).to receive(:increment).once.with(
             'api.debts.get_letters.total'
           )
+          expect(Raven).to receive(:tags_context).once.with(external_service: described_class.to_s.underscore)
+          expect(Raven).to receive(:extra_context).once.with(
+            url: "#{Settings.debts.url}/api/v1/debtletter/",
+            message: 'the server responded with status 400',
+            body: { 'message' => 'Bad request' }
+          )
           expect { described_class.new.get_letters(fileNumber: '') }.to raise_error(
             Common::Exceptions::BackendServiceException
           ) do |e|

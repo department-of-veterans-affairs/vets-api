@@ -389,6 +389,7 @@ en:
         title: 'Bad Request'
         code: 'DEBTS400'
         detail: 'Received a bad request response from the upstream server'
+        status: 400
       GI404:
         <<: *external_defaults
         title: 'Record not found'
