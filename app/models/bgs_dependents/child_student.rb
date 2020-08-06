@@ -7,13 +7,17 @@ module BGSDependents
     attribute :student_networth_information, Hash
     attribute :student_expected_earnings_next_year, Hash
 
-    def initialize(dependents_application, proc_participant)
-      @proc_participant = proc_participant
+    def initialize(dependents_application, proc_id, vnp_participant_id)
+      @proc_id = proc_id
+      @vnp_participant_id = vnp_participant_id
       self.attributes = dependents_application
     end
 
+    # rubocop:disable Metrics/MethodLength
     def params_for_686c
       {
+        vnp_proc_id: @proc_id,
+        vnp_ptcpnt_id: @vnp_participant_id,
         saving_amt: student_networth_information&.dig('savings'),
         real_estate_amt: student_networth_information&.dig('real_estate'),
         other_asset_amt: student_networth_information&.dig('other_assets'),
@@ -31,8 +35,9 @@ module BGSDependents
         next_year_emplmt_income_amt: student_expected_earnings_next_year&.dig('earnings_from_all_employment'),
         next_year_other_income_amt: student_expected_earnings_next_year&.dig('all_other_income'),
         next_year_ssa_income_amt: student_expected_earnings_next_year&.dig('annual_social_security_payments')
-      }.merge(@proc_participant)
+      }
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
