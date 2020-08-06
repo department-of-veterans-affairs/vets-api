@@ -9,8 +9,7 @@ module V0
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
     def emis_test
-      claim_data = VetsJsonSchema::EXAMPLES['10-10CG'].clone
-      claim_data.merge('veteran' => veteran_data_params)
+      claim_data = VetsJsonSchema::EXAMPLES['10-10CG'].clone.deep_merge('veteran' => veteran_data_params.to_h)
 
       vet_icn = ::Form1010cg::Service.new(
         SavedClaim::CaregiversAssistanceClaim.new(form: claim_data.to_json)
@@ -22,7 +21,7 @@ module V0
         icn: vet_icn,
         emis: emis_response&.items&.first,
         is_veteran: emis_response&.items&.first&.title38_status_code == 'V1',
-        veteran: claim_data['veteran']
+        claim_data: claim_data
       }
     end
 
@@ -72,7 +71,7 @@ module V0
     private
 
     def veteran_data_params
-      params.require(:veteran).permit!
+      params.require(:veteran).permit(:ssnOrTin, :dateOfBirth, :gender, fullName: %i[first middle last])
     end
 
     def file_name_for_pdf(veteran_data)
