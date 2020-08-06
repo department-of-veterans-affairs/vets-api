@@ -23,6 +23,7 @@ VAOS::Engine.routes.draw do
       get 'visits/:schedule_type', to: 'visits#index'
     end
     resource :preferences, only: %i[show update]
+    resources :request_eligibility_criteria, only: :index
     get 'apidocs', to: 'apidocs#index'
   end
 
@@ -34,5 +35,7 @@ VAOS::Engine.routes.draw do
     get '/Organization/:id', to: 'organizations#show'
     get '/Patient', to: 'patients#index'
     get '/Slot', to: 'slots#index'
+    post '/Appointment', to: 'appointments#create'
+    put '/Appointment/:id', to: 'appointments#update'
   end
 end
