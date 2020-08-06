@@ -36,7 +36,7 @@ module V1
       # clicks the sign out button, we will use the 'slo' type to kill both the
       # VA.gov and SSOe session, however when an auto logout is triggered because
       # of a VA.gov/SSOe session mismatch, we want to preserve the state of SSOe.
-      if ['slo', 'logout'].include? type
+      if %w[slo logout].include? type
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
         if type == 'slo'
