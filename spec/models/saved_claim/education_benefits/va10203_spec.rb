@@ -43,6 +43,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       before do
         expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
+        mail = double('mail')
+        allow(mail).to receive(:deliver_now)
+        allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
       it 'does not call SendSCOEmail' do
@@ -56,10 +59,20 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(true)
+        mail = double('mail')
+        allow(mail).to receive(:deliver_now)
+        allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
       it 'calls SendSCOEmail' do
         expect { instance.after_submit(user) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(1)
+      end
+
+      it 'calls StemApplicantConfirmationMailer' do
+        mail = double('mail')
+        allow(mail).to receive(:deliver_now)
+        expect(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).once.and_return(mail)
+        instance.after_submit(user)
       end
     end
 
@@ -69,12 +82,22 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(false).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(false)
+        mail = double('mail')
+        allow(mail).to receive(:deliver_now)
+        allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
       it 'does not call SendSCOEmail' do
         unauthorized_evss_user = build(:unauthorized_evss_user, :loa3)
         expect { instance.after_submit(unauthorized_evss_user) }
           .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+      end
+
+      it 'calls StemApplicantConfirmationMailer' do
+        mail = double('mail')
+        allow(mail).to receive(:deliver_now)
+        expect(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).once.and_return(mail)
+        instance.after_submit(user)
       end
     end
   end
