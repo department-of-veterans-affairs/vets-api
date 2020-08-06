@@ -10,7 +10,7 @@ module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo logout].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
@@ -31,14 +31,23 @@ module V1
     def new
       type = params[:type]
 
-      if type == 'slo'
+      # Both 'slo' and 'logout' will purge the users VA.gov session, however only
+      # the former will additionally log the user out of SSOe.  When a user manually
+      # clicks the sign out button, we will use the 'slo' type to kill both the
+      # VA.gov and SSOe session, however when an auto logout is triggered because
+      # of a VA.gov/SSOe session mismatch, we want to preserve the state of SSOe.
+      if ['slo', 'logout'].include? type
         Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
         reset_session
-        url = url_service.ssoe_slo_url
-        # due to shared url service implementation
-        # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
-        # extensions with their browser.
-        redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+        if type == 'slo'
+          url = url_service.ssoe_slo_url
+          # due to shared url service implementation
+          # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
+          # extensions with their browser.
+          redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+        else
+          ssoe_slo_callback
+        end
       else
         render_login(type)
       end
@@ -92,7 +101,7 @@ module V1
     def authenticate
       return unless action_name == 'new'
 
-      if %w[mfa verify slo].include?(params[:type])
+      if %w[mfa verify slo logout].include?(params[:type])
         super
       else
         reset_session

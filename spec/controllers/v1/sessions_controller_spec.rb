@@ -265,7 +265,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'routes requiring auth' do
-        %w[mfa verify slo].each do |type|
+        %w[mfa verify slo logout].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, params: { type: type })
             expect(response).to have_http_status(:unauthorized)
@@ -401,6 +401,31 @@ RSpec.describe V1::SessionsController, type: :controller do
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['context:slo', 'version:v1'], **once)
             expect(response).to have_http_status(:found)
+            expect(response.location)
+              .to eql('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+            expect(session).to be_empty
+            expect(cookies['vagov_session_dev']).to be_nil
+          end
+        end
+      end
+
+      context 'logout routes' do
+        around do |example|
+          Settings.sso.cookie_enabled = true
+          example.run
+          Settings.sso.cookie_enabled = false
+        end
+
+        context 'routes /sessions/logout/new to SessionsController#new with type: #logout' do
+          it 'redirects' do
+            expect { get(:new, params: { type: 'logout' }) }
+              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                           tags: ['context:logout', 'version:v1'], **once)
+            expect(response).to have_http_status(:found)
+            expect(response.location)
+              .to eql('http://127.0.0.1:3001/logout/')
+            expect(session).to be_empty
+            expect(cookies['vagov_session_dev']).to be_nil
           end
         end
       end
