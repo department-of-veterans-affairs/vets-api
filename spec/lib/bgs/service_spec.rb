@@ -18,6 +18,36 @@ RSpec.describe BGS::Service do
   let(:proc_id) { '3829671' }
   let(:participant_id) { '149456' }
 
+  describe '#create_proc' do
+    it 'creates a participant and returns a vnp_particpant_id' do
+      VCR.use_cassette('bgs/service/create_proc') do
+        response = bgs_service.create_proc
+
+        expect(response).to have_key(:vnp_proc_id)
+      end
+    end
+  end
+
+  describe '#create_proc_form' do
+    it 'creates a participant and returns a vnp_particpant_id' do
+      VCR.use_cassette('bgs/service/create_proc_form') do
+        response = bgs_service.create_proc_form('21874')
+
+        expect(response).to have_key(:comp_id)
+      end
+    end
+  end
+
+  describe '#update_proc' do
+    it 'creates a participant and returns a vnp_particpant_id' do
+      VCR.use_cassette('bgs/service/update_proc') do
+        response = bgs_service.update_proc('21874')
+
+        expect(response).to a_hash_including(vnp_proc_state_type_cd: 'Ready')
+      end
+    end
+  end
+
   describe '#create_participant' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_participant') do

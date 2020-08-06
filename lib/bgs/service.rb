@@ -89,7 +89,7 @@ module BGS
 
     def create_relationship(relationship_params)
       with_multiple_attempts_enabled do
-        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params)
+        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params.merge(bgs_auth))
       end
     end
 
