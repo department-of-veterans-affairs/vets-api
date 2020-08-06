@@ -3,9 +3,28 @@
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
-    skip_before_action(:authenticate)
+    skip_before_action :authenticate
+    skip_before_action :verify_authenticity_token, only: :emis_test
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
+
+    def emis_test
+      claim_data = VetsJsonSchema::EXAMPLES['10-10CG'].clone
+      claim_data.merge('veteran' => veteran_data_params)
+
+      vet_icn = ::Form1010cg::Service.new(
+        SavedClaim::CaregiversAssistanceClaim.new(form: claim_data.to_json)
+      ).icn_for('veteran')
+
+      emis_response = EMIS::VeteranStatusService.new.get_veteran_status(icn: vet_icn) unless vet_icn == 'NOT_FOUND'
+
+      render json: {
+        icn: vet_icn,
+        emis: emis_response&.items&.first,
+        is_veteran: emis_response&.items&.first&.title38_status_code == 'V1',
+        veteran: claim_data['veteran']
+      }
+    end
 
     def create
       increment Form1010cg::Service.metrics.submission.attempt
@@ -51,6 +70,10 @@ module V0
     end
 
     private
+
+    def veteran_data_params
+      params.require(:veteran).permit!
+    end
 
     def file_name_for_pdf(veteran_data)
       "10-10CG_#{veteran_data['fullName']['first']}_#{veteran_data['fullName']['last']}.pdf"

@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
 
   namespace :v0, defaults: { format: 'json' } do
+    post 'emis/veteran_status', to: 'caregivers_assistance_claims#emis_test'
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
