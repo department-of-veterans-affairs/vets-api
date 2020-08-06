@@ -10,6 +10,18 @@ module BGS
       @user = user
     end
 
+    def create_proc
+      service.vnp_proc_v2.vnp_proc_create(
+        { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
+      )
+    end
+
+    def create_proc_form(vnp_proc_id)
+      service.vnp_proc_form.vnp_proc_form_create(
+        { vnp_proc_id: vnp_proc_id,  form_type_cd: '21-686c' }.merge(bgs_auth)
+      )
+    end
+
     def create_child_school(child_school_params)
       service.vnp_child_school.child_school_create(child_school_params.merge(bgs_auth))
     end
