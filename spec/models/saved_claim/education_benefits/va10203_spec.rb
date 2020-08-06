@@ -43,6 +43,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       before do
         expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
+        mail = double('mail')
+        allow(mail).to receive(:deliver_now)
+        allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
       it 'does not call SendSCOEmail' do
