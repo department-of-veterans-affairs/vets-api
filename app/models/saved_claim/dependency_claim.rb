@@ -5,27 +5,32 @@ require 'claims_api/vbms_uploader'
 class SavedClaim::DependencyClaim < SavedClaim
   FORM = '686C-674'
 
-  def format_and_upload_pdf(veteran_info)
-    parsed_form.merge!(veteran_info)
-    form_path = PdfFill::Filler.fill_form(self)
+  validate :validate_686_form_data, on: :pdf_upload_job
 
-    upload_to_vbms(form_path, veteran_info)
+  def upload_pdf
+    form_path = PdfFill::Filler.fill_form(self)
+    upload_to_vbms(form_path)
   end
 
-  def valid_vet_info?(veteran_info)
-    return false if parsed_form['veteran_contact_information']['veteran_address'].blank?
-    return false if veteran_info['veteran_information'].blank?
-    return false if parsed_form['dependents_application'].blank?
+  def add_veteran_info(va_file_number_with_payload)
+    parsed_form.merge!(va_file_number_with_payload)
+  end
 
-    true
+  def validate_686_form_data
+    if parsed_form['veteran_contact_information']['veteran_address'].blank?
+      errors.add(:parsed_form, "Veteran address can't be blank")
+    end
+
+    errors.add(:parsed_form, "SSN can't be blank") if parsed_form['veteran_information']['ssn'].blank?
+    errors.add(:parsed_form, "Dependent application can't be blank") if parsed_form['dependents_application'].blank?
   end
 
   private
 
-  def upload_to_vbms(path, veteran_info)
+  def upload_to_vbms(path)
     uploader = ClaimsApi::VbmsUploader.new(
       filepath: path,
-      file_number: veteran_info['veteran_information']['ssn'],
+      file_number: parsed_form['veteran_information']['ssn'],
       doc_type: '148'
     )
 

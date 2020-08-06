@@ -7,11 +7,13 @@ module VBMS
     include SentryLogging
 
     # Generates PDF for 686c form and uploads to VBMS
-    def perform(saved_claim_id, veteran_info)
+    def perform(saved_claim_id, va_file_number_with_payload)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      raise Invalid686cClaim unless claim.valid_vet_info?(veteran_info)
+      claim.add_veteran_info(va_file_number_with_payload)
 
-      claim.format_and_upload_pdf(veteran_info)
+      raise Invalid686cClaim unless claim.valid?(:pdf_upload_job)
+
+      claim.upload_pdf
     rescue => e
       send_error_to_sentry(e, claim&.id)
     end
