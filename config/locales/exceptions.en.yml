@@ -420,6 +420,12 @@ en:
         code: 'BGS502'
         detail: BGS service responded with something other than the expected disability rating response.
         status: 502
+      BGS_686c_SERVICE_403:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'BGS_686c_SERVICE_403'
+        detail: BGS service understood submisssion but could not process.
+        status: 403
       EMIS_HIST502:
         <<: *external_defaults
         title: Unexpected response body
