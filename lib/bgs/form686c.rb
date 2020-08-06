@@ -34,7 +34,7 @@ module BGS
 
       all_dependents = dependents + marriages
 
-      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: all_dependents, user: @user).create
+      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: all_dependents, user: @user).create_all
       process_674(proc_id, dependents, payload)
     end
 
