@@ -3,7 +3,7 @@
 class StemApplicantConfirmationMailer < TransactionalEmailMailer
   SUBJECT = 'VA Rogers STEM Scholarship, Application Confirmation'
   GA_CAMPAIGN_NAME = 'stem_applicant_confirmation-10203-submission-notification'
-  GA_DOCUMENT_PATH = '/email/form'.freeze
+  GA_DOCUMENT_PATH = '/email/form'
   GA_LABEL = 'stem-applicant-confirmation-10203-submission-notification'
   TEMPLATE = 'stem_applicant_confirmation'
 
