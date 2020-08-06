@@ -39,6 +39,17 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
     end
 
+    context 'Not logged in' do
+      before do
+        expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(true)
+        expect(FeatureFlipper).to receive(:send_email?).once.and_return(false)
+      end
+
+      it 'does not call SendSCOEmail' do
+        expect { instance.after_submit(nil) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+      end
+    end
+
     context 'authorized' do
       before do
         expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(true)
