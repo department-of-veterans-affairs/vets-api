@@ -10,6 +10,18 @@ module BGS
       @user = user
     end
 
+    def create_proc
+      service.vnp_proc_v2.vnp_proc_create(
+        { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
+      )
+    end
+
+    def create_proc_form(vnp_proc_id)
+      service.vnp_proc_form.vnp_proc_form_create(
+        { vnp_proc_id: vnp_proc_id,  form_type_cd: '21-686c' }.merge(bgs_auth)
+      )
+    end
+
     def create_child_school(child_school_params)
       service.vnp_child_school.child_school_create(child_school_params.merge(bgs_auth))
     end
@@ -44,6 +56,19 @@ module BGS
 
     def create_relationship(relationship_params)
       service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params.merge(bgs_auth))
+    end
+
+    def insert_benefit_claim(benefit_claim_params)
+      service.claims.insert_benefit_claim(benefit_claim_params)
+    end
+
+    def update_manual_proc(proc_id)
+      service.vnp_proc_v2.vnp_proc_update(
+        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual' }.merge(bgs_auth)
+      )
+      # rescue => e
+      # @TODO add this back in once service exceptions are merged in
+      # notify_of_service_exception(e, __method__)
     end
 
     def bgs_auth
