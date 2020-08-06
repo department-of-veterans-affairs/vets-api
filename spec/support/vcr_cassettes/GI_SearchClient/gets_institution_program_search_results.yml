@@ -1,0 +1,84 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v0/institution_programs?name=code"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 04 Aug 2020 14:57:21 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-cache, no-store
+      Expires:
+      - 2019-08-04 14:57:21 UTC
+      Pragma:
+      - no-cache
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - deny
+      X-Request-Id:
+      - 797708d3-c05f-4a05-8095-8b3ecd6dba94
+      X-Runtime:
+      - '0.096816'
+      Referrer-Policy:
+      - no-referrer-when-downgrade
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Xss-Protection:
+      - 1; report=/csp-report
+      Set-Cookie:
+      - TS016f4012=01c8917e48ae52fc5e324971692203a7205cf526211e44920634de82414d7a60c0e6296778755b06c5325598bfb58b5702bde487fe;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"2187","type":"institution_programs","attributes":{"program_type":"NCD","description":"ADVANCED
+        SOFTWARE DEVELOPMENT IN","length_in_hours":"400","length_in_weeks":400,"facility_code":"2V000247","tuition_amount":2500,"institution_name":"CODE
+        FELLOWS","city":"SEATTLE","state":"WA","country":"USA","preferred_provider":false,"va_bah":2897.0,"dod_bah":2808,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2188","type":"institution_programs","attributes":{"program_type":"NCD","description":"ADVANCED
+        SOFTWARE DEVELOPMENT IN RUBY","length_in_hours":"400","length_in_weeks":400,"facility_code":"2V000247","tuition_amount":7500,"institution_name":"CODE
+        FELLOWS","city":"SEATTLE","state":"WA","country":"USA","preferred_provider":false,"va_bah":2897.0,"dod_bah":2808,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2189","type":"institution_programs","attributes":{"program_type":"NCD","description":"ADVANCED
+        SOFTWARE DEVELOPMENT IN ASP.NET","length_in_hours":"400","length_in_weeks":400,"facility_code":"2V000247","tuition_amount":5000,"institution_name":"CODE
+        FELLOWS","city":"SEATTLE","state":"WA","country":"USA","preferred_provider":false,"va_bah":2897.0,"dod_bah":2808,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2190","type":"institution_programs","attributes":{"program_type":"NCD","description":"ADVANCED
+        SOFTWARE DEVELOPMENT IN JAVA -","length_in_hours":"400","length_in_weeks":400,"facility_code":"2V000247","tuition_amount":4987,"institution_name":"CODE
+        FELLOWS","city":"SEATTLE","state":"WA","country":"USA","preferred_provider":false,"va_bah":2897.0,"dod_bah":2808,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2191","type":"institution_programs","attributes":{"program_type":"NCD","description":"ADVANCED
+        SOFTWARE DEVELOPMENT IN PYTHON","length_in_hours":"400","length_in_weeks":400,"facility_code":"2V000247","tuition_amount":6000,"institution_name":"CODE
+        FELLOWS","city":"SEATTLE","state":"WA","country":"USA","preferred_provider":false,"va_bah":2897.0,"dod_bah":2808,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2315","type":"institution_programs","attributes":{"program_type":"NCD","description":"CODE
+        PLATOON - DISTANCE LEARNING","length_in_hours":"560","length_in_weeks":560,"facility_code":"3V000113","tuition_amount":15500,"institution_name":"CODE
+        PLATOON","city":"CHICAGO","state":"IL","country":"USA","preferred_provider":false,"va_bah":2147.0,"dod_bah":2058,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2308","type":"institution_programs","attributes":{"program_type":"NCD","description":"CODE
+        PLATOON","length_in_hours":"560","length_in_weeks":560,"facility_code":"3V000113","tuition_amount":15500,"institution_name":"CODE
+        PLATOON","city":"CHICAGO","state":"IL","country":"USA","preferred_provider":false,"va_bah":2147.0,"dod_bah":2058,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2311","type":"institution_programs","attributes":{"program_type":"NCD","description":"14-WEEK
+        PYTHON-BASED DEVELOPER BOOTCAMP","length_in_hours":"424","length_in_weeks":424,"facility_code":"2V000137","tuition_amount":18400,"institution_name":"PDX
+        CODE GUILD LLC","city":"PORTLAND","state":"OR","country":"USA","preferred_provider":false,"va_bah":2498.0,"dod_bah":2409,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2312","type":"institution_programs","attributes":{"program_type":"NCD","description":"18-WEEK
+        PYTHON-BASED DEVELOPER BOOTCAMP","length_in_hours":"324","length_in_weeks":324,"facility_code":"2V000137","tuition_amount":18400,"institution_name":"PDX
+        CODE GUILD LLC","city":"PORTLAND","state":"OR","country":"USA","preferred_provider":false,"va_bah":2498.0,"dod_bah":2409,"school_closing":false,"school_closing_on":null,"caution_flags":[]}},{"id":"2307","type":"institution_programs","attributes":{"program_type":"NCD","description":"SOFTWARE
+        DEVELOPMENT BOOTCAMP","length_in_hours":"480","length_in_weeks":480,"facility_code":"3V000108","tuition_amount":12000,"institution_name":"ZIP
+        CODE WILMINGTON","city":"WILMINGTON","state":"DE","country":"USA","preferred_provider":false,"va_bah":2231.0,"dod_bah":2142,"school_closing":false,"school_closing_on":null,"caution_flags":[]}}],"links":{"self":"https://dev-api.va.gov/gids/v0/institution_programs?name=code","first":"https://dev-api.va.gov/gids/v0/institution_programs?name=code\u0026page=1\u0026per_page=10","prev":null,"next":null,"last":"https://dev-api.va.gov/gids/v0/institution_programs?name=code\u0026page=1\u0026per_page=10"},"meta":{"version":{"number":71,"created_at":"2020-05-08T17:25:33.376Z","preview":false},"count":10,"facets":{"type":{"ncd":10},"state":{"de":1,"il":2,"or":2,"wa":5},"provider":[{"name":"CODE
+        FELLOWS","count":5},{"name":"CODE PLATOON","count":2},{"name":"PDX CODE GUILD
+        LLC","count":2},{"name":"ZIP CODE WILMINGTON","count":1}],"country":[{"name":"USA","count":10}]}}}'
+  recorded_at: Tue, 04 Aug 2020 14:57:21 GMT
+recorded_with: VCR 6.0.0

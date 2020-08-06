@@ -1,0 +1,84 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v0/institutions?name=illinois"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 04 Aug 2020 14:57:20 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - no-cache, no-store
+      Expires:
+      - 2019-08-04 14:57:20 UTC
+      Pragma:
+      - no-cache
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      - deny
+      X-Request-Id:
+      - ef824c2c-c078-4cdf-8341-6edb78773bf6
+      X-Runtime:
+      - '0.138355'
+      Referrer-Policy:
+      - no-referrer-when-downgrade
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Xss-Protection:
+      - 1; report=/csp-report
+      Set-Cookie:
+      - TS016f4012=01c8917e48c18029d44e471fc94b8dced496c6b4e2272c71cdfc0477825b74803dfa40387b0659a0a0300e1c3f5fe39b52007d867a;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"4014894","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS ALTON","facility_code":"20607713","type":"OJT","city":"ALTON","state":"IL","zip":"62002","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"700
+        OAKWOOD AVE","address_2":null,"address_3":null,"physical_city":"ALTON","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1644,"physical_zip":"62002","bah":1733.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/20607713"}},{"id":"4014831","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-BLOOMINGTON","facility_code":"20603713","type":"OJT","city":"BLOOMINGTON","state":"IL","zip":"61707","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"501
+        E LAFAYETTE","address_2":null,"address_3":null,"physical_city":"BLOOMINGTON","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":null,"physical_zip":"61707","bah":null,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/20603713"}},{"id":"4037178","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS CHAMPAIGN","facility_code":"30597113","type":"OJT","city":"CHAMPAIGN","state":"IL","zip":"61822","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"2916
+        Farber","address_2":null,"address_3":null,"physical_city":"CHAMPAIGN","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1071,"physical_zip":"61822","bah":1160.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/30597113"}},{"id":"4037010","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-DECATUR","facility_code":"30568513","type":"OJT","city":"DECATUR","state":"IL","zip":"62521","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"271
+        SO 27TH ST","address_2":null,"address_3":null,"physical_city":"DECATUR","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":984,"physical_zip":"62521","bah":1073.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/30568513"}},{"id":"4014820","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-LASALLE","facility_code":"20603113","type":"OJT","city":"LASALLE","state":"IL","zip":"61301","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"340
+        RACCUGLIA","address_2":null,"address_3":null,"physical_city":"LASALLE","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1314,"physical_zip":"61301","bah":1403.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/20603113"}},{"id":"4037184","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS LINCOLN","facility_code":"30597613","type":"OJT","city":"LINCOLN","state":"IL","zip":"62656","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"400
+        LIMIT ST","address_2":null,"address_3":null,"physical_city":"LINCOLN","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1194,"physical_zip":"62656","bah":1283.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/30597613"}},{"id":"4037148","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-MARION","facility_code":"30594313","type":"OJT","city":"MARION","state":"IL","zip":"62959","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"1800
+        W MAIN","address_2":null,"address_3":null,"physical_city":"MARION","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1218,"physical_zip":"62959","bah":1307.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/30594313"}},{"id":"4037157","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-MARYVILLE","facility_code":"30595013","type":"OJT","city":"MARYVILLE","state":"IL","zip":"62062","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"2600
+        N CENTER","address_2":null,"address_3":null,"physical_city":"MARYVILLE","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1644,"physical_zip":"62062","bah":1733.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/30595013"}},{"id":"3988488","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-MATTOON","facility_code":"10721513","type":"OJT","city":"MATTOON","state":"IL","zip":"61938","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"813
+        S NINTH ST","address_2":null,"address_3":null,"physical_city":"MATTOON","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1242,"physical_zip":"61938","bah":1331.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/10721513"}},{"id":"4037155","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-MOUNT VERNON","facility_code":"30594813","type":"OJT","city":"MT
+        VERNON","state":"IL","zip":"62864","country":"USA","highest_degree":null,"locale_type":null,"student_count":null,"caution_flag":null,"caution_flag_reason":null,"caution_flags":[],"created_at":"2020-05-08T17:25:33.000Z","updated_at":"2020-05-08T17:25:33.000Z","address_1":"2610
+        BROADWAY ST","address_2":null,"address_3":null,"physical_city":"MT VERNON","physical_state":"IL","physical_country":"USA","online_only":false,"distance_learning":false,"dod_bah":1170,"physical_zip":"62864","bah":1259.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":null,"yr":false,"poe":false,"eight_keys":null,"stem_offered":false,"independent_study":false,"priority_enrollment":false,"school_closing":false,"school_closing_on":null,"closure109":null,"vet_tec_provider":false,"parent_facility_code_id":null,"campus_type":"Y","preferred_provider":false,"count_of_caution_flags":0,"hbcu":null,"hcm2":null,"menonly":null,"pctfloan":null,"relaffil":null,"womenonly":null},"links":{"self":"https://dev-api.va.gov/gids/v0/institutions/30594813"}}],"links":{"self":"https://dev-api.va.gov/gids/v0/institutions?name=illinois","first":"https://dev-api.va.gov/gids/v0/institutions?name=illinois\u0026page=1\u0026per_page=10","prev":null,"next":"https://dev-api.va.gov/gids/v0/institutions?name=illinois\u0026page=2\u0026per_page=10","last":"https://dev-api.va.gov/gids/v0/institutions?name=illinois\u0026page=23\u0026per_page=10"},"meta":{"version":{"number":71,"created_at":"2020-05-08T17:25:33.376Z","preview":false},"count":225,"facets":{"category":{"school":67,"employer":158},"type":{"flight":1,"for
+        profit":4,"ojt":158,"private":15,"public":47},"state":{"ca":3,"ct":1,"de":1,"fl":3,"ga":1,"il":207,"nc":2,"nj":1,"pa":1,"sc":1,"tn":1,"va":2,"wa":1},"country":[{"name":"USA","count":225}],"student_vet_group":{"true":null,"false":null},"yellow_ribbon_scholarship":{"true":null,"false":null},"principles_of_excellence":{"true":null,"false":null},"eight_keys_to_veteran_success":{"true":null,"false":null},"stem_offered":{"true":null,"false":null},"independent_study":{"true":null,"false":null},"online_only":{"true":null,"false":null},"distance_learning":{"true":null,"false":null},"priority_enrollment":{"true":null,"false":null},"menonly":{"true":null,"false":null},"womenonly":{"true":null,"false":null},"hbcu":{"true":null,"false":null},"relaffil":{}}}}'
+  recorded_at: Tue, 04 Aug 2020 14:57:20 GMT
+recorded_with: VCR 6.0.0

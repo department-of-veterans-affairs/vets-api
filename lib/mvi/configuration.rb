@@ -5,8 +5,6 @@ require 'common/client/middleware/logging'
 
 module MVI
   class Configuration < Common::Client::Configuration::SOAP
-    include Common::Client::Configuration::Concerns::Ssl
-
     def self.open_timeout
       Settings.mvi.open_timeout
     end
@@ -29,6 +27,15 @@ module MVI
 
     def service_name
       'MVI'
+    end
+
+    def ssl_options
+      if ssl_cert && ssl_key
+        {
+          client_cert: ssl_cert,
+          client_key: ssl_key
+        }
+      end
     end
 
     def connection

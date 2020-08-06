@@ -401,11 +401,13 @@ oidc:
 sentry:
   dsn: ~
 
-ssoe_auth:
+iam_ssoe:
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   client_id: 'Mobile_App_API_Server_LOWERS'
-  url: 'https://int.fed.eauth.va.gov:444'
+  # oauth (rest) and sts (soap) services are on different hosts
+  oauthe_url: "https://int.fed.eauth.va.gov:444"
+  sts_url: "https://preprod.services.eauth.va.gov:9301"
 
 statsd:
   host: ~
