@@ -5,8 +5,7 @@ require 'rails_helper'
 RSpec.describe VBMS::SubmitDependentsPDFJob do
   let(:invalid_dependency_claim) { create(:dependency_claim_no_vet_information) }
   let(:dependency_claim) { create(:dependency_claim) }
-
-  let(:va_file_number_with_payload) do
+  let(:vet_info) do
     {
       'veteran_information' => {
         'birth_date' => '1809-02-12',
@@ -23,10 +22,10 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
     context 'with a valid submission' do
       it 'creates a PDF' do
         expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:add_veteran_info).with(
-          va_file_number_with_payload
+          vet_info
         )
 
-        described_class.new.perform(dependency_claim.id, va_file_number_with_payload)
+        described_class.new.perform(dependency_claim.id, vet_info)
       end
     end
 
@@ -39,7 +38,7 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
           nil
         )
 
-        job.perform('non-existant-claim', va_file_number_with_payload)
+        job.perform('non-existant-claim', vet_info)
       end
 
       it 'raises an error if there is nothing in the dependents_application is empty' do
@@ -50,11 +49,11 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
           an_instance_of(Integer)
         )
 
-        job.perform(invalid_dependency_claim.id, va_file_number_with_payload)
+        job.perform(invalid_dependency_claim.id, vet_info)
       end
 
       it 'returns false' do
-        job = described_class.new.perform('f', va_file_number_with_payload)
+        job = described_class.new.perform('f', vet_info)
 
         expect(job).to eq(false)
       end
