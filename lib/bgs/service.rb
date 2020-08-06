@@ -47,14 +47,15 @@ module BGS
     end
 
     def find_benefit_claim_type_increment
-      service.data.find_benefit_claim_type_increment(
-        {
-          ptcpnt_id: @user[:participant_id],
-          bnft_claim_type_cd: '130DPNEBNADJ',
-          pgm_type_cd: 'CPL',
-          ssn: @user[:ssn] # Just here to make the mocks work
-        }
-      )
+      increment_params = {
+        ptcpnt_id: @user[:participant_id],
+        bnft_claim_type_cd: '130DPNEBNADJ',
+        pgm_type_cd: 'CPL'
+      }
+
+      increment_params.merge!(user_ssn) unless Rails.env.production?
+
+      service.data.find_benefit_claim_type_increment(increment_params)
     end
 
     def get_va_file_number
