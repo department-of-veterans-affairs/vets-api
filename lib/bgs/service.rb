@@ -15,7 +15,7 @@ module BGS
     def create_proc
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_create(
-          {vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started'}.merge(bgs_auth)
+          { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
         )
       end
     end
@@ -23,7 +23,7 @@ module BGS
     def create_proc_form(vnp_proc_id)
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
-          {vnp_proc_id: vnp_proc_id, form_type_cd: '21-686c'}.merge(bgs_auth)
+          { vnp_proc_id: vnp_proc_id, form_type_cd: '21-686c' }.merge(bgs_auth)
         )
       end
     end
@@ -42,7 +42,7 @@ module BGS
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       with_multiple_attempts_enabled do
         service.vnp_ptcpnt.vnp_ptcpnt_create(
-          {vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id}.merge(bgs_auth)
+          { vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id }.merge(bgs_auth)
         )
       end
     end
@@ -129,7 +129,7 @@ module BGS
     end
 
     def user_ssn
-      {ssn: @user[:ssn]}
+      { ssn: @user[:ssn] }
     end
 
     private
