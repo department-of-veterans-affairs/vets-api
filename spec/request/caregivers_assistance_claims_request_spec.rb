@@ -225,7 +225,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
           'dateOfBirth' => '1933-10-27',
           'gender' => 'M'
         }
-      }
+      }.to_json
 
       post endpoint, params: body, headers: headers
       expect(response).to have_http_status(:ok)
