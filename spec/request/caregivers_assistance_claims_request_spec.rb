@@ -228,8 +228,10 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
       }.to_json
 
       VCR.use_cassette 'mvi/find_candidate/valid' do
-        VCR.use_cassette 'emis/get_veteran_status/valid' do
-          post endpoint, params: body, headers: headers
+        VCR.use_cassette 'emis/get_veteran_status/valid_icn' do
+          VCR.use_cassette 'emis/get_veteran_status/valid' do
+            post endpoint, params: body, headers: headers
+          end
         end
       end
 

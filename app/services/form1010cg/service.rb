@@ -7,7 +7,8 @@ module Form1010cg
     end
 
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
-                  :submission # Form1010cg::Submission
+                  :submission, # Form1010cg::Submission
+                  :vet_profile_res
 
     STATSD_KEY_PREFIX = 'api.form1010cg'
     NOT_FOUND         = 'NOT_FOUND'
@@ -37,6 +38,8 @@ module Form1010cg
       # The CaregiversAssistanceClaim we are processing with this service
       @claim        = claim
       @submission   = submission
+
+      @vet_profile_res = nil
 
       # Store for the search results we will run on MVI and eMIS
       @cache = {
@@ -156,6 +159,7 @@ module Form1010cg
       return cached_icn unless cached_icn.nil?
 
       response = mvi_service.find_profile(build_user_identity_for(form_subject))
+      @vet_profile_res = response
 
       case response.status
       when 'OK'

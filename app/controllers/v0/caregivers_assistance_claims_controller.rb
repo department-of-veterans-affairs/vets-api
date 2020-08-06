@@ -11,18 +11,16 @@ module V0
     def emis_test
       claim_data = VetsJsonSchema::EXAMPLES['10-10CG'].clone.deep_merge('veteran' => veteran_data_params.to_h)
 
-      vet_icn = ::Form1010cg::Service.new(
-        SavedClaim::CaregiversAssistanceClaim.new(form: claim_data.to_json)
-      ).icn_for('veteran')
+      service = ::Form1010cg::Service.new(SavedClaim::CaregiversAssistanceClaim.new(form: claim_data.to_json))
 
-      emis_response = EMIS::VeteranStatusService.new.get_veteran_status(icn: vet_icn) unless vet_icn == 'NOT_FOUND'
+      mvi_res   = service.vet_profile_res
+      vet_icn   = service.icn_for('veteran')
+      vet_edipi = service.vet_profile_res&.profile&.edipi
 
-      render json: {
-        icn: vet_icn,
-        emis: emis_response&.items&.first,
-        is_veteran: emis_response&.items&.first&.title38_status_code == 'V1',
-        claim_data: claim_data
-      }
+      emis_response_by_icn    = search_emis(icn: vet_icn) unless vet_icn == 'NOT_FOUND'
+      emis_response_by_edipi  = search_emis(edipi: vet_edipi) unless vet_edipi.nil?
+
+      render json: formatted_res(mvi_res, vet_icn, vet_edipi, emis_response_by_icn, emis_response_by_edipi)
     end
 
     def create
@@ -69,6 +67,28 @@ module V0
     end
 
     private
+
+    def formatted_res(mvi_res, vet_icn, vet_edipi, emis_response_by_icn, emis_response_by_edipi)
+      {
+        icn: vet_icn,
+        edipi: vet_edipi,
+        searches: {
+          mvi: mvi_res,
+          emis: {
+            by_icn: emis_response_by_icn,
+            by_edip: emis_response_by_edipi
+          }
+        },
+        is_veteran: {
+          by_icn: emis_response_by_icn&.items&.first&.title38_status_code == 'V1',
+          by_edip: emis_response_by_edipi&.items&.first&.title38_status_code == 'V1'
+        }
+      }
+    end
+
+    def search_emis(args)
+      EMIS::VeteranStatusService.new.get_veteran_status(args)
+    end
 
     def veteran_data_params
       params.require(:veteran).permit(:ssnOrTin, :dateOfBirth, :gender, fullName: %i[first middle last])
