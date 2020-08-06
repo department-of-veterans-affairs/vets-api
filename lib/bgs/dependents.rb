@@ -61,9 +61,7 @@ module BGS
         death_info['location']['state_code'] = death_info['location'].delete('state')
         participant = bgs_service.create_participant(@proc_id)
         bgs_service.create_person(person_params(death, participant, formatted_info))
-        # I think we need the death_location instead of creating an address
-        # There is no support in the API for death location
-        # create_address(@proc_id, participant[:vnp_ptcpnt_id], death_info['location'])
+        # Need to add death location once BGS adds support for this functionality
 
         @dependents << death.serialize_dependent_result(
           participant,
