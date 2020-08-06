@@ -21,8 +21,7 @@ module V0
     end
 
     def show
-      dependent_service = BGS::DependentService.new
-      dependents = dependent_service.get_dependents(current_user)
+      dependents = dependent_service.get_dependents
       render json: dependents, serializer: DependentsSerializer
     rescue => e
       log_exception_to_sentry(e)
@@ -32,6 +31,12 @@ module V0
     def disability_rating
       res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
       render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
+    end
+
+    private
+
+    def dependent_service
+      @dependent_service ||= BGS::DependentService.new(current_user)
     end
   end
 end
