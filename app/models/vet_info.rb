@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class VetInfo
   def initialize(user, bgs_person)
     @user = user

@@ -21,11 +21,11 @@ RSpec.describe BGS::DependentService do
   before { allow(claim).to receive(:id).and_return('1234') }
 
   describe '#submit_686c_form' do
-    it "formats vet info using VetInfo class" do
+    it 'formats vet info using VetInfo class' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
 
-        expect(VetInfo).to receive(:new).with(user, a_hash_including(file_nbr: "796043735"))
+        expect(VetInfo).to receive(:new).with(user, a_hash_including(file_nbr: '796043735'))
 
         service.submit_686c_form(claim)
       end
