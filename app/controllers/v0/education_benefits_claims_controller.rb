@@ -15,7 +15,7 @@ module V0
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
       load_user
-      claim.after_submit(@current_user) if @current_user.present?
+      claim.after_submit(@current_user)
       clear_saved_form(claim.in_progress_form_id)
       render(json: claim.education_benefits_claim)
     end
