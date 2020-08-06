@@ -39,8 +39,7 @@ RSpec.configure do |config|
     allow_any_instance_of(ActionDispatch::Request).to receive(:session).and_return(session_object.to_hash)
     
     #need va_profile facilities to be a non-nil array
-    mvi_profile = FactoryBot.build( :mvi_profile, vha_facility_ids: %w[358 200MHS] )
-    stub_mvi(mvi_profile) unless example.metadata[:skip_mvi]
+    stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
   end
