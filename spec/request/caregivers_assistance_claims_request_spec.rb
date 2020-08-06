@@ -203,4 +203,32 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
       ).to eq(false)
     end
   end
+
+  describe 'POST /v0/emis/veteran_status' do
+    let(:endpoint) { '/v0/emis/veteran_status' }
+    let(:headers) do
+      {
+        'ACCEPT' => 'application/json',
+        'CONTENT_TYPE' => 'application/json'
+      }
+    end
+
+    it 'works' do
+      body = {
+        'veteran' => {
+          'fullName' => {
+            'first' => 'K',
+            'middle' => 'A',
+            'last' => 'M'
+          },
+          'ssnOrTin' => '121232323',
+          'dateOfBirth' => '1933-10-27',
+          'gender' => 'M'
+        }
+      }
+
+      post endpoint, params: body, headers: headers
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end
