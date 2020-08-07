@@ -25,6 +25,11 @@ class SavedClaim::DependencyClaim < SavedClaim
     errors.add(:parsed_form, "Dependent application can't be blank") if parsed_form['dependents_application'].blank?
   end
 
+  # SavedClaims require regional_office to be defined
+  def regional_office
+    []
+  end
+
   private
 
   def upload_to_vbms(path)
