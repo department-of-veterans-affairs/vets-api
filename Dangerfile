@@ -42,7 +42,7 @@ if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
     msg = "You changed `#{lines_of_code}` LoC. PRs exceeding `#{PR_SIZE[:ABSOLUTE_MAXIMUM]}` will not be reviewed nor will they be allowed to merge. Please break the PR up into smaller ones or see [Large PR Override Request Process](TBD).\n"
     fail(msg + file_summary + footer) 
   else
-    msg = "You changed `#{lines_of_code}` LoC. We recommend not exceeding `#{PR_SIZE[:RECOMMENDED_MAXIMUM]}`. Expect some delays getting reviews.\n"
+    msg = "This PR changes `#{lines_of_code}` LoC. In order to ensure each PR receives the proper attention it deserves, we recommend not exceeding `#{PR_SIZE[:RECOMMENDED_MAXIMUM]}`. Expect some delays getting reviews.\n"
     warn(msg + file_summary + footer)
   end
 end
@@ -80,4 +80,3 @@ if !db_files.empty? && !app_files.empty?
 
   fail(msg)
 end
-
