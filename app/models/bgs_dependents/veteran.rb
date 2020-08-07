@@ -28,7 +28,7 @@ module BGSDependents
       ]
 
       if dependents_application['current_marriage_information']
-        vet_info << ['martl_status_type_cd', dependents_application.dig('current_marriage_information', 'type')]
+        vet_info << ['martl_status_type_cd', marital_status(dependents_application)]
       end
 
       vet_info.to_h
@@ -51,6 +51,18 @@ module BGSDependents
         type: 'veteran',
         benefit_claim_type_end_product: end_product
       }
+    end
+
+    private
+
+    def marital_status(dependents_application)
+      spouse_lives_with_vet = dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
+
+      return 'Never Married' if dependents_application.dig('veteran_was_married_before') == false
+
+      return nil if spouse_lives_with_vet.nil?
+
+      spouse_lives_with_vet ? 'Married' : 'Separated'
     end
   end
 end
