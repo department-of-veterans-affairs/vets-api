@@ -57,10 +57,10 @@ module BGS
       }.merge(BENEFIT_CLAIM_PARAM_CONSTANTS)
     end
 
-    def handle_error(_error, _method)
+    def handle_error(error, method)
       bgs_service.update_manual_proc(@proc_id)
-      # @TODO add this back in once service exceptions are merged in
-      # bgs_service.notify_of_service_exception(error, method)
+
+      bgs_service.notify_of_service_exception(error, method)
     end
 
     def bgs_service
