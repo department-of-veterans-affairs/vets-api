@@ -2,53 +2,100 @@
 
 module BGS
   class Service
+    include BGS::Exceptions::BGSErrors
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
     # (I = Input, U = Update, D = Delete)
     JOURNAL_STATUS_TYPE_CODE = 'U'
+
     def initialize(user)
       @user = user
     end
 
-    def create_child_school(child_school_params)
-      service.vnp_child_school.child_school_create(child_school_params.merge(bgs_auth))
+    def create_proc
+      with_multiple_attempts_enabled do
+        service.vnp_proc_v2.vnp_proc_create(
+          { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
+        )
+      end
     end
 
-    def create_child_student(child_student_params)
-      service.vnp_child_student.child_student_create(child_student_params.merge(bgs_auth))
+    def create_proc_form(vnp_proc_id)
+      with_multiple_attempts_enabled do
+        service.vnp_proc_form.vnp_proc_form_create(
+          { vnp_proc_id: vnp_proc_id, form_type_cd: '21-686c' }.merge(bgs_auth)
+        )
+      end
+    end
+
+    def update_proc(proc_id)
+      with_multiple_attempts_enabled do
+        service.vnp_proc_v2.vnp_proc_update(
+          {
+            vnp_proc_id: proc_id,
+            vnp_proc_state_type_cd: 'Ready'
+          }.merge(bgs_auth)
+        )
+      end
     end
 
     def create_participant(proc_id, corp_ptcpnt_id = nil)
-      service.vnp_ptcpnt.vnp_ptcpnt_create(
-        {
-          vnp_proc_id: proc_id,
-          ptcpnt_type_nm: 'Person',
-          corp_ptcpnt_id: corp_ptcpnt_id,
-          ssn: @user[:ssn]
-        }.merge(bgs_auth)
-      )
+      with_multiple_attempts_enabled do
+        service.vnp_ptcpnt.vnp_ptcpnt_create(
+          {
+            vnp_proc_id: proc_id,
+            ptcpnt_type_nm: 'Person',
+            corp_ptcpnt_id: corp_ptcpnt_id,
+            ssn: @user[:ssn]
+          }.merge(bgs_auth)
+        )
+      end
     end
 
     def create_person(person_params)
-      service.vnp_person.vnp_person_create(person_params.merge(bgs_auth))
+      with_multiple_attempts_enabled do
+        service.vnp_person.vnp_person_create(person_params.merge(bgs_auth))
+      end
     end
 
     def create_address(address_params)
-      service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
-        address_params.merge(bgs_auth)
-      )
+      with_multiple_attempts_enabled do
+        service.vnp_ptcpnt_addrs.vnp_ptcpnt_addrs_create(
+          address_params.merge(bgs_auth)
+        )
+      end
     end
 
     def create_phone(proc_id, participant_id, payload)
-      service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
-        {
-          vnp_proc_id: proc_id,
-          vnp_ptcpnt_id: participant_id,
-          phone_type_nm: 'Daytime',
-          phone_nbr: payload['phone_number'],
-          efctv_dt: Time.current.iso8601
-        }.merge(bgs_auth)
-      )
+      with_multiple_attempts_enabled do
+        service.vnp_ptcpnt_phone.vnp_ptcpnt_phone_create(
+          {
+            vnp_proc_id: proc_id,
+            vnp_ptcpnt_id: participant_id,
+            phone_type_nm: 'Daytime',
+            phone_nbr: payload['phone_number'],
+            efctv_dt: Time.current.iso8601
+          }.merge(bgs_auth)
+        )
+      end
+    end
+
+    def create_child_school(child_school_params)
+      with_multiple_attempts_enabled do
+        service.vnp_child_school.child_school_create(child_school_params)
+      end
+    end
+
+    def create_child_student(child_student_params)
+      with_multiple_attempts_enabled do
+        service.vnp_child_student.child_student_create(child_student_params)
+      end
+    end
+
+    def create_relationship(relationship_params)
+      with_multiple_attempts_enabled do
+        service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params.merge(bgs_auth))
+      end
     end
 
     def find_benefit_claim_type_increment
@@ -60,7 +107,9 @@ module BGS
 
       increment_params.merge!(user_ssn) if Settings.bgs.mock_response == true
 
-      service.data.find_benefit_claim_type_increment(increment_params)
+      with_multiple_attempts_enabled do
+        service.data.find_benefit_claim_type_increment(increment_params)
+      end
     end
 
     def get_va_file_number
@@ -75,10 +124,6 @@ module BGS
 
     def vnp_benefit_claim_update(vnp_benefit_params)
       service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
-    end
-
-    def create_relationship(relationship_params)
-      service.vnp_ptcpnt_rlnshp.vnp_ptcpnt_rlnshp_create(relationship_params.merge(bgs_auth))
     end
 
     def bgs_auth
