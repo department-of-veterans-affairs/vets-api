@@ -40,14 +40,16 @@ module BGS
     end
 
     def create_participant(proc_id, corp_ptcpnt_id = nil)
-      service.vnp_ptcpnt.vnp_ptcpnt_create(
-        {
-          vnp_proc_id: proc_id,
-          ptcpnt_type_nm: 'Person',
-          corp_ptcpnt_id: corp_ptcpnt_id,
-          ssn: @user[:ssn]
-        }.merge(bgs_auth)
-      )
+      with_multiple_attempts_enabled do
+        service.vnp_ptcpnt.vnp_ptcpnt_create(
+          {
+            vnp_proc_id: proc_id,
+            ptcpnt_type_nm: 'Person',
+            corp_ptcpnt_id: corp_ptcpnt_id,
+            ssn: @user[:ssn]
+          }.merge(bgs_auth)
+        )
+      end
     end
 
     def create_person(person_params)

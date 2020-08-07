@@ -20,17 +20,6 @@ module BGS
         notify_of_service_exception(e, __method__.to_s)
       end
 
-      def raise_backend_exception(key, source, error)
-        exception = BGS::ServiceException.new(
-          key,
-          { source: source.to_s },
-          403,
-          error.message
-        )
-
-        raise exception
-      end
-
       def notify_of_service_exception(error, method, attempt = nil, status = :error)
         msg = "Unable to #{method}: #{error.message}: try #{attempt} of #{MAX_ATTEMPTS}"
         context = { icn: @user[:icn] }
@@ -40,6 +29,17 @@ module BGS
 
         log_exception_to_sentry(error, context, tags)
         raise_backend_exception('BGS_686c_SERVICE_403', self.class, error)
+      end
+
+      def raise_backend_exception(key, source, error)
+        exception = BGS::ServiceException.new(
+          key,
+          { source: source.to_s },
+          403,
+          error.message
+        )
+
+        raise exception
       end
     end
   end
