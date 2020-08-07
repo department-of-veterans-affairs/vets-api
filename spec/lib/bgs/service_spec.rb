@@ -38,6 +38,16 @@ RSpec.describe BGS::Service do
     end
   end
 
+  describe '#update_proc' do
+    it 'creates a participant and returns a vnp_particpant_id' do
+      VCR.use_cassette('bgs/service/update_proc') do
+        response = bgs_service.update_proc('21874')
+
+        expect(response).to a_hash_including(vnp_proc_state_type_cd: 'Ready')
+      end
+    end
+  end
+
   describe '#create_participant' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_participant') do
@@ -47,7 +57,7 @@ RSpec.describe BGS::Service do
       end
     end
 
-    xcontext 'errors' do
+    context 'errors' do
       it 'raises a BGS::ServiceException exception' do
         VCR.use_cassette('bgs/service/errors/create_participant') do
           expect { bgs_service.create_participant('invalid_proc_id') }.to raise_error(BGS::ServiceException)
@@ -109,6 +119,20 @@ RSpec.describe BGS::Service do
         response = bgs_service.create_address(payload)
 
         expect(response).to include(addrs_one_txt: '123 mainstreet rd.')
+      end
+    end
+  end
+
+  describe '#create_phone' do
+    it 'creates a phone record' do
+      payload = {
+        'phone_number' => '5555555555'
+      }
+
+      VCR.use_cassette('bgs/service/create_phone') do
+        response = bgs_service.create_phone(proc_id, participant_id, payload)
+
+        expect(response).to have_key(:vnp_ptcpnt_phone_id)
       end
     end
   end

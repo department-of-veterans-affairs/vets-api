@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 06 Aug 2020 22:28:30 GMT
+      - Thu, 06 Aug 2020 22:18:06 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -54,6 +54,12 @@ http_interactions:
         <message name="vnpProcUpdateResponse">
         <part name="parameters" element="tns:vnpProcUpdateResponse"/>
         </message>
+        <message name="findAllAsArray">
+        <part name="parameters" element="tns:findAllAsArray"/>
+        </message>
+        <message name="findAllAsArrayResponse">
+        <part name="parameters" element="tns:findAllAsArrayResponse"/>
+        </message>
         <message name="vnpProcRemove">
         <part name="parameters" element="tns:vnpProcRemove"/>
         </message>
@@ -66,12 +72,6 @@ http_interactions:
         <message name="vnpProcFindByPrimaryKeyResponse">
         <part name="parameters" element="tns:vnpProcFindByPrimaryKeyResponse"/>
         </message>
-        <message name="findAllAsArray">
-        <part name="parameters" element="tns:findAllAsArray"/>
-        </message>
-        <message name="findAllAsArrayResponse">
-        <part name="parameters" element="tns:findAllAsArrayResponse"/>
-        </message>
         <portType name="VnpProcServiceV2">
         <operation name="vnpProcCreate">
         <input wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/vnpProcCreateRequest" message="tns:vnpProcCreate"/>
@@ -83,6 +83,11 @@ http_interactions:
         <output wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/vnpProcUpdateResponse" message="tns:vnpProcUpdateResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/vnpProcUpdate/Fault/MessageFaultException"/>
         </operation>
+        <operation name="findAllAsArray">
+        <input wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/findAllAsArrayRequest" message="tns:findAllAsArray"/>
+        <output wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
+        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/findAllAsArray/Fault/MessageFaultException"/>
+        </operation>
         <operation name="vnpProcRemove">
         <input wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/vnpProcRemoveRequest" message="tns:vnpProcRemove"/>
         <output wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/vnpProcRemoveResponse" message="tns:vnpProcRemoveResponse"/>
@@ -92,11 +97,6 @@ http_interactions:
         <input wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/vnpProcFindByPrimaryKeyRequest" message="tns:vnpProcFindByPrimaryKey"/>
         <output wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/vnpProcFindByPrimaryKeyResponse" message="tns:vnpProcFindByPrimaryKeyResponse"/>
         <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/vnpProcFindByPrimaryKey/Fault/MessageFaultException"/>
-        </operation>
-        <operation name="findAllAsArray">
-        <input wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/findAllAsArrayRequest" message="tns:findAllAsArray"/>
-        <output wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/findAllAsArrayResponse" message="tns:findAllAsArrayResponse"/>
-        <fault message="tns:MessageFaultException" name="MessageFaultException" wsam:Action="http://procService.services.v2.vonapp.vba.va.gov/VnpProcServiceV2/findAllAsArray/Fault/MessageFaultException"/>
         </operation>
         </portType>
         <binding name="VnpProcServiceV2PortBinding" type="tns:VnpProcServiceV2">
@@ -125,6 +125,18 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
+        <operation name="findAllAsArray">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="MessageFaultException">
+        <soap:fault name="MessageFaultException" use="literal"/>
+        </fault>
+        </operation>
         <operation name="vnpProcRemove">
         <soap:operation soapAction=""/>
         <input>
@@ -149,18 +161,6 @@ http_interactions:
         <soap:fault name="MessageFaultException" use="literal"/>
         </fault>
         </operation>
-        <operation name="findAllAsArray">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="MessageFaultException">
-        <soap:fault name="MessageFaultException" use="literal"/>
-        </fault>
-        </operation>
         </binding>
         <service name="VnpProcServiceV2">
         <port name="VnpProcServiceV2Port" binding="tns:VnpProcServiceV2PortBinding">
@@ -168,7 +168,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Thu, 06 Aug 2020 22:28:30 GMT
+  recorded_at: Thu, 06 Aug 2020 22:18:06 GMT
 - request:
     method: post
     uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/VnpProcWebServiceBeanV2/VnpProcServiceV2
@@ -183,20 +183,20 @@ http_interactions:
             <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>38269904074354069</vaws:ExternalUid>
+            <vaws:ExternalUid>72147996964285883</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:vnpProcCreate><arg0><vnpProcTypeCd>DEPCHG</vnpProcTypeCd><vnpProcStateTypeCd>Started</vnpProcStateTypeCd><jrnDt>2020-08-06T22:28:29Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><jrnObjId>VAgovAPI</jrnObjId><ssn>796043735</ssn></arg0></tns:vnpProcCreate></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:vnpProcUpdate><arg0><vnpProcId>21874</vnpProcId><vnpProcStateTypeCd>Ready</vnpProcStateTypeCd><jrnDt>2020-08-06T22:18:05Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><jrnObjId>VAgovAPI</jrnObjId><ssn>796043735</ssn></arg0></tns:vnpProcUpdate></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
       Soapaction:
-      - '"vnpProcCreate"'
+      - '"vnpProcUpdate"'
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1242'
+      - '1231'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -209,7 +209,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 06 Aug 2020 22:28:31 GMT
+      - Thu, 06 Aug 2020 22:18:07 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -222,7 +222,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpProcCreateResponse
-        xmlns:ns0="http://procService.services.v2.vonapp.vba.va.gov/"><return><vnpProcId>21875</vnpProcId><vnpProcTypeCd>DEPCHG</vnpProcTypeCd><vnpProcStateTypeCd>Started</vnpProcStateTypeCd><jrnDt>2020-08-06T22:28:29Z</jrnDt><jrnLctnId>281</jrnLctnId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><jrnObjId>VAgovAPI</jrnObjId></return></ns0:vnpProcCreateResponse></S:Body></S:Envelope>
-  recorded_at: Thu, 06 Aug 2020 22:28:31 GMT
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdKABR3ZWJsb2dpYy5hcHAudm5wLWVhcgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTIuMC44AAA=</work:WorkContext></env:Header><S:Body><ns0:vnpProcUpdateResponse
+        xmlns:ns0="http://procService.services.v2.vonapp.vba.va.gov/"><return><vnpProcId>21874</vnpProcId><vnpProcStateTypeCd>Ready</vnpProcStateTypeCd><jrnDt>2020-08-06T17:18:05-05:00</jrnDt><jrnLctnId>281</jrnLctnId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAgovAPI</jrnUserId><jrnObjId>VAgovAPI</jrnObjId></return></ns0:vnpProcUpdateResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 06 Aug 2020 22:18:07 GMT
 recorded_with: VCR 6.0.0
