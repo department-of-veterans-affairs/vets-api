@@ -13,9 +13,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   end
 
   def email_sent(sco_email_sent)
-    application = parsed_form
-    application['scoEmailSent'] = sco_email_sent
-    self.form = JSON.generate(application)
+    update_form('scoEmailSent', sco_email_sent)
     save
   end
 end
