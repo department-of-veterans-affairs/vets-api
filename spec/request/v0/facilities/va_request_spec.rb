@@ -351,6 +351,7 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
 
     context 'when facilities are found' do
       let(:facilites) { JSON.parse(response.body)['data'] }
+      let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
       context 'with a health facility type' do
         it 'returns 3 facilities' do
@@ -363,7 +364,7 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
           )
         end
         it 'returns 3 facilities when camel-inflected' do
-          get '/v0/facilities/suggested?name_part=por&type[]=health', headers: { 'X-Key-Inflection' => 'camel' }
+          get '/v0/facilities/suggested?name_part=por&type[]=health', headers: inflection_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('suggested_facilities')
           expect(facilites.count).to eq(3)
@@ -383,6 +384,15 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
             ['Portland Army Medical Center', 'Portland Naval Hospital']
           )
         end
+        it 'returns 2 facilities when camel-inflected' do
+          get '/v0/facilities/suggested?name_part=por&type[]=dod_health', headers: inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(2)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            ['Portland Army Medical Center', 'Portland Naval Hospital']
+          )
+        end
       end
 
       context 'with multiple facility types' do
@@ -390,6 +400,21 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
           get '/v0/facilities/suggested?name_part=por&type[]=health&type[]=dod_health'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(5)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            [
+              'Portland VA Medical Center',
+              'Portland VA Medical Center-Vancouver',
+              'Portland VA Clinic',
+              'Portland Army Medical Center',
+              'Portland Naval Hospital'
+            ]
+          )
+        end
+        it 'returns 5 facilities when camel-inflected' do
+          get '/v0/facilities/suggested?name_part=por&type[]=health&type[]=dod_health', headers: inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('suggested_facilities')
           expect(facilites.count).to eq(5)
           expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
             [
