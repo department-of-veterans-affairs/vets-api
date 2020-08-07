@@ -13,8 +13,8 @@ module V0
 
       service = ::Form1010cg::Service.new(SavedClaim::CaregiversAssistanceClaim.new(form: claim_data.to_json))
 
-      mvi_res   = service.vet_profile_res
       vet_icn   = service.icn_for('veteran')
+      mvi_res   = service.vet_profile_res
       vet_edipi = service.vet_profile_res&.profile&.edipi
 
       emis_response_by_icn    = search_emis(icn: vet_icn) unless vet_icn == 'NOT_FOUND'
@@ -72,16 +72,16 @@ module V0
       {
         icn: vet_icn,
         edipi: vet_edipi,
+        is_veteran: {
+          by_icn: res_by_icn.error? ? res_by_icn.error : res_by_icn&.items&.first&.title38_status_code == 'V1',
+          by_edip: res_by_edipi.error? ? res_by_edipi.error : res_by_edipi&.items&.first&.title38_status_code == 'V1'
+        },
         searches: {
-          mvi: mvi_res,
+          mvi: mvi_res&.profile,
           emis: {
             by_icn: res_by_icn,
             by_edip: res_by_edipi
           }
-        },
-        is_veteran: {
-          by_icn: res_by_icn.error? ? res_by_icn.error : res_by_icn&.items&.first&.title38_status_code == 'V1',
-          by_edip: res_by_edipi.error? ? res_by_edipi.error : res_by_edipi&.items&.first&.title38_status_code == 'V1'
         }
       }
     end
