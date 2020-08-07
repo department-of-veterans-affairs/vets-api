@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::Veteran do
-  let(:person) { { first_nm: 'foo', last_nm: 'bar' } }
   let(:address) { { addrs_one_txt: '123 mainstreet', cntry_nm: 'USA', vnp_ptcpnt_addrs_id: '116343' } }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:veteran_response_result_sample) do
@@ -43,9 +42,22 @@ RSpec.describe BGSDependents::Veteran do
   end
 
   describe '#formatted_params' do
-    it 'formats params given a payload' do
-      expect(vet.formatted_params(all_flows_payload))
-        .to include(formatted_params_result)
+    it 'formats params given a veteran that is separated' do
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
+    end
+
+    it 'formats params given a veteran that is married' do
+      formatted_params_result['martl_status_type_cd'] = 'Married'
+      all_flows_payload['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = true
+
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
+    end
+
+    it 'formats params given a veteran that is married' do
+      formatted_params_result['martl_status_type_cd'] = 'Never Married'
+      all_flows_payload['dependents_application']['veteran_was_married_before'] = false
+
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
     end
   end
 
