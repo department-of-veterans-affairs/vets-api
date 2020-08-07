@@ -362,6 +362,15 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
             ['Portland VA Medical Center', 'Portland VA Medical Center-Vancouver', 'Portland VA Clinic']
           )
         end
+        it 'returns 3 facilities when camel-inflected' do
+          get '/v0/facilities/suggested?name_part=por&type[]=health', headers: { 'X-Key-Inflection' => 'camel' }
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(3)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            ['Portland VA Medical Center', 'Portland VA Medical Center-Vancouver', 'Portland VA Clinic']
+          )
+        end
       end
 
       context 'with a dod facility type' do
