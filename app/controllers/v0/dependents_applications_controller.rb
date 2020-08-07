@@ -3,8 +3,7 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     def create
-      dependents_hash = params
-      claim = SavedClaim::DependencyClaim.new(form: dependents_hash.to_json)
+      claim = SavedClaim::DependencyClaim.new(form: dependents_params)
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
@@ -34,6 +33,11 @@ module V0
     end
 
     private
+
+    def dependent_params
+      params
+      # params.require(:dependents_application).permit(:dependents_application)
+    end
 
     def dependent_service
       @dependent_service ||= BGS::DependentService.new(current_user)
