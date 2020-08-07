@@ -37,17 +37,7 @@ module V1
       # VA.gov and SSOe session, however when an auto logout is triggered because
       # of a VA.gov/SSOe session mismatch, we want to preserve the state of SSOe.
       if %w[slo logout].include? type
-        Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
-        reset_session
-        if type == 'slo'
-          url = url_service.ssoe_slo_url
-          # due to shared url service implementation
-          # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
-          # extensions with their browser.
-          redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
-        else
-          ssoe_slo_callback
-        end
+        user_logout(type)
       else
         render_login(type)
       end
@@ -188,15 +178,17 @@ module V1
       Rails.logger.info("SSOe: SAML Response => #{values}")
     end
 
-    def user_logout(saml_response)
-      logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
-      if logout_request.present?
-        logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id "\
-          "'#{originating_request_id}'")
+    def user_logout(type)
+      Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
+      reset_session
+      if type == 'slo'
+        url = url_service.ssoe_slo_url
+        # due to shared url service implementation
+        # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
+        # extensions with their browser.
+        redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
       else
-        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
-          "'#{originating_request_id}'")
+        ssoe_slo_callback
       end
     end
 
