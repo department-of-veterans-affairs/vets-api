@@ -33,8 +33,9 @@ namespace :camelize_file do
     schema_path = args[:response_schema_path]
     raise IOError, "No json-schema file at #{schema_path}" unless File.exist? schema_path
 
-    # TODO: support response schemas that might be in another path
-    transformer = SchemaCamelizer.new(schema_path)
+    camel_destination = schema_path.gsub('.json', '_in_camel.json')
+
+    transformer = SchemaCamelizer.new(schema_path, camel_destination)
     saved_schemas = transformer.save!
     if saved_schemas.count == 1
       print "Saved camelized responses to #{saved_schemas.first}\n"
