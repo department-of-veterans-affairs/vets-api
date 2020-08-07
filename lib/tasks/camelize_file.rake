@@ -27,7 +27,6 @@ namespace :camelize_file do
     end
   end
 
-
   desc 'Given a json file it is transformed into a camelCase version'
   # example `bundle exec rake camelize_file:json[spec/support/ppiu/ppiu_response.json]`
   task :json, [:json_path] => [:environment] do |_, args|
