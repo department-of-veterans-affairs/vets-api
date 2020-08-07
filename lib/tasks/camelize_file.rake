@@ -41,15 +41,15 @@ namespace :camelize_file do
     transformer = SchemaCamelizer.new(json_path, camel_destination)
     saved_files = transformer.save!
     if saved_files.count == 1
-      print "Saved camelized responses to #{saved_files.first}\n"
+      print "Saved camelized json to #{saved_files.first}\n"
     else
-      print "Saved camelized responses and its references:\n"
+      print "Saved camelized json and its references:\n"
       saved_files.each do |save_path|
         print " - #{save_path}\n"
       end
     end
     if transformer.unchanged_schemas.any?
-      print "These responses were already camelized (or perhaps have only one word keys?):\n"
+      print "These json files were already camelized (or perhaps have only one word keys?):\n"
       print "  [#{transformer.unchanged_schemas.join(', ')}]\n"
     end
   end
