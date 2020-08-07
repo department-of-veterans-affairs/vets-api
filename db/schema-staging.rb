@@ -86,7 +86,6 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.string "active_status"
     t.string "visn"
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
-    t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
   end
 
@@ -290,7 +289,7 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.uuid "guid", null: false
     t.string "encrypted_file_data", null: false
     t.string "encrypted_file_data_iv", null: false
-    t.string "type", null: false
+    t.string "type", default: "Preneeds::PreneedAttachment", null: false
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
   end
 
