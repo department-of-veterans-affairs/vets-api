@@ -21,27 +21,22 @@ module ClaimsApi
       rescue_file_not_found(power_of_attorney)
     end
 
-    private
-
     def fetch_file_path(uploader)
       return uploader.file.file unless Settings.evss.s3.uploads_enabled
 
       stream = URI.parse(uploader.file.url).open
-
-      stream.try(:path) || stream_to_temp_file(stream).then do |temp_file|
-        stream.close
-        temp_file.path
-      end
+      stream.try(:path) || stream_to_temp_file(stream).path
     end
 
-    def stream_to_temp_file(stream)
-      Tempfile.new.tap do |file|
-        file.binmode
-        file.write stream.read
-      end
+    def stream_to_temp_file(stream, close_stream: true)
+      file = Tempfile.new
+      file.binmode
+      file.write stream.read
+      file
     ensure
       file.flush
       file.close
+      stream.close if close_stream
     end
   end
 end
