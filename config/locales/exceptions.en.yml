@@ -384,6 +384,12 @@ en:
         code: 'CASEFLOWSTATUS502'
         detail: 'Received an invalid response from the upstream server'
         status: 502
+      DEBTS400:
+        <<: *external_defaults
+        title: 'Bad Request'
+        code: 'DEBTS400'
+        detail: 'Received a bad request response from the upstream server'
+        status: 400
       GI404:
         <<: *external_defaults
         title: 'Record not found'
