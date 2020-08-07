@@ -94,6 +94,12 @@ describe SchemaCamelizer do
       subject = SchemaCamelizer.new(filename)
       expect(subject.camel_path).to include('schemas_camelized')
     end
+    it 'can be set in the initializer' do
+      filename = create_source_schema('manual_camel_path', { 'who' => 'cares' })
+      camel_output = TEST_DIRECTORY + '/other/schemas/camel_destination.json'
+      subject = SchemaCamelizer.new(filename, camel_output)
+      expect(subject.camel_path).to include(camel_output)
+    end
   end
 
   describe '#unchanged_schemas' do
