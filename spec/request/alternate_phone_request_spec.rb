@@ -6,6 +6,7 @@ RSpec.describe 'alternate phone', type: :request do
   include SchemaMatchers
 
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before { sign_in }
 
@@ -17,6 +18,14 @@ RSpec.describe 'alternate phone', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('phone_number_response')
+        end
+      end
+      it 'matches the alternate phone schema when camel-inflected' do
+        VCR.use_cassette('evss/pciu/alternate_phone') do
+          get '/v0/profile/alternate_phone', headers: inflection_header
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('phone_number_response')
         end
       end
     end
@@ -64,6 +73,14 @@ RSpec.describe 'alternate phone', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('phone_number_response')
+        end
+      end
+      it 'matches the phone schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('evss/pciu/post_alternate_phone') do
+          post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers.merge(inflection_header))
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('phone_number_response')
         end
       end
     end
