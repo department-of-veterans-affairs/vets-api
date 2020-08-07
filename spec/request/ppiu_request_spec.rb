@@ -106,9 +106,10 @@ RSpec.describe 'PPIU', type: :request do
         end
       end
       it 'matches the ppiu schema with camel-inflection' do
+        ppiu_request_in_camel = File.read('spec/support/ppiu/update_ppiu_request_in_camel.json')
         ppiu_response_in_camel = File.read('spec/support/ppiu/update_ppiu_response_in_camel.json')
         VCR.use_cassette('evss/ppiu/update_payment_information') do
-          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers.merge(inflection_header)
+          put '/v0/ppiu/payment_information', params: ppiu_request_in_camel, headers: headers.merge(inflection_header)
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('payment_information')
           expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response_in_camel))
