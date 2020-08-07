@@ -18,6 +18,20 @@ RSpec.describe 'covid vaccine trial screener submissions', type: :request do
       post '/covid-vaccine/screener/create', params: valid
     end
 
+    context 'metrics' do
+      it 'records a metric for success' do
+        expect { post '/covid-vaccine/screener/create', params: valid }.to trigger_statsd_increment(
+          'api.covid-vaccine.create.total', times: 1, value: 1
+        )
+      end
+
+      it 'records a metric on failure' do
+        expect { post '/covid-vaccine/screener/create', params: invalid }.to trigger_statsd_increment(
+          'api.covid-vaccine.create.fail', times: 1, value: 1
+        )
+      end
+    end
+
     context 'with a valid payload' do
       it 'returns a 202' do
         post '/covid-vaccine/screener/create', params: valid

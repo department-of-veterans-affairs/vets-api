@@ -5,6 +5,11 @@ require_dependency 'covid_vaccine_trial/application_controller'
 
 module CovidVaccineTrial
   class BaseController < ApplicationController
+    include Common::Client::Concerns::Monitoring
+    include SentryLogging
+
+    STATSD_KEY_PREFIX = 'api.covid_vaccine'
+
     private
 
     def payload

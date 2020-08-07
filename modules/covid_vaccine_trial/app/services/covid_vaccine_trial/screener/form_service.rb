@@ -12,6 +12,10 @@ module CovidVaccineTrial
         schema.valid?(json)
       end
 
+      def valid!(json)
+        raise SchemaValidationError, submission_errors(json) unless valid?(json)
+      end
+
       def submission_errors(json)
         schema.validate(json).map do |e|
           if e['data_pointer'].blank?
@@ -36,6 +40,14 @@ module CovidVaccineTrial
 
       def schema_data
         VetsJsonSchema::SCHEMAS[SCHEMA]
+      end
+    end
+
+    class SchemaValidationError < StandardError
+      attr_reader :errors
+
+      def initialize(errors)
+        @errors = errors
       end
     end
   end
