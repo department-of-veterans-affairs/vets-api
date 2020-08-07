@@ -6,6 +6,7 @@ module BGS
     # The alphabetic character representing the last action taken on the record
     # (I = Input, U = Update, D = Delete)
     JOURNAL_STATUS_TYPE_CODE = 'U'
+
     def initialize(user)
       @user = user
     end
@@ -20,7 +21,7 @@ module BGS
 
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       service.vnp_ptcpnt.vnp_ptcpnt_create(
-        { vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id }.merge(bgs_auth)
+        {vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id}.merge(bgs_auth)
       )
     end
 
@@ -47,15 +48,14 @@ module BGS
     end
 
     def find_benefit_claim_type_increment
-      increment_params = {
-        ptcpnt_id: @user[:participant_id],
-        bnft_claim_type_cd: '130DPNEBNADJ',
-        pgm_type_cd: 'CPL'
-      }
-
-      increment_params.merge!(user_ssn) unless Rails.env.production?
-
-      service.data.find_benefit_claim_type_increment(increment_params)
+      service.data.find_benefit_claim_type_increment(
+        {
+          ptcpnt_id: @user[:participant_id],
+          bnft_claim_type_cd: '130DPNEBNADJ',
+          pgm_type_cd: 'CPL',
+          ssn: @user[:ssn]
+        }
+      )
     end
 
     def get_va_file_number
@@ -77,21 +77,14 @@ module BGS
     end
 
     def bgs_auth
-      auth_params = {
+      {
         jrn_dt: Time.current.iso8601,
         jrn_lctn_id: Settings.bgs.client_station_id,
         jrn_status_type_cd: 'U',
         jrn_user_id: Settings.bgs.client_username,
-        jrn_obj_id: Settings.bgs.application
+        jrn_obj_id: Settings.bgs.application,
+        ssn: @user[:ssn]
       }
-
-      auth_params.merge!(user_ssn) unless Rails.env.production?
-
-      auth_params
-    end
-
-    def user_ssn
-      { ssn: @user[:ssn] }
     end
 
     private
