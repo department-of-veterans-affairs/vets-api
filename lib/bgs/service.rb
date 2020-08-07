@@ -21,7 +21,7 @@ module BGS
 
     def create_participant(proc_id, corp_ptcpnt_id = nil)
       service.vnp_ptcpnt.vnp_ptcpnt_create(
-        {vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id}.merge(bgs_auth)
+        { vnp_proc_id: proc_id, ptcpnt_type_nm: 'Person', corp_ptcpnt_id: corp_ptcpnt_id }.merge(bgs_auth)
       )
     end
 
