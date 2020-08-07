@@ -13,11 +13,9 @@ module BGS
     end
 
     def create_proc
-      with_multiple_attempts_enabled do
-        service.vnp_proc_v2.vnp_proc_create(
-          { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
-        )
-      end
+      service.vnp_proc_v2.vnp_proc_create(
+        { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
+      )
     end
 
     def create_proc_form(vnp_proc_id)
@@ -124,6 +122,18 @@ module BGS
 
     def vnp_benefit_claim_update(vnp_benefit_params)
       service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
+    end
+
+    def insert_benefit_claim(benefit_claim_params)
+      service.claims.insert_benefit_claim(benefit_claim_params)
+    end
+
+    def update_manual_proc(proc_id)
+      service.vnp_proc_v2.vnp_proc_update(
+        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual' }.merge(bgs_auth)
+      )
+    rescue => e
+      notify_of_service_exception(e, __method__)
     end
 
     def bgs_auth
