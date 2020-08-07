@@ -2164,9 +2164,13 @@ namespace :vba_documents do
     uuids_that_appear_in_both_lists = submissions_that_are_processing_in_cm_portal &
                                       submissions_that_are_in_vbms
 
+    putarray = ->array do # compact so that it's easier to work with when ssh/ssming
+      puts array.join('|')
+    end
+
     unless uuids_that_appear_in_both_lists.empty?
       puts 'FAIL: these uuids appear in both lists (processing and vbms)'
-      puts uuids_that_appear_in_both_lists
+      putarray.(uuids_that_appear_in_both_lists)
       abort
     end
 
@@ -2174,7 +2178,7 @@ namespace :vba_documents do
     update_failed = []
 
     update = lambda do |uuid, status|
-      submission = VBADocuments::UploadSubmission.find uuid
+      submission = VBADocuments::UploadSubmission.find_by guid: uuid
 
       unless submission
         not_found << uuid
@@ -2194,13 +2198,13 @@ namespace :vba_documents do
 
     unless not_found.empty?
       puts 'these were not found:'
-      puts not_found
+      putarray.(not_found)
       puts
     end
 
     unless update_failed.empty?
       puts 'updating these failed:'
-      puts update_failed
+      putarray.(update_failed)
       puts
     end
 
