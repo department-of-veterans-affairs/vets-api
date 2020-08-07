@@ -22,7 +22,8 @@ namespace :camelize_file do
       end
     end
     if transformer.unchanged_schemas.any?
-      print "These schemas were already camelized: [#{transformer.unchanged_schemas.join(', ')}]\n"
+      print "These schemas were already camelized (or perhaps have only one word keys?):\n"
+      print "  [#{transformer.unchanged_schemas.join(', ')}]\n"
     end
   end
 end
