@@ -21,6 +21,8 @@ module ClaimsApi
       rescue_file_not_found(power_of_attorney)
     end
 
+    private
+
     def fetch_file_path(uploader)
       return uploader.file.file unless Settings.evss.s3.uploads_enabled
 
