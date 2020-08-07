@@ -8,7 +8,7 @@ module EducationForm
       @user = User.find(user_uuid)
       @claim = SavedClaim::EducationBenefits::VA10203.find(claim_id)
 
-      email_sent(false)
+      @claim.email_sent(false)
 
       @gi_bill_status = get_gi_bill_status
       if less_than_six_months?
