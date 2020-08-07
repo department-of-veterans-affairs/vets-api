@@ -34,12 +34,12 @@ RSpec.describe 'PPIU', type: :request do
         end
       end
       it 'matches the ppiu schema when camel-inflected' do
+        ppiu_response_in_camel = File.read('spec/support/ppiu/ppiu_response_in_camel.json')
         VCR.use_cassette('evss/ppiu/payment_information') do
           get '/v0/ppiu/payment_information', headers: inflection_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('payment_information')
-          # TODO: do we want to camelize this response file like the schemas?!
-          expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
+          expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response_in_camel))
         end
       end
     end
@@ -106,12 +106,12 @@ RSpec.describe 'PPIU', type: :request do
         end
       end
       it 'matches the ppiu schema with camel-inflection' do
+        ppiu_response_in_camel = File.read('spec/support/ppiu/update_ppiu_response_in_camel.json')
         VCR.use_cassette('evss/ppiu/update_payment_information') do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers.merge(inflection_header)
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('payment_information')
-          # TODO: do we want to camelize this response file like the schemas?!
-          expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
+          expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response_in_camel))
         end
       end
 
