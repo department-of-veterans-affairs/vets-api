@@ -106,7 +106,7 @@ RSpec.describe BGS::BenefitClaim do
         end
       end
 
-      xit 'handles updates proc to manual' do
+      it 'handles updates proc to manual' do
         user_hash[:file_number] = nil
 
         VCR.use_cassette('bgs/benefit_claim/create/error') do
