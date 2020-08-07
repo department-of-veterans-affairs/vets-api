@@ -39,6 +39,14 @@ RSpec.describe 'alternate phone', type: :request do
           expect(response).to match_response_schema('errors')
         end
       end
+      it 'matches the errors schema when camel-inflected' do
+        VCR.use_cassette('evss/pciu/alternate_phone_status_400') do
+          get '/v0/profile/alternate_phone', headers: inflection_header
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
+        end
+      end
     end
 
     context 'with a 403 response' do
@@ -58,6 +66,14 @@ RSpec.describe 'alternate phone', type: :request do
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
+        end
+      end
+      it 'matches the errors schema when camel-inflected' do
+        VCR.use_cassette('evss/pciu/alternate_phone_status_500') do
+          get '/v0/profile/alternate_phone', headers: inflection_header
+
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
@@ -95,6 +111,15 @@ RSpec.describe 'alternate phone', type: :request do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include "number - can't be blank", 'number - Only numbers are permitted.'
       end
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        phone = build :phone_number, :nil_effective_date, number: ''
+
+        post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers.merge(inflection_header))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(errors_for(response)).to include "number - can't be blank", 'number - Only numbers are permitted.'
+      end
     end
 
     context 'with a number that contains non-numeric characters' do
@@ -107,6 +132,15 @@ RSpec.describe 'alternate phone', type: :request do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include 'number - Only numbers are permitted.'
       end
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        phone = build :phone_number, :nil_effective_date, number: '123-456-7890'
+
+        post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers.merge(inflection_header))
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(errors_for(response)).to include 'number - Only numbers are permitted.'
+      end
     end
 
     context 'with a 400 response' do
@@ -116,6 +150,14 @@ RSpec.describe 'alternate phone', type: :request do
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
+        end
+      end
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('evss/pciu/post_alternate_phone_status_400') do
+          post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers.merge(inflection_header))
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
@@ -137,6 +179,14 @@ RSpec.describe 'alternate phone', type: :request do
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
+        end
+      end
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('evss/pciu/post_alternate_phone_status_500') do
+          post('/v0/profile/alternate_phone', params: phone.to_json, headers: headers.merge(inflection_header))
+
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
