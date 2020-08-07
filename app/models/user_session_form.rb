@@ -19,6 +19,9 @@ class UserSessionForm
     saml_user = SAML::User.new(saml_response)
     normalized_attributes = normalize_saml(saml_user)
     existing_user = User.find(normalized_attributes[:uuid])
+    unless existing_user
+      Raven.extra_context(saml_uuid: normalized_attributes[:uuid], saml_icn: normalized_attributes[:mhv_icn])
+    end
     @user_identity = UserIdentity.new(normalized_attributes)
     @user = User.new(uuid: @user_identity.attributes[:uuid])
     @user.instance_variable_set(:@identity, @user_identity)

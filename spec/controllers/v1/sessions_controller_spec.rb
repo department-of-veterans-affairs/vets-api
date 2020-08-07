@@ -526,7 +526,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
-          post :saml_callback
+          post :saml_callback, params: {type: 'mfa'}
           new_user = User.find(uuid)
           expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           expect(new_user.multifactor).to be_truthy
@@ -642,6 +642,25 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'when NoMethodError is encountered elsewhere' do
+        context 'with mismatched UUIDs' do
+          let(:saml_user_attributes) do
+            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
+          end
+          let(:loa1_user) { build(:user, :loa1, uuid: uuid, idme_uuid: uuid, mhv_icn: '11111111111') }
+
+          it 'adds UUID context to Sentry events' do
+            allow(saml_user).to receive(:changing_multifactor?).and_return(true)
+            expect(Raven).to receive(:extra_context).with(request_uuid: nil)
+            expect(Raven).to receive(:extra_context).with(current_user_uuid: uuid, current_user_icn: '11111111111')
+            expect(Raven).to receive(:extra_context).with(saml_uuid: 'invalid', saml_icn: '11111111111')
+            expect(Raven).to receive(:capture_exception).with(NoMethodError, level: 'error')
+            expect(Raven).to receive(:extra_context) # From PostURLService#initialize
+            with_settings(Settings.sentry, dsn: 'T') do
+              post(:saml_callback, params: { type: 'mfa' })
+            end
+          end
+        end
+
         it 'redirects to adds context and re-raises the exception', :aggregate_failures do
           allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
           expect(controller).to receive(:log_exception_to_sentry)
