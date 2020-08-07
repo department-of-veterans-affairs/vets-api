@@ -396,7 +396,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'routes /sessions/slo/new to SessionsController#new with type: #slo' do
-          it 'redirects' do
+          it 'redirects to eauth logout' do
             expect { get(:new, params: { type: 'slo' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['context:slo', 'version:v1'], **once)
@@ -417,7 +417,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         context 'routes /sessions/logout/new to SessionsController#new with type: #logout' do
-          it 'redirects' do
+          it 'redirects to the logout view' do
             expect { get(:new, params: { type: 'logout' }) }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['context:logout', 'version:v1'], **once)
