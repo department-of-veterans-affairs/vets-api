@@ -14,21 +14,7 @@ RSpec.describe BGS::VnpVeteran do
     }
   end
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
-  let(:current_marriage_details) do
-    {
-      'current_marriage_details' => {
-        'date_of_marriage' => '2014-03-04',
-        'location_of_marriage' => {
-          'state' => 'California',
-          'city' => 'Slawson'
-        },
-        'marriage_type' => 'OTHER',
-        'marriage_type_other' => 'Some Other type',
-        'view:marriageTypeInformation' => {}
-      }
-    }
-  end
-  let(:formatted_payload) do # This is here for the mocks since they receive formatted params
+  let(:formatted_payload) do
     {
       'first' => 'WESLEY',
       'middle' => nil,
