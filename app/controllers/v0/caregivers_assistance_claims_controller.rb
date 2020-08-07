@@ -68,20 +68,20 @@ module V0
 
     private
 
-    def formatted_res(mvi_res, vet_icn, vet_edipi, emis_response_by_icn, emis_response_by_edipi)
+    def formatted_res(mvi_res, vet_icn, vet_edipi, res_by_icn, res_by_edipi)
       {
         icn: vet_icn,
         edipi: vet_edipi,
         searches: {
           mvi: mvi_res,
           emis: {
-            by_icn: emis_response_by_icn,
-            by_edip: emis_response_by_edipi
+            by_icn: res_by_icn,
+            by_edip: res_by_edipi
           }
         },
         is_veteran: {
-          by_icn: emis_response_by_icn&.items&.first&.title38_status_code == 'V1',
-          by_edip: emis_response_by_edipi&.items&.first&.title38_status_code == 'V1'
+          by_icn: res_by_icn.error? ? res_by_icn.error : res_by_icn&.items&.first&.title38_status_code == 'V1',
+          by_edip: res_by_edipi.error? ? res_by_edipi.error : res_by_edipi&.items&.first&.title38_status_code == 'V1'
         }
       }
     end
