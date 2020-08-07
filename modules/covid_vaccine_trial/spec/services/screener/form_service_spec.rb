@@ -14,11 +14,11 @@ RSpec.describe CovidVaccineTrial::Screener::FormService do
   context "JSON Schema validation" do
     describe "#valid_submission?" do
       it "returns true if the JSON is valid" do
-        expect(subject.valid_submission?(valid)).to be(true)
+        expect(subject.valid?(valid)).to be(true)
       end
 
       it "returns false if the JSON is invalid" do
-        expect(subject.valid_submission?(invalid)).to be(false)
+        expect(subject.valid?(invalid)).to be(false)
       end
     end
 

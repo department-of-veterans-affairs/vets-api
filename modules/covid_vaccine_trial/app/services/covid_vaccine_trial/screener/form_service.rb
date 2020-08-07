@@ -8,7 +8,7 @@ module CovidVaccineTrial
     class FormService
       SCHEMA = 'COVID-VACCINE-TRIAL'
 
-      def valid_submission?(json)
+      def valid?(json)
         schema.valid?(json)
       end
 

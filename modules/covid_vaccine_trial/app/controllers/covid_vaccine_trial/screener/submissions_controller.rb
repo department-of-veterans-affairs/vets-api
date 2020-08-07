@@ -9,13 +9,13 @@ module CovidVaccineTrial
       def create
         form_service = FormService.new
 
-        if form_service.valid_submission?(payload)
           render json: { status: 'accepted' }, status: :accepted
         else
           error = {
             errors: form_service.submission_errors(payload)
           }
           render json: error, status: 422
+          if form_service.valid?(payload)
         end
       end
     end
