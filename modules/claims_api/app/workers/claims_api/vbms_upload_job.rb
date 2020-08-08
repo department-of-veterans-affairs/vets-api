@@ -25,6 +25,7 @@ module ClaimsApi
       return uploader.file.file unless Settings.evss.s3.uploads_enabled
 
       stream = URI.parse(uploader.file.url).open
+      # stream could be a Tempfile or a StringIO https://stackoverflow.com/a/23666898
       stream.try(:path) || stream_to_temp_file(stream).path
     end
 
