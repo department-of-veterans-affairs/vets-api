@@ -49,7 +49,6 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
           charley.stran@oddball.io
           ryan.link@oddball.io
           kelly@adhocteam.us
-          ed.mangimelli@adhocteam.us
           emily@oddball.io
           valerie.hase@va.gov
           mark.greenburg@adhocteam.us
