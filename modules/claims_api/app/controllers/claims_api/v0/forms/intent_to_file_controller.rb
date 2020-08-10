@@ -40,8 +40,6 @@ module ClaimsApi
         def form_type
           form_attributes['type']
         end
-<<<<<<< HEAD
-=======
 
         def itf_service
           EVSS::IntentToFile::Service.new(target_veteran)
@@ -57,7 +55,6 @@ module ClaimsApi
             }
           }
         end
->>>>>>> 3a29d31de4d6c9cfca0951ce0acb51e7ffefcd32
       end
     end
   end
