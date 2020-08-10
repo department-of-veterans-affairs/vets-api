@@ -16,7 +16,7 @@ module BGS
       bgs_person = service.people.find_person_by_ptcpnt_id(@user.participant_id)
       vet_info = VetInfo.new(@user, bgs_person)
 
-      BGS::SubmitForm686cJob.perform_async(@user.uuid, vet_info.to_686c_form_hash, claim.id)
+      BGS::SubmitForm686cJob.perform_async(@user.uuid, claim.id, vet_info.to_686c_form_hash)
       VBMS::SubmitDependentsPDFJob.perform_async(claim.id, vet_info.to_686c_form_hash)
     rescue => e
       report_error(e)
