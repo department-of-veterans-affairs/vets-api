@@ -13,6 +13,8 @@ RSpec.describe 'Appointments', type: :request do
   end
 
   describe 'GET /v0/appointments' do
+    let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
     context 'with a 200 response' do
       it 'matches the appointments schema' do
         VCR.use_cassette('ihub/appointments/success') do
@@ -24,7 +26,7 @@ RSpec.describe 'Appointments', type: :request do
       end
       it 'matches the appointments schema when camel-inflected' do
         VCR.use_cassette('ihub/appointments/success') do
-          get '/v0/appointments', headers: { 'X-Key-Inflection' => 'camel' }
+          get '/v0/appointments', headers: inflection_header
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('appointments_response')
@@ -43,6 +45,12 @@ RSpec.describe 'Appointments', type: :request do
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('errors')
       end
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        get '/v0/appointments', headers: inflection_header
+
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to match_camelized_response_schema('errors')
+      end
     end
 
     context 'when iHub experiences an error' do
@@ -52,6 +60,14 @@ RSpec.describe 'Appointments', type: :request do
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
+        end
+      end
+      it 'matches the errors schema camel-inlfected', :aggregate_failures do
+        VCR.use_cassette('ihub/appointments/error_occurred') do
+          get '/v0/appointments', headers: inflection_header
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
