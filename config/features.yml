@@ -194,7 +194,7 @@ features:
     actor_type: user
     description: >
       This determines when the wizard should show up on the 1995 introduction page
-  show_edu_benefits_1990N_wizard:
+  show_edu_benefits_1990n_wizard:
     actor_type: user
     description: >
       This determines when the wizard should show up on the 1990N introduction page
