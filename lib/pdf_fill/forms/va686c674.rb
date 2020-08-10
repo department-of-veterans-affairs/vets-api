@@ -485,15 +485,22 @@ module PdfFill
                 key: 'veteran.previousMarriage.startCity[%iterator%]',
                 limit: 18,
                 question_num: 14,
-                question_suffix: 'E',
+                question_suffix: 'H',
                 question_text: 'PREVIOUS MARRIAGE HISTORY > CITY'
               },
               'state' => {
                 key: 'veteran_marriage_history.start_location.state[%iterator%]',
                 limit: 2,
                 question_num: 14,
-                question_suffix: 'E',
+                question_suffix: 'I',
                 question_text: 'PREVIOUS MARRIAGE HISTORY > STATE'
+              },
+              'country' => {
+                key: 'veteran_marriage_history.start_location.country[%iterator%]',
+                limit: 2,
+                question_num: 14,
+                question_suffix: 'J',
+                question_text: 'PREVIOUS MARRIAGE HISTORY > COUNTRY'
               }
             }, # end of start_location
             'reason_marriage_ended' => {
@@ -505,7 +512,7 @@ module PdfFill
             'reason_marriage_ended_other' => {
               key: 'veteran_marriage_history.reason_marriage_ended_other[%iterator%]',
               question_num: 14,
-              question_suffix: 'A',
+              question_suffix: 'K',
               question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
             },
             'end_date' => {
@@ -513,40 +520,47 @@ module PdfFill
                 key: 'veteran_marriage_history.end_date.month[%iterator%]',
                 limit: 2,
                 question_num: 14,
-                question_suffix: 'A',
+                question_suffix: 'L',
                 question_text: 'PREVIOUS MARRIAGE HISTORY > TERMINATION MONTH'
-              }, # end of termination month
+              },
               'day' => {
                 key: 'veteran_marriage_history.end_date.day[%iterator%]',
                 limit: 2,
                 question_num: 14,
-                question_suffix: 'B',
+                question_suffix: 'M',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  TERMINATION DAY'
-              }, # end of termination day
+              },
               'year' => {
                 key: 'veteran_marriage_history.end_date.year[%iterator%]',
                 limit: 4,
                 question_num: 14,
-                question_suffix: 'C',
+                question_suffix: 'N',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  TERMINATION YEAR'
-              } # end of termination year
+              }
             }, # end of end date
             'end_location' => {
               'city' => {
                 key: 'veteran.previousMarriage.terminationCity[%iterator%]',
                 limit: 18,
                 question_num: 14,
-                question_suffix: 'D',
+                question_suffix: 'O',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  TERMINATION CITY'
-              }, # end city
+              },
               'state' => {
                 key: 'veteran.previousMarriage.terminationState[%iterator%]',
                 limit: 2,
                 question_num: 14,
-                question_suffix: 'E',
+                question_suffix: 'P',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  TERMINATION STATE'
-              } # end state
-            } # end of end_location
+              },
+              'country' => {
+                key: 'veteran.previousMarriage.terminationCountry[%iterator%]',
+                limit: 2,
+                question_num: 14,
+                question_suffix: 'Q',
+                question_text: 'PREVIOUS MARRIAGE HISTORY > TERMINATION COUNTRY'
+              }
+            } # end end_location
           }, # end veteran_marriage_history
           'spouse_marriage_history' => {
             limit: 4,
@@ -612,9 +626,15 @@ module PdfFill
                 question_num: 15,
                 question_suffix: 'E',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
+              },
+              'country' => {
+                key: 'spouse_marriage_history.start_location.country[%iterator%]',
+                limit: 2,
+                question_num: 15,
+                question_suffix: 'F',
+                question_text: 'PREVIOUS MARRIAGE HISTORY > PREVIOUS SPOUSE MARRIAGE LOCATION COUNTRY'
               }
-              # @TODO FE to add country key: 'spouse_marriage_history.start_location.country[%iterator%]'
-            }, # end of start location
+            }, # end start_location
             'reason_marriage_ended' => {
               'death' => { key: 'spouse_marriage_history.reason_marriage_ended.death[%iterator%]' },
               'divorce' => { key: 'spouse_marriage_history.reason_marriage_ended.divorce[%iterator%]' },
@@ -624,7 +644,7 @@ module PdfFill
             'reason_marriage_ended_other' => {
               key: 'spouse_marriage_history.reason_marriage_ended_other[%iterator%]',
               question_num: 15,
-              question_suffix: 'A',
+              question_suffix: 'G',
               question_text: 'PREVIOUS MARRIAGE HISTORY > REASON FOR TERMINATION'
             },
             'end_date' => {
@@ -632,21 +652,21 @@ module PdfFill
                 key: 'spouse_marriage_history.end_date.month[%iterator%]',
                 limit: 2,
                 question_num: 15,
-                question_suffix: 'A',
+                question_suffix: 'H',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED MONTH'
               }, # end of end date month
               'day' => {
                 key: 'spouse_marriage_history.end_date.day[%iterator%]',
                 limit: 2,
                 question_num: 15,
-                question_suffix: 'B',
+                question_suffix: 'I',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED DAY'
               }, # end of end date day
               'year' => {
                 key: 'spouse_marriage_history.end_date.year[%iterator%]',
                 limit: 4,
                 question_num: 15,
-                question_suffix: 'C',
+                question_suffix: 'J',
                 question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE DATE ENDED YEAR'
               } # end of end date year
             }, # end of end date
@@ -655,18 +675,24 @@ module PdfFill
                 key: 'spouse_marriage_history.end_location.city[%iterator%]',
                 limit: 18,
                 question_num: 15,
-                question_suffix: 'D',
-                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION CITY'
+                question_suffix: 'K',
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE TERMINATION CITY'
               },
               'state' => {
                 key: 'spouse_marriage_history.end_location.state[%iterator%]',
                 limit: 2,
                 question_num: 15,
-                question_suffix: 'E',
-                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE LOCATION STATE'
+                question_suffix: 'L',
+                question_text: 'PREVIOUS MARRIAGE HISTORY >  PREVIOUS SPOUSE MARRIAGE TERMINATION STATE'
+              },
+              'country' => {
+                key: 'spouse_marriage_history.end_location.country[%iterator%]',
+                limit: 2,
+                question_num: 15,
+                question_suffix: 'M',
+                question_text: 'PREVIOUS MARRIAGE HISTORY > PREVIOUS SPOUSE MARRIAGE TERMINATION COUNTRY'
               }
-              # @TODO FE to add country key: 'spouse_marriage_history.end_location.country[%iterator%]'
-            } # end of location
+            } # end location
           }, # end spouse_marriage_history
           # -----------------  SECTION III: INFORMATION NEEDED TO ADD CHILD(REN)  ----------------- #
           'children_to_add' => {
@@ -756,8 +782,14 @@ module PdfFill
                 question_num: 16,
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > PLACE OF BIRTH > STATE'
+              },
+              'country' => {
+                key: 'children_to_add.place_of_birth.country[%iterator%]',
+                limit: 2,
+                question_num: 16,
+                question_suffix: 'C',
+                question_text: 'INFORMATION NEEDED TO ADD CHILD(REN) > PLACE OF BIRTH > COUNTRY'
               }
-              # @TODO FE to add country
             }, # end place_of_birth
             'child_address_info' => {
               'person_child_lives_with' => {
@@ -945,7 +977,11 @@ module PdfFill
                 question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > PLACE OF DIVORCE'
               },
               'country' => {
-                # ???  not showing on front end
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].CurrentMailingAddress_Country[27]',
+                limit: 2,
+                question_num: 20,
+                question_suffix: 'C',
+                question_text: 'VETERAN REPORTING DIVORCE FROM FORMER SPOUSE > PLACE OF DIVORCE'
               }
             },
             'date' => {
@@ -1170,8 +1206,14 @@ module PdfFill
                 question_num: 22,
                 question_suffix: 'B',
                 question_text: 'INFORMATION NEEDED TO REPORT DEPEDENT DEATH > PLACE > STATE'
+              },
+              'country' => {
+                key: 'deaths.location.country[%iterator%]',
+                limit: 2,
+                question_num: 22,
+                question_suffix: 'C',
+                question_text: 'INFORMATION NEEDED TO REPORT DEPEDENT DEATH > PLACE > COUNTRY'
               }
-              # @TODO FE to add country
             } # end location
           }, # end of deaths
           # -----------------  SECTION VII: VETERAN/CLAIMANT REPORTING MARRIAGE OF CHILD  ----------------- #
@@ -1507,10 +1549,12 @@ module PdfFill
         # extract ssn
         spouse['ssn'] = split_ssn(spouse['ssn'].delete('-')) if spouse['ssn'].present?
 
-        # extract postal code
+        # extract postal code and country
         if @form_data['dependents_application']['does_live_with_spouse']['address'].present?
           @form_data['dependents_application']['does_live_with_spouse']['address']['zip_code'] =
             split_postal_code(@form_data.dig('dependents_application', 'does_live_with_spouse', 'address'))
+          @form_data['dependents_application']['does_live_with_spouse']['address']['country_name'] =
+            extract_country(@form_data.dig('dependents_application', 'does_live_with_spouse', 'address'))
         end
 
         # expand is_veteran
@@ -1545,6 +1589,10 @@ module PdfFill
             # 'annulment' => select_radio_button(reason_marriage_ended == 'ANNULMENT'),
             'other' => select_radio_button(reason_marriage_ended == 'Other')
           }
+
+          # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
+          spouse['start_location']['country'] = extract_country(spouse['start_location'])
+          spouse['end_location']['country'] = extract_country(spouse['end_location'])
         end
       end
 
@@ -1569,6 +1617,10 @@ module PdfFill
             # 'annulment' => select_radio_button(reason_marriage_ended == 'ANNULMENT'),
             'other' => select_radio_button(reason_marriage_ended == 'Other')
           }
+
+          # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
+          spouse['start_location']['country'] = extract_country(spouse['start_location'])
+          spouse['end_location']['country'] = extract_country(spouse['end_location'])
         end
       end
 
@@ -1586,10 +1638,16 @@ module PdfFill
           # extract ssn
           child['ssn'] = split_ssn(child['ssn'].delete('-')) if child['ssn'].present?
 
-          # extract postal code
+          # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
+          child['place_of_birth']['country'] = extract_country(child['place_of_birth'])
+
+          # extract postal code and country
           unless child['does_child_live_with_you']
             child['child_address_info']['address']['zip_code'] =
               split_postal_code(child.dig('child_address_info', 'address'))
+            # @TODO TEST THIS 20200804
+            child['child_address_info']['address']['country_name'] =
+              extract_country(child.dig('child_address_info', 'address'))
           end
 
           expand_child_status(child)
@@ -1661,6 +1719,9 @@ module PdfFill
 
         # extract middle initial
         divorce['full_name'] = extract_middle_i(divorce, 'full_name')
+
+        # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
+        divorce['location']['country'] = extract_country(divorce['location'])
       end
 
       def merge_stepchildren_helpers
@@ -1700,6 +1761,9 @@ module PdfFill
 
           # extract date
           death['date'] = split_date(death.dig('date'))
+
+          # extract country: FE uses 3 char country codes, but pdf expects 2 char country code
+          death['location']['country'] = extract_country(death['location'])
 
           # expand dependent type
           dependent_type = death.dig('dependent_type')
@@ -1778,6 +1842,9 @@ module PdfFill
           'proxy' => select_checkbox(marriage_type == 'PROXY'),
           'other' => select_checkbox(marriage_type == 'OTHER')
         }
+
+        @form_data['dependents_application']['current_marriage_information']['location']['country'] =
+          extract_country(@form_data.dig('dependents_application', 'current_marriage_information', 'location'))
       end
 
       def expand_does_live_with_spouse
