@@ -26,4 +26,30 @@ namespace :camelize_file do
       print "  [#{transformer.unchanged_schemas.join(', ')}]\n"
     end
   end
+
+  desc 'Given a json file it is transformed into a camelCase version'
+  # example `bundle exec rake camelize_file:json[spec/support/ppiu/ppiu_response.json]`
+  task :json, [:json_path] => [:environment] do |_, args|
+    json_path = args[:json_path]
+    raise IOError, 'No json file provided' unless json_path
+    raise IOError, "Expected `#{json_path}` to be a .json file" unless json_path =~ /\.json$/
+    raise IOError, "No json file at #{json_path}" unless File.exist? json_path
+
+    camel_destination = json_path.gsub('.json', '_in_camel.json')
+
+    transformer = SchemaCamelizer.new(json_path, camel_destination)
+    saved_files = transformer.save!
+    if saved_files.count == 1
+      print "Saved camelized json to #{saved_files.first}\n"
+    else
+      print "Saved camelized json and its references:\n"
+      saved_files.each do |save_path|
+        print " - #{save_path}\n"
+      end
+    end
+    if transformer.unchanged_schemas.any?
+      print "These json files were already camelized (or perhaps have only one word keys?):\n"
+      print "  [#{transformer.unchanged_schemas.join(', ')}]\n"
+    end
+  end
 end
