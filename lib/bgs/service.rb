@@ -12,6 +12,14 @@ module BGS
       @user = user
     end
 
+    def create_proc
+      with_multiple_attempts_enabled do
+        service.vnp_proc_v2.vnp_proc_create(
+          {vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started'}.merge(bgs_auth)
+        )
+      end
+    end
+
     def create_proc_form(vnp_proc_id)
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
@@ -74,13 +82,13 @@ module BGS
 
     def create_child_school(child_school_params)
       with_multiple_attempts_enabled do
-        service.vnp_child_school.child_school_create(child_school_params)
+        service.vnp_child_school.child_school_create(child_school_params.merge(bgs_auth))
       end
     end
 
     def create_child_student(child_student_params)
       with_multiple_attempts_enabled do
-        service.vnp_child_student.child_student_create(child_student_params)
+        service.vnp_child_student.child_student_create(child_student_params.merge(bgs_auth))
       end
     end
 
