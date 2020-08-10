@@ -15,7 +15,7 @@ module BGS
     def create_proc
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_create(
-          {vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started'}.merge(bgs_auth)
+          { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
         )
       end
     end
