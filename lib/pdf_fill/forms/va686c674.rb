@@ -96,94 +96,95 @@ module PdfFill
             question_suffix: 'A',
             question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S SERVICE NUMBER (If applicable)'
           }
-        }, # end veteran_information
-        'dependents_application' => {
-          'veteran_contact_information' => {
-            'phone_number' => {
-              'phone_area_code' => {
-                key: 'form1[0].#subform[17].TelephoneNumber_AreaCode[0]',
-                limit: 3,
-                question_num: 8,
-                question_suffix: 'A',
-                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
-              },
-              'phone_first_three_numbers' => {
-                key: 'form1[0].#subform[17].TelephoneNumber_FirstThreeNumbers[0]',
-                limit: 3,
-                question_num: 8,
-                question_suffix: 'B',
-                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
-              },
-              'phone_last_four_numbers' => {
-                key: 'form1[0].#subform[17].TelephoneNumber_LastFourNumbers[0]',
-                limit: 4,
-                question_num: 8,
-                question_suffix: 'C',
-                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
-              }
-            },
-            'email_address' => {
-              key: 'form1[0].#subform[17].Email_Address[0]',
-              limit: 30,
-              question_num: 9,
+        },
+        'veteran_contact_information' => {
+          'phone_number' => {
+            'phone_area_code' => {
+              key: 'form1[0].#subform[17].TelephoneNumber_AreaCode[0]',
+              limit: 3,
+              question_num: 8,
               question_suffix: 'A',
-              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > E-MAIL ADDRESS'
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
             },
-            'veteran_address' => {
-              'address_line1' => {
-                key: 'form1[0].#subform[17].CurrentMailingAddress_NumberAndStreet[0]',
-                limit: 30,
-                question_num: 10,
-                question_suffix: 'A',
-                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
-              },
-              'address_line2' => {
-                key: 'form1[0].#subform[17].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+            'phone_first_three_numbers' => {
+              key: 'form1[0].#subform[17].TelephoneNumber_FirstThreeNumbers[0]',
+              limit: 3,
+              question_num: 8,
+              question_suffix: 'B',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
+            },
+            'phone_last_four_numbers' => {
+              key: 'form1[0].#subform[17].TelephoneNumber_LastFourNumbers[0]',
+              limit: 4,
+              question_num: 8,
+              question_suffix: 'C',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > TELEPHONE NUMBER'
+            }
+          },
+          'email_address' => {
+            key: 'form1[0].#subform[17].Email_Address[0]',
+            limit: 30,
+            question_num: 9,
+            question_suffix: 'A',
+            question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > E-MAIL ADDRESS'
+          },
+          'veteran_address' => {
+            'address_line1' => {
+              key: 'form1[0].#subform[17].CurrentMailingAddress_NumberAndStreet[0]',
+              limit: 30,
+              question_num: 10,
+              question_suffix: 'A',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
+            },
+            'address_line2' => {
+              key: 'form1[0].#subform[17].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+              limit: 5,
+              question_num: 10,
+              question_suffix: 'B',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
+            },
+            # address_line3
+            'city' => {
+              key: 'form1[0].#subform[17].CurrentMailingAddress_City[0]',
+              limit: 18,
+              question_num: 10,
+              question_suffix: 'C',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
+            },
+            'state_code' => {
+              key: 'form1[0].#subform[17].CurrentMailingAddress_StateOrProvince[0]',
+              limit: 2,
+              question_num: 10,
+              question_suffix: 'D',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
+            },
+            'country_name' => {
+              key: 'form1[0].#subform[17].CurrentMailingAddress_Country[0]',
+              limit: 2,
+              question_num: 10,
+              question_suffix: 'E',
+              question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
+            },
+            'zip_code' => {
+              'firstFive' => {
+                key: 'form1[0].#subform[17].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
                 limit: 5,
                 question_num: 10,
-                question_suffix: 'B',
+                question_suffix: 'F',
                 question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
               },
-              # address_line3
-              'city' => {
-                key: 'form1[0].#subform[17].CurrentMailingAddress_City[0]',
-                limit: 18,
+              'lastFour' => {
+                key: 'form1[0].#subform[17].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
+                limit: 4,
                 question_num: 10,
-                question_suffix: 'C',
+                question_suffix: 'G',
                 question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
-              },
-              'state_code' => {
-                key: 'form1[0].#subform[17].CurrentMailingAddress_StateOrProvince[0]',
-                limit: 2,
-                question_num: 10,
-                question_suffix: 'D',
-                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
-              },
-              'country_name' => {
-                key: 'form1[0].#subform[17].CurrentMailingAddress_Country[0]',
-                limit: 2,
-                question_num: 10,
-                question_suffix: 'E',
-                question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
-              },
-              'zip_code' => {
-                'firstFive' => {
-                  key: 'form1[0].#subform[17].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
-                  limit: 5,
-                  question_num: 10,
-                  question_suffix: 'F',
-                  question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
-                },
-                'lastFour' => {
-                  key: 'form1[0].#subform[17].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
-                  limit: 4,
-                  question_num: 10,
-                  question_suffix: 'G',
-                  question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > MAILING ADDRESS OF VETERAN/CLAIMANT'
-                }
               }
             }
-          }, # end veteran_contact_information
+          }
+
+        }, # end veteran_contact_information
+        'dependents_application' => {
           # ------------  SECTION II: INFORMATION NEEDED TO ADD SPOUSE  ------------ #
           'spouse_information' => {
             'full_name' => {
@@ -1514,7 +1515,7 @@ module PdfFill
 
       def merge_veteran_helpers
         veteran_information = @form_data['veteran_information']
-        veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
+        veteran_contact_information = @form_data['veteran_contact_information']
 
         # extract middle initial
         veteran_information['full_name']['middle'] = extract_middle_i(veteran_information, 'full_name')
@@ -1814,7 +1815,7 @@ module PdfFill
             'phone_first_three_numbers' => phone_number[3..5],
             'phone_last_four_numbers' => phone_number[6..9]
           }
-          end
+        end
       end
 
       def expand_va_file_number(spouse)
