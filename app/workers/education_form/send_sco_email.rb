@@ -8,7 +8,7 @@ module EducationForm
       @user = User.find(user_uuid)
       @claim = SavedClaim::EducationBenefits::VA10203.find(claim_id)
 
-      email_sent(false)
+      @claim.email_sent(false)
 
       @gi_bill_status = get_gi_bill_status
       if less_than_six_months?
@@ -34,13 +34,6 @@ module EducationForm
     end
 
     private
-
-    def email_sent(sco_email_sent)
-      application = @claim.parsed_form
-      application['scoEmailSent'] = sco_email_sent
-      @claim.form = JSON.generate(application)
-      @claim.save
-    end
 
     def get_gi_bill_status
       service = EVSS::GiBillStatus::Service.new(@user)
@@ -94,7 +87,7 @@ module EducationForm
       if emails.any?
         StatsD.increment("#{stats_key}.success")
         SchoolCertifyingOfficialsMailer.build(@claim.open_struct_form, emails, nil).deliver_now
-        email_sent(true)
+        @claim.email_sent(true)
       else
         StatsD.increment("#{stats_key}.failure")
       end

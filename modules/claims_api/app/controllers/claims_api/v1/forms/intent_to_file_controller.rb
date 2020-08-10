@@ -10,7 +10,8 @@ module ClaimsApi
         include ClaimsApi::PoaVerification
 
         before_action { permit_scopes %w[claim.write] }
-        before_action :validate_json_schema, only: %i[submit_form_0966]
+        before_action :validate_json_format, if: -> { request.post? }
+        before_action :validate_json_schema, only: %i[submit_form_0966 validate]
         before_action :check_future_type, only: [:submit_form_0966]
 
         FORM_NUMBER = '0966'
@@ -24,6 +25,10 @@ module ClaimsApi
           response = itf_service.get_active(active_param)
           render json: response['intent_to_file'],
                  serializer: ClaimsApi::IntentToFileSerializer
+        end
+
+        def validate
+          render json: validation_success
         end
 
         private
@@ -52,6 +57,17 @@ module ClaimsApi
 
         def itf_service
           EVSS::IntentToFile::Service.new(target_veteran)
+        end
+
+        def validation_success
+          {
+            data: {
+              type: 'intentToFileValidation',
+              attributes: {
+                status: 'valid'
+              }
+            }
+          }
         end
       end
     end
