@@ -12,14 +12,17 @@ module ClaimsApi
         FORM_NUMBER = '0966'
 
         def submit_form_0966
-          response = itf_service.create_intent_to_file(form_type)
-          render json: response['intent_to_file'],
+          bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
+          render json: bgs_response,
                  serializer: ClaimsApi::IntentToFileSerializer
         end
 
         def active
-          response = itf_service.get_active(active_param)
-          render json: response['intent_to_file'],
+          bgs_response = bgs_service.intent_to_file.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
+            target_veteran.participant_id,
+            ClaimsApi::IntentToFile::ITF_TYPES[active_param]
+          )&.first
+          render json: bgs_response,
                  serializer: ClaimsApi::IntentToFileSerializer
         end
 
@@ -31,10 +34,6 @@ module ClaimsApi
 
         def form_type
           form_attributes['type']
-        end
-
-        def itf_service
-          EVSS::IntentToFile::Service.new(target_veteran)
         end
       end
     end

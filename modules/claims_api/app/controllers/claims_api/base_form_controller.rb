@@ -63,5 +63,28 @@ module ClaimsApi
                                              type: 'application/pdf',
                                              tempfile: temp_file)
     end
+
+    def bgs_service
+      BGS::Services.new(
+        external_uid: target_veteran.participant_id,
+        external_key: target_veteran.participant_id
+      )
+    end
+
+    def intent_to_file_options
+      {
+        intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES[form_type],
+        participant_claimant_id: target_veteran.participant_id,
+        participant_vet_id: target_veteran.participant_id,
+        received_date: Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z'),
+        signature_indicated: 'Y',
+        submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
+        ssn: target_veteran.ssn
+      }
+    end
+
+    def itf_service
+      EVSS::IntentToFile::Service.new(target_veteran)
+    end
   end
 end

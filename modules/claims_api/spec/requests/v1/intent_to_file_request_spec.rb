@@ -34,10 +34,10 @@ RSpec.describe 'Intent to file', type: :request do
 
     it 'returns a payload with an expiration date' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/create_compensation') do
+        VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
           post path, params: data.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+          expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
         end
       end
     end
@@ -72,7 +72,7 @@ RSpec.describe 'Intent to file', type: :request do
   describe '#active' do
     it 'returns the latest itf of a type' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+        VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'compensation' }, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')

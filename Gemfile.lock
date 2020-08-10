@@ -34,9 +34,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 0ad1cd274698c1779ef3d95669db846ca2d484ea
+  revision: 1744355bc12df089c82e7dd8eee90e7ebc9783b9
   specs:
-    bgs_ext (0.14.2)
+    bgs_ext (0.14.4)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -425,7 +425,7 @@ GEM
     hashie (3.6.0)
     holidays (8.1.0)
     httpclient (2.8.3)
-    httpi (2.4.4)
+    httpi (2.4.5)
       rack
       socksify
     i18n (1.8.3)
@@ -485,7 +485,7 @@ GEM
     net-ssh (4.1.0)
     nio4r (2.5.2)
     no_proxy_fix (0.1.2)
-    nokogiri (1.10.9)
+    nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
     nori (2.6.0)
     notiffany (0.1.3)
@@ -670,7 +670,7 @@ GEM
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.1.0)
     safe_yaml (1.0.5)
-    savon (2.12.0)
+    savon (2.12.1)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
