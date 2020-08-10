@@ -3,7 +3,7 @@
 require_relative 'support/schema_camelizer'
 
 namespace :camelize_file do
-  desc 'Given a json schema file it is transformed into a camelCase version'
+  desc 'Given a json schema file in spec/support/schemas, it creates a camelCase version'
   # example `bundle exec rake camelize_file:schema[user_loa3]`
   task :schema, [:json_schema_file] => [:environment] do |_, args|
     raise IOError, 'No json-schema file provided' unless args[:json_schema_file]
@@ -12,12 +12,12 @@ namespace :camelize_file do
     raise IOError, "No json-schema file at #{schema_path}" unless File.exist? schema_path
 
     transformer = SchemaCamelizer.new(schema_path.to_s)
-    saved_schemas = transformer.save!
-    if saved_schemas.count == 1
-      print "Saved camelized schema to #{saved_schemas.first}\n"
+    saved_files = transformer.save!
+    if saved_files.count == 1
+      print "Saved camelized schema to #{saved_files.first}\n"
     else
       print "Saved camelized schema and its references:\n"
-      saved_schemas.each do |save_path|
+      saved_files.each do |save_path|
         print " - #{save_path}\n"
       end
     end
