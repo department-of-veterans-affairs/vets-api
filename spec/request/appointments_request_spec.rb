@@ -22,6 +22,14 @@ RSpec.describe 'Appointments', type: :request do
           expect(response).to match_response_schema('appointments_response')
         end
       end
+      it 'matches the appointments schema when camel-inflected' do
+        VCR.use_cassette('ihub/appointments/success') do
+          get '/v0/appointments', headers: { 'X-Key-Inflection' => 'camel' }
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('appointments_response')
+        end
+      end
     end
 
     context 'the user does not have an ICN' do
