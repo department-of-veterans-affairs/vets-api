@@ -5,8 +5,9 @@
 class SchemaCamelizer
   attr_reader :original_path, :camel_schema, :name, :referenced_schemas, :already_camelized
 
-  def initialize(schema_path)
+  def initialize(schema_path, destination_path = nil)
     @original_path = schema_path
+    @camel_path = destination_path
     @name = %r{/([^/]*)\.json$}.match(schema_path)[1]
     raw_schema = File.read(schema_path)
     # OliveBranch only changes keys, but the required key's value is an arrray of keys,
