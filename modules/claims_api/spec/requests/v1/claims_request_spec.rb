@@ -133,8 +133,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
     it 'users the poa verifier when the header is present' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claim') do
-          verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-          allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+          verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+          allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
           get '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers
@@ -147,8 +147,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
   context 'with oauth user and no headers' do
     it 'lists all Claims ', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       with_okta_user(scopes) do |auth_header|
-        verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-        allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+        verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+        allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
         VCR.use_cassette('evss/claims/claims') do
           get '/services/claims/v1/claims', params: nil, headers: auth_header

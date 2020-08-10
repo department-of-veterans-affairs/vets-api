@@ -75,7 +75,7 @@ module ClaimsApi
         private
 
         def current_poa
-          @current_poa ||= EVSS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def header_md5

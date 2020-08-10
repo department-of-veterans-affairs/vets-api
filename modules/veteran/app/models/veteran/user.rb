@@ -19,7 +19,7 @@ module Veteran
 
     def initialize(user)
       @user = user
-      build_from_json(EVSS::VSOSearch::Service.new(user).get_current_info(auth_headers))
+      # build_from_json(EVSS::VSOSearch::Service.new(user).get_current_info(auth_headers))
     end
 
     def build_from_json(json_data)
@@ -36,7 +36,7 @@ module Veteran
     end
 
     def auth_headers
-      @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
+      # @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
     end
   end
 end

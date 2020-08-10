@@ -110,7 +110,7 @@ module ClaimsApi
     end
 
     def verify_power_of_attorney
-      verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+      verifier = BGS::PowerOfAttorneyVerifier.new(target_veteran)
       verifier.verify(@current_user)
     end
 

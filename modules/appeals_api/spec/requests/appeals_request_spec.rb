@@ -23,8 +23,8 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
 
     before do
-      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
+      @verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+      allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
       allow(@verifier_stub).to receive(:verify)
     end
 
@@ -66,8 +66,8 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
 
     before do
-      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
+      @verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+      allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
       allow(@verifier_stub).to receive(:verify)
     end
 
