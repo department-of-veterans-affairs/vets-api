@@ -90,9 +90,9 @@ PATH
     claims_api (0.0.1)
 
 PATH
-  remote: modules/covid_vaccine_trial
+  remote: modules/covid_research
   specs:
-    covid_vaccine_trial (0.1.0)
+    covid_research (0.1.0)
       rails (~> 6.0.3, >= 6.0.3.2)
       sidekiq
 
@@ -866,7 +866,7 @@ DEPENDENCIES
   combine_pdf
   config
   connect_vbms!
-  covid_vaccine_trial!
+  covid_research!
   danger
   database_cleaner
   date_validator
