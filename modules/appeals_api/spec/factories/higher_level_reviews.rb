@@ -12,6 +12,10 @@ FactoryBot.define do
     trait :status_received do
       status { 'received' }
     end
+    trait :completed_a_week_ago do
+      updated_at { 8.days.ago }
+      status { AppealsApi::HigherLevelReview::COMPLETE_STATUSES.sample }
+    end
   end
 
   factory :extra_higher_level_review, class: 'AppealsApi::HigherLevelReview' do

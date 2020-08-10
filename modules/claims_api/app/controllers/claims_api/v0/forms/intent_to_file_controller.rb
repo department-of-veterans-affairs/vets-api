@@ -7,7 +7,8 @@ module ClaimsApi
     module Forms
       class IntentToFileController < ClaimsApi::BaseFormController
         skip_before_action(:authenticate)
-        before_action :validate_json_schema, only: %i[submit_form_0966]
+        before_action :validate_json_format, if: -> { request.post? }
+        before_action :validate_json_schema, only: %i[submit_form_0966 validate]
 
         FORM_NUMBER = '0966'
 
@@ -26,6 +27,10 @@ module ClaimsApi
                  serializer: ClaimsApi::IntentToFileSerializer
         end
 
+        def validate
+          render json: validation_success
+        end
+
         private
 
         def active_param
@@ -35,6 +40,24 @@ module ClaimsApi
         def form_type
           form_attributes['type']
         end
+<<<<<<< HEAD
+=======
+
+        def itf_service
+          EVSS::IntentToFile::Service.new(target_veteran)
+        end
+
+        def validation_success
+          {
+            data: {
+              type: 'intentToFileValidation',
+              attributes: {
+                status: 'valid'
+              }
+            }
+          }
+        end
+>>>>>>> 3a29d31de4d6c9cfca0951ce0acb51e7ffefcd32
       end
     end
   end
