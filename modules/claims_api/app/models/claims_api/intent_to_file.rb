@@ -2,7 +2,6 @@
 
 module ClaimsApi
   class IntentToFile
-
     ITF_TYPES = {
       'compensation' => 'C',
       'burial' => 'S',
