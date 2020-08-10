@@ -17,7 +17,7 @@ class SavedClaim::DependencyClaim < SavedClaim
   end
 
   def validate_686_form_data
-    if parsed_form['veteran_contact_information']['veteran_address'].blank?
+    if parsed_form['dependents_application']['veteran_contact_information']['veteran_address'].blank?
       errors.add(:parsed_form, "Veteran address can't be blank")
     end
 
