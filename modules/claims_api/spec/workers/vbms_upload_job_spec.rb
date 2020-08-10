@@ -104,6 +104,55 @@ RSpec.describe ClaimsApi::VbmsUploadJob, type: :job do
     end
   end
 
+  describe '#stream_to_temp_file' do
+    it 'converts a stream to a temp file' do
+      expect(described_class.new.stream_to_temp_file(StringIO.new)).to be_a Tempfile
+    end
+  end
+
+  describe '#fetch_file_path' do
+    subject { described_class.new.fetch_file_path(fake_uploader) }
+
+    let(:fake_uploader) do
+      OpenStruct.new file: OpenStruct.new(url: nil, file: fake_uploader_path)
+    end
+    let(:fake_uploader_path) { Object.new }
+
+    context 'uploads disabled' do
+      with_settings(Settings.evss.s3, uploads_enabled: false) do
+        it 'returns uploaders file path' do
+          expect(subject).to be fake_uploader_path
+        end
+      end
+    end
+
+    context 'uploads enabled' do
+      context 'OpenURI returns a StringIO' do
+        it 'returns a path' do
+          with_settings(Settings.evss.s3, uploads_enabled: true) do
+            allow(URI).to receive(:parse).and_return(OpenStruct.new(open: StringIO.new))
+            puts Settings.evss.s3.uploads_enabled
+            puts subject
+            expect(subject).to be_a String
+            expect(subject).not_to be_empty
+          end
+        end
+      end
+
+      context 'OpenURI returns a Tempfile' do
+        it 'returns a path' do
+          with_settings(Settings.evss.s3, 'uploads_enabled' => true) do
+            allow(URI).to receive(:parse).and_return(OpenStruct.new(open: Tempfile.new))
+            puts Settings.evss.s3.uploads_enabled
+            puts subject
+            expect(subject).to be_a String
+            expect(subject).not_to be_empty
+          end
+        end
+      end
+    end
+  end
+
   private
 
   def create_poa
