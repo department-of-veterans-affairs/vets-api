@@ -106,6 +106,7 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
     - 'rakelib/**/*.rake'
+    - 'lib/tasks/**/*.rake'
     - 'config/**/*.rb'
     - 'app/swagger/**/*.rb'
     - 'app/controllers/v0/apidocs_controller.rb'
