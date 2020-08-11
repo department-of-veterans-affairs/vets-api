@@ -12,6 +12,12 @@ FactoryBot.define do
     ssn { '123-45-6789' }
     va_claim_number { '23456789' }
     military_status { 'A' }
+    race do
+      [
+        build(:race, race_cd: 'I'),
+        build(:race, race_cd: 'A')
+      ]
+    end
 
     current_name { attributes_for :full_name }
     service_name { attributes_for :full_name }
