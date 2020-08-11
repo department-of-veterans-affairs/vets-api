@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://localhost:4447/IntentToFileWebServiceBean/IntentToFileWebService?WSDL
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/IntentToFileWebServiceBean/IntentToFileWebService?WSDL
     body:
       encoding: US-ASCII
       string: ''
