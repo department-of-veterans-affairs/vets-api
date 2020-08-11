@@ -66,7 +66,7 @@ GIT
 
 GIT
   remote: https://github.com/f1337/pact-mock_service
-  revision: f42c1f9deb8baedeb088aad72d973840efb5a744
+  revision: 8693c247a4404c99862414849abcc9506fd319ab
   branch: f1337/bump-thor-dependency
   specs:
     pact-mock_service (3.6.1)
