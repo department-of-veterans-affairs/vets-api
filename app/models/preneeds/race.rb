@@ -9,7 +9,6 @@ module Preneeds
     # U Not Hispanic or Latino
     # P Native Hawaiian or Other Pacific Islander
     # W White
-    # TODO validate
     attribute :race_cd, String
 
     def as_eoas
