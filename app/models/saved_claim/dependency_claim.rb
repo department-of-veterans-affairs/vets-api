@@ -5,7 +5,7 @@ require 'claims_api/vbms_uploader'
 class SavedClaim::DependencyClaim < SavedClaim
   FORM = '686C-674'
 
-  validate :validate_686_form_data, on: :pdf_upload_job
+  validate :validate_686_form_data, on: :run_686_form_jobs
 
   def upload_pdf
     form_path = PdfFill::Filler.fill_form(self)
