@@ -122,6 +122,15 @@ RSpec.describe 'email', type: :request do
           expect(response).to match_response_schema('email_address_response')
         end
       end
+
+      it 'matches the email address schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          post('/v0/profile/email', params: email_address.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('email_address_response')
+        end
+      end
     end
 
     context 'with a missing email' do
