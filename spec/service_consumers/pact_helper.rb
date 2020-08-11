@@ -5,7 +5,13 @@ ENV['RAILS_ENV'] ||= 'test'
 
 require File.expand_path('../../config/environment', __dir__)
 require 'pact/provider/rspec'
+require 'rspec/rails'
+require 'support/factory_bot'
+require 'support/authenticated_session_helper'
 require 'support/vcr'
+require 'support/mvi/stub_mvi'
+require 'support/stub_emis'
+require 'support/vet360/stub_vet360'
 Dir.glob(File.expand_path('provider_states_for/*.rb', __dir__), &method(:require))
 
 VCR.configure do |c|
@@ -20,6 +26,18 @@ git_sha = ENV['GIT_COMMIT'] || `git rev-parse --verify HEAD`
 git_branch = ENV['GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`
 # don't publish results if running in local development env
 publish_flag = ENV['PUBLISH_PACT_VERIFICATION_RESULTS'] == 'true' || !Rails.env.development?
+
+Pact.configure do |config|
+  config.include AuthenticatedSessionHelper
+end
+
+RSpec.configure do |config|
+  config.before do |example|
+    stub_mvi unless example.metadata[:skip_mvi]
+    stub_emis unless example.metadata[:skip_emis]
+    stub_vet360 unless example.metadata[:skip_vet360]
+  end
+end
 
 Pact.service_provider 'VA.gov API' do
   # This example points to a local file, however, on a real project with a continuous
@@ -36,6 +54,10 @@ Pact.service_provider 'VA.gov API' do
   # temporarily define the url or else we will get failing verification
   honours_pact_with 'Search' do
     pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/Search/latest'
+  end
+  
+  honours_pact_with 'Users' do
+    pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/User/latest'
   end
 
   #
