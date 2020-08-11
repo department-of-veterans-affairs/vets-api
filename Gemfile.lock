@@ -66,7 +66,7 @@ GIT
 
 GIT
   remote: https://github.com/f1337/pact-mock_service
-  revision: 33f320bd9b2d370354095bfd0fab3bf753fd5f7e
+  revision: f42c1f9deb8baedeb088aad72d973840efb5a744
   branch: f1337/bump-thor-dependency
   specs:
     pact-mock_service (3.6.1)
@@ -82,7 +82,7 @@ GIT
 
 GIT
   remote: https://github.com/f1337/pact-ruby
-  revision: 39e33db2779a6fbd1007e6cf73d32904a6adfc0a
+  revision: dd0ef336ab71f300e1562e940fad337baf7c6f74
   branch: f1337/bump-thor-dependency
   specs:
     pact (1.51.0)
