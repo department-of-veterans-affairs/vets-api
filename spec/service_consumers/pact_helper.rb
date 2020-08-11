@@ -54,7 +54,7 @@ Pact.service_provider 'VA.gov API' do
 
   app_version git_sha
   app_version_tags git_branch
-  # publish_verification_results publish_flag
+  publish_verification_results publish_flag
 
   # temporarily define the url or else we will get failing verification
   honours_pact_with 'Search' do
