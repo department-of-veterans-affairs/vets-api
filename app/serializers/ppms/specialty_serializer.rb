@@ -7,6 +7,7 @@ class PPMS::SpecialtySerializer
 
   attributes :classification,
              :grouping,
+             :name,
              :specialization,
              :specialty_code,
              :specialty_description

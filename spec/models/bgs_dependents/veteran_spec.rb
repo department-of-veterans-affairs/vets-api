@@ -3,13 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::Veteran do
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:person) { { first_nm: 'foo', last_nm: 'bar' } }
   let(:address) { { addrs_one_txt: '123 mainstreet', cntry_nm: 'USA', vnp_ptcpnt_addrs_id: '116343' } }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:veteran_response_result_sample) do
     {
       vnp_participant_id: '149500',
@@ -42,14 +37,27 @@ RSpec.describe BGSDependents::Veteran do
       'state_code' => 'CA',
       'zip_code' => '21122',
       'vet_ind' => 'Y',
-      'martl_status_type_cd' => 'OTHER'
+      'martl_status_type_cd' => 'Separated'
     }
   end
 
   describe '#formatted_params' do
-    it 'formats params given a payload' do
-      expect(vet.formatted_params(all_flows_payload))
-        .to include(formatted_params_result)
+    it 'formats params given a veteran that is separated' do
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
+    end
+
+    it 'formats params given a veteran that is married' do
+      formatted_params_result['martl_status_type_cd'] = 'Married'
+      all_flows_payload['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = true
+
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
+    end
+
+    it 'formats params given a veteran was never married' do
+      formatted_params_result['martl_status_type_cd'] = 'Never Married'
+      all_flows_payload['dependents_application']['veteran_was_married_before'] = false
+
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
     end
   end
 

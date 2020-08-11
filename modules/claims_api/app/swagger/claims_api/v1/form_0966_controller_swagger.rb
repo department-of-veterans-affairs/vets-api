@@ -285,6 +285,93 @@ module ClaimsApi
           end
         end
       end
+
+      swagger_path '/forms/0966/validate' do
+        operation :post do
+          key :summary, ' 0966 Intent to File form submission dry run'
+          key :description, 'Accepts JSON payload.'
+          key :operationId, 'validate0966itf'
+          key :tags, [
+            'Intent to File'
+          ]
+
+          security do
+            key :bearer_token, []
+          end
+
+          request_body do
+            key :description, 'JSON API Payload of Veteran being submitted'
+            key :required, true
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :type, :object
+                  key :required, [:attributes]
+                  key :example, type: 'form/0966', attributes: { type: 'compensation' }
+                  property :attributes do
+                    key :type, :object
+                    property :type do
+                      key :type, :string
+                      key :example, 'compensation'
+                      key :description, 'Required by JSON API standard'
+                      key :enum, %w[
+                        compensation
+                        burial
+                        pension
+                      ]
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          response 200 do
+            key :description, 'Valid'
+            content 'application/json' do
+              key(
+                :examples,
+                {
+                  default: {
+                    value: {
+                      data: { type: 'intentToFileValidation', attributes: { status: 'valid' } }
+                    }
+                  }
+                }
+              )
+              schema do
+                key :type, :object
+                property :data do
+                  key :type, :object
+                  property :type, type: :string
+                  property :attributes do
+                    key :type, :object
+                    property :status, type: :string
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Invalid Payload'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
     end
   end
 end

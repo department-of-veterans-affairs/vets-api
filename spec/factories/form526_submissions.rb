@@ -5,7 +5,10 @@ FactoryBot.define do
     user_uuid { SecureRandom.uuid }
     saved_claim { create(:va526ez) }
     submitted_claim_id { nil }
-    auth_headers_json { 'null' }
+    auth_headers_json do
+      user = build(:disabilities_compensation_user)
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h).to_json
+    end
     form_json do
       File.read("#{::Rails.root}/spec/support/disability_compensation_form/submissions/only_526.json")
     end
