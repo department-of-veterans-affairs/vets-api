@@ -14,7 +14,7 @@ module V0
       service = ::Form1010cg::Service.new(SavedClaim::CaregiversAssistanceClaim.new(form: claim_data.to_json))
 
       vet_icn = service.icn_for('veteran')
-      mvi_profile = service.vet_profile_res.&profile
+      mvi_profile = service.vet_profile_res&.profile
       vet_edipi = service.vet_profile_res&.profile&.edipi
 
       # emis_response_by_icn    = vet_icn == 'NOT_FOUND' ? nil : search_emis(icn: vet_icn)
