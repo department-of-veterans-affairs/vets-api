@@ -12,11 +12,13 @@ module BGSDependents
 
     def initialize(proc_id, user)
       @proc_id = proc_id
-      self.attributes = user
+      @user = user
+      self.attributes = user_veteran_attributes
     end
 
     def formatted_params(payload)
       dependents_application = payload['dependents_application']
+
       vet_info = [
         *payload['veteran_information'],
         ['first', first_name],
@@ -54,6 +56,19 @@ module BGSDependents
     end
 
     private
+
+    def user_veteran_attributes
+      external_key = @user.common_name || @user.email
+      {
+        participant_id: @user.participant_id,
+        ssn: @user.ssn,
+        first_name: @user.first_name,
+        middle_name: @user.middle_name,
+        last_name: @user.last_name,
+        external_key: external_key,
+        icn: @user.icn
+      }
+    end
 
     def marital_status(dependents_application)
       spouse_lives_with_vet = dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
