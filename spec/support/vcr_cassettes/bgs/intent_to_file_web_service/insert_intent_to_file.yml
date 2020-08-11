@@ -171,7 +171,7 @@ http_interactions:
   recorded_at: Mon, 10 Aug 2020 13:31:19 GMT
 - request:
     method: post
-    uri: https://localhost:4447/IntentToFileWebServiceBean/IntentToFileWebService
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/IntentToFileWebServiceBean/IntentToFileWebService
     body:
       encoding: UTF-8
       string: |-
