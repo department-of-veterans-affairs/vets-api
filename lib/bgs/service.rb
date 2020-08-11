@@ -13,9 +13,11 @@ module BGS
     end
 
     def create_proc
-      service.vnp_proc_v2.vnp_proc_create(
-        { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
-      )
+      with_multiple_attempts_enabled do
+        service.vnp_proc_v2.vnp_proc_create(
+          { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
+        )
+      end
     end
 
     def create_proc_form(vnp_proc_id)
@@ -80,13 +82,13 @@ module BGS
 
     def create_child_school(child_school_params)
       with_multiple_attempts_enabled do
-        service.vnp_child_school.child_school_create(child_school_params)
+        service.vnp_child_school.child_school_create(child_school_params.merge(bgs_auth))
       end
     end
 
     def create_child_student(child_student_params)
       with_multiple_attempts_enabled do
-        service.vnp_child_student.child_student_create(child_student_params)
+        service.vnp_child_student.child_student_create(child_student_params.merge(bgs_auth))
       end
     end
 
@@ -110,12 +112,6 @@ module BGS
       end
     end
 
-    def get_va_file_number
-      person = service.people.find_person_by_ptcpnt_id(@user[:participant_id])
-
-      person[:file_nbr]
-    end
-
     def vnp_create_benefit_claim(vnp_benefit_params)
       service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params.merge(bgs_auth))
     end
@@ -124,16 +120,22 @@ module BGS
       service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
     end
 
-    def insert_benefit_claim(benefit_claim_params)
-      service.claims.insert_benefit_claim(benefit_claim_params)
-    end
-
     def update_manual_proc(proc_id)
       service.vnp_proc_v2.vnp_proc_update(
         { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual' }.merge(bgs_auth)
       )
     rescue => e
       notify_of_service_exception(e, __method__)
+    end
+
+    def get_va_file_number
+      person = service.people.find_person_by_ptcpnt_id(@user[:participant_id])
+
+      person[:file_nbr]
+    end
+
+    def insert_benefit_claim(benefit_claim_params)
+      service.claims.insert_benefit_claim(benefit_claim_params)
     end
 
     def bgs_auth
