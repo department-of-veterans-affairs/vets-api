@@ -16,6 +16,17 @@ module BGSDependents
       alt_address
     end
 
+    def relationship_type(info)
+      if info['dependent_type']
+        return { participant: 'Guardian', family: 'Other' } if info['dependent_type'] == 'DEPENDENT_PARENT'
+
+        {
+          participant: info['dependent_type'].capitalize.gsub('_', ' '),
+          family: info['dependent_type'].capitalize.gsub('_', ' ')
+        }
+      end
+    end
+
     def serialize_dependent_result(
       participant,
       participant_relationship_type,
@@ -56,7 +67,7 @@ module BGSDependents
         death_dt: format_date(payload['death_date']),
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
-        martl_status_type_cd: 'Married'
+        martl_status_type_cd: payload['martl_status_type_cd']
       }
     end
 
