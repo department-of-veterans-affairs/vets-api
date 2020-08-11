@@ -94,6 +94,12 @@ RSpec.describe 'Backend Status', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('backend_statuses')
       end
+      it 'matches the backend_statuses schema when camel-inflected', :aggregate_failures do
+        get '/v0/backend_statuses', headers: { 'X-Key-Inflection' => 'camel' }
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('backend_statuses')
+      end
     end
 
     context 'when the PagerDuty API rate limit has been exceeded' do

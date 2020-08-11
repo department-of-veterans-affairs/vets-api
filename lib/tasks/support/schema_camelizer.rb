@@ -5,13 +5,14 @@
 class SchemaCamelizer
   attr_reader :original_path, :camel_schema, :name, :referenced_schemas, :already_camelized
 
-  def initialize(schema_path)
+  def initialize(schema_path, destination_path = nil)
     @original_path = schema_path
+    @camel_path = destination_path
     @name = %r{/([^/]*)\.json$}.match(schema_path)[1]
     raw_schema = File.read(schema_path)
     # OliveBranch only changes keys, but the required key's value is an arrray of keys,
     #  these need to be camelized to match the keys to which they refer
-    raw_schema.gsub!(/"required": \[(["\w*"\,? ?\n?]*)\]/) do
+    modified_schema = raw_schema.gsub(/"required": \[(["\w*"\,? ?\n?]*)\]/) do
       # rubocop:disable Style/PerlBackrefs
       # use $1 to refer to the matched part of the gsub, which would be a string of quoted keys
       # split the string into an array of quoted keys
@@ -23,9 +24,8 @@ class SchemaCamelizer
       "\"required\": [#{keys.map { |key| "\"#{key}\"" }.join(', ')}]"
     end
 
-    hashed_schema = JSON.parse(raw_schema)
-    @camel_schema = OliveBranch::Transformations.transform(hashed_schema, camelizer)
-    @already_camelized = hashed_schema == @camel_schema
+    @camel_schema = OliveBranch::Transformations.transform(JSON.parse(modified_schema), camelizer)
+    @already_camelized = JSON.parse(raw_schema).to_json == @camel_schema.to_json
 
     # some schemas use "$ref" to include a definition from another file, transform any needed also
     @referenced_schemas = raw_schema.scan(/"\$ref": "(.*)\.json"/).flatten.map do |schema_name|
@@ -49,12 +49,12 @@ class SchemaCamelizer
   end
 
   # Saves the #camel_schema to #camel_path
-  # raises an error when original schema is not from spec/support/schemas
+  # raises an error when original schema is not from a schemas directory
   # also saves a camelized version of any referenced schemas
   #
   # @return [array] files created
   def save!
-    raise 'expected spec/support/schemas to be original path!' if original_path == camel_path
+    raise 'expected to move from a schemas directory to a schemas_camelized directory!' if original_path == camel_path
 
     File.open(camel_path, 'w') do |file|
       file.write(JSON.pretty_generate(camel_schema))
