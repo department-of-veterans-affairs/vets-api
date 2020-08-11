@@ -132,7 +132,7 @@ group :test do
   gem 'awrence'
   gem 'fakeredis'
   gem 'pact', git: 'https://github.com/f1337/pact-ruby', branch: 'f1337/bump-thor-dependency', require: false
-  gem 'pact-mock_service'
+  gem 'pact-mock_service', require: false
   gem 'pdf-inspector'
   gem 'rspec-retry'
   gem 'rspec_junit_formatter'
