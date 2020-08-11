@@ -23,7 +23,7 @@ class V1::Facilities::VaCcpController < FacilitiesController
     render_json(
       PPMS::ProviderFacilitySerializer,
       ppms_params,
-      providers_facilities,
+      [providers_facilities],
       { include: %i[providers facilities] }
     )
   end
@@ -67,6 +67,6 @@ class V1::Facilities::VaCcpController < FacilitiesController
   end
 
   def resource_path(options)
-    v1_facilities_ccp_index_url(options)
+    urgent_care_v1_facilities_va_ccp_index(options)
   end
 end
