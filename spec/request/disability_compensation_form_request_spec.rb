@@ -39,6 +39,13 @@ RSpec.describe 'Disability compensation form', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+      it 'returns a bad gateway response with camel-inflection' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
 
     context 'with a 401 response' do
