@@ -20,7 +20,7 @@ module V0
       # emis_response_by_icn    = vet_icn == 'NOT_FOUND' ? nil : search_emis(icn: vet_icn)
       emis_response_by_edipi = vet_edipi.nil? ? nil : search_emis(edipi: vet_edipi)
 
-      render json: formatted_res(mvi_profile, vet_icn, vet_edipi, nil, emis_response_by_edipi)
+      render json: formatted_res(mvi_profile, vet_icn, vet_edipi, emis_response_by_edipi)
     end
 
     def create
@@ -68,7 +68,7 @@ module V0
 
     private
 
-    def formatted_res(mvi_profile, vet_icn, vet_edipi, res_by_icn, res_by_edipi)
+    def formatted_res(mvi_profile, vet_icn, vet_edipi, res_by_edipi)
       {
         icn: vet_icn,
         edipi: vet_edipi,
