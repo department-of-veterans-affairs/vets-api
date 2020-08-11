@@ -42,10 +42,6 @@ module ClaimsApi
           form_attributes['type']
         end
 
-        def itf_service
-          EVSS::IntentToFile::Service.new(target_veteran)
-        end
-
         def validation_success
           {
             data: {

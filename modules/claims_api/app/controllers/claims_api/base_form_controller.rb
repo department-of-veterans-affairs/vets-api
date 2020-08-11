@@ -82,9 +82,5 @@ module ClaimsApi
         ssn: target_veteran.ssn
       }
     end
-
-    def itf_service
-      EVSS::IntentToFile::Service.new(target_veteran)
-    end
   end
 end
