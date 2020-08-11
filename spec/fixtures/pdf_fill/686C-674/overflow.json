@@ -66,7 +66,11 @@
         "reason_marriage_ended": "Other",
         "reason_marriage_ended_other": "Some other reason",
         "end_date": "2009-05-05",
-        "end_location": {"state": "IL", "city": "Chicago"},
+        "end_location":{
+          "is_outside_us":true,
+          "country":"BHS",
+          "city":"Nassau"
+         },
         "full_name": {
           "first": "Sansa",
           "middle": "Bigfoot",
@@ -121,7 +125,11 @@
     "spouse_marriage_history": [
       {
         "start_date": "2014-03-03",
-        "start_location": {"state": "IL", "city": "Rock Island"},
+        "start_location":{
+           "is_outside_us":true,
+           "country":"AUS",
+           "city":"Sydney"
+        },
         "reason_marriage_ended": "Death",
         "reason_marriage_ended_other": "Death",
         "end_date": "2017-03-04",
@@ -193,7 +201,11 @@
             "zip_code": "90210-8642"
           }
         },
-        "place_of_birth": {"state": "CA", "city": "Slawson"},
+        "place_of_birth":{
+          "is_outside_us":true,
+          "country":"VEN",
+          "city":"Caracas"
+         },
         "child_status": {"biological": true},
         "previously_married": "Yes",
         "previous_marriage_details": {

@@ -1645,7 +1645,6 @@ module PdfFill
           unless child['does_child_live_with_you']
             child['child_address_info']['address']['zip_code'] =
               split_postal_code(child.dig('child_address_info', 'address'))
-            # @TODO TEST THIS 20200804
             child['child_address_info']['address']['country_name'] =
               extract_country(child.dig('child_address_info', 'address'))
           end
