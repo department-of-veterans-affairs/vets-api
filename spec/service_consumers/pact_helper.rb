@@ -37,7 +37,6 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
-    #need va_profile facilities to be a non-nil array
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
