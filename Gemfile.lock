@@ -66,7 +66,7 @@ GIT
 
 GIT
   remote: https://github.com/f1337/pact-ruby
-  revision: dd0ef336ab71f300e1562e940fad337baf7c6f74
+  revision: a01e136f246d64117a24635a98b3c40e9d1b070a
   branch: f1337/bump-thor-dependency
   specs:
     pact (1.51.0)
