@@ -165,6 +165,12 @@ RSpec.describe 'Disability compensation form', type: :request do
           expect(response).to match_response_schema('submit_disability_form')
         end
 
+        it 'matches the rated disabilites schema with camel-inflection' do
+          post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers_with_camel
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('submit_disability_form')
+        end
+
         it 'starts the submit job' do
           expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
           post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers
@@ -178,6 +184,12 @@ RSpec.describe 'Disability compensation form', type: :request do
           post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
+        end
+
+        it 'matches the rated disabilites schema with camel-inflection' do
+          post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers_with_camel
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('submit_disability_form')
         end
       end
     end
