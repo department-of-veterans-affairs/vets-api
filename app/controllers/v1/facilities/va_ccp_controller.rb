@@ -38,17 +38,6 @@ class V1::Facilities::VaCcpController < FacilitiesController
     Lighthouse::Facilities::Client.new
   end
 
-  def pagination_params
-    hsh = super
-    page = Integer(hsh[:page] || 1)
-    per_page = Integer(hsh[:per_page] || 1)
-    total_entries = page * per_page + 1
-    hsh.compact.transform_values!(&:to_i)
-    hsh.merge(
-      total_entries: total_entries
-    )
-  end
-
   def ppms_params
     params.permit(
       :address,
