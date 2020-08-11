@@ -50,7 +50,7 @@
       "spouse_does_live_with_veteran": false,
       "current_spouse_reason_for_separation": "Other",
       "address": {
-        "country_name": "US",
+        "country_name": "USA",
         "address_line1": "2037 29th St",
         "address_line2": "Apt 1",
         "city": "Rock Island",
@@ -193,7 +193,7 @@
             "middle": "O",
             "last": "Bradsky"},
           "address": {
-            "country_name": "US",
+            "country_name": "USA",
             "address_line1": "1100 Robin Cir",
             "address_line2": "#8C",
             "city": "Los Angeles",
@@ -248,7 +248,7 @@
         "address":
         {
             "country_name": "USA",
-            "address_line1": "111 Baker St",
+            "address_line1": "111 Baker Really Long Street Name",
             "city": "Baltimore",
             "state_code": "MD",
             "zip_code": "26042-9906"
@@ -290,7 +290,7 @@
           "city": "Aomplea"
         },
         "full_name": {
-          "first": "John",
+          "first": "John Really Long First Name",
           "middle": "Henry",
           "last": "Doe",
           "suffix": "Sr."
@@ -319,7 +319,7 @@
       "full_name": {
         "first": "James",
         "middle": "Quandry",
-        "last": "Beanstalk",
+        "last": "Beanstalk Really Long Last Name",
         "suffix": "Sr."
       },
       "date_married": "1977-02-01"
