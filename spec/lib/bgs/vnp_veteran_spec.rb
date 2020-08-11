@@ -62,7 +62,6 @@ RSpec.describe BGS::VnpVeteran do
         middle_nm: nil,
         last_nm: 'FORD',
         suffix_nm: nil,
-        brthdy_dt: '1809-02-12T00:00:00-05:00',
         birth_state_cd: nil,
         birth_city_nm: nil,
         file_nbr: '796043735',
