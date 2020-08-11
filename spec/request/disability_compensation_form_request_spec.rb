@@ -117,7 +117,10 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     it 'returns matching conditions with camel-inflection', :aggregate_failures do
-      get '/v0/disability_compensation_form/suggested_conditions?name_part=art', params: nil, headers: headers_with_camel
+      get '/v0/disability_compensation_form/suggested_conditions?name_part=art',
+          params: nil,
+          headers: headers_with_camel
+
       expect(response).to have_http_status(:ok)
       expect(response).to match_camelized_response_schema('suggested_conditions')
       expect(conditions.count).to eq 3
