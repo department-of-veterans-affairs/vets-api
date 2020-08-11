@@ -46,6 +46,7 @@ module Preneeds
     attribute :va_claim_number, String
     attribute :military_status, String
 
+    attribute :race, Array[Preneeds::Race]
     attribute :address, Preneeds::Address
     attribute :current_name, Preneeds::FullName
     attribute :service_name, Preneeds::FullName
@@ -56,7 +57,9 @@ module Preneeds
     def as_eoas
       hash = {
         address: address&.as_eoas, currentName: current_name.as_eoas, dateOfBirth: date_of_birth,
-        dateOfDeath: date_of_death, gender: gender, isDeceased: is_deceased,
+        dateOfDeath: date_of_death, gender: gender,
+        race: race&.map(&:as_eoas),
+        isDeceased: is_deceased,
         maritalStatus: marital_status, militaryServiceNumber: military_service_number,
         placeOfBirth: place_of_birth, serviceName: service_name.as_eoas,
         serviceRecords: service_records.map(&:as_eoas), ssn: ssn, vaClaimNumber: va_claim_number,
