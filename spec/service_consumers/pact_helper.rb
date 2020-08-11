@@ -27,17 +27,16 @@ git_branch = ENV['GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`
 # don't publish results if running in local development env
 publish_flag = ENV['PUBLISH_PACT_VERIFICATION_RESULTS'] == 'true' || !Rails.env.development?
 
-RSpec.configure do |config|
+Pact.configure do |config|
   config.include AuthenticatedSessionHelper
+end
+
+RSpec.configure do |config|
   config.define_derived_metadata do |metadata|
     metadata[:type] = :request
   end
 
   config.before do |example|
-    user = FactoryBot.build(:user, :loa3, va_patient: true, middle_name: "J" )
-    session_object = sign_in(user, nil, nil, true)
-    allow_any_instance_of(ActionDispatch::Request).to receive(:session).and_return(session_object.to_hash)
-    
     #need va_profile facilities to be a non-nil array
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
@@ -55,7 +54,7 @@ Pact.service_provider 'VA.gov API' do
 
   app_version git_sha
   app_version_tags git_branch
-  publish_verification_results publish_flag
+  # publish_verification_results publish_flag
 
   # temporarily define the url or else we will get failing verification
   honours_pact_with 'Search' do
