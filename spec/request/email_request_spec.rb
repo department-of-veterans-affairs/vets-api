@@ -9,6 +9,7 @@ RSpec.describe 'email', type: :request do
 
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before { sign_in_as(user) }
 
@@ -20,6 +21,14 @@ RSpec.describe 'email', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('email_address_response')
+        end
+      end
+      it 'matches the email schema when camel-inflected' do
+        VCR.use_cassette('evss/pciu/email') do
+          get '/v0/profile/email', headers: inflection_header
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('email_address_response')
         end
       end
     end
@@ -77,6 +86,7 @@ RSpec.describe 'email', type: :request do
 
   describe 'POST /v0/profile/email' do
     let(:email_address) { build(:email_address) }
+    let(:headers_with_camel) { headers.merge(inflection_header) }
 
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
