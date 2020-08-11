@@ -79,7 +79,7 @@ module V0
         searches: {
           mvi: mvi_profile,
           emis: {
-            by_icn: res_by_icn,
+            # by_icn: res_by_icn,
             by_edipi: res_by_edipi
           }
         }

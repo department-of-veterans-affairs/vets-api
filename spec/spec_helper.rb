@@ -42,6 +42,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
+    add_filter 'app/controllers/v0/caregivers_assistance_claims_controller.rb'
 
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
