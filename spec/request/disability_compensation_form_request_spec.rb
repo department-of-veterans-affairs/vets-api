@@ -56,6 +56,13 @@ RSpec.describe 'Disability compensation form', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+      it 'returns a bad gateway response with camel-inflection' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_401') do
+          get '/v0/disability_compensation_form/submit_all_claim', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:not_found)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
 
     context 'with a 403 unauthorized response' do
@@ -66,6 +73,13 @@ RSpec.describe 'Disability compensation form', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+      it 'returns a not authorized response with camel-inflection' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
+          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:forbidden)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
 
     context 'with a generic 400 response' do
@@ -74,6 +88,13 @@ RSpec.describe 'Disability compensation form', type: :request do
           get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('evss_errors', strict: false)
+        end
+      end
+      it 'returns a bad request response with camel-inflection' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
+          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
         end
       end
     end
