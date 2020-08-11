@@ -7,6 +7,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   let(:user) { build(:disabilities_compensation_user) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
+  let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
   before do
     sign_in_as(user)
@@ -19,6 +20,13 @@ RSpec.describe 'Disability compensation form', type: :request do
           get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('rated_disabilities')
+        end
+      end
+      it 'matches the rated disabilities schema when camel-inflected' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('rated_disabilities')
         end
       end
     end
