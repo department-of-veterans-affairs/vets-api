@@ -58,27 +58,6 @@ RSpec.describe V0::DependentsApplicationsController do
         expect(response.code).to eq('200')
       end
     end
-
-    context 'with invalid params' do
-      let(:params) do
-        {
-          dependents_application: {
-            form: test_form.except('privacyAgreementAccepted').to_json
-          }
-        }
-      end
-
-      it 'shows the validation errors' do
-        subject
-
-        expect(response.code).to eq('422')
-        expect(
-          JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
-        ).to eq(true)
-      end
-    end
   end
 
   describe 'GET disability_rating' do

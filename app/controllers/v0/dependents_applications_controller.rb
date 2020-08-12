@@ -35,7 +35,17 @@ module V0
     private
 
     def dependent_params
-      params.permit(dependents_application: {})
+      params.permit(
+        :add_spouse,
+        :add_child,
+        :report674,
+        :report_divorce,
+        :report_stepchild_not_in_household,
+        :report_death,
+        :report_marriage_of_child_under18,
+        :report_child18_or_older_is_not_attending_school,
+        dependents_application: {}
+      )
     end
 
     def dependent_service
