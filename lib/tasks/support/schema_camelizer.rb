@@ -42,6 +42,7 @@ class SchemaCamelizer
   end
 
   # Getter for path to which new camel schema will be saved
+  # defaults to changing `path/to/schemas` to `path/to/schemas_camelized`
   #
   # @return [string] the path for saving the camel schema
   def camel_path
@@ -54,7 +55,7 @@ class SchemaCamelizer
   #
   # @return [array] files created
   def save!
-    raise 'expected to move from a schemas directory to a schemas_camelized directory!' if original_path == camel_path
+    raise "expected `#camel_path` (#{camel_path}) to be different from the given path" if original_path == camel_path
 
     File.open(camel_path, 'w') do |file|
       file.write(JSON.pretty_generate(camel_schema))

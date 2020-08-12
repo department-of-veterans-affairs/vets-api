@@ -146,7 +146,8 @@ describe SchemaCamelizer do
       File.open(schema_file_in_weird_location, 'w') { |file| file.write(JSON.pretty_generate(schema)) }
 
       subject = SchemaCamelizer.new(schema_file_in_weird_location)
-      exception_text = 'expected to move from a schemas directory to a schemas_camelized directory!'
+      exception_text = 'expected `#camel_path` (tmp/camel_schema_tests/bad_location.json) ' \
+                       'to be different from the given path'
       expect { subject.save! }.to raise_error(exception_text)
     end
   end
