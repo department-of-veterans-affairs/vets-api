@@ -597,7 +597,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect(Raven).to receive(:capture_message).at_least(:once)
             expect(Raven).to receive(:extra_context).at_least(:once) # From PostURLService#initialize
             with_settings(Settings.sentry, dsn: 'T') do
-              post(:saml_callback, params: { type: 'mfa' })
+              post(:saml_callback, params: { RelayState: '{"type": "mfa"}' })
             end
           end
         end
