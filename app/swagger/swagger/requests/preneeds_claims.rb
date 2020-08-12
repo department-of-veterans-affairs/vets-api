@@ -103,6 +103,13 @@ module Swagger
                 property :serviceName, type: :object do
                   key :'$ref', :PreneedName
                 end
+
+                property :race, type: :array, description: 'veteran ethnicities' do
+                  items do
+                    property :race_cd, type: :string, example: 'I'
+                  end
+                end
+
                 property :serviceRecords, type: :array, description: 'data about tours of duty' do
                   items do
                     property :dateRange, type: :object do
