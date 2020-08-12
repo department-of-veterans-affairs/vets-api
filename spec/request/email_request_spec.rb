@@ -9,6 +9,7 @@ RSpec.describe 'email', type: :request do
 
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before { sign_in_as(user) }
 
@@ -22,6 +23,15 @@ RSpec.describe 'email', type: :request do
           expect(response).to match_response_schema('email_address_response')
         end
       end
+
+      it 'matches the email schema when camel-inflected' do
+        VCR.use_cassette('evss/pciu/email') do
+          get '/v0/profile/email', headers: inflection_header
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('email_address_response')
+        end
+      end
     end
 
     context 'with a 400 response' do
@@ -31,6 +41,15 @@ RSpec.describe 'email', type: :request do
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
+        end
+      end
+
+      it 'matches the errors schema when camel-inflected' do
+        VCR.use_cassette('evss/pciu/email_status_400') do
+          get '/v0/profile/email', headers: inflection_header
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
@@ -54,6 +73,14 @@ RSpec.describe 'email', type: :request do
           expect(response).to match_response_schema('errors')
         end
       end
+      it 'matches the errors schema when camel-inflected' do
+        VCR.use_cassette('evss/pciu/email_status_500') do
+          get '/v0/profile/email', headers: inflection_header
+
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('errors')
+        end
+      end
     end
 
     context 'when authorization requirements are not met' do
@@ -64,6 +91,13 @@ RSpec.describe 'email', type: :request do
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')
+      end
+
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        get '/v0/profile/email', headers: inflection_header
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response).to match_camelized_response_schema('errors')
       end
 
       it 'includes the missing values in the response detail', :aggregate_failures do
@@ -77,6 +111,7 @@ RSpec.describe 'email', type: :request do
 
   describe 'POST /v0/profile/email' do
     let(:email_address) { build(:email_address) }
+    let(:headers_with_camel) { headers.merge(inflection_header) }
 
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
@@ -85,6 +120,15 @@ RSpec.describe 'email', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('email_address_response')
+        end
+      end
+
+      it 'matches the email address schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          post('/v0/profile/email', params: email_address.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('email_address_response')
         end
       end
     end
@@ -99,6 +143,16 @@ RSpec.describe 'email', type: :request do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include "email - can't be blank"
       end
+
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        email_address = build :email_address, email: ''
+
+        post('/v0/profile/email', params: email_address.to_json, headers: headers_with_camel)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(errors_for(response)).to include "email - can't be blank"
+      end
     end
 
     context 'with an invalid email' do
@@ -111,6 +165,16 @@ RSpec.describe 'email', type: :request do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include 'email - is invalid'
       end
+
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        email_address = build :email_address, email: 'johngmail.com'
+
+        post('/v0/profile/email', params: email_address.to_json, headers: headers_with_camel)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(errors_for(response)).to include 'email - is invalid'
+      end
     end
 
     context 'with a 400 response' do
@@ -120,6 +184,15 @@ RSpec.describe 'email', type: :request do
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
+        end
+      end
+
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('evss/pciu/post_email_address_status_400') do
+          post('/v0/profile/email', params: email_address.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
@@ -143,6 +216,15 @@ RSpec.describe 'email', type: :request do
           expect(response).to match_response_schema('errors')
         end
       end
+
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('evss/pciu/post_email_address_status_500') do
+          post('/v0/profile/email', params: email_address.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('errors')
+        end
+      end
     end
 
     context 'when authorization requirements are not met' do
@@ -153,6 +235,13 @@ RSpec.describe 'email', type: :request do
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')
+      end
+
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        post('/v0/profile/email', params: email_address.to_json, headers: headers_with_camel)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response).to match_camelized_response_schema('errors')
       end
 
       it 'includes the missing values in the response detail', :aggregate_failures do

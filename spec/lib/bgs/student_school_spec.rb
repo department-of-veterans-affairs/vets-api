@@ -4,16 +4,6 @@ require 'rails_helper'
 
 RSpec.describe BGS::StudentSchool do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:user_hash) do
-    {
-      participant_id: user_object.participant_id,
-      ssn: user_object.ssn,
-      first_name: user_object.first_name,
-      last_name: user_object.last_name,
-      external_key: user_object.common_name || user_object.email,
-      icn: user_object.icn
-    }
-  end
   let(:proc_id) { '3829729' }
   let(:vnp_participant_id) { '149471' }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
@@ -67,7 +57,7 @@ RSpec.describe BGS::StudentSchool do
           proc_id: proc_id,
           vnp_participant_id: vnp_participant_id,
           payload: all_flows_payload,
-          user: user_hash
+          user: user_object
         ).create
       end
     end

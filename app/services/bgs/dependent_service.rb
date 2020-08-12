@@ -23,6 +23,7 @@ module BGS
 
       vet_info = VetInfo.new(@user, bgs_person)
 
+      BGS::SubmitForm686cJob.perform_async(@user.uuid, claim.id, vet_info.to_686c_form_hash)
       VBMS::SubmitDependentsPDFJob.perform_async(claim.id, vet_info.to_686c_form_hash)
     rescue => e
       report_error(e)
