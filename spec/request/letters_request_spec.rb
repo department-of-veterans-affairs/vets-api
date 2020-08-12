@@ -41,6 +41,12 @@ RSpec.describe 'letters', type: :request do
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('evss_errors', strict: false)
       end
+
+      it 'returns a bad gateway response when camel-inflected' do
+        get '/v0/letters', headers: inflection_header
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+      end
     end
 
     context 'with a 403 response' do
@@ -51,6 +57,14 @@ RSpec.describe 'letters', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+
+      it 'returns a not authorized response when camel-inflected' do
+        VCR.use_cassette('evss/letters/letters_403') do
+          get '/v0/letters', headers: inflection_header
+          expect(response).to have_http_status(:forbidden)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
 
     context 'with a generic 500 response' do
@@ -59,6 +73,14 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters'
           expect(response).to have_http_status(:internal_server_error)
           expect(response).to match_response_schema('evss_errors')
+        end
+      end
+
+      it 'returns a not found response when camel-inflected' do
+        VCR.use_cassette('evss/letters/letters_500') do
+          get '/v0/letters', headers: inflection_header
+          expect(response).to have_http_status(:internal_server_error)
+          expect(response).to match_camelized_response_schema('evss_errors')
         end
       end
     end
@@ -189,6 +211,14 @@ RSpec.describe 'letters', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+
+      it 'returns a not authorized response when camel-inflected' do
+        VCR.use_cassette('evss/letters/beneficiary_403') do
+          get '/v0/letters/beneficiary', headers: inflection_header
+          expect(response).to have_http_status(:forbidden)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
 
     context 'with a 500 response' do
@@ -197,6 +227,14 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters/beneficiary'
           expect(response).to have_http_status(:internal_server_error)
           expect(response).to match_response_schema('evss_errors')
+        end
+      end
+
+      it 'returns a not found response when camel-inflected' do
+        VCR.use_cassette('evss/letters/beneficiary_500') do
+          get '/v0/letters/beneficiary', headers: inflection_header
+          expect(response).to have_http_status(:internal_server_error)
+          expect(response).to match_camelized_response_schema('evss_errors')
         end
       end
     end
@@ -214,6 +252,14 @@ RSpec.describe 'letters', type: :request do
           expect(response).to match_response_schema('evss_errors')
         end
       end
+
+      it 'returns a not found response when camel-inflected' do
+        VCR.use_cassette('evss/letters/letters_letter_generator_service_error') do
+          get '/v0/letters', headers: inflection_header
+          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to match_camelized_response_schema('evss_errors')
+        end
+      end
     end
 
     context 'with one or more letter destination errors' do
@@ -222,6 +268,14 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters'
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('evss_errors')
+        end
+      end
+
+      it 'returns a not found response when camel-inflected' do
+        VCR.use_cassette('evss/letters/letters_letter_destination_error') do
+          get '/v0/letters', headers: inflection_header
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_camelized_response_schema('evss_errors')
         end
       end
     end
