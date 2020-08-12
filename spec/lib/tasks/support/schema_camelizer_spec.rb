@@ -136,6 +136,7 @@ describe SchemaCamelizer do
     it 'writes files to the disk' do
       subject = SchemaCamelizer.new(snake_key_file)
       result = subject.save!
+      expect(result.count).to be > 0
       result.each do |filename|
         expect(File.exist?(filename)).to be true
       end
@@ -149,6 +150,14 @@ describe SchemaCamelizer do
       exception_text = 'expected `#camel_path` (tmp/camel_schema_tests/bad_location.json) ' \
                        'to be different from the given path'
       expect { subject.save! }.to raise_error(exception_text)
+    end
+    it 'creates directories for camel_path output' do
+      subject = SchemaCamelizer.new(snake_key_file, "#{TEST_DIRECTORY}/new_directory/snake_in_camel.json")
+      result = subject.save!
+      expect(result.count).to be > 0
+      result.each do |filename|
+        expect(File.exist?(filename)).to be true
+      end
     end
   end
 end
