@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/active_model_serializers
-  revision: 86f6211def250399a2f3e16eedfd7b4e8c7b02be
+  revision: 19015caa80227e5ae5d62179129edcaa43fb3d9d
   branch: master
   specs:
     active_model_serializers (0.10.4.vsp)
@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 1d1962dc62c1023e7025a35fe7a01072da1e69e7
+  revision: 86f6211def250399a2f3e16eedfd7b4e8c7b02be
   branch: master
   specs:
     vets_json_schema (6.4.1)
