@@ -6,7 +6,7 @@ Pact.provider_states_for 'HCA' do
       user = build_user_and_stub_session
       form_id = '1010ez'
       form = InProgressForm.form_for_user(form_id, user)
-      form || FactoryBot.create(:in_progress_form_pact, form_id: form_id, user_uuid: user.uuid)
+      form || FactoryBot.create(:hca_in_progress_form, form_id: form_id, user_uuid: user.uuid)
     end
     
     tear_down do
