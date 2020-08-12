@@ -11,7 +11,7 @@ module VBMS
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(va_file_number_with_payload)
 
-      raise Invalid686cClaim unless claim.valid?(:pdf_upload_job)
+      raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim.upload_pdf
     rescue => e
