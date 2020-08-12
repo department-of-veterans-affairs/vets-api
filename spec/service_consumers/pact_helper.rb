@@ -26,8 +26,8 @@ end
 # Ensure your provider application version enables you to trace back to an exact
 # state of your provider codebase.
 # The easiest way to do this is to include the build number (or a SHA) in your version.
-git_sha = ENV['GIT_COMMIT'] || `git rev-parse --verify HEAD`
-git_branch = ENV['GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`
+git_sha = (ENV['GIT_COMMIT'] || `git rev-parse --verify HEAD`).chomp
+git_branch = (ENV['GIT_BRANCH'] || `git rev-parse --abbrev-ref HEAD`).chomp
 # don't publish results if running in local development env
 publish_flag = ENV['PUBLISH_PACT_VERIFICATION_RESULTS'] == 'true' || !Rails.env.development?
 
