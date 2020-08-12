@@ -147,6 +147,17 @@ RSpec.describe 'prescriptions', type: :request do
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
         end
 
+        it 'responds to GET #show of nested tracking resource when camel-inflected' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
+            get '/v0/prescriptions/13650541/trackings', headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('trackings')
+          expect(JSON.parse(response.body)['meta']['sort']).to eq('shippedDate' => 'DESC')
+        end
+
         it 'responds to GET #show of nested tracking resource with a shipment having no other prescriptions' do
           VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_with_empty_other_prescriptions') do
             get '/v0/prescriptions/13650541/trackings'
@@ -156,6 +167,17 @@ RSpec.describe 'prescriptions', type: :request do
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('trackings')
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+        end
+
+        it 'responds to GET #show of nested tracking resource with a shipment having no other prescriptions when camel-inflected' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_with_empty_other_prescriptions') do
+            get '/v0/prescriptions/13650541/trackings', headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('trackings')
+          expect(JSON.parse(response.body)['meta']['sort']).to eq('shippedDate' => 'DESC')
         end
       end
 
