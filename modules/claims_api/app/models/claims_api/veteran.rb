@@ -11,6 +11,7 @@ module ClaimsApi
        middle_name
        last_name
        edipi
+       participant_id
        gender
        birls_file_number
        uuid
@@ -80,7 +81,8 @@ module ClaimsApi
         last_signed_in: Time.now.utc,
         loa: identity.loa,
         gender: identity.gender,
-        edipi: identity.edipi
+        edipi: identity.edipi,
+        participant_id: identity.participant_id
       )
     end
 

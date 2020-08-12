@@ -19,7 +19,7 @@ module Veteran
 
     def initialize(user)
       @user = user
-      # build_from_json(EVSS::VSOSearch::Service.new(user).get_current_info(auth_headers))
+      build_from_json(bgs_service(user).claimant.find_poa_by_participant_id(user.participant_id))
     end
 
     def build_from_json(json_data)
@@ -35,8 +35,11 @@ module Veteran
       attributes_hash.each { |key, value| send("#{key}=", value) if respond_to?("#{key}=") }
     end
 
-    def auth_headers
-      # @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
+    def bgs_service
+      @bgs_service ||= BGS::Services.new(
+        external_uid: Settings.bgs.external_uid,
+        external_key: Settings.bgs.external_key
+      )
     end
   end
 end
