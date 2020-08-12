@@ -108,6 +108,18 @@ RSpec.describe 'Messages Integration', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('message_with_attachment')
         end
+
+        it 'with attachments when camel-inflected' do
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
+            post '/v0/messaging/health/messages', params: params_with_attachments, headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_camelized_response_schema('message_with_attachment')
+        end
       end
 
       context 'reply' do
@@ -135,6 +147,18 @@ RSpec.describe 'Messages Integration', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('message_with_attachment')
+        end
+
+        it 'with attachments when camel-inflected' do
+          VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
+            post "/v0/messaging/health/messages/#{reply_message_id}/reply", params: params_with_attachments, headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_camelized_response_schema('message_with_attachment')
         end
       end
     end
