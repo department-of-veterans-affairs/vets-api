@@ -104,17 +104,18 @@ describe Preneeds::Service do
           match_with_switched_mimeparts(request_1.body, request_2.body, old_mimepart, new_mimepart)
         end
 
-        expect(SecureRandom).to receive(:hex).twice.and_return(
-          '51470ddbd16aa72e52128a84b4cc08a7',
-          '1aaca735a4f6ea900ef0617b770ead26'
-        )
-        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
-          'RqC19rMNJf9nJYm1g0VG'
-        )
+        # expect(SecureRandom).to receive(:hex).twice.and_return(
+        #   '51470ddbd16aa72e52128a84b4cc08a7',
+        #   '1aaca735a4f6ea900ef0617b770ead26'
+        # )
+        # expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
+        #   'RqC19rMNJf9nJYm1g0VG'
+        # )
 
         VCR.use_cassette(
-          'preneeds/burial_forms/burial_form_with_attachments',
-          match_requests_on: [multipart_matcher, :uri, :method]
+          'preneeds/burial_forms/burial_form_with_attachments2',
+          record: :once
+          # match_requests_on: [multipart_matcher, :uri, :method]
         ) do
           subject.receive_pre_need_application(burial_form)
         end
