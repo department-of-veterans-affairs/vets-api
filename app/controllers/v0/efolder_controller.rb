@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class EFoldersController < ApplicationController
+  class EFolderController < ApplicationController
     def index
       render(json: service.list_documents)
     end
