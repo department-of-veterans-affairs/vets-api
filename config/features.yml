@@ -218,3 +218,7 @@ features:
     actor_type: user
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
+  forms_a11y_fix_4613:
+    actor_type: user
+    description: >
+      This determines whether or not to change the behavior on the form review page regarding the "Edit" button
