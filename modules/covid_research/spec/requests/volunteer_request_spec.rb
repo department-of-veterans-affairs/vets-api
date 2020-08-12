@@ -42,7 +42,7 @@ RSpec.describe 'covid research volunteer submissions', type: :request do
 
     context 'with an invalid payload' do
       it 'returns a description of the errors' do
-        post '/covid-research/volunteer/create', params: valid
+        post '/covid-research/volunteer/create', params: invalid
 
         expect(JSON.parse(response.body)).to have_key('errors')
       end

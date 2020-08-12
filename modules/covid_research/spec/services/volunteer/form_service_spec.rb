@@ -18,7 +18,7 @@ RSpec.describe CovidResearch::Volunteer::FormService do
       end
 
       it 'returns false if the JSON is invalid' do
-        expect(subject.valid?(valid)).to be(false)
+        expect(subject.valid?(invalid)).to be(false)
       end
     end
 
