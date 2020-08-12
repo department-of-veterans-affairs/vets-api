@@ -3,16 +3,6 @@
 require 'rails_helper'
 RSpec.describe BGS::VnpVeteran do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:user_hash) do
-    {
-      participant_id: user_object.participant_id,
-      ssn: user_object.ssn,
-      first_name: user_object.first_name,
-      last_name: user_object.last_name,
-      external_key: user_object.common_name || user_object.email,
-      icn: user_object.icn
-    }
-  end
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:formatted_payload) do
     {
@@ -42,7 +32,7 @@ RSpec.describe BGS::VnpVeteran do
     context 'married veteran' do
       it 'returns a VnpPersonAddressPhone object' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user_hash).create
+          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user_object).create
 
           expect(vnp_veteran).to eq(
             vnp_participant_id: '149500',
@@ -72,11 +62,10 @@ RSpec.describe BGS::VnpVeteran do
         middle_nm: nil,
         last_nm: 'FORD',
         suffix_nm: nil,
-        brthdy_dt: nil,
         birth_state_cd: nil,
         birth_city_nm: nil,
-        file_nbr: nil,
-        ssn_nbr: nil,
+        file_nbr: '796043735',
+        ssn_nbr: '796043735',
         death_dt: nil,
         ever_maried_ind: nil,
         vet_ind: 'Y',
@@ -102,18 +91,18 @@ RSpec.describe BGS::VnpVeteran do
       }
       VCR.use_cassette('bgs/vnp_veteran/create') do
         expect_any_instance_of(BGS::Service).to receive(:create_person)
-          .with(vet_person_hash)
+          .with(a_hash_including(vet_person_hash))
           .and_call_original
 
         expect_any_instance_of(BGS::Service).to receive(:create_phone)
-          .with(anything, anything, formatted_payload)
+          .with(anything, anything, a_hash_including(formatted_payload))
           .and_call_original
 
         expect_any_instance_of(BGS::Service).to receive(:create_address)
           .with(a_hash_including(expected_address))
           .and_call_original
 
-        BGS::VnpVeteran.new(proc_id: '12345', payload: all_flows_payload, user: user_hash).create
+        BGS::VnpVeteran.new(proc_id: '12345', payload: all_flows_payload, user: user_object).create
       end
     end
   end
