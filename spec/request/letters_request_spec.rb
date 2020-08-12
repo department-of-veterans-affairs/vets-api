@@ -340,6 +340,34 @@ RSpec.describe 'letters', type: :request do
           )
         end
       end
+
+      it 'returns a not found response when camel-inflected' do
+        VCR.use_cassette('evss/letters/letters_not_eligible_error') do
+          get '/v0/letters', headers: inflection_header
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('evss_errors')
+          expect(JSON.parse(response.body)).to have_deep_attributes(
+            'errors' => [
+              {
+                'title' => 'Proxy error',
+                'detail' => 'Upstream server returned not eligible response',
+                'code' => '111',
+                'source' => 'EVSS::Letters::Service',
+                'status' => '502',
+                'meta' => {
+                  'messages' => [
+                    {
+                      'key' => 'lettergenerator.notEligible',
+                      'severity' => 'FATAL',
+                      'text' => 'Veteran is not eligible to receive the letter'
+                    }
+                  ]
+                }
+              }
+            ]
+          )
+        end
+      end
     end
 
     context 'with can not determine eligibility error' do
@@ -348,6 +376,34 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters'
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('evss_errors')
+          expect(JSON.parse(response.body)).to have_deep_attributes(
+            'errors' => [
+              {
+                'title' => 'Proxy error',
+                'detail' => 'Can not determine eligibility for potential letters due to upstream server error',
+                'code' => '110',
+                'source' => 'EVSS::Letters::Service',
+                'status' => '502',
+                'meta' => {
+                  'messages' => [
+                    {
+                      'key' => 'letterGeneration.letterEligibilityError',
+                      'severity' => 'FATAL',
+                      'text' => 'Unable to determine eligibility on potential letters'
+                    }
+                  ]
+                }
+              }
+            ]
+          )
+        end
+      end
+
+      it 'returns a not found response when camel-inflected' do
+        VCR.use_cassette('evss/letters/letters_determine_eligibility_error') do
+          get '/v0/letters', headers: inflection_header
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('evss_errors')
           expect(JSON.parse(response.body)).to have_deep_attributes(
             'errors' => [
               {
