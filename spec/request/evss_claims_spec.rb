@@ -8,6 +8,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   let(:user) { create(:user, :loa3) }
   let(:evss_user) { create(:evss_user) }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   context 'for a user without evss attrs' do
     it 'returns a 403' do
@@ -24,6 +25,14 @@ RSpec.describe 'EVSS Claims management', type: :request do
     VCR.use_cassette('evss/claims/claims', match_requests_on: %i[uri method body]) do
       get '/v0/evss_claims'
       expect(response).to match_response_schema('evss_claims')
+    end
+  end
+
+  it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+    sign_in_as(evss_user)
+    VCR.use_cassette('evss/claims/claims', match_requests_on: %i[uri method body]) do
+      get '/v0/evss_claims', headers: inflection_header
+      expect(response).to match_camelized_response_schema('evss_claims')
     end
   end
 
@@ -47,6 +56,14 @@ RSpec.describe 'EVSS Claims management', type: :request do
       VCR.use_cassette('evss/claims/claim', match_requests_on: %i[uri method body]) do
         get '/v0/evss_claims/600118851'
         expect(response).to match_response_schema('evss_claim')
+      end
+    end
+
+    it 'shows a single Claim when camel-inflected', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+      sign_in_as(evss_user)
+      VCR.use_cassette('evss/claims/claim', match_requests_on: %i[uri method body]) do
+        get '/v0/evss_claims/600118851', headers: inflection_header
+        expect(response).to match_camelized_response_schema('evss_claim')
       end
     end
 

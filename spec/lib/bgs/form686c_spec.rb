@@ -3,22 +3,12 @@
 require 'rails_helper'
 RSpec.describe BGS::Form686c do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:user_hash) do
-    {
-      participant_id: user_object.participant_id,
-      ssn: user_object.ssn,
-      first_name: user_object.first_name,
-      last_name: user_object.last_name,
-      external_key: user_object.common_name || user_object.email,
-      icn: user_object.icn
-    }
-  end
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
 
   # @TODO: may want to return something else
   it 'returns a hash with proc information' do
     VCR.use_cassette('bgs/form686c/submit') do
-      modify_dependents = BGS::Form686c.new(user_hash).submit(all_flows_payload)
+      modify_dependents = BGS::Form686c.new(user_object).submit(all_flows_payload)
 
       expect(modify_dependents).to include(
         :jrn_dt,
@@ -43,7 +33,7 @@ RSpec.describe BGS::Form686c do
       expect_any_instance_of(BGS::BenefitClaim).to receive(:create).and_call_original
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
 
-      BGS::Form686c.new(user_hash).submit(all_flows_payload)
+      BGS::Form686c.new(user_object).submit(all_flows_payload)
     end
   end
 end

@@ -128,12 +128,6 @@ module BGS
       notify_of_service_exception(e, __method__)
     end
 
-    def get_va_file_number
-      person = service.people.find_person_by_ptcpnt_id(@user[:participant_id])
-
-      person[:file_nbr]
-    end
-
     def insert_benefit_claim(benefit_claim_params)
       service.claims.insert_benefit_claim(benefit_claim_params)
     end
@@ -159,7 +153,9 @@ module BGS
     private
 
     def service
-      @service ||= BGS::Services.new(external_uid: @user[:icn], external_key: @user[:external_key])
+      external_key = @user.common_name || @user.email
+
+      @service ||= BGS::Services.new(external_uid: @user[:icn], external_key: external_key)
     end
   end
 end
