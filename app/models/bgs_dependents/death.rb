@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BGSDependents
-  class Death
+  class Death < Base
     def initialize(death_info)
       @death_info = death_info
     end

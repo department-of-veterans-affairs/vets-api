@@ -15,7 +15,7 @@ module ClaimsApi
       )
       response = service.vet_record.update_birls_record(
         ssn: poa_form.auth_headers['va_eauth_pnid'],
-        poa_code: poa_form.form_data['poaCode']
+        poa_code: poa_form.form_data['serviceOrganization']['poaCode']
       )
 
       poa_form.status = if response[:return_code] == 'BMOD0001'

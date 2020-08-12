@@ -7,16 +7,17 @@ module BGSDependents
     attribute :first_name, String
     attribute :middle_name, String
     attribute :last_name, String
-    attribute :external_key, String
     attribute :icn, String
 
     def initialize(proc_id, user)
       @proc_id = proc_id
-      self.attributes = user
+      @user = user
+      self.attributes = user_veteran_attributes
     end
 
     def formatted_params(payload)
       dependents_application = payload['dependents_application']
+
       vet_info = [
         *payload['veteran_information'],
         ['first', first_name],
@@ -28,7 +29,7 @@ module BGSDependents
       ]
 
       if dependents_application['current_marriage_information']
-        vet_info << ['martl_status_type_cd', dependents_application.dig('current_marriage_information', 'type')]
+        vet_info << ['martl_status_type_cd', marital_status(dependents_application)]
       end
 
       vet_info.to_h
@@ -51,6 +52,29 @@ module BGSDependents
         type: 'veteran',
         benefit_claim_type_end_product: end_product
       }
+    end
+
+    private
+
+    def user_veteran_attributes
+      {
+        participant_id: @user.participant_id,
+        ssn: @user.ssn,
+        first_name: @user.first_name,
+        middle_name: @user.middle_name,
+        last_name: @user.last_name,
+        icn: @user.icn
+      }
+    end
+
+    def marital_status(dependents_application)
+      spouse_lives_with_vet = dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
+
+      return 'Never Married' if dependents_application.dig('veteran_was_married_before') == false
+
+      return nil if spouse_lives_with_vet.nil?
+
+      spouse_lives_with_vet ? 'Married' : 'Separated'
     end
   end
 end

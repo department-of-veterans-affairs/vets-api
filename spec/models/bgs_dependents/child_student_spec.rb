@@ -3,21 +3,14 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::ChildStudent do
-  let(:fixtures_path) { Rails.root.join('spec', 'fixtures', '686c', 'dependents') }
-  let(:all_flows_payload) do
-    payload = File.read("#{fixtures_path}/all_flows_payload.json")
-    JSON.parse(payload)
-  end
-  let(:proc_participant) do
-    {
-      vnp_proc_id: '3829729', vnp_ptcpnt_id: '149471'
-    }
-  end
+  let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:child_student_info) do
-    described_class.new(all_flows_payload['dependents_application'], proc_participant)
+    described_class.new(all_flows_payload['dependents_application'], '3829729', '149471')
   end
   let(:formatted_params_result) do
     {
+      vnp_proc_id: '3829729',
+      vnp_ptcpnt_id: '149471',
       saving_amt: '3455',
       real_estate_amt: '5623',
       other_asset_amt: '4566',
@@ -34,9 +27,7 @@ RSpec.describe BGSDependents::ChildStudent do
       next_year_annty_income_amt: '3989',
       next_year_emplmt_income_amt: '12000',
       next_year_other_income_amt: '984',
-      next_year_ssa_income_amt: '3940',
-      vnp_proc_id: '3829729',
-      vnp_ptcpnt_id: '149471'
+      next_year_ssa_income_amt: '3940'
     }
   end
 
