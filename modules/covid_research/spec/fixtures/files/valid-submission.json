@@ -18,8 +18,7 @@
 		"first": "sven",
 		"last": "Tester"
 	},
-	"primaryEmail": "test@test.com",
-	"confirmEmail": "test@test.com",
+	"email": "test@test.com",
 	"phone": "5554447788",
 	"zipCode": "33755",
 	"veteranDateOfBirth": "1970-10-07",
