@@ -16,5 +16,11 @@ module Preneeds
         raceCd: race_cd
       }
     end
+
+    def self.permitted_params
+      [
+        :race_cd
+      ]
+    end
   end
 end

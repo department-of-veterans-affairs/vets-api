@@ -14,6 +14,7 @@ RSpec.describe Preneeds::Veteran do
     )
 
     expect(described_class.permitted_params).to include(
+      race: Preneeds::Race.permitted_params,
       address: Preneeds::Address.permitted_params, current_name: Preneeds::FullName.permitted_params,
       service_name: Preneeds::FullName.permitted_params, service_records: [Preneeds::ServiceRecord.permitted_params]
     )

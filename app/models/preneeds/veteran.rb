@@ -79,6 +79,7 @@ module Preneeds
       [
         :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
         :military_service_number, :place_of_birth, :ssn, :va_claim_number, :military_status,
+        race: Preneeds::Race.permitted_params,
         address: Preneeds::Address.permitted_params,
         current_name: Preneeds::FullName.permitted_params,
         service_name: Preneeds::FullName.permitted_params,
