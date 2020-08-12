@@ -171,7 +171,9 @@ RSpec.describe 'Messages Integration', type: :request do
 
         it 'without attachments when camel-inflected' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
-            post "/v0/messaging/health/messages/#{reply_message_id}/reply", params: { message: params }, headers: inflection_header
+            post "/v0/messaging/health/messages/#{reply_message_id}/reply",
+                 params: { message: params },
+                 headers: inflection_header
           end
 
           expect(response).to be_successful
@@ -195,7 +197,9 @@ RSpec.describe 'Messages Integration', type: :request do
 
         it 'with attachments when camel-inflected' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
-            post "/v0/messaging/health/messages/#{reply_message_id}/reply", params: params_with_attachments, headers: inflection_header
+            post "/v0/messaging/health/messages/#{reply_message_id}/reply",
+                 params: params_with_attachments,
+                 headers: inflection_header
           end
 
           expect(response).to be_successful
