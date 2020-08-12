@@ -73,6 +73,17 @@ RSpec.describe 'prescriptions', type: :request do
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
       end
 
+      it 'responds to GET #index with no parameters when camel-inflected' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+          get '/v0/prescriptions', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('prescriptions')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
+      end
+
       it 'responds to GET #index with refill_status=active' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
           get '/v0/prescriptions?refill_status=active'
@@ -82,6 +93,17 @@ RSpec.describe 'prescriptions', type: :request do
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('prescriptions')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
+      end
+
+      it 'responds to GET #index with refill_status=active when camel-inflected' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
+          get '/v0/prescriptions?refill_status=active', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('prescriptions')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
       end
 
       it 'responds to GET #index with filter' do
