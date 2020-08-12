@@ -7,6 +7,7 @@ RSpec.describe 'VA Forms', type: :request do
 
   let!(:form) { FactoryBot.create(:va_form) }
   let(:base_url) { '/services/va_forms/v0/forms' }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   describe 'GET :index' do
     it 'returns the forms' do
@@ -34,6 +35,11 @@ RSpec.describe 'VA Forms', type: :request do
     it 'returns the forms' do
       get "#{base_url}/#{form.form_name}"
       expect(response).to match_response_schema('va_forms/form')
+    end
+
+    it 'returns the forms when camel-inflected' do
+      get "#{base_url}/#{form.form_name}", headers: inflection_header
+      expect(response).to match_camelized_response_schema('va_forms/form')
     end
   end
 end
