@@ -51,6 +51,7 @@ module V1
 
     # rubocop:disable Metrics/CyclomaticComplexity
     def saml_callback
+      set_sentry_context_for_callback if params[:type] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
       saml_response_logging(saml_response)

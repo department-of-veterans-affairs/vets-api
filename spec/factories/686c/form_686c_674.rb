@@ -16,6 +16,15 @@ FactoryBot.define do
         'spouse_was_married_before' => true,
         'student_did_attend_school_last_term' => true,
         'veteran_was_married_before' => true,
+        'veteran_information' => {
+          'birth_date' => '1809-02-12',
+          'full_name' => {
+            'first' => 'WESLEY',
+            'last' => 'FORD',
+            'middle' => nil
+          }, 'ssn' => '796043735',
+          'va_file_number' => '796043735'
+        },
         'dependents_application' => {
           'student_does_have_networth' => true,
           'student_networth_information' => {

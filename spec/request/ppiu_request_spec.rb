@@ -6,6 +6,7 @@ RSpec.describe 'PPIU', type: :request do
   include SchemaMatchers
 
   let(:user) { create(:user, :mhv) }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before { sign_in(user) }
 
@@ -32,6 +33,15 @@ RSpec.describe 'PPIU', type: :request do
           expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
         end
       end
+      it 'matches the ppiu schema when camel-inflected' do
+        ppiu_response_in_camel = File.read('spec/support/ppiu/ppiu_response_in_camel.json')
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          get '/v0/ppiu/payment_information', headers: inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('payment_information')
+          expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response_in_camel))
+        end
+      end
     end
 
     test_unauthorized('get')
@@ -44,6 +54,13 @@ RSpec.describe 'PPIU', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+      it 'returns a not authorized response when camel-inflected' do
+        VCR.use_cassette('evss/ppiu/forbidden') do
+          get '/v0/ppiu/payment_information', headers: inflection_header
+          expect(response).to have_http_status(:forbidden)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
 
     context 'with a 500 server error type' do
@@ -52,6 +69,13 @@ RSpec.describe 'PPIU', type: :request do
           get '/v0/ppiu/payment_information'
           expect(response).to have_http_status(:service_unavailable)
           expect(response).to match_response_schema('evss_errors')
+        end
+      end
+      it 'returns a service error response with camel-inflection' do
+        VCR.use_cassette('evss/ppiu/service_error') do
+          get '/v0/ppiu/payment_information', headers: inflection_header
+          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to match_camelized_response_schema('evss_errors')
         end
       end
     end
@@ -79,6 +103,16 @@ RSpec.describe 'PPIU', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('payment_information')
           expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
+        end
+      end
+      it 'matches the ppiu schema with camel-inflection' do
+        ppiu_request_in_camel = File.read('spec/support/ppiu/update_ppiu_request_in_camel.json')
+        ppiu_response_in_camel = File.read('spec/support/ppiu/update_ppiu_response_in_camel.json')
+        VCR.use_cassette('evss/ppiu/update_payment_information') do
+          put '/v0/ppiu/payment_information', params: ppiu_request_in_camel, headers: headers.merge(inflection_header)
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('payment_information')
+          expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response_in_camel))
         end
       end
 
@@ -129,6 +163,11 @@ RSpec.describe 'PPIU', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
       end
+      it 'returns a validation error with camel-inflection' do
+        put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers.merge(inflection_header)
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+      end
     end
 
     context 'with a 403 response' do
@@ -139,6 +178,13 @@ RSpec.describe 'PPIU', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+      it 'returns a not authorized response with camel-inflection' do
+        VCR.use_cassette('evss/ppiu/update_forbidden') do
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers.merge(inflection_header)
+          expect(response).to have_http_status(:forbidden)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
 
     context 'with a 500 server error type' do
@@ -147,6 +193,13 @@ RSpec.describe 'PPIU', type: :request do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:service_unavailable)
           expect(response).to match_response_schema('evss_errors')
+        end
+      end
+      it 'returns a service error response with camel-inflection' do
+        VCR.use_cassette('evss/ppiu/update_service_error') do
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers.merge(inflection_header)
+          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to match_camelized_response_schema('evss_errors')
         end
       end
     end
@@ -160,6 +213,14 @@ RSpec.describe 'PPIU', type: :request do
           expect(JSON.parse(response.body)['errors'].first['title']).to eq('Potential Fraud')
         end
       end
+      it 'returns a service error response with camel-inflection', :aggregate_failures do
+        VCR.use_cassette('evss/ppiu/update_fraud') do
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers.merge(inflection_header)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_camelized_response_schema('evss_errors')
+          expect(JSON.parse(response.body)['errors'].first['title']).to eq('Potential Fraud')
+        end
+      end
     end
 
     context 'with a 500 server error type pertaining to the account being flagged' do
@@ -168,6 +229,14 @@ RSpec.describe 'PPIU', type: :request do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('evss_errors')
+          expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')
+        end
+      end
+      it 'returns a service error response with camel-inflection', :aggregate_failures do
+        VCR.use_cassette('evss/ppiu/update_flagged') do
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers.merge(inflection_header)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_camelized_response_schema('evss_errors')
           expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')
         end
       end

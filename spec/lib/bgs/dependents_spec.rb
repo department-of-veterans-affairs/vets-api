@@ -4,16 +4,6 @@ require 'rails_helper'
 
 RSpec.describe BGS::Dependents do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:user_hash) do
-    {
-      participant_id: user_object.participant_id,
-      ssn: user_object.ssn,
-      first_name: user_object.first_name,
-      last_name: user_object.last_name,
-      external_key: user_object.common_name || user_object.email,
-      icn: user_object.icn
-    }
-  end
   let(:proc_id) { '3828033' }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
 
@@ -26,7 +16,7 @@ RSpec.describe BGS::Dependents do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: all_flows_payload,
-            user: user_hash
+            user: user_object
           ).create
 
           expect(dependents).to include(
@@ -66,7 +56,7 @@ RSpec.describe BGS::Dependents do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: adopted_payload,
-            user: user_hash
+            user: user_object
           ).create
 
           expect(dependents).to include(
@@ -86,7 +76,7 @@ RSpec.describe BGS::Dependents do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: all_flows_payload,
-            user: user_hash
+            user: user_object
           ).create
 
           expect(dependents).to include(
@@ -106,7 +96,7 @@ RSpec.describe BGS::Dependents do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: all_flows_payload,
-            user: user_hash
+            user: user_object
           ).create
 
           # TODO: this expectation will change when we get the new data keys from the FE
@@ -127,7 +117,7 @@ RSpec.describe BGS::Dependents do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: all_flows_payload,
-            user: user_hash
+            user: user_object
           ).create
 
           expect(dependents).to include(
@@ -147,7 +137,7 @@ RSpec.describe BGS::Dependents do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: all_flows_payload,
-            user: user_hash
+            user: user_object
           ).create
 
           expect(dependents).to include(
@@ -168,7 +158,7 @@ RSpec.describe BGS::Dependents do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: all_flows_payload,
-            user: user_hash
+            user: user_object
           ).create
 
           expect(dependents).to include(
@@ -189,7 +179,7 @@ RSpec.describe BGS::Dependents do
           dependents = BGS::Dependents.new(
             proc_id: proc_id,
             payload: all_flows_payload,
-            user: user_hash
+            user: user_object
           ).create
 
           expect(dependents).to include(
