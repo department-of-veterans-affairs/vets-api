@@ -20,18 +20,18 @@ RSpec.describe BGS::PaymentService do
         expect(user).to receive(:ssn).and_return('000000000')
 
         response = BGS::PaymentService.new(user).payment_history
-        expect(response).to include({:payment_address => [], :payments => [], :return_payments => []})
+        expect(response).to include({ payment_address: [], payments: [], return_payments: [] })
       end
     end
 
     context 'error' do
       it 'logs an error' do
-          response = BGS::PaymentService.new(user)
+        response = BGS::PaymentService.new(user)
 
-          expect_any_instance_of(BGS::PaymentHistoryWebService).to receive(:find_by_ssn).and_raise(StandardError)
-          expect(response).to receive(:log_exception_to_sentry)
+        expect_any_instance_of(BGS::PaymentHistoryWebService).to receive(:find_by_ssn).and_raise(StandardError)
+        expect(response).to receive(:log_exception_to_sentry)
 
-          response.payment_history
+        response.payment_history
       end
     end
   end

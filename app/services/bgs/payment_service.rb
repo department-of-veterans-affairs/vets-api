@@ -9,10 +9,10 @@ module BGS
     end
 
     def payment_history
-      response = service.payment_history.find_by_ssn(@current_user.ssn)
+      response = service.payment_history.find_by(ssn: @current_user.ssn)
 
       response[:payment_record]
-    rescue StandardError => e
+    rescue => e
       return { payment_address: [], payments: [], return_payments: [] } if e.message.include?('No payment record found')
 
       report_error(e)
