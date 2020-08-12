@@ -27,9 +27,5 @@ module BGS
     def matches(veteran_poa_code, representative)
       representative.poa_codes.include?(veteran_poa_code)
     end
-
-    def auth_headers
-      # @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
-    end
   end
 end
