@@ -57,6 +57,9 @@ class SchemaCamelizer
   def save!
     raise "expected `#camel_path` (#{camel_path}) to be different from the given path" if original_path == camel_path
 
+    camel_path_directories = camel_path.gsub(%r{[^\/]*$}, '')
+    FileUtils.mkdir_p(camel_path_directories)
+
     File.open(camel_path, 'w') do |file|
       file.write(JSON.pretty_generate(camel_schema))
       file.write("\n")
