@@ -6,6 +6,7 @@ RSpec.describe 'letters', type: :request do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
     sign_in_as(user)
@@ -19,6 +20,14 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('letters')
+        end
+      end
+
+      it 'matches the letters schema when camel-inflected' do
+        VCR.use_cassette('evss/letters/letters') do
+          get '/v0/letters', headers: inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('letters')
         end
       end
     end
