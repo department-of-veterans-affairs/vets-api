@@ -116,6 +116,16 @@ RSpec.describe 'prescriptions', type: :request do
         expect(response).to match_response_schema('prescriptions_filtered')
       end
 
+      it 'responds to GET #index with filter when camel-inflected' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+          get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('prescriptions_filtered')
+      end
+
       it 'responds to POST #refill' do
         VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
           patch '/v0/prescriptions/13650545/refill'
