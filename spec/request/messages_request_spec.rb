@@ -60,6 +60,16 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to match_response_schema('category')
     end
 
+    it 'responds to GET messages/categories when camel-inflected' do
+      VCR.use_cassette('sm_client/messages/gets_message_categories') do
+        get '/v0/messaging/health/messages/categories', headers: inflection_header
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('category')
+    end
+
     it 'responds to GET #show' do
       VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
         get "/v0/messaging/health/messages/#{message_id}"
