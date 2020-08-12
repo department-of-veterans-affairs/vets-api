@@ -141,8 +141,10 @@ module Form1010cg
         }
       end
 
-      metadata[:veteran][:is_veteran] = is_veteran('veteran')
-
+      # Disabling the veteran status search since there is an issue with searching emis
+      # for a veteran status using an ICN. Only edipi works. Consider adding this back in
+      # once ICN searches work or we refactor our veteran status serach to use the edipi.
+      metadata[:veteran][:is_veteran] = false
       metadata
     end
 
