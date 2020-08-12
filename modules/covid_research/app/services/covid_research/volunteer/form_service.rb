@@ -43,13 +43,13 @@ module CovidResearch
       def schema_data
         VetsJsonSchema::SCHEMAS[SCHEMA]
       end
-    end
 
-    class SchemaValidationError < StandardError
-      attr_reader :errors
+      class SchemaValidationError < StandardError
+        attr_reader :errors
 
-      def initialize(errors)
-        @errors = errors
+        def initialize(errors)
+          @errors = errors
+        end
       end
     end
   end

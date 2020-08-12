@@ -29,7 +29,7 @@ RSpec.describe CovidResearch::Volunteer::FormService do
       end
 
       it 'raises an exception if the JSON is invalid' do
-        expect { subject.valid!(invalid) }.to raise_exception
+        expect { subject.valid!(invalid) }.to raise_exception(described_class::SchemaValidationError)
       end
     end
 
