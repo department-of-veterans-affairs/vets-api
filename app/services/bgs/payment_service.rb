@@ -28,18 +28,6 @@ module BGS
         },
         { team: 'vfs-ebenefits' }
       )
-
-      PersonalInformationLog.create(
-        error_class: e,
-        data: {
-          user: {
-            uuid: @current_user.uuid,
-            edipi: @current_user.edipi,
-            ssn: @current_user.ssn,
-            participant_id: @current_user.participant_id
-          }
-        }
-      )
     end
 
     def service
