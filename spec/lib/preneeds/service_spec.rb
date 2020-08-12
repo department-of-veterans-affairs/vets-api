@@ -84,14 +84,15 @@ describe Preneeds::Service do
 
     context 'with attachments' do
       def match_with_switched_mimeparts(str1, str2, old_mimepart, new_mimepart)
-        a = str1.gsub(new_mimepart, old_mimepart).gsub(/[^r]\n/, "\r\n")
+        a = str1.gsub(new_mimepart, old_mimepart)
+
         expect(a).to eq(str2)
       end
 
       it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 22:10:32 GMT' do
         multipart_matcher = lambda do |request_1, request_2|
           new_mimepart = request_1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').delete('"')
-          old_mimepart = '--==_mimepart_5a14a4580_948e2ab145fb50ec722de'
+          old_mimepart = '--==_mimepart_5a14a4580_60046b39b0885f4'
 
           expect(request_1.headers.keys).to eq(request_2.headers.keys)
 
@@ -104,18 +105,17 @@ describe Preneeds::Service do
           match_with_switched_mimeparts(request_1.body, request_2.body, old_mimepart, new_mimepart)
         end
 
-        # expect(SecureRandom).to receive(:hex).twice.and_return(
-        #   '51470ddbd16aa72e52128a84b4cc08a7',
-        #   '1aaca735a4f6ea900ef0617b770ead26'
-        # )
-        # expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
-        #   'RqC19rMNJf9nJYm1g0VG'
-        # )
+        expect(SecureRandom).to receive(:hex).twice.and_return(
+          'a04bbbf90e79814549411629b53ed631',
+          '15c996a1ac28c3838c7d01b6dbcd401b'
+        )
+        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
+          'kyX53Bz3Kahb7OUJqLVG'
+        )
 
         VCR.use_cassette(
-          'preneeds/burial_forms/burial_form_with_attachments2',
-          record: :once
-          # match_requests_on: [multipart_matcher, :uri, :method]
+          'preneeds/burial_forms/burial_form_with_attachments',
+          match_requests_on: [multipart_matcher, :uri, :method]
         ) do
           subject.receive_pre_need_application(burial_form)
         end
