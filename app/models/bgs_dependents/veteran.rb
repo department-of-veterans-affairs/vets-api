@@ -7,7 +7,6 @@ module BGSDependents
     attribute :first_name, String
     attribute :middle_name, String
     attribute :last_name, String
-    attribute :external_key, String
     attribute :icn, String
 
     def initialize(proc_id, user)
@@ -58,14 +57,12 @@ module BGSDependents
     private
 
     def user_veteran_attributes
-      external_key = @user.common_name || @user.email
       {
         participant_id: @user.participant_id,
         ssn: @user.ssn,
         first_name: @user.first_name,
         middle_name: @user.middle_name,
         last_name: @user.last_name,
-        external_key: external_key,
         icn: @user.icn
       }
     end
