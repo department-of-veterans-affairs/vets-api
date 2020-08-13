@@ -13,13 +13,13 @@ require 'support/stub_emis'
 require 'support/stub_session'
 require 'support/vet360/stub_vet360'
 require 'support/vcr'
-Dir.glob(File.expand_path('../provider_states_for/*.rb', __FILE__), &method(:require))
+Dir.glob(File.expand_path('provider_states_for/*.rb', __dir__), &method(:require))
 
 VCR.configure do |c|
   # PACT requests are performed before insert_cassette is invoked
   c.allow_http_connections_when_no_cassette = true
   c.default_cassette_options = {
-    :record => :none
+    record: :none
   }
 end
 
@@ -63,7 +63,6 @@ Pact.service_provider 'VA.gov API' do
   # honours_pact_with 'Users' do
   #   pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/User/latest'
   # end
-
 
   honours_pacts_from_pact_broker do
     pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com'
