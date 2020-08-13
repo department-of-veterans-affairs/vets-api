@@ -89,10 +89,10 @@ describe Preneeds::Service do
         expect(a).to eq(str2)
       end
 
-      it 'creates a preneeds application' do
+      it 'creates a preneeds application', run_at: 'Thu, 13 Aug 2020 03:28:26 GMT' do
         multipart_matcher = lambda do |request_1, request_2|
           new_mimepart = request_1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').delete('"')
-          old_mimepart = '--==_mimepart_5a14a4580_60046b39b0885f4'
+          old_mimepart = '--==_mimepart_5f34b35a5e675_690ae7d998184a8'
 
           expect(request_1.headers.keys).to eq(request_2.headers.keys)
 
@@ -105,18 +105,17 @@ describe Preneeds::Service do
           match_with_switched_mimeparts(request_1.body, request_2.body, old_mimepart, new_mimepart)
         end
 
-        # expect(SecureRandom).to receive(:hex).twice.and_return(
-        #   'a04bbbf90e79814549411629b53ed631',
-        #   '15c996a1ac28c3838c7d01b6dbcd401b'
-        # )
-        # expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
-        #   'kyX53Bz3Kahb7OUJqLVG'
-        # )
+        expect(SecureRandom).to receive(:hex).twice.and_return(
+          '10da04424190066fc1bb1fd6955008a4',
+          '8734786de1fa56dafaef5a9f04beaed8'
+        )
+        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
+          'L46JGnr0DL2bqUXS9EVG'
+        )
 
         VCR.use_cassette(
-          'preneeds/burial_forms/burial_form_with_attachments2',
-          record: :once
-          # match_requests_on: [multipart_matcher, :uri, :method]
+          'preneeds/burial_forms/burial_form_with_attachments',
+          match_requests_on: [multipart_matcher, :uri, :method]
         ) do
           subject.receive_pre_need_application(burial_form)
         end
