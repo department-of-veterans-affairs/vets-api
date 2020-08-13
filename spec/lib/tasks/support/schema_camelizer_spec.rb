@@ -94,6 +94,12 @@ describe SchemaCamelizer do
       subject = SchemaCamelizer.new(filename)
       expect(subject.camel_path).to include('schemas_camelized')
     end
+    it 'can be set in the initializer' do
+      filename = create_source_schema('manual_camel_path', { 'who' => 'cares' })
+      camel_output = TEST_DIRECTORY + '/other/schemas/camel_destination.json'
+      subject = SchemaCamelizer.new(filename, camel_output)
+      expect(subject.camel_path).to include(camel_output)
+    end
   end
 
   describe '#unchanged_schemas' do
@@ -130,6 +136,7 @@ describe SchemaCamelizer do
     it 'writes files to the disk' do
       subject = SchemaCamelizer.new(snake_key_file)
       result = subject.save!
+      expect(result.count).to be > 0
       result.each do |filename|
         expect(File.exist?(filename)).to be true
       end
@@ -140,8 +147,17 @@ describe SchemaCamelizer do
       File.open(schema_file_in_weird_location, 'w') { |file| file.write(JSON.pretty_generate(schema)) }
 
       subject = SchemaCamelizer.new(schema_file_in_weird_location)
-      exception_text = 'expected to move from a schemas directory to a schemas_camelized directory!'
+      exception_text = 'expected `#camel_path` (tmp/camel_schema_tests/bad_location.json) ' \
+                       'to be different from the given path'
       expect { subject.save! }.to raise_error(exception_text)
+    end
+    it 'creates directories for camel_path output' do
+      subject = SchemaCamelizer.new(snake_key_file, "#{TEST_DIRECTORY}/new_directory/snake_in_camel.json")
+      result = subject.save!
+      expect(result.count).to be > 0
+      result.each do |filename|
+        expect(File.exist?(filename)).to be true
+      end
     end
   end
 end

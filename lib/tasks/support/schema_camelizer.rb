@@ -5,8 +5,9 @@
 class SchemaCamelizer
   attr_reader :original_path, :camel_schema, :name, :referenced_schemas, :already_camelized
 
-  def initialize(schema_path)
+  def initialize(schema_path, destination_path = nil)
     @original_path = schema_path
+    @camel_path = destination_path
     @name = %r{/([^/]*)\.json$}.match(schema_path)[1]
     raw_schema = File.read(schema_path)
     # OliveBranch only changes keys, but the required key's value is an arrray of keys,
@@ -41,6 +42,7 @@ class SchemaCamelizer
   end
 
   # Getter for path to which new camel schema will be saved
+  # defaults to changing `path/to/schemas` to `path/to/schemas_camelized`
   #
   # @return [string] the path for saving the camel schema
   def camel_path
@@ -53,7 +55,10 @@ class SchemaCamelizer
   #
   # @return [array] files created
   def save!
-    raise 'expected to move from a schemas directory to a schemas_camelized directory!' if original_path == camel_path
+    raise "expected `#camel_path` (#{camel_path}) to be different from the given path" if original_path == camel_path
+
+    camel_path_directories = camel_path.gsub(%r{[^\/]*$}, '')
+    FileUtils.mkdir_p(camel_path_directories)
 
     File.open(camel_path, 'w') do |file|
       file.write(JSON.pretty_generate(camel_schema))

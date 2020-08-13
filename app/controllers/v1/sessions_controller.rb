@@ -49,8 +49,9 @@ module V1
       redirect_to url_service.logout_redirect_url
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def saml_callback
-      set_sentry_context_for_callback if params[:type] == 'mfa'
+      set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       saml_response_logging(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
@@ -69,6 +70,7 @@ module V1
     ensure
       callback_stats(:total)
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def metadata
       meta = OneLogin::RubySaml::Metadata.new
