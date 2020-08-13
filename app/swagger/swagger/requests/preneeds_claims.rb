@@ -104,10 +104,13 @@ module Swagger
                   key :'$ref', :PreneedName
                 end
 
-                property :race, type: :array, description: 'veteran ethnicities' do
-                  items do
-                    property :race_cd, type: :string, example: 'I'
-                  end
+                property :race, type: :object, description: 'veteran ethnicities' do
+                  property :isAmericanIndianOrAlaskanNative, type: :boolean
+                  property :isAsian, type: :boolean
+                  property :isBlackOrAfricanAmerican, type: :boolean
+                  property :isSpanishHispanicLatino, type: :boolean
+                  property :isNativeHawaiianOrOtherPacificIslander, type: :boolean
+                  property :isWhite, type: :boolean
                 end
 
                 property :serviceRecords, type: :array, description: 'data about tours of duty' do
