@@ -14,6 +14,7 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:message_id) { 573_059 }
   let(:va_patient) { true }
   let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
@@ -59,6 +60,16 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to match_response_schema('category')
     end
 
+    it 'responds to GET messages/categories when camel-inflected' do
+      VCR.use_cassette('sm_client/messages/gets_message_categories') do
+        get '/v0/messaging/health/messages/categories', headers: inflection_header
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('category')
+    end
+
     it 'responds to GET #show' do
       VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
         get "/v0/messaging/health/messages/#{message_id}"
@@ -67,6 +78,16 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('message')
+    end
+
+    it 'responds to GET #show when camel-inflected' do
+      VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
+        get "/v0/messaging/health/messages/#{message_id}", headers: inflection_header
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('message')
     end
 
     describe 'POST create' do
@@ -96,6 +117,18 @@ RSpec.describe 'Messages Integration', type: :request do
           expect(response).to match_response_schema('message')
         end
 
+        it 'without attachments when camel-inflected' do
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
+            post '/v0/messaging/health/messages', params: { message: params }, headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_camelized_response_schema('message')
+        end
+
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
             post '/v0/messaging/health/messages', params: params_with_attachments
@@ -106,6 +139,18 @@ RSpec.describe 'Messages Integration', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('message_with_attachment')
+        end
+
+        it 'with attachments when camel-inflected' do
+          VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
+            post '/v0/messaging/health/messages', params: params_with_attachments, headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_camelized_response_schema('message_with_attachment')
         end
       end
 
@@ -124,6 +169,20 @@ RSpec.describe 'Messages Integration', type: :request do
           expect(response).to match_response_schema('message')
         end
 
+        it 'without attachments when camel-inflected' do
+          VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+            post "/v0/messaging/health/messages/#{reply_message_id}/reply",
+                 params: { message: params },
+                 headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_camelized_response_schema('message')
+        end
+
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
             post "/v0/messaging/health/messages/#{reply_message_id}/reply", params: params_with_attachments
@@ -134,6 +193,20 @@ RSpec.describe 'Messages Integration', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
           expect(response).to match_response_schema('message_with_attachment')
+        end
+
+        it 'with attachments when camel-inflected' do
+          VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
+            post "/v0/messaging/health/messages/#{reply_message_id}/reply",
+                 params: params_with_attachments,
+                 headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
+          expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(response).to match_camelized_response_schema('message_with_attachment')
         end
       end
     end
@@ -149,6 +222,16 @@ RSpec.describe 'Messages Integration', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('messages_thread')
+      end
+
+      it 'responds to GET #thread when camel-inflected' do
+        VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
+          get "/v0/messaging/health/messages/#{thread_id}/thread", headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('messages_thread')
       end
     end
 
