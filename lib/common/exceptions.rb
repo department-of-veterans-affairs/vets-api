@@ -3,7 +3,6 @@
 require_dependency 'common/exceptions/base_error'
 require_dependency 'common/exceptions/serializable_error'
 require_dependency 'common/exceptions/invalid_resource'
-require_dependency 'common/exceptions/unknown_format'
 require_dependency 'common/exceptions/validation_errors'
 require_dependency 'common/exceptions/service_outage'
 require_dependency 'common/exceptions/not_a_safe_host_error'

@@ -118,12 +118,6 @@ en:
         detail: "There are no routes matching your request: %{path}"
         code: 411
         status: 404
-      unknown_format:
-        <<: *defaults
-        title: Not acceptable
-        detail: "The resource could not be returned in the requested format"
-        code: 406
-        status: 406
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity
