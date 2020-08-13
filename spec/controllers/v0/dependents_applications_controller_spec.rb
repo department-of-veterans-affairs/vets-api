@@ -10,7 +10,7 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   let(:test_form) do
-    build(:dependents_application).parsed_form
+    build(:dependency_claim).parsed_form
   end
 
   describe '#show' do
@@ -40,22 +40,29 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   describe 'POST create' do
-    subject do
-      post(:create, params: params)
+    context 'with valid params' do
+      it 'validates successfully' do
+        post(:create, params: test_form)
+        expect(response.code).to eq('200')
+      end
     end
 
-    context 'with valid params' do
+    context 'with invalid params' do
       let(:params) do
         {
-          dependents_application: {
-            form: test_form.to_json
-          }
+          dependents_application: {}
         }
       end
 
-      it 'validates successfully' do
-        subject
-        expect(response.code).to eq('200')
+      it 'shows the validation errors' do
+        post(:create, params: params)
+
+        expect(response.code).to eq('422')
+        expect(
+          JSON.parse(response.body)['errors'][0]['detail'].include?(
+            'Veteran address can\'t be blank'
+          )
+        ).to eq(true)
       end
     end
   end

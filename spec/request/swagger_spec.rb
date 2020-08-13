@@ -2644,9 +2644,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           '/v0/dependents_applications',
           200,
           headers.merge(
+            '_data' => build(:dependency_claim).parsed_form
+          )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          422,
+          headers.merge(
             '_data' => {
               'dependency_claim' => {
-                'form' => build(:dependency_claim).form
+                'invalid-form' => { invalid: true }.to_json
               }
             }
           )

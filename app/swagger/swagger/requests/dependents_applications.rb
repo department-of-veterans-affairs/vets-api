@@ -26,6 +26,7 @@ module Swagger
 
       swagger_path '/v0/dependents_applications' do
         operation :post do
+          extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
 
           key :description, 'Submit a dependency claim'
