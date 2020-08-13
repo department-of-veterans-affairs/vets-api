@@ -109,6 +109,7 @@ module Swagger
                   property :isAsian, type: :boolean
                   property :isBlackOrAfricanAmerican, type: :boolean
                   property :isSpanishHispanicLatino, type: :boolean
+                  property :notSpanishHispanicLatino, type: :boolean
                   property :isNativeHawaiianOrOtherPacificIslander, type: :boolean
                   property :isWhite, type: :boolean
                 end
