@@ -6,7 +6,7 @@ class DependentsApplicationFailureMailer < ApplicationMailer
 
     mail(
       to: user.email,
-      subject: t( 'dependency_claim_failuer_mailer.subject' ),
+      subject: t('dependency_claim_failuer_mailer.subject'),
       body: ERB.new(template).result(binding)
     )
   end
