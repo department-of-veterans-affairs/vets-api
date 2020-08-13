@@ -20,6 +20,15 @@ describe 'search', type: :request do
         end
       end
 
+      it 'matches the search schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('search/success') do
+          get '/v0/search', params: { query: 'benefits' }, headers: inflection_header
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('search')
+        end
+      end
+
       it 'returns an array of hash search results in its body', :aggregate_failures do
         VCR.use_cassette('search/success') do
           get '/v0/search', params: { query: 'benefits' }
