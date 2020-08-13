@@ -18,6 +18,8 @@ module BGS
       claim.add_veteran_info(vet_info)
 
       BGS::Form686c.new(user).submit(claim.parsed_form)
+    rescue
+      DependentsApplicationFailureMailer.build(user).deliver_now if user.present?
     end
   end
 end
