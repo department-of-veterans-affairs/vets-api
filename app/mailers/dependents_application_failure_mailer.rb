@@ -6,7 +6,7 @@ class DependentsApplicationFailureMailer < ApplicationMailer
 
     mail(
       to: user.email,
-      subject: "We can't process your dependents application",
+      subject: t( 'dependency_claim_failuer_mailer.subject' ),
       body: ERB.new(template).result(binding)
     )
   end
