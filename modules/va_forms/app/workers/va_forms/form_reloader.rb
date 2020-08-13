@@ -51,15 +51,22 @@ module VaForms
 
     def build_and_save_form(form)
       va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
-      attrs = get_attributes(form)
+      attrs = init_attributes(form)
+      url = form['fieldVaFormUrl']['uri']
+      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
+      issued_string = form.dig('fieldVaFormIssueDate', 'value')
+      revision_string = form.dig('fieldVaFormRevisionDate', 'value')
+      attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
+      attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
+      attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
       va_form.assign_attributes(attrs)
       va_form = update_sha256(va_form)
       va_form.save
       va_form
     end
 
-    def get_attributes(form)
-      attrs = {
+    def init_attributes(form)
+      mapped = {
         title: form['fieldVaFormName'],
         pages: form['fieldVaFormNumPages'],
         language: form.dig('langcode', 'value'),
@@ -72,14 +79,7 @@ module VaForms
         benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
         form_details_url: form['entityPublished'] ? form.dig('entityUrl', 'path') : nil
       }
-      url = form['fieldVaFormUrl']['uri']
-      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
-      issued_string = form.dig('fieldVaFormIssueDate', 'value')
-      revision_string = form.dig('fieldVaFormRevisionDate', 'value')
-      attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
-      attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
-      attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
-      attrs
+      mapped
     end
 
     def map_benefit_categories(categories)
