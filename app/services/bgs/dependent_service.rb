@@ -9,7 +9,7 @@ module BGS
     end
 
     def get_dependents
-      service.claimants.find_dependents_by_participant_id(@user.participant_id, @user.ssn)
+      service.claimant.find_dependents_by_participant_id(@user.participant_id, @user.ssn)
     end
 
     def submit_686c_form(claim)
