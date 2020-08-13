@@ -30,7 +30,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
   context 'error' do
     it 'calls #submit for 686c submission' do
       client_stub = instance_double('BGS::Form686c')
-      mailer_double = instance_double('DependentsApplicationFailureMailer')
+      mailer_double = double('Mail::Message')
       allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(StandardError)
 
