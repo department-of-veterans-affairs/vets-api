@@ -71,6 +71,14 @@ RSpec.describe 'terms_and_conditions', type: :request do
         expect(response).to match_response_schema('terms_and_conditions_acceptance')
       end
 
+      it 'responds to GET #user_data when camel-inflected' do
+        get "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data", headers: inflection_header
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('terms_and_conditions_acceptance')
+      end
+
       it 'gives me information about whether the user accepted the latest' do
         get "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data"
         json = JSON.parse(response.body)
@@ -114,6 +122,14 @@ RSpec.describe 'terms_and_conditions', type: :request do
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('terms_and_conditions_acceptance')
+        end
+
+        it 'lets me accept it when camel-inflected' do
+          post "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data", headers: inflection_header
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('terms_and_conditions_acceptance')
         end
 
         it 'creates the acceptance' do
