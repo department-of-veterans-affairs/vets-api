@@ -9,6 +9,8 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
 
   before { sign_in }
 
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
   describe 'GET /v0/profile/service_history' do
     context 'with a 200 response' do
       context 'with one military service episode' do
@@ -18,6 +20,15 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('service_history_response')
+          end
+        end
+
+        it 'matches the service history schema when camel-inflected' do
+          VCR.use_cassette('emis/get_military_service_episodes/valid') do
+            get '/v0/profile/service_history', headers: inflection_header
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('service_history_response')
           end
         end
 
