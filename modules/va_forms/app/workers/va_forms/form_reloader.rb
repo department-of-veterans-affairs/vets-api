@@ -62,7 +62,8 @@ module VaForms
         form_tool_intro: form['fieldVaFormToolIntro'], form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
         deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
         related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
-        benefit_categories: map_benefit_categories(form['fieldBenefitCategories'])
+        benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
+        form_details_url: form['entityPublished'] ? form.dig('entityUrl', 'path') : nil
       }
       attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
       attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
