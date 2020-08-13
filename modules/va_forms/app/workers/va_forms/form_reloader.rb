@@ -51,26 +51,37 @@ module VaForms
 
     def build_and_save_form(form)
       va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
-      url = form['fieldVaFormUrl']['uri']
-      issued_string = form.dig('fieldVaFormIssueDate', 'value')
-      revision_string = form.dig('fieldVaFormRevisionDate', 'value')
-      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
+      attrs = get_attributes(form)
+      va_form.assign_attributes(attrs)
+      va_form = update_sha256(va_form)
+      va_form.save
+      va_form
+    end
+
+    def get_attributes(form)
       attrs = {
-        url: Addressable::URI.parse(va_form_url).normalize.to_s,
-        title: form['fieldVaFormName'], pages: form['fieldVaFormNumPages'], language: form.dig('langcode', 'value'),
-        form_type: form['fieldVaFormType'], form_usage: form.dig('fieldVaFormUsage', 'processed'),
-        form_tool_intro: form['fieldVaFormToolIntro'], form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
+        title: form['fieldVaFormName'],
+        pages: form['fieldVaFormNumPages'],
+        language: form.dig('langcode', 'value'),
+        form_type: form['fieldVaFormType'],
+        form_usage: form.dig('fieldVaFormUsage', 'processed'),
+        form_tool_intro: form['fieldVaFormToolIntro'],
+        form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
         deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
         related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
         benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
         form_details_url: form['entityPublished'] ? form.dig('entityUrl', 'path') : nil
       }
+
+      url = form['fieldVaFormUrl']['uri']
+      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
+      issued_string = form.dig('fieldVaFormIssueDate', 'value')
+      revision_string = form.dig('fieldVaFormRevisionDate', 'value')
+
+      attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
       attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
       attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
-      va_form.assign_attributes(attrs)
-      va_form = update_sha256(va_form)
-      va_form.save
-      va_form
+      attrs
     end
 
     def map_benefit_categories(categories)
