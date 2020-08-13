@@ -308,9 +308,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/preneeds/burial_forms',
           200,
+          '_headers' => { 'content-type' => 'application/json' },
           '_data' => {
             'application' => attributes_for(:burial_form)
-          }
+          }.to_json
         )
       end
 
