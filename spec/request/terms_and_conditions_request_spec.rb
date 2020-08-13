@@ -10,6 +10,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
   let!(:terms2) { create(:terms_and_conditions, latest: false, name: 'two') }
   let!(:terms21) { create(:terms_and_conditions, name: terms2.name, latest: true) }
   let!(:terms3) { create(:terms_and_conditions, latest: true, name: 'three') }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   it 'responds to GET #index' do
     get '/v0/terms_and_conditions'
@@ -17,6 +18,14 @@ RSpec.describe 'terms_and_conditions', type: :request do
     expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('terms_and_conditions')
+  end
+
+  it 'responds to GET #index when camel-inflected' do
+    get '/v0/terms_and_conditions', headers: inflection_header
+
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_camelized_response_schema('terms_and_conditions')
   end
 
   it 'responds to GET #latest' do
