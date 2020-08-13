@@ -42,11 +42,7 @@ RSpec.describe Preneeds::BurialForm do
   describe 'when converting to json' do
     it 'converts its attributes from snakecase to camelcase' do
       camelcased = params.deep_transform_keys { |key| key.to_s.camelize(:lower) }
-      expect(camelcased).to eq(
-        Common::HashHelpers.deep_compact(
-          subject.as_json.except('sentTime', 'trackingNumber', 'hasAttachments')
-        )
-      )
+      expect(camelcased).to eq(subject.as_json.except('sentTime', 'trackingNumber', 'hasAttachments'))
     end
   end
 
