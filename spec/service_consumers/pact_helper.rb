@@ -51,25 +51,25 @@ Pact.service_provider 'VA.gov API' do
   #   pact_uri 'tmp/hca-va.gov_api.json'
   # end
 
-  honours_pact_with 'HCA' do #HCA needs to have submit async and submit anon (no email provided in request body)
-    pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/HCA/latest'
-  end
-
-  # temporarily define the url or else we will get failing verification
-  honours_pact_with 'Search' do
-    pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/Search/latest'
-  end
-
-  honours_pact_with 'Users' do
-    pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/User/latest'
-  end
-
-  #
-  # honours_pacts_from_pact_broker do
-  #   pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com'
+  # honours_pact_with 'HCA' do #HCA needs to have submit async and submit anon (no email provided in request body)
+  #   pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/HCA/latest'
   # end
+  #
+  # # temporarily define the url or else we will get failing verification
+  # honours_pact_with 'Search' do
+  #   pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/Search/latest'
+  # end
+  #
+  # honours_pact_with 'Users' do
+  #   pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/User/latest'
+  # end
+
+
+  honours_pacts_from_pact_broker do
+    pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com'
+  end
 
   app_version git_sha
   app_version_tags git_branch
-  publish_verification_results publish_flag
+  # publish_verification_results publish_flag
 end
