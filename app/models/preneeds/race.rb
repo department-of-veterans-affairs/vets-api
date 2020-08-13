@@ -7,17 +7,14 @@ module Preneeds
       'A' => :is_asian,
       'B' => :is_black_or_african_american,
       'H' => :is_spanish_hispanic_latino,
+      'U' => :not_spanish_hispanic_latino,
       'P' => :is_native_hawaiian_or_other_pacific_islander,
       'W' => :is_white
     }.freeze
-    NOT_HISPANIC = 'U'
 
-    attribute ATTRIBUTE_MAPPING['I'], Boolean
-    attribute ATTRIBUTE_MAPPING['A'], Boolean
-    attribute ATTRIBUTE_MAPPING['B'], Boolean
-    attribute ATTRIBUTE_MAPPING['H'], Boolean
-    attribute ATTRIBUTE_MAPPING['P'], Boolean
-    attribute ATTRIBUTE_MAPPING['W'], Boolean
+    ATTRIBUTE_MAPPING.each_value do |attr|
+      attribute(attr, Boolean)
+    end
 
     def as_eoas
       return_val = []
@@ -26,10 +23,6 @@ module Preneeds
         if public_send(v)
           return_val << {
             raceCd: k
-          }
-        elsif k == 'H'
-          return_val << {
-            raceCd: NOT_HISPANIC
           }
         end
       end
