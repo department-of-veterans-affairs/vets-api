@@ -50,7 +50,7 @@ RSpec.describe 'covid research volunteer submissions', type: :request do
       it 'returns a 422 status' do
         post '/covid-research/volunteer/create', params: invalid
 
-        expect(response).to have_http_status(422)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end

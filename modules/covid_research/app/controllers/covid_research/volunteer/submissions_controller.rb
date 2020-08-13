@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Bypass auth requirements
-require_dependency "covid_research/base_controller"
+require_dependency 'covid_research/base_controller'
 
 module CovidResearch
   module Volunteer

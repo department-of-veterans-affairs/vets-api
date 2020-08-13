@@ -25,7 +25,7 @@ RSpec.describe CovidResearch::Volunteer::FormService do
     describe '#valid!' do
       it 'returns true if the JSON is valid' do
         expect { subject.valid!(valid) }.not_to raise_exception
-        expect(subject.valid!(valid)).to be (true)
+        expect(subject.valid!(valid)).to be(true)
       end
 
       it 'raises an exception if the JSON is invalid' do
@@ -35,11 +35,11 @@ RSpec.describe CovidResearch::Volunteer::FormService do
 
     describe '#submission_errors' do
       it 'returns a list of error objects if the JSON is invalid' do
-        expect(subject.submission_errors(invalid).length).to be > 0
+        expect(subject.submission_errors(invalid)).not_to be_empty
       end
 
       it 'returns an empty list if they JSON is valid' do
-        expect(subject.submission_errors(valid)).to be_empty()
+        expect(subject.submission_errors(valid)).to be_empty
       end
     end
   end

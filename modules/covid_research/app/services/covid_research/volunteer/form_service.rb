@@ -7,10 +7,7 @@ module CovidResearch
   module Volunteer
     class FormService
       SCHEMA = 'COVID-VACCINE-TRIAL'
-
-      def valid?(json)
-        schema.valid?(json)
-      end
+      delegate :valid?, to: :schema
 
       def valid!(json)
         raise SchemaValidationError, submission_errors(json) unless valid?(json)
