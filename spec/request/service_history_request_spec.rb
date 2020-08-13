@@ -82,6 +82,13 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
         expect(response).to match_response_schema('errors')
       end
 
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        get '/v0/profile/service_history', headers: inflection_header
+
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to match_camelized_response_schema('errors')
+      end
+
       it 'includes the correct error code' do
         get '/v0/profile/service_history'
 
