@@ -49,6 +49,7 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
           an_instance_of(Integer)
         )
 
+        vet_info['veteran_information'].delete('ssn')
         job.perform(invalid_dependency_claim.id, vet_info)
       end
 
