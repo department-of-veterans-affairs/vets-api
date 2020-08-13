@@ -58,6 +58,15 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
             expect(response).to match_response_schema('service_history_response')
           end
         end
+
+        it 'matches the service history schema when camel-inflected' do
+          VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
+            get '/v0/profile/service_history', headers: inflection_header
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('service_history_response')
+          end
+        end
       end
     end
 
