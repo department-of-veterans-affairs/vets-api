@@ -10,7 +10,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   end
 
   def post_burial_forms
-    post '/v0/preneeds/burial_forms', params: params.to_json, headers: { "CONTENT_TYPE" => "application/json" }
+    post '/v0/preneeds/burial_forms', params: params.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
   end
 
   context 'with valid input' do
