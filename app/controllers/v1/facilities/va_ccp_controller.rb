@@ -3,22 +3,7 @@
 require 'will_paginate/array'
 class V1::Facilities::VaCcpController < FacilitiesController
   def urgent_care
-    ppms_api_results = ppms_api.pos_locator(ppms_params).collect do |result|
-      PPMS::Provider.new(
-        result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym }
-      )
-    end.uniq(&:id).paginate(pagination_params)
-
-    lighthouse_api_results = lighthouse_api.get_facilities(
-      lighthouse_params.merge(
-        type: :health,
-        services: ['UrgentCare']
-      )
-    )
-
-    providers_facilities = PPMS::ProviderFacility.new
-    providers_facilities.providers = ppms_api_results
-    providers_facilities.facilities = lighthouse_api_results
+    providers_facilities = PPMS::ProviderFacility.new(pagination_params: pagination_params, ppms_params: ppms_params, lighthouse_params: lighthouse_params)
 
     render_json(
       PPMS::ProviderFacilitySerializer,
@@ -29,14 +14,6 @@ class V1::Facilities::VaCcpController < FacilitiesController
   end
 
   private
-
-  def ppms_api
-    Facilities::PPMS::Client.new
-  end
-
-  def lighthouse_api
-    Lighthouse::Facilities::Client.new
-  end
 
   def ppms_params
     params.permit(
