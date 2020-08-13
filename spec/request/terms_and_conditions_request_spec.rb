@@ -39,6 +39,17 @@ RSpec.describe 'terms_and_conditions', type: :request do
     expect(json['data']['id']).to eq(terms21.id.to_s)
   end
 
+  it 'responds to GET #latest when camel-inflected' do
+    get "/v0/terms_and_conditions/#{terms2.name}/versions/latest", headers: inflection_header
+
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_camelized_response_schema('terms_and_conditions_single')
+
+    json = JSON.parse(response.body)
+    expect(json['data']['id']).to eq(terms21.id.to_s)
+  end
+
   context 'with some acceptances' do
     before do
       sign_in_as(current_user)
