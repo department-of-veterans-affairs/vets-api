@@ -24,7 +24,7 @@ module ClaimsApi
             ClaimsApi::IntentToFile::ITF_TYPES[active_param]
           )
           if bgs_response.present?
-            render json: bgs_response,
+            render json: bgs_response&.first,
                    serializer: ClaimsApi::IntentToFileSerializer
           else
             render json: itf_not_found, status: :not_found
