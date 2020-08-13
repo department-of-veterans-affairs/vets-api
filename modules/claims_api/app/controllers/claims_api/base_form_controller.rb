@@ -82,5 +82,20 @@ module ClaimsApi
         ssn: target_veteran.ssn
       }
     end
+
+    def target_veteran_name
+      "#{target_veteran.first_name} #{target_veteran.last_name}"
+    end
+
+    def itf_not_found
+      {
+        data: {
+          type: 'intentToFileNotFound',
+          attributes: {
+            message: "No Intent to file s on record for #{target_veteran_name} of type #{active_param}"
+          }
+        }
+      }
+    end
   end
 end
