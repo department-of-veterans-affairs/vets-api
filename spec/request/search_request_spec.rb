@@ -7,6 +7,8 @@ describe 'search', type: :request do
   include SchemaMatchers
   include ErrorDetails
 
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
   describe 'GET /v0/search' do
     context 'with a 200 response' do
       it 'matches the search schema', :aggregate_failures do
@@ -40,6 +42,15 @@ describe 'search', type: :request do
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
+        end
+      end
+
+      it 'matches the errors schema when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('search/empty_query') do
+          get '/v0/search', params: { query: '' }, headers: inflection_header
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
