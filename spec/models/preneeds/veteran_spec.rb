@@ -42,8 +42,9 @@ RSpec.describe Preneeds::Veteran do
 
   describe 'when converting to json' do
     it 'converts its attributes from snakecase to camelcase' do
-      camelcased = params.deep_transform_keys { |key| key.to_s.camelize(:lower) }
-      expect(camelcased).to eq(subject.as_json)
+      subject.as_json.keys.each do |key|
+        key.camelize(:lower) == key
+      end
     end
   end
 end

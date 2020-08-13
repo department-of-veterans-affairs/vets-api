@@ -2,6 +2,6 @@
 
 FactoryBot.define do
   factory :race, class: Preneeds::Race do
-    race_cd { 'W' }
+    is_american_indian_or_alaskan_native { true }
   end
 end
