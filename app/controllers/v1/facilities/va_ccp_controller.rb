@@ -3,7 +3,11 @@
 require 'will_paginate/array'
 class V1::Facilities::VaCcpController < FacilitiesController
   def urgent_care
-    providers_facilities = PPMS::ProviderFacility.new(pagination_params: pagination_params, ppms_params: ppms_params, lighthouse_params: lighthouse_params)
+    providers_facilities = PPMS::ProviderFacility.new(
+      pagination_params: pagination_params,
+      ppms_params: ppms_params,
+      lighthouse_params: lighthouse_params
+    )
 
     render_json(
       PPMS::ProviderFacilitySerializer,

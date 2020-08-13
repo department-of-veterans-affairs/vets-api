@@ -42,5 +42,4 @@ class PPMS::ProviderFacility < Common::Base
       )
     )
   end
-
 end
