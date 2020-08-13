@@ -72,12 +72,10 @@ module VaForms
         benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
         form_details_url: form['entityPublished'] ? form.dig('entityUrl', 'path') : nil
       }
-
       url = form['fieldVaFormUrl']['uri']
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
-
       attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
       attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
       attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
