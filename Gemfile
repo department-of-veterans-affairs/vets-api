@@ -9,6 +9,7 @@ ruby '2.6.6'
 gem 'websocket-extensions', '>= 0.1.5'
 
 # Modules
+gem 'health_quest', path: 'modules/health_quest'
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'

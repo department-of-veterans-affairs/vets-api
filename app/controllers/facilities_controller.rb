@@ -20,6 +20,17 @@ class FacilitiesController < ApplicationController
 
   private
 
+  def pagination_params
+    hsh = super
+    page = Integer(hsh[:page] || 1)
+    per_page = Integer(hsh[:per_page] || 1)
+    total_entries = page * per_page + 1
+    hsh.compact.transform_values!(&:to_i)
+    hsh.merge(
+      total_entries: total_entries
+    )
+  end
+
   def render_json(serializer, page_params, obj, options = {})
     if PAGINATED_CLASSES.any? { |array_class| obj.is_a?(array_class) }
       render_collection(serializer, page_params, obj, options)
