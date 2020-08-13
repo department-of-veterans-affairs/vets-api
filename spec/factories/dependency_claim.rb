@@ -20,19 +20,19 @@ FactoryBot.define do
           service_number: '12345678',
           birth_date: '1950-10-04'
         },
-        veteran_contact_information: {
-          veteran_address: {
-            country_name: 'USA',
-            address_line1: '8200 DOBY LN',
-            city: 'PASADENA',
-            stateCode: 'CA',
-            zipCode: '21122'
-          },
-          phone_number: '1112223333',
-          email_address: 'vets.gov.user+228@gmail.com'
-        },
         dependents_application: {
-          "children_to_add": [
+          veteran_contact_information: {
+            veteran_address: {
+              country_name: 'USA',
+              address_line1: '8200 DOBY LN',
+              city: 'PASADENA',
+              stateCode: 'CA',
+              zipCode: '21122'
+            },
+            phone_number: '1112223333',
+            email_address: 'vets.gov.user+228@gmail.com'
+          },
+          children_to_add: [
             {
               does_child_live_with_you: false,
               child_address_info: {

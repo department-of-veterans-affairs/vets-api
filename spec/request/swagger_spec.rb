@@ -2638,6 +2638,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
         end
       end
+
+      it 'supports adding a dependency claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          200,
+          headers.merge(
+            '_data' => build(:dependency_claim).parsed_form
+          )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          422,
+          headers.merge(
+            '_data' => {
+              'dependency_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
     end
 
     describe 'va file number' do
