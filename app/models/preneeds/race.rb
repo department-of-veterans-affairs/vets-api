@@ -9,7 +9,7 @@ module Preneeds
       'H' => :is_spanish_hispanic_latino,
       'P' => :is_native_hawaiian_or_other_pacific_islander,
       'W' => :is_white
-    }
+    }.freeze
     NOT_HISPANIC = 'U'
 
     attribute ATTRIBUTE_MAPPING['I'], Boolean
