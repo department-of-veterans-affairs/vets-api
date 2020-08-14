@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-module EFolder
+module Efolder
   ## Veteran Facing eFolder
   #
   # This service provides the veteran with methods to
-  # both view the contents of their eFolder, and 
+  # both view the contents of their eFolder, and
   # also download the files contained therein.
   #
 
   # EXCLUDED_DOC_TYPES
   #
-  # The doc_types within EXCLUDED_DOC_TYPES 
+  # The doc_types within EXCLUDED_DOC_TYPES
   # should never be exposed to the veteran.
   #
 
@@ -33,7 +33,7 @@ module EFolder
         VBMS::Requests::FindDocumentVersionReference.new(@file_number)
       )
 
-      if !@included_doc_types.blank?
+      if @included_doc_types.present?
         documents = documents.find_all do |record|
           @included_doc_types.include?(record.doc_type)
         end
@@ -58,10 +58,9 @@ module EFolder
 
     def validate_doc_types
       @included_doc_types.each do |doc_type|
-        raise Common::Exceptions::InvalidFieldValue(
-          'included_doc_types', 
-          doc_type
-        ) if EXCLUDED_DOC_TYPES.include?(doc_type)
+        if EXCLUDED_DOC_TYPES.include?(doc_type)
+          raise Common::Exceptions::InvalidFieldValue('included_doc_types', doc_type) 
+        end
       end
     end
 

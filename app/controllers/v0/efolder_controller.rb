@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class EFolderController < ApplicationController
+  class EfolderController < ApplicationController
     def index
       render(json: service.list_documents)
     end
@@ -17,7 +17,7 @@ module V0
     private
 
     def service
-      EFolder::Service.new do |service|
+      Efolder::Service.new do |service|
         service.file_number = @current_user.ssn
         service.excluded_documents = params[:excluded_documents]
       end
