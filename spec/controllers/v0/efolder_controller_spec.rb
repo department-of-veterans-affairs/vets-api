@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/stub_debt_letters'
+require 'support/stub_efolder_documents'
 
 RSpec.describe V0::EfolderController, type: :controller do
   let(:user) { build(:user, :loa3) }
