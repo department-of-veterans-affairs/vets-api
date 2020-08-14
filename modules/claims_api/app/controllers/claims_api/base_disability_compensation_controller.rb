@@ -13,6 +13,8 @@ module ClaimsApi
       ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
       render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+    rescue
+      render json: unprocessable_response, status: :unprocessable_entity
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -67,6 +69,12 @@ module ClaimsApi
         key = error['key']&.gsub(/\[(.*?)\]/, '')
         StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
       end
+    end
+
+    def unprocessable_response
+      {
+        errors: [{ detail: 'An unknown error occurred. Please retry the request' }]
+      }.to_json
     end
   end
 end
