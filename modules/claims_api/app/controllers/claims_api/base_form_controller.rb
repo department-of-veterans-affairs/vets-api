@@ -88,14 +88,7 @@ module ClaimsApi
     end
 
     def itf_not_found
-      {
-        data: {
-          type: 'intentToFileNotFound',
-          attributes: {
-            message: "No Intent to file s on record for #{target_veteran_name} of type #{active_param}"
-          }
-        }
-      }
+      { errors: [{ detail: "No Intent to file s on record for #{target_veteran_name} of type #{active_param}" }] }
     end
   end
 end
