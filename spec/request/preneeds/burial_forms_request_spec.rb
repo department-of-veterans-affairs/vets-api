@@ -9,8 +9,10 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     { application: attributes_for(:burial_form) }
   end
 
-  def post_burial_forms
-    post '/v0/preneeds/burial_forms', params: params.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+  def post_burial_forms(additional_headers = {})
+    post '/v0/preneeds/burial_forms',
+         params: params.to_json,
+         headers: { 'CONTENT_TYPE' => 'application/json' }.merge(additional_headers)
   end
 
   context 'with valid input' do
@@ -22,6 +24,16 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('preneeds/receive_applications')
+    end
+
+    it 'responds to POST #create when camel-inflected' do
+      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+        post_burial_forms({ 'X-Key-Inflection' => 'camel' })
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('preneeds/receive_applications')
     end
   end
 
