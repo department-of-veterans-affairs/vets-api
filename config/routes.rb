@@ -299,6 +299,9 @@ Rails.application.routes.draw do
       resources :ccp, only: %i[index show] do
         get 'specialties', on: :collection, to: 'ccp#specialties'
       end
+      resources :va_ccp, only: [] do
+        get 'urgent_care', on: :collection
+      end
     end
   end
 
