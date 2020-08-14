@@ -29,6 +29,7 @@ module BGSDependents
       ]
 
       if dependents_application['current_marriage_information']
+        binding.pry
         vet_info << ['martl_status_type_cd', marital_status(dependents_application)]
       end
 
@@ -69,8 +70,6 @@ module BGSDependents
 
     def marital_status(dependents_application)
       spouse_lives_with_vet = dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
-
-      return 'Never Married' if dependents_application.dig('veteran_was_married_before') == false
 
       return nil if spouse_lives_with_vet.nil?
 
