@@ -73,15 +73,7 @@ module ClaimsApi
 
     def unprocessable_response
       {
-        data: {
-          type: 'claims_api_526_upload_error',
-          errors: [{
-            title: 'ClaimsAPI upload error',
-            detail: 'An unknown error occurred. Please retry the request',
-            code: '422',
-            status: '422'
-          }]
-        }
+        errors: [{detail: 'An unknown error occurred. Please retry the request'}]
       }.to_json
     end
   end
