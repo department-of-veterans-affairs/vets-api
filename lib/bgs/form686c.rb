@@ -11,7 +11,6 @@ module BGS
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
 
       process_relationships(proc_id, veteran, payload)
-
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
