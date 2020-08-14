@@ -23,6 +23,12 @@ module V0
       def service_unavailable
         render nothing: true, status: :service_unavailable, as: :json
       end
+
+      def form_submission
+        params.require(:inquiry).require(:form)
+      rescue
+        raise
+      end
     end
   end
 end
