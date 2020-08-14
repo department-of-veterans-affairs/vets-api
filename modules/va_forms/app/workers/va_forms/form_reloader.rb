@@ -76,9 +76,9 @@ module VaForms
         form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
         deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
         related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
-        benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
-        form_details_url: form['entityPublished'] ? form.dig('entityUrl', 'path') : nil
+        benefit_categories: map_benefit_categories(form['fieldBenefitCategories'])
       }
+      mapped[:form_details_url] = "#{FORM_BASE_URL}#{form.dig('entityUrl', 'path')}" if form['entityPublished']
       mapped
     end
 
