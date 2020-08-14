@@ -87,7 +87,7 @@ Rails.application.routes.draw do
       resources :burial_claims, only: %i[create show]
     end
 
-    resources :efolders, only: %i[index show]
+    resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
