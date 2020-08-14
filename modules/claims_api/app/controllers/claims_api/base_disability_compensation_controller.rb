@@ -73,7 +73,7 @@ module ClaimsApi
 
     def unprocessable_response
       {
-        errors: [{detail: 'An unknown error occurred. Please retry the request'}]
+        errors: [{ detail: 'An unknown error occurred. Please retry the request' }]
       }.to_json
     end
   end
