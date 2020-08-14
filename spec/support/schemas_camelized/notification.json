@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+  },
+  "properties": {
+    "data": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "subject": {
+              "type": "string"
+            },
+            "readAt": {
+              "type": [
+                "string",
+                null
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "type": "object"
+}

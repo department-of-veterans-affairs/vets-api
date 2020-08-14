@@ -15,6 +15,16 @@ RSpec.describe 'zipcode_rates', type: :request do
     expect(response).to match_response_schema('gi/zipcode_rate')
   end
 
+  it 'responds to GET #show when camel-inflected' do
+    VCR.use_cassette('gi_client/gets_the_zipcode_rate') do
+      get '/v0/gi/zipcode_rates/20001', headers: { 'X-Key-Inflection' => 'camel' }
+    end
+
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_camelized_response_schema('gi/zipcode_rate')
+  end
+
   it 'responds with appropriate not found' do
     VCR.use_cassette('gi_client/gets_zip_code_rate_error') do
       get '/v0/gi/zipcode_rates/splunge'
