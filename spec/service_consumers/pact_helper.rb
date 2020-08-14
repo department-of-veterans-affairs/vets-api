@@ -37,10 +37,6 @@ end
 
 RSpec.configure do |config|
   config.before do |example|
-    #ActionController::Base.allow_forgery_protection = true in the docker environment
-    #Need to set this to false, otherwise, authenticity token is invalid
-    # ActionController::Base.allow_forgery_protection = false
-
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
