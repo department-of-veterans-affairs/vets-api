@@ -1,4 +1,4 @@
-# frozen string literal: true
+# frozen_string_literal: true
 
 def stub_efolder_documents(method)
   let!(:efolder_service) do

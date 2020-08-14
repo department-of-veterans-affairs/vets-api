@@ -59,7 +59,7 @@ module Efolder
     def validate_doc_types
       @included_doc_types.each do |doc_type|
         if EXCLUDED_DOC_TYPES.include?(doc_type)
-          raise Common::Exceptions::InvalidFieldValue('included_doc_types', doc_type) 
+          raise Common::Exceptions::InvalidFieldValue('included_doc_types', doc_type)
         end
       end
     end
