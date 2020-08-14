@@ -17,6 +17,13 @@ RSpec.describe 'full_name', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('full_name_response')
       end
+
+      it 'matches the full name schema when camel-inflected' do
+        get '/v0/profile/full_name', headers: { 'X-Key-Inflection' => 'camel' }
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('full_name_response')
+      end
     end
   end
 end
