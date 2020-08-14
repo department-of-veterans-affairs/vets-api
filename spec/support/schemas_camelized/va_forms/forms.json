@@ -64,7 +64,10 @@
                 "type": "boolean"
               },
               "formDetailsUrl": {
-                "type": "boolean"
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "sha256": {
                 "type": "string"
