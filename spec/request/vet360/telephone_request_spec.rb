@@ -124,7 +124,7 @@ RSpec.describe 'telephone', type: :request do
 
       it 'matches the telephone camel-inflected schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/put_telephone_success') do
-          put('/v0/profile/telephones', params: telephone.to_json, headers: headers)
+          put('/v0/profile/telephones', params: telephone.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('vet360/transaction_response')
