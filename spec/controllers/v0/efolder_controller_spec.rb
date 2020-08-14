@@ -11,7 +11,7 @@ RSpec.describe V0::EfolderController, type: :controller do
   end
 
   describe '#index' do
-    stub_document(:index)
+    stub_efolder_document(:index)
 
     it 'lists document id and document details for efolder documents' do
       get(:index)
@@ -20,7 +20,7 @@ RSpec.describe V0::EfolderController, type: :controller do
   end
 
   describe '#show' do
-    stub_document(:show)
+    stub_efolder_document(:show)
 
     it 'sends the doc pdf' do
       get(:show, params: { id: document_id })
