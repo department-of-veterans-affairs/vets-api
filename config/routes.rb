@@ -323,6 +323,7 @@ Rails.application.routes.draw do
   end
 
   mount VAOS::Engine, at: '/vaos'
+  mount CovidResearch::Engine, at: '/covid-research'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
