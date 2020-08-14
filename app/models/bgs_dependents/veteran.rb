@@ -29,7 +29,6 @@ module BGSDependents
       ]
 
       if dependents_application['current_marriage_information']
-        binding.pry
         vet_info << ['martl_status_type_cd', marital_status(dependents_application)]
       end
 
