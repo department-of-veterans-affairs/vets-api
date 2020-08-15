@@ -61,6 +61,7 @@ module BGSDependents
         last_nm: payload['last'],
         suffix_nm: payload['suffix'],
         brthdy_dt: format_date(payload['birth_date']),
+        birth_cntry_nm: payload['place_of_birth_country'],
         birth_state_cd: payload['place_of_birth_state'],
         birth_city_nm: payload['place_of_birth_city'],
         file_nbr: payload['va_file_number'],
