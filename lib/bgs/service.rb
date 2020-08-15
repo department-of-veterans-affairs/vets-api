@@ -128,7 +128,6 @@ module BGS
     end
 
     def insert_benefit_claim(benefit_claim_params)
-      binding.pry
       service.claims.insert_benefit_claim(benefit_claim_params)
     end
 

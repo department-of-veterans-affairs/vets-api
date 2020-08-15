@@ -3,6 +3,7 @@
 module BGSDependents
   class Base < Common::Base
     include ActiveModel::Validations
+    MILITARY_POST_OFFICE_TYPE_CODES = %w[APO DPO FPO].freeze
     # Gets the person's address based on the lives with veteran flag
     #
     # @param dependents_application [Hash] the submitted form information
@@ -82,7 +83,8 @@ module BGSDependents
     end
 
     def generate_address(address)
-      if address['view:lives_on_military_base'] == true
+      # BGS will throw an error if we pass in a military postal code in for state
+      if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
         address['military_postal_code'] = address.delete('state_code')
         address['military_post_office_type_code'] = address.delete('city')
       end
@@ -91,6 +93,8 @@ module BGSDependents
     end
 
     def create_address_params(proc_id, participant_id, payload)
+      generate_address(payload)
+
       {
         efctv_dt: Time.current.iso8601,
         vnp_ptcpnt_id: participant_id,

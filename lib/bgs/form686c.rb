@@ -14,14 +14,14 @@ module BGS
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
-      benefit_claim_record = BenefitClaim.new(
-        vnp_benefit_claim: vnp_benefit_claim_record,
-        veteran: veteran,
-        user: @user,
-        proc_id: proc_id
-      ).create
+      # benefit_claim_record = BenefitClaim.new(
+      #   vnp_benefit_claim: vnp_benefit_claim_record,
+      #   veteran: veteran,
+      #   user: @user,
+      #   proc_id: proc_id
+      # ).create
 
-      vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
+      # vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
       bgs_service.update_proc(proc_id)
     end
 
