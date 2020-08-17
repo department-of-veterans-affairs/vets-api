@@ -14,16 +14,7 @@ RSpec.describe BGSDependents::Veteran do
       file_number: '1234'
     }
   end
-  let(:user) do
-    {
-      participant_id: '600061742',
-      ssn: '796043735',
-      first_name: 'WESLEY',
-      last_name: 'FORD',
-      external_key: 'abraham.lincoln@vets.gov',
-      icn: '14512449011616630'
-    }
-  end
+  let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:vet) { described_class.new('12345', user) }
   let(:formatted_params_result) do
     {

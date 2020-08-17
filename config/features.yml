@@ -218,3 +218,7 @@ features:
     actor_type: user
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
+  show_healthcare_experience_questionnaire:
+    actor_type: cookie_id
+    description: >
+      Enables showing the pre-appointment questionnaire feature. 

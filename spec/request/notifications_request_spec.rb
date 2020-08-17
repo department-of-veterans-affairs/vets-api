@@ -7,6 +7,8 @@ RSpec.describe 'notifications', type: :request do
 
   let(:user) { build(:user, :accountable) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+  let(:headers_with_camel) { headers.merge(inflection_header) }
   let(:notification_subject) { Notification::DASHBOARD_HEALTH_CARE_APPLICATION_NOTIFICATION }
   let(:invalid_subject) { 'random_subject' }
 
@@ -28,6 +30,13 @@ RSpec.describe 'notifications', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('notification')
+      end
+
+      it 'matches the notification schema when when camel-inflected', :aggregate_failures do
+        post '/v0/notifications', params: post_body, headers: headers_with_camel
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('notification')
       end
 
       it 'sets the passed values', :aggregate_failures do
@@ -100,6 +109,13 @@ RSpec.describe 'notifications', type: :request do
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('notification')
       end
+
+      it 'matches the schema when camel-inflected', :aggregate_failures do
+        get "/v0/notifications/#{notification_subject}", headers: inflection_header
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('notification')
+      end
     end
 
     context 'when user has no associated Notification record' do
@@ -138,6 +154,13 @@ RSpec.describe 'notifications', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('notification')
+      end
+
+      it 'matches the Notification schema when camel-inflected', :aggregate_failures do
+        patch "/v0/notifications/#{notification_subject}", params: patch_body, headers: headers_with_camel
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('notification')
       end
 
       it 'correctly updates their Notification record' do

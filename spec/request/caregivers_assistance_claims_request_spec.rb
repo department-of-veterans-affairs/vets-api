@@ -99,14 +99,12 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false).twice
 
         VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'emis/get_veteran_status/valid', vcr_options do
-            VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
-              VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
-                VCR.use_cassette 'carma/auth/token/200', vcr_options do
-                  VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-                    VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
-                      post endpoint, params: body, headers: headers
-                    end
+          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
+            VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
+              VCR.use_cassette 'carma/auth/token/200', vcr_options do
+                VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+                  VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
+                    post endpoint, params: body, headers: headers
                   end
                 end
               end
@@ -139,11 +137,9 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true).twice
 
         VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'emis/get_veteran_status/valid', vcr_options do
-            VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
-              VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
-                post endpoint, params: body, headers: headers
-              end
+          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
+            VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
+              post endpoint, params: body, headers: headers
             end
           end
         end
