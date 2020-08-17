@@ -14,17 +14,13 @@ module Efolder
   # should never be exposed to the veteran.
   #
 
-  EXCLUDED_DOC_TYPES = [
-    # TODO: Figure out which docs shouldn't
-    # be exposed.
-  ].freeze
+  EXCLUDED_DOC_TYPES = YAML.load(File.read('excluded_doc_types.yml')).freeze
 
   class Service
     attr_accessor :file_number, :included_doc_types
 
     def initialize
       yield self
-      validate_doc_types if @included_doc_types
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
     end
 
@@ -40,6 +36,7 @@ module Efolder
       end
 
       documents.map do |document|
+        should_be_excluded?(document.doc_type)
         document.marshal_dump.slice(
           :document_id, :doc_type, :type_description, :received_at
         )
@@ -56,16 +53,13 @@ module Efolder
 
     private
 
-    def validate_doc_types
-      @included_doc_types.each do |doc_type|
-        if EXCLUDED_DOC_TYPES.include?(doc_type)
-          raise Common::Exceptions::InvalidFieldValue('included_doc_types', doc_type)
-        end
-      end
+    def should_be_excluded?(doc_type)
+      raise Common::Exceptions::InvalidFieldValue('included_doc_types', doc_type) if EXCLUDED_DOC_TYPES.include?(doc_type)
     end
 
     def verify_document_in_folder(document_id)
       raise Common::Exceptions::Unauthorized unless list_documents.any? do |document|
+        should_be_excluded?(document[:doc_type])
         document[:document_id] == document_id
       end
     end

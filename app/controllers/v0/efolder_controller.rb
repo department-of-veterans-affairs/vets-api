@@ -19,7 +19,7 @@ module V0
     def service
       Efolder::Service.new do |service|
         service.file_number = @current_user.ssn
-        service.excluded_documents = params[:excluded_documents]
+        service.included_doc_types = params[:included_doc_types]
       end
     end
   end
