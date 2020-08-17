@@ -154,6 +154,25 @@ RSpec.describe 'Disability Claims ', type: :request do
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
         end
       end
+
+      it 'responds with a 422 when request.body is a Puma::NullIO' do
+        fake_puma_null_io_object = Object.new.tap do |obj|
+          def obj.class
+            OpenStruct.new name: 'Puma::NullIO'
+          end
+        end
+        expect(fake_puma_null_io_object.class.name).to eq 'Puma::NullIO'
+        allow_any_instance_of(ActionDispatch::Request).to(
+          receive(:body).and_return(fake_puma_null_io_object)
+        )
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims') do
+            post path, params: data, headers: headers.merge(auth_header)
+            expect(response.status).to eq 422
+            expect(JSON.parse(response.body)['errors']).to be_an Array
+          end
+        end
+      end
     end
 
     context 'form 526 validation' do
@@ -204,6 +223,20 @@ RSpec.describe 'Disability Claims ', type: :request do
           parsed = JSON.parse(response.body)
           expect(response.status).to eq(422)
           expect(parsed['errors'].size).to eq(5)
+        end
+      end
+
+      context 'Breakers outages are recorded (investigating)' do
+        it 'is logged to PersonalInformationLog' do
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              post path, params: data, headers: headers.merge(auth_header)
+              expect(PersonalInformationLog.count).to be_positive
+              expect(PersonalInformationLog.last.error_class).to eq('validate_form_526 Breakers::OutageException')
+            end
+          end
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
 

@@ -106,6 +106,29 @@ RSpec.describe 'systems', type: :request do
         end
       end
 
+      context 'with a valid GET system facilities response that includes express care' do
+        it 'returns a 200 with the correct schema' do
+          VCR.use_cassette('vaos/systems/get_system_facilities_express_care', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/systems/983/direct_scheduling_facilities', params: {
+              parent_code: '983', type_of_care_id: 'CR1'
+            }
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('vaos/system_facilities')
+            expect(
+              JSON.parse(response.body)['data'].map { |facility| facility.dig('attributes', 'express_times') }
+            ).to eq(
+              [
+                { 'start' => '09:17', 'end' => '16:45', 'timezone' => 'MDT', 'offset_utc' => '-06:00' },
+                { 'start' => '12:04', 'end' => '14:04', 'timezone' => 'MDT', 'offset_utc' => '-06:00' },
+                { 'start' => '12:35', 'end' => '12:45', 'timezone' => 'MDT', 'offset_utc' => '-06:00' },
+                { 'start' => '08:33', 'end' => '23:33', 'timezone' => 'MDT', 'offset_utc' => '-06:00' }
+              ]
+            )
+          end
+        end
+      end
+
       context 'when parent_code is missing' do
         it 'returns a 200 with the correct schema' do
           VCR.use_cassette('vaos/systems/get_system_facilities_noparent', match_requests_on: %i[method uri]) do

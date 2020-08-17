@@ -17,6 +17,8 @@ class SavedClaim::EducationBenefits < SavedClaim
     form_id
   end
 
+  def after_submit(user); end
+
   private
 
   def add_education_benefits_claim

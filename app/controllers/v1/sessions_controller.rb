@@ -49,7 +49,9 @@ module V1
       redirect_to url_service.logout_redirect_url
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def saml_callback
+      set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       saml_response_logging(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
@@ -57,7 +59,6 @@ module V1
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
       log_message_to_sentry(e.message, e.level, extra_context: e.context)
-      log_missing_uuid_info(e) if e.code == SAML::UserAttributeError::IDME_UUID_MISSING[:code]
       redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
@@ -69,6 +70,7 @@ module V1
     ensure
       callback_stats(:total)
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def metadata
       meta = OneLogin::RubySaml::Metadata.new
@@ -76,6 +78,15 @@ module V1
     end
 
     private
+
+    def set_sentry_context_for_callback
+      temp_session_object = Session.find(session[:token])
+      temp_current_user = User.find(temp_session_object.uuid) if temp_session_object
+      Raven.extra_context(
+        current_user_uuid: temp_current_user.try(:uuid),
+        current_user_icn: temp_current_user.try(:mhv_icn)
+      )
+    end
 
     def saml_settings(options = {})
       # add a forceAuthn value to the saml settings based on the initial options or
@@ -101,10 +112,12 @@ module V1
     end
 
     def user_login(saml_response)
-      user_session_form = UserSessionForm.new(saml_response)
-      unless user_session_form.valid?
-        login_stats(:failure, saml_response, user_session_form)
-        raise_saml_error(user_session_form)
+      begin
+        user_session_form = UserSessionForm.new(saml_response)
+        raise_saml_error(user_session_form) unless user_session_form.valid?
+      rescue SAML::UserAttributeError => e
+        login_stats(:failure, saml_response, e)
+        raise
       end
 
       @current_user, @session_object = user_session_form.persist
@@ -115,7 +128,7 @@ module V1
         render_login('verify', user_session_form.saml_uuid)
       else
         redirect_to helper.login_redirect_url
-        login_stats(:success, saml_response, user_session_form)
+        login_stats(:success, saml_response)
       end
     end
 
@@ -190,25 +203,13 @@ module V1
       end
     end
 
-    # Diagnostic logging to determine what percentage of these issues
-    # would be resolved by an account lookup, before we implement that
-    # TODO: Remove this method after we're confident in the UUID injection
-    # performed in UserSessionForm
-    def log_missing_uuid_info(exception)
-      return if exception&.identifier.blank?
-
-      accounts = Account.where(icn: exception.identifier)
-      Rails.logger.info('SSOe: Account UUID mapping NOT FOUND') if accounts.blank?
-      Rails.logger.info("SSOe: Account UUID mapping FOUND - #{accounts.size} entries") if accounts.present?
-    end
-
     def new_stats(type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
     end
 
-    def login_stats(status, _saml_response, user_session_form)
-      tracker = url_service(user_session_form&.saml_uuid).tracker
+    def login_stats(status, saml_response, error = nil)
+      tracker = url_service(saml_response&.in_response_to).tracker
       type = tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       case status
@@ -219,7 +220,7 @@ module V1
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
-        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
+        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags << "error:#{error.code}")
       end
     end
 

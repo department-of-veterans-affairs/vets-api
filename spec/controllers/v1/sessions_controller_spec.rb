@@ -51,7 +51,8 @@ RSpec.describe V1::SessionsController, type: :controller do
       authn_context: authn_context,
       level_of_assurance: ['3'],
       attributes: build(:ssoe_idme_loa1, va_eauth_ial: 3),
-      in_response_to: login_uuid
+      in_response_to: login_uuid,
+      issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
     )
   end
 
@@ -327,13 +328,28 @@ RSpec.describe V1::SessionsController, type: :controller do
             authn_context: authn_context,
             level_of_assurance: ['3'],
             attributes: invalid_attributes,
-            in_response_to: login_uuid
+            in_response_to: login_uuid,
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
           )
         end
 
         it 'redirects to an auth failure page' do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+
+        it 'logs a status failure stat' do
+          SAMLRequestTracker.create(
+            uuid: login_uuid,
+            payload: { type: 'mhv' }
+          )
+          expect(controller).to receive(:log_message_to_sentry)
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
+                                         tags: ['context:mhv', 'version:v1', 'error:101'])
+
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -414,7 +430,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
-            .to eq('https://pint.eauth.va.gov/pkmslogout')
+            .to eq('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
@@ -563,6 +579,28 @@ RSpec.describe V1::SessionsController, type: :controller do
             )
           Timecop.return
         end
+
+        context 'with mismatched UUIDs' do
+          let(:saml_user_attributes) do
+            loa3_user.attributes.merge(loa3_user.identity.attributes.merge(uuid: 'invalid', mhv_icn: '11111111111'))
+          end
+          let(:loa1_user) { build(:user, :loa1, uuid: uuid, idme_uuid: uuid, mhv_icn: '11111111111') }
+
+          it 'logs a message to Sentry' do
+            allow(saml_user).to receive(:changing_multifactor?).and_return(true)
+            expect(Raven).to receive(:extra_context).with(current_user_uuid: uuid, current_user_icn: '11111111111')
+            expect(Raven).to receive(:extra_context).with(saml_uuid: 'invalid', saml_icn: '11111111111')
+            expect(Raven).to receive(:capture_message).with(
+              "Couldn't locate exiting user after MFA establishment",
+              level: 'warning'
+            )
+            expect(Raven).to receive(:capture_message).at_least(:once)
+            expect(Raven).to receive(:extra_context).at_least(:once) # From PostURLService#initialize
+            with_settings(Settings.sentry, dsn: 'T') do
+              post(:saml_callback, params: { RelayState: '{"type": "mfa"}' })
+            end
+          end
+        end
       end
 
       context 'when user has LOA current 1 and highest 3' do
@@ -622,26 +660,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           post :saml_callback
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
           expect(cookies['vagov_session_dev']).to be_nil
-        end
-      end
-
-      context 'when NoMethodError is encountered elsewhere' do
-        it 'redirects to adds context and re-raises the exception', :aggregate_failures do
-          allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
-          expect(controller).to receive(:log_exception_to_sentry)
-          expect(post(:saml_callback))
-            .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
-        end
-
-        it 'increments the failed and total statsd counters' do
-          allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
-          callback_tags = ['status:failure', 'context:unknown', 'version:v1']
-          failed_tags = ['error:unknown', 'version:v1']
-
-          expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 
