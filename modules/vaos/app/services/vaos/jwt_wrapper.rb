@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class JWT
+  class JwtWrapper
     VERSION = 2.1
     ISS = 'gov.va.vaos'
     ID_TYPE = 'ICN'
