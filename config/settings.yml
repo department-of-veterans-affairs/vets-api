@@ -17,13 +17,16 @@ saml:
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
-  idp_metadata_file: /fake/path/to/metadata
-  cert_path: config/certs/vetsgov-localhost.crt
+  idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
+  cert_path: ~
   cert_new_path: ~
-  key_path: config/certs/vetsgov-localhost.key
-  issuer: https://ssoe-sp-dev.va.gov
+  key_path: ~
+  issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://pint.eauth.va.gov/pkmslogout
+  logout_url: https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html
+  request_signing: false
+  response_signing: false
+  response_encryption: false
 
 session_cookie:
   secure: false
@@ -458,6 +461,7 @@ flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - bconley@governmentcio.com
     - bill.ryan@adhocteam.us
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
@@ -485,6 +489,7 @@ flipper:
     - mark.greenburg@adhocteam.us
     - mdewey@governmentcio.com
     - micah@adhocteam.us
+    - michael.fleet@oddball.io
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - osanchez@governmentcio.com
@@ -503,6 +508,8 @@ flipper:
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
+    - tony.williams@va.gov
+    - jennie.mcgibney@va.gov
 
 bgs:
   application: ~

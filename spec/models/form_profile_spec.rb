@@ -773,6 +773,8 @@ RSpec.describe FormProfile, type: :model do
 
       if form_id == '1010ez'
         '10-10EZ'
+      elsif form_id == '21-526EZ'
+        '21-526EZ-ALLCLAIMS'
       else
         form_id
       end.tap do |schema_form_id|

@@ -13,8 +13,11 @@ module ClaimsApi
       ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
       render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+    rescue
+      render json: unprocessable_response, status: :unprocessable_entity
     end
 
+    # rubocop:disable Metrics/MethodLength
     def validate_form_526
       service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       auto_claim = ClaimsApi::AutoEstablishedClaim.new(
@@ -24,9 +27,10 @@ module ClaimsApi
       )
       service.validate_form526(auto_claim.to_internal)
       render json: valid_526_response
-    rescue EVSS::ErrorMiddleware::EVSSError => e
-      track_526_validation_errors(e.details)
-      render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
+    rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
+      error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages
+      track_526_validation_errors(error_details)
+      render json: { errors: format_526_errors(error_details) }, status: :unprocessable_entity
     rescue ::Common::Exceptions::GatewayTimeout,
            ::Timeout::Error,
            ::Faraday::TimeoutError,
@@ -37,6 +41,7 @@ module ClaimsApi
       )
       raise e
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
@@ -61,9 +66,15 @@ module ClaimsApi
       StatsD.increment STATSD_VALIDATION_FAIL_KEY
 
       errors.each do |error|
-        key = error['key'].gsub(/\[(.*?)\]/, '')
+        key = error['key']&.gsub(/\[(.*?)\]/, '')
         StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
       end
+    end
+
+    def unprocessable_response
+      {
+        errors: [{ detail: 'An unknown error occurred. Please retry the request' }]
+      }.to_json
     end
   end
 end

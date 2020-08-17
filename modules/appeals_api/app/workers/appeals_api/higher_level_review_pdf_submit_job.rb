@@ -20,7 +20,7 @@ module AppealsApi
       pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
       pdf_path = pdf_constructor.fill_pdf
       higher_level_review = HigherLevelReview.find higher_level_review_id
-      higher_level_review.update!(status: 'processing')
+      higher_level_review.update!(status: 'submitting')
       pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
     end
 
@@ -31,7 +31,7 @@ module AppealsApi
         'veteranLastName' => higher_level_review.last_name,
         'fileNumber' => higher_level_review.file_number.presence || higher_level_review.ssn,
         'zipCode' => higher_level_review.zip_code_5,
-        'source' => higher_level_review.consumer_name || 'lighthouse-hlr',
+        'source' => "Appeals-HLR-#{higher_level_review.consumer_name}",
         'uuid' => higher_level_review.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
         'numberAttachments' => 0,
@@ -40,10 +40,10 @@ module AppealsApi
         'docType' => '20-0996'
       }
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
-      response = CentralMail::Service.new.upload(body)
-      process_response(response, higher_level_review)
+      process_response(CentralMail::Service.new.upload(body), higher_level_review)
       log_submission(higher_level_review, metadata)
     rescue AppealsApi::UploadError => e
+      e.detail = "#{e.detail} (retry attempt #{@retries})"
       retry_errors(e, higher_level_review)
     end
 

@@ -3,6 +3,11 @@
 class FacilitiesController < ApplicationController
   skip_before_action :authenticate
 
+  PAGINATED_CLASSES = [
+    WillPaginate::Collection,
+    ActiveRecord::Relation
+  ].freeze
+
   def validate_params
     if params[:bbox]
       raise ArgumentError unless params[:bbox]&.length == 4
@@ -15,14 +20,27 @@ class FacilitiesController < ApplicationController
 
   private
 
-  def render_json(serializer, obj, options = {})
-    return render_collection(serializer, obj, options) if obj.class.name == 'ActiveRecord::Relation'
-
-    render_record(serializer, obj, options)
+  def pagination_params
+    hsh = super
+    page = Integer(hsh[:page] || 1)
+    per_page = Integer(hsh[:per_page] || 1)
+    total_entries = page * per_page + 1
+    hsh.compact.transform_values!(&:to_i)
+    hsh.merge(
+      total_entries: total_entries
+    )
   end
 
-  def render_collection(serializer, collection, options = {})
-    options = meta_pagination(collection, options)
+  def render_json(serializer, page_params, obj, options = {})
+    if PAGINATED_CLASSES.any? { |array_class| obj.is_a?(array_class) }
+      render_collection(serializer, page_params, obj, options)
+    else
+      render_record(serializer, obj, options)
+    end
+  end
+
+  def render_collection(serializer, page_params, collection, options = {})
+    options = meta_pagination(collection, page_params, options)
     render_record(serializer, collection, options)
   end
 
@@ -30,12 +48,12 @@ class FacilitiesController < ApplicationController
     render json: serializer.new(record, options)
   end
 
-  def meta_pagination(paginated_obj, options = {})
+  def meta_pagination(paginated_obj, page_params, options = {})
     options[:meta] = {} unless options.key?(:meta)
     meta_options = options[:meta].merge(generate_pagination(paginated_obj))
     options[:meta] = meta_options
     options[:links] = {} unless options.key?(:links)
-    link_options = options[:links].merge(generate_links(paginated_obj))
+    link_options = options[:links].merge(generate_links(paginated_obj, page_params))
     options[:links] = link_options
     options
   end
@@ -51,34 +69,34 @@ class FacilitiesController < ApplicationController
     }
   end
 
-  def generate_previous_page_link(paginated_obj)
+  def generate_previous_page_link(paginated_obj, page_params)
     if paginated_obj.previous_page
       resource_path(
-        lighthouse_params.merge(page: paginated_obj.previous_page, per_page: paginated_obj.per_page)
+        page_params.merge(page: paginated_obj.previous_page, per_page: paginated_obj.per_page)
       )
     end
   end
 
-  def generate_next_page_link(paginated_obj)
+  def generate_next_page_link(paginated_obj, page_params)
     if paginated_obj.next_page
       resource_path(
-        lighthouse_params.merge(page: paginated_obj.next_page, per_page: paginated_obj.per_page)
+        page_params.merge(page: paginated_obj.next_page, per_page: paginated_obj.per_page)
       )
     end
   end
 
-  def generate_links(paginated_obj)
+  def generate_links(paginated_obj, page_params)
     links = {
       self: resource_path(
-        lighthouse_params.merge(page: paginated_obj.current_page, per_page: paginated_obj.per_page)
+        page_params.merge(page: paginated_obj.current_page, per_page: paginated_obj.per_page)
       ),
       first: resource_path(
-        lighthouse_params.merge(per_page: paginated_obj.per_page)
+        page_params.merge(per_page: paginated_obj.per_page)
       ),
-      prev: generate_previous_page_link(paginated_obj),
-      next: generate_next_page_link(paginated_obj),
+      prev: generate_previous_page_link(paginated_obj, page_params),
+      next: generate_next_page_link(paginated_obj, page_params),
       last: resource_path(
-        lighthouse_params.merge(page: paginated_obj.total_pages, per_page: paginated_obj.per_page)
+        page_params.merge(page: paginated_obj.total_pages, per_page: paginated_obj.per_page)
       )
     }
 

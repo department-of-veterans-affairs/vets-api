@@ -22,12 +22,22 @@ module ClaimsApi
     end
 
     def fetch_file_path(uploader)
-      if Settings.evss.s3.uploads_enabled
-        temp = URI.parse(uploader.file.url).open
-        temp.path
-      else
-        uploader.file.file
-      end
+      return uploader.file.file unless Settings.evss.s3.uploads_enabled
+
+      stream = URI.parse(uploader.file.url).open
+      # stream could be a Tempfile or a StringIO https://stackoverflow.com/a/23666898
+      stream.try(:path) || stream_to_temp_file(stream).path
+    end
+
+    def stream_to_temp_file(stream, close_stream: true)
+      file = Tempfile.new
+      file.binmode
+      file.write stream.read
+      file
+    ensure
+      file.flush
+      file.close
+      stream.close if close_stream
     end
   end
 end
