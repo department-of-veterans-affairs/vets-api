@@ -14,7 +14,9 @@ module Efolder
   # should never be exposed to the veteran.
   #
 
-  EXCLUDED_DOC_TYPES = YAML.safe_load(Rails.root.join('lib', 'efolder', 'excluded_doc_types.yml')).freeze
+  EXCLUDED_DOC_TYPES = YAML.safe_load(
+    File.read(Rails.root.join('lib', 'efolder', 'excluded_doc_types.yml'))
+  ).freeze
 
   class Service
     attr_accessor :file_number, :included_doc_types
