@@ -23,9 +23,13 @@ module ClaimsApi
           bgs_response = bgs_service.intent_to_file.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
             ClaimsApi::IntentToFile::ITF_TYPES[active_param]
-          )&.first
-          render json: bgs_response,
-                 serializer: ClaimsApi::IntentToFileSerializer
+          )
+          if bgs_response.present?
+            render json: bgs_response&.first,
+                   serializer: ClaimsApi::IntentToFileSerializer
+          else
+            render json: itf_not_found, status: :not_found
+          end
         end
 
         def validate
