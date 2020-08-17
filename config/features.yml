@@ -225,5 +225,5 @@ features:
   stem_sco_email:
     actor_type: user
     description: >
-      Temporarily change the behavior of the 10203 form for MVP production launch. Disable EVSS entitlement request and alter SCO email process.
+      Enable/disable SCO email per environment
 
