@@ -221,4 +221,8 @@ features:
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     description: >
-      Enables showing the pre-appointment questionnaire feature. 
+      Enables showing the pre-appointment questionnaire feature.
+  show_526_wizard:
+    acto_type: user
+    description: >
+      This determines when the wizard should show up on the form 526 intro page
