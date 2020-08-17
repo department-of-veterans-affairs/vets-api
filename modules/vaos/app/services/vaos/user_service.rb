@@ -69,7 +69,7 @@ module VAOS
 
     def new_session_token(user)
       url = '/users/v2/session?processRules=true'
-      token = VAOS::JwtToken.new(user).token
+      token = VAOS::JwtWrapper.new(user).token
       response = perform(:post, url, token, headers)
       raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class) unless body?(response)
 
