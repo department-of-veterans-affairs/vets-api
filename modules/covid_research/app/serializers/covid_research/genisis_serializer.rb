@@ -32,12 +32,10 @@ module CovidResearch
     #  level deep.
     def formatted_qs(data)
       data.keys.map do |key|
-        if data[key].class == Hash
-          if key == 'veteranFullName'
-            translate_name(data[key])
-          else
-            formatted_qs(data[key])
-          end
+        if key == 'veteranFullName'
+          translate_name(data[key])
+        elsif data[key].class == Hash
+          formatted_qs(data[key])
         else
           {
             QuestionName: key,
