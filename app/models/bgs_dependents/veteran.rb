@@ -7,7 +7,6 @@ module BGSDependents
     attribute :first_name, String
     attribute :middle_name, String
     attribute :last_name, String
-    # attribute :icn, String
 
     def initialize(proc_id, user)
       @proc_id = proc_id
@@ -63,7 +62,6 @@ module BGSDependents
         first_name: @user.first_name,
         middle_name: @user.middle_name,
         last_name: @user.last_name
-        # icn: @user.icn
       }
     end
 
