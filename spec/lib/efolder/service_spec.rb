@@ -4,7 +4,11 @@ require 'rails_helper'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
 RSpec.describe Efolder::Service do
-  subject { described_class.new(file_number) }
+  subject do
+    described_class.new do |service| 
+      service.file_number = file_number 
+    end 
+  end
 
   let(:file_number) { '796330625' }
   let(:vbms_client) { FakeVbms.new }
