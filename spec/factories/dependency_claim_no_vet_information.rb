@@ -7,18 +7,19 @@ FactoryBot.define do
     form {
       {
         privacyAgreementAccepted: true,
-        veteran_contact_information: {
-          veteran_address: {
-            country_name: 'USA',
-            address_line1: '8200 DOBY LN',
-            city: 'PASADENA',
-            state_code: 'CA',
-            zip_code: '21122'
-          },
-          phone_number: '1112223333',
-          email_address: 'vets.gov.user+228@gmail.com'
-        },
-        dependents_application: {}
+        dependents_application: {
+          veteran_contact_information: {
+            veteran_address: {
+              country_name: 'USA',
+              address_line1: '8200 DOBY LN',
+              city: 'PASADENA',
+              state_code: 'CA',
+              zip_code: '21122'
+            },
+            phone_number: '1112223333',
+            email_address: 'vets.gov.user+228@gmail.com'
+          }
+        }
       }.to_json
     }
   end
