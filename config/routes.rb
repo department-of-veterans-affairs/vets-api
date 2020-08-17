@@ -299,6 +299,9 @@ Rails.application.routes.draw do
       resources :ccp, only: %i[index show] do
         get 'specialties', on: :collection, to: 'ccp#specialties'
       end
+      resources :va_ccp, only: [] do
+        get 'urgent_care', on: :collection
+      end
     end
   end
 
@@ -321,6 +324,7 @@ Rails.application.routes.draw do
 
   mount VAOS::Engine, at: '/vaos'
   mount HealthQuest::Engine, at: '/health_quest'
+  mount CovidResearch::Engine, at: '/covid-research'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
