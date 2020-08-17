@@ -13,7 +13,7 @@ module BGS
     def create
       report_marriage_history('veteran_marriage_history') if @payload['veteran_was_married_before']
       report_marriage_history('spouse_marriage_history') if @payload['spouse_was_married_before']
-      add_spouse if @payload["view:selectable686_options"]['add_spouse']
+      add_spouse if @payload['view:selectable686_options']['add_spouse']
 
       @dependents
     end

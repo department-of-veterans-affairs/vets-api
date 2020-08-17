@@ -4,15 +4,15 @@ FactoryBot.define do
   factory :form_686c_674, class: Hash do
     initialize_with do
       {
-        "view:selectable686_options" => {
-          "add_spouse" => true,
-          "add_child" => true,
-          "report674" => true,
-          "report_divorce" => true,
-          "report_stepchild_not_in_household" => true,
-          "report_death" => true,
-          "report_marriage_of_child_under18" => true,
-          "report_child18_or_older_is_not_attending_school" => true
+        'view:selectable686_options' => {
+          'add_spouse' => true,
+          'add_child' => true,
+          'report674' => true,
+          'report_divorce' => true,
+          'report_stepchild_not_in_household' => true,
+          'report_death' => true,
+          'report_marriage_of_child_under18' => true,
+          'report_child18_or_older_is_not_attending_school' => true
         },
         'veteran_information' => {
           'birth_date' => '1809-02-12',

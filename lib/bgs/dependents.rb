@@ -8,8 +8,8 @@ module BGS
       @dependents = []
       @dependents_application = @payload['dependents_application']
       @user = user
-      @views = payload["view:selectable686_options"]
-     end
+      @views = payload['view:selectable686_options']
+    end
 
     # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/CyclomaticComplexity
