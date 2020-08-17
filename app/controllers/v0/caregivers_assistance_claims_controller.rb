@@ -3,19 +3,12 @@
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
-    skip_before_action(:authenticate)
-    # skip_before_action(:verify_authenticity_token)
+    skip_before_action :authenticate
 
-    # before_action :load_user, only: :create
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
     def create
       increment Form1010cg::Service.metrics.submission.attempt
-      # TODO: Works when logged in
-      #       otherwise the token is not there because :load_user clears it out...
-      # return service_unavailable unless feature_available_for_user
-      return service_unavailable unless Flipper.enabled?(:allow_online_10_10cg_submissions)
-
       claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
 
       if claim.valid?
@@ -70,10 +63,6 @@ module V0
 
     def feature_available_for_user
       Flipper.enabled?(:allow_online_10_10cg_submissions, Flipper::Actor.new(session[:token]))
-    end
-
-    def service_unavailable
-      render nothing: true, status: :service_unavailable, as: :json
     end
 
     def backend_service_outage
