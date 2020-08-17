@@ -19,7 +19,7 @@ module Veteran
 
     def initialize(user)
       @user = user
-      build_from_json(bgs_service(user).claimant.find_poa_by_participant_id(user.participant_id))
+      build_from_json(bgs_service.claimant.find_poa_by_participant_id(user.participant_id))
     end
 
     def build_from_json(json_data)
