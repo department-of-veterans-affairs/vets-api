@@ -61,10 +61,6 @@ module V0
       raise
     end
 
-    def feature_available_for_user
-      Flipper.enabled?(:allow_online_10_10cg_submissions, Flipper::Actor.new(session[:token]))
-    end
-
     def backend_service_outage
       increment Form1010cg::Service.metrics.submission.failure.client.qualification
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
