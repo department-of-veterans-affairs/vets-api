@@ -7,6 +7,7 @@ RSpec.describe 'address', type: :request do
 
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:frozen_time) { Time.zone.local(2018, 6, 6, 15, 35, 55) }
 
   before do
@@ -31,6 +32,15 @@ RSpec.describe 'address', type: :request do
         end
       end
 
+      it 'matches the address camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/post_address_success') do
+          post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+        end
+      end
+
       it 'creates a new AsyncTransaction::Vet360::AddressTransaction db record' do
         VCR.use_cassette('vet360/contact_information/post_address_success') do
           expect do
@@ -49,6 +59,15 @@ RSpec.describe 'address', type: :request do
           expect(response).to match_response_schema('errors')
         end
       end
+
+      it 'matches the errors camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/post_address_w_id_error') do
+          post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
+        end
+      end
     end
 
     context 'with a low confidence error' do
@@ -62,6 +81,19 @@ RSpec.describe 'address', type: :request do
           expect(body['errors'].first['code']).to eq low_confidence_error
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
+        end
+      end
+
+      it 'returns the low confidence error error code when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/post_address_w_low_confidence_error') do
+          low_confidence_error = 'VET360_ADDR306'
+
+          post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
+
+          body = JSON.parse response.body
+          expect(body['errors'].first['code']).to eq low_confidence_error
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
@@ -86,6 +118,16 @@ RSpec.describe 'address', type: :request do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include "address-pou - can't be blank"
       end
+
+      it 'matches the errors camel-inflected schema', :aggregate_failures do
+        address.address_pou = ''
+
+        post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(errors_for(response)).to include "address-pou - can't be blank"
+      end
     end
   end
 
@@ -99,6 +141,15 @@ RSpec.describe 'address', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
+        end
+      end
+
+      it 'matches the email address camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/put_address_success') do
+          put('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
         end
       end
 
@@ -140,6 +191,16 @@ RSpec.describe 'address', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
+        expect(errors_for(response)).to include "address-pou - can't be blank"
+      end
+
+      it 'matches the errors camel-inflected schema', :aggregate_failures do
+        address.address_pou = ''
+
+        put('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
         expect(errors_for(response)).to include "address-pou - can't be blank"
       end
     end
@@ -202,6 +263,16 @@ RSpec.describe 'address', type: :request do
           delete('/v0/profile/addresses', params: address.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
+        end
+      end
+
+      it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/delete_address_success', VCR::MATCH_EVERYTHING) do
+          # The cassette we're using includes the effectiveEndDate in the body.
+          # So this test will not pass if it's missing
+          delete('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
         end
       end
     end
