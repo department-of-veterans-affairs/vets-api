@@ -4,26 +4,16 @@ require 'rails_helper'
 
 RSpec.describe BGS::BenefitClaim do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:user_hash) do
-    {
-      participant_id: user_object.participant_id,
-      ssn: user_object.ssn,
-      first_name: user_object.first_name,
-      last_name: user_object.last_name,
-      external_key: user_object.common_name || user_object.email,
-      icn: user_object.icn
-    }
-  end
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
   let(:vet_hash) do
     {
-      file_number: user_hash[:ssn],
-      vnp_participant_id: user_hash[:participant_id],
-      ssn_number: user_hash[:ssn],
+      file_number: user_object.ssn,
+      vnp_participant_id: user_object.participant_id,
+      ssn_number: user_object.ssn,
       benefit_claim_type_end_product: '133',
-      first_name: user_hash[:first_name],
-      last_name: user_hash[:last_name],
+      first_name: user_object.first_name,
+      last_name: user_object.last_name,
       vnp_participant_address_id: '113372',
       phone_number: '5555555555',
       address_line_one: '123 Mainstreet',
@@ -41,7 +31,7 @@ RSpec.describe BGS::BenefitClaim do
         benefit_claim = BGS::BenefitClaim.new(
           vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
           veteran: vet_hash,
-          user: user_hash,
+          user: user_object,
           proc_id: proc_id
         ).create
 
@@ -82,7 +72,7 @@ RSpec.describe BGS::BenefitClaim do
         BGS::BenefitClaim.new(
           vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
           veteran: vet_hash,
-          user: user_hash,
+          user: user_object,
           proc_id: proc_id
         ).create
       end
@@ -90,7 +80,7 @@ RSpec.describe BGS::BenefitClaim do
 
     context 'error' do
       it 'handles error' do
-        user_hash[:file_number] = nil
+        vet_hash[:file_number] = nil
 
         VCR.use_cassette('bgs/benefit_claim/create/error') do
           expect_any_instance_of(BGS::BenefitClaim).to receive(:handle_error).with(
@@ -100,21 +90,21 @@ RSpec.describe BGS::BenefitClaim do
           BGS::BenefitClaim.new(
             vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
             veteran: vet_hash,
-            user: user_hash,
+            user: user_object,
             proc_id: proc_id
           ).create
         end
       end
 
       it 'handles updates proc to manual' do
-        user_hash[:file_number] = nil
+        vet_hash[:file_number] = nil
 
         VCR.use_cassette('bgs/benefit_claim/create/error') do
           expect do
             BGS::BenefitClaim.new(
               vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
               veteran: vet_hash,
-              user: user_hash,
+              user: user_object,
               proc_id: proc_id
             ).create
           end.to raise_error(BGS::ServiceException)

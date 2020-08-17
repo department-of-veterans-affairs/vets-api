@@ -9,22 +9,38 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     { application: attributes_for(:burial_form) }
   end
 
+  def post_burial_forms(additional_headers = {})
+    post '/v0/preneeds/burial_forms',
+         params: params.to_json,
+         headers: { 'CONTENT_TYPE' => 'application/json' }.merge(additional_headers)
+  end
+
   context 'with valid input' do
     it 'responds to POST #create' do
       VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-        post '/v0/preneeds/burial_forms', params: params
+        post_burial_forms
       end
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('preneeds/receive_applications')
     end
+
+    it 'responds to POST #create when camel-inflected' do
+      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+        post_burial_forms({ 'X-Key-Inflection' => 'camel' })
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('preneeds/receive_applications')
+    end
   end
 
   context 'with invalid input' do
     it 'returns an with error' do
       params[:application][:veteran].delete(:military_status)
-      post '/v0/preneeds/burial_forms', params: params
+      post_burial_forms
 
       error = JSON.parse(response.body)['errors'].first
 
@@ -38,7 +54,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     it 'returns with a VA900 error when status is 500' do
       VCR.use_cassette('preneeds/burial_forms/burial_form_with_invalid_applicant_address2') do
         params[:application][:applicant][:mailing_address][:address2] = '1' * 21
-        post '/v0/preneeds/burial_forms', params: params
+        post_burial_forms
       end
 
       error = JSON.parse(response.body)['errors'].first
@@ -51,7 +67,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     it 'returns with a VA900 error when the status is 200' do
       VCR.use_cassette('preneeds/burial_forms/burial_form_with_duplicate_tracking_number') do
         allow_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('19')
-        post '/v0/preneeds/burial_forms', params: params
+        post_burial_forms
       end
 
       error = JSON.parse(response.body)['errors'].first
@@ -70,7 +86,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
       it 'creates a PreneedSubmission record' do
         VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
           expect do
-            post('/v0/preneeds/burial_forms', params: params)
+            post_burial_forms
           end.to change { ::Preneeds::PreneedSubmission.count }.by(1)
         end
 

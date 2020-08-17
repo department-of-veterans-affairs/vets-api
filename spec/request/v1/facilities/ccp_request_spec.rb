@@ -2,21 +2,20 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
+vcr_options = {
+  cassette_name: ['facilities/va/ppms'],
+  match_requests_on: %i[path query],
+  allow_playback_repeats: true,
+  record: :new_episodes
+}
+
+RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vcr: vcr_options do
   before do
     Flipper.enable(:facility_locator_ppms_location_query, false)
   end
 
-  around do |example|
-    VCR.insert_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true)
-    VCR.insert_cassette('facilities/va/ppms_new_query', match_requests_on: %i[path query], allow_playback_repeats: true)
-    example.run
-    VCR.eject_cassette('facilities/va/ppms_new_query')
-    VCR.eject_cassette('facilities/va/ppms')
-  end
-
   describe '#index' do
-    context 'type=cc_provider' do
+    context 'type=provider' do
       let(:params) do
         {
           address: 'South Gilbert Road, Chandler, Arizona 85286, United States',

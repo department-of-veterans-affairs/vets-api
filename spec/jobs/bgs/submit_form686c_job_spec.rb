@@ -26,4 +26,18 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
 
     described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
   end
+
+  context 'error' do
+    it 'calls #submit for 686c submission' do
+      client_stub = instance_double('BGS::Form686c')
+      mailer_double = double('Mail::Message')
+      allow(BGS::Form686c).to receive(:new).with(an_instance_of(User)) { client_stub }
+      expect(client_stub).to receive(:submit).and_raise(StandardError)
+
+      allow(mailer_double).to receive(:deliver_now)
+      expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(User)) { mailer_double }
+
+      described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
+    end
+  end
 end

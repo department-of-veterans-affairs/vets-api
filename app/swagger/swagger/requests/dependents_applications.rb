@@ -23,6 +23,30 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/dependents_applications' do
+        operation :post do
+          extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::SavedForm
+
+          key :description, 'Submit a dependency claim'
+          key :operationId, 'addDependencyClaim'
+          key :tags, %w[benefits_forms]
+
+          parameter :optional_authorization
+
+          parameter do
+            key :name, :form
+            key :in, :body
+            key :description, 'Dependency claim form data'
+            key :required, true
+
+            schema do
+              key :type, :string
+            end
+          end
+        end
+      end
     end
   end
 end
