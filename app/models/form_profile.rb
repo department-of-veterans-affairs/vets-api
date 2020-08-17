@@ -96,7 +96,8 @@ class FormProfile
     pension_burial: %w[21P-530 21P-527EZ],
     dependents: ['686C-674'],
     decision_review: ['20-0996'],
-    mdot: ['MDOT']
+    mdot: ['MDOT'],
+    vre: ['28-1900']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -120,7 +121,8 @@ class FormProfile
     '22-0994' => ::FormProfiles::VA0994,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'MDOT' => ::FormProfiles::MDOT,
-    '22-10203' => ::FormProfiles::VA10203
+    '22-10203' => ::FormProfiles::VA10203,
+    '28-1900' => ::FormProfiles::VA281900
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze

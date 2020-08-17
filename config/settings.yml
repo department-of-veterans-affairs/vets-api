@@ -94,6 +94,9 @@ edu:
 dependents:
   prefill: true
 
+vre:
+  prefill: true
+
 pension_burial:
   prefill: true
   sftp:
