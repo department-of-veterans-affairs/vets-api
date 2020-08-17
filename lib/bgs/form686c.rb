@@ -20,9 +20,9 @@ module BGS
       #   user: @user,
       #   proc_id: proc_id
       # ).create
-
+      #
       # vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-      bgs_service.update_proc(proc_id)
+      # bgs_service.update_proc(proc_id)
     end
 
     private

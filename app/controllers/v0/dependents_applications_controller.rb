@@ -5,11 +5,11 @@ module V0
     def create
       claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
 
-      # unless claim.save
-      #   StatsD.increment("#{stats_key}.failure")
-      #   Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
-      #   raise Common::Exceptions::ValidationErrors, claim
-      # end
+      unless claim.save
+        StatsD.increment("#{stats_key}.failure")
+        Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
+        raise Common::Exceptions::ValidationErrors, claim
+      end
 
       dependent_service.submit_686c_form(claim)
 
@@ -44,6 +44,7 @@ module V0
         :report_death,
         :report_marriage_of_child_under18,
         :report_child18_or_older_is_not_attending_school,
+        'view:selectable686_options': {},
         dependents_application: {}
       )
     end

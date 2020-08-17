@@ -8,18 +8,19 @@ module BGS
       @dependents = []
       @dependents_application = @payload['dependents_application']
       @user = user
-    end
+      @views = payload["view:selectable686_options"]
+     end
 
     # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/CyclomaticComplexity
     def create
-      report_674 if @payload['report674']
-      add_children if @payload['add_child']
-      report_deaths if @payload['report_death']
-      report_divorce if @payload['report_divorce']
-      report_stepchild if @payload['report_stepchild_not_in_household']
-      report_child_event('child_marriage') if @payload['report_marriage_of_child_under18']
-      report_child_event('not_attending_school') if @payload['report_child18_or_older_is_not_attending_school']
+      report_674 if @views['report674']
+      add_children if @views['add_child']
+      report_deaths if @views['report_death']
+      report_divorce if @dependents_application['report_divorce']
+      report_stepchild if @views['report_stepchild_not_in_household']
+      report_child_event('child_marriage') if @views['report_marriage_of_child_under18']
+      report_child_event('not_attending_school') if @views['report_child18_or_older_is_not_attending_school']
 
       @dependents
     end
