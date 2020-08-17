@@ -63,6 +63,12 @@
               "validPdf": {
                 "type": "boolean"
               },
+              "formDetailsUrl": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "sha256": {
                 "type": "string"
               },
