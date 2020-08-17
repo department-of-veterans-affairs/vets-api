@@ -10,7 +10,7 @@ module BGS
     end
 
     def find_person_by_participant_id
-      response = service.people.find_by(ssn: @current_user.ssn)
+      response = service.people.find_person_by_ptcpnt_id(@current_user.participant_id)
 
       raise VaFileNumberNotFound if response.nil?
 

@@ -13,18 +13,16 @@ module BGS
     end
 
     def submit_686c_form(claim)
+      bgs_person = service.people.find_person_by_ptcpnt_id(@user.participant_id)
+
       # rubocop:disable Rails/DynamicFindBy
       bgs_person = service.people.find_by_ssn(@user.ssn) if bgs_person.nil?
       # rubocop:enable Rails/DynamicFindBy
 
-      # if bgs_person is still nil, should we throw an error?
-
       vet_info = VetInfo.new(@user, bgs_person)
-      claim.add_veteran_info(vet_info.to_686c_form_hash)
 
-      BGS::Form686c.new(@user).submit(claim.parsed_form)
-      # BGS::SubmitForm686cJob.perform_async(@user.uuid, claim.id, vet_info.to_686c_form_hash)
-      # VBMS::SubmitDependentsPDFJob.perform_async(claim.id, vet_info.to_686c_form_hash)
+      BGS::SubmitForm686cJob.perform_async(@user.uuid, claim.id, vet_info.to_686c_form_hash)
+      VBMS::SubmitDependentsPDFJob.perform_async(claim.id, vet_info.to_686c_form_hash)
     rescue => e
       report_error(e)
     end
