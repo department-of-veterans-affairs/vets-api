@@ -126,14 +126,12 @@ module ClaimsApi
       vet.loa = if @current_user
                   @current_user.loa
                 else
-                  vet.loa = {
-                    current: header('X-VA-LOA').try(:to_i),
-                    highest: header('X-VA-LOA').try(:to_i)
-                  }
+                  { current: header('X-VA-LOA').try(:to_i), highest: header('X-VA-LOA').try(:to_i) }
                 end
       vet.mvi_record?
       vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender
       vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
+      vet.participant_id = header('X-VA-PID') || vet.mvi.profile&.participant_id
       vet
     end
   end
