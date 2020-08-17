@@ -48,10 +48,8 @@ module CovidResearch
     end
 
     def timestamp
-      @timestamp ||= Time.now
+      @timestamp ||= Time.now.utc
     end
-
-    private
 
     def translate_name(data)
       Volunteer::NameSerializer.new.serialize(data)
