@@ -10,7 +10,7 @@ module V0
       send_data(
         service.get_document(params[:id]),
         type: 'application/pdf',
-        filename: 'letter.pdf'
+        filename: params[:filename]
       )
     end
 
@@ -19,7 +19,7 @@ module V0
     def service
       Efolder::Service.new do |service|
         service.file_number = @current_user.ssn
-        service.included_doc_types = params[:included_doc_types]
+        service.included_doc_types = params[:included_doc_types] if params[:included_doc_types].present?
       end
     end
   end
