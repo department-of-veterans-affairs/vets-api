@@ -12,7 +12,7 @@ module BGS
     def create
       participant = bgs_service.create_participant(@proc_id, nil)
       claim_type_end_product = bgs_service.find_benefit_claim_type_increment
-      va_file_number = bgs_service.get_va_file_number
+      va_file_number = @payload['veteran_information']['va_file_number']
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = bgs_service.create_address(address_params)

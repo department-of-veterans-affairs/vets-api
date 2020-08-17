@@ -308,9 +308,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/preneeds/burial_forms',
           200,
+          '_headers' => { 'content-type' => 'application/json' },
           '_data' => {
             'application' => attributes_for(:burial_form)
-          }
+          }.to_json
         )
       end
 
@@ -2636,6 +2637,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         VCR.use_cassette('bgs/claimant_web_service/dependents') do
           expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
         end
+      end
+
+      it 'supports adding a dependency claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          200,
+          headers.merge(
+            '_data' => build(:dependency_claim).parsed_form
+          )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          422,
+          headers.merge(
+            '_data' => {
+              'dependency_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
       end
     end
 
