@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "triageTeamId",
+    "name",
+    "relationType"
+  ],
+  "properties": {
+    "triageTeamId": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "relationType": {
+      "type": "string"
+    }
+  }
+}

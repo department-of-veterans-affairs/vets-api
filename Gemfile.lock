@@ -34,9 +34,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 0ad1cd274698c1779ef3d95669db846ca2d484ea
+  revision: 8e994a59b2abe4204dde14147e33a5ac98a3e7c2
   specs:
-    bgs_ext (0.14.2)
+    bgs_ext (0.14.5)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 1d1962dc62c1023e7025a35fe7a01072da1e69e7
+  revision: 2419e49d9b14922d5f2af85ab6b69cb6caef3339
   branch: master
   specs:
-    vets_json_schema (6.6.1)
+    vets_json_schema (6.7.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -88,6 +88,13 @@ PATH
   remote: modules/claims_api
   specs:
     claims_api (0.0.1)
+
+PATH
+  remote: modules/covid_research
+  specs:
+    covid_research (0.1.0)
+      rails (~> 6.0.3, >= 6.0.3.2)
+      sidekiq
 
 PATH
   remote: modules/openid_auth
@@ -441,7 +448,7 @@ GEM
     hashie (3.6.0)
     holidays (8.1.0)
     httpclient (2.8.3)
-    httpi (2.4.4)
+    httpi (2.4.5)
       rack
       socksify
     i18n (1.8.5)
@@ -702,7 +709,7 @@ GEM
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.1.0)
     safe_yaml (1.0.5)
-    savon (2.12.0)
+    savon (2.12.1)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
@@ -859,6 +866,7 @@ DEPENDENCIES
   combine_pdf
   config
   connect_vbms!
+  covid_research!
   danger
   database_cleaner
   date_validator

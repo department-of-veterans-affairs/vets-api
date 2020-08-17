@@ -6,6 +6,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
   include SchemaMatchers
 
   let(:scopes) { %w[profile email openid service_history.read] }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   def headers(auth)
     auth.merge('Accept' => 'application/json')
@@ -25,6 +26,21 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
       end
     end
 
+    it 'returns the current users service history with one episode when camel-inflected' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('emis/get_deployment_v2/valid') do
+          VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
+            get '/services/veteran_verification/v0/service_history',
+                params: nil,
+                headers: headers(auth_header.merge(inflection_header))
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('service_and_deployment_history_response')
+          end
+        end
+      end
+    end
+
     it 'returns the current users service history with multiple episodes' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('emis/get_deployment_v2/valid') do
@@ -34,6 +50,22 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data'].length).to eq(2)
             expect(response).to match_response_schema('service_and_deployment_history_response')
+          end
+        end
+      end
+    end
+
+    it 'returns the current users service history with multiple episodes when camel-inflected' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('emis/get_deployment_v2/valid') do
+          VCR.use_cassette('emis/get_military_service_episodes_v2/valid_multiple_episodes') do
+            get '/services/veteran_verification/v0/service_history',
+                params: nil,
+                headers: headers(auth_header.merge(inflection_header))
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].length).to eq(2)
+            expect(response).to match_camelized_response_schema('service_and_deployment_history_response')
           end
         end
       end
@@ -81,6 +113,17 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
       expect(response).to have_http_status(:bad_gateway)
       expect(response).to match_response_schema('errors')
+    end
+
+    it 'matches the errors camel-inflected schema', :aggregate_failures do
+      with_okta_user(scopes) do |auth_header|
+        get '/services/veteran_verification/v0/service_history',
+            params: nil,
+            headers: headers(auth_header.merge(inflection_header))
+      end
+
+      expect(response).to have_http_status(:bad_gateway)
+      expect(response).to match_camelized_response_schema('errors')
     end
   end
 end
