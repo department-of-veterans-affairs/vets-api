@@ -14,6 +14,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'GI'
   inflect.acronym 'IHub'
   inflect.acronym 'MDOT'
+  inflect.acronym 'MHV' # My HealtheVet
   inflect.acronym 'NCA' # National Cemetery Administration
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
