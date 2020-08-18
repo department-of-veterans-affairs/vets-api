@@ -3,7 +3,7 @@
 require_dependency 'openid_auth/application_controller'
 
 module OpenidAuth
-  module V0
+  module V1
     class ValidationController < ApplicationController
       before_action :validate_user
 

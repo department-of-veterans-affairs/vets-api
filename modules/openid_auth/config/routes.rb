@@ -10,6 +10,10 @@ OpenidAuth::Engine.routes.draw do
     post 'okta', to: 'okta#okta_callback'
   end
 
+  namespace :v1, defaults: { format: 'json' } do
+    get 'validation', to: 'validation#index'
+  end
+
   namespace :docs do
     namespace :v0, defaults: { format: 'json' } do
       get 'validation', to: 'validation#index'

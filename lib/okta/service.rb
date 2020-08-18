@@ -46,14 +46,21 @@ module Okta
       end
     end
 
-    def metadata
-      with_monitoring do
-        get_url_with_token(Settings.oidc.auth_server_metadata_url)
+    def metadata(iss)
+      if (iss.nil?)
+        with_monitoring do
+          get_url_with_token(Settings.oidc.auth_server_metadata_url)
+        end
+      else
+        with_monitoring do
+          # TODO: this is only tempoary
+          get_url_with_token(iss+'/.well-known/openid-configuration')
+        end
       end
     end
 
-    def oidc_jwks_keys
-      url = metadata.body['jwks_uri']
+    def oidc_jwks_keys(iss)
+      url = metadata(iss).body['jwks_uri']
       with_monitoring do
         get_url_with_token(url)
       end
