@@ -13,8 +13,8 @@ RSpec.describe V0::EfolderController, type: :controller do
   describe '#index' do
     stub_efolder_documents(:index)
 
-    it 'lists document id and document details for efolder documents' do
-      get(:index, params: { included_doc_types: [ 533, 1215 ] })
+    it 'shows all documents available to the veteran' do
+      get(:index)
       expect(JSON.parse(response.body)).to eq(list_documents_res)
     end
   end
