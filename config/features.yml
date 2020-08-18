@@ -222,6 +222,10 @@ features:
     actor_type: cookie_id
     description: >
       Enables showing the pre-appointment questionnaire feature.
+  stem_sco_email:
+    actor_type: user
+    description: >
+      Enable/disable SCO email per environment
   show_526_wizard:
     acto_type: user
     description: >
