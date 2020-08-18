@@ -4,8 +4,8 @@ FactoryBot.define do
   factory :form_686c_674, class: Hash do
     initialize_with do
       {
-        'veteran_was_married_before'=>true,
-        'spouse_was_married_before'=>true,
+        'veteran_was_married_before' => true,
+        'spouse_was_married_before' => true,
         'view:selectable686_options' => {
           'add_spouse' => true,
           'add_child' => true,
