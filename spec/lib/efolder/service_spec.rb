@@ -55,7 +55,7 @@ RSpec.describe Efolder::Service do
       end
 
       it 'downloads a debt letter' do
-        expect(subject.get_letter(document_id)).to eq(content)
+        expect(subject.get_document(document_id)).to eq(content)
       end
     end
 
@@ -71,7 +71,7 @@ RSpec.describe Efolder::Service do
   describe '#list_documents' do
     it 'lists document ids and descriptions' do
       expect(subject.list_documents.to_json).to eq(
-        get_fixture('vbms/list_letters').to_json
+        get_fixture('vbms/find_document_version_reference').to_json
       )
     end
   end

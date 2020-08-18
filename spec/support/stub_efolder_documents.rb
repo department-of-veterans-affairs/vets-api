@@ -3,7 +3,7 @@
 def stub_efolder_documents(method)
   let!(:efolder_service) do
     efolder_service = double
-    expect(Efolder::Service).to receive(:new).with(user.ssn).and_return(efolder_service)
+    expect(Efolder::Service).to receive(:new).and_return(efolder_service)
     efolder_service
   end
 
