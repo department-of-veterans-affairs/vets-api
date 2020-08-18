@@ -15,13 +15,13 @@ RSpec.describe CovidResearch::RedisFormat do
     it 'automatically encodes the form_data' do
       subject.form_data = data
 
-      expect(subject.instance_eval{@form_data}).to eq(encoded_data)
+      expect(subject.instance_eval { @form_data }).to eq(encoded_data)
     end
 
     it 'automatically encodes the iv' do
       subject.iv = iv
 
-      expect(subject.instance_eval{@iv}).to eq(encoded_iv)
+      expect(subject.instance_eval { @iv }).to eq(encoded_iv)
     end
   end
 
