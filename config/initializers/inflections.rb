@@ -10,6 +10,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'DOD'
   inflect.acronym 'EMIS'
   inflect.acronym 'EVSS'
+  inflect.acronym 'FHIR'
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
   inflect.acronym 'IHub'
