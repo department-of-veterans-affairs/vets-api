@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_21_133558) do
+ActiveRecord::Schema.define(version: 2020_08_17_140442) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -514,6 +514,7 @@ ActiveRecord::Schema.define(version: 2020_07_21_133558) do
     t.datetime "deleted_at"
     t.string "related_forms", array: true
     t.jsonb "benefit_categories"
+    t.string "form_details_url"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
