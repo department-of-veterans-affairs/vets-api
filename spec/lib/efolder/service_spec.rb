@@ -5,9 +5,9 @@ require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.r
 
 RSpec.describe Efolder::Service do
   subject do
-    described_class.new do |service| 
-      service.file_number = file_number 
-    end 
+    described_class.new do |service|
+      service.file_number = file_number
+    end
   end
 
   let(:file_number) { '796330625' }
