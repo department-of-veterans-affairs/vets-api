@@ -86,7 +86,7 @@ module BGS
         {
           divorce_state: formatted_info['divorce_state'],
           divorce_city: formatted_info['divorce_city'],
-          divorce_country: formatted_info['divorce_country']
+          divorce_country: formatted_info['divorce_country'],
           marriage_termination_type_code: formatted_info['marriage_termination_type_code']
         }
       )
