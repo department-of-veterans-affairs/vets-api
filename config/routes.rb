@@ -288,7 +288,7 @@ Rails.application.routes.draw do
     end
 
     namespace :ask do
-        resource :asks, only: :create
+      resource :asks, only: :create
     end
   end
 
