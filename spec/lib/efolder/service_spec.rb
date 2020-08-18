@@ -71,7 +71,7 @@ RSpec.describe Efolder::Service do
   describe '#list_documents' do
     it 'lists document ids and descriptions' do
       expect(subject.list_documents.to_json).to eq(
-        get_fixture('vbms/find_document_version_reference').to_json
+        get_fixture('vbms/list_documents').to_json
       )
     end
   end

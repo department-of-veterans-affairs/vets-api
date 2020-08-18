@@ -12,13 +12,13 @@ def stub_efolder_documents(method)
     let(:content) { File.read('spec/fixtures/files/error_message.txt') }
 
     before do
-      expect(efolder_servicee).to receive(:get_document).with(document_id).and_return(content)
+      expect(efolder_service).to receive(:get_document).with(document_id).and_return(content)
     end
   else
-    let(:list_documents_res) { get_fixtures('vbms/list_letters') }
+    let(:list_documents_res) { get_fixtures('vbms/list_documents') }
 
     before do
-      expect(letter_downloader).to receive(:list_documents).and_return(
+      expect(efolder_service).to receive(:list_documents).and_return(
         list_documents_res
       )
     end
