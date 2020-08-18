@@ -4,7 +4,9 @@ FactoryBot.define do
   factory :adopted_child_lives_with_veteran, class: Hash do
     initialize_with do
       {
-        'add_child' => true,
+        'view:selectable686_options' => {
+          'add_child' => true
+        },
         'dependents_application' => {
           'veteran_contact_information' => {
             'veteran_address' => {
