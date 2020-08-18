@@ -12,7 +12,6 @@ class OpenidApplicationController < ApplicationController
   skip_before_action :verify_authenticity_token
   skip_after_action :set_csrf_header
   before_action :authenticate
-  # The above before action will need the capability of an aud value as well
   TOKEN_REGEX = /Bearer /.freeze
 
   private
