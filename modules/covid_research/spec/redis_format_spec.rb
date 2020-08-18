@@ -51,5 +51,11 @@ RSpec.describe CovidResearch::RedisFormat do
       expect(sub.form_data).to eq(data)
       expect(sub.iv).to eq(iv)
     end
+
+    it 'works with the JSON module' do
+      sub = described_class.new(raw)
+
+      expect(JSON.generate(sub)).to eq(raw)
+    end
   end
 end

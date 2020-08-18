@@ -33,11 +33,17 @@ module CovidResearch
       @iv = Base64.encode64(data)
     end
 
-    def to_json
+    def to_json(opts = {})
       h = {
         form_data: @form_data,
         iv: @iv
       }
+
+      if opts[:only]
+        h.keep_if { |key, _value| opts[:only].include key }
+      elsif opts[:except]
+        k.keep_if { |key, _value| !opts[:except].include(key) }
+      end
 
       JSON.generate(h)
     end
