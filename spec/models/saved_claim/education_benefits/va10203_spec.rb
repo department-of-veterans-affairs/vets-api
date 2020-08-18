@@ -91,7 +91,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       it 'does not call SendSCOEmail' do
         unauthorized_evss_user = build(:unauthorized_evss_user, :loa3)
         expect { instance.after_submit(unauthorized_evss_user) }
-            .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+          .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
       end
 
       it 'calls StemApplicantConfirmationMailer' do
