@@ -15,7 +15,7 @@ RSpec.describe V0::EfolderController, type: :controller do
 
     it 'lists document id and document details for efolder documents' do
       get(:index)
-      expect(JSON.parse(response.body)).to eq(list_letters_res)
+      expect(JSON.parse(response.body)).to eq(list_documents_res)
     end
   end
 
