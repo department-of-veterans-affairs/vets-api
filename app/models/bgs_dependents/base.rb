@@ -44,8 +44,10 @@ module BGSDependents
         event_date: optional_fields[:event_date],
         marriage_state: optional_fields[:marriage_state],
         marriage_city: optional_fields[:marriage_city],
+        marriage_country: optional_fields[:marriage_country],
         divorce_state: optional_fields[:divorce_state],
         divorce_city: optional_fields[:divorce_city],
+        divorce_country: optional_fields[:divorce_country],
         marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
         living_expenses_paid_amount: optional_fields[:living_expenses_paid],
         type: optional_fields[:type]

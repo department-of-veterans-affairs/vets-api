@@ -51,6 +51,7 @@ module BGS
         does_live_with_vet ? 'Spouse' : 'Estranged Spouse',
         {
           begin_date: @dependents_application['current_marriage_information']['date'],
+          marriage_country: @dependents_application['current_marriage_information']['location']['country'],
           marriage_state: @dependents_application['current_marriage_information']['location']['state'],
           marriage_city: @dependents_application['current_marriage_information']['location']['city'],
           type: 'spouse'
