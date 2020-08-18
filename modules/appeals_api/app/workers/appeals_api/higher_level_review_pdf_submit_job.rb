@@ -31,7 +31,7 @@ module AppealsApi
         'veteranLastName' => higher_level_review.last_name,
         'fileNumber' => higher_level_review.file_number.presence || higher_level_review.ssn,
         'zipCode' => higher_level_review.zip_code_5,
-        'source' => higher_level_review.consumer_name || 'lighthouse-hlr',
+        'source' => "Appeals-HLR-#{higher_level_review.consumer_name}",
         'uuid' => higher_level_review.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
         'numberAttachments' => 0,

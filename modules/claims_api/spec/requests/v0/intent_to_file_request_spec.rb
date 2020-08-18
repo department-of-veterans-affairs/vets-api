@@ -63,4 +63,26 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
   end
+
+  describe '#validate' do
+    it 'returns a response when valid' do
+      post "#{path}/validate", params: data.to_json, headers: headers
+      parsed = JSON.parse(response.body)
+      expect(parsed['data']['attributes']['status']).to eq('valid')
+      expect(parsed['data']['type']).to eq('intentToFileValidation')
+    end
+
+    it 'returns a response when invalid' do
+      post "#{path}/validate", params: { data: { attributes: nil } }.to_json, headers: headers
+      parsed = JSON.parse(response.body)
+      expect(response.status).to eq(422)
+      expect(parsed['errors']).not_to be_empty
+    end
+
+    it 'responds properly when JSON parse error' do
+      post "#{path}/validate", params: 'hello', headers: headers
+      pp JSON.parse(response.body)
+      expect(response.status).to eq(422)
+    end
+  end
 end

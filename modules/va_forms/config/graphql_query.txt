@@ -16,6 +16,9 @@ fragment vaForm on NodeVaForm {
   entityBundle
   entityId
   entityPublished
+  entityUrl {
+    path
+  }
   entityTranslations {
     entityCreated
     entityLabel

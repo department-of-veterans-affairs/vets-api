@@ -194,7 +194,7 @@ features:
     actor_type: user
     description: >
       This determines when the wizard should show up on the 1995 introduction page
-  show_edu_benefits_1990N_wizard:
+  show_edu_benefits_1990n_wizard:
     actor_type: user
     description: >
       This determines when the wizard should show up on the 1990N introduction page
@@ -210,7 +210,7 @@ features:
     actor_type: user
     description: >
       This determines when the wizard should show up on the 1990 introduction page
-  show_edu_benefits_1990E_wizard:
+  show_edu_benefits_1990e_wizard:
     actor_type: user
     description: >
      This determines when the wizard should show up on the 1990e introduction page
@@ -218,3 +218,11 @@ features:
     actor_type: user
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
+  show_healthcare_experience_questionnaire:
+    actor_type: cookie_id
+    description: >
+      Enables showing the pre-appointment questionnaire feature.
+  show_526_wizard:
+    acto_type: user
+    description: >
+      This determines when the wizard should show up on the form 526 intro page

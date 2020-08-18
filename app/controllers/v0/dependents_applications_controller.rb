@@ -3,26 +3,24 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     def create
-      dependents_application = DependentsApplication.new(
-        params.require(:dependents_application).permit(:form).merge(
-          user: current_user
-        )
-      )
+      claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
 
-      unless dependents_application.save
-        Raven.tags_context(validation: 'dependents')
-
-        raise Common::Exceptions::ValidationErrors, dependents_application
+      unless claim.save
+        StatsD.increment("#{stats_key}.failure")
+        Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
+        raise Common::Exceptions::ValidationErrors, claim
       end
 
-      clear_saved_form(DependentsApplication::FORM_ID)
+      dependent_service.submit_686c_form(claim)
 
-      render(json: dependents_application)
+      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      clear_saved_form(claim.form_id)
+
+      render(json: claim)
     end
 
     def show
-      dependent_service = BGS::DependentService.new
-      dependents = dependent_service.get_dependents(current_user)
+      dependents = dependent_service.get_dependents
       render json: dependents, serializer: DependentsSerializer
     rescue => e
       log_exception_to_sentry(e)
@@ -32,6 +30,30 @@ module V0
     def disability_rating
       res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
       render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
+    end
+
+    private
+
+    def dependent_params
+      params.permit(
+        :add_spouse,
+        :add_child,
+        :report674,
+        :report_divorce,
+        :report_stepchild_not_in_household,
+        :report_death,
+        :report_marriage_of_child_under18,
+        :report_child18_or_older_is_not_attending_school,
+        dependents_application: {}
+      )
+    end
+
+    def dependent_service
+      @dependent_service ||= BGS::DependentService.new(current_user)
+    end
+
+    def stats_key
+      'api.dependents_application'
     end
   end
 end

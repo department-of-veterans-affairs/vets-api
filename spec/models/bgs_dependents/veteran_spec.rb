@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::Veteran do
-  let(:person) { { first_nm: 'foo', last_nm: 'bar' } }
   let(:address) { { addrs_one_txt: '123 mainstreet', cntry_nm: 'USA', vnp_ptcpnt_addrs_id: '116343' } }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }
   let(:veteran_response_result_sample) do
@@ -15,16 +14,7 @@ RSpec.describe BGSDependents::Veteran do
       file_number: '1234'
     }
   end
-  let(:user) do
-    {
-      participant_id: '600061742',
-      ssn: '796043735',
-      first_name: 'WESLEY',
-      last_name: 'FORD',
-      external_key: 'abraham.lincoln@vets.gov',
-      icn: '14512449011616630'
-    }
-  end
+  let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:vet) { described_class.new('12345', user) }
   let(:formatted_params_result) do
     {
@@ -38,14 +28,27 @@ RSpec.describe BGSDependents::Veteran do
       'state_code' => 'CA',
       'zip_code' => '21122',
       'vet_ind' => 'Y',
-      'martl_status_type_cd' => 'OTHER'
+      'martl_status_type_cd' => 'Separated'
     }
   end
 
   describe '#formatted_params' do
-    it 'formats params given a payload' do
-      expect(vet.formatted_params(all_flows_payload))
-        .to include(formatted_params_result)
+    it 'formats params given a veteran that is separated' do
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
+    end
+
+    it 'formats params given a veteran that is married' do
+      formatted_params_result['martl_status_type_cd'] = 'Married'
+      all_flows_payload['dependents_application']['does_live_with_spouse']['spouse_does_live_with_veteran'] = true
+
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
+    end
+
+    it 'formats params given a veteran was never married' do
+      formatted_params_result['martl_status_type_cd'] = 'Never Married'
+      all_flows_payload['dependents_application']['veteran_was_married_before'] = false
+
+      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
     end
   end
 
