@@ -14,7 +14,7 @@ RSpec.describe V0::EfolderController, type: :controller do
     stub_efolder_documents(:index)
 
     it 'lists document id and document details for efolder documents' do
-      get(:index)
+      get(:index, params: { included_doc_types: [ 533, 1215 ] })
       expect(JSON.parse(response.body)).to eq(list_documents_res)
     end
   end
@@ -23,7 +23,7 @@ RSpec.describe V0::EfolderController, type: :controller do
     stub_efolder_documents(:show)
 
     it 'sends the doc pdf' do
-      get(:show, params: { id: document_id })
+      get(:show, params: { id: document_id, filename: 'test.pdf' })
       expect(response.body).to eq(content)
     end
   end
