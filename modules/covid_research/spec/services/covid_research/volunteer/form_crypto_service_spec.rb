@@ -1,0 +1,36 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+require_relative '../../../../app/services/covid_research/volunteer/form_crypto_service.rb'
+require_relative '../../../covid_research_spec_helper.rb'
+
+RSpec.configure do |c|
+  c.include CovidResearchSpecHelper
+end
+
+RSpec.describe CovidResearch::Volunteer::FormCryptoService do
+  let(:subject)        { described_class.new }
+  let(:raw_form)       { read_fixture('valid-submission.json') }
+  let(:encoded)        { JSON.parse(read_fixture('encrypted-form.json')) }
+  let(:encrypted_form) { Base64.decode64(encoded['form_data']) }
+  let(:iv)             { Base64.decode64(encoded['iv']) }
+
+  context 'encryption' do
+    it 'encrypts the form' do
+      expect(subject.encrypt_form(raw_form)[:form_data]).not_to eq(raw_form)
+    end
+
+    it 'encrypts and encodes the form' do
+      parts = subject.encrypt_and_encode(raw_form)
+
+      expect { Base64.strict_decode64(parts[:form_data]) }.not_to raise_error
+      expect { Base64.strict_decode64(parts[:iv]) }.not_to raise_error
+    end
+  end
+
+  context 'decryption' do
+    it 'decrypts to a known value when given the iv' do
+      expect(subject.decrypt_form(encrypted_form, iv)).to eq(raw_form)
+    end
+  end
+end
