@@ -37,9 +37,11 @@ module V0
     def dependent_params
       params.permit(
         :add_spouse,
+        :veteran_was_married_before,
         :add_child,
         :report674,
         :report_divorce,
+        :spouse_was_married_before,
         :report_stepchild_not_in_household,
         :report_death,
         :report_marriage_of_child_under18,
