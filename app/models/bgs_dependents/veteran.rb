@@ -7,7 +7,6 @@ module BGSDependents
     attribute :first_name, String
     attribute :middle_name, String
     attribute :last_name, String
-    attribute :icn, String
 
     def initialize(proc_id, user)
       @proc_id = proc_id
@@ -62,15 +61,12 @@ module BGSDependents
         ssn: @user.ssn,
         first_name: @user.first_name,
         middle_name: @user.middle_name,
-        last_name: @user.last_name,
-        icn: @user.icn
+        last_name: @user.last_name
       }
     end
 
     def marital_status(dependents_application)
       spouse_lives_with_vet = dependents_application.dig('does_live_with_spouse', 'spouse_does_live_with_veteran')
-
-      return 'Never Married' if dependents_application.dig('veteran_was_married_before') == false
 
       return nil if spouse_lives_with_vet.nil?
 

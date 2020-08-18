@@ -43,13 +43,6 @@ RSpec.describe BGSDependents::Veteran do
 
       expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
     end
-
-    it 'formats params given a veteran was never married' do
-      formatted_params_result['martl_status_type_cd'] = 'Never Married'
-      all_flows_payload['dependents_application']['veteran_was_married_before'] = false
-
-      expect(vet.formatted_params(all_flows_payload)).to include(formatted_params_result)
-    end
   end
 
   describe '#veteran_response' do
