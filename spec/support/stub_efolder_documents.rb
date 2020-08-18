@@ -15,7 +15,7 @@ def stub_efolder_documents(method)
       expect(efolder_service).to receive(:get_document).with(document_id).and_return(content)
     end
   else
-    let(:list_documents_res) { get_fixtures('vbms/list_documents') }
+    let(:list_documents_res) { get_fixture('vbms/list_documents') }
 
     before do
       expect(efolder_service).to receive(:list_documents).and_return(
