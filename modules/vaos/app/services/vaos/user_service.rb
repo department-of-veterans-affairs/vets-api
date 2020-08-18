@@ -98,7 +98,7 @@ module VAOS
     end
 
     def decoded_token(token)
-      ::JWT.decode(token, nil, false).first
+      JWT.decode(token, nil, false).first
     end
 
     def body?(response)

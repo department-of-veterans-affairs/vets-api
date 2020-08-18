@@ -14,7 +14,7 @@ module VAOS
     end
 
     def token
-      ::JWT.encode(payload, Configuration.instance.rsa_key, 'RS512')
+      JWT.encode(payload, Configuration.instance.rsa_key, 'RS512')
     end
 
     private
