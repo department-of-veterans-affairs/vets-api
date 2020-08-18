@@ -11,7 +11,7 @@ module V0
 
         render(
           json: valid_va_file_number_data(response),
-          serializer: ValidVaFileNumberSerializer
+          serializer: ValidVAFileNumberSerializer
         )
       end
 
