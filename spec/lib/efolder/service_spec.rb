@@ -13,7 +13,7 @@ RSpec.describe Efolder::Service do
   let(:client_with_included_doc_types) do
     Efolder::Service.new do |service|
       service.file_number = file_number
-      service.included_doc_types = [ '533' ]
+      service.included_doc_types = ['533']
     end
   end
 
