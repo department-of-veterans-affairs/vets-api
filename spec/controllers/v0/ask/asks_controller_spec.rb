@@ -29,7 +29,7 @@ RSpec.describe V0::Ask::AsksController, type: :controller do
         context 'when form is valid' do
           it 'returns 200 OK' do
             form_data = get_fixture('ask/minimal').to_json
-            params = { inquiry: { form: form_data } }
+            params = {inquiry: {form: form_data}}
             claim = build(:ask, form: form_data)
 
             expect(SavedClaim::Ask).to receive(:new).with(
@@ -48,11 +48,23 @@ RSpec.describe V0::Ask::AsksController, type: :controller do
 
         context 'when form is invalid' do
           it 'raises error' do
+            form_data = {}.to_json
+            params = {inquiry: {form: form_data}}
+            claim = build(:ask, form: form_data)
+
+            expect(SavedClaim::Ask).to receive(:new).with(
+                form: form_data
+            ).and_return(
+                claim
+            )
+
             expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
 
-            expect do
-              post :create
-            end.to raise_error(Common::Exceptions::ValidationErrors)
+            post :create, params: params
+
+            expect(JSON.parse(response.body)["errors"]).not_to be_empty
+
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
       end

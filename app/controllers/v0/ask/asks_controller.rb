@@ -4,18 +4,15 @@ module V0
   module Ask
     class AsksController < ApplicationController
       skip_before_action :authenticate, only: :create
-      skip_before_action :verify_authenticity_token
 
       def create
         return service_unavailable unless Flipper.enabled?(:get_help_ask_form)
 
         claim = SavedClaim::Ask.new(form: form_submission)
 
-        if claim.valid?
-          render json: { 'message': '200 ok' }
-        else
-          raise Common::Exceptions::ValidationErrors, claim
-        end
+        validate!(claim)
+
+        render json: { 'message': '200 ok' }
       end
 
       private
@@ -28,6 +25,10 @@ module V0
         params.require(:inquiry).require(:form)
       rescue
         raise
+      end
+
+      def validate!(claim)
+        raise Common::Exceptions::ValidationErrors, claim unless claim.valid?
       end
     end
   end
