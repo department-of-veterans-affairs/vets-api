@@ -81,6 +81,12 @@
                 "null"
               ]
             },
+            "formDetailsUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "formType": {
               "type": [
                 "string",

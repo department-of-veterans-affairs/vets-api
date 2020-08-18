@@ -3,14 +3,12 @@
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
-    skip_before_action(:authenticate)
+    skip_before_action :authenticate
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
     def create
       increment Form1010cg::Service.metrics.submission.attempt
-      return service_unavailable unless Flipper.enabled?(:allow_online_10_10cg_submissions)
-
       claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
 
       if claim.valid?
@@ -61,10 +59,6 @@ module V0
     rescue
       increment Form1010cg::Service.metrics.submission.failure.client.data
       raise
-    end
-
-    def service_unavailable
-      render nothing: true, status: :service_unavailable, as: :json
     end
 
     def backend_service_outage
