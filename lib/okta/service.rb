@@ -53,7 +53,6 @@ module Okta
         end
       else
         with_monitoring do
-          # TODO: this is only tempoary
           get_url_with_token(iss+'/.well-known/openid-configuration')
         end
       end
