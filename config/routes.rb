@@ -308,6 +308,7 @@ Rails.application.routes.draw do
   end
 
   scope '/services' do
+    mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'

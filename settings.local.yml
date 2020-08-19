@@ -1,0 +1,5 @@
+oidc:
+  base_api_token: 00qMKUobx_ACftIwcqZwvD6FEQKxGX9IIUoyHJzR1l
+  base_api_url: https://deptva-eval.okta.com
+saml:
+  authn_requests_signed: false

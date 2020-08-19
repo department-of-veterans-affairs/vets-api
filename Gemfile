@@ -10,6 +10,7 @@ gem 'websocket-extensions', '>= 0.1.5'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
+gem 'apps_api', path: 'modules/apps_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
