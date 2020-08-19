@@ -9,6 +9,7 @@ module VA10203
     attribute :name, String
     attribute :city, String
     attribute :state, String
+    attribute :country, String
   end
 
   class FormEntitlementInformation
