@@ -23,7 +23,7 @@ DB           := "bin/rails db:setup db:migrate"
 LINT         := "bin/rails lint"
 DOWN         := down
 SECURITY     := "bin/rails security"
-PACT         := "bundle exec rake pact:verify"
+PACT         := "RAILS_ENV=test bundle exec rake pact:verify"
 .DEFAULT_GOAL := ci
 
 

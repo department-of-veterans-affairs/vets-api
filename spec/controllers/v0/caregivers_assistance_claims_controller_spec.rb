@@ -87,146 +87,122 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   end
 
   describe '#create' do
-    context 'when Flipper :allow_online_10_10cg_submissions is' do
-      context 'disabled' do
-        it 'renders :service_unavailable' do
-          expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(false)
-          expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+    it_behaves_like 'invalid 10-10CG form submission', :create, [
+      'api.form1010cg.submission.attempt',
+      'api.form1010cg.submission.failure.client.data'
+    ]
 
-          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+    it 'submits claim with Form1010cg::Service' do
+      claim = build(:caregivers_assistance_claim)
+      form_data = claim.form
+      params = { caregivers_assistance_claim: { form: form_data } }
+      service = double
+      submission = double(carma_case_id: 'A_123', submitted_at: DateTime.now.iso8601)
 
-          post :create, params: { caregivers_assistance_claim: { form: '{ "my": "data" }' } }
+      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+        form: form_data
+      ).and_return(
+        claim
+      )
 
-          expect(response).to have_http_status(:service_unavailable)
-          expect(response.body).to eq(' ')
-        end
+      expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+      expect(service).to receive(:process_claim!).and_return(submission)
+
+      expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+      expect(StatsD).to receive(:increment).with('api.form1010cg.submission.success')
+
+      post :create, params: params
+
+      expect(response).to have_http_status(:ok)
+
+      res_body = JSON.parse(response.body)
+
+      expect(res_body['data']).to be_present
+      expect(res_body['data']['id']).to eq('')
+      expect(res_body['data']['attributes']).to be_present
+      expect(res_body['data']['attributes']['confirmation_number']).to eq(submission.carma_case_id)
+      expect(res_body['data']['attributes']['submitted_at']).to eq(submission.submitted_at)
+    end
+
+    context 'when Form1010cg::Service raises InvalidVeteranStatus' do
+      it 'renders backend service outage' do
+        claim = build(:caregivers_assistance_claim)
+        form_data = claim.form
+        params = { caregivers_assistance_claim: { form: form_data } }
+        service = double
+
+        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+          form: form_data
+        ).and_return(
+          claim
+        )
+
+        expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+        expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+
+        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
+
+        post :create, params: params
+
+        expect(response.status).to eq(503)
+        expect(
+          JSON.parse(
+            response.body
+          )
+        ).to eq(
+          'errors' => [
+            {
+              'title' => 'Service unavailable',
+              'detail' => 'Backend Service Outage',
+              'code' => '503',
+              'status' => '503'
+            }
+          ]
+        )
       end
 
-      context 'enabled' do
-        before do
-          expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
-        end
+      it 'matches the response of a Common::Client::Errors::ClientError' do
+        claim = build(:caregivers_assistance_claim)
+        form_data = claim.form
+        params = { caregivers_assistance_claim: { form: form_data } }
+        service = double
 
-        it_behaves_like 'invalid 10-10CG form submission', :create, [
-          'api.form1010cg.submission.attempt',
-          'api.form1010cg.submission.failure.client.data'
-        ]
+        ## Backend Client Error Scenario
 
-        it 'submits claim with Form1010cg::Service' do
-          claim = build(:caregivers_assistance_claim)
-          form_data = claim.form
-          params = { caregivers_assistance_claim: { form: form_data } }
-          service = double
-          submission = double(carma_case_id: 'A_123', submitted_at: DateTime.now.iso8601)
+        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+          form: form_data
+        ).and_return(
+          claim
+        )
 
-          expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-            form: form_data
-          ).and_return(
-            claim
+        expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+        expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
+
+        backend_client_error_response = post :create, params: params
+
+        ## Invalid Veteran Status Scenario
+
+        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+          form: form_data
+        ).and_return(
+          claim
+        )
+
+        expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+        expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+
+        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
+        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
+
+        invalid_veteran_status_response = post :create, params: params
+
+        %w[status body headers].each do |response_attr|
+          expect(
+            invalid_veteran_status_response.send(response_attr)
+          ).to eq(
+            backend_client_error_response.send(response_attr)
           )
-
-          expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
-          expect(service).to receive(:process_claim!).and_return(submission)
-
-          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.success')
-
-          post :create, params: params
-
-          expect(response).to have_http_status(:ok)
-
-          res_body = JSON.parse(response.body)
-
-          expect(res_body['data']).to be_present
-          expect(res_body['data']['id']).to eq('')
-          expect(res_body['data']['attributes']).to be_present
-          expect(res_body['data']['attributes']['confirmation_number']).to eq(submission.carma_case_id)
-          expect(res_body['data']['attributes']['submitted_at']).to eq(submission.submitted_at)
-        end
-
-        context 'when Form1010cg::Service raises InvalidVeteranStatus' do
-          it 'renders backend service outage' do
-            claim = build(:caregivers_assistance_claim)
-            form_data = claim.form
-            params = { caregivers_assistance_claim: { form: form_data } }
-            service = double
-
-            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-              form: form_data
-            ).and_return(
-              claim
-            )
-
-            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
-            expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
-
-            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
-
-            post :create, params: params
-
-            expect(response.status).to eq(503)
-            expect(
-              JSON.parse(
-                response.body
-              )
-            ).to eq(
-              'errors' => [
-                {
-                  'title' => 'Service unavailable',
-                  'detail' => 'Backend Service Outage',
-                  'code' => '503',
-                  'status' => '503'
-                }
-              ]
-            )
-          end
-
-          it 'matches the response of a Common::Client::Errors::ClientError' do
-            claim = build(:caregivers_assistance_claim)
-            form_data = claim.form
-            params = { caregivers_assistance_claim: { form: form_data } }
-            service = double
-
-            expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
-
-            ## Backend Client Error Scenario
-
-            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-              form: form_data
-            ).and_return(
-              claim
-            )
-
-            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
-            expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
-
-            backend_client_error_response = post :create, params: params
-
-            ## Invalid Veteran Status Scenario
-
-            expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-              form: form_data
-            ).and_return(
-              claim
-            )
-
-            expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
-            expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
-
-            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-            expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
-
-            invalid_veteran_status_response = post :create, params: params
-
-            %w[status body headers].each do |response_attr|
-              expect(
-                invalid_veteran_status_response.send(response_attr)
-              ).to eq(
-                backend_client_error_response.send(response_attr)
-              )
-            end
-          end
         end
       end
     end

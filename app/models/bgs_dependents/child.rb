@@ -30,18 +30,21 @@ module BGSDependents
     attribute :middle, String
     attribute :last, String
     attribute :suffix, String
+    attribute :birth_date, String
     attribute :ever_married_ind, String
     attribute :place_of_birth_city, String
     attribute :place_of_birth_state, String
+    attribute :place_of_birth_country, String
     attribute :reason_marriage_ended, String
     attribute :family_relationship_type, String
 
     CHILD_STATUS = {
-      'step_child' => 'Stepchild',
+      'stepchild' => 'Stepchild',
       'biological' => 'Biological',
       'adopted' => 'Adopted Child',
       'disabled' => 'Other',
       'child_under18' => 'Other',
+      'not_capable' => 'Other',
       'child_over18_in_school' => 'Other'
     }.freeze
 
@@ -51,7 +54,6 @@ module BGSDependents
 
     def initialize(child_info)
       @child_info = child_info
-
       self.attributes = child_attributes
     end
 
@@ -81,7 +83,9 @@ module BGSDependents
     def child_attributes
       {
         ssn: @child_info['ssn'],
+        birth_date: @child_info['birth_date'],
         family_relationship_type: child_status,
+        place_of_birth_country: @child_info.dig('place_of_birth', 'country'),
         place_of_birth_state: @child_info.dig('place_of_birth', 'state'),
         place_of_birth_city: @child_info.dig('place_of_birth', 'city'),
         reason_marriage_ended: @child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
