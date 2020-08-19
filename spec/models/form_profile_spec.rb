@@ -719,6 +719,22 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v28_1900_expected) do
+    {
+      'veteranInformation' => {
+        'fullName' => {
+          'first' => 'Cosmo',
+          'last' => 'Kramer'
+        },
+        'ssn' => user.ssn,
+        'dob' => user.birth_date
+      },
+      'cellPhone' => '1233211234',
+      'emailAddress' => 'test2@test1.net',
+      'isLoggedIn' => true
+    }
+  end
+
   describe '#get_us_phone' do
     def self.test_get_us_phone(phone, expected)
       it "returns #{expected}" do
