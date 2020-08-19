@@ -12,6 +12,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'EVSS'
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
+  inflect.acronym 'HCA'
   inflect.acronym 'IHub'
   inflect.acronym 'MDOT'
   inflect.acronym 'MHV' # My HealtheVet
@@ -26,6 +27,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SSOe'
   inflect.acronym 'SSO'
   inflect.acronym 'VAOS'
+  inflect.acronym 'VAR' # an older term for what is now VAOS
+  inflect.acronym 'VA'
   inflect.acronym 'VBA'
   inflect.acronym 'VC'
   inflect.acronym 'VHA'

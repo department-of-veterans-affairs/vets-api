@@ -11,6 +11,8 @@ RSpec.describe 'preferences', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
   context 'with a loa1 user' do
     let(:user) { FactoryBot.create(:user, :loa1) }
 
@@ -35,6 +37,16 @@ RSpec.describe 'preferences', type: :request do
           expect(response).to match_response_schema('vaos/preferences')
         end
       end
+
+      it 'returns a 200 with the correct schema when camel-inflected' do
+        VCR.use_cassette('vaos/preferences/get_preferences', match_requests_on: %i[method uri]) do
+          get '/vaos/v0/preferences', headers: inflection_header
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('vaos/preferences')
+        end
+      end
     end
 
     context 'with a valid PUT preferences request', :skip_mvi do
@@ -56,6 +68,16 @@ RSpec.describe 'preferences', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/preferences')
+        end
+      end
+
+      it 'returns a 200 with correct camel-inflected schema' do
+        VCR.use_cassette('vaos/preferences/put_preferences', match_requests_on: %i[method uri]) do
+          put '/vaos/v0/preferences', params: request_body, headers: inflection_header
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('vaos/preferences')
         end
       end
     end
