@@ -4,11 +4,6 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::Ask::AsksController, type: :controller do
-  # Test Cases:
-  # If the feature toggle is on or off
-  #   If on and you get a form return 200
-  #   If off then do nothing and return an error
-  # If the form data is valid or invalid
   describe '#create' do
     def send_create
       post(:create, params: { ask: { form: form } })
