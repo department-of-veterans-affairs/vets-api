@@ -5,6 +5,7 @@ require_relative '../lib/redis_format.rb'
 
 RSpec.describe CovidResearch::RedisFormat do
   subject             { described_class.new(crypto_class) }
+
   let(:crypto_class)  { double('crypto_class', new: crypto_double) }
   let(:crypto_double) { double('crypto', decrypt_form: raw_form, encrypt_form: encrypted_form) }
   let(:raw_form)      { '{"name":"Bob"}' }
