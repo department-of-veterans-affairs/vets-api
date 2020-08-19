@@ -47,13 +47,13 @@ module Okta
     end
 
     def metadata(iss)
-      if (iss.nil?)
+      if iss.nil?
         with_monitoring do
           get_url_with_token(Settings.oidc.auth_server_metadata_url)
         end
       else
         with_monitoring do
-          get_url_with_token(iss+'/.well-known/openid-configuration')
+          get_url_with_token(iss + '/.well-known/openid-configuration')
         end
       end
     end

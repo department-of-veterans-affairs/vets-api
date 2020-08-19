@@ -52,7 +52,7 @@ class Token
   end
 
   def valid_audience?
-    if (@aud.nil?)
+    if @aud.nil?
       payload['aud'] == Settings.oidc.audience.default
     else
       # Temorarily accept the default audience or the API specificed audience
