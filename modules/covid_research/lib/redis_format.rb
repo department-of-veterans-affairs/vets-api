@@ -2,41 +2,45 @@
 
 module CovidResearch
   class RedisFormat
-    # initialize assumes that it is receiving Base64 encoded attributes
-    # if the data is not yet encoded then no args should be provided and
-    #   accessors should be used instead
-    def initialize(json = false)
-      if json
-        json_struct = JSON.parse(json)
+    attr_reader :iv
 
-        @form_data = json_struct['form_data']
-        @iv = json_struct['iv']
-      else
-        @form_data = nil
-        @iv = nil
-      end
+    def initialize(crypto = Volunteer::FormCryptoService)
+      @crypto = crypto.new
     end
 
+    # @param json [String] the raw form submission (JSON format)
+    # @return [String] the raw decrypted form submission
+    def from_redis(json)
+      json = JSON.parse(json)
+
+      @iv = Base64.decode64(json['iv'])
+      @form_data = Base64.decode64(json['form_data'])
+
+      form_data
+    end
+
+    # @return [String] the raw decrypted form submission
     def form_data
-      Base64.decode64(@form_data)
+      @crypto.decrypt_form(@form_data, iv)
     end
 
-    def iv
-      Base64.decode64(@iv)
-    end
-
+    # @param data [String] the raw unencrypted form submission
+    # @return [String] the encrypted form submission
     def form_data=(data)
-      @form_data = Base64.encode64(data)
+      encrypted = @crypto.encrypt_form(data)
+
+      @form_data = encrypted[:form_data]
+      @iv = encrypted[:iv]
+
+      encrypted[:form_data]
     end
 
-    def iv=(data)
-      @iv = Base64.encode64(data)
-    end
-
+    # @param opts [Hash] a hash of opts for JSON generation (accepts `:only` and `:except`)
+    # @return [String] JSON string representation of the encrypted form submission and "salt"
     def to_json(opts = {})
       h = {
-        form_data: @form_data,
-        iv: @iv
+        form_data: Base64.encode64(@form_data),
+        iv: Base64.encode64(@iv)
       }
 
       if opts[:only]

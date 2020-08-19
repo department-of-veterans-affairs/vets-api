@@ -4,58 +4,79 @@ require 'spec_helper'
 require_relative '../lib/redis_format.rb'
 
 RSpec.describe CovidResearch::RedisFormat do
-  let(:subject)      { described_class.new }
-  let(:data)         { 'data' }
-  let(:iv)           { 'iv' }
-  let(:encoded_data) { Base64.encode64(data) }
-  let(:encoded_iv)   { Base64.encode64(iv) }
-  let(:raw)          { "{\"form_data\":\"#{encoded_data}\",\"iv\":\"#{encoded_iv}\"}" }
+  subject             { described_class.new(crypto_class) }
+  let(:crypto_class)  { double('crypto_class', new: crypto_double) }
+  let(:crypto_double) { double('crypto', decrypt_form: raw_form, encrypt_form: encrypted_form) }
+  let(:raw_form)      { '{"name":"Bob"}' }
+  let(:secret_form)   { 'dkghdkghd' }
+  let(:iv)            { 'fake_iv' }
+  let(:from_redis)    { "{\"form_data\":\"#{Base64.encode64(secret_form)}\",\"iv\":\"#{Base64.encode64(iv)}\"}" }
+  let(:encrypted_form) do
+    {
+      form_data: secret_form,
+      iv: iv
+    }
+  end
 
-  describe 'encoding' do
-    it 'automatically encodes the form_data' do
-      subject.form_data = data
+  describe '#from_redis' do
+    it 'decrypts the form data' do
+      expect(crypto_double).to receive(:decrypt_form)
 
-      expect(subject.instance_eval { @form_data }).to eq(encoded_data)
+      subject.from_redis(from_redis)
     end
 
-    it 'automatically encodes the iv' do
-      subject.iv = iv
+    it 'stores the iv' do
+      subject.from_redis(from_redis)
 
-      expect(subject.instance_eval { @iv }).to eq(encoded_iv)
+      expect(subject.iv).to eq(iv)
+    end
+
+    it 'stores the encrypted form data' do
+      subject.from_redis(from_redis)
+
+      expect(subject.instance_eval { @form_data }).to eq(secret_form)
     end
   end
 
-  describe 'decoding' do
-    let(:subject) { described_class.new(raw) }
+  describe '#form_data' do
+    it 'decrypts the form data' do
+      expect(crypto_double).to receive(:decrypt_form)
 
-    it 'automatically decodes the form_data' do
-      expect(subject.form_data).to eq data
+      subject.form_data
+    end
+  end
+
+  describe '#form_data=' do
+    it 'encrypts the form data' do
+      expect(crypto_double).to receive(:encrypt_form).with(raw_form)
+
+      subject.form_data = raw_form
     end
 
-    it 'automatically decodes the iv' do
-      expect(subject.iv).to eq iv
+    it 'stores the encrypted form data' do
+      subject.form_data = raw_form
+
+      expect(subject.instance_eval { @form_data }).to eq(secret_form)
+    end
+
+    it 'stores the iv used during encryption' do
+      subject.form_data = raw_form
+
+      expect(subject.instance_eval { @iv }).to eq(iv)
     end
   end
 
   describe 'serialization' do
     it 'generates json with encoded values' do
-      subject.form_data = data
-      subject.iv = iv
+      subject.form_data = raw_form
 
-      expect(subject.to_json).to eq(raw)
-    end
-
-    it 'initializes from a raw string' do
-      sub = described_class.new(raw)
-
-      expect(sub.form_data).to eq(data)
-      expect(sub.iv).to eq(iv)
+      expect(subject.to_json).to eq(from_redis)
     end
 
     it 'works with the JSON module' do
-      sub = described_class.new(raw)
+      subject.form_data = raw_form
 
-      expect(JSON.generate(sub)).to eq(raw)
+      expect(JSON.generate(subject)).to eq(from_redis)
     end
   end
 end

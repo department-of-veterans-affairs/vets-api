@@ -6,10 +6,9 @@ module CovidResearch
       extend AttrEncrypted
       attr_encrypted :submission, key: Settings.db_encryption_key
 
-      def decrypt_redis_format(redis_format)
-        decrypt_form(redis_format.form_data, redis_format.iv)
-      end
-
+      # @param form_data [String] encrypted form data
+      # @param iv [String] encrypted iv (for decrypting the form_data)
+      # @return [String] decrypted raw JSON form submission
       def decrypt_form(form_data, iv)
         @encrypted_submission = form_data
         @encrypted_submission_iv = iv
@@ -17,6 +16,8 @@ module CovidResearch
         submission
       end
 
+      # @param form_data [String] unencrypted form data (raw JSON data)
+      # @return [Hash] a Hash with the encrypted form data (at `:form_data`) and the iv used to encrypt it (at `:iv`)
       def encrypt_form(form_data)
         # AttrEncrypted won't fire without explicit self
         self.submission = form_data
@@ -25,15 +26,6 @@ module CovidResearch
           form_data: encrypted_submission,
           iv: encrypted_submission_iv
         }
-      end
-
-      def encrypt_and_encode(form_data)
-        parts = encrypt_form(form_data)
-
-        parts[:form_data] = Base64.encode64(parts[:form_data])
-        parts[:iv] = Base64.encode64(parts[:iv])
-
-        parts
       end
     end
   end

@@ -19,13 +19,6 @@ RSpec.describe CovidResearch::Volunteer::FormCryptoService do
     it 'encrypts the form' do
       expect(subject.encrypt_form(raw_form)[:form_data]).not_to eq(raw_form)
     end
-
-    it 'encrypts and encodes the form' do
-      parts = subject.encrypt_and_encode(raw_form)
-
-      expect { Base64.strict_decode64(parts[:form_data]) }.not_to raise_error
-      expect { Base64.strict_decode64(parts[:iv]) }.not_to raise_error
-    end
   end
 
   context 'decryption' do
