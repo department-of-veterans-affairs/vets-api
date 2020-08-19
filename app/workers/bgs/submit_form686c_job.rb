@@ -23,9 +23,9 @@ module BGS
     def valid_claim(saved_claim_id, vet_info)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
 
-      raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
-
       claim.add_veteran_info(vet_info)
+
+      raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim
     end
