@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-module VaFacilities
+module VAFacilities
   VERSION = '0.0.1'
 end
