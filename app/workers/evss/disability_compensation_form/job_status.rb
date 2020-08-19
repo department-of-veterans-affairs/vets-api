@@ -108,8 +108,12 @@ module EVSS
           updated_at: Time.now.utc
         }
         values[:error_class] = error.class if error
-        values[:error_message] = error.try(:messages) || error.message if error
+        values[:error_message] = error_message(error) if error
         Form526JobStatus.upsert({ job_id: jid }, values)
+      end
+
+      def error_message(error)
+        error.try(:messages) ? error.messages.to_s : error.message
       end
 
       def log_info(status)
