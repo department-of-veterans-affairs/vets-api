@@ -64,20 +64,6 @@ GIT
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
-GIT
-  remote: https://github.com/f1337/pact-ruby
-  revision: a01e136f246d64117a24635a98b3c40e9d1b070a
-  branch: f1337/bump-thor-dependency
-  specs:
-    pact (1.51.0)
-      pact-mock_service (~> 3.0, >= 3.3.1)
-      pact-support (~> 1.9)
-      rack-test (>= 0.6.3, < 2.0.0)
-      rspec (~> 3.0)
-      term-ansicolor (~> 1.0)
-      thor (>= 0.20, < 2.0)
-      webrick (~> 1.3)
-
 PATH
   remote: modules/appeals_api
   specs:
@@ -532,6 +518,14 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.13.2)
+    pact (1.51.1)
+      pact-mock_service (~> 3.0, >= 3.3.1)
+      pact-support (~> 1.9)
+      rack-test (>= 0.6.3, < 2.0.0)
+      rspec (~> 3.0)
+      term-ansicolor (~> 1.0)
+      thor (>= 0.20, < 2.0)
+      webrick (~> 1.3)
     pact-mock_service (3.6.2)
       filelock (~> 1.1)
       find_a_port (~> 1.0.1)
@@ -915,7 +909,7 @@ DEPENDENCIES
   origami
   overcommit
   ox
-  pact!
+  pact
   pact-mock_service
   paper_trail
   pdf-forms
