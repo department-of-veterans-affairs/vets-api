@@ -14,7 +14,6 @@ module OIDC
 
     def self.get_key(expected_kid, expected_iss)
       @expected_iss = expected_iss
-      # TODO: The current_keys map will not be able to support an issue as it stands
       found = @current_keys[expected_kid]
       if found.nil? && should_refresh?(expected_kid)
         refresh expected_kid

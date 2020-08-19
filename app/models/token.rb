@@ -48,15 +48,15 @@ class Token
   end
 
   def valid_issuer?
-    # Consider renaming property to issuer_base
     payload['iss'].start_with?(Settings.oidc.issuer)
   end
 
   def valid_audience?
     if (@aud.nil?)
-      payload['aud'] == Settings.oidc.audience
+      payload['aud'] == Settings.oidc.audience.default
     else
-      payload['aud'] == @aud
+      # Temorarily accept the default audience or the API specificed audience
+      [Settings.oidc.audience.default, @aud].include?(payload['aud'])
     end
   end
 

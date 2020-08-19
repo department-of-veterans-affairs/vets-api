@@ -13,11 +13,6 @@ module OpenidAuth
         raise Common::Exceptions::InternalServerError, e
       end
 
-      # The calling services now will need to specify the body param `aud`
-      # This will be passed to the token.rb class for validation against the issuer Auth Server
-      #   as well as the decoded token itself (vs just the configured default aud)
-      # params['aud']
-
       private
 
       def validated_payload
