@@ -4,7 +4,9 @@ FactoryBot.define do
   factory :spouse, class: BGSDependents::Spouse do
     initialize_with do
       {
-        'add_spouse' => true,
+        'view:selectable686_options' => {
+          'add_spouse' => true
+        },
         'dependents_application' => {
           'veteran_contact_information' => {
             'veteran_address' => {

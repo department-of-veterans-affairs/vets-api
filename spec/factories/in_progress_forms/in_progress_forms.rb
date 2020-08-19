@@ -4,12 +4,12 @@ FactoryBot.define do
   factory :in_progress_form do
     user_uuid { SecureRandom.uuid }
     form_id { 'edu_benefits' }
-    metadata {
+    metadata do
       {
         version: 1,
         return_url: 'foo.com'
       }
-    }
+    end
     form_data do
       {
         chapter1606: true,
@@ -205,12 +205,12 @@ FactoryBot.define do
     factory :in_progress_526_form do
       user_uuid { SecureRandom.uuid }
       form_id { '21-526EZ' }
-      metadata {
+      metadata do
         {
           version: 1,
           return_url: 'foo.com'
         }
-      }
+      end
       form_data do
         {
           'veteran' => {
