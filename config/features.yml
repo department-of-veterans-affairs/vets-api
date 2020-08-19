@@ -227,6 +227,6 @@ features:
     description: >
       Enable/disable SCO email per environment
   show_526_wizard:
-    acto_type: user
+    actor_type: user
     description: >
       This determines when the wizard should show up on the form 526 intro page
