@@ -78,7 +78,8 @@ class FormProfiles::VA10203 < FormProfile
     VA10203::FormInstitutionInfo.new(
       name: profile_response[:data][:attributes][:name],
       city: profile_response[:data][:attributes][:city],
-      state: profile_response[:data][:attributes][:state]
+      state: profile_response[:data][:attributes][:state],
+      country: profile_response[:data][:attributes][:country]
     )
   rescue => e
     Rails.logger.error "Failed to retrieve GIDS data: #{e.message}"
