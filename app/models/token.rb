@@ -48,15 +48,15 @@ class Token
   end
 
   def valid_issuer?
-    payload['iss'].start_with?(Settings.oidc.issuer)
+    payload['iss'].start_with?(Settings.oidc.issuer_prefix)
   end
 
   def valid_audience?
     if @aud.nil?
-      payload['aud'] == Settings.oidc.audience.default
+      payload['aud'] == Settings.oidc.isolated_audience.default
     else
       # Temorarily accept the default audience or the API specificed audience
-      [Settings.oidc.audience.default, @aud].include?(payload['aud'])
+      [Settings.oidc.isolated_audience.default, @aud].include?(payload['aud'])
     end
   end
 

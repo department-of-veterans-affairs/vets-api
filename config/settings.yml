@@ -394,7 +394,11 @@ reports:
 oidc:
   auth_server_metadata_url: ~
   issuer: ~
+  issuer_prefix: ~
   audience: ~
+  isolated_audience:
+    default: ~
+    verification: ~
   base_api_url: https://example.com
   base_api_token: ~
 

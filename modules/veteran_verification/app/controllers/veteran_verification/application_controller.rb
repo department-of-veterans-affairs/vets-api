@@ -16,7 +16,7 @@ module VeteranVerification
     end
 
     def fetch_aud
-      Settings.oidc.audience.verification
+      Settings.oidc.isolated_audience.verification
     end
   end
 end

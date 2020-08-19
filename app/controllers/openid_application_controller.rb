@@ -76,7 +76,7 @@ class OpenidApplicationController < ApplicationController
   end
 
   def fetch_aud
-    Settings.oidc.audience.default
+    Settings.oidc.isolated_audience.default
   end
 
   attr_reader :current_user, :session, :scopes
