@@ -60,6 +60,7 @@ module V1
     rescue SAML::SAMLError => e
       log_message_to_sentry(e.message, e.level, extra_context: e.context)
       redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
+      login_stats(:failure, saml_response, e)
       callback_stats(:failure, saml_response, e.tag || e.code)
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
@@ -112,13 +113,8 @@ module V1
     end
 
     def user_login(saml_response)
-      begin
-        user_session_form = UserSessionForm.new(saml_response)
-        raise_saml_error(user_session_form) unless user_session_form.valid?
-      rescue SAML::UserAttributeError => e
-        login_stats(:failure, saml_response, e)
-        raise
-      end
+      user_session_form = UserSessionForm.new(saml_response)
+      raise_saml_error(user_session_form) unless user_session_form.valid?
 
       @current_user, @session_object = user_session_form.persist
       set_cookies

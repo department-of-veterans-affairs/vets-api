@@ -46,7 +46,7 @@ module BGS
             vnp_proc_id: proc_id,
             ptcpnt_type_nm: 'Person',
             corp_ptcpnt_id: corp_ptcpnt_id,
-            ssn: @user[:ssn]
+            ssn: @user.ssn
           }.merge(bgs_auth)
         )
       end
@@ -100,24 +100,27 @@ module BGS
 
     def find_benefit_claim_type_increment
       increment_params = {
-        ptcpnt_id: @user[:participant_id],
+        ptcpnt_id: @user.participant_id,
         bnft_claim_type_cd: '130DPNEBNADJ',
         pgm_type_cd: 'CPL'
       }
 
       increment_params.merge!(user_ssn) if Settings.bgs.mock_response == true
-
       with_multiple_attempts_enabled do
         service.data.find_benefit_claim_type_increment(increment_params)
       end
     end
 
     def vnp_create_benefit_claim(vnp_benefit_params)
-      service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params.merge(bgs_auth))
+      with_multiple_attempts_enabled do
+        service.vnp_bnft_claim.vnp_bnft_claim_create(vnp_benefit_params.merge(bgs_auth))
+      end
     end
 
     def vnp_benefit_claim_update(vnp_benefit_params)
-      service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
+      with_multiple_attempts_enabled do
+        service.vnp_bnft_claim.vnp_bnft_claim_update(vnp_benefit_params.merge(bgs_auth))
+      end
     end
 
     def update_manual_proc(proc_id)
@@ -147,7 +150,7 @@ module BGS
     end
 
     def user_ssn
-      { ssn: @user[:ssn] }
+      { ssn: @user.ssn }
     end
 
     private
@@ -155,7 +158,7 @@ module BGS
     def service
       external_key = @user.common_name || @user.email
 
-      @service ||= BGS::Services.new(external_uid: @user[:icn], external_key: external_key)
+      @service ||= BGS::Services.new(external_uid: @user.icn, external_key: external_key)
     end
   end
 end

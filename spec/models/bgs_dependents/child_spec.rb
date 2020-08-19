@@ -46,6 +46,8 @@ RSpec.describe BGSDependents::Child do
         'place_of_birth_city' => 'Slawson',
         'reason_marriage_ended' => 'Death',
         'ever_married_ind' => 'Y',
+        'birth_date' => '2009-03-03',
+        'place_of_birth_country' => nil,
         'first' => 'John',
         'middle' => 'oliver',
         'last' => 'Hamm',
