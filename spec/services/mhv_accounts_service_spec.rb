@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe MhvAccountsService do
+RSpec.describe MHVAccountsService do
   let(:mpi_profile) do
     build(:mpi_profile,
           icn: '1012667122V019349',
@@ -42,7 +42,7 @@ RSpec.describe MhvAccountsService do
 
   before do
     stub_mpi(mpi_profile)
-    terms = create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME, version: 'v3.4')
+    terms = create(:terms_and_conditions, latest: true, name: MHVAccount::TERMS_AND_CONDITIONS_NAME, version: 'v3.4')
     date_signed = Time.new(2017, 5, 9).utc
     create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid, created_at: date_signed)
   end
@@ -51,7 +51,7 @@ RSpec.describe MhvAccountsService do
     subject { described_class.new(mhv_account, user) }
 
     let(:mhv_account) do
-      MhvAccount.new(user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id).tap { |m| m.user = user }
+      MHVAccount.new(user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id).tap { |m| m.user = user }
     end
 
     context 'account creation' do

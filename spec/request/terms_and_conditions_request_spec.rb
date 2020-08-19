@@ -10,6 +10,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
   let!(:terms2) { create(:terms_and_conditions, latest: false, name: 'two') }
   let!(:terms21) { create(:terms_and_conditions, name: terms2.name, latest: true) }
   let!(:terms3) { create(:terms_and_conditions, latest: true, name: 'three') }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   it 'responds to GET #index' do
     get '/v0/terms_and_conditions'
@@ -19,12 +20,31 @@ RSpec.describe 'terms_and_conditions', type: :request do
     expect(response).to match_response_schema('terms_and_conditions')
   end
 
+  it 'responds to GET #index when camel-inflected' do
+    get '/v0/terms_and_conditions', headers: inflection_header
+
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_camelized_response_schema('terms_and_conditions')
+  end
+
   it 'responds to GET #latest' do
     get "/v0/terms_and_conditions/#{terms2.name}/versions/latest"
 
     expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('terms_and_conditions_single')
+
+    json = JSON.parse(response.body)
+    expect(json['data']['id']).to eq(terms21.id.to_s)
+  end
+
+  it 'responds to GET #latest when camel-inflected' do
+    get "/v0/terms_and_conditions/#{terms2.name}/versions/latest", headers: inflection_header
+
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_camelized_response_schema('terms_and_conditions_single')
 
     json = JSON.parse(response.body)
     expect(json['data']['id']).to eq(terms21.id.to_s)
@@ -49,6 +69,14 @@ RSpec.describe 'terms_and_conditions', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('terms_and_conditions_acceptance')
+      end
+
+      it 'responds to GET #user_data when camel-inflected' do
+        get "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data", headers: inflection_header
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('terms_and_conditions_acceptance')
       end
 
       it 'gives me information about whether the user accepted the latest' do
@@ -94,6 +122,14 @@ RSpec.describe 'terms_and_conditions', type: :request do
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('terms_and_conditions_acceptance')
+        end
+
+        it 'lets me accept it when camel-inflected' do
+          post "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data", headers: inflection_header
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('terms_and_conditions_acceptance')
         end
 
         it 'creates the acceptance' do

@@ -125,7 +125,6 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
           ).and_return(
             expected_response
           )
-
           subject.submit!(carma_client)
 
           expect(subject.response).to eq(expected_response)

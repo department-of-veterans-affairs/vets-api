@@ -9,7 +9,25 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    NOT_FOUND = 'NOT_FOUND'
+    STATSD_KEY_PREFIX = 'api.form1010cg'
+    NOT_FOUND         = 'NOT_FOUND'
+
+    def self.metrics
+      submission_prefix = STATSD_KEY_PREFIX + '.submission'
+      OpenStruct.new(
+        submission: OpenStruct.new(
+          attempt: submission_prefix + '.attempt',
+          success: submission_prefix + '.success',
+          failure: OpenStruct.new(
+            client: OpenStruct.new(
+              data: submission_prefix + '.failure.client.data',
+              qualification: submission_prefix + '.failure.client.qualification'
+            )
+          )
+        ),
+        pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
+      )
+    end
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -118,14 +136,15 @@ module Form1010cg
       # Set the ICN's for each form_subject on the metadata hash
       metadata = claim.form_subjects.each_with_object({}) do |form_subject, obj|
         icn = icn_for(form_subject)
-
         obj[form_subject.snakecase.to_sym] = {
           icn: icn == NOT_FOUND ? nil : icn
         }
       end
 
-      metadata[:veteran][:is_veteran] = is_veteran('veteran')
-
+      # Disabling the veteran status search since there is an issue with searching emis
+      # for a veteran status using an ICN. Only edipi works. Consider adding this back in
+      # once ICN searches work or we refactor our veteran status serach to use the edipi.
+      metadata[:veteran][:is_veteran] = false
       metadata
     end
 
@@ -162,6 +181,7 @@ module Form1010cg
       return cached_veteran_status unless cached_veteran_status.nil?
 
       icn = icn_for(form_subject)
+
       return @cache[:veteran_statuses][form_subject] = false if icn == NOT_FOUND
 
       response = emis_service.get_veteran_status(icn: icn)

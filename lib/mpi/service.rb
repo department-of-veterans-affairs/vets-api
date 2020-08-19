@@ -58,7 +58,7 @@ module MPI
       mpi_add_exception_response_for('MVI_504', e)
     rescue MPI::Errors::Base => e
       key = get_mpi_error_key(e)
-      mpi_error_handler(user_identity, e)
+      mpi_error_handler(user_identity, e, 'add_person')
       mpi_add_exception_response_for(key, e)
     end
     # rubocop:enable Metrics/MethodLength
@@ -90,7 +90,7 @@ module MPI
       log_console_and_sentry("MPI find_profile error: #{e.message}", :warn)
       mpi_profile_exception_response_for('MVI_504', e)
     rescue MPI::Errors::Base => e
-      mpi_error_handler(user_identity, e)
+      mpi_error_handler(user_identity, e, 'find_profile')
       if e.is_a?(MPI::Errors::RecordNotFound)
         mpi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
@@ -142,7 +142,7 @@ module MPI
       )
     end
 
-    def mpi_error_handler(user_identity, e)
+    def mpi_error_handler(user_identity, e, source = '')
       case e
       when MPI::Errors::DuplicateRecords
         log_console_and_sentry('MPI Duplicate Record', :warn)
@@ -151,18 +151,13 @@ module MPI
       when MPI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user_identity.mhv_icn.present?
-          log_console_and_sentry('MPI Invalid Request (Possible RecordNotFound)', :error)
+          log_message_to_sentry("MVI Invalid Request (Possible RecordNotFound) #{source}", :error)
         else
           log_console_and_sentry('MPI Invalid Request', :error)
         end
       when MPI::Errors::FailedRequestError
         log_console_and_sentry('MPI Failed Request', :error)
       end
-    end
-
-    def log_console_and_sentry(message, sentry_classification = nil)
-      Rails.logger.info(message)
-      log_message_to_sentry(message, sentry_classification) if sentry_classification.present?
     end
 
     def logging_context(user_identity)
@@ -189,14 +184,17 @@ module MPI
     # rubocop:enable Layout/LineLength
 
     def message_icn(user)
+      Raven.tags_context(mvi_find_profile: 'icn')
       MPI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
     end
 
     def message_edipi(user)
+      Raven.tags_context(mvi_find_profile: 'edipi')
       MPI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi).to_xml
     end
 
     def message_user_attributes(user)
+      Raven.tags_context(mvi_find_profile: 'user_attributes')
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
       profile = {

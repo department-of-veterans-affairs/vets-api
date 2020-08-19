@@ -17,6 +17,7 @@ module VAOS
     attribute :appointment_type, String
     attribute :visit_type, String
     attribute :reason_for_visit, String
+    attribute :additional_information, String
     attribute :text_messaging_allowed, Boolean
     attribute :phone_number, String
     attribute :purpose_of_visit, String

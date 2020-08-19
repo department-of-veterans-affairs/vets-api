@@ -51,7 +51,7 @@ unless ENV['NOCOVERAGE']
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
-    add_group 'VaFacilities', 'modules/va_facilities/'
+    add_group 'VAFacilities', 'modules/va_facilities/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'

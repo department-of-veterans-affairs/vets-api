@@ -15,6 +15,13 @@ RSpec.describe 'Keys endpoint', type: :request do
     expect(response).to match_response_schema('veteran_verification/keys')
   end
 
+  it 'returns an array of keys when camel-inflected' do
+    get '/services/veteran_verification/v0/keys', headers: { 'X-Key-Inflection' => 'camel' }
+
+    expect(response).to have_http_status(:ok)
+    expect(response).to match_camelized_response_schema('veteran_verification/keys')
+  end
+
   it 'the pem field is a valid base64url encoded public key' do
     get '/services/veteran_verification/v0/keys'
 

@@ -104,7 +104,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account_type
-    identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
+    identity.mhv_account_type || MHVAccountTypeService.new(self).mhv_account_type
   end
 
   def mhv_account_state
@@ -218,7 +218,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
+    @mhv_account ||= MHVAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
                                .tap { |m| m.user = self } # MHV account should not re-initialize use
   end
 

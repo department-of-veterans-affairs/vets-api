@@ -1,32 +1,20 @@
 # frozen_string_literal: true
 
-module VaForms
+module VAForms
   module V0
     class FormsController < ApplicationController
       skip_before_action(:authenticate)
 
       def index
-        render json: get_forms,
+        render json: Form.search(search_term: params[:query]),
                serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: VaForms::FormListSerializer
+               each_serializer: VAForms::FormListSerializer
       end
 
       def show
         forms = Form.find_by form_name: params[:id]
         render json: forms,
-               serializer: VaForms::FormDetailSerializer
-      end
-
-      private
-
-      def get_forms
-        if params[:query].present?
-          query = params[:query].strip
-          terms = query.split(' ').map { |term| "%#{term}%" }
-          Form.where('form_name ilike ANY ( array[?] ) OR title ilike ANY ( array[?] )', terms, terms)
-        else
-          Form.all
-        end
+               serializer: VAForms::FormDetailSerializer
       end
     end
   end

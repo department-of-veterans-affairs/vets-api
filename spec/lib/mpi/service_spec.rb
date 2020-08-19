@@ -146,7 +146,7 @@ describe MPI::Service do
 
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(subject).to receive(:log_console_and_sentry).with(
+        expect(subject).to receive(:log_message_to_sentry).with(
           'MPI add_person error: Gateway timeout',
           :warn
         )
@@ -195,6 +195,7 @@ describe MPI::Service do
         VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           profile = mpi_profile
           profile['search_token'] = 'WSDOC1908201553145951848240311'
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'icn')
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(profile)
@@ -276,7 +277,7 @@ describe MPI::Service do
       it 'responds with a SERVER_ERROR if ICN is invalid', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MPI Invalid Request (Possible RecordNotFound)', :error
+          'MPI Invalid Request (Possible RecordNotFound) find_profile', :error
         )
 
         VCR.use_cassette('mpi/find_candidate/invalid_icn') do
@@ -289,7 +290,7 @@ describe MPI::Service do
       it 'responds with a SERVER_ERROR if ICN has no matches', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MPI Invalid Request (Possible RecordNotFound)', :error
+          'MPI Invalid Request (Possible RecordNotFound) find_profile', :error
         )
 
         VCR.use_cassette('mpi/find_candidate/icn_not_found') do
@@ -316,7 +317,8 @@ describe MPI::Service do
       it 'fetches profile when no mhv_icn exists but dslogon_edipi is present' do
         allow(user).to receive(:dslogon_edipi).and_return('1025062341')
 
-        VCR.use_cassette('mpi/find_candidate/edipi_present') do
+        VCR.use_cassette('mvi/find_candidate/edipi_present') do
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'edipi')
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile.given_names).to eq(%w[Benjamiin Two])
@@ -345,6 +347,7 @@ describe MPI::Service do
         VCR.use_cassette('mpi/find_candidate/valid') do
           profile = mpi_profile
           profile['search_token'] = 'WSDOC1908281447208280163390431'
+          expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'user_attributes')
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(profile)
@@ -431,7 +434,7 @@ describe MPI::Service do
 
       it 'raises a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(subject).to receive(:log_console_and_sentry).with(
+        expect(subject).to receive(:log_message_to_sentry).with(
           'MPI find_profile error: Gateway timeout',
           :warn
         )

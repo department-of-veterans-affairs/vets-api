@@ -135,6 +135,11 @@ AppealsApi::HigherLevelReviewUploadStatusBatch:
   class: AppealsApi::HigherLevelReviewUploadStatusBatch
   description: "Update HigherLevelReview statuses with their Central Mail status"
 
+AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
+  every: ['24h', first_in: '45m']
+  class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
+  description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
+
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
@@ -151,7 +156,7 @@ ExternalServicesStatusJob:
   every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
 
-VaForms::FetchLatest:
+VAForms::FetchLatest:
   cron: "0 0 * * * America/New_York"
-  class: VaForms::FormReloader
+  class: VAForms::FormReloader
   description: "Fetches latest VA Forms"

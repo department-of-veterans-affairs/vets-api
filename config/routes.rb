@@ -74,6 +74,7 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
 
     resources :caregivers_assistance_claims, only: :create
+    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -295,6 +296,12 @@ Rails.application.routes.draw do
 
     namespace :facilities, module: 'facilities' do
       resources :va, only: %i[index show]
+      resources :ccp, only: %i[index show] do
+        get 'specialties', on: :collection, to: 'ccp#specialties'
+      end
+      resources :va_ccp, only: [] do
+        get 'urgent_care', on: :collection
+      end
     end
   end
 
@@ -308,14 +315,15 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
+    mount VAFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
-    mount VaForms::Engine, at: '/va_forms'
+    mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
   mount VAOS::Engine, at: '/vaos'
+  mount CovidResearch::Engine, at: '/covid-research'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

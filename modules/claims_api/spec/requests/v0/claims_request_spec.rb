@@ -21,6 +21,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
       'X-VA-LOA' => '3',
       'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00' }
   end
+  let(:camel_inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+  let(:request_headers_camel) { request_headers.merge(camel_inflection_header) }
 
   context 'index' do
     it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
@@ -29,6 +31,15 @@ RSpec.describe 'EVSS Claims management', type: :request do
             params: nil,
             headers: request_headers
         expect(response).to match_response_schema('claims_api/claims')
+      end
+    end
+
+    it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+      VCR.use_cassette('evss/claims/claims') do
+        get '/services/claims/v0/claims',
+            params: nil,
+            headers: request_headers_camel
+        expect(response).to match_camelized_response_schema('claims_api/claims')
       end
     end
 
@@ -96,25 +107,56 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
     end
 
-    it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      create(:auto_established_claim,
-             auth_headers: { some: 'data' },
-             evss_id: 600_118_851,
-             id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+    it 'shows a single Claim when camel-inflected', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       VCR.use_cassette('evss/claims/claim') do
-        get(
-          '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
-          params: nil,
-          headers: {
-            'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
-            'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
-            'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
-            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
-          }
-        )
-        expect(response).to match_response_schema('claims_api/claim')
+        get '/services/claims/v0/claims/600118851',
+            params: nil,
+            headers: request_headers_camel
+        expect(response).to match_camelized_response_schema('claims_api/claim')
       end
     end
+
+    context 'with an auto established claim' do
+      let(:auto_established_claim_id) { 'd5536c5c-0465-4038-a368-1a9d9daf65c9' }
+      let(:wesley_ford_headers) do
+        {
+          'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+          'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
+          'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
+          'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
+        }
+      end
+
+      before do
+        create(:auto_established_claim,
+               auth_headers: { some: 'data' },
+               evss_id: 600_118_851,
+               id: auto_established_claim_id)
+      end
+
+      it 'shows a single Claim through it', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+        VCR.use_cassette('evss/claims/claim') do
+          get(
+            "/services/claims/v0/claims/#{auto_established_claim_id}",
+            params: nil,
+            headers: wesley_ford_headers
+          )
+          expect(response).to match_response_schema('claims_api/claim')
+        end
+      end
+
+      it 'shows a single Claim through it when camel-inflected', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+        VCR.use_cassette('evss/claims/claim') do
+          get(
+            "/services/claims/v0/claims/#{auto_established_claim_id}",
+            params: nil,
+            headers: wesley_ford_headers.merge(camel_inflection_header)
+          )
+          expect(response).to match_camelized_response_schema('claims_api/claim')
+        end
+      end
+    end
+
     context 'with errors' do
       it '404s' do
         VCR.use_cassette('evss/claims/claim_with_errors') do

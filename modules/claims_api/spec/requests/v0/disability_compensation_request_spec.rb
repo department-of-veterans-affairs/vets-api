@@ -167,13 +167,23 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(parsed['errors'].size).to eq(5)
       end
 
+      context 'Breakers outages are recorded (investigating)' do
+        it 'is logged to PersonalInformationLog' do
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
+          post path, params: data, headers: headers
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('validate_form_526 Breakers::OutageException')
+          EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
+        end
+      end
+
       context 'Timeouts are recorded (investigating)' do
         [Common::Exceptions::GatewayTimeout, Timeout::Error, Faraday::TimeoutError].each do |error_klass|
           context error_klass.to_s do
             it 'is logged to PersonalInformationLog' do
               allow_any_instance_of(ClaimsApi::DisabilityCompensation::MockOverrideService)
                 .to receive(:validate_form526).and_raise(error_klass)
-              allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim)
+              allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
                 .to receive(:validate_form526).and_raise(error_klass)
               post path, params: data, headers: headers
               expect(PersonalInformationLog.count).to be_positive
@@ -201,6 +211,12 @@ RSpec.describe 'Disability Claims ', type: :request do
       put "/services/claims/v0/forms/526/#{auto_claim.id}", params: binary_params, headers: headers
       auto_claim.reload
       expect(auto_claim.file_data).to be_truthy
+    end
+
+    it 'responds with a 422 when unknown error' do
+      expect(ClaimsApi::ClaimUploader).to receive(:perform_async).and_raise(Common::Exceptions::UnprocessableEntity)
+      put "/services/claims/v0/forms/526/#{auto_claim.id}", params: binary_params, headers: headers
+      expect(response.status).to eq(422)
     end
 
     it 'upload 526 base64 form through PUT' do

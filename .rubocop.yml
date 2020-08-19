@@ -106,6 +106,7 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
     - 'rakelib/**/*.rake'
+    - 'lib/tasks/**/*.rake'
     - 'config/**/*.rb'
     - 'app/swagger/**/*.rb'
     - 'app/controllers/v0/apidocs_controller.rb'
@@ -186,6 +187,8 @@ RSpec/FilePath:
     - 'spec/request/in_progress_forms_request_spec.rb'
     - 'spec/jobs/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
+  CustomTransform:
+    SSOeSettingsService: ssoe_settings_service
 
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:

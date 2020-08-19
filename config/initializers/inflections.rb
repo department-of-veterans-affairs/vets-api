@@ -2,20 +2,22 @@
 
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'AAID'
+  inflect.acronym 'AWS'
   inflect.acronym 'BB'
   inflect.acronym 'BGS'
   inflect.acronym 'CARMA'
-  inflect.acronym 'AWS'
-  inflect.acronym 'BGS'
   inflect.acronym 'CC'
   inflect.acronym 'DOD'
   inflect.acronym 'EMIS'
   inflect.acronym 'EVSS'
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
+  inflect.acronym 'HCA'
   inflect.acronym 'IHub'
   inflect.acronym 'MDOT'
   inflect.acronym 'MPI'
+  inflect.acronym 'MHV' # My HealtheVet
+  inflect.acronym 'NCA' # National Cemetery Administration
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
   inflect.acronym 'PPMS'
@@ -26,6 +28,8 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SSOe'
   inflect.acronym 'SSO'
   inflect.acronym 'VAOS'
+  inflect.acronym 'VAR' # an older term for what is now VAOS
+  inflect.acronym 'VA'
   inflect.acronym 'VBA'
   inflect.acronym 'VC'
   inflect.acronym 'VHA'

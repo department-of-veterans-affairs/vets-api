@@ -3,8 +3,8 @@
 require 'rails_helper'
 require 'gi/search_client'
 
-describe 'GI::SearchClient' do
-  let(:client) { GI::SearchClient.new }
+describe GI::SearchClient do
+  let(:client) { described_class.new }
 
   it 'gets institution search results', :vcr do
     client_response = client.get_institution_search_results(name: 'illinois').body

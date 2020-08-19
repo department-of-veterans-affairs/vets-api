@@ -1,5 +1,5 @@
 ---
-# Add a new feture toggle here to ensure that it is initialized in all environments.
+# Add a new feature toggle here to ensure that it is initialized in all environments.
 # Features are defaulted to enabled in development and test environments and disabled in all others.
 # The description should contain any relevant information for an admin who may toggle the feature.
 #
@@ -39,6 +39,9 @@ features:
   facility_locator_fe_use_v1:
     actor_type: user
     description: Have the front end use the V1 api
+  facilities_ppms_suppress_community_care:
+    actor_type: user
+    description: Hide ppms community care searches
   profile_schema_forms:
     actor_type: user
     description: >
@@ -106,7 +109,7 @@ features:
   va_online_scheduling_express_care_new:
     actor_type: user
     description: >
-      Enables Express Care request flow in VAOS 
+      Enables Express Care request flow in VAOS
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -127,6 +130,10 @@ features:
     actor_type: user
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
+  form526_benefits_delivery_at_discharge:
+    actor_type: user
+    description: >
+      Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
   form526_confirmation_email:
     actor_type: user
     description: >
@@ -144,7 +151,7 @@ features:
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
-    actor_type: user
+    actor_type: cookie_id
     description: >
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   stub_carma_responses:
@@ -167,3 +174,80 @@ features:
     actor_type: user
     description: >
       Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
+  gibct_filter_enhancement:
+    actor_type: user
+    description: >
+      Comparison Tool Filter Enhancements to improve usability
+  debt_letters_show_letters:
+    actor_type: user
+    description: >
+      Enables debt letters
+  gibct_ch33_benefit_rate_update:
+    actor_type: user
+    description: >
+      Update to Chapter 33/Post-9/11 GI Bill benefit rates set to go live 8/1
+  show_edu_benefits_5495_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 5495 introduction page
+  show_edu_benefits_1995_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 1995 introduction page
+  show_edu_benefits_1990n_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 1990N introduction page
+  show_edu_benefits_0994_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 0994 introduction page
+  show_edu_benefits_5490_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 5490 introduction page
+  show_edu_benefits_1990_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 1990 introduction page
+  show_edu_benefits_1990e_wizard:
+    actor_type: user
+    description: >
+     This determines when the wizard should show up on the 1990e introduction page
+  get_help_ask_form:
+    actor_type: user
+    description: >
+      Enables inquiry form for users to submit questions, suggestions, and complaints.
+  show_healthcare_experience_questionnaire:
+    actor_type: cookie_id
+    description: >
+      Enables showing the pre-appointment questionnaire feature.
+  stem_sco_email:
+    actor_type: user
+    description: >
+      Enable/disable SCO email per environment
+  show_526_wizard:
+    acto_type: user
+    description: >
+      This determines when the wizard should show up on the form 526 intro page
+  show_new_get_medical_records_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/get-medical-records/
+  show_new_refill_track_prescriptions_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
+  show_new_schedule_view_appointments_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
+  show_new_secure_messaging_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
+  show_new_view_test_lab_results_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+
