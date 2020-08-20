@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'oidc/key_service'
 
 RSpec.describe OIDC::KeyService do
+  let(:expected_iss) { 'https://example.com/oauth2/default' }
+
   describe '::fetch_keys' do
     it 'pulls keys from the specified metadata endpoint' do
       with_settings(
