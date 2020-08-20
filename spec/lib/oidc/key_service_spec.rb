@@ -16,7 +16,7 @@ RSpec.describe OIDC::KeyService do
       ) do
         with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
           VCR.use_cassette('okta/keys') do
-            out = described_class.fetch_keys('https://example.com/oauth2/default')
+            out = described_class.fetch_keys
             expect(out['keys'].count).to eq(1)
           end
         end
@@ -31,7 +31,7 @@ RSpec.describe OIDC::KeyService do
 
     it 'returns the current key if it already exists' do
       described_class.instance_variable_set(:@current_keys, 'key' => 'key')
-      expect(described_class.get_key('key')).to eq 'key'
+      expect(described_class.get_key('key', anything)).to eq 'key'
     end
 
     it 'avoids upstream requests for repeated bad kids' do
