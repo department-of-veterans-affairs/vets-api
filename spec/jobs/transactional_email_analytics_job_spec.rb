@@ -86,7 +86,6 @@ RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
         .collect { |mailer| %r{app/mailers/(.*)\.rb}.match(mailer)[1] }
         .map { |mailer_name| mailer_name.camelize.constantize }
 
-      # the .mailers method should match TransactionalEmailMailer.descendants
       expect(TransactionalEmailAnalyticsJob.mailers).to match_array(TransactionalEmailMailer.descendants)
     end
   end
