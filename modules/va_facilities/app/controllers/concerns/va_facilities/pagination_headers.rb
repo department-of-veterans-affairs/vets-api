@@ -2,7 +2,7 @@
 
 # Implements GitHub-style Link header for pagination.
 # URL derivation heavily cribbed from ActiveModelSerializers::Adapter::JsonApi
-module VAFacilities
+module VaFacilities
   module PaginationHeaders
     extend ActiveSupport::Concern
 
