@@ -10,7 +10,6 @@ module Okta
     API_BASE_PATH = '/api/v1'
     USER_API_BASE_PATH = "#{API_BASE_PATH}/users"
     APP_API_BASE_PATH = "#{API_BASE_PATH}/apps"
-    APP_API_WITH_LIMIT_AND_STATUS = "#{APP_API_BASE_PATH}/?limit=200%filter=status+eq+\"Active\""
 
     configuration Okta::Configuration
 
@@ -20,8 +19,6 @@ module Okta
         req.headers['Content-Type'] = 'application/json'
         req.headers['Accept'] = 'application/json'
         req.headers['Authorization'] = "SSWS #{Settings.oidc.base_api_token}" 
-
-        #req.headers['Authorization'] = "SSWS 00qMKUobx_ACftIwcqZwvD6FEQKxGX9IIUoyHJzR1l "
       end
     end
 
@@ -31,13 +28,9 @@ module Okta
       end
     end
     
-    def get_apps(url="")
+    def get_apps(url)
       with_monitoring do
-        if url
-          get_url_with_token(url)
-        else
-          get_url_with_token("#{APP_API_WITH_LIMIT_AND_STATUS}")
-        end
+        get_url_with_token(url)
       end
     end
 
