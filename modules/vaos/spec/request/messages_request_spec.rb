@@ -47,7 +47,7 @@ RSpec.describe 'vaos appointment request messages', type: :request do
         end
       end
 
-      it 'has access and returns messages when camel-inflected', :skip_mvi do
+      it 'has access and returns messages when camel-inflected', :skip_mpi do
         VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[method uri]) do
           get "/vaos/v0/appointment_requests/#{request_id}/messages", headers: { 'X-Key-Inflection' => 'camel' }
 
