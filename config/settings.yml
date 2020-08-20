@@ -398,7 +398,7 @@ oidc:
   audience: ~
   isolated_audience:
     default: ~
-    verification: ~
+    veteran_verification: ~
   base_api_url: https://example.com
   base_api_token: ~
 
