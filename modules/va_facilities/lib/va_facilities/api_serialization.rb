@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VAFacilities
+module VaFacilities
   module ApiSerialization
     module_function
 
