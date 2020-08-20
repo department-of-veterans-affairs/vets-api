@@ -107,13 +107,8 @@ module V1
     end
 
     def user_login(saml_response)
-      begin
-        user_session_form = UserSessionForm.new(saml_response)
-        raise_saml_error(user_session_form) unless user_session_form.valid?
-      rescue SAML::UserAttributeError => e
-        login_stats(:failure, saml_response, e)
-        raise
-      end
+      user_session_form = UserSessionForm.new(saml_response)
+      raise_saml_error(user_session_form) unless user_session_form.valid?
 
       @current_user, @session_object = user_session_form.persist
       set_cookies
@@ -247,6 +242,7 @@ module V1
                               code = '007', tag = nil)
       log_message_to_sentry(exc.message, level, extra_context: context)
       redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code)
+      login_stats(:failure, response, exc)
       callback_stats(status, response, tag || code)
       PersonalInformationLog.create(
         error_class: exc,

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class JWT
+  class JwtWrapper
     VERSION = 2.1
     ISS = 'gov.va.vaos'
     ID_TYPE = 'ICN'
@@ -14,7 +14,7 @@ module VAOS
     end
 
     def token
-      ::JWT.encode(payload, Configuration.instance.rsa_key, 'RS512')
+      JWT.encode(payload, Configuration.instance.rsa_key, 'RS512')
     end
 
     private

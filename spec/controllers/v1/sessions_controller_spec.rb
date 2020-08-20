@@ -409,7 +409,7 @@ RSpec.describe V1::SessionsController, type: :controller do
     describe 'GET sessions/slo/new' do
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
       end
@@ -747,7 +747,11 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'when saml response contains multiple errors (known or otherwise)' do
-        before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_multi_error) }
+        let(:multi_error_uuid) { '2222' }
+
+        before do
+          allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_multi_error(multi_error_uuid))
+        end
 
         it 'logs a generic error' do
           expect(controller).to receive(:log_message_to_sentry)
@@ -771,13 +775,21 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
+          SAMLRequestTracker.create(
+            uuid: multi_error_uuid,
+            payload: { type: 'idme' }
+          )
           callback_tags = ['status:failure', 'context:unknown', 'version:v1']
-          failed_tags = ['error:clicked_deny', 'version:v1']
+          callback_failed_tags = ['error:clicked_deny', 'version:v1']
+          login_failed_tags = ['context:idme', 'version:v1', 'error:001']
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
+            .and trigger_statsd_increment(
+              described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: callback_failed_tags, **once
+            )
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
         end
       end
 
