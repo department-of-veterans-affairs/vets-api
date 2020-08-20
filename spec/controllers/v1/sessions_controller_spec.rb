@@ -738,6 +738,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
+
+        it 'captures the invalid saml response in a PersonalInformationLog' do
+          post(:saml_callback)
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! Other SAML Response Error(s)')
+        end
       end
 
       context 'when saml response contains multiple errors (known or otherwise)' do
@@ -849,6 +855,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+
+        it 'captures the invalid saml response in a PersonalInformationLog' do
+          post(:saml_callback)
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! on User/Session Validation')
         end
       end
 
