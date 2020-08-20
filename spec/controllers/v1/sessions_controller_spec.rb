@@ -106,7 +106,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
-                                              tags: ["context:#{authn}", 'version:v1'], **once)
+                                              tags: ["type:#{type}", "context:#{authn}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -617,7 +617,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'counts the triggered SAML request' do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
-                                         tags: ["context:#{LOA::IDME_LOA3}", 'version:v1'], **once)
+                                         tags: ["type:", "context:#{LOA::IDME_LOA3}", 'version:v1'], **once)
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
