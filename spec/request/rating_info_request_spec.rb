@@ -31,6 +31,14 @@ RSpec.describe 'rating info', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+
+      it 'returns a forbidden response when camel-inflected' do
+        VCR.use_cassette('evss/disability_compensation_form/rating_info_403') do
+          get '/v0/disability_compensation_form/rating_info', headers: { 'X-Key-Inflection' => 'camel' }
+          expect(response).to have_http_status(:forbidden)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
   end
 end

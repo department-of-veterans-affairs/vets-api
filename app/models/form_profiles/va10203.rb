@@ -26,7 +26,7 @@ class FormProfiles::VA10203 < FormProfile
   def prefill(user)
     authorized = user.authorize :evss, :access?
 
-    if authorized
+    if Flipper.enabled?(:stem_sco_email) && authorized
       gi_bill_status = get_gi_bill_status(user)
       @remaining_entitlement = initialize_entitlement_information(gi_bill_status)
       @school_information = initialize_school_information(gi_bill_status)
@@ -72,13 +72,13 @@ class FormProfiles::VA10203 < FormProfile
 
     return {} if most_recent.blank?
 
-    service = GI::Client.new
+    service = GIDSRedis.new
     profile_response = service.get_institution_details({ id: most_recent.facility_code })
 
     VA10203::FormInstitutionInfo.new(
-      name: profile_response.body[:data][:attributes][:name],
-      city: profile_response.body[:data][:attributes][:city],
-      state: profile_response.body[:data][:attributes][:state]
+      name: profile_response[:data][:attributes][:name],
+      city: profile_response[:data][:attributes][:city],
+      state: profile_response[:data][:attributes][:state]
     )
   rescue => e
     Rails.logger.error "Failed to retrieve GIDS data: #{e.message}"
