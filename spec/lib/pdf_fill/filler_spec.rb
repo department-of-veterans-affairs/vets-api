@@ -43,10 +43,34 @@ describe PdfFill::Filler, type: :model do
 
   describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
     [
-      { form_id: '21P-530', factory: :burial_claim },
-      { form_id: '21P-527EZ', factory: :pension_claim },
-      { form_id: '10-10CG', factory: :caregivers_assistance_claim, fixture_path: 'pdf_fill/10-10CG' },
-      { form_id: '686C-674', factory: :dependency_claim }
+      {
+        form_id: '21P-530',
+        factory: :burial_claim
+      },
+      {
+        form_id: '21P-527EZ',
+        factory: :pension_claim
+      },
+      {
+        form_id: '10-10CG',
+        factory: :caregivers_assistance_claim,
+        fixture_path: 'pdf_fill/10-10CG/unsigned',
+        fill_options: {
+          sign: false
+        }
+      },
+      {
+        form_id: '10-10CG',
+        factory: :caregivers_assistance_claim,
+        fixture_path: 'pdf_fill/10-10CG/signed',
+        fill_options: {
+          sign: true
+        }
+      },
+      {
+        form_id: '686C-674',
+        factory: :dependency_claim
+      }
     ].each do |form_id:, factory:, **options|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
@@ -74,7 +98,7 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
-              file_path = described_class.fill_form(saved_claim)
+              file_path = described_class.fill_form(saved_claim, nil, options[:fill_options])
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
