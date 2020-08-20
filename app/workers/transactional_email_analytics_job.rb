@@ -36,16 +36,14 @@ class TransactionalEmailAnalyticsJob
     end
   end
 
-  # constantize all the mailers so TransactionalEmailMailer.descendants has something
-  def self.all_mailers
+  # mailers descendant of TransactionalEmailMailer
+  # these are declared explicitly because `.descendants` doesn't play well with zeitwerk autoloading
+  def self.mailers
     [
-      FailedClaimsReportMailer,
-      SpoolSubmissionsReportMailer,
-      TransactionalEmailMailer,
-      ApplicationMailer,
+      StemApplicantConfirmationMailer,
+      SchoolCertifyingOfficialsMailer,
       DirectDepositMailer,
-      HCASubmissionFailureMailer,
-      YearToDateReportMailer
+      HCASubmissionFailureMailer
     ]
   end
 
@@ -63,7 +61,7 @@ class TransactionalEmailAnalyticsJob
       page_size: 50
     )
 
-    grouped_emails = TransactionalEmailMailer.descendants.index_with { |_mailer| [] }
+    grouped_emails = TransactionalEmailAnalyticsJob.mailers.index_with { |_mailer| [] }
 
     @all_emails.collection.each do |email|
       created_at = Time.zone.parse(email.created_at)
