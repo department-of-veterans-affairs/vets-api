@@ -18,7 +18,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
-  c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
+  c.filter_sensitive_data('<MPI_URL>') { Settings.mvi.url }
   c.filter_sensitive_data('<OKTA_TOKEN>') { Settings.oidc.base_api_token }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<PENSIONS_TOKEN>') { Settings.central_mail.upload.token }
