@@ -552,6 +552,12 @@ en:
         code: 'VAOS_502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
+      HEALTH_QUEST_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'HEALTH_QUEST_502'
+        detail: 'Received an an invalid response from the upstream server'
+        status: 502  
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway

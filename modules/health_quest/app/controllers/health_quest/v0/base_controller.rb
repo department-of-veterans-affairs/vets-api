@@ -1,40 +1,24 @@
+
 # frozen_string_literal: true
 
 module HealthQuest
-  module V1
-    # Base controller for all FHIR (DSTU 2) resources.
-    # Overrides the main ApplicationController's render_errors method
-    # to wrap errors in FHIR Operation Outcomes.
-    #
-    # @example Create a controller for the Organization resource
-    #   module VOAS
-    #     module V1
-    #       class OrganizationsController < BaseController
-    #         def index...
-    #
-    class BaseController < HealthQuest::V0::BaseController
+  module V0
+    class BaseController < ::ApplicationController
       before_action :authorize
 
-      private
+      protected
 
-      def fhir_service
-        VAOS::V1::FHIRService.new(
-          resource_type: controller_name.capitalize.camelize.singularize.to_sym,
-          user: current_user
-        )
+      def authorize
+          raise_access_denied unless current_user.authorize(:health_quest, :access?)
+          raise_access_denied_no_icn if current_user.icn.blank?
       end
 
-      def render_errors(va_exception)
-        resource_type = controller_name.singularize.capitalize
-        id = params[:id]
-        operation_outcome = VAOS::V1::OperationOutcome.new(
-          resource_type: resource_type,
-          id: id,
-          issue: va_exception
-        )
+      def raise_access_denied
+        raise Common::Exceptions::Forbidden, detail: 'You do not have access to online scheduling'
+      end
 
-        serializer = VAOS::V1::OperationOutcomeSerializer.new(operation_outcome)
-        render json: serializer.serialized_json, status: va_exception.status_code
+      def raise_access_denied_no_icn
+        raise Common::Exceptions::Forbidden, detail: 'No patient ICN found'
       end
     end
   end

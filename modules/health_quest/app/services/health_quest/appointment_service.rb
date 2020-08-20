@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 module HealthQuest
   class AppointmentService < HealthQuest::SessionService
@@ -13,9 +14,7 @@ module HealthQuest
       end
     end
 
-
     private
-
 
     def deserialized_appointments(json_hash, type)
       appointment_list = if type == 'va'

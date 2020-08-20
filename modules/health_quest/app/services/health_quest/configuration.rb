@@ -23,8 +23,8 @@ module HealthQuest
       end
     end
 
-    def mock_enabled?
-      [true, 'true'].include?(Settings.healthquest.mock)
+    def mock_enabled?      
+      [true, 'true'].include?(Settings.va_mobile.mock)
     end
   end
 end
