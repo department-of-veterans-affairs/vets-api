@@ -623,7 +623,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to identity proof URL', :aggregate_failures do
           Timecop.freeze(Time.current)
           expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).and_return(true)
-          expect_any_instance_of(SAML::PostURLService).to receive(:verify_url)
+          expect_any_instance_of(SAML::PostURLService).to receive(:verify_url).and_return(['http://uplevel', {}])
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
           post :saml_callback

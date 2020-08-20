@@ -219,13 +219,13 @@ module V1
       when :success
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:success',
-                                "context:#{saml_response.authn_context}",
+                                "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
         # track users who have a shared sso cookie
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure',
-                                "context:#{saml_response.authn_context}",
+                                "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag, VERSION_TAG])
       when :failed_unknown
@@ -242,7 +242,7 @@ module V1
                               code = '007', tag = nil)
       log_message_to_sentry(exc.message, level, extra_context: context)
       redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code)
-      login_stats(:failure, response, exc)
+      login_stats(:failure, response, exc) unless response.nil?
       callback_stats(status, response, tag || code)
       PersonalInformationLog.create(
         error_class: exc,
