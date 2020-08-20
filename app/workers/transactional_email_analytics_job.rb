@@ -44,7 +44,7 @@ class TransactionalEmailAnalyticsJob
       TransactionalEmailMailer,
       ApplicationMailer,
       DirectDepositMailer,
-      HcaSubmissionFailureMailer,
+      HCASubmissionFailureMailer,
       YearToDateReportMailer
     ]
   end
