@@ -6,26 +6,6 @@ require 'oidc/key_service'
 RSpec.describe OIDC::KeyService do
   let(:expected_iss) { 'https://example.com/oauth2/default' }
 
-  describe '::fetch_keys' do
-    it 'pulls keys from the specified metadata endpoint' do
-      with_settings(
-        Settings.oidc,
-        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-        issuer: 'https://example.com/oauth2/default',
-        issuer_prefix: 'https://example.com/oauth2',
-        base_api_url: 'https://example.com/api/v1/',
-        base_api_token: 'token'
-      ) do
-        with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
-          VCR.use_cassette('okta/keys') do
-            out = described_class.fetch_keys
-            expect(out['keys'].count).to eq(1)
-          end
-        end
-      end
-    end
-  end
-
   describe '::get_key' do
     after do
       described_class.reset!
