@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :va_form, class: 'VAForms::Form' do
+  factory :va_form, class: 'VaForms::Form' do
     form_name { '526ez' }
     url { 'https://va.gov/va_form/21-526ez.pdf' }
     title { 'Disability Compensation' }
