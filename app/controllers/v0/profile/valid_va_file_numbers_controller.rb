@@ -2,7 +2,7 @@
 
 module V0
   module Profile
-    class ValidVAFileNumbersController < ApplicationController
+    class ValidVaFileNumbersController < ApplicationController
       before_action { authorize :bgs, :access? }
 
       def show
@@ -11,7 +11,7 @@ module V0
 
         render(
           json: valid_va_file_number_data(response),
-          serializer: ValidVAFileNumberSerializer
+          serializer: ValidVaFileNumberSerializer
         )
       end
 
