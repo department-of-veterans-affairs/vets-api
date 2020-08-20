@@ -151,7 +151,7 @@ module MPI
       when MPI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user_identity.mhv_icn.present?
-          log_message_to_sentry("MVI Invalid Request (Possible RecordNotFound) #{source}", :error)
+          log_message_to_sentry("MPI Invalid Request (Possible RecordNotFound) #{source}", :error)
         else
           log_message_to_sentry('MPI Invalid Request', :error)
         end
