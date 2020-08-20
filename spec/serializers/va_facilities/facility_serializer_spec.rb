@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VAFacilities::FacilitySerializer, type: :serializer do
+RSpec.describe VaFacilities::FacilitySerializer, type: :serializer do
   subject { serialize(facility, serializer_class: described_class) }
 
   let(:facility) { build :vha_648A4 }
