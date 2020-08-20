@@ -45,14 +45,18 @@ describe PdfFill::Filler, type: :model do
     [
       { form_id: '21P-530', factory: :burial_claim },
       { form_id: '21P-527EZ', factory: :pension_claim },
-      { form_id: '10-10CG', factory: :caregivers_assistance_claim },
+      { form_id: '10-10CG', factory: :caregivers_assistance_claim, fixture_path: 'pdf_fill/10-10CG' },
       { form_id: '686C-674', factory: :dependency_claim }
-    ].each do |form_id:, factory:|
+    ].each do |form_id:, factory:, **options|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
+            let(:fixture_path) do
+              options[:fixture_path] || "pdf_fill/#{form_id}"
+            end
+
             let(:form_data) do
-              get_fixture("pdf_fill/#{form_id}/#{type}")
+              get_fixture("#{fixture_path}/#{type}")
             end
 
             let(:saved_claim) do
@@ -76,14 +80,14 @@ describe PdfFill::Filler, type: :model do
                 extras_path = the_extras_generator.generate
 
                 expect(
-                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                  FileUtils.compare_file(extras_path, "spec/fixtures/#{fixture_path}/overflow_extras.pdf")
                 ).to eq(true)
 
                 File.delete(extras_path)
               end
 
               expect(
-                pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+                pdfs_fields_match?(file_path, "spec/fixtures/#{fixture_path}/#{type}.pdf")
               ).to eq(true)
 
               File.delete(file_path)
