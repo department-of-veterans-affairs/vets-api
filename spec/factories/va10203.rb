@@ -17,6 +17,7 @@ FactoryBot.define do
         schoolName: 'School Name',
         schoolCity: 'Test',
         schoolState: 'TN',
+        schoolCountry: 'USA',
         schoolEmailAddress: 'test@edu_sample.com',
         schoolStudentId: '01010101',
         isActiveDuty: true,
