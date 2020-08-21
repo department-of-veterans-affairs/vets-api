@@ -31,5 +31,7 @@ class Form526ConfirmationEmailJob
   def handle_errors(ex)
     log_exception_to_sentry(ex)
     StatsD.increment(STATSD_ERROR_NAME)
+
+    raise ex if ex.code.between?(500, 599)
   end
 end

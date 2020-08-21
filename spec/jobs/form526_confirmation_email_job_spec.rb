@@ -54,7 +54,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
                         })
       end
 
-      it 'handles errors when sending an email' do
+      it 'handles 4xx errors when sending an email' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
 
         error_response = double(code: 404, body: 'an error')
@@ -70,6 +70,25 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         expect(subject).to receive(:log_exception_to_sentry).with(error)
         expect { subject.perform(personalization_parameters) }
           .to trigger_statsd_increment('worker.form526_confirmation_email.error')
+      end
+
+      it 'handles 5xx errors when sending an email' do
+        allow(Notifications::Client).to receive(:new).and_return(notification_client)
+
+        error_response = double(code: 500, body: 'a retryable error')
+        error = Notifications::Client::RequestError.new(error_response)
+        allow(notification_client).to receive(:send_email).and_raise(error)
+
+        personalization_parameters = {
+          'email' => @email_address,
+          'submitted_claim_id' => '600191990',
+          'date_submitted' => 'July 12, 2020',
+          'full_name' => 'first last'
+        }
+        expect(subject).to receive(:log_exception_to_sentry).with(error)
+        expect { subject.perform(personalization_parameters) }
+          .to raise_error(Notifications::Client::RequestError)
+          .and trigger_statsd_increment('worker.form526_confirmation_email.error')
       end
 
       it 'returns one job triggered' do
