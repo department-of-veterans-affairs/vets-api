@@ -241,7 +241,9 @@ module V1
     def handle_callback_error(exc, status, response, level = :error, context = {},
                               code = '007', tag = nil)
       log_message_to_sentry(exc.message, level, extra_context: context)
-      redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code)
+      unless performed?
+        redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code)
+      end
       login_stats(:failure, response, exc) unless response.nil?
       callback_stats(status, response, tag || code)
       PersonalInformationLog.create(
