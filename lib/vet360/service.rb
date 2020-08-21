@@ -2,8 +2,8 @@
 
 require 'common/client/base'
 require 'common/client/errors'
-require 'common/exceptions/external/backend_service_exception'
-require 'common/exceptions/internal/forbidden'
+require 'common/exceptions/backend_service_exception'
+require 'common/exceptions/forbidden'
 require_relative 'exceptions/parser'
 require_relative 'models/message'
 require_relative 'stats'

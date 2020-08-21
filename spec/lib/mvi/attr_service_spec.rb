@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mvi/attr_service'
 
 describe MVI::AttrService do
   describe '#find_profile' do

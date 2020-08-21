@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/internal/validation_errors'
+require 'common/exceptions/validation_errors'
 require 'evss/pciu/service'
 require 'evss/pciu/phone_number'
 

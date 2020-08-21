@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
+require 'mvi/responses/find_profile_response'
 
 def stub_mvi(profile = nil)
   profile ||= build(:mvi_profile)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/internal/forbidden'
+require 'common/exceptions/forbidden'
 
 module Common
   module Exceptions

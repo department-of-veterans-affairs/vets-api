@@ -11,7 +11,7 @@
 # Current subclasses are PensionClaim and BurialClaim.
 
 require 'pension_burial/tag_sentry'
-require 'common/exceptions/internal/validation_errors'
+require 'common/exceptions/validation_errors'
 
 class ClaimsBaseController < ApplicationController
   skip_before_action(:authenticate)

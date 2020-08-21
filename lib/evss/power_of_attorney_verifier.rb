@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/internal/unauthorized'
+require 'common/exceptions/unauthorized'
 require_relative 'auth_headers'
 
 module EVSS
