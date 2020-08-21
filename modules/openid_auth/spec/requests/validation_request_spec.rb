@@ -72,10 +72,38 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
   end
 
+  context 'with valid responses' do
+    before do
+      allow(JWT).to receive(:decode).and_return(jwt)
+      Session.create(token: token, uuid: user.uuid)
+      user.save
+    end
+
+    it 'returns true if the user is a veteran' do
+      with_okta_configured do
+        post '/internal/auth/v1/validation', params: nil, headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
+      end
+    end
+  end
+
   context 'when token is unauthorized' do
     it 'returns an unauthorized for bad token', :aggregate_failures do
       with_okta_configured do
         get '/internal/auth/v0/validation', params: nil, headers: auth_header
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+      end
+    end
+  end
+
+  context 'when token is unauthorized' do
+    it 'returns an unauthorized for bad token', :aggregate_failures do
+      with_okta_configured do
+        post '/internal/auth/v1/validation', params: nil, headers: auth_header
 
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
@@ -94,6 +122,16 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       allow_any_instance_of(OpenidAuth::ValidationSerializer).to receive(:attributes).and_raise(StandardError, 'random')
       with_okta_configured do
         get '/internal/auth/v0/validation', params: nil, headers: auth_header
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '500'
+      end
+    end
+
+    it 'returns a server error if serialization fails', :aggregate_failures do
+      allow_any_instance_of(OpenidAuth::ValidationSerializer).to receive(:attributes).and_raise(StandardError, 'random')
+      with_okta_configured do
+        post '/internal/auth/v1/validation', params: nil, headers: auth_header
 
         expect(response).to have_http_status(:internal_server_error)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '500'
