@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 require 'notifications/client'
+require 'sentry_logging'
 
 class Form526ConfirmationEmailJob
   include Sidekiq::Worker
+  include SentryLogging
   sidekiq_options expires_in: 1.day
 
   STATSD_ERROR_NAME = 'worker.form526_confirmation_email.error'
 
-  def perform(id, personalization_parameters)
+  def perform(personalization_parameters)
     @notify_client ||= Notifications::Client.new(
       Settings.vanotify.api_key,
       Settings.vanotify.client_url
@@ -23,10 +25,11 @@ class Form526ConfirmationEmailJob
       }
     )
   rescue => e
-    Rails.logger.error(
-      "Error performing Form526ConfirmationEmailJob: #{e.message}",
-      submission_id: id
-    )
+    handle_errors(e)
+  end
+
+  def handle_errors(ex)
+    log_exception_to_sentry(ex)
     StatsD.increment(STATSD_ERROR_NAME)
   end
 end

@@ -143,7 +143,7 @@ class Form526Submission < ApplicationRecord
       'date_submitted' => created_at.strftime('%B %-d, %Y'),
       'full_name' => full_name
     }
-    Form526ConfirmationEmailJob.perform_async(id, personalization_parameters)
+    Form526ConfirmationEmailJob.perform_async(personalization_parameters)
   end
 
   private
