@@ -10,4 +10,3 @@ module HealthQuest
     end
   end
 end
-

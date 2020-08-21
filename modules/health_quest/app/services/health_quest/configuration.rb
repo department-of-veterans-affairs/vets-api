@@ -3,11 +3,11 @@
 module HealthQuest
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      Settings.healthquest.url
+      Settings.hqva_mobile.url
     end
 
     def service_name
-      'HEALTHQUEST/HelloWorld'
+      'HEALTHQUEST'
     end
 
     def connection
@@ -23,7 +23,7 @@ module HealthQuest
       end
     end
 
-    def mock_enabled?      
+    def mock_enabled?
       [true, 'true'].include?(Settings.va_mobile.mock)
     end
   end

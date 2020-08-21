@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 module HealthQuest
@@ -9,8 +8,8 @@ module HealthQuest
       protected
 
       def authorize
-          raise_access_denied unless current_user.authorize(:health_quest, :access?)
-          raise_access_denied_no_icn if current_user.icn.blank?
+        raise_access_denied unless current_user.authorize(:health_quest, :access?)
+        raise_access_denied_no_icn if current_user.icn.blank?
       end
 
       def raise_access_denied

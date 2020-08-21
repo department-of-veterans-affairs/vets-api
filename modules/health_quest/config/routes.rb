@@ -8,5 +8,5 @@ HealthQuest::Engine.routes.draw do
 
   namespace :v1, defaults: { format: :json } do
     get '/Appointment/', to: 'appointments#index'
-  end  
+  end
 end
