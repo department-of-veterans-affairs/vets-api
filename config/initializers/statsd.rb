@@ -43,6 +43,8 @@ LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
     V1::SessionsController::REDIRECT_URLS.each do |t|
       StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
                        tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLRESPONSE_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
     end
   end
   LOGIN_ERRORS.each do |err|

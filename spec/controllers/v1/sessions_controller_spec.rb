@@ -343,12 +343,14 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'logs a status failure stat' do
           SAMLRequestTracker.create(
             uuid: login_uuid,
-            payload: { type: 'mhv' }
+            payload: { type: 'idme' }
           )
           expect(controller).to receive(:log_message_to_sentry)
-          expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
-                                         tags: ['context:mhv', 'version:v1', 'error:101'])
+          expect { post(:saml_callback, params: { RelayState: '{"type": "idme"}'} ) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLRESPONSE_KEY,
+                                         tags: ['type:idme', 'context:http://idmanagement.gov/ns/assurance/loa/1/vets', 'version:v1'])
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
+                                         tags: ['context:idme', 'version:v1', 'error:101'])
 
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
