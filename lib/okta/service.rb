@@ -47,9 +47,9 @@ module Okta
     end
 
     def metadata(iss)
-      proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url)
+      proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
       with_monitoring do
-        get_url_with_token(proxied_iss + '/oauth2/.well-known/openid-configuration')
+        get_url_with_token(proxied_iss + '/.well-known/openid-configuration')
       end
     end
 
