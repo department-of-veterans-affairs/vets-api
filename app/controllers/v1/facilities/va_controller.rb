@@ -10,13 +10,13 @@ class V1::Facilities::VaController < FacilitiesController
   def index
     api_results = api.get_facilities(lighthouse_params)
 
-    render_collection(serializer, api_results)
+    render_json(serializer, lighthouse_params, api_results)
   end
 
   def show
     api_result = api.get_by_id(params[:id])
 
-    render_json(serializer, api_result)
+    render_json(serializer, lighthouse_params, api_result)
   end
 
   private

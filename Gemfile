@@ -11,6 +11,7 @@ gem 'websocket-extensions', '>= 0.1.5'
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
+gem 'covid_research', path: 'modules/covid_research'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
 gem 'va_forms', path: 'modules/va_forms'
@@ -131,6 +132,8 @@ group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
   gem 'fakeredis'
+  gem 'pact', require: false
+  gem 'pact-mock_service', require: false
   gem 'pdf-inspector'
   gem 'rspec-retry'
   gem 'rspec_junit_formatter'
@@ -156,6 +159,7 @@ group :development, :test do
   gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
+  gem 'faraday_adapter_socks'
   gem 'faraday_curl'
   gem 'fuubar'
   gem 'guard-rspec', '~> 4.7'

@@ -42,8 +42,7 @@ namespace :form526 do
       version = 'version 1: IO'
       submission.form526_job_statuses.each do |job_status|
         version = 'version 2: AC' if job_status.job_class == 'SubmitForm526AllClaim'
-        if (job_status.job_class == 'SubmitForm526IncreaseOnly' || job_status.job_class == 'SubmitForm526AllClaim') &&
-           job_status.error_message.present?
+        if job_status.job_class == 'SubmitForm526AllClaim' && job_status.error_message.present?
           job_status.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         end
       end
@@ -169,7 +168,7 @@ namespace :form526 do
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
                       job_status.error_class != 'Common::Exceptions::BackendServiceException'
-                     job_status.error_message.scan(MSGS_REGEX)
+                     job_status.error_message.gsub('\\', '').scan(MSGS_REGEX)
                    else
                      [[job_status.error_message]]
                    end
@@ -242,15 +241,5 @@ namespace :form526 do
       puts JSON.pretty_generate(saved_claim_form)
       puts "\n\n"
     end
-  end
-
-  desc 'update all disability compensation claims to have the correct type'
-  task update_types: :environment do
-    # `update_all` is being used because the `type` field will reset to `SavedClaim::DisabilityCompensation`
-    # if a `claim.save` is done
-    # rubocop:disable Rails/SkipsModelValidations
-    SavedClaim::DisabilityCompensation.where(type: 'SavedClaim::DisabilityCompensation')
-                                      .update_all(type: 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly')
-    # rubocop:enable Rails/SkipsModelValidations
   end
 end

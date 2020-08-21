@@ -23,8 +23,25 @@ RSpec.describe Debts::Service do
           'debts/get_letters_empty_ssn',
           VCR::MATCH_EVERYTHING
         ) do
-          res = described_class.new.get_letters(fileNumber: '')
-          expect(JSON.parse(res.to_json)['message']).to eq('Bad request')
+          expect(StatsD).to receive(:increment).once.with(
+            'api.debts.get_letters.fail', tags: [
+              'error:Common::Client::Errors::ClientError', 'status:400'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.debts.get_letters.total'
+          )
+          expect(Raven).to receive(:tags_context).once.with(external_service: described_class.to_s.underscore)
+          expect(Raven).to receive(:extra_context).once.with(
+            url: "#{Settings.debts.url}/api/v1/debtletter/",
+            message: 'the server responded with status 400',
+            body: { 'message' => 'Bad request' }
+          )
+          expect { described_class.new.get_letters(fileNumber: '') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          ) do |e|
+            expect(e.message).to match(/DEBTS400/)
+          end
         end
       end
     end

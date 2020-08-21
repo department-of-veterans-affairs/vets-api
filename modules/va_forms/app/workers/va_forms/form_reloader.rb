@@ -5,83 +5,94 @@ require 'sidekiq'
 module VaForms
   class FormReloader
     include Sidekiq::Worker
+    include SentryLogging
 
-    BASE_URL = 'https://www.va.gov'
-
-    def initialize
-      @processed_forms = []
-    end
+    FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
-      load_page(current_page: 0)
-      mark_stale_forms
-    end
-
-    def mark_stale_forms
-      processed_form_names = @processed_forms.map { |f| f['form_name'] }
-      missing_forms = VaForms::Form.where.not(form_name: processed_form_names)
-      missing_forms.find_each do |form|
-        form.update(valid_pdf: false)
+      query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
+      body = { query: query }
+      response = connection.post('graphql', body.to_json)
+      forms_data = JSON.parse(response.body)
+      forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
+        build_and_save_form(form)
+      rescue => e
+        log_message_to_sentry(
+          "#{form['fieldVaFormNumber']} failed to import into forms database",
+          :error,
+          body: e.message
+        )
+        next
       end
     end
 
-    def load_page(current_page: 0)
-      params = {}
-      unless current_page.zero?
-        params = {
-          id: 'form2',
-          name: 'form2',
-          'CurrentPage' => current_page,
-          'Next10' => 'Next25 >'
+    def connection
+      basic_auth_class = Faraday::Request::BasicAuthentication
+      @connection ||= Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
+        faraday.request :url_encoded
+        faraday.use basic_auth_class, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
+        faraday.adapter faraday_adapter
+      end
+    end
+
+    def faraday_adapter
+      Rails.env.production? ? Faraday.default_adapter : :net_http_socks
+    end
+
+    def faraday_options
+      options = {
+        ssl: {
+          verify: false
+        }
+      }
+      options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
+      options
+    end
+
+    def build_and_save_form(form)
+      va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
+      attrs = init_attributes(form)
+      url = form['fieldVaFormUrl']['uri']
+      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
+      issued_string = form.dig('fieldVaFormIssueDate', 'value')
+      revision_string = form.dig('fieldVaFormRevisionDate', 'value')
+      attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
+      attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
+      attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
+      va_form.assign_attributes(attrs)
+      va_form = update_sha256(va_form)
+      va_form.save
+      va_form
+    end
+
+    def init_attributes(form)
+      mapped = {
+        title: form['fieldVaFormName'],
+        pages: form['fieldVaFormNumPages'],
+        language: form.dig('langcode', 'value'),
+        form_type: form['fieldVaFormType'],
+        form_usage: form.dig('fieldVaFormUsage', 'processed'),
+        form_tool_intro: form['fieldVaFormToolIntro'],
+        form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
+        deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
+        related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
+        benefit_categories: map_benefit_categories(form['fieldBenefitCategories'])
+      }
+      mapped[:form_details_url] = "#{FORM_BASE_URL}#{form.dig('entityUrl', 'path')}" if form['entityPublished']
+      mapped
+    end
+
+    def map_benefit_categories(categories)
+      categories.map do |field|
+        {
+          name: field.dig('entity', 'fieldHomePageHubLabel'),
+          description: field.dig('entity', 'entityLabel')
         }
       end
-      page = Faraday.new(url: BASE_URL).post(
-        '/vaforms/search_action.asp',
-        params
-      ).body
-      doc = Nokogiri::HTML(page)
-      next_button = doc.css('input[name=Next10]')
-      last_page = next_button.first.attributes['disabled'].present?
-      parse_page(doc)
-      current_page += 1
-      load_page(current_page: current_page) unless last_page
-    end
-
-    def parse_page(doc)
-      doc.xpath('//table/tr').each do |row|
-        parse_table_row(row)
-      end
-    end
-
-    def parse_table_row(row)
-      if row.css('a').try(:first) && (url = row.css('a').first['href'])
-        return if url.starts_with?('#') || url == 'help.asp'
-
-        begin
-          parse_form_row(row, url)
-        rescue
-          Rails.logger.warn "VA Forms could not open #{url}"
-        end
-      end
-    end
-
-    def parse_form_row(line, url)
-      form_name = line.css('a').first.text
-      form = VaForms::Form.find_or_initialize_by form_name: form_name
-      @processed_forms.push(form)
-      current_sha256 = form.sha256
-      form.title = line.css('font').text
-      revision_string = line.css('td:nth-child(4)').text
-      form.last_revision_on = parse_date(line.css('td:nth-child(4)').text) if revision_string.present?
-      form.pages = line.css('td:nth-child(5)').text
-      form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : get_full_url(url)
-      form.url = Addressable::URI.parse(form_url).normalize.to_s
-      form = update_sha256(form)
-      form.save if current_sha256 != form.sha256
     end
 
     def parse_date(date_string)
-      matcher = date_string.split('/').count == 2 ? '%m/%Y' : '%m/%d/%Y'
+      matcher = date_string.split('-').count == 2 ? '%m-%Y' : '%Y-%m-%d'
       Date.strptime(date_string, matcher)
     end
 
@@ -106,8 +117,10 @@ module VaForms
       form
     end
 
-    def get_full_url(url)
-      "#{BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
+    def expand_va_url(url)
+      raise ArgumentError, 'url must start with ./va or ./medical' unless url.starts_with?('./va', './medical')
+
+      "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
   end
 end

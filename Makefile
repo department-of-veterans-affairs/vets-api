@@ -7,16 +7,23 @@ else
     ENV_ARG	 := dev
 endif
 
+ifdef clam
+	FOREMAN_ARG := all=1
+else
+	FOREMAN_ARG := all=1,clamd=0,freshclam=0
+endif
+
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
 SPEC_PATH    := spec/
-DB		     := "bin/rails db:setup db:migrate"
-LINT    	 := "bin/rails lint"
+DB           := "bin/rails db:setup db:migrate"
+LINT         := "bin/rails lint"
 DOWN         := down
 SECURITY     := "bin/rails security"
+PACT         := "RAILS_ENV=test bundle exec rake pact:verify"
 .DEFAULT_GOAL := ci
 
 
@@ -89,6 +96,14 @@ guard:  ## Runs guard
 migrate:  ## Runs the database migrations
 	@$(BASH_DEV) "bin/rails db:migrate"
 
+.PHONY: pact
+pact:
+ifeq ($(ENV_ARG), dev)
+	@$(BASH_DEV) $(PACT)
+else
+	@$(BASH_TEST) $(PACT)
+endif
+
 .PHONY: rebuild
 rebuild: down  ## Stops the docker services and builds the api
 	@$(COMPOSE_DEV) build
@@ -114,5 +129,5 @@ else
 endif
 
 .PHONY: up
-up: db  ## Starts the server and associated services with docker-compose
-	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m all=1,clamd=0,freshclam=0"
+up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV
+	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m ${FOREMAN_ARG}"

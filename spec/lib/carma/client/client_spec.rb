@@ -19,7 +19,6 @@ RSpec.describe CARMA::Client::Client, type: :model do
       payload           = { 'my' => 'data' }
       restforce_client  = double
       response_double   = double
-
       expect(subject).to receive(:get_client).and_return(restforce_client)
       expect(restforce_client).to receive(:post).with(
         '/services/apexrest/carma/v1/1010-cg-submissions',
@@ -31,7 +30,6 @@ RSpec.describe CARMA::Client::Client, type: :model do
       )
 
       expect(response_double).to receive(:body).and_return(:response_token)
-
       response = subject.create_submission(payload)
       expect(response).to eq(:response_token)
     end
@@ -57,9 +55,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
       payload           = { 'my' => 'data' }
       restforce_client  = double
       response_double   = double
-
       expect(subject).to receive(:get_client).and_return(restforce_client)
-
       expect(restforce_client).to receive(:post).with(
         '/services/data/v47.0/composite/tree/ContentVersion',
         payload,
@@ -69,7 +65,6 @@ RSpec.describe CARMA::Client::Client, type: :model do
       )
 
       expect(response_double).to receive(:body).and_return(:response_token)
-
       response = subject.upload_attachments(payload)
       expect(response).to eq(:response_token)
     end

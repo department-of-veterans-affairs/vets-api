@@ -312,9 +312,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/preneeds/burial_forms',
           200,
+          '_headers' => { 'content-type' => 'application/json' },
           '_data' => {
             'application' => attributes_for(:burial_form)
-          }
+          }.to_json
         )
       end
 
@@ -552,12 +553,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
       end
 
-      let(:form526) do
-        File.read(
-          Rails.root.join('spec', 'support', 'disability_compensation_form', 'front_end_submission.json')
-        )
-      end
-
       let(:form526v2) do
         File.read(
           Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
@@ -600,28 +595,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           200,
           headers.merge('params' => '?name_part=arr')
         )
-      end
-
-      it 'supports submitting the form' do
-        allow(EVSS::DisabilityCompensationForm::SubmitForm526)
-          .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
-        expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('evss/intent_to_file/active_compensation') do
-            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-              VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-                expect(subject).to validate(
-                  :post,
-                  '/v0/disability_compensation_form/submit',
-                  200,
-                  headers.update(
-                    '_data' => form526
-                  )
-                )
-              end
-            end
-          end
-        end
       end
 
       it 'supports submitting the v2 form' do
@@ -2668,6 +2641,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         VCR.use_cassette('bgs/claimant_web_service/dependents') do
           expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
         end
+      end
+
+      it 'supports adding a dependency claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          200,
+          headers.merge(
+            '_data' => build(:dependency_claim).parsed_form
+          )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          422,
+          headers.merge(
+            '_data' => {
+              'dependency_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
       end
     end
 

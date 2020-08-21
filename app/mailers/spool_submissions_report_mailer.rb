@@ -3,12 +3,17 @@
 class SpoolSubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Spool submissions report'
   RECIPIENTS = %w[
+    Brian.Grubb@va.gov
     dana.kuykendall@va.gov
     Jennifer.Waltz2@va.gov
+    Joseph.Preisser@va.gov
+    Joseph.Welton@va.gov
     kathleen.dalfonso@va.gov
     lihan@adhocteam.us
+    Lucas.Tickner@va.gov
     Ricardo.DaSilva@va.gov
     shay.norton@va.gov
+    tammy.hurley1@va.gov
   ].freeze
 
   STEM_RECIPIENTS = %w[
@@ -17,14 +22,17 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
   ].freeze
 
   STAGING_RECIPIENTS = %w[
+    Brian.Grubb@va.gov
     Darrell.Neel@va.gov
     Delli-Gatti_Michael@bah.com
+    Joseph.Preisser@va.gov
+    Joseph.Welton@va.gov
     lihan@adhocteam.us
-    Shawkey_Daniel@bah.com
-    sonntag_adam@bah.com
-    Turner_Desiree@bah.com
     Neel_Darrell@bah.com
     shawkey_daniel@bah.com
+    sonntag_adam@bah.com
+    tammy.hurley1@va.gov
+    Turner_Desiree@bah.com
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[

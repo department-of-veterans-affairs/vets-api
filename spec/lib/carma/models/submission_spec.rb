@@ -51,6 +51,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
     it 'is accessible' do
       subject.metadata = {
         claim_id: 123,
+        claim_guid: 'my-uuid',
         veteran: {
           icn: 'VET1234',
           is_veteran: true
@@ -69,6 +70,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       # metadata
       expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(123)
+      expect(subject.metadata.claim_guid).to eq('my-uuid')
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
@@ -93,6 +95,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       # metadata
       expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(nil)
+      expect(subject.metadata.claim_guid).to eq(nil)
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq(nil)
@@ -121,6 +124,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         data: expected[:data],
         metadata: {
           claim_id: 123,
+          claim_guid: 'my-uuid',
           veteran: {
             icn: 'VET1234',
             is_veteran: true
@@ -143,6 +147,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       # metadata
       expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(123)
+      expect(subject.metadata.claim_guid).to eq('my-uuid')
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
@@ -172,6 +177,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
+      expect(submission.metadata.claim_guid).to eq(claim.guid)
     end
 
     it 'will override :claim_id when passed in metadata and use claim.id instead' do
@@ -186,6 +192,21 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
+    end
+
+    it 'will override :claim_guid when passed in metadata and use claim.guid instead' do
+      claim = build(:caregivers_assistance_claim)
+
+      submission = described_class.from_claim(claim, claim_guid: 'not-this-claims-guid')
+
+      expect(submission).to be_instance_of(described_class)
+      expect(submission.data).to eq(claim.parsed_form)
+      expect(submission.carma_case_id).to eq(nil)
+      expect(submission.submitted_at).to eq(nil)
+
+      expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
+      expect(submission.metadata.claim_guid).not_to eq('not-this-claims-guid')
+      expect(submission.metadata.claim_guid).to eq(claim.guid)
     end
   end
 
@@ -207,6 +228,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         },
         metadata: {
           claim_id: 123,
+          claim_guid: 'my-uuid',
           veteran: {
             icn: 'VET1234',
             is_veteran: true
@@ -230,6 +252,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           },
           'metadata' => {
             'claimId' => 123,
+            'claimGuid' => 'my-uuid',
             'veteran' => {
               'icn' => 'VET1234',
               'isVeteran' => true
@@ -256,6 +279,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           },
           metadata: {
             claim_id: 123,
+            claim_guid: 'my-uuid',
             veteran: {
               icn: 'VET1234',
               is_veteran: false
@@ -279,6 +303,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
             },
             'metadata' => {
               'claimId' => 123,
+              'claimGuid' => 'my-uuid',
               'veteran' => {
                 'icn' => nil,
                 'isVeteran' => false

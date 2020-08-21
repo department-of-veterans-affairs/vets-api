@@ -10,7 +10,7 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   let(:test_form) do
-    build(:dependents_application).parsed_form
+    build(:dependency_claim).parsed_form
   end
 
   describe '#show' do
@@ -40,21 +40,9 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   describe 'POST create' do
-    subject do
-      post(:create, params: params)
-    end
-
     context 'with valid params' do
-      let(:params) do
-        {
-          dependents_application: {
-            form: test_form.to_json
-          }
-        }
-      end
-
       it 'validates successfully' do
-        subject
+        post(:create, params: test_form)
         expect(response.code).to eq('200')
       end
     end
@@ -62,19 +50,17 @@ RSpec.describe V0::DependentsApplicationsController do
     context 'with invalid params' do
       let(:params) do
         {
-          dependents_application: {
-            form: test_form.except('privacyAgreementAccepted').to_json
-          }
+          dependents_application: {}
         }
       end
 
       it 'shows the validation errors' do
-        subject
+        post(:create, params: params)
 
         expect(response.code).to eq('422')
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            'Veteran address can\'t be blank'
           )
         ).to eq(true)
       end

@@ -46,6 +46,16 @@ RSpec.describe 'vaos appointment request messages', type: :request do
           expect(response).to match_response_schema('vaos/messages')
         end
       end
+
+      it 'has access and returns messages when camel-inflected', :skip_mvi do
+        VCR.use_cassette('vaos/messages/get_messages', match_requests_on: %i[method uri]) do
+          get "/vaos/v0/appointment_requests/#{request_id}/messages", headers: { 'X-Key-Inflection' => 'camel' }
+
+          expect(response).to have_http_status(:success)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('vaos/messages')
+        end
+      end
     end
   end
 

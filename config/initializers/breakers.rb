@@ -46,6 +46,7 @@ services = [
   EMIS::VeteranStatusConfiguration.instance.breakers_service,
   EVSS::ClaimsService.breakers_service,
   EVSS::CommonService.breakers_service,
+  EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service,
   EVSS::DocumentsService.breakers_service,
   EVSS::Letters::Configuration.instance.breakers_service,
   EVSS::PCIUAddress::Configuration.instance.breakers_service,

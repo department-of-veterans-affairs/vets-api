@@ -48,17 +48,17 @@ module MVI
       end
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
-      log_console_and_sentry('MVI add_person connection failed.', :warn)
+      log_message_to_sentry('MVI add_person connection failed.', :warn)
       mvi_add_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
-      log_console_and_sentry("MVI add_person connection failed: #{e.message}", :warn)
+      log_message_to_sentry("MVI add_person connection failed: #{e.message}", :warn)
       mvi_add_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_console_and_sentry("MVI add_person error: #{e.message}", :warn)
+      log_message_to_sentry("MVI add_person error: #{e.message}", :warn)
       mvi_add_exception_response_for('MVI_504', e)
     rescue MVI::Errors::Base => e
       key = get_mvi_error_key(e)
-      mvi_error_handler(user_identity, e)
+      mvi_error_handler(user_identity, e, 'add_person')
       mvi_add_exception_response_for(key, e)
     end
     # rubocop:enable Metrics/MethodLength
@@ -81,16 +81,16 @@ module MVI
       end
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
-      log_console_and_sentry('MVI find_profile connection failed.', :warn)
+      log_message_to_sentry('MVI find_profile connection failed.', :warn)
       mvi_profile_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
-      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
+      log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_console_and_sentry("MVI find_profile error: #{e.message}", :warn)
+      log_message_to_sentry("MVI find_profile error: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue MVI::Errors::Base => e
-      mvi_error_handler(user_identity, e)
+      mvi_error_handler(user_identity, e, 'find_profile')
       if e.is_a?(MVI::Errors::RecordNotFound)
         mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
@@ -142,27 +142,22 @@ module MVI
       )
     end
 
-    def mvi_error_handler(user_identity, e)
+    def mvi_error_handler(user_identity, e, source = '')
       case e
       when MVI::Errors::DuplicateRecords
-        log_console_and_sentry('MVI Duplicate Record', :warn)
+        log_message_to_sentry('MVI Duplicate Record', :warn)
       when MVI::Errors::RecordNotFound
-        log_console_and_sentry('MVI Record Not Found')
+        Rails.logger.info('MVI Record Not Found')
       when MVI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user_identity.mhv_icn.present?
-          log_console_and_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
+          log_message_to_sentry("MVI Invalid Request (Possible RecordNotFound) #{source}", :error)
         else
-          log_console_and_sentry('MVI Invalid Request', :error)
+          log_message_to_sentry('MVI Invalid Request', :error)
         end
       when MVI::Errors::FailedRequestError
-        log_console_and_sentry('MVI Failed Request', :error)
+        log_message_to_sentry('MVI Failed Request', :error)
       end
-    end
-
-    def log_console_and_sentry(message, sentry_classification = nil)
-      Rails.logger.info(message)
-      log_message_to_sentry(message, sentry_classification) if sentry_classification.present?
     end
 
     def logging_context(user_identity)
@@ -189,14 +184,17 @@ module MVI
     # rubocop:enable Layout/LineLength
 
     def message_icn(user)
+      Raven.tags_context(mvi_find_profile: 'icn')
       MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
     end
 
     def message_edipi(user)
+      Raven.tags_context(mvi_find_profile: 'edipi')
       MVI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi).to_xml
     end
 
     def message_user_attributes(user)
+      Raven.tags_context(mvi_find_profile: 'user_attributes')
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
       profile = {
