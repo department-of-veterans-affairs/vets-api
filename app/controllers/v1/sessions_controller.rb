@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'base64'
-require 'saml/url_service'
 require 'saml/errors'
+require 'saml/post_url_service'
+require 'saml/url_service'
 require 'saml/responses/login'
 require 'saml/responses/logout'
 

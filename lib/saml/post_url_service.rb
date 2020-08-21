@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'url_service'
+
 module SAML
   # This class is responsible for providing the requests for the various SSO and SLO endpoints.
   # It provides a similar interface to {SAML::URLService}, but for most endpoints it returns an SSO URL and
