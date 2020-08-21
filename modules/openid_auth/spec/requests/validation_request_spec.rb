@@ -141,7 +141,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     it 'v1 POST returns a not found when va profile returns not found', :aggregate_failures do
       allow_any_instance_of(OpenidUser).to receive(:va_profile_status).and_return('NOT_FOUND')
       with_okta_configured do
-        post '/internal/auth/v0/validation', params: nil, headers: auth_header
+        post '/internal/auth/v1/validation', params: nil, headers: auth_header
 
         expect(response).to have_http_status(:not_found)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '404'
@@ -161,7 +161,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     it 'v1 POST returns a server error when va profile returns server error', :aggregate_failures do
       allow_any_instance_of(OpenidUser).to receive(:va_profile_status).and_return('SERVER_ERROR')
       with_okta_configured do
-        post '/internal/auth/v0/validation', params: nil, headers: auth_header
+        post '/internal/auth/v1/validation', params: nil, headers: auth_header
 
         expect(response).to have_http_status(:bad_gateway)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '502'
