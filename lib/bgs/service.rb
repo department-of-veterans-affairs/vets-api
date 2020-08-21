@@ -15,7 +15,13 @@ module BGS
     def create_proc
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_create(
-          { vnp_proc_type_cd: 'DEPCHG', vnp_proc_state_type_cd: 'Started' }.merge(bgs_auth)
+          {
+            vnp_proc_type_cd: 'DEPCHG',
+            vnp_proc_state_type_cd: 'Started',
+            creatd_dt: Time.current.iso8601,
+            last_modifd_dt: Time.current.iso8601,
+            submtd_dt: Time.current.iso8601
+          }.merge(bgs_auth)
         )
       end
     end
@@ -33,7 +39,10 @@ module BGS
         service.vnp_proc_v2.vnp_proc_update(
           {
             vnp_proc_id: proc_id,
-            vnp_proc_state_type_cd: 'Ready'
+            vnp_proc_state_type_cd: 'Ready',
+            creatd_dt: Time.current.iso8601,
+            last_modifd_dt: Time.current.iso8601,
+            submtd_dt: Time.current.iso8601
           }.merge(bgs_auth)
         )
       end
