@@ -45,7 +45,8 @@ module BGS
           formatted_info['family_relationship_type'],
           {
             marriage_termination_type_code: formatted_info['reason_marriage_ended'],
-            type: 'child'
+            type: 'child',
+            child_prevly_married_ind: formatted_info['ever_married_ind']
           }
         )
       end
