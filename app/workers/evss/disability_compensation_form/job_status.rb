@@ -29,7 +29,7 @@ module EVSS
             error_message: error_message,
             updated_at: Time.now.utc
           }
-          Form526JobStatus.upsert({ job_id: jid }, values)
+          Form526JobStatus.upsert(values, unique_by: :job_id)
 
           Rails.logger.error(
             'Form526 Exhausted', submission_id: submission_id, job_id: jid, error_message: error_message
@@ -109,7 +109,7 @@ module EVSS
         }
         values[:error_class] = error.class if error
         values[:error_message] = error_message(error) if error
-        Form526JobStatus.upsert({ job_id: jid }, values)
+        Form526JobStatus.upsert(values, unique_by: :job_id)
       end
 
       def error_message(error)

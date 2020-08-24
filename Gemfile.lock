@@ -789,7 +789,6 @@ GEM
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
     unicode-display_width (1.7.0)
-    upsert (2.9.10)
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
@@ -965,7 +964,6 @@ DEPENDENCIES
   timecop
   typhoeus
   tzinfo-data
-  upsert
   utf8-cleaner
   va_facilities!
   va_forms!
