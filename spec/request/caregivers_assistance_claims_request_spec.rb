@@ -95,7 +95,6 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
 
-        expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false).twice
 
         VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
@@ -133,7 +132,6 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
         body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
 
-        expect(Flipper).to receive(:enabled?).with(:allow_online_10_10cg_submissions).and_return(true)
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true).twice
 
         VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do

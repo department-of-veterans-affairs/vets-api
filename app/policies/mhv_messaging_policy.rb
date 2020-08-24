@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-MhvMessagingPolicy = Struct.new(:user, :mhv_messaging) do
+MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   SM_ACCOUNT_TYPES = %w[Premium].freeze
 
   def access?

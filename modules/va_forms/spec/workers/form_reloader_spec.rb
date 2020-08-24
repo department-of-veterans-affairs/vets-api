@@ -109,6 +109,10 @@ RSpec.describe VaForms::FormReloader, type: :job do
         expect(@form.form_tool_url).to eq('https://www.va.gov/education/apply-for-education-benefits/application/1995/introduction')
       end
 
+      it 'loads form detail url' do
+        expect(@form.form_details_url).to eq('https://www.va.gov/find-forms/about-form-21-0966')
+      end
+
       it 'sets deleted_at when present' do
         form = job.build_and_save_form(deleted_form)
         expect(form.deleted_at.to_date.to_s).to eq('2020-07-16')

@@ -128,10 +128,10 @@ module SAML
       )
     end
 
-    def saml_response_multi_error
+    def saml_response_multi_error(in_response_to = nil)
       build_invalid_saml_response(
         status_message: 'Subject did not consent to attribute release',
-        in_response_to: uuid,
+        in_response_to: in_response_to || uuid,
         decrypted_document: document_partial,
         errors: ['Subject did not consent to attribute release', 'Other random error']
       )

@@ -133,7 +133,7 @@ module V0
       Swagger::Requests::Gibct::InstitutionPrograms,
       Swagger::Requests::Gibct::YellowRibbonPrograms,
       Swagger::Requests::HealthCareApplications,
-      Swagger::Requests::HcaAttachments,
+      Swagger::Requests::HCAAttachments,
       Swagger::Requests::InProgressForms,
       Swagger::Requests::IntentToFile,
       Swagger::Requests::Letters,
