@@ -3,8 +3,8 @@
 require 'rails_helper'
 require_relative '../support/fixture_helper'
 
-describe VAOS::JWT do
-  subject { VAOS::JWT.new(user) }
+describe VAOS::JwtWrapper do
+  subject { VAOS::JwtWrapper.new(user) }
 
   let(:user) { build(:user, :vaos) }
   let(:rsa_private) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }

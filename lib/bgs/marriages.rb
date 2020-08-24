@@ -13,7 +13,9 @@ module BGS
     def create
       report_marriage_history('veteran_marriage_history') if @payload['veteran_was_married_before']
       report_marriage_history('spouse_marriage_history') if @payload['spouse_was_married_before']
-      add_spouse if @payload['add_spouse']
+      add_spouse if @payload['view:selectable686_options']['add_spouse']
+
+      @dependents
     end
 
     private
@@ -49,6 +51,7 @@ module BGS
         does_live_with_vet ? 'Spouse' : 'Estranged Spouse',
         {
           begin_date: @dependents_application['current_marriage_information']['date'],
+          marriage_country: @dependents_application['current_marriage_information']['location']['country'],
           marriage_state: @dependents_application['current_marriage_information']['location']['state'],
           marriage_city: @dependents_application['current_marriage_information']['location']['city'],
           type: 'spouse'
