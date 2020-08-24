@@ -25,8 +25,10 @@ module ClaimsApi
             ClaimsApi::IntentToFile::ITF_TYPES[active_param]
           )
           if bgs_response.present?
-            render json: bgs_response.first,
-                   serializer: ClaimsApi::IntentToFileSerializer
+            bgs_active = bgs_response.detect do |itf|
+              itf.present? && itf[:itf_status_type_cd] == 'Active' && itf[:exprtn_dt].to_datetime > Time.zone.now
+            end
+            render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
           else
             render json: itf_not_found, status: :not_found
           end
