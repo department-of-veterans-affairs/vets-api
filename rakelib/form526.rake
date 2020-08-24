@@ -40,7 +40,7 @@ namespace :form526 do
     # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
     # This should be fine as created_at dates correlate directly to PKs
     submissions.find_each do |submission|
-      submission.form526_job_statuses.where("error_message <> ''").each do |job_status|
+      submission.form526_job_statuses.where.not(error_message: [nil, '']).each do |job_status|
         if job_status.job_class == 'SubmitForm526AllClaim'
           job_status.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         else
