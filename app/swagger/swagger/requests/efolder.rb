@@ -19,7 +19,7 @@ module Swagger
         end
 
         response 200 do
-          key :description, 'Successful document lookup'
+          key :description, 'Document metadata retrieved successfully'
 
           schema do
             items do
@@ -35,7 +35,7 @@ module Swagger
 
     swagger_path '/v0/efolder/{id}' do
       operation :get do
-        key :description, 'Download a document PDF'
+        key :description, 'Allows the veteran to download the document'
         key :operationId, 'getDocument'
         key :tags, %w[efolder]
 
