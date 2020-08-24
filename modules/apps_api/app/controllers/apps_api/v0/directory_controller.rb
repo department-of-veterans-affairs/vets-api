@@ -25,11 +25,8 @@ module AppsApi
         filtered_apps = unfiltered_apps.select {|app| app["label"] !~ iso_pattern}
 
         # This feature is currently in early-access and access will need to be requested from okta. We are currently using the EA feature to get all our user grants in the connected-applications profile feature so this shouldn't be an issue to add as well.
-        filtered_apps.each do |app|
-         scopes = okta_service.get_app_scopes(app["id"])
-         #app["scopes"] = scopes
-         puts scopes.body
-        end
+        #get_scopes(apps)
+
         puts "Total apps after filtering: #{filtered_apps.length}"
 
         render json: {
@@ -64,6 +61,14 @@ module AppsApi
         headers['link'].split(',').last.split("<").last.split(">").first
       end
 
+      def get_scopes(apps)
+        apps.each do |app|
+         scopes = okta_service.get_app_scopes(app["id"])
+         app["scopes"] = scopes
+         puts scopes.body
+        end
+        apps
+      end
     end
   end
 end
