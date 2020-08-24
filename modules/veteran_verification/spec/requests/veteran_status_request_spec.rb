@@ -45,5 +45,17 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
         expect(JSON.parse(response.body)['errors'].first['code']).to eq 'EMIS_STATUS502'
       end
     end
+
+    it 'matches the errors camel-inflected schema', :aggregate_failures do
+      with_okta_user(scopes) do |auth_header|
+        get '/services/veteran_verification/v0/status',
+            params: nil,
+            headers: auth_header.merge('X-Key-Inflection' => 'camel')
+
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'EMIS_STATUS502'
+      end
+    end
   end
 end
