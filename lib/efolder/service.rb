@@ -8,16 +8,6 @@ module Efolder
   # also download the files contained therein.
   #
 
-  # EXCLUDED_DOC_TYPES
-  #
-  # The doc_types within EXCLUDED_DOC_TYPES
-  # should never be exposed to the veteran.
-  #
-
-  EXCLUDED_DOC_TYPES = YAML.safe_load(
-    File.read(Rails.root.join('lib', 'efolder', 'excluded_doc_types.yml'))
-  ).freeze
-
   class Service
     attr_accessor :file_number, :included_doc_types
 
@@ -38,7 +28,6 @@ module Efolder
       end
 
       documents.map do |document|
-        should_be_excluded?(document.doc_type)
         document.marshal_dump.slice(
           :document_id, :doc_type, :type_description, :received_at
         )
@@ -55,15 +44,8 @@ module Efolder
 
     private
 
-    def should_be_excluded?(doc_type)
-      if EXCLUDED_DOC_TYPES.include?(doc_type)
-        raise Common::Exceptions::InvalidFieldValue('included_doc_types', doc_type)
-      end
-    end
-
     def verify_document_in_folder(document_id)
       raise Common::Exceptions::Unauthorized unless list_documents.any? do |document|
-        should_be_excluded?(document[:doc_type])
         document[:document_id] == document_id
       end
     end
