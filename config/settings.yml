@@ -64,19 +64,19 @@ debts:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
   mock: true
-  url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465'
+  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
 
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
 
 salesforce-gibft:
-  url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
+  url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
 salesforce-carma:
-  url: 'https://fake-carma.salesforce.com'
+  url: "https://fake-carma.salesforce.com"
   consumer_key: 12345ABC.QQ_1234BBfake
-  signing_key_path: 'spec/fixtures/carma/privatekey.pem' # A dummy private key used for test suite
+  signing_key_path: "spec/fixtures/carma/privatekey.pem" # A dummy private key used for test suite
   username: fake-user@va.gov.carmafake
 
 salesforce:
@@ -94,16 +94,19 @@ edu:
 dependents:
   prefill: true
 
+vre_counseling:
+  prefill: true
+
 pension_burial:
   prefill: true
   sftp:
-    relative_path: '../VETSGOV_PENSION'
+    relative_path: "../VETSGOV_PENSION"
 
 central_mail:
   upload:
     enabled: true
-    host: 'icmhs-api-test.csrarad.com'
-    token: '<PENSIONS_TOKEN>'
+    host: "icmhs-api-test.csrarad.com"
+    token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
 bip:
@@ -119,8 +122,8 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
-    hostname: 'sandbox-api.va.gov'
-    api_key: '<AV_KEY>'
+    hostname: "sandbox-api.va.gov"
+    api_key: "<AV_KEY>"
 
 # Settings for IHub
 ihub:
@@ -199,7 +202,7 @@ evss:
     root_ca: ~
   reference_data_service:
     enabled: false
-  international_postal_codes: 'config/evss/international_postal_codes.json'
+  international_postal_codes: "config/evss/international_postal_codes.json"
 
 # Settings for GI Bill Data Service
 gids:
@@ -217,7 +220,7 @@ hca:
   endpoint: https://test-foo.vets.gov
   timeout: 30
   ee:
-    endpoint: 'http://example.com'
+    endpoint: "http://example.com"
     user: "HCASvcUsr"
     pass: "password"
 
@@ -243,8 +246,8 @@ ppms:
 # Settings for MyHealthEVet
 mhv:
   # include ranges first, then individual exceptions to the ranges last.
-  facility_range: [[358,718],[720,740],[742,758]]
-  facility_specific: [['741MM']] # 741 is excluded, but 741MM is included
+  facility_range: [[358, 718], [720, 740], [742, 758]]
+  facility_specific: [["741MM"]] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -521,10 +524,10 @@ bgs:
   env: ~
   mock_response_location: ~
   mock_responses: ~
-  ssl_verify_mode: 'peer'
+  ssl_verify_mode: "peer"
 
 va_mobile:
-  url: 'https://veteran.apps.va.gov'
+  url: "https://veteran.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
   timeout: 15

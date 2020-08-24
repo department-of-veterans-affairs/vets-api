@@ -1,0 +1,4 @@
+veteranInformation:
+  fullName: [identity_information, full_name]
+  ssn: [identity_information, ssn]
+isLoggedIn: [is_logged_in]
