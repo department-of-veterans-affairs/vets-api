@@ -18,7 +18,7 @@ RSpec.describe Form526JobStatus do
 
     it 'creates a record' do
       expect do
-        Form526JobStatus.upsert({ job_id: jid }, values)
+        Form526JobStatus.upsert(values, unique_by: :job_id)
       end.to change(Form526JobStatus, :count).by(1)
     end
   end
