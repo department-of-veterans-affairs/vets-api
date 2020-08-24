@@ -574,3 +574,10 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
+genisis:
+  base_url: https://vaausapprne60.aac.dva.va.gov
+  service_path: /COVID19Service
+  user: TestUser
+  pass: bogus
