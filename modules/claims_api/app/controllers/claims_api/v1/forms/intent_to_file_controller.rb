@@ -14,8 +14,8 @@ module ClaimsApi
 
         FORM_NUMBER = '0966'
         def submit_form_0966
-          response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
-          render json: response,
+          bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
+          render json: bgs_response,
                  serializer: ClaimsApi::IntentToFileSerializer
         end
 
