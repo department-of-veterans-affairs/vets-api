@@ -52,19 +52,15 @@ RSpec.describe 'Intent to file', type: :request do
 
     it 'fails if none is passed in' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/create_compensation') do
-          post path, headers: headers.merge(auth_header)
-          expect(response.status).to eq(422)
-        end
+        post path, headers: headers.merge(auth_header)
+        expect(response.status).to eq(422)
       end
     end
 
     it 'fails if none is passed in as non-poa request' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/create_compensation') do
-          post path, headers: auth_header, params: ''
-          expect(response.status).to eq(422)
-        end
+        post path, headers: auth_header, params: ''
+        expect(response.status).to eq(422)
       end
     end
   end
@@ -82,19 +78,15 @@ RSpec.describe 'Intent to file', type: :request do
 
     it 'fails if none is passed in for poa request' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          get "#{path}/active", headers: headers.merge(auth_header)
-          expect(response.status).to eq(400)
-        end
+        get "#{path}/active", headers: headers.merge(auth_header)
+        expect(response.status).to eq(400)
       end
     end
 
     it 'fails if none is passed in for non-poa request' do
       with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          get "#{path}/active", headers: auth_header, params: ''
-          expect(response.status).to eq(400)
-        end
+        get "#{path}/active", headers: auth_header, params: ''
+        expect(response.status).to eq(400)
       end
     end
   end

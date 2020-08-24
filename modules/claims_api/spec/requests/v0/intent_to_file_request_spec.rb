@@ -40,10 +40,8 @@ RSpec.describe 'Intent to file', type: :request do
     end
 
     it 'fails if none is passed in' do
-      VCR.use_cassette('evss/intent_to_file/create_compensation') do
-        post path, headers: headers
-        expect(response.status).to eq(422)
-      end
+      post path, headers: headers
+      expect(response.status).to eq(422)
     end
   end
 
@@ -57,10 +55,8 @@ RSpec.describe 'Intent to file', type: :request do
     end
 
     it 'fails if none is passed in' do
-      VCR.use_cassette('evss/intent_to_file/active_compensation') do
-        get "#{path}/active", headers: headers
-        expect(response.status).to eq(400)
-      end
+      get "#{path}/active", headers: headers
+      expect(response.status).to eq(400)
     end
   end
 
