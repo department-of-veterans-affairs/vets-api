@@ -50,7 +50,6 @@ module V1
       redirect_to url_service.logout_redirect_url
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     def saml_callback
       set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
@@ -59,20 +58,15 @@ module V1
       user_login(saml_response)
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
-      log_message_to_sentry(e.message, e.level, extra_context: e.context)
-      redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: e.code)
-      login_stats(:failure, saml_response, e)
-      callback_stats(:failure, saml_response, e.tag || e.code)
+      handle_callback_error(e, :failure, saml_response, e.level, e.context, e.code, e.tag)
     rescue => e
-      log_exception_to_sentry(e, {}, {}, :error)
-      unless performed?
-        redirect_to url_service(saml_response&.in_response_to).login_redirect_url(auth: 'fail', code: '007')
-      end
-      callback_stats(:failed_unknown)
+      # the saml_response variable may or may not be defined depending on
+      # where the exception was raised
+      resp = defined?(saml_response) && saml_response
+      handle_callback_error(e, :failed_unknown, resp)
     ensure
       callback_stats(:total)
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def metadata
       meta = OneLogin::RubySaml::Metadata.new
@@ -232,13 +226,13 @@ module V1
       when :success
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:success',
-                                "context:#{saml_response.authn_context}",
+                                "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
         # track users who have a shared sso cookie
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure',
-                                "context:#{saml_response.authn_context}",
+                                "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag, VERSION_TAG])
       when :failed_unknown
@@ -249,6 +243,23 @@ module V1
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY, tags: [VERSION_TAG])
       end
     end
+
+    # rubocop:disable Metrics/ParameterLists
+    def handle_callback_error(exc, status, response, level = :error, context = {},
+                              code = '007', tag = nil)
+      log_message_to_sentry(exc.message, level, extra_context: context)
+      redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code) unless performed?
+      login_stats(:failure, response, exc) unless response.nil?
+      callback_stats(status, response, tag || code)
+      PersonalInformationLog.create(
+        error_class: exc,
+        data: {
+          request_id: request.uuid,
+          payload: response&.response || params[:SAMLResponse]
+        }
+      )
+    end
+    # rubocop:enable Metrics/ParameterLists
 
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
