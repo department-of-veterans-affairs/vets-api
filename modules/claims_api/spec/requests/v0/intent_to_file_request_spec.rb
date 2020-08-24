@@ -15,7 +15,13 @@ RSpec.describe 'Intent to file', type: :request do
       'X-VA-Gender': 'M' }
   end
   let(:path) { '/services/claims/v0/forms/0966' }
-  let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
+  let(:data) { { data: { attributes: { type: 'compensation' } } } }
+  let(:extra) do
+    { type: 'compensation',
+      participant_claimant_id: 123_456_789,
+      participant_vet_id: 987_654_321,
+      received_date: '2015-01-05T17:42:12.058Z' }
+  end
   let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
 
   describe '#0966' do
@@ -25,8 +31,17 @@ RSpec.describe 'Intent to file', type: :request do
       expect(json_schema).to eq(JSON.parse(schema))
     end
 
-    it 'returns a payload with an expiration date' do
+    it 'posts a minimum payload and returns a payload with an expiration date' do
       VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+        post path, params: data.to_json, headers: headers
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
+      end
+    end
+
+    it 'posts a maximum payload and returns a payload with an expiration date' do
+      VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+        data['attributes'] = extra
         post path, params: data.to_json, headers: headers
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')

@@ -15,7 +15,13 @@ RSpec.describe 'Intent to file', type: :request do
   end
   let(:scopes) { %w[claim.write] }
   let(:path) { '/services/claims/v1/forms/0966' }
-  let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
+  let(:data) { { data: { attributes: { type: 'compensation' } } } }
+  let(:extra) do
+    { type: 'compensation',
+      participant_claimant_id: 123_456_789,
+      participant_vet_id: 987_654_321,
+      received_date: '2015-01-05T17:42:12.058Z' }
+  end
   let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
 
   before do
@@ -32,9 +38,20 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it 'returns a payload with an expiration date' do
+    it 'posts a minimum payload and returns a payload with an expiration date' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+          post path, params: data.to_json, headers: headers.merge(auth_header)
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
+        end
+      end
+    end
+
+    it 'posts a maximum payload and returns a payload with an expiration date' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+          data['attributes'] = extra
           post path, params: data.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
