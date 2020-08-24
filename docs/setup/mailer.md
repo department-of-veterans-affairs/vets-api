@@ -4,6 +4,8 @@
 
 [Location of views](/app/mailers/views)
 
+[Useful checks](/lib/feature_flipper.rb)
+
 ### Previewing emails
 [Action Mailer previews provide a way to see how emails look by visiting a special URL that renders them.](https://guides.rubyonrails.org/action_mailer_basics.html#previewing-emails).
 
