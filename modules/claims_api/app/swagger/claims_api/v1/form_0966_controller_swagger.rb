@@ -145,13 +145,13 @@ module ClaimsApi
                       ]
                     end
                     property :participant_claimant_id do
-                      key :type, :string
-                      key :example, '123456789'
+                      key :type, :integer
+                      key :example, 123_456_789
                       key :description, I18n.t('claims_api.field_descriptions.participant_claimant_id')
                     end
                     property :participant_vet_id do
-                      key :type, :string
-                      key :example, '987654321'
+                      key :type, :integer
+                      key :example, 987_654_321
                       key :description, I18n.t('claims_api.field_descriptions.participant_vet_id')
                     end
                     property :signature_indicated do
