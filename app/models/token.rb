@@ -3,8 +3,9 @@
 class Token
   attr_reader :token_string
 
-  def initialize(token_string)
+  def initialize(token_string, aud)
     @token_string = token_string
+    @aud = aud
     validate_token
   end
 
@@ -27,8 +28,9 @@ class Token
 
   def public_key
     decoded_token = JWT.decode(@token_string, nil, false, algorithm: 'RS256')
+    iss = decoded_token[0]['iss']
     kid = decoded_token[1]['kid']
-    key = OIDC::KeyService.get_key(kid)
+    key = OIDC::KeyService.get_key(kid, iss)
     if key.blank?
       StatsD.increment('okta_kid_lookup_failure', 1, tags: ["kid:#{kid}"])
       Rails.logger.info('Public key not found', kid: kid, exp: decoded_token[0]['exp'])
@@ -46,11 +48,16 @@ class Token
   end
 
   def valid_issuer?
-    payload['iss'] == Settings.oidc.issuer
+    payload['iss'].start_with?(Settings.oidc.issuer_prefix)
   end
 
   def valid_audience?
-    payload['aud'] == Settings.oidc.audience
+    if @aud.nil?
+      payload['aud'] == Settings.oidc.isolated_audience.default
+    else
+      # Temorarily accept the default audience or the API specificed audience
+      [Settings.oidc.isolated_audience.default, @aud].include?(payload['aud'])
+    end
   end
 
   def identifiers

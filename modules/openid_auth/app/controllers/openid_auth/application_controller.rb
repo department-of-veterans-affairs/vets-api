@@ -11,5 +11,9 @@ module OpenidAuth
       obscure_token = Session.obscure_token(token.to_s)
       Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
     end
+
+    def fetch_aud
+      params['aud']
+    end
   end
 end
