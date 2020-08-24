@@ -5,7 +5,7 @@ module EVSS
     class SubmitForm526 < Job
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
-      RETRY = 13
+      RETRY = 2
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
       sidekiq_options retry: RETRY
@@ -24,9 +24,11 @@ module EVSS
       #
       def perform(submission_id)
         super(submission_id)
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id) do
+        form_submission_json = submission.form_to_json(Form526Submission::FORM_526)
+        is_bdd = submission.form.dig('form526', 'form526', 'bddQualified') || false
+        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, is_bdd) do
           service = service(submission.auth_headers)
-          response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+          response = service.submit_form526(form_submission_json)
           response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout, Breakers::OutageException => e

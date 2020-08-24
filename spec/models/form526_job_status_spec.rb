@@ -10,7 +10,7 @@ RSpec.describe Form526JobStatus do
       {
         form526_submission_id: form526_submission.id,
         job_id: jid,
-        job_class: EVSS::DisabilityCompensationForm::SubmitForm526.class.name.demodulize,
+        job_class: 'SubmitForm526',
         status: Form526JobStatus::STATUS[:success],
         updated_at: Time.now.utc
       }

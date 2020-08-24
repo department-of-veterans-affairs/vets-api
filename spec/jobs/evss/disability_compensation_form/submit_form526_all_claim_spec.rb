@@ -56,7 +56,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           Form526JobStatus.upsert({ job_id: jid }, values)
 
           described_class.drain
-          expect(Form526JobStatus.last.status).to eq 'success'
+          job_status = Form526JobStatus.where(job_id: values[:job_id]).first
+          expect(job_status.status).to eq 'success'
+          expect(job_status.error_class).to eq nil
+          expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
           expect(Form526JobStatus.count).to eq 1
         end
       end
@@ -74,6 +77,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect(Form526JobStatus).to receive(:upsert).twice
           expect(Rails.logger).to receive(:error).once
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+          # job_status = Form526JobStatus.last
+          # expect(job_status.status).to eq 'success'
         end
       end
     end
@@ -97,6 +102,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
           form_job_status = Form526JobStatus.last
+          expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
+          expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
           expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
           expect(form_job_status.error_message).to eq(
             '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", "severity"=>"ERROR", "text"=>"The ' \
