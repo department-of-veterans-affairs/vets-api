@@ -8,14 +8,64 @@ require 'decision_review/responses/response'
 require 'decision_review/service_exception'
 
 # Proxy Service for calling Lighthouse Decision Reviews API
+=begin
+
+service = CreateHigherLevelReviewService.new(user: u, request_body: r)
+
+service.create()
+
+
+
+Contract Keeper
+
+
+
+create may return
+
+RequestSchemaError (before the call to Lighthouse, your request fails schema checks)
+
+ResponseSchemaError
+  a successful or unsuccessful response that fails schema
+  !IMPORTANT: it's up to the controller what to send back, /not/ the service
+
+Response (from Lighthouse) (which might be an error response) (
+  may be a success or an error response (as long as it's an error we knew was a possibility)!
+  response is exactly what we get from Lighthouse --massage it in the controller
+  
+Massaging in the controller
+   RequestSchemaError  -> a new 422 in the exceptions file
+   ResponseSchemaError -> the 502 in the exceptions file
+   500 Response        -> the 500 in the exceptions file
+   401 Resposne        -> the 401 in the exceptions file
+
+mark /our/ responses so they differ from Lighthouse Responses
+ 
+
+
+
+
+
+=end
+
+
 module DecisionReview
-  class Service < Common::Client::Base
-    include SentryLogging
-    include Common::Client::Concerns::Monitoring
+  class ResponseSchemaError < StandardError
+    attr_accessor :response, :code
+  end
+end
 
-    configuration DecisionReview::Configuration
 
-    STATSD_KEY_PREFIX = 'api.decision_review'
+
+module DecisionReview
+  class CreateHigherLevelReview < Service
+    def initialize(user:, request_body:)
+    end
+
+    def error?
+    end
+
+    def create
+    end
 
     # Create a higher-level review for a veteran
     def create_higher_level_review(user:, request_body:)
