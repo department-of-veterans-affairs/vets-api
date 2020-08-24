@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'upsert/active_record_upsert'
-
 class Form526JobStatus < ApplicationRecord
   belongs_to :form526_submission
 
