@@ -83,7 +83,7 @@ module BGSDependents
     def format_date(date)
       return nil if date.nil?
 
-      Date.parse(date).to_time.iso8601
+      Date.parse(date).iso8601
     end
 
     def generate_address(address)
