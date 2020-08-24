@@ -34,14 +34,18 @@ RSpec.describe CovidResearch::Volunteer::GenisisService do
       stub_request(:post, "#{Settings.genisis.base_url}#{Settings.genisis.service_path}/formdata")
         .to_return(status: 200, body: '{}')
 
-      expect { subject.deliver_form }.to trigger_statsd_increment('api.covid-research.volunteer.deliver_form.total', times: 1, value: 1)
+      expect { subject.deliver_form }.to trigger_statsd_increment(
+        'api.covid-research.volunteer.deliver_form.total', times: 1, value: 1
+      )
     end
 
     it 'increments the failed delivery counter if there is an error' do
       stub_request(:post, "#{Settings.genisis.base_url}#{Settings.genisis.service_path}/formdata")
         .to_return(status: 500)
 
-      expect { subject.deliver_form }.to trigger_statsd_increment('api.covid-research.volunteer.deliver_form.fail', times: 1, value: 1)
+      expect { subject.deliver_form }.to trigger_statsd_increment(
+        'api.covid-research.volunteer.deliver_form.fail', times: 1, value: 1
+      )
     end
   end
 end

@@ -23,9 +23,7 @@ module CovidResearch
       end
 
       def handle_response(response)
-        unless response.success?
-          raise GenisisDeliveryFailure.new response.body, response.status
-        end
+        raise GenisisDeliveryFailure.new(response.body, response.status) unless response.success?
       end
 
       private
