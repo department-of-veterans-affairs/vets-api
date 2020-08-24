@@ -13,9 +13,9 @@ module BGSDependents
         vnp_ptcpnt_id_b: dependent[:vnp_participant_id],
         ptcpnt_rlnshp_type_nm: dependent[:participant_relationship_type_name],
         family_rlnshp_type_nm: dependent[:family_relationship_type_name],
-        event_dt: non_time_stamp_date_format(dependent[:event_date]),
-        begin_dt: non_time_stamp_date_format(dependent[:begin_date]),
-        end_dt: non_time_stamp_date_format(dependent[:end_date]),
+        event_dt: format_date(dependent[:event_date]),
+        begin_dt: format_date(dependent[:begin_date]),
+        end_dt: format_date(dependent[:end_date]),
         marage_cntry_nm: dependent[:marriage_country],
         marage_state_cd: dependent[:marriage_state],
         marage_city_nm: dependent[:marriage_city],
@@ -27,13 +27,5 @@ module BGSDependents
         child_prevly_married_ind: dependent[:child_prevly_married_ind]
       }
     end
-  end
-
-  private
-
-  def non_time_stamp_date_format(date)
-    return nil if date.blank?
-
-    Date.parse(date).iso8601
   end
 end
