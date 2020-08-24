@@ -24,14 +24,14 @@ module CovidResearch
 
       def handle_response(response)
         unless response.success?
-          raise GenisisDeliveryFailure response.body, response.status
+          raise GenisisDeliveryFailure.new response.body, response.status
         end
       end
 
       private
 
       def set_submission(submission)
-        @submitter ||= service.new(JSON.parse(submission.form_data))
+        @submitter ||= service.new(JSON.parse(submission))
       end
     end
 
