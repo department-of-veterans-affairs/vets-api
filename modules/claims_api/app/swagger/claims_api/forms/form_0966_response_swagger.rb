@@ -73,7 +73,7 @@ module ClaimsApi
               end
               property :participant_vet_id do
                 key :type, :integer
-                key :example, '234'
+                key :example, 234
                 key :description, I18n.t('claims_api.field_descriptions.intent_to_file_id')
               end
               property :signature_indicated do
