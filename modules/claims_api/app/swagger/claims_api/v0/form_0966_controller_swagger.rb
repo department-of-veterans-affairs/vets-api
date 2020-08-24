@@ -148,7 +148,7 @@ module ClaimsApi
                   key :example, JSON.parse(File.read(EXAMPLE_PATH))
                   property :attributes do
                     key :type, :object
-                    key :required, %i[participant_claimant_id participant_vet_id received_date signature_indicated type]
+                    key :required, %i[type]
                     property :type do
                       key :type, :string
                       key :example, 'compensation'
