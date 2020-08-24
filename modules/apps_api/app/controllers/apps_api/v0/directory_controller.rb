@@ -23,6 +23,13 @@ module AppsApi
         # Iterate through the returned applications, and test for pattern matching, 
         # adding to our filtered apps array if pattern doesn't match
         filtered_apps = unfiltered_apps.select {|app| app["label"] !~ iso_pattern}
+
+        # This feature is currently in early-access and access will need to be requested from okta. We are currently using the EA feature to get all our user grants in the connected-applications profile feature so this shouldn't be an issue to add as well.
+        filtered_apps.each do |app|
+         scopes = okta_service.get_app_scopes(app["id"])
+         #app["scopes"] = scopes
+         puts scopes.body
+        end
         puts "Total apps after filtering: #{filtered_apps.length}"
 
         render json: {
@@ -45,6 +52,9 @@ module AppsApi
         unfiltered_apps
       end
 
+      def get_grants(app_id)
+        OktaRedis::Grants.all(app_id)
+      end
       # Check if headers contains 'next' link, since 'next' is always after 'self', we can use .last as a consistent check
       def contains_next(headers)
         headers['link'].split(',').last.include?("next") 
