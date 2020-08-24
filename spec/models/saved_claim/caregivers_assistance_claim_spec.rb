@@ -14,19 +14,6 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
     end
 
     it 'passes arguments to PdfFill::Filler#fill_form' do
-      claim = build(:caregivers_assistance_claim)
-
-      expect(PdfFill::Filler).to receive(
-        :fill_form
-      ).with(
-        claim,
-        claim.guid,
-        {}
-      ).once.and_return(:expected_file_paths)
-
-      # Calling with no arguments
-      claim.to_pdf
-
       expect(PdfFill::Filler).to receive(
         :fill_form
       ).with(

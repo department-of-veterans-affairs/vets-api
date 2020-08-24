@@ -210,7 +210,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
   describe '#download_pdf' do
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
-    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'simple.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
     after do
       File.delete(response_pdf) if File.exist?(response_pdf)
