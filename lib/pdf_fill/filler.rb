@@ -32,7 +32,7 @@ module PdfFill
       end
     end
 
-    def fill_form(saved_claim, file_name_extension = nil, fill_options = nil)
+    def fill_form(saved_claim, file_name_extension = nil, fill_options = {})
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
 
@@ -43,7 +43,7 @@ module PdfFill
       process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id)
     end
 
-    def process_form(form_id, form_data, form_class, file_name_extension, fill_options = nil)
+    def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"

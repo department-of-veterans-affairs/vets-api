@@ -98,7 +98,12 @@ describe PdfFill::Filler, type: :model do
                 end
               end
 
-              file_path = described_class.fill_form(saved_claim, nil, options[:fill_options])
+              file_path = if options[:fill_options]
+                            described_class.fill_form(saved_claim, nil, options[:fill_options])
+                          else
+                            # Should be able to call without any additional arguments
+                            described_class.fill_form(saved_claim)
+                          end
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate

@@ -636,7 +636,7 @@ RSpec.describe Form1010cg::Service do
 
       subject = described_class.new(claim, submission)
 
-      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
+      expect(subject.claim).to receive(:to_pdf).with(sign: true).and_return(file_path)
 
       expect(CARMA::Models::Attachments).to receive(:new).with(
         submission.carma_case_id,

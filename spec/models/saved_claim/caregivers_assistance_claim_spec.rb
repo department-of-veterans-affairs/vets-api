@@ -4,14 +4,61 @@ require 'rails_helper'
 
 RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   describe '#to_pdf' do
-    it 'converts form to pdf' do
+    let(:claim) do
+      build(:caregivers_assistance_claim)
+    end
+
+    it 'calls PdfFill::Filler#fill_form' do
+      expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid, {}).once.and_return(:expected_file_paths)
+      expect(claim.to_pdf).to eq(:expected_file_paths)
+    end
+
+    it 'passes arguments to PdfFill::Filler#fill_form' do
       claim = build(:caregivers_assistance_claim)
-      expected_file_path = :my_claim_path
 
-      expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid).once.and_return(expected_file_path)
+      expect(PdfFill::Filler).to receive(
+        :fill_form
+      ).with(
+        claim,
+        claim.guid,
+        {}
+      ).once.and_return(:expected_file_paths)
 
-      result = claim.to_pdf
-      expect(result).to eq(expected_file_path)
+      # Calling with no arguments
+      claim.to_pdf
+
+      expect(PdfFill::Filler).to receive(
+        :fill_form
+      ).with(
+        claim,
+        'my_other_filename',
+        {}
+      ).once.and_return(:expected_file_paths)
+
+      # Calling with only filename
+      claim.to_pdf('my_other_filename')
+
+      expect(PdfFill::Filler).to receive(
+        :fill_form
+      ).with(
+        claim,
+        claim.guid,
+        save: true
+      ).once.and_return(:expected_file_paths)
+
+      # Calling with only options
+      claim.to_pdf(save: true)
+
+      expect(PdfFill::Filler).to receive(
+        :fill_form
+      ).with(
+        claim,
+        'my_other_filename',
+        save: false
+      ).once.and_return(:expected_file_paths)
+
+      # Calling with filename and options
+      claim.to_pdf('my_other_filename', save: false)
     end
   end
 
