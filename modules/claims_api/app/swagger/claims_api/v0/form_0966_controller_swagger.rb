@@ -175,12 +175,6 @@ module ClaimsApi
                       key :example, '2015-01-05T17:42:12.058Z'
                       key :description, I18n.t('claims_api.field_descriptions.received_date')
                     end
-                    property :signature_indicated do
-                      key :type, :string
-                      key :example, 'YES'
-                      key :enum, %w[YES NO]
-                      key :description, I18n.t('claims_api.field_descriptions.signature_indicated')
-                    end
                   end
                 end
               end

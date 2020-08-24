@@ -77,12 +77,6 @@ module ClaimsApi
                 key :example, 234
                 key :description, I18n.t('claims_api.field_descriptions.participant_vet_id')
               end
-              property :signature_indicated do
-                key :type, :string
-                key :example, 'YES'
-                key :enum, %w[YES NO]
-                key :description, I18n.t('claims_api.field_descriptions.signature_indicated')
-              end
               property :status_date do
                 key :type, :string
                 key :format, 'datetime'

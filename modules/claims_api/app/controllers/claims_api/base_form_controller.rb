@@ -72,11 +72,17 @@ module ClaimsApi
     end
 
     def intent_to_file_options
+      date = if v0? && form_attributes['received_date']
+               form_attributes['received_date']
+             else
+               Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z')
+             end
+
       {
         intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES[form_type],
-        participant_claimant_id: target_veteran.participant_id,
-        participant_vet_id: target_veteran.participant_id,
-        received_date: Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z'),
+        participant_claimant_id: form_attributes['participant_claimant_id'] || target_veteran.participant_id,
+        participant_vet_id: form_attributes['participant_vet_id'] || target_veteran.participant_id,
+        received_date: date,
         submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
         ssn: target_veteran.ssn
       }

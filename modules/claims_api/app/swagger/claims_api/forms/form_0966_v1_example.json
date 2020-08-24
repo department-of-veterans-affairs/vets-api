@@ -3,8 +3,7 @@
   "attributes": {
     "type": "compensation",
     "participant_claimant_id": 123456789,
-    "participant_vet_id": 987654321,
-    "signature_indicated": "YES"
+    "participant_vet_id": 987654321
   }
 }
 

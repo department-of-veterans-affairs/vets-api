@@ -154,12 +154,6 @@ module ClaimsApi
                       key :example, 987_654_321
                       key :description, I18n.t('claims_api.field_descriptions.participant_vet_id')
                     end
-                    property :signature_indicated do
-                      key :type, :string
-                      key :example, 'YES'
-                      key :enum, %w[YES NO]
-                      key :description, I18n.t('claims_api.field_descriptions.signature_indicated')
-                    end
                   end
                 end
               end

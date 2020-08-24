@@ -26,14 +26,6 @@
       "type": "string",
       "example": "2015-01-05T17:42:12.058Z",
       "format": "datetime"
-    },
-    "signature_indicated": {
-      "type": "string",
-      "example": "YES",
-      "enum": [
-        "YES",
-        "NO"
-      ]
     }
   }
 }

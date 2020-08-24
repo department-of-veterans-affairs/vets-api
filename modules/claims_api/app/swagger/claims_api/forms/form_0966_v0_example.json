@@ -4,7 +4,6 @@
     "type": "compensation",
     "participant_claimant_id": 123456789,
     "participant_vet_id": 987654321,
-    "received_date": "2015-01-05T17:42:12.058Z",
-    "signature_indicated": "YES"
+    "received_date": "2015-01-05T17:42:12.058Z"
   }
 }

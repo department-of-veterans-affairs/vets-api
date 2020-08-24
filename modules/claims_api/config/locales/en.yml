@@ -11,7 +11,6 @@ en:
       participant_claim_id: Participant ID or SSN of the claimant
       participant_vet_id: Participant ID or SSN of the Veteran
       received_date: Date the Intent to File was received at the VA
-      signature_indicated: Indicator that the signature was added
       signed_date: Date the ITF was signed
       status: The status of the Intent to File
       status_date: Date the ITF status was last changed
