@@ -36,6 +36,8 @@ Pact.configure do |config|
 end
 
 RSpec.configure do |config|
+  config.use_transactional_fixtures = true
+
   config.before do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
