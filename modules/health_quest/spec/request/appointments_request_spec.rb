@@ -94,9 +94,6 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
         end
       end
 
-# LJG NOTE: failures
-
-=begin
       context 'with an invalid start_date' do
         it 'has an invalid field type exception' do
           get '/health_quest/v0/appointments', params: params.merge(start_date: 'invalid')
@@ -116,8 +113,6 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
             .to eq('"invalid" is not a valid value for "end_date"')
         end
       end
-
-=end
 
       it 'has access and returns va appointments' do
         VCR.use_cassette('health_quest/appointments/get_appointments', match_requests_on: %i[method uri]) do
