@@ -14,6 +14,7 @@ module V1
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
+    STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -53,7 +54,7 @@ module V1
     def saml_callback
       set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      saml_response_logging(saml_response)
+      saml_response_stats(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
@@ -174,17 +175,23 @@ module V1
       }
       Rails.logger.info("SSOe: SAML Request => #{values}")
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
-                       tags: ["context:#{tracker&.payload_attr(:authn_context)}",
+                       tags: ["type:#{tracker&.payload_attr(:type)}",
+                              "context:#{tracker&.payload_attr(:authn_context)}",
                               VERSION_TAG])
     end
 
-    def saml_response_logging(saml_response)
+    def saml_response_stats(saml_response)
+      type = JSON.parse(params[:RelayState] || '{}')['type']
       values = {
         'id' => saml_response.in_response_to,
         'authn' => saml_response.authn_context,
-        'type' => JSON.parse(params[:RelayState] || '{}')['type']
+        'type' => type
       }
       Rails.logger.info("SSOe: SAML Response => #{values}")
+      StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,
+                       tags: ["type:#{type}",
+                              "context:#{saml_response.authn_context}",
+                              VERSION_TAG])
     end
 
     def user_logout(saml_response)
