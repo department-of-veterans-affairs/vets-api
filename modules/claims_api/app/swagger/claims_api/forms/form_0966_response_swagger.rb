@@ -69,7 +69,7 @@ module ClaimsApi
 
               property :participant_claimant_id do
                 key :type, :integer
-                key :example, '234'
+                key :example, 234
                 key :description, I18n.t('claims_api.field_descriptions.participant_claimant_id')
               end
               property :participant_vet_id do
