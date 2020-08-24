@@ -9,7 +9,6 @@ module PdfFill
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
-=begin
         'veteran_information' => {
           'full_name' => {
             'first' => {
@@ -88,8 +87,6 @@ module PdfFill
             }
           }
         }, # end veteran_information
-=end
-=begin
         'veteran_address' => {
           'address_line1' => {
             key: '',
@@ -143,8 +140,6 @@ module PdfFill
             }
           } # end zip_code
         }, # end veteran_address
-=end
-=begin
         'main_phone' => {
           'phone_area_code' => {
             key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[1]',
@@ -198,8 +193,6 @@ module PdfFill
             question_text: 'CELL PHONE NUMBER'
           }
         },
-=end
-=begin
         'new_address' => {
           'address_line1' => {
             key: '',
@@ -253,10 +246,8 @@ module PdfFill
             }
           } # end zip_code
         }, # end new_address
-=end
         # @TODO REMOVE ME
         # "is_moving" => true,
-=begin
         'education_level' => {
           key: 'VBA281900[0].#subform[0].EducationYR[0]',
           limit: 2,
@@ -264,7 +255,6 @@ module PdfFill
           question_suffix: 'A',
           question_text: 'NUMBER OF YEARS OF EDUCATION'
         }
-=end
         # @TODO
         # 11A. SIGNATURE OF CLAIMANT
         # 11B. DATE SIGNED (MM-DD-YYYY)
@@ -290,7 +280,7 @@ module PdfFill
     #   }
     # }
       def merge_fields
-        # merge_veteran_helpers
+        merge_veteran_helpers
 
         @form_data
       end

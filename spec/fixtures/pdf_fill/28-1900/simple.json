@@ -1,0 +1,29 @@
+{
+  "education_level": "12",
+  "is_moving": true,
+  "new_address": {
+    "country_name": "USA",
+    "address_line1": "991 Sunshine Circle",
+    "city": "Miami",
+    "state_code": "FL",
+    "zip_code": "33928"
+  },
+  "veteran_address": {
+    "country_name": "USA",
+    "address_line1":
+    "9417 Princess Palm", "city":
+    "Tampa",
+    "state_code": "FL",
+    "zip_code": "33928"
+  },
+  "main_phone": "5558675309",
+  "email_address": "veteran123@gmail.com",
+  "veteran_information": {
+    "full_name": {
+      "first": "JERRY",
+      "middle": "M",
+      "last": "BROOKS"
+    },
+    "dob": "1947-09-25"
+  }
+}
