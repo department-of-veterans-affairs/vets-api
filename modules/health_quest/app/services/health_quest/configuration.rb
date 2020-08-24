@@ -11,20 +11,28 @@ module HealthQuest
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use :breakers
-        faraday.use Faraday::Response::RaiseError
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        conn.use :breakers
+        conn.request :camelcase
+        conn.request :json
 
-        faraday.request :json
+        if ENV['HEALTH_QUEST_DEBUG'] && !Rails.env.production?
+          conn.request(:curl, ::Logger.new(STDOUT), :warn)
+          conn.response(:logger, ::Logger.new(STDOUT), bodies: true)
+        end
 
-        faraday.response :betamocks if mock_enabled?
-        faraday.response :json, content_type: /\bjson$/
-        faraday.adapter Faraday.default_adapter
+        conn.response :betamocks if mock_enabled?
+        conn.response :snakecase
+        conn.response :json, content_type: /\bjson$/
+        conn.response :health_quest_errors
+        conn.use :health_quest_logging
+        conn.adapter Faraday.default_adapter
       end
     end
 
+
     def mock_enabled?
-      [true, 'true'].include?(Settings.va_mobile.mock)
+      [true, 'true'].include?(Settings.hqva_mobile.mock)
     end
   end
 end

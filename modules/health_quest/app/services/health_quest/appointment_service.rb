@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+Faraday::Response.register_middleware health_quest_errors: HealthQuest::Middleware::Response::Errors
+Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middleware::HealthQuestLogging
+
 module HealthQuest
   class AppointmentService < HealthQuest::SessionService
     def get_appointments(type, start_date, end_date, pagination_params = {})

@@ -124,8 +124,6 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
         end
       end
 
-# LJG NOTE: This fails
-=begin
       it 'has access and returns cc appointments' do
         VCR.use_cassette('health_quest/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
           get '/health_quest/v0/appointments', params: params.merge(type: 'cc')
@@ -134,7 +132,6 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
           expect(response).to match_response_schema('health_quest/cc_appointments')
         end
       end
-=end
 
       context 'with no appointments' do
         it 'returns an empty list' do
