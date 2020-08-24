@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:education_benefits_claim) do
-    Flipper.enable('edu_benefits_stem_scholarship')
     create(:va1990).education_benefits_claim
   end
 

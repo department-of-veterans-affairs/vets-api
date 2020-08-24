@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VAForms
+module VaForms
   class MetadataController < ::ApplicationController
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
@@ -23,7 +23,7 @@ module VAForms
     end
 
     def healthcheck
-      if VAForms::Form.count.positive?
+      if VaForms::Form.count.positive?
         render json: healthy_service_response
       else
         render json: unhealthy_service_response,

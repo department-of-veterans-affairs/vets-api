@@ -3,7 +3,7 @@
 Sidekiq::Enterprise.unique! if Rails.env.production?
 
 Sidekiq.configure_server do |config|
-  config.redis = REDIS_CONFIG[:redis]
+  config.redis = REDIS_CONFIG[:sidekiq]
   # super_fetch! is only available in sidekiq-pro and will cause
   #   "undefined method `super_fetch!'"
   # for those using regular sidekiq
@@ -26,7 +26,7 @@ Sidekiq.configure_server do |config|
 end
 
 Sidekiq.configure_client do |config|
-  config.redis = REDIS_CONFIG[:redis]
+  config.redis = REDIS_CONFIG[:sidekiq]
 
   config.client_middleware do |chain|
     chain.add SidekiqStatsInstrumentation::ClientMiddleware

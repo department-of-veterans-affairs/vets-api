@@ -11,7 +11,7 @@
 	"degreeName": "Degree Name",
 	"schoolName": "School Name",
 	"schoolCity": "Test",
-	"schoolState": "TN",
+	"schoolCountry": "AFG",
 	"isActiveDuty": false,
 	"veteranAddress": {
 		"city": "Milwaukee",
