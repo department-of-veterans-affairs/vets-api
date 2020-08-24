@@ -57,6 +57,7 @@ module ClaimsApi
               property :status do
                 key :type, :string
                 key :example, 'active'
+                key :enum, %w[active inactive]
                 key :description, I18n.t('claims_api.field_descriptions.status')
               end
 
