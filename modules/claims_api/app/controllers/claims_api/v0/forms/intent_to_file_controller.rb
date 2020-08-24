@@ -23,11 +23,15 @@ module ClaimsApi
             target_veteran.participant_id,
             ClaimsApi::IntentToFile::ITF_TYPES[active_param]
           )
-          bgs_active = bgs_response.detect do |itf|
-            itf.present? && itf[:itf_status_type_cd] == 'Active' && itf[:exprtn_dt].to_datetime > Time.zone.now
-          end
-          if bgs_active.present?
-            render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
+          if bgs_response.present?
+            bgs_active = bgs_response.detect do |itf|
+              itf.present? && itf[:itf_status_type_cd] == 'Active' && itf[:exprtn_dt].to_datetime > Time.zone.now
+            end
+            if bgs_active.present?
+              render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
+            else
+              render json: itf_not_found, status: :not_found
+            end
           else
             render json: itf_not_found, status: :not_found
           end
