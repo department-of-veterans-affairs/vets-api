@@ -6,16 +6,17 @@ require_relative '../../../covid_research_spec_helper.rb'
 
 RSpec.configure do |c|
   c.include CovidResearchSpecHelper
+  c.include StatsD::Instrument::Matchers
 end
 
 RSpec.describe CovidResearch::Volunteer::GenisisService do
   let(:subject)    { described_class.new(form_data, serializer) }
   let(:serializer) { double('serializer', serialize: 'form') }
-  let(:form_data)  { 'form_data' }
+  let(:form_data)  { '{"form_data":"content"}' }
 
   describe 'prep' do
     it 'serializes the data to build the genISIS payload' do
-      expect(serializer).to receive(:serialize).with(form_data)
+      expect(serializer).to receive(:serialize).with(JSON.parse(form_data))
 
       subject.payload
     end
