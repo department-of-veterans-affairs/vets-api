@@ -75,7 +75,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
           expect(Rails.logger).to receive(:error).once
-          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+          expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
           job_status = Form526JobStatus.find_by(form526_submission_id: submission.id,
                                                 job_class: 'SubmitForm526AllClaim')
           expect(job_status.status).to eq 'retryable_error'
@@ -92,7 +92,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
         expect(Form526JobStatus).to receive(:upsert).twice
         expect(Rails.logger).to receive(:error).once
-        expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+        expect { described_class.drain }.to raise_error(Breakers::OutageException)
       end
     end
 
@@ -124,7 +124,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
           expect(Form526JobStatus).to receive(:upsert).twice
-          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
         end
       end
     end
@@ -156,7 +156,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_418') do
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
-          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
         end
       end
@@ -167,7 +167,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_bgs_error') do
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
-          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
           expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:retryable_error]
         end
       end

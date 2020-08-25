@@ -24,11 +24,9 @@ module EVSS
       #
       def perform(submission_id)
         super(submission_id)
-        form_submission_json = submission.form_to_json(Form526Submission::FORM_526)
-        is_bdd = submission.form.dig('form526', 'form526', 'bddQualified') || false
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, is_bdd) do
+        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           service = service(submission.auth_headers)
-          response = service.submit_form526(form_submission_json)
+          response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout, Breakers::OutageException => e
@@ -50,7 +48,7 @@ module EVSS
       def retryable_error_handler(error)
         # update JobStatus, log and metrics in JobStatus#retryable_error_handler
         super(error)
-        raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
+        raise error
       end
 
       def service(_auth_headers)

@@ -9,7 +9,6 @@ describe EVSS::DisabilityCompensationForm::JobStatus do
     let(:msg) do
       {
         'class' => 'EVSS::DisabilityCompensationForm::SubmitForm526AllClaim',
-        'queue' => 'default',
         'jid' => SecureRandom.uuid,
         'args' => [123],
         'error_message' => 'Did not receive a timely response from an upstream server',
