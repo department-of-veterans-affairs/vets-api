@@ -21,8 +21,6 @@ module AppsApi
           }
         else
           filtered_apps = Okta::DirectoryService.new.get_apps
-          # This feature is currently in early-access and access will need to be requested from okta. We are currently using the EA feature to get all our user grants in the connected-applications profile feature so this shouldn't be an issue to add as well.
-          #get_scopes(apps)
 
           render json: {
             data: filtered_apps
