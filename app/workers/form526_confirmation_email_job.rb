@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'notifications/client'
 require 'sentry_logging'
+require 'va_notify/service'
 
 class Form526ConfirmationEmailJob
   include Sidekiq::Worker
@@ -11,10 +11,7 @@ class Form526ConfirmationEmailJob
   STATSD_ERROR_NAME = 'worker.form526_confirmation_email.error'
 
   def perform(personalization_parameters)
-    @notify_client ||= Notifications::Client.new(
-      Settings.vanotify.api_key,
-      Settings.vanotify.client_url
-    )
+    @notify_client ||= VaNotify::Service.new
     @notify_client.send_email(
       email_address: personalization_parameters['email'],
       template_id: Settings.vanotify.template_id.form526_confirmation_email,
@@ -32,6 +29,6 @@ class Form526ConfirmationEmailJob
     log_exception_to_sentry(ex)
     StatsD.increment(STATSD_ERROR_NAME)
 
-    raise ex if ex.code.between?(500, 599)
+    raise ex if ex.status_code.between?(500, 599)
   end
 end
