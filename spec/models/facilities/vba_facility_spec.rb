@@ -39,7 +39,7 @@ RSpec.describe Facilities::VBAFacility do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
           expect(facility.hours.values).to match_array(
             ['8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM', '8:00AM-4:30PM',
-              '8:00AM-7:30PM', 'Closed', 'Please Call for Hours']
+             '8:00AM-7:30PM', 'Closed', 'Please Call for Hours']
           )
         end
       end
@@ -72,9 +72,9 @@ RSpec.describe Facilities::VBAFacility do
       it 'parses physical address correctly' do
         VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
           expect(facility.address['physical']).to eq('address_1' => '5310 1/2 Warrensville Center Road',
-                                                      'address_2' => '',
-                                                      'address_3' => nil, 'city' => 'Maple Heights',
-                                                      'state' => 'OH', 'zip' => '44137')
+                                                     'address_2' => '',
+                                                     'address_3' => nil, 'city' => 'Maple Heights',
+                                                     'state' => 'OH', 'zip' => '44137')
         end
       end
 
