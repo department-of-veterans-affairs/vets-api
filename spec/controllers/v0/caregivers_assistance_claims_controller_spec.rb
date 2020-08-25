@@ -237,9 +237,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       expect(response).to have_http_status(:ok)
 
       # download response conent (the pdf) to disk
-      File.open(response_pdf, 'wb+') do |f|
-        f.write(response.body)
-      end
+      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
 
       # compare it with the pdf fixture
       expect(
