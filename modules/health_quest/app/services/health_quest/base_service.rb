@@ -5,7 +5,7 @@ module HealthQuest
     include Common::Client::Concerns::Monitoring
     include SentryLogging
 
-    # LJG NOTE: statsd key
+    # LJG NOTE: statsd key for health quest different than VAOS
     STATSD_KEY_PREFIX = 'api.health_quest'
 
     private

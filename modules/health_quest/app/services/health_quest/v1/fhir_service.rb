@@ -13,7 +13,7 @@ module HealthQuest
     #   response = service.read(987654)
     #
     class FHIRService < HealthQuest::SessionService
-      # LJG !
+      # LJG NOTE: changed StatsD from what it was in VAOS
       STATSD_KEY_PREFIX = 'api.health_quest.fhir'
       RESOURCES = %i[Appointment HealthcareService Location Organization Patient Schedule Slot].freeze
 
