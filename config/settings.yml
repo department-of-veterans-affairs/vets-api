@@ -394,7 +394,11 @@ reports:
 oidc:
   auth_server_metadata_url: ~
   issuer: ~
+  issuer_prefix: ~
   audience: ~
+  isolated_audience:
+    default: ~
+    veteran_verification: ~
   base_api_url: https://example.com
   base_api_token: ~
 
@@ -453,15 +457,13 @@ search:
   mock_search: true
   url: https://search.usa.gov/api/v2
 
-bing:
-  base_api_url: "https://dev.virtualearth.net/REST/v1"
-  key: fake_key
-
 flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - bconley@governmentcio.com
     - bill.ryan@adhocteam.us
+    - cory.trimm@va.gov
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
@@ -478,6 +480,7 @@ flipper:
     - kabrown@thoughtworks.com
     - kam@adhocteam.us
     - keifer@oddball.io
+    - kadams@governmentcio.com
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
@@ -488,8 +491,10 @@ flipper:
     - mark.greenburg@adhocteam.us
     - mdewey@governmentcio.com
     - micah@adhocteam.us
+    - michael.fleet@oddball.io
     - n.ratana@gmail.com
     - narin@adhocteam.us
+    - nick.sullivan@adhocteam.us
     - osanchez@governmentcio.com
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
@@ -569,3 +574,10 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
+genisis:
+  base_url: https://vaausapprne60.aac.dva.va.gov
+  service_path: /COVID19Service
+  user: TestUser
+  pass: bogus

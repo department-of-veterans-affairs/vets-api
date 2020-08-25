@@ -19,6 +19,16 @@ RSpec.describe 'Military Ranks Integration', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('preneeds/military_ranks')
     end
+
+    it 'responds to GET #index when camel-inflected' do
+      VCR.use_cassette('preneeds/military_ranks/gets_a_list_of_military_ranks') do
+        get '/v0/preneeds/military_ranks', params: params, headers: { 'X-Key-Inflection' => 'camel' }
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      expect(response).to match_camelized_response_schema('preneeds/military_ranks')
+    end
   end
 
   context 'with missing parameters' do

@@ -773,6 +773,8 @@ RSpec.describe FormProfile, type: :model do
 
       if form_id == '1010ez'
         '10-10EZ'
+      elsif form_id == '21-526EZ'
+        '21-526EZ-ALLCLAIMS'
       else
         form_id
       end.tap do |schema_form_id|
@@ -945,6 +947,7 @@ RSpec.describe FormProfile, type: :model do
           v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
           v22_10203_expected['schoolCity'] = 'NORFOLK'
           v22_10203_expected['schoolState'] = 'VA'
+          v22_10203_expected['schoolCountry'] = 'USA'
         end
 
         it 'prefills 10203 with emis and entitlement information' do

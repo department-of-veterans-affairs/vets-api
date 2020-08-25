@@ -2,21 +2,20 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
+vcr_options = {
+  cassette_name: ['facilities/va/ppms'],
+  match_requests_on: %i[path query],
+  allow_playback_repeats: true,
+  record: :new_episodes
+}
+
+RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vcr: vcr_options do
   before do
     Flipper.enable(:facility_locator_ppms_location_query, false)
   end
 
-  around do |example|
-    VCR.insert_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true)
-    VCR.insert_cassette('facilities/va/ppms_new_query', match_requests_on: %i[path query], allow_playback_repeats: true)
-    example.run
-    VCR.eject_cassette('facilities/va/ppms_new_query')
-    VCR.eject_cassette('facilities/va/ppms')
-  end
-
   describe '#index' do
-    context 'type=cc_provider' do
+    context 'type=provider' do
       let(:params) do
         {
           address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
@@ -449,6 +448,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               'attributes' => {
                 'classification' => 'Podiatrist',
                 'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+                'name' => 'Podiatrist',
                 'specialization' => nil,
                 'specialty_code' => '213E00000X',
                 'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
@@ -523,6 +523,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
               'attributes' => {
                 'classification' => 'Podiatrist',
                 'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+                'name' => 'Podiatrist',
                 'specialization' => nil,
                 'specialty_code' => '213E00000X',
                 'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
@@ -920,6 +921,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
             'attributes' => {
               'classification' => 'Podiatrist',
               'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+              'name' => 'Podiatrist',
               'specialization' => nil,
               'specialty_code' => '213E00000X',
               'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
@@ -941,13 +943,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
 
       bod = JSON.parse(response.body)
 
-      expect(bod['data'][0..1]).to include(
-        {
+      expect(bod['data'][0..1]).to match(
+        [{
           'id' => '101Y00000X',
           'type' => 'specialty',
           'attributes' => {
             'classification' => 'Counselor',
             'grouping' => 'Behavioral Health & Social Service Providers',
+            'name' => 'Counselor',
             'specialization' => nil,
             'specialty_code' => '101Y00000X',
             'specialty_description' => 'A provider who is trained and educated in the performance of behavior ' \
@@ -957,17 +960,18 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
          'or certification.'
           }
         },
-        {
-          'id' => '101YA0400X',
-          'type' => 'specialty',
-          'attributes' => {
-            'classification' => 'Counselor',
-            'grouping' => 'Behavioral Health & Social Service Providers',
-            'specialization' => 'Addiction (Substance Use Disorder)',
-            'specialty_code' => '101YA0400X',
-            'specialty_description' => 'Definition to come...'
-          }
-        }
+         {
+           'id' => '101YA0400X',
+           'type' => 'specialty',
+           'attributes' => {
+             'classification' => 'Counselor',
+             'grouping' => 'Behavioral Health & Social Service Providers',
+             'name' => 'Counselor - Addiction (Substance Use Disorder)',
+             'specialization' => 'Addiction (Substance Use Disorder)',
+             'specialty_code' => '101YA0400X',
+             'specialty_description' => 'Definition to come...'
+           }
+         }]
       )
     end
   end

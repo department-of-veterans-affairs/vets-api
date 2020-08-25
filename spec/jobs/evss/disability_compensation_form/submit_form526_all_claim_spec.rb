@@ -53,7 +53,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             status: Form526JobStatus::STATUS[:try],
             updated_at: Time.now.utc
           }
-          Form526JobStatus.upsert({ job_id: jid }, values)
+          Form526JobStatus.upsert(values, unique_by: :job_id)
 
           described_class.drain
           expect(Form526JobStatus.last.status).to eq 'success'
@@ -96,7 +96,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
-          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+          form_job_status = Form526JobStatus.last
+          expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+          expect(form_job_status.error_message).to eq(
+            '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", "severity"=>"ERROR", "text"=>"The ' \
+              'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
+              'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
+              'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
+              'pointOfContactName.Pattern", "severity"=>"ERROR", "text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
+          )
         end
       end
     end

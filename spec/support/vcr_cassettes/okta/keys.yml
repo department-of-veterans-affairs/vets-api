@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://example.com/oauth2/default/.well-known/oauth-authorization-server
+    uri: https://example.com/oauth2/default/.well-known/openid-configuration
     body:
       encoding: US-ASCII
       string: ''
@@ -57,7 +57,7 @@ http_interactions:
       encoding: UTF-8
       string: '{"issuer":"https://example.com/oauth2/default","authorization_endpoint":"https://example.com/oauth2/default/v1/authorize","token_endpoint":"https://example.com/oauth2/default/v1/token","registration_endpoint":"https://example.com/oauth2/v1/clients","jwks_uri":"https://example.com/oauth2/default/v1/keys","response_types_supported":["code","token","code
         token"],"response_modes_supported":["query","fragment","form_post","okta_post_message"],"grant_types_supported":["authorization_code","implicit","refresh_token","password","client_credentials"],"subject_types_supported":["public"],"scopes_supported":["openid","profile","email","address","phone","offline_access"],"token_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"claims_supported":["ver","jti","iss","aud","iat","exp","cid","uid","scp","sub"],"code_challenge_methods_supported":["S256"],"introspection_endpoint":"https://example.com/oauth2/default/v1/introspect","introspection_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"revocation_endpoint":"https://example.com/oauth2/default/v1/revoke","revocation_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"end_session_endpoint":"https://example.com/oauth2/default/v1/logout","request_parameter_supported":true,"request_object_signing_alg_values_supported":["HS256","HS384","HS512","RS256","RS384","RS512","ES256","ES384","ES512"]}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 02 Oct 2018 19:58:54 GMT
 - request:
     method: get
@@ -113,6 +113,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"keys":[{"kty":"RSA","alg":"RS256","kid":"1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU","use":"sig","e":"AQAB","n":"0i4GWoXmMg8pn3jJbv7oabdQKxiV43CKIwY05LaSRdXxE0XcsFEXLe58tcEV_1afM3ey4KuHcSYk22En6nl2uGkFGZ_bU0ckrb8bqZ09Adr9Vwogat0QcOfHvqxaCJI6kOqtCX46iP11ViqW6oVHP--exfNPazQE5NyKO6l4VPZ68fpMX82Z_YBB_xdoYkTwM_LuCv2jDpFlumZt539sv7EbhxAL1tq8bjIVH-3tfJB8Hpar8AfzTrcoA8V61qi3JfipU9Bupuex379rf5LNnSh-dvbd98ZIhQKA2yp5nk9gEGKoEuTd-FlqLXs2q2Lr-BlbPDQVkNWClXJICznu_Q"}]}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 02 Oct 2018 19:58:54 GMT
 recorded_with: VCR 3.0.3

@@ -52,6 +52,13 @@ module EducationForm
       western: 'MUSKOGEE (351)'
     }.freeze
 
+    EMAIL_NAMES = {
+      eastern: 'Eastern Region',
+      southern: 'Southern Region',
+      central: 'Central Region',
+      western: 'Western Region'
+    }.freeze
+
     FACILITY_IDS = {
       eastern: 307,
       southern: 316,
@@ -83,21 +90,10 @@ module EducationForm
 
     def self.check_area(address)
       area = address&.state
-      if Flipper.enabled?(:route_st_louis_rpo_to_buffalo_rpo)
-        if WESTERN.any? { |state| state == area }
-          :western
-        else
-          :eastern
-        end
+      if WESTERN.any? { |state| state == area }
+        :western
       else
-        case area
-        when *CENTRAL
-          :central
-        when *WESTERN
-          :western
-        else
-          :eastern
-        end
+        :eastern
       end
     end
 

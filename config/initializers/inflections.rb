@@ -2,19 +2,22 @@
 
 ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'AAID'
+  inflect.acronym 'AWS'
   inflect.acronym 'BB'
   inflect.acronym 'BGS'
   inflect.acronym 'CARMA'
-  inflect.acronym 'AWS'
-  inflect.acronym 'BGS'
   inflect.acronym 'CC'
   inflect.acronym 'DOD'
   inflect.acronym 'EMIS'
   inflect.acronym 'EVSS'
+  inflect.acronym 'FHIR'
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
+  inflect.acronym 'HCA'
   inflect.acronym 'IHub'
   inflect.acronym 'MDOT'
+  inflect.acronym 'MHV' # My HealtheVet
+  inflect.acronym 'NCA' # National Cemetery Administration
   inflect.acronym 'PagerDuty'
   inflect.acronym 'PPIU'
   inflect.acronym 'PPMS'
