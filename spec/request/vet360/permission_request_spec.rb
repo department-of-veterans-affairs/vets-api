@@ -7,6 +7,7 @@ RSpec.describe 'permission', type: :request do
 
   let(:user) { build(:vets360_user) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
   let(:frozen_time) { Time.zone.local(2019, 11, 5, 16, 49, 18) }
 
   before do
@@ -32,6 +33,15 @@ RSpec.describe 'permission', type: :request do
         end
       end
 
+      it 'matches the permission camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/post_permission_success') do
+          post('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+        end
+      end
+
       it 'creates a new AsyncTransaction::Vet360::PermissionTransaction db record' do
         VCR.use_cassette('vet360/contact_information/post_permission_success') do
           expect do
@@ -50,6 +60,17 @@ RSpec.describe 'permission', type: :request do
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
+        end
+      end
+
+      it 'matches the errors camel-inflected schema', :aggregate_failures do
+        permission.id = 401
+
+        VCR.use_cassette('vet360/contact_information/post_permission_w_id_error') do
+          post('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('errors')
         end
       end
     end
@@ -78,6 +99,15 @@ RSpec.describe 'permission', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
+        end
+      end
+
+      it 'matches the permission camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/put_permission_success') do
+          put('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
         end
       end
 
@@ -113,6 +143,16 @@ RSpec.describe 'permission', type: :request do
           expect(response).to match_response_schema('vet360/transaction_response')
         end
       end
+
+      it 'effective_end_date is NOT included in the request body when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/put_permission_ignore_eed', VCR::MATCH_EVERYTHING) do
+          # The cassette we're using does not include the effectiveEndDate in the body.
+          # So this test ensures that it was stripped out
+          put('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+        end
+      end
     end
   end
 
@@ -136,6 +176,17 @@ RSpec.describe 'permission', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
+        end
+      end
+
+      it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/delete_permission_success', VCR::MATCH_EVERYTHING) do
+          # The cassette we're using includes the effectiveEndDate in the body.
+          # So this test will not pass if it's missing
+          delete('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
         end
       end
     end

@@ -3,6 +3,7 @@
 module BGSDependents
   class Base < Common::Base
     include ActiveModel::Validations
+    MILITARY_POST_OFFICE_TYPE_CODES = %w[APO DPO FPO].freeze
     # Gets the person's address based on the lives with veteran flag
     #
     # @param dependents_application [Hash] the submitted form information
@@ -14,6 +15,17 @@ module BGSDependents
       return dependents_application.dig('veteran_contact_information', 'veteran_address') if lives_with_vet
 
       alt_address
+    end
+
+    def relationship_type(info)
+      if info['dependent_type']
+        return { participant: 'Guardian', family: 'Other' } if info['dependent_type'] == 'DEPENDENT_PARENT'
+
+        {
+          participant: info['dependent_type'].capitalize.gsub('_', ' '),
+          family: info['dependent_type'].capitalize.gsub('_', ' ')
+        }
+      end
     end
 
     def serialize_dependent_result(
@@ -32,10 +44,13 @@ module BGSDependents
         event_date: optional_fields[:event_date],
         marriage_state: optional_fields[:marriage_state],
         marriage_city: optional_fields[:marriage_city],
+        marriage_country: optional_fields[:marriage_country],
         divorce_state: optional_fields[:divorce_state],
         divorce_city: optional_fields[:divorce_city],
+        divorce_country: optional_fields[:divorce_country],
         marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
         living_expenses_paid_amount: optional_fields[:living_expenses_paid],
+        child_prevly_married_ind: optional_fields[:child_prevly_married_ind],
         type: optional_fields[:type]
       }
     end
@@ -49,14 +64,15 @@ module BGSDependents
         last_nm: payload['last'],
         suffix_nm: payload['suffix'],
         brthdy_dt: format_date(payload['birth_date']),
+        birth_cntry_nm: payload['place_of_birth_country'],
         birth_state_cd: payload['place_of_birth_state'],
         birth_city_nm: payload['place_of_birth_city'],
         file_nbr: payload['va_file_number'],
         ssn_nbr: payload['ssn'],
-        death_dt: format_date(payload['death_date']),
+        death_dt: format_date_no_time(payload['death_date']),
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
-        martl_status_type_cd: 'Married'
+        martl_status_type_cd: payload['martl_status_type_cd']
       }
     end
 
@@ -70,8 +86,15 @@ module BGSDependents
       Date.parse(date).to_time.iso8601
     end
 
+    def format_date_no_time(date)
+      return nil if date.nil?
+
+      Date.parse(date).iso8601
+    end
+
     def generate_address(address)
-      if address['view:lives_on_military_base'] == true
+      # BGS will throw an error if we pass in a military postal code in for state
+      if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
         address['military_postal_code'] = address.delete('state_code')
         address['military_post_office_type_code'] = address.delete('city')
       end
@@ -80,6 +103,8 @@ module BGSDependents
     end
 
     def create_address_params(proc_id, participant_id, payload)
+      generate_address(payload)
+
       {
         efctv_dt: Time.current.iso8601,
         vnp_ptcpnt_id: participant_id,

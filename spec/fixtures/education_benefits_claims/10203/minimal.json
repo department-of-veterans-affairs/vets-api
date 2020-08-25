@@ -11,7 +11,7 @@
 	"degreeName": "Degree Name",
 	"schoolName": "School Name",
 	"schoolCity": "Test",
-	"schoolState": "TN",
+	"schoolCountry": "AFG",
 	"isActiveDuty": false,
 	"veteranAddress": {
 		"city": "Milwaukee",
@@ -27,5 +27,6 @@
 		"bankName": "First Bank of JSON",
 		"routingNumber": "123456789"
 	},
-	"privacyAgreementAccepted": true
+	"privacyAgreementAccepted": true,
+	"scoEmailSent": false
 }

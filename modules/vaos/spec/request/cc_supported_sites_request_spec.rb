@@ -34,6 +34,17 @@ RSpec.describe 'supported_sites', type: :request do
           expect(response).to match_response_schema('vaos/cc_supported_sites')
         end
       end
+
+      it 'returns a 200 with the correct schema when camel-inflected' do
+        VCR.use_cassette('vaos/cc_supported_sites/get_one_site', match_requests_on: %i[method uri]) do
+          get '/vaos/v0/community_care/supported_sites',
+              params: { site_codes: [983, 984] },
+              headers: { 'X-Key-Inflection' => 'camel' }
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('vaos/cc_supported_sites')
+        end
+      end
     end
 
     context 'with a invalid GET supported_sites request' do

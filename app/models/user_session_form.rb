@@ -2,6 +2,7 @@
 
 class UserSessionForm
   include ActiveModel::Validations
+  include SentryLogging
 
   ERRORS = { validations_failed: { code: '004',
                                    tag: :validations_failed,
@@ -14,6 +15,7 @@ class UserSessionForm
 
   attr_reader :user, :user_identity, :session, :saml_uuid
 
+  # rubocop:disable Metrics/MethodLength
   def initialize(saml_response)
     @saml_uuid = saml_response.in_response_to
     saml_user = SAML::User.new(saml_response)
@@ -23,13 +25,24 @@ class UserSessionForm
     @user = User.new(uuid: @user_identity.attributes[:uuid])
     @user.instance_variable_set(:@identity, @user_identity)
     if saml_user.changing_multifactor?
-      @user.mhv_last_signed_in = existing_user.last_signed_in
-      @user.last_signed_in = existing_user.last_signed_in
+      if existing_user.present?
+        @user.mhv_last_signed_in = existing_user.last_signed_in
+        @user.last_signed_in = existing_user.last_signed_in
+      else
+        @user.last_signed_in = Time.current.utc
+        @user.mhv_last_signed_in = Time.current.utc
+        log_message_to_sentry(
+          "Couldn't locate exiting user after MFA establishment",
+          :warn,
+          { saml_uuid: normalized_attributes[:uuid], saml_icn: normalized_attributes[:mhv_icn] }
+        )
+      end
     else
       @user.last_signed_in = Time.current.utc
     end
     @session = Session.new(uuid: @user.uuid)
   end
+  # rubocop:enable Metrics/MethodLength
 
   def normalize_saml(saml_user)
     saml_user.validate!

@@ -3,10 +3,11 @@
 require 'common/models/base'
 
 class PPMS::Specialty < Common::Base
-  attribute :specialty_code, String
-  attribute :grouping, String
   attribute :classification, String
+  attribute :grouping, String
+  attribute :name, String
   attribute :specialization, String
+  attribute :specialty_code, String
   attribute :specialty_description, String
 
   def initialize(attr)

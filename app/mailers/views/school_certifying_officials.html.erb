@@ -6,16 +6,18 @@
   <body>
     <p>Dear VA School Certifying Official,</p>
 
-    <p>A student enrolled at your school has applied for the Edith Nourse Rogers STEM Scholarship.  They will also receive a copy of this letter. We aren’t able to make a formal determination on this student’s eligibility for the STEM Scholarship until we receive the following information from you.</p>
+    <p>
+      A student enrolled at your school has applied for the Edith Nourse Rogers STEM Scholarship.  The student will also receive a copy of this letter. We can't make a formal determination on the student's eligibility for the STEM Scholarship until we receive the following information from you.
+    </p>
 
     <p>
       <b>Rogers STEM Scholarship Applicant</b>
       <br>
-      Name of Student: <%= first_initial_last_name(@applicant.veteranFullName) %>
+      Student's name: <%= first_initial_last_name(@applicant.veteranFullName) %>
       <br>
-      Student’s school email address: <%= @applicant.schoolEmailAddress %>
+      Student's school email address: <%= @applicant.schoolEmailAddress %>
       <br>
-      Student’s school ID number: <%= @applicant.schoolStudentId %>
+      Student's school ID number: <%= @applicant.schoolStudentId %>
     </p>
 
     <p>
@@ -24,7 +26,7 @@
       If the student is currently enrolled in an undergraduate program, please provide the following:
       <ul>
         <li>
-          Is the student pursuing a bachelor’s degree in an approved STEM program?:
+          Is the student pursuing a bachelor's degree in an approved STEM program?
           (<a href="https://benefits.va.gov/gibill/docs/fgib/STEM_Program_List.pdf">Programs approved for the Rogers STEM Scholarship</a>)
         </li>
         <li>Name of STEM program student is enrolled in:</li>
@@ -40,21 +42,21 @@
       If the student already has an undergraduate degree and is seeking a teaching certification, please provide the following:
       <ul>
         <li>
-          Has the student earned a bachelor’s degree in an approved STEM program?:
+          Has the student earned a bachelor's degree in an approved STEM program?
           (<a href="https://benefits.va.gov/gibill/docs/fgib/STEM_Program_List.pdf">Programs approved for the Rogers STEM Scholarship</a>)
         </li>
         <li>Name of STEM program of degree conferred:</li>
         <li>6-digit CIP Code of degree conferred:</li>
-        <li>Is the student currently enrolled in a program leading to a teaching certification?:</li>
+        <li>Is the student currently enrolled in a program leading to a teaching certification?</li>
       </ul>
     </p>
 
     <p>
       <b>A reply is requested as soon as possible, preferably within 14 days.</b>
-      Please submit your response to <a href="mailto:STEM.VBABUF@va.gov">STEM.VBABUF@va.gov</a>. If we don’t receive a response within that time, we won’t be able to process the student’s application for the Rogers STEM Scholarship.
+      Please submit your response to <a href="mailto:STEM.VBABUF@va.gov">STEM.VBABUF@va.gov</a>. If we don't receive a response, we won't be able to process the student's application for the Rogers STEM Scholarship, and we may follow up for the required information.
     </p>
 
-    <p>Please submit any questions or concerns to <a href="mailto:STEM.VBABUF@va.gov">STEM.VBABUF@va.gov</a>.  Please account for the 14-day time limit when submitting these questions.</p>
+    <p>Please submit any questions or concerns to <a href="mailto:STEM.VBABUF@va.gov">STEM.VBABUF@va.gov</a>.  Please account for the 14-day time request when submitting questions.</p>
 
     <p>Thank you,</p>
 
@@ -63,10 +65,11 @@
       VA Buffalo Regional Processing Office<br>
       <br>
       <br>
-      VA Form Number: 10203<br>
+      VA Form Number: 22-10203<br>
+      Respondent Burden: 15 minutes<br>
       OMB Control Number: 2900-0878<br>
       OMB Expiration Date: 6/30/2023<br>
-      Respondent Burden: 15 minutes<br>
+      <a href="https://www.va.gov/education/other-va-education-benefits/stem-scholarship/apply-for-scholarship-form-22-10203/introduction#omb-info-container">Privacy Act Statement (available online)</a><br>
       cc: <%= @applicant.email %>
     </p>
   </body>

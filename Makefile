@@ -19,10 +19,11 @@ BASH         := run --rm --service-ports vets-api bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
 SPEC_PATH    := spec/
-DB		     := "bin/rails db:setup db:migrate"
-LINT    	 := "bin/rails lint"
+DB           := "bin/rails db:setup db:migrate"
+LINT         := "bin/rails lint"
 DOWN         := down
 SECURITY     := "bin/rails security"
+PACT         := "RAILS_ENV=test bundle exec rake pact:verify"
 .DEFAULT_GOAL := ci
 
 
@@ -94,6 +95,14 @@ guard:  ## Runs guard
 .PHONY: migrate
 migrate:  ## Runs the database migrations
 	@$(BASH_DEV) "bin/rails db:migrate"
+
+.PHONY: pact
+pact:
+ifeq ($(ENV_ARG), dev)
+	@$(BASH_DEV) $(PACT)
+else
+	@$(BASH_TEST) $(PACT)
+endif
 
 .PHONY: rebuild
 rebuild: down  ## Stops the docker services and builds the api

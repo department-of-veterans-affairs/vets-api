@@ -122,10 +122,6 @@ features:
     actor_type: user
     description: >
       Enables STEM scholarship functionality
-  gibct_estimate_your_benefits:
-    actor_type: user
-    description: >
-      Enable 508 and usability enhancements for the Comparison Tool Profile Page Estimate Your Benefits section benefits estimator panel.
   form526_original_claims:
     actor_type: user
     description: >
@@ -151,7 +147,7 @@ features:
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
-    actor_type: user
+    actor_type: cookie_id
     description: >
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   stub_carma_responses:
@@ -166,10 +162,6 @@ features:
     actor_type: user
     description: >
       Comparison Tool Search Enhancements to improve usability
-  route_st_louis_rpo_to_buffalo_rpo:
-    actor_type: user
-    description: >
-      All submission data that was previously routed to St Louis RPO is routed to the Buffalo RPO
   form996_higher_level_review:
     actor_type: user
     description: >
@@ -186,7 +178,68 @@ features:
     actor_type: user
     description: >
       Update to Chapter 33/Post-9/11 GI Bill benefit rates set to go live 8/1
+  show_edu_benefits_5495_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 5495 introduction page
+  show_edu_benefits_1995_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 1995 introduction page
+  show_edu_benefits_1990n_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 1990N introduction page
+  show_edu_benefits_0994_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 0994 introduction page
+  show_edu_benefits_5490_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 5490 introduction page
+  show_edu_benefits_1990_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the 1990 introduction page
+  show_edu_benefits_1990e_wizard:
+    actor_type: user
+    description: >
+     This determines when the wizard should show up on the 1990e introduction page
   get_help_ask_form:
     actor_type: user
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
+  show_healthcare_experience_questionnaire:
+    actor_type: cookie_id
+    description: >
+      Enables showing the pre-appointment questionnaire feature.
+  stem_sco_email:
+    actor_type: user
+    description: >
+      Enable/disable SCO email per environment
+  show526_wizard:
+    actor_type: user
+    description: >
+      This determines when the wizard should show up on the form 526 intro page
+  show_new_get_medical_records_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/get-medical-records/
+  show_new_refill_track_prescriptions_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
+  show_new_schedule_view_appointments_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
+  show_new_secure_messaging_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
+  show_new_view_test_lab_results_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+
