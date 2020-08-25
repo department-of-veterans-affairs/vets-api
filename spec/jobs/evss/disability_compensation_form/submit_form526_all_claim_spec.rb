@@ -74,11 +74,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
-          expect(Form526JobStatus).to receive(:upsert).twice
           expect(Rails.logger).to receive(:error).once
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
-          # job_status = Form526JobStatus.last
-          # expect(job_status.status).to eq 'success'
+          job_status = Form526JobStatus.find_by(form526_submission_id: submission.id,
+                                                job_class: 'SubmitForm526AllClaim')
+          expect(job_status.status).to eq 'retryable_error'
+          expect(job_status.error_class).to eq 'Common::Exceptions::GatewayTimeout'
+          expect(job_status.error_message).to eq 'Gateway timeout'
         end
       end
     end
