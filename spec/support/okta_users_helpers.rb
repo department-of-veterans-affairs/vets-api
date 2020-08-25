@@ -5,12 +5,15 @@ def with_okta_configured(&block)
     Settings.oidc,
     auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
     issuer: 'https://example.com/oauth2/default',
+    issuer_prefix: 'https://example.com/oauth2',
     audience: 'api://default',
     base_api_url: 'https://example.com/',
     base_api_token: 'token'
   ) do
-    VCR.use_cassette('okta/metadata') do
-      yield block
+    with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+      VCR.use_cassette('okta/metadata') do
+        yield block
+      end
     end
   end
 end

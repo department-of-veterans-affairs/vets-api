@@ -106,7 +106,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                              tags: ["context:#{type}", 'version:v1'], **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
-                                              tags: ["context:#{authn}", 'version:v1'], **once)
+                                              tags: ["type:#{type}", "context:#{authn}", 'version:v1'], **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -343,12 +343,16 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'logs a status failure stat' do
           SAMLRequestTracker.create(
             uuid: login_uuid,
-            payload: { type: 'mhv' }
+            payload: { type: 'idme' }
           )
           expect(controller).to receive(:log_message_to_sentry)
-          expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
-                                         tags: ['context:mhv', 'version:v1', 'error:101'])
+          expect { post(:saml_callback, params: { RelayState: '{"type": "idme"}' }) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLRESPONSE_KEY,
+                                         tags: ['type:idme',
+                                                'context:http://idmanagement.gov/ns/assurance/loa/1/vets',
+                                                'version:v1'])
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
+                                          tags: ['context:idme', 'version:v1', 'error:101'])
 
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -617,13 +621,13 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'counts the triggered SAML request' do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
-                                         tags: ["context:#{LOA::IDME_LOA3}", 'version:v1'], **once)
+                                         tags: ['type:', "context:#{LOA::IDME_LOA3}", 'version:v1'], **once)
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
           Timecop.freeze(Time.current)
           expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).and_return(true)
-          expect_any_instance_of(SAML::PostURLService).to receive(:verify_url)
+          expect_any_instance_of(SAML::PostURLService).to receive(:verify_url).and_return(['http://uplevel', {}])
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
           post :saml_callback
@@ -737,6 +741,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+
+        it 'captures the invalid saml response in a PersonalInformationLog' do
+          post(:saml_callback)
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! Other SAML Response Error(s)')
         end
       end
 
@@ -861,6 +871,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+
+        it 'captures the invalid saml response in a PersonalInformationLog' do
+          post(:saml_callback)
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! on User/Session Validation')
         end
       end
 
