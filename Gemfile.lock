@@ -76,16 +76,16 @@ PATH
     claims_api (0.0.1)
 
 PATH
-  remote: modules/health_quest
-  specs:
-    health_quest (0.1.0)
-
-PATH
   remote: modules/covid_research
   specs:
     covid_research (0.1.0)
       rails (~> 6.0.3, >= 6.0.3.2)
       sidekiq
+
+PATH
+  remote: modules/health_quest
+  specs:
+    health_quest (0.1.0)
 
 PATH
   remote: modules/openid_auth

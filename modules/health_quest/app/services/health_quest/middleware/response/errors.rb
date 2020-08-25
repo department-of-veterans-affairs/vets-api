@@ -46,5 +46,4 @@ module HealthQuest
   end
 end
 
-
 Faraday::Response.register_middleware health_quest_errors: HealthQuest::Middleware::Response::Errors

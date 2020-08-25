@@ -30,7 +30,6 @@ module HealthQuest
       end
     end
 
-
     def mock_enabled?
       [true, 'true'].include?(Settings.hqva_mobile.mock)
     end

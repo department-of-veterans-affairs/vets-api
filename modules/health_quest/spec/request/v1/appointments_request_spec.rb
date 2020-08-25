@@ -50,11 +50,6 @@ RSpec.describe 'Appointment', type: :request do
         end
       end
 
-# LJG NOTE: this one is going to fail inside of lib/common/base.rb inside of faraday somehow
-# and is not easy to decipher. There a connection.send with a block, the block completes but
-# it dies in the call someplace and raises a backend exception
-#
-=begin
       context 'with a multi param query that returns no records' do
         let(:expected_body) do
           YAML.load_file(
@@ -72,13 +67,11 @@ RSpec.describe 'Appointment', type: :request do
         it 'returns HTTP status 200 and passes the body through' do
           VCR.use_cassette('health_quest/fhir/appointment/search_no_records', match_requests_on: %i[method uri]) do
             get "/health_quest/v1/Appointment?#{query_string}"
-
             expect(response).to have_http_status(:ok)
             expect(response.body).to eq(expected_body)
           end
         end
       end
-=end
     end
   end
 end
