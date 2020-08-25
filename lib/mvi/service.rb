@@ -9,7 +9,6 @@ require_relative 'configuration'
 require 'mvi/errors/errors'
 require 'mvi/messages/add_person_message'
 
-
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
   # to three MVI endpoints:

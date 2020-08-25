@@ -31,7 +31,6 @@ require 'search/configuration'
 require 'okta/configuration'
 require 'vet360/contact_information/configuration'
 
-
 # Read the redis config, create a connection and a namespace for breakers
 # .to_h because hashes from config_for don't support non-symbol keys
 redis_options = REDIS_CONFIG[:redis].to_h

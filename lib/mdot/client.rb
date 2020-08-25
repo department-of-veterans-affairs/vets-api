@@ -9,7 +9,6 @@ require_relative 'token'
 require_relative 'exceptions/key'
 require_relative 'exceptions/service_exception'
 
-
 module MDOT
   ##
   # Medical Devices Ordering Tool
