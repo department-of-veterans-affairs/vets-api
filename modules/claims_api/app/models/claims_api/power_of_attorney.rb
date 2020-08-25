@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/file_data'
-require_dependency 'claims_api/stamp_signature_error'
+require 'claims_api/concerns/file_data'
+require 'claims_api/stamp_signature_error'
+require 'json_marshal/marshaller'
 
 module ClaimsApi
   class PowerOfAttorney < ApplicationRecord
