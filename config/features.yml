@@ -122,10 +122,6 @@ features:
     actor_type: user
     description: >
       Enables STEM scholarship functionality
-  gibct_estimate_your_benefits:
-    actor_type: user
-    description: >
-      Enable 508 and usability enhancements for the Comparison Tool Profile Page Estimate Your Benefits section benefits estimator panel.
   form526_original_claims:
     actor_type: user
     description: >
