@@ -88,11 +88,6 @@ PATH
     openid_auth (0.0.1)
 
 PATH
-  remote: modules/va_facilities
-  specs:
-    va_facilities (0.0.1)
-
-PATH
   remote: modules/va_forms
   specs:
     va_forms (0.0.1)
@@ -965,7 +960,6 @@ DEPENDENCIES
   typhoeus
   tzinfo-data
   utf8-cleaner
-  va_facilities!
   va_forms!
   vaos!
   vba_documents!
