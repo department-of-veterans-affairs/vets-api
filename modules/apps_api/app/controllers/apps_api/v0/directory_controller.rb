@@ -11,7 +11,6 @@ module AppsApi
       # When this endpoint is hit, it sends a request to Okta to return all applications on our organization,
       # and filters out any that contain an ISO date in their label
       def index
-        okta_service = Okta::Service.new
         redis = Redis.new
         
         # Check for existing cache of our app list
@@ -21,7 +20,18 @@ module AppsApi
             data: filtered_apps
           }
         else
-          filtered_apps = []
+          filtered_apps = Okta::DirectoryService.new.get_apps
+          # This feature is currently in early-access and access will need to be requested from okta. We are currently using the EA feature to get all our user grants in the connected-applications profile feature so this shouldn't be an issue to add as well.
+          #get_scopes(apps)
+
+          render json: {
+            data: filtered_apps
+          }
+
+        end
+      end
+
+      def get_apps
           base_url = Settings.oidc.base_api_url + "/api/v1/apps?limit=200&filter=status+eq+\"ACTIVE\""
           unfiltered_apps = recursively_get_apps(okta_service, base_url)
           puts "Total apps before filtering: #{unfiltered_apps.length}"
@@ -32,20 +42,11 @@ module AppsApi
           # Iterate through the returned applications, and test for pattern matching, 
           # adding to our filtered apps array if pattern doesn't match
           filtered_apps = unfiltered_apps.select {|app| app["label"] !~ iso_pattern}
-
-          redis.set('okta_directory_apps', filtered_apps.to_json)
-
-          
-          # This feature is currently in early-access and access will need to be requested from okta. We are currently using the EA feature to get all our user grants in the connected-applications profile feature so this shouldn't be an issue to add as well.
-          #get_scopes(apps)
-
           puts "Total apps after filtering: #{filtered_apps.length}"
 
-          render json: {
-            data: filtered_apps
-          }
+          redis.set('okta_directory_apps', filtered_apps.to_json)
+          unfiltered_apps
 
-        end
       end
 
       def recursively_get_apps(okta_service, url="", unfiltered_apps=[])
@@ -63,10 +64,6 @@ module AppsApi
         unfiltered_apps
       end
 
-      def get_grants(app_id)
-        OktaRedis::Grants.all(app_id)
-      end
-      
       # Check if headers contains 'next' link, since 'next' is always after 'self', we can use .last as a consistent check
       def contains_next(headers)
         headers['link'].split(',').last.include?("next") 
