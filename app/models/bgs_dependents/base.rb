@@ -69,7 +69,7 @@ module BGSDependents
         birth_city_nm: payload['place_of_birth_city'],
         file_nbr: payload['va_file_number'],
         ssn_nbr: payload['ssn'],
-        death_dt: format_date(payload['death_date']),
+        death_dt: format_date_no_time(payload['death_date']),
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
         martl_status_type_cd: payload['martl_status_type_cd']
