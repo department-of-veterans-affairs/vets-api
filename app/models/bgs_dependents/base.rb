@@ -86,6 +86,12 @@ module BGSDependents
       Date.parse(date).to_time.iso8601
     end
 
+    def format_date_no_time(date)
+      return nil if date.nil?
+
+      Date.parse(date).iso8601
+    end
+
     def generate_address(address)
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
