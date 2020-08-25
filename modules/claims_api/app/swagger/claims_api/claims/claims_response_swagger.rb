@@ -85,10 +85,10 @@ module ClaimsApi
 
             property :status do
               key :type, :string
-              key :example, 'Claim recieved'
+              key :example, 'Claim received'
               key :description, 'Current status of the claim (See API description for more details)'
               key :enum, [
-                'Claim recieved',
+                'Claim received',
                 'Initial review',
                 'Evidence gathering, review, and decision',
                 'Preparation for notification',
@@ -295,10 +295,10 @@ module ClaimsApi
 
             property :status do
               key :type, :string
-              key :example, 'Claim recieved'
+              key :example, 'Claim received'
               key :description, 'Current status of the claim (See API description for more details)'
               key :enum, [
-                'Claim recieved',
+                'Claim received',
                 'Initial review',
                 'Evidence gathering, review, and decision',
                 'Preparation for notification',
