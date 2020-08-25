@@ -5,6 +5,6 @@ namespace :apps_api do
   task reload_apps_list: :environment do
     puts 'Loading apps data from okta'
     AppsApi::DirectoryReloader.new.perform
-    puts "Okta Applications have been reloaded and stored in cache"
+    puts 'Okta Applications have been reloaded and stored in cache'
   end
 end

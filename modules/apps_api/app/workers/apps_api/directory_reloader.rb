@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AppsApi
-  class DirectoryReloader 
+  class DirectoryReloader
     include Sidekiq::Worker
     def perform
       Okta::DirectoryService.new.get_apps

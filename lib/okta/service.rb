@@ -18,7 +18,7 @@ module Okta
         req.url url
         req.headers['Content-Type'] = 'application/json'
         req.headers['Accept'] = 'application/json'
-        req.headers['Authorization'] = "SSWS #{Settings.oidc.base_api_token}" 
+        req.headers['Authorization'] = "SSWS #{Settings.oidc.base_api_token}"
       end
     end
 
@@ -27,7 +27,7 @@ module Okta
         get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}")
       end
     end
-    
+
     def get_apps(url)
       with_monitoring do
         get_url_with_token(url)

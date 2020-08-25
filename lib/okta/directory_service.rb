@@ -4,28 +4,31 @@ require 'common/client/base'
 
 module Okta
   class DirectoryService < Common::Client::Base
-
     def get_apps
       okta_service = Okta::Service.new
       redis = Redis.new
-      base_url = Settings.oidc.base_api_url + "/api/v1/apps?limit=200&filter=status+eq+\"ACTIVE\""
+      base_url = Settings.oidc.base_api_url + '/api/v1/apps?limit=200&filter=status+eq+\"ACTIVE\"'
       unfiltered_apps = recursively_get_apps(okta_service, base_url)
 
       # matches any ISO date.
+      # rubocop:disable Metrics/LineLength
       iso_pattern = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
+      # rubocop:enable Metrics/LineLength
 
       # Iterate through the returned applications, and test for pattern matching,
       # adding to our filtered apps array if pattern doesn't match
-      filtered_apps = unfiltered_apps.select {|app| app['label'] !~ iso_pattern}
-      # This feature is currently in early-access and access will need to be requested from okta. We are currently using the EA feature to get all our user grants in the connected-applications profile feature so this shouldn't be an issue to add as well.
-      #get_scopes(apps)
+      filtered_apps = unfiltered_apps.reject { |app| app['label'] =~ iso_pattern }
+
+      # This feature is currently in early-access and access will need to be requested from okta.
+      # We are currently using the EA feature to get all our user grants in the connected-applications
+      # profile feature so this shouldn't be an issue to add as well.
+      # get_scopes(apps)
 
       redis.set('okta_directory_apps', filtered_apps.to_json)
       unfiltered_apps
-
     end
 
-    def recursively_get_apps(okta_service, url="", unfiltered_apps=[])
+    def recursively_get_apps(okta_service, url = '', unfiltered_apps = [])
       apps_response = okta_service.get_apps(url)
       # Moving apps in response body to iterable array
       unfiltered_apps.concat(apps_response.body)
