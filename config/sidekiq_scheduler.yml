@@ -155,3 +155,8 @@ VaForms::FetchLatest:
   cron: "0 0 * * * America/New_York"
   class: VaForms::FormReloader
   description: "Fetches latest VA Forms"
+
+AppsApi::ReloadAppsList:
+  cron: "0 */8 * * * America/New_York"
+  class: AppsApi::DirectoryReloader
+  description: "Fetches latest apps from Okta"
