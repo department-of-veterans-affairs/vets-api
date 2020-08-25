@@ -16,12 +16,13 @@ module BGS
 
       spouse = @dependents.find { |dependent| dependent[:type] == 'spouse' }
 
-      spouse_marriages.each do |dependent|
-        bgs_service.create_relationship(
-          vnp_relationship.params_for_686c(spouse[:vnp_participant_id], dependent)
-        )
-      end
+      send_spouse_marriage_history_relationships(spouse, spouse_marriages)
+      send_vet_dependent_relationships(vet_dependents)
+    end
 
+    private
+
+    def send_vet_dependent_relationships(vet_dependents)
       vet_dependents.each do |dependent|
         bgs_service.create_relationship(
           vnp_relationship.params_for_686c(@veteran[:vnp_participant_id], dependent)
@@ -29,7 +30,13 @@ module BGS
       end
     end
 
-    private
+    def send_spouse_marriage_history_relationships(spouse, spouse_marriages)
+      spouse_marriages.each do |dependent|
+        bgs_service.create_relationship(
+          vnp_relationship.params_for_686c(spouse[:vnp_participant_id], dependent)
+        )
+      end
+    end
 
     def bgs_service
       BGS::Service.new(@user)

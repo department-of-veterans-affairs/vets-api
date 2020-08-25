@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe BGS::VnpRelationships do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
+  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:participant_id) { '146189' }
   let(:veteran_hash) { { vnp_participant_id: '146189' } }
 
