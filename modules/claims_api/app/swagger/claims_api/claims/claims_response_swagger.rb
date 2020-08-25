@@ -86,7 +86,7 @@ module ClaimsApi
             property :status do
               key :type, :string
               key :example, 'Claim received'
-              key :description, 'Current status of the claim (See API description for more details)'
+              key :description, 'Current status of the claim'
               key :enum, [
                 'Claim received',
                 'Initial review',
@@ -296,7 +296,7 @@ module ClaimsApi
             property :status do
               key :type, :string
               key :example, 'Claim received'
-              key :description, 'Current status of the claim (See API description for more details)'
+              key :description, 'Current status of the claim'
               key :enum, [
                 'Claim received',
                 'Initial review',
