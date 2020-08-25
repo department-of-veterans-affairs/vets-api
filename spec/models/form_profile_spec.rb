@@ -726,7 +726,7 @@ RSpec.describe FormProfile, type: :model do
           'first' => 'Cosmo',
           'last' => 'Kramer'
         },
-        'ssn' => user.ssn,
+        'ssn' => user.ssn
       },
       'isLoggedIn' => true
     }

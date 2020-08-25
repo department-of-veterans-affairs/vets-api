@@ -97,7 +97,7 @@ class FormProfile
     dependents: ['686C-674'],
     decision_review: ['20-0996'],
     mdot: ['MDOT'],
-    vre_counseling: ['28-8832'],
+    vre_counseling: ['28-8832']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -122,7 +122,7 @@ class FormProfile
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'MDOT' => ::FormProfiles::MDOT,
     '22-10203' => ::FormProfiles::VA10203,
-    '28-8832' => ::FormProfiles::VA288832,
+    '28-8832' => ::FormProfiles::VA288832
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
