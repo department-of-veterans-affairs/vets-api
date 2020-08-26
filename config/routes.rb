@@ -288,6 +288,10 @@ Rails.application.routes.draw do
     namespace :coronavirus_chatbot do
       resource :tokens, only: :create
     end
+
+    namespace :ask do
+      resource :asks, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
@@ -317,7 +321,6 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'

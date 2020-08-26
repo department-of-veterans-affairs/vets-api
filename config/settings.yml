@@ -394,7 +394,11 @@ reports:
 oidc:
   auth_server_metadata_url: ~
   issuer: ~
+  issuer_prefix: ~
   audience: ~
+  isolated_audience:
+    default: ~
+    veteran_verification: ~
   base_api_url: https://example.com
   base_api_token: ~
 
@@ -452,10 +456,6 @@ search:
   affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
-
-bing:
-  base_api_url: "https://dev.virtualearth.net/REST/v1"
-  key: fake_key
 
 flipper:
   admin_user_emails:
@@ -574,3 +574,10 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
+genisis:
+  base_url: https://vaausapprne60.aac.dva.va.gov
+  service_path: /COVID19Service
+  user: TestUser
+  pass: bogus

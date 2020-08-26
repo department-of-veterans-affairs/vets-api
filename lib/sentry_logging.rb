@@ -21,7 +21,7 @@ module SentryLogging
     tags_context = {},
     level = 'error'
   )
-    level = 'info' if client_error?(extra_context[:va_exception_errors])
+    level = 'info' if extra_context.is_a?(Hash) && client_error?(extra_context[:va_exception_errors])
     level = normalize_level(level)
     if Settings.sentry.dsn.present?
       Raven.extra_context(extra_context) if non_nil_hash?(extra_context)

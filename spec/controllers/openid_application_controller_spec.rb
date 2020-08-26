@@ -6,6 +6,7 @@ require 'okta/service'
 RSpec.describe OpenidApplicationController, type: :controller do
   let(:token) { okta_jwt(%w[profile email openid va_profile]) }
   let(:payload) { token[0] }
+  let(:iss) { token[0]['iss'] }
   let(:kid) { token[1]['kid'] }
   let(:alg) { token[1]['alg'] }
 
@@ -23,8 +24,8 @@ RSpec.describe OpenidApplicationController, type: :controller do
         @encoded_token = JWT.encode(payload, @public_key, alg, 'kid' => kid)
         request.headers['Authorization'] = "Bearer #{@encoded_token}"
 
-        allow(OIDC::KeyService).to receive(:get_key).with(anything).and_return(nil)
-        allow(OIDC::KeyService).to receive(:get_key).with(kid).and_return(@public_key)
+        allow(OIDC::KeyService).to receive(:get_key).with(anything, anything).and_return(nil)
+        allow(OIDC::KeyService).to receive(:get_key).with(kid, iss).and_return(@public_key)
       end
 
       controller do
@@ -109,7 +110,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
         @encoded_token = JWT.encode(payload, @public_key, alg, 'kid' => kid)
         request.headers['Authorization'] = "Bearer #{@encoded_token}"
 
-        allow(OIDC::KeyService).to receive(:get_key).with(kid).and_return(@public_key)
+        allow(OIDC::KeyService).to receive(:get_key).with(kid, iss).and_return(@public_key)
       end
 
       it 'permits access to one action with the correct scope' do
