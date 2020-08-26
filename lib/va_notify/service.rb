@@ -58,10 +58,6 @@ module VaNotify
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
-        puts "ERROR:"
-        puts error
-        puts error.status
-
         save_error_details(error)
         raise_backend_exception("VANOTIFY_#{error.status}", self.class, error) if error.status >= 400
       else

@@ -19,7 +19,6 @@ module VaNotify
     end
 
     def mock_enabled?
-      puts "IS THE MOCK ENABLED? #{Settings.vanotify.mock}"
       Settings.vanotify.mock || false
     end
 
