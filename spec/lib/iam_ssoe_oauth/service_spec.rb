@@ -5,6 +5,9 @@ require 'common/exceptions'
 require 'iam_ssoe_oauth/service'
 
 describe 'IAMSSOeOAuth::Service' do
+
+  let(:service) { IAMSSOeOAuth::Service.new }
+
   before do
     allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_cert)
       .and_return(instance_double('OpenSSL::X509::Certificate'))
@@ -16,7 +19,7 @@ describe 'IAMSSOeOAuth::Service' do
     context 'with an active user response' do
       let(:response) do
         VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
-          subject.post_introspect('ypXeAwQedpmAy5xFD2u5')
+          service.post_introspect('ypXeAwQedpmAy5xFD2u5')
         end
       end
 
@@ -49,7 +52,7 @@ describe 'IAMSSOeOAuth::Service' do
     context 'with an inactive user response' do
       it 'raises an unauthorized error' do
         VCR.use_cassette('iam_ssoe_oauth/introspect_inactive') do
-          expect { subject.post_introspect('ypXeAwQedpmAy5xFD2u4') }.to raise_error(
+          expect { service.post_introspect('ypXeAwQedpmAy5xFD2u4') }.to raise_error(
             Common::Exceptions::Unauthorized
           )
         end
