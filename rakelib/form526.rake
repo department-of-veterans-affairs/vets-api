@@ -140,7 +140,7 @@ namespace :form526 do
             sub_id: submission.id,
             p_id: submission.auth_headers['va_eauth_pid'],
             date: submission.created_at,
-            is_bdd: submission.is_bdd?,
+            is_bdd: submission.bdd?,
             job_class: job_status.job_class
           )
           errors[message][:participant_ids].add(submission.auth_headers['va_eauth_pid'])
