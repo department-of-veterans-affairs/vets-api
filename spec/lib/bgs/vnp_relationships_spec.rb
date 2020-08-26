@@ -67,7 +67,11 @@ RSpec.describe BGS::VnpRelationships do
 
           dependent_array = [divorce]
           dependents = BGS::VnpRelationships.new(
-            proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user
+            proc_id: proc_id,
+            veteran: veteran_hash,
+            dependents: dependent_array,
+            step_children: [],
+            user: user
           ).create_all
 
           expect(dependents.first).to include(
