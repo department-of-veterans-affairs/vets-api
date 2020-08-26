@@ -3,8 +3,7 @@
 require 'rails_helper'
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
-require 'evss/disability_compensation_form/service_all_claim'
-require 'evss/disability_compensation_form/service_exception'
+require 'claims_api/claim_establisher'
 
 RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   subject { described_class }
