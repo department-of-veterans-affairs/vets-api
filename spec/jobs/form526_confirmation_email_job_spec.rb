@@ -57,8 +57,12 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
       it 'handles 4xx errors when sending an email' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
 
-        error_response = double(code: 404, body: 'an error')
-        error = Notifications::Client::RequestError.new(error_response)
+        error = Common::Exceptions::BackendServiceException.new(
+            'VANOTIFY_400',
+            { source: VaNotify::Service.to_s },
+            400,
+            'Error'
+        )
         allow(notification_client).to receive(:send_email).and_raise(error)
 
         personalization_parameters = {
@@ -75,8 +79,12 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
       it 'handles 5xx errors when sending an email' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
 
-        error_response = double(code: 500, body: 'a retryable error')
-        error = Notifications::Client::RequestError.new(error_response)
+        error = Common::Exceptions::BackendServiceException.new(
+            'VANOTIFY_500',
+            { source: VaNotify::Service.to_s },
+            500,
+            'Error'
+        )
         allow(notification_client).to receive(:send_email).and_raise(error)
 
         personalization_parameters = {
@@ -87,7 +95,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         }
         expect(subject).to receive(:log_exception_to_sentry).with(error)
         expect { subject.perform(personalization_parameters) }
-          .to raise_error(Notifications::Client::RequestError)
+          .to raise_error(Common::Exceptions::BackendServiceException)
           .and trigger_statsd_increment('worker.form526_confirmation_email.error')
       end
 
