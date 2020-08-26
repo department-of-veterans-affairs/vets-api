@@ -644,10 +644,12 @@ module PdfFill
         subjects.each do |subject|
           signature = combine_full_name(@form_data.dig(subject, 'fullName'))
 
-          @form_data['helpers'][subject]['signature'] = {
-            'name' => signature ? "/es/ #{signature}" : nil,
-            'date' => @form_data[subject].present? ? timestamp : nil
-          }
+          if @form_data[subject].present? && signature
+            @form_data['helpers'][subject]['signature'] = {
+              'name' => "/es/ #{signature}",
+              'date' => timestamp
+            }
+          end
         end
       end
 
