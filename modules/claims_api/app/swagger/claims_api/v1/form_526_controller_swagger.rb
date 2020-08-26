@@ -346,13 +346,15 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
+          request_body do
             key :name, 'payload'
             key :in, :body
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :'$ref', :Form526Input
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form526Input
+              end
             end
           end
 
