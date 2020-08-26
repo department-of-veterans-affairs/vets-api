@@ -44,8 +44,6 @@ module IAMSSOeOAuth
     private
 
     def ssl_options
-      return { verify: false } if !cert? && (Rails.env.development? || Rails.env.test?)
-
       if ssl_cert && ssl_key
         {
           client_cert: ssl_cert,
@@ -60,10 +58,6 @@ module IAMSSOeOAuth
 
     def ssl_key
       OpenSSL::PKey::RSA.new(File.read(KEY_PATH))
-    end
-
-    def cert?
-      CERT_PATH.present? && KEY_PATH.present?
     end
   end
 end

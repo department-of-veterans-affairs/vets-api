@@ -7,9 +7,9 @@ require 'iam_ssoe_oauth/service'
 describe IAMSSOeOAuth::Service do
   before do
     allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_cert)
-                                                     .and_return(instance_double('OpenSSL::X509::Certificate'))
+      .and_return(instance_double('OpenSSL::X509::Certificate'))
     allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_key)
-                                                     .and_return(instance_double('OpenSSL::PKey::RSA'))
+      .and_return(instance_double('OpenSSL::PKey::RSA'))
   end
 
   describe '#post_introspect' do
