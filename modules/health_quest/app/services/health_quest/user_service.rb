@@ -71,8 +71,10 @@ module HealthQuest
       url = '/users/v2/session?processRules=true'
       token = HealthQuest::JWT.new(user).token
       response = perform(:post, url, token, headers)
+      # rubocop:disable Layout/LineLength
       raise Common::Exceptions::BackendServiceException.new('HealthQuest_502', source: self.class) unless body?(response)
 
+      # rubocop:enable Layout/LineLength
       Rails.logger.info('HealthQuest session created',
                         { account_uuid: user.account_uuid, jti: decoded_token(token)['jti'] })
 

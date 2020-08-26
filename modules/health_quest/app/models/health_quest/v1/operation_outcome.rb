@@ -11,7 +11,8 @@ module HealthQuest
     #
     # @example wrap a BackendServiceException in an outcome
     #   issue = Common::Exceptions::BackendServiceException.new('HEALTH_QUEST_502', source: 'Klass')
-    #   operation_outcome = HealthQuest::V1::OperationOutcome.new(resource_type: 'Organization', id: '123', issue: issue)
+    #   operation_outcome = HealthQuest::V1::OperationOutcome.new(resource_type: 'Organization',
+    #   id: '123', issue: issue)
     class OperationOutcome
       attr_reader :resource_type, :id, :issue
 
