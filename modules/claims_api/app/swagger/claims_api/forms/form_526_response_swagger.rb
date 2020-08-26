@@ -9,11 +9,11 @@ module ClaimsApi
       swagger_component do
         schema :Form526Input do
           key :required, %i[type attributes]
+          key :example, JSON.parse(File.read(EXAMPLE_PATH))
           key :description, '526 Claim Form submission with minimum required for auto establishment. Note - Until a claim is established in VA systems, values may show null'
 
           property :data do
             key :type, :object
-            key :example, JSON.parse(File.read(EXAMPLE_PATH))
             property :type do
               key :type, :string
               key :example, 'form/526'
