@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'common/exceptions'
 require 'iam_ssoe_oauth/service'
 
-describe IAMSSOeOAuth::Service do
+describe 'IAMSSOeOAuth::Service' do
   before do
     allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_cert)
       .and_return(instance_double('OpenSSL::X509::Certificate'))
