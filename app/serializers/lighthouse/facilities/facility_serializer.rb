@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_facilities/api_serialization'
-
 class Lighthouse::Facilities::FacilitySerializer
   include FastJsonapi::ObjectSerializer
 
