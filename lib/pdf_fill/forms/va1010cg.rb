@@ -697,7 +697,7 @@ module PdfFill
 
       def generate_signiture_timestamp
         time = Time.now.in_time_zone('Eastern Time (US & Canada)')
-        DateTime.parse(time.to_s).strftime('%m/%d/%Y %l:%M%P ') + Time.now.zone
+        time.strftime('%m/%d/%Y %l:%M%P ') + time.zone
       end
     end
   end
