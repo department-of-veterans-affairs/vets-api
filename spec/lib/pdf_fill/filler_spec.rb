@@ -1,9 +1,7 @@
 require 'rails_helper'
 # frozen_string_literal: true
 
-PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
-
-describe PdfFill::Filler do
+describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
   describe '#combine_extras' do
@@ -43,26 +41,8 @@ describe PdfFill::Filler do
     end
   end
 
-  def simplify_fields(fields)
-    fields.map do |field|
-      {
-        name: field.name,
-        value: field.value
-      }
-    end
-  end
-
-  def compare_pdfs(pdf1, pdf2)
-    fields = []
-    [pdf1, pdf2].each do |pdf|
-      fields << simplify_fields(described_class::PDF_FORMS.get_fields(pdf))
-    end
-
-    fields[0] == fields[1]
-  end
-
   describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21P-530 21P-527EZ 10-10CG].each do |form_id|
+    %w[21P-530 21P-527EZ 10-10CG 686C-674].each do |form_id|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
@@ -74,13 +54,14 @@ describe PdfFill::Filler do
               fact_names = {
                 '21P-527EZ' => :pension_claim,
                 '21P-530' => :burial_claim,
-                '10-10CG' => :caregivers_assistance_claim
+                '10-10CG' => :caregivers_assistance_claim,
+                '686C-674' => :dependency_claim
               }
 
               saved_claim = create(fact_names[form_id], form: form_data.to_json)
 
               if type == 'overflow'
-                # compare_pdfs only compares based on filled fields, it doesn't read the extras page
+                # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil
 
                 expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
@@ -102,7 +83,7 @@ describe PdfFill::Filler do
               end
 
               expect(
-                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+                pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)
 
               File.delete(file_path)
@@ -124,7 +105,7 @@ describe PdfFill::Filler do
 
             it 'fills the form correctly' do
               if type == 'overflow'
-                # compare_pdfs only compares based on filled fields, it doesn't read the extras page
+                # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil
                 expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
                   the_extras_generator = extras_generator
@@ -145,7 +126,7 @@ describe PdfFill::Filler do
               end
 
               expect(
-                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+                pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)
 
               File.delete(file_path)

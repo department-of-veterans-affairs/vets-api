@@ -59,7 +59,7 @@ module VAOS
       # @param token [String] The JWT token received in the response
       # @return [Hash] returns a JSON Hash object corresponding to JWT specification
       def decode_jwt_no_sig_check(token)
-        ::JWT.decode(token, nil, false).first
+        JWT.decode(token, nil, false).first
       end
 
       # #user_session_request? determines if current request is a user session request

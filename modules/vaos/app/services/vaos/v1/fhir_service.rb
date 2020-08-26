@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../base_service'
-require 'common/exceptions/external/backend_service_exception'
-require 'common/exceptions/internal/invalid_field_value'
+require 'common/exceptions/backend_service_exception'
+require 'common/exceptions/invalid_field_value'
 
 module VAOS
   module V1
@@ -12,7 +12,7 @@ module VAOS
     #   service = VAOS::V1::FHIRService.new(user, :Organization)
     #   response = service.read(987654)
     #
-    class FHIRService < VAOS::BaseService
+    class FHIRService < VAOS::SessionService
       STATSD_KEY_PREFIX = 'api.vaos.fhir'
       RESOURCES = %i[Appointment HealthcareService Location Organization Patient Schedule Slot].freeze
 
@@ -45,11 +45,33 @@ module VAOS
         query_string.blank? ? perform(:get, @resource_type.to_s) : perform(:get, "#{@resource_type}?#{query_string}")
       end
 
+      # The create interaction creates a resource based on the FHIR resource passed in the request body.
+      # The interaction is performed by and HTTP POST command.
+      # http://hl7.org/fhir/dstu2/http.html#create
+      #
+      # @body JSON string containing POST request values in the body key.
+      #
+      def create(body: nil)
+        perform(:post, @resource_type.to_s, body)
+      end
+
+      # The update interaction creates a new current version for an existing resource or creates an initial verson
+      # if no resource already exists for the given id.
+      # The interaction is performed by the HTTP PUT command.
+      # http://hl7.org/fhir/dstu2/http.html#update
+      #
+      # @id The id of the resource to update (must match the id continained in the put body)
+      # @body The resource with an id element that has the same value as the id in the URL.
+      #
+      def update(id: nil, body: nil)
+        perform(:put, "#{@resource_type}/#{id}", body)
+      end
+
       private
 
-      def perform(method, path)
+      def perform(method, path, params = nil)
         StatsD.increment("#{action_statsd_key(path)}.total")
-        super(method, path, nil, headers)
+        super(method, path, params, headers)
       rescue => e
         StatsD.increment("#{action_statsd_key(path)}.failure")
         raise e

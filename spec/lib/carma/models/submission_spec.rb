@@ -50,6 +50,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
     it 'is accessible' do
       subject.metadata = {
         claim_id: 123,
+        claim_guid: 'my-uuid',
         veteran: {
           icn: 'VET1234',
           is_veteran: true
@@ -68,6 +69,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       # metadata
       expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(123)
+      expect(subject.metadata.claim_guid).to eq('my-uuid')
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
@@ -92,6 +94,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       # metadata
       expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(nil)
+      expect(subject.metadata.claim_guid).to eq(nil)
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq(nil)
@@ -120,6 +123,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         data: expected[:data],
         metadata: {
           claim_id: 123,
+          claim_guid: 'my-uuid',
           veteran: {
             icn: 'VET1234',
             is_veteran: true
@@ -142,6 +146,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       # metadata
       expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(subject.metadata.claim_id).to eq(123)
+      expect(subject.metadata.claim_guid).to eq('my-uuid')
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
@@ -171,6 +176,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
+      expect(submission.metadata.claim_guid).to eq(claim.guid)
     end
 
     it 'will override :claim_id when passed in metadata and use claim.id instead' do
@@ -185,6 +191,21 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
+    end
+
+    it 'will override :claim_guid when passed in metadata and use claim.guid instead' do
+      claim = build(:caregivers_assistance_claim)
+
+      submission = described_class.from_claim(claim, claim_guid: 'not-this-claims-guid')
+
+      expect(submission).to be_instance_of(described_class)
+      expect(submission.data).to eq(claim.parsed_form)
+      expect(submission.carma_case_id).to eq(nil)
+      expect(submission.submitted_at).to eq(nil)
+
+      expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
+      expect(submission.metadata.claim_guid).not_to eq('not-this-claims-guid')
+      expect(submission.metadata.claim_guid).to eq(claim.guid)
     end
   end
 
@@ -206,6 +227,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         },
         metadata: {
           claim_id: 123,
+          claim_guid: 'my-uuid',
           veteran: {
             icn: 'VET1234',
             is_veteran: true
@@ -229,6 +251,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           },
           'metadata' => {
             'claimId' => 123,
+            'claimGuid' => 'my-uuid',
             'veteran' => {
               'icn' => 'VET1234',
               'isVeteran' => true
@@ -255,6 +278,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
           },
           metadata: {
             claim_id: 123,
+            claim_guid: 'my-uuid',
             veteran: {
               icn: 'VET1234',
               is_veteran: false
@@ -278,6 +302,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
             },
             'metadata' => {
               'claimId' => 123,
+              'claimGuid' => 'my-uuid',
               'veteran' => {
                 'icn' => nil,
                 'isVeteran' => false
@@ -325,13 +350,13 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         submission.submitted_at = DateTime.now.iso8601
         submission.carma_case_id = 'aB935000000A9GoCAK'
 
-        expect { submission.submit! }.to raise_error('This submission has already been submitted to CARMA')
+        expect { submission.submit!(double) }.to raise_error('This submission has already been submitted to CARMA')
       end
     end
 
-    context 'when Flipper enabled' do
+    context 'when :stub_carma_responses Flipper is disabled' do
       it 'submits to CARMA, and updates :carma_case_id and :submitted_at' do
-        expected_carma_body = {
+        expected_response = {
           'data' => {
             'carmacase' => {
               'id' => 'aB935000000F3VnCAK',
@@ -341,25 +366,29 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         }
 
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false)
-        expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission_stub)
+
+        carma_client = double
+        expect(carma_client).not_to receive(:create_submission_stub)
 
         expect(submission.carma_case_id).to eq(nil)
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
 
-        VCR.use_cassette 'carma/submissions/create/201' do
-          submission.submit!
-        end
+        expect(carma_client).to receive(:create_submission).and_return(
+          expected_response
+        )
 
-        expect(submission.carma_case_id).to eq(expected_carma_body['data']['carmacase']['id'])
-        expect(submission.submitted_at).to eq(expected_carma_body['data']['carmacase']['createdAt'])
+        submission.submit!(carma_client)
+
+        expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
+        expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
         expect(submission.submitted?).to eq(true)
       end
     end
 
-    context 'when Flipper disabled' do
+    context 'when :stub_carma_responses Flipper is enabled' do
       it 'returns a hardcoded CARMA response, and updates :carma_case_id and :submitted_at' do
-        expected_carma_body = {
+        expected_response = {
           'data' => {
             'carmacase' => {
               'id' => 'aB935000000F3VnCAK',
@@ -369,22 +398,27 @@ RSpec.describe CARMA::Models::Submission, type: :model do
         }
 
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true)
-        expect_any_instance_of(CARMA::Client::Client).not_to receive(:create_submission)
 
-        expect_any_instance_of(CARMA::Client::Client).to receive(
+        expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
+
+        carma_client = double
+        expect(carma_client).not_to receive(:create_submission)
+        expect(carma_client).to receive(
           :create_submission_stub
+        ).with(
+          :REQUEST_PAYLOAD
         ).and_return(
-          expected_carma_body
+          expected_response
         )
 
         expect(submission.carma_case_id).to eq(nil)
         expect(submission.submitted_at).to eq(nil)
         expect(submission.submitted?).to eq(false)
 
-        submission.submit!
+        submission.submit!(carma_client)
 
-        expect(submission.carma_case_id).to eq(expected_carma_body['data']['carmacase']['id'])
-        expect(submission.submitted_at).to eq(expected_carma_body['data']['carmacase']['createdAt'])
+        expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
+        expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
         expect(submission.submitted?).to eq(true)
       end
     end

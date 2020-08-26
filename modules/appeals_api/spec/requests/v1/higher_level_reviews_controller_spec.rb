@@ -14,6 +14,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
     @data = fixture_to_s 'valid_200996.json'
     @invalid_data = fixture_to_s 'invalid_200996.json'
     @headers = fixture_as_json 'valid_200996_headers.json'
+    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json'
     @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
   end
 
@@ -22,10 +23,22 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
   describe '#create' do
     let(:path) { base_path 'higher_level_reviews' }
 
-    it 'create an HLR and persist the data' do
-      post(path, params: @data, headers: @headers)
-      expect(parsed['data']['type']).to eq('appeals_api_higher_level_reviews')
-      expect(parsed['data']['attributes']['status']).to eq('pending')
+    context 'creates an HLR and persists the data' do
+      it 'with all headers' do
+        post(path, params: @data, headers: @headers)
+        expect(parsed['data']['type']).to eq('higherLevelReview')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+      it 'with the minimum required headers' do
+        post(path, params: @data, headers: @minimum_required_headers)
+        expect(parsed['data']['type']).to eq('higherLevelReview')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+      it 'fails when a required header is missing' do
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+      end
     end
 
     it 'create the job to build the PDF' do
@@ -47,7 +60,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
     it 'returns a response when valid' do
       post(path, params: @data, headers: @headers)
       expect(parsed['data']['attributes']['status']).to eq('valid')
-      expect(parsed['data']['type']).to eq('appeals_api_higher_level_review_validation')
+      expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
     end
 
     it 'returns a response when invalid' do
@@ -79,7 +92,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
       uuid = create(:higher_level_review).id
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
-      expect(parsed.dig('data', 'attributes', 'form_data')).to be_a Hash
+      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end
 
     it 'returns an error when given a bad uuid' do

@@ -35,6 +35,14 @@ module EVSS
         PIFInUse: 'evss.disability_compensation_form.pif_in_use'
       }.freeze
 
+      # Retry if any upstream external service unavailability exceptions (unless it is caused by an invalid EP code)
+      # and any PIF-in-use exceptions are encountered.
+
+      def retryable?
+        (@key == 'evss.external_service_unavailable' && only_has_retriable_message_texts?) ||
+          (@key == 'evss.disability_compensation_form.pif_in_use')
+      end
+
       def errors
         Array(
           Common::Exceptions::SerializableError.new(
@@ -44,6 +52,10 @@ module EVSS
       end
 
       private
+
+      def only_has_retriable_message_texts?
+        @messages.none? { |msg| msg['text'].include?('EP Code is not valid') }
+      end
 
       def i18n_key
         @key

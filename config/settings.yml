@@ -17,13 +17,16 @@ saml:
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
-  idp_metadata_file: /fake/path/to/metadata
-  cert_path: config/certs/vetsgov-localhost.crt
+  idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
+  cert_path: ~
   cert_new_path: ~
-  key_path: config/certs/vetsgov-localhost.key
-  issuer: https://ssoe-sp-dev.va.gov
+  key_path: ~
+  issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://pint.eauth.va.gov/pkmslogout
+  logout_url: https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html
+  request_signing: false
+  response_signing: false
+  response_encryption: false
 
 session_cookie:
   secure: false
@@ -60,6 +63,7 @@ secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d
 debts:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
+  mock: true
   url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465'
 
 review_instance_slug: ~
@@ -77,8 +81,6 @@ salesforce-carma:
 
 salesforce:
   env: dev
-  signing_key_path: 'spec/fixtures/vic/private.key'
-  consumer_key: d669f7d339fd25af442bf75bb643c4c45f0f05fb3cb39cc77521e2011c6bb84086bb624d7ef14d715736
 
 # Settings for Education Benefits
 edu:
@@ -392,7 +394,11 @@ reports:
 oidc:
   auth_server_metadata_url: ~
   issuer: ~
+  issuer_prefix: ~
   audience: ~
+  isolated_audience:
+    default: ~
+    veteran_verification: ~
   base_api_url: https://example.com
   base_api_token: ~
 
@@ -451,15 +457,13 @@ search:
   mock_search: true
   url: https://search.usa.gov/api/v2
 
-bing:
-  base_api_url: "https://dev.virtualearth.net/REST/v1"
-  key: fake_key
-
 flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - bconley@governmentcio.com
     - bill.ryan@adhocteam.us
+    - cory.trimm@va.gov
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
@@ -470,11 +474,13 @@ flipper:
     - hughes_dustin@bah.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
+    - jesse.cohn@adhocteam.us
     - johnny@oddball.io
     - johnpaul.ashenfelter@oddball.io
     - kabrown@thoughtworks.com
     - kam@adhocteam.us
     - keifer@oddball.io
+    - kadams@governmentcio.com
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
@@ -484,8 +490,11 @@ flipper:
     - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
     - mdewey@governmentcio.com
+    - micah@adhocteam.us
+    - michael.fleet@oddball.io
     - n.ratana@gmail.com
     - narin@adhocteam.us
+    - nick.sullivan@adhocteam.us
     - osanchez@governmentcio.com
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
@@ -497,10 +506,13 @@ flipper:
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
+    - samara.strauss@va.gov
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
-    - zurbergram@gmail.com  
+    - zurbergram@gmail.com
+    - tony.williams@va.gov
+    - jennie.mcgibney@va.gov
 
 bgs:
   application: ~
@@ -556,3 +568,16 @@ vanotify:
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+
+# Settings to connect to the drupal forms graphql api
+va_forms:
+  drupal_username: ~
+  drupal_password: ~
+  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
+genisis:
+  base_url: https://vaausapprne60.aac.dva.va.gov
+  service_path: /COVID19Service
+  user: TestUser
+  pass: bogus

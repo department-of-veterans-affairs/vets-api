@@ -13,15 +13,14 @@ module V1
     REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
-    STATSD_SSO_NEW_FORCEAUTH = 'api.auth.new.forceauth'
-    STATSD_SSO_NEW_INBOUND = 'api.auth.new.inbound'
+    STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
+    STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
-    STATSD_LOGIN_INBOUND = 'api.auth.login.inbound'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
@@ -52,18 +51,19 @@ module V1
     end
 
     def saml_callback
+      set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+      saml_response_stats(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
     rescue SAML::SAMLError => e
-      log_message_to_sentry(e.message, e.level, extra_context: e.context)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: e.code)
-      callback_stats(:failure, saml_response, e.tag || e.code)
+      handle_callback_error(e, :failure, saml_response, e.level, e.context, e.code, e.tag)
     rescue => e
-      log_exception_to_sentry(e, {}, {}, :error)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
-      callback_stats(:failed_unknown)
+      # the saml_response variable may or may not be defined depending on
+      # where the exception was raised
+      resp = defined?(saml_response) && saml_response
+      handle_callback_error(e, :failed_unknown, resp)
     ensure
       callback_stats(:total)
     end
@@ -75,18 +75,19 @@ module V1
 
     private
 
-    def force_authn?
-      params[:force]&.downcase == 'true'
-    end
-
-    def inbound_ssoe?
-      params[:inbound]&.downcase == 'true'
+    def set_sentry_context_for_callback
+      temp_session_object = Session.find(session[:token])
+      temp_current_user = User.find(temp_session_object.uuid) if temp_session_object
+      Raven.extra_context(
+        current_user_uuid: temp_current_user.try(:uuid),
+        current_user_icn: temp_current_user.try(:mhv_icn)
+      )
     end
 
     def saml_settings(options = {})
       # add a forceAuthn value to the saml settings based on the initial options or
-      # the "force" value in the query params
-      options[:force_authn] ||= force_authn?
+      # default to false
+      options[:force_authn] ||= false
       SAML::SSOeSettingsService.saml_settings(options)
     end
 
@@ -108,39 +109,37 @@ module V1
 
     def user_login(saml_response)
       user_session_form = UserSessionForm.new(saml_response)
-      unless user_session_form.valid?
-        login_stats(:failure, saml_response, user_session_form)
-        raise_saml_error(user_session_form)
-      end
+      raise_saml_error(user_session_form) unless user_session_form.valid?
 
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
       helper = url_service(user_session_form.saml_uuid)
       if helper.should_uplevel?
-        render_login('verify')
+        render_login('verify', user_session_form.saml_uuid)
       else
         redirect_to helper.login_redirect_url
-        login_stats(:success, saml_response, user_session_form)
+        login_stats(:success, saml_response)
       end
     end
 
     def render_login(type, previous_saml_uuid = nil)
-      login_url, post_params = login_params(type, previous_saml_uuid)
+      force = (type != 'custom')
+      helper = url_service(previous_saml_uuid, force)
+      login_url, post_params = login_params(type, helper)
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
                                locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
+      saml_request_stats(helper.tracker)
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
-    def login_params(type, previous_saml_uuid = nil)
+    def login_params(type, helper)
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
 
-      force = (type != 'custom')
-      helper = url_service(previous_saml_uuid, force)
       case type
       when 'signup'
         helper.signup_url
@@ -162,6 +161,33 @@ module V1
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
+    def saml_request_stats(tracker)
+      values = {
+        'id' => tracker&.uuid,
+        'authn' => tracker&.payload_attr(:authn_context),
+        'type' => tracker&.payload_attr(:type)
+      }
+      Rails.logger.info("SSOe: SAML Request => #{values}")
+      StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
+                       tags: ["type:#{tracker&.payload_attr(:type)}",
+                              "context:#{tracker&.payload_attr(:authn_context)}",
+                              VERSION_TAG])
+    end
+
+    def saml_response_stats(saml_response)
+      type = JSON.parse(params[:RelayState] || '{}')['type']
+      values = {
+        'id' => saml_response.in_response_to,
+        'authn' => saml_response.authn_context,
+        'type' => type
+      }
+      Rails.logger.info("SSOe: SAML Response => #{values}")
+      StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,
+                       tags: ["type:#{type}",
+                              "context:#{saml_response.authn_context}",
+                              VERSION_TAG])
+    end
+
     def user_logout(saml_response)
       logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
       if logout_request.present?
@@ -177,14 +203,11 @@ module V1
     def new_stats(type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
-      StatsD.increment(STATSD_SSO_NEW_FORCEAUTH, tags: tags) if force_authn?
-      StatsD.increment(STATSD_SSO_NEW_INBOUND, tags: tags) if inbound_ssoe?
     end
 
-    def login_stats(status, _saml_response, user_session_form)
-      tracker = url_service(user_session_form&.saml_uuid).tracker
+    def login_stats(status, saml_response, error = nil)
+      tracker = url_service(saml_response&.in_response_to).tracker
       type = tracker.payload_attr(:type)
-      inbound = tracker.payload_attr(:inbound_ssoe)
       tags = ["context:#{type}", VERSION_TAG]
       case status
       when :success
@@ -192,11 +215,9 @@ module V1
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
-        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:success']) if inbound
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
-        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
-        StatsD.increment(STATSD_LOGIN_INBOUND, tags: tags + ['status:failure']) if inbound
+        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags << "error:#{error.code}")
       end
     end
 
@@ -205,13 +226,13 @@ module V1
       when :success
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:success',
-                                "context:#{saml_response.authn_context}",
+                                "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
         # track users who have a shared sso cookie
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure',
-                                "context:#{saml_response.authn_context}",
+                                "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag, VERSION_TAG])
       when :failed_unknown
@@ -222,6 +243,23 @@ module V1
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY, tags: [VERSION_TAG])
       end
     end
+
+    # rubocop:disable Metrics/ParameterLists
+    def handle_callback_error(exc, status, response, level = :error, context = {},
+                              code = '007', tag = nil)
+      log_message_to_sentry(exc.message, level, extra_context: context)
+      redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code) unless performed?
+      login_stats(:failure, response, exc) unless response.nil?
+      callback_stats(status, response, tag || code)
+      PersonalInformationLog.create(
+        error_class: exc,
+        data: {
+          request_id: request.uuid,
+          payload: response&.response || params[:SAMLResponse]
+        }
+      )
+    end
+    # rubocop:enable Metrics/ParameterLists
 
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)

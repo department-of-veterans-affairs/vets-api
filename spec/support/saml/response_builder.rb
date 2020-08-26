@@ -81,7 +81,7 @@ module SAML
     def saml_response_click_deny
       build_invalid_saml_response(
         in_response_to: uuid,
-        decrypted_document: nil,
+        decrypted_document: document_partial,
         errors: ['The status code of the Response was not Success, was Responder => AuthnFailed '\
                  '-> Subject did not consent to attribute release',
                  'SAML Response must contain 1 assertion',
@@ -128,10 +128,10 @@ module SAML
       )
     end
 
-    def saml_response_multi_error
+    def saml_response_multi_error(in_response_to = nil)
       build_invalid_saml_response(
         status_message: 'Subject did not consent to attribute release',
-        in_response_to: uuid,
+        in_response_to: in_response_to || uuid,
         decrypted_document: document_partial,
         errors: ['Subject did not consent to attribute release', 'Other random error']
       )

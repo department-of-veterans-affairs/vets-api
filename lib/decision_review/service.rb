@@ -16,7 +16,7 @@ module DecisionReview
   #
   class Service < Common::Client::Base
     include SentryLogging
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     configuration DecisionReview::Configuration
 
@@ -75,8 +75,8 @@ module DecisionReview
 
     def request_headers(user)
       {
-        'veteranId' => user.ssn,
-        'receiptDate' => Time.current.strftime('%Y-%m-%d')
+        'x-va-ssn' => user.ssn,
+        'x-va-receipt-date' => Time.current.strftime('%Y-%m-%d')
       }
     end
 

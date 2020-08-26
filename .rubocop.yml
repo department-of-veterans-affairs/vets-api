@@ -106,6 +106,7 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
     - 'rakelib/**/*.rake'
+    - 'lib/tasks/**/*.rake'
     - 'config/**/*.rb'
     - 'app/swagger/**/*.rb'
     - 'app/controllers/v0/apidocs_controller.rb'
@@ -186,6 +187,8 @@ RSpec/FilePath:
     - 'spec/request/in_progress_forms_request_spec.rb'
     - 'spec/jobs/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
+  CustomTransform:
+    SSOeSettingsService: ssoe_settings_service
 
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:
@@ -328,6 +331,8 @@ RSpec/SubjectStub:
     - 'spec/services/evss_claim_service_spec.rb'
     - 'spec/services/mhv_accounts_service_spec.rb'
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
+    - 'spec/lib/carma/client/client_spec.rb'
+    - 'spec/services/form1010cg/service_spec.rb'
 
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:

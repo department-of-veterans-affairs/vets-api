@@ -31,7 +31,7 @@ module CARMA
       def self.from_claim(claim, metadata = {})
         new(
           data: claim.parsed_form,
-          metadata: metadata.merge(claim_id: claim.id)
+          metadata: metadata.merge(claim_id: claim.id, claim_guid: claim.guid)
         )
       end
 
@@ -42,7 +42,7 @@ module CARMA
         self.metadata = args[:metadata] || {}
       end
 
-      def submit!
+      def submit!(client)
         raise 'This submission has already been submitted to CARMA' if submitted?
 
         response =  if Flipper.enabled?(:stub_carma_responses)
@@ -63,12 +63,6 @@ module CARMA
 
       def metadata=(metadata_hash)
         @metadata = Metadata.new(metadata_hash)
-      end
-
-      private
-
-      def client
-        @client ||= CARMA::Client::Client.new
       end
     end
   end

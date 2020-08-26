@@ -1,4 +1,4 @@
-require 'common/exceptions/internal/record_not_found'
+require 'common/exceptions/record_not_found'
 
 # frozen_string_literal: true
 module V0

@@ -6,9 +6,9 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   describe '#to_pdf' do
     it 'converts form to pdf' do
       claim = build(:caregivers_assistance_claim)
-      expected_file_path = 'tmp/pdfs/my_claim.pdf'
+      expected_file_path = :my_claim_path
 
-      expect(PdfFill::Filler).to receive(:fill_form).with(claim).once.and_return(expected_file_path)
+      expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid).once.and_return(expected_file_path)
 
       result = claim.to_pdf
       expect(result).to eq(expected_file_path)

@@ -4,7 +4,7 @@ require 'common/client/base'
 
 module Okta
   class Service < Common::Client::Base
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     STATSD_KEY_PREFIX = 'api.okta'
     API_BASE_PATH = '/api/v1'
@@ -46,14 +46,15 @@ module Okta
       end
     end
 
-    def metadata
+    def metadata(iss)
+      proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
       with_monitoring do
-        get_url_with_token(Settings.oidc.auth_server_metadata_url)
+        get_url_with_token(proxied_iss + '/.well-known/openid-configuration')
       end
     end
 
-    def oidc_jwks_keys
-      url = metadata.body['jwks_uri']
+    def oidc_jwks_keys(iss)
+      url = metadata(iss).body['jwks_uri']
       with_monitoring do
         get_url_with_token(url)
       end

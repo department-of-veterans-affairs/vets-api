@@ -12,7 +12,7 @@ describe GI::Configuration do
   end
 
   describe '.read_timeout' do
-    context 'when Settings.gi.timeout is set' do
+    context 'when Settings.gi.read_timeout is set' do
       it 'uses the setting' do
         expect(GI::Configuration.instance.read_timeout).to eq(1)
       end

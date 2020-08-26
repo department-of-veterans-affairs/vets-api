@@ -11,8 +11,8 @@ gem 'websocket-extensions', '>= 0.1.5'
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
+gem 'covid_research', path: 'modules/covid_research'
 gem 'openid_auth', path: 'modules/openid_auth'
-gem 'va_facilities', path: 'modules/va_facilities'
 gem 'va_forms', path: 'modules/va_forms'
 gem 'vaos', path: 'modules/vaos'
 gem 'vba_documents', path: 'modules/vba_documents'
@@ -38,6 +38,7 @@ gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
+gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
 gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'
@@ -61,7 +62,6 @@ gem 'gyoku'
 gem 'holidays'
 gem 'httpclient'
 gem 'ice_nine'
-gem 'iconv'
 gem 'iso_country_codes'
 gem 'json', '>= 2.3.0'
 gem 'json-schema'
@@ -69,13 +69,11 @@ gem 'json_schemer'
 gem 'jsonapi-parser'
 gem 'jwt'
 gem 'levenshtein-ffi'
-gem 'lighthouse_bgs', git: 'https://github.com/department-of-veterans-affairs/lighthouse-bgs.git', branch: 'master'
 gem 'liquid'
 gem 'mail', '2.7.1'
 gem 'memoist'
 gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
-gem 'newrelic_rpm'
 gem 'nokogiri', '~> 1.10'
 gem 'notifications-ruby-client', '~> 5.1'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
@@ -108,7 +106,6 @@ gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
 gem 'swagger-blocks'
 gem 'typhoeus'
-gem 'upsert'
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
@@ -132,10 +129,11 @@ end
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
-  gem 'faker'
-  gem 'faker-medical'
   gem 'fakeredis'
+  gem 'pact', require: false
+  gem 'pact-mock_service', require: false
   gem 'pdf-inspector'
+  gem 'rspec-retry'
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
@@ -147,6 +145,7 @@ group :test do
   gem 'webrick'
 end
 
+# rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'brakeman', '~> 4.7'
@@ -155,8 +154,10 @@ group :development, :test do
   gem 'danger'
   gem 'database_cleaner'
   gem 'factory_bot_rails', '> 5'
+  gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
+  gem 'faraday_adapter_socks'
   gem 'faraday_curl'
   gem 'fuubar'
   gem 'guard-rspec', '~> 4.7'
@@ -176,6 +177,7 @@ group :development, :test do
   gem 'webmock'
   gem 'yard'
 end
+# rubocop:enable Metrics/BlockLength
 
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
 if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
