@@ -15,7 +15,7 @@
       }
     },
     "claimant": {
-      "fsrstName": "myFirst",
+      "firstName": "myFirst",
       "middleInitial": "A",
       "lastName": "myLast",
       "email": "claimant@claimant.com",
@@ -47,7 +47,7 @@
       "email": "example@veteran.com",
       "serviceBranch": "ARMY"
     },
-    "recordConcent": true,
+    "recordConsent": true,
     "consentAddressChange": true,
     "consentLimits": ["DRUG ABUSE", "SICKLE CELL"]
   }
