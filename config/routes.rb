@@ -64,6 +64,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :education_career_counseling_claims, only: [:create]
+
     resources :health_care_applications, only: %i[create show] do
       collection do
         get(:healthcheck)
