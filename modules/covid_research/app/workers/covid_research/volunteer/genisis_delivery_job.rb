@@ -29,7 +29,7 @@ module CovidResearch
       private
 
       def set_submission(submission)
-        @submitter ||= service.new(JSON.parse(submission))
+        @submitter ||= service.new(submission)
       end
     end
 

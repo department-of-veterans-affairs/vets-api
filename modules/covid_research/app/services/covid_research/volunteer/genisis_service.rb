@@ -32,7 +32,7 @@ module CovidResearch
       end
 
       def payload
-        serializer.serialize(submission)
+        serializer.serialize(JSON.parse(submission))
       end
 
       private
