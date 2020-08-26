@@ -25,7 +25,6 @@ module BGS
     private
 
     def send_step_child_relationships
-      binding.pry
       @step_children.each do |step_child|
         bgs_service.create_relationship(
           vnp_relationship.params_for_686c(step_child[:guardian_particpant_id], step_child)

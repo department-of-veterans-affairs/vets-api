@@ -32,7 +32,11 @@ RSpec.describe BGS::VnpRelationships do
           dependent_array = [child]
 
           dependents = BGS::VnpRelationships.new(
-            proc_id: proc_id, veteran: veteran_hash, dependents: dependent_array, user: user_object
+            proc_id: proc_id,
+            veteran: veteran_hash,
+            dependents: dependent_array,
+            step_children: [],
+            user: user_object
           ).create_all
 
           expect(dependents.first).to include(
@@ -100,6 +104,7 @@ RSpec.describe BGS::VnpRelationships do
             proc_id: proc_id,
             veteran: veteran_hash,
             dependents: dependent_array,
+            step_children: [],
             user: user_object
           ).create_all
           expect(dependents.first).to include(
@@ -134,6 +139,7 @@ RSpec.describe BGS::VnpRelationships do
             proc_id: proc_id,
             veteran: veteran_hash,
             dependents: dependent_array,
+            step_children: [],
             user: user_object
           ).create_all
           expect(dependents.first).to include(
@@ -168,6 +174,7 @@ RSpec.describe BGS::VnpRelationships do
           dependents = BGS::VnpRelationships.new(proc_id: proc_id,
                                                  veteran: veteran_hash,
                                                  dependents: dependent_array,
+                                                 step_children: [],
                                                  user: user_object).create_all
           expect(dependents.first).to include(
             participant_relationship_type_name: 'Spouse',
@@ -182,7 +189,11 @@ RSpec.describe BGS::VnpRelationships do
     it 'processes relationships for the veteran and spouse\'s ex-spouses' do
       VCR.use_cassette('bgs/vnp_relationships/create_all') do
         bgs_relationship = described_class.new(
-          proc_id: proc_id, veteran: veteran_hash, dependents: dependent_relationships, user: user_hash
+          proc_id: proc_id,
+          veteran: veteran_hash,
+          dependents: dependent_relationships,
+          step_children: [],
+          user: user_object
         )
 
         expect(bgs_relationship).to receive(:send_spouse_marriage_history_relationships).with(
