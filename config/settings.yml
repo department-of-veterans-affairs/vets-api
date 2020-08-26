@@ -406,8 +406,8 @@ sentry:
   dsn: ~
 
 iam_ssoe:
-  client_cert_path: /fake/client/cert/path
-  client_key_path: /fake/client/key/path
+  client_cert_path: ~
+  client_key_path: ~
   client_id: 'Mobile_App_API_Server_LOWERS'
   # oauth (rest) and sts (soap) services are on different hosts
   oauthe_url: "https://int.fed.eauth.va.gov:444"

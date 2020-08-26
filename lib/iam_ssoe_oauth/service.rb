@@ -3,7 +3,7 @@
 require 'uri'
 require 'iam_ssoe_oauth/configuration'
 
-module IamSsoeAuth
+module IAMSSOeOAuth
   # Class used to connect to IAM's SSOe Oauth service which validates tokens
   # and given a valid token returns a set of user traits.
   # https:://dvagov.sharepoint.com/sites/OITEPMOIA/playbooks/Pages/OAuth/OAuth.aspx
@@ -14,7 +14,7 @@ module IamSsoeAuth
   #   response = service.post_introspect(token)
   #
   class Service < Common::Client::Base
-    configuration IamSsoeAuth::Configuration
+    configuration IAMSSOeOAuth::Configuration
 
     CLIENT_ID = Settings.iam_ssoe.client_id
     TOKEN_TYPE_HINT = 'access_token'

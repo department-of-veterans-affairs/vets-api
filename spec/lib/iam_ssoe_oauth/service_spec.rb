@@ -4,16 +4,18 @@ require 'rails_helper'
 require 'common/exceptions'
 require 'iam_ssoe_oauth/service'
 
-describe IamSsoeAuth::Service do
+describe IAMSSOeOAuth::Service do
   before do
-    allow(subject).to receive(:ssl_cert).and_return(instance_double('OpenSSL::X509::Certificate'))
-    allow(subject).to receive(:ssl_key).and_return(instance_double('OpenSSL::PKey::RSA'))
+    allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_cert)
+                                                     .and_return(instance_double('OpenSSL::X509::Certificate'))
+    allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_key)
+                                                     .and_return(instance_double('OpenSSL::PKey::RSA'))
   end
 
   describe '#post_introspect' do
     context 'with an active user response' do
       let(:response) do
-        VCR.use_cassette('iam_ssoe_auth/introspect_active') do
+        VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
           subject.post_introspect('ypXeAwQedpmAy5xFD2u5')
         end
       end
@@ -46,7 +48,7 @@ describe IamSsoeAuth::Service do
 
     context 'with an inactive user response' do
       it 'raises an unauthorized error' do
-        VCR.use_cassette('iam_ssoe_auth/introspect_inactive') do
+        VCR.use_cassette('iam_ssoe_oauth/introspect_inactive') do
           expect { subject.post_introspect('ypXeAwQedpmAy5xFD2u4') }.to raise_error(
             Common::Exceptions::Unauthorized
           )
