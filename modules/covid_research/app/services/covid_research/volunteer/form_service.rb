@@ -7,7 +7,14 @@ module CovidResearch
   module Volunteer
     class FormService
       SCHEMA = 'COVID-VACCINE-TRIAL'
+
+      attr_reader :worker
+
       delegate :valid?, to: :schema
+
+      def initialize(worker = GenisisDeliveryJob)
+        @worker = worker
+      end
 
       def valid!(json)
         raise SchemaValidationError, submission_errors(json) unless valid?(json)
@@ -29,6 +36,13 @@ module CovidResearch
             }
           end
         end
+      end
+
+      def queue_delivery(submission)
+        redis_format = RedisFormat.new
+        redis_format.form_data = JSON.generate(submission)
+
+        worker.perform_async(redis_format.to_json)
       end
 
       private
