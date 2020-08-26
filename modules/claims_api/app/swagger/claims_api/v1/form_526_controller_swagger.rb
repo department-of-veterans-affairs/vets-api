@@ -140,7 +140,11 @@ module ClaimsApi
             key :description, '526 response'
             content 'application/json' do
               schema do
-                key :'$ref', :ClaimsIndex
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :ClaimsIndex
+                end
               end
             end
           end
@@ -255,7 +259,11 @@ module ClaimsApi
             key :description, '526 response'
             content 'application/json' do
               schema do
-                key :'$ref', :ClaimsIndex
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :ClaimsIndex
+                end
               end
             end
           end
