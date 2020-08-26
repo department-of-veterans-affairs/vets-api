@@ -639,9 +639,10 @@ module PdfFill
       end
 
       def merge_signature_helpers
+        timestamp = generate_signiture_timestamp
+
         subjects.each do |subject|
           signature = combine_full_name(@form_data.dig(subject, 'fullName'))
-          timestamp = DateTime.now.strftime('%m/%d/%Y %l:%M%P ') + Time.now.zone
 
           @form_data['helpers'][subject]['signature'] = {
             'name' => signature ? "/es/ #{signature}" : nil,
@@ -692,6 +693,11 @@ module PdfFill
         selected_facility = caregiver_facilities.find { |facility| facility['code'] == target_facility_code }
         display_value = selected_facility.nil? ? nil : "#{selected_facility['code']} - #{selected_facility['label']}"
         @form_data['helpers']['veteran']['plannedClinic'] = display_value
+      end
+
+      def generate_signiture_timestamp
+        time = Time.now.in_time_zone('Eastern Time (US & Canada)')
+        DateTime.parse(time.to_s).strftime('%m/%d/%Y %l:%M%P ') + Time.now.zone
       end
     end
   end
