@@ -32,7 +32,7 @@ module VaNotify
     private
 
     def overwrite_client_networking
-      perform_lambda = lambda { |*args| perform(*args) }
+      perform_lambda = ->(*args) { perform(*args) }
 
       Notifications::Client::Speaker.class_exec(perform_lambda) do |perform|
         define_method(:open) do |request|
@@ -67,13 +67,13 @@ module VaNotify
 
     def save_error_details(error)
       Raven.tags_context(
-          external_service: self.class.to_s.underscore
+        external_service: self.class.to_s.underscore
       )
 
       Raven.extra_context(
-          url: config.base_path,
-          message: error.message,
-          body: error.body
+        url: config.base_path,
+        message: error.message,
+        body: error.body
       )
     end
   end

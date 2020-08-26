@@ -11,23 +11,24 @@ describe VaNotify::Service do
 
   describe '#send_email' do
     let(:notification_client) { double('Notifications::Client') }
+
     it 'calls notifications client' do
       allow(Notifications::Client).to receive(:new).and_return(notification_client)
       allow(notification_client).to receive(:send_email)
 
       subject.send_email(
-          email_address: "test@email.com",
-          template_id: "1234",
-          personalisation: {
-              foo: "bar"
-          }
+        email_address: 'test@email.com',
+        template_id: '1234',
+        personalisation: {
+          foo: 'bar'
+        }
       )
       expect(notification_client).to have_received(:send_email).with(
-          email_address: "test@email.com",
-          template_id: "1234",
-          personalisation: {
-              foo: "bar"
-          }
+        email_address: 'test@email.com',
+        template_id: '1234',
+        personalisation: {
+          foo: 'bar'
+        }
       )
     end
   end
@@ -35,15 +36,15 @@ describe VaNotify::Service do
   describe 'error handling' do
     it 'raises a 400 exception' do
       VCR.use_cassette('va_notify/bad_request') do
-        expect {
+        expect do
           subject.send_email(
-            email_address: "test@email.com",
-            template_id: "1234",
+            email_address: 'test@email.com',
+            template_id: '1234',
             personalisation: {
-                foo: "bar"
+              foo: 'bar'
             }
           )
-        }.to raise_error do |e|
+        end.to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)
           expect(e.status_code).to eq(400)
           expect(e.errors.first.code).to eq('VANOTIFY_400')
@@ -51,5 +52,4 @@ describe VaNotify::Service do
       end
     end
   end
-
 end
