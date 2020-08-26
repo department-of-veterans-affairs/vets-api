@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe BGS::VnpRelationships do
   let(:proc_id) { '3828033' }
   let(:participant_id) { '146189' }
-  let(:veteran_hash) { {vnp_participant_id: '146189'} }
+  let(:veteran_hash) { { vnp_participant_id: '146189' } }
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependent_relationships) { FactoryBot.build(:dependent_relationships) }
 
@@ -36,9 +36,9 @@ RSpec.describe BGS::VnpRelationships do
           ).create_all
 
           expect(dependents.first).to include(
-                                        participant_relationship_type_name: 'Child',
-                                        family_relationship_type_name: 'Biological'
-                                      )
+            participant_relationship_type_name: 'Child',
+            family_relationship_type_name: 'Biological'
+          )
         end
       end
     end
@@ -67,12 +67,12 @@ RSpec.describe BGS::VnpRelationships do
           ).create_all
 
           expect(dependents.first).to include(
-                                        ptcpnt_rlnshp_type_nm: 'Spouse',
-                                        family_rlnshp_type_nm: 'Ex-Spouse',
-                                        marage_trmntn_type_cd: 'Divorce',
-                                        marage_trmntn_city_nm: 'Tampa',
-                                        marage_trmntn_state_cd: 'FL'
-                                      )
+            ptcpnt_rlnshp_type_nm: 'Spouse',
+            family_rlnshp_type_nm: 'Ex-Spouse',
+            marage_trmntn_type_cd: 'Divorce',
+            marage_trmntn_city_nm: 'Tampa',
+            marage_trmntn_state_cd: 'FL'
+          )
         end
       end
     end
@@ -103,10 +103,10 @@ RSpec.describe BGS::VnpRelationships do
             user: user_object
           ).create_all
           expect(dependents.first).to include(
-                                        participant_relationship_type_name: 'Spouse',
-                                        family_relationship_type_name: 'Spouse',
-                                        marriage_termination_type_code: 'Death'
-                                      )
+            participant_relationship_type_name: 'Spouse',
+            family_relationship_type_name: 'Spouse',
+            marriage_termination_type_code: 'Death'
+          )
         end
       end
     end
@@ -137,11 +137,11 @@ RSpec.describe BGS::VnpRelationships do
             user: user_object
           ).create_all
           expect(dependents.first).to include(
-                                        participant_relationship_type_name: 'Spouse',
-                                        family_relationship_type_name: 'Spouse',
-                                        marriage_state: 'FL',
-                                        marriage_city: 'Tampa'
-                                      )
+            participant_relationship_type_name: 'Spouse',
+            family_relationship_type_name: 'Spouse',
+            marriage_state: 'FL',
+            marriage_city: 'Tampa'
+          )
         end
       end
     end
@@ -170,11 +170,11 @@ RSpec.describe BGS::VnpRelationships do
                                                  dependents: dependent_array,
                                                  user: user_object).create_all
           expect(dependents.first).to include(
-                                        participant_relationship_type_name: 'Spouse',
-                                        family_relationship_type_name: 'Spouse',
-                                        marriage_state: 'FL',
-                                        marriage_city: 'Tampa'
-                                      )
+            participant_relationship_type_name: 'Spouse',
+            family_relationship_type_name: 'Spouse',
+            marriage_state: 'FL',
+            marriage_city: 'Tampa'
+          )
         end
       end
     end

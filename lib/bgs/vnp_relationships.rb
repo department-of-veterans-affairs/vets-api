@@ -2,10 +2,11 @@
 
 module BGS
   class VnpRelationships
-    def initialize(proc_id:, veteran:, dependents:, user:)
+    def initialize(proc_id:, veteran:, step_children:, dependents:, user:)
       @user = user
       @veteran = veteran
       @proc_id = proc_id
+      @step_children = step_children
       @dependents = dependents
     end
 
@@ -16,11 +17,21 @@ module BGS
 
       spouse = @dependents.find { |dependent| dependent[:type] == 'spouse' }
 
+      send_step_child_relationships
       send_spouse_marriage_history_relationships(spouse, spouse_marriages)
       send_vet_dependent_relationships(vet_dependents)
     end
 
     private
+
+    def send_step_child_relationships
+      binding.pry
+      @step_children.each do |step_child|
+        bgs_service.create_relationship(
+          vnp_relationship.params_for_686c(step_child[:guardian_particpant_id], step_child)
+        )
+      end
+    end
 
     def send_vet_dependent_relationships(vet_dependents)
       vet_dependents.each do |dependent|
