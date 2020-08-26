@@ -640,9 +640,12 @@ module PdfFill
 
       def merge_signature_helpers
         subjects.each do |subject|
+          signature = combine_full_name(@form_data.dig(subject, 'fullName'))
+          timestamp = DateTime.now.strftime('%m/%d/%Y %l:%M%P ') + Time.now.zone
+
           @form_data['helpers'][subject]['signature'] = {
-            'name' => combine_full_name(@form_data.dig(subject, 'fullName')),
-            'date' => @form_data[subject].present? ? Time.zone.today.to_s : nil
+            'name' => signature ? "/es/ #{signature}" : nil,
+            'date' => @form_data[subject].present? ? timestamp : nil
           }
         end
       end
