@@ -5,7 +5,6 @@ require 'common/exceptions'
 require 'iam_ssoe_oauth/service'
 
 describe 'IAMSSOeOAuth::Service' do
-
   let(:service) { IAMSSOeOAuth::Service.new }
 
   before do
