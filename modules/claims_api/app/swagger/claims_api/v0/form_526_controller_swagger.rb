@@ -521,8 +521,17 @@ module ClaimsApi
 
           response 200 do
             key :description, 'upload response'
-            # TODO is there anything that should be shown as an example response body?
+            content 'application/json' do
+              schema do                
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :ClaimsShow
+                end
+              end
+            end
           end
+
           response :default do
             key :description, 'unexpected error'
             content 'application/json' do
