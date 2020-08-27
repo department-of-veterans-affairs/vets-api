@@ -37,9 +37,17 @@ module CovidResearch
         elsif data[key].class == Hash
           formatted_qs(data[key])
         else
+          if data[key] == true
+            value = 'Yes'
+          elsif data[key] == false
+            value = 'No'
+          else
+            value = data[key]
+          end
+
           {
             QuestionName: key,
-            QuestionValue: data[key]
+            QuestionValue: value
           }
         end
       end.flatten

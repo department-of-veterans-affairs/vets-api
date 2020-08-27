@@ -27,5 +27,13 @@ RSpec.describe CovidResearch::GenisisSerializer do
     it 'translates the json payload to a list of key value pairs' do
       expect(output['FormQuestions']).to eq(expected)
     end
+
+    it 'translates true to "Yes"' do
+      expect(output['FormQuestions'].first['QuestionValue']).to eq 'No'
+    end
+
+    it 'translates false to "No"' do
+      expect(output['FormQuestions'][5]['QuestionValue']).to eq 'Yes'
+    end
   end
 end
