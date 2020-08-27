@@ -12,8 +12,8 @@ module BGS
     end
 
     def create_all
-      add_children if @views['add_child']
-      report_stepchild if @views['report_stepchild_not_in_household']
+      report_children if @views['add_child']
+      report_stepchildren if @views['report_stepchild_not_in_household']
       report_child_event('child_marriage') if @views['report_marriage_of_child_under18']
       report_child_event('not_attending_school') if @views['report_child18_or_older_is_not_attending_school']
 
@@ -25,7 +25,7 @@ module BGS
 
     private
 
-    def add_children
+    def report_children
       @dependents_application['children_to_add'].each do |child_info|
         child = BGSDependents::Child.new(child_info)
         formatted_info = child.format_info
@@ -47,7 +47,7 @@ module BGS
       end
     end
 
-    def report_stepchild
+    def report_stepchildren
       @dependents_application['step_children'].each do |stepchild_info|
         step_child = BGSDependents::StepChild.new(stepchild_info)
         formatted_info = step_child.format_info
