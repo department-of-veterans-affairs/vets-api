@@ -247,3 +247,7 @@ features:
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
 
+  show_authenticated_homepage:
+  acto_type: user
+    description: >
+      This will show the authenticated homepage for logged-in users
