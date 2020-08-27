@@ -58,10 +58,10 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
 
         error = Common::Exceptions::BackendServiceException.new(
-            'VANOTIFY_400',
-            { source: VaNotify::Service.to_s },
-            400,
-            'Error'
+          'VANOTIFY_400',
+          { source: VaNotify::Service.to_s },
+          400,
+          'Error'
         )
         allow(notification_client).to receive(:send_email).and_raise(error)
 
@@ -80,10 +80,10 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
 
         error = Common::Exceptions::BackendServiceException.new(
-            'VANOTIFY_500',
-            { source: VaNotify::Service.to_s },
-            500,
-            'Error'
+          'VANOTIFY_500',
+          { source: VaNotify::Service.to_s },
+          500,
+          'Error'
         )
         allow(notification_client).to receive(:send_email).and_raise(error)
 
