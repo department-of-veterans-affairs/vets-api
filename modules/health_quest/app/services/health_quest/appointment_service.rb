@@ -17,6 +17,16 @@ module HealthQuest
       end
     end
 
+    def get_appointment_by_id(id)
+      with_monitoring do
+        response = perform(:get, "#{get_appointments_base_url('va')}/#{id}", {}, headers, timeout: 55)
+        {
+          data: OpenStruct.new(response.body),
+          meta: pagination({})
+        }
+      end
+    end
+
     private
 
     def deserialized_appointments(json_hash, type)
