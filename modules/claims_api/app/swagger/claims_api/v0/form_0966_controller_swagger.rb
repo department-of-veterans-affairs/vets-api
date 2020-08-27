@@ -282,7 +282,11 @@ module ClaimsApi
             key :description, '0966 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form0966Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form0966Output
+                end
               end
             end
           end
