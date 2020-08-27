@@ -17,8 +17,8 @@ module CovidResearch
 
     def serialize(data)
       base[:FormQuestions] = formatted_qs(data)
-      base[:CreatedDateTime] = timestamp
-      base[:UpdatedDateTime] = timestamp
+      base[:CreatedDateTime] = timestamp.iso8601
+      base[:UpdatedDateTime] = timestamp.iso8601
 
       JSON.generate(base)
     end
