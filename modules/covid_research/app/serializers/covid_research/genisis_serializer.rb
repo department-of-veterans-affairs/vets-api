@@ -53,8 +53,6 @@ module CovidResearch
       Volunteer::NameSerializer.new.serialize(data)
     end
 
-    private
-
     def value(actual)
       if actual == true
         'Yes'
