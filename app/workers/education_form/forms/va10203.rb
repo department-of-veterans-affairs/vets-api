@@ -3,7 +3,7 @@
 module EducationForm::Forms
   class VA10203 < Base
     def header_form_type
-      'V10203'
+      'STEM1995'
     end
 
     def form_benefit
