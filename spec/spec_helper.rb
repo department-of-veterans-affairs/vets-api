@@ -50,6 +50,10 @@ unless ENV['NOCOVERAGE']
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
+<<<<<<< HEAD
+=======
+    add_group 'VAFacilities', 'modules/va_facilities/'
+>>>>>>> parent of f61607daa... Revert "10976 apply inflection for VA (#4749)" (#4760)
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'

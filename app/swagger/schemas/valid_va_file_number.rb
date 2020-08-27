@@ -2,10 +2,10 @@
 
 module Swagger
   module Schemas
-    class ValidVaFileNumber
+    class ValidVAFileNumber
       include Swagger::Blocks
 
-      swagger_schema :ValidVaFileNumber do
+      swagger_schema :ValidVAFileNumber do
         key :required, [:data]
 
         property :data, type: :object do
