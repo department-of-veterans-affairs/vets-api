@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 2419e49d9b14922d5f2af85ab6b69cb6caef3339
+  revision: 91c92dfca26649764745186b4348e1455441925e
   branch: master
   specs:
-    vets_json_schema (6.7.2)
+    vets_json_schema (6.7.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -86,11 +86,6 @@ PATH
   remote: modules/openid_auth
   specs:
     openid_auth (0.0.1)
-
-PATH
-  remote: modules/va_facilities
-  specs:
-    va_facilities (0.0.1)
 
 PATH
   remote: modules/va_forms
@@ -789,7 +784,6 @@ GEM
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
     unicode-display_width (1.7.0)
-    upsert (2.9.10)
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
@@ -965,9 +959,7 @@ DEPENDENCIES
   timecop
   typhoeus
   tzinfo-data
-  upsert
   utf8-cleaner
-  va_facilities!
   va_forms!
   vaos!
   vba_documents!

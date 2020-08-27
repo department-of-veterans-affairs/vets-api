@@ -79,6 +79,7 @@ The following features require additional configuration, click for details.
 - [My HealtheVet (MHV)](/docs/setup/mhv.md)
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [Master Person Index (MPI)](/docs/setup/mpi.md)
+- [Mailers](/docs/setup/mailer.md)
 
 To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 

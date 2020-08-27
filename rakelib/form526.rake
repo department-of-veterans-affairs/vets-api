@@ -13,7 +13,7 @@ namespace :form526 do
     # vets-api example: printf "%-20s %s\n", header, total
 
     def print_row(created_at, updated_at, id, c_id, p_id, complete, version) # rubocop:disable Metrics/ParameterLists
-      printf "%-24s %-24s %-15s %-10s %-10s %-10s %s\n", created_at, updated_at, id, c_id, p_id, complete, version
+      printf "%-24s %-24s %-15s %-10s %-15s %-18s %s\n", created_at, updated_at, id, c_id, p_id, complete, version
     end
 
     def print_total(header, total)
@@ -34,22 +34,23 @@ namespace :form526 do
     )
 
     outage_errors = 0
+    ancillary_job_errors = Hash.new { |hash, job_class| hash[job_class] = 0 }
     other_errors = 0
 
     # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
     # This should be fine as created_at dates correlate directly to PKs
     submissions.find_each do |submission|
-      version = 'version 1: IO'
-      submission.form526_job_statuses.each do |job_status|
-        version = 'version 2: AC' if job_status.job_class == 'SubmitForm526AllClaim'
-        if job_status.job_class == 'SubmitForm526AllClaim' && job_status.error_message.present?
+      submission.form526_job_statuses.where.not(error_message: [nil, '']).each do |job_status|
+        if job_status.job_class == 'SubmitForm526AllClaim'
           job_status.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
+        else
+          ancillary_job_errors[job_status.job_class] += 1
         end
       end
-      auth_headers = JSON.parse(submission.auth_headers_json)
+      version = submission.bdd? ? 'BDD' : 'ALL'
       print_row(
         submission.created_at, submission.updated_at, submission.id, submission.submitted_claim_id,
-        auth_headers['va_eauth_pid'], submission.workflow_complete, version
+        submission.auth_headers['va_eauth_pid'], submission.workflow_complete, version
       )
     end
 
@@ -66,58 +67,16 @@ namespace :form526 do
     puts '* Failure Counts for form526 Submission Job (not including uploads/cleanup/etc...) *'
     print_total('Outage Failures: ', outage_errors)
     print_total('Other Failures: ', other_errors)
-  end
-
-  desc 'Show all v1 forms'
-  task show_v1: :environment do
-    def print_row(created_at, updated_at, id)
-      printf "%-24s %-24s %s\n", created_at, updated_at, id
+    puts 'Ancillary Job Errors:'
+    ancillary_job_errors.each do |class_name, error_count|
+      puts "    #{class_name}: #{error_count}"
     end
-
-    def print_total(header, total)
-      printf "%-20s %s\n", header, total
-    end
-
-    progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID).order(:created_at)
-
-    puts '------------------------------------------------------------'
-    print_row('created at:', 'updated at:', 'id:')
-
-    total_v1_forms = 0
-    progress_forms.each do |progress_form|
-      form_data = JSON.parse(progress_form.form_data)
-      if form_data['veteran'].present?
-        total_v1_forms += 1
-        print_row(progress_form.created_at, progress_form.updated_at, progress_form.id)
-      end
-    end
-
-    puts '------------------------------------------------------------'
-    print_total('Total V1 forms:', total_v1_forms)
-  end
-
-  desc 'Show all bdd forms'
-  task show_bdd: :environment do
-    bdd_in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ezbdd::FORM_ID).order(:created_at)
-    row_format = "%-24s %-24s %s\n"
-    puts '------------------------------------------------------------'
-    printf(row_format, 'created at:', 'updated at:', 'id:')
-
-    bdd_in_progress_forms.each do |bdd_in_progress_form|
-      printf row_format,
-             bdd_in_progress_form.created_at,
-             bdd_in_progress_form.updated_at,
-             bdd_in_progress_form.id
-    end
-
-    puts '------------------------------------------------------------'
-    printf "%-20s %s\n", 'Total bdd forms:', bdd_in_progress_forms.count
   end
 
   desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
   task :errors, %i[start_date end_date] => [:environment] do |_, args|
-    def print_row(sub_id, p_id, created_at)
-      printf "%-20s %-20s %s\n", sub_id, p_id, created_at
+    def print_row(sub_id, p_id, created_at, is_bdd, job_class)
+      printf "%-15s %-16s  %-25s %-10s %-20s\n", sub_id, p_id, created_at, is_bdd, job_class
       # rubocop:enable Style/FormatStringToken
     end
 
@@ -126,9 +85,13 @@ namespace :form526 do
         puts k
         puts '*****************'
         puts "Unique Participant ID count: #{v[:participant_ids].count}"
-        print_row('submission_id:', 'participant_id:', 'created_at:')
+        print_row('submission_id:', 'participant_id:', 'created_at:', 'is_bdd?', 'job_class')
         v[:submission_ids].each do |submission|
-          print_row(submission[:sub_id], submission[:p_id], submission[:date])
+          print_row(submission[:sub_id],
+                    submission[:p_id],
+                    submission[:date],
+                    submission[:is_bdd],
+                    submission[:job_class])
         end
         puts '*****************'
         puts ''
@@ -161,14 +124,13 @@ namespace :form526 do
     )
 
     submissions.find_each do |submission|
-      auth_headers = JSON.parse(submission.auth_headers_json)
-      submission.form526_job_statuses.each do |job_status|
-        next if job_status.error_class.blank?
-
+      job_statuses = submission.form526_job_statuses.where.not(status: [Form526JobStatus::STATUS[:try],
+                                                                        Form526JobStatus::STATUS[:success]])
+      job_statuses.each do |job_status|
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
                       job_status.error_class != 'Common::Exceptions::BackendServiceException'
-                     job_status.error_message.gsub('\\', '').scan(MSGS_REGEX)
+                     job_status.error_message.gsub(/\[(\d*)\]|\\/, '').scan(MSGS_REGEX)
                    else
                      [[job_status.error_message]]
                    end
@@ -176,10 +138,12 @@ namespace :form526 do
           message = clean_message(msg)
           errors[message][:submission_ids].append(
             sub_id: submission.id,
-            p_id: auth_headers['va_eauth_pid'],
-            date: submission.created_at
+            p_id: submission.auth_headers['va_eauth_pid'],
+            date: submission.created_at,
+            is_bdd: submission.bdd?,
+            job_class: job_status.job_class
           )
-          errors[message][:participant_ids].add(auth_headers['va_eauth_pid'])
+          errors[message][:participant_ids].add(submission.auth_headers['va_eauth_pid'])
         end
       end
     end
@@ -207,8 +171,12 @@ namespace :form526 do
                      Form526JobStatus.where(job_id: id).first.form526_submission
                    end
 
-      saved_claim_form = JSON.parse(submission.saved_claim.form)
+      saved_claim_form = submission.saved_claim.parsed_form
       saved_claim_form['veteran'] = 'FILTERED'
+
+      submitted_claim_form = submission.form
+      submitted_claim_form['form526']['form526']['directDeposit'] = 'FILTERED'
+      submitted_claim_form['form526']['form526']['veteran'] = 'FILTERED'
 
       auth_headers = JSON.parse(submission.auth_headers_json)
       # There have been prod instances of users not having a ssn
@@ -237,8 +205,12 @@ namespace :form526 do
         puts "\n"
       end
       puts '----------------------------------------'
-      puts "Form JSON:\n\n"
+      puts "Form From User JSON:\n\n"
       puts JSON.pretty_generate(saved_claim_form)
+      puts "\n\n"
+      puts '----------------------------------------'
+      puts "Translated form for EVSS JSON:\n\n"
+      puts JSON.pretty_generate(submitted_claim_form)
       puts "\n\n"
     end
   end

@@ -5,11 +5,11 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
   def after_submit(user)
     email_sent(false)
-    return unless Flipper.enabled?(:edu_benefits_stem_scholarship) && FeatureFlipper.send_email?
+    return unless FeatureFlipper.send_email?
 
     StemApplicantConfirmationMailer.build(self, nil).deliver_now
 
-    if user.present?
+    if Flipper.enabled?(:stem_sco_email) && user.present?
       authorized = user.authorize(:evss, :access?)
 
       EducationForm::SendSCOEmail.perform_async(user.uuid, id) if authorized

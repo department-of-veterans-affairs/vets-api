@@ -146,6 +146,10 @@ class Form526Submission < ApplicationRecord
     Form526ConfirmationEmailJob.perform_async(id, personalization_parameters)
   end
 
+  def bdd?
+    form.dig('form526', 'form526', 'bddQualified') || false
+  end
+
   private
 
   def submit_uploads

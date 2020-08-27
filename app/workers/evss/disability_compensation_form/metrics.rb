@@ -19,20 +19,20 @@ module EVSS
 
       # Increments a job success
       #
-      def increment_success
-        StatsD.increment("#{@prefix}.success")
+      def increment_success(is_bdd = false)
+        StatsD.increment("#{@prefix}.success", tags: ["is_bdd:#{is_bdd}"])
       end
 
       # Increments a non retryable error with a tag for the specific error
       #
-      def increment_non_retryable(error)
-        StatsD.increment("#{@prefix}.non_retryable_error", tags: error_tags(error))
+      def increment_non_retryable(error, is_bdd = false)
+        StatsD.increment("#{@prefix}.non_retryable_error", tags: error_tags(error, is_bdd))
       end
 
       # Increments a retryable error with a tag for the specific error
       #
-      def increment_retryable(error)
-        StatsD.increment("#{@prefix}.retryable_error", tags: error_tags(error))
+      def increment_retryable(error, is_bdd = false)
+        StatsD.increment("#{@prefix}.retryable_error", tags: error_tags(error, is_bdd))
       end
 
       # Increments when a job has exhausted all its retries
@@ -43,10 +43,11 @@ module EVSS
 
       private
 
-      def error_tags(error)
+      def error_tags(error, is_bdd)
         tags = ["error:#{error.class}"]
         tags << "status:#{error.status_code}" if error.try(:status_code)
         tags << "message:#{error.message}" if error.try(:message)
+        tags << "is_bdd:#{is_bdd}"
         tags
       end
     end
