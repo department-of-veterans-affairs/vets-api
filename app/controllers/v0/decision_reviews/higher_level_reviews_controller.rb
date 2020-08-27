@@ -18,7 +18,7 @@ module V0
       end
 
       def show_args
-        Struct.new(:uuid).new params[:uuid]
+        Struct.new(:uuid).new params[:id]
       end
 
       def create_service_response
