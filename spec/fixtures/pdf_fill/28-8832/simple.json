@@ -1,0 +1,38 @@
+{
+  "veteran_address": {
+    "country_name": "USA",
+    "address_line1": "9417 Princess Palm",
+    "address_line2": "Apt 108",
+    "city": "Tampa",
+    "state_code": "FL",
+    "zip_code": "33928-0808"
+  },
+  "phone": "5558675309",
+  "email_address": "veteran123@gmail.com",
+  "veteran_information": {
+    "full_name": {
+      "first": "JERRY",
+      "middle": "M",
+      "last": "BROOKS",
+      "suffix": "Jr."
+    },
+    "va_file_number": "796104437",
+    "ssn": "796104437"
+  },
+  "dependent_address": {
+    "country_name": "USA",
+    "address_line1": "111 Baker St",
+    "address_line2": "Apt 12",
+    "city": "Miami",
+    "state_code": "FL",
+    "zip_code": "26042-9915"
+  },
+  "phone_number": "8888675309",
+  "first_name": "Michelle",
+  "middle_name": "Dana",
+  "last_name": "Smith",
+  "suffix": "Sr",
+  "ssn": "333224444",
+  "date_of_birth": "1999-01-01",
+  "status": "isSpouse"
+}
