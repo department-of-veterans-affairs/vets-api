@@ -16,7 +16,7 @@ RSpec.describe BGS::Marriages do
             proc_id: proc_id,
             payload: spouse_payload,
             user: user_object
-          ).create
+          ).create_all
 
           expect(dependents).to include(
             a_hash_including(
@@ -37,7 +37,7 @@ RSpec.describe BGS::Marriages do
             proc_id: proc_id,
             payload: all_flows_payload,
             user: user_object
-          ).create
+          ).create_all
 
           expect(dependents).to include(
             a_hash_including(
@@ -79,7 +79,7 @@ RSpec.describe BGS::Marriages do
             proc_id: proc_id,
             payload: spouse_payload,
             user: user_object
-          ).create
+          ).create_all
         end
       end
     end

@@ -19,12 +19,12 @@ RSpec.describe BGS::Children do
         ).create_all
 
         expect(children[:dependents]).to include(
-                                a_hash_including(
-                                  family_relationship_type_name: 'Biological',
-                                  participant_relationship_type_name: 'Child',
-                                  type: 'child'
-                                )
-                              )
+          a_hash_including(
+            family_relationship_type_name: 'Biological',
+            participant_relationship_type_name: 'Child',
+            type: 'child'
+          )
+        )
       end
     end
 
@@ -49,8 +49,8 @@ RSpec.describe BGS::Children do
 
       VCR.use_cassette('bgs/children/apdopted_child_lives_with_veteran') do
         expect_any_instance_of(BGS::Service).to receive(:create_address)
-                                                  .with(a_hash_including(veteran_address_info)).at_most(4).times
-                                                  .and_call_original
+          .with(a_hash_including(veteran_address_info)).at_most(4).times
+          .and_call_original
 
         children = BGS::Children.new(
           proc_id: proc_id,
@@ -59,12 +59,12 @@ RSpec.describe BGS::Children do
         ).create_all
 
         expect(children[:dependents]).to include(
-                                a_hash_including(
-                                  family_relationship_type_name: 'Adopted Child',
-                                  participant_relationship_type_name: 'Child',
-                                  type: 'child'
-                                )
-                              )
+          a_hash_including(
+            family_relationship_type_name: 'Adopted Child',
+            participant_relationship_type_name: 'Child',
+            type: 'child'
+          )
+        )
       end
     end
   end
@@ -79,12 +79,12 @@ RSpec.describe BGS::Children do
         ).create_all
 
         expect(children[:step_children]).to include(
-                                                a_hash_including(
-                                                  family_relationship_type_name: 'Other',
-                                                  participant_relationship_type_name: 'Guardian',
-                                                  living_expenses_paid_amount: '.5'
-                                                )
-                                              )
+          a_hash_including(
+            family_relationship_type_name: 'Other',
+            participant_relationship_type_name: 'Guardian',
+            living_expenses_paid_amount: '.5'
+          )
+        )
       end
     end
   end
@@ -99,13 +99,13 @@ RSpec.describe BGS::Children do
         ).create_all
 
         expect(children[:dependents]).to include(
-                                a_hash_including(
-                                  event_date: '1977-02-01',
-                                  family_relationship_type_name: 'Other',
-                                  participant_relationship_type_name: 'Child',
-                                  type: 'child_marriage'
-                                )
-                              )
+          a_hash_including(
+            event_date: '1977-02-01',
+            family_relationship_type_name: 'Other',
+            participant_relationship_type_name: 'Child',
+            type: 'child_marriage'
+          )
+        )
       end
     end
   end
@@ -120,13 +120,13 @@ RSpec.describe BGS::Children do
         ).create_all
 
         expect(children[:dependents]).to include(
-                                a_hash_including(
-                                  participant_relationship_type_name: 'Child',
-                                  family_relationship_type_name: 'Other',
-                                  event_date: '2019-03-03',
-                                  type: 'not_attending_school'
-                                )
-                              )
+          a_hash_including(
+            participant_relationship_type_name: 'Child',
+            family_relationship_type_name: 'Other',
+            event_date: '2019-03-03',
+            type: 'not_attending_school'
+          )
+        )
       end
     end
   end

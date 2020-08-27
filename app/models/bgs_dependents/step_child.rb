@@ -2,7 +2,7 @@
 
 module BGSDependents
   class StepChild < Base
-    EXPENSE_PAID_CONVERTER = {'Half' => '.5', "More than half" => '.75', 'Less than half' => '.25'}
+    EXPENSE_PAID_CONVERTER = { 'Half' => '.5', 'More than half' => '.75', 'Less than half' => '.25' }.freeze
     def initialize(stepchild_info)
       @stepchild_info = stepchild_info
     end
