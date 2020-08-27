@@ -122,12 +122,13 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: :index do
-      collection do
-        resources :higher_level_reviews, only: %i[show create]
-        resources :intake_statuses, only: :show
-        resources :contestable_issues, only: :index
+    resources :appeals, only: :index
+
+    namespace :decision_reviews do
+      namespace :higher_level_reviews do
+        get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
       end
+      resources :higher_level_reviews, only: %i[create show]
     end
 
     scope :messaging do
@@ -323,7 +324,7 @@ Rails.application.routes.draw do
   end
 
   mount VAOS::Engine, at: '/vaos'
-  mount CovidResearch::Engine, at: '/covid-research'
+  #mount CovidResearch::Engine, at: '/covid-research'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
