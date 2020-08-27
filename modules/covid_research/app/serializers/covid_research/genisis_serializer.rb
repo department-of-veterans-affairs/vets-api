@@ -37,17 +37,9 @@ module CovidResearch
         elsif data[key].class == Hash
           formatted_qs(data[key])
         else
-          if data[key] == true
-            value = 'Yes'
-          elsif data[key] == false
-            value = 'No'
-          else
-            value = data[key]
-          end
-
           {
             QuestionName: key,
-            QuestionValue: value
+            QuestionValue: value(data[key])
           }
         end
       end.flatten
@@ -59,6 +51,18 @@ module CovidResearch
 
     def translate_name(data)
       Volunteer::NameSerializer.new.serialize(data)
+    end
+
+    private
+
+    def value(actual)
+      if actual == true
+        'Yes'
+      elsif actual == false
+        'No'
+      else
+        actual
+      end
     end
   end
 end
