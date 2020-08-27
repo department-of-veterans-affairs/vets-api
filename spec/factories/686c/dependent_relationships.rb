@@ -86,4 +86,49 @@ FactoryBot.define do
       ]
     end
   end
+
+  factory :step_children_relationships, class: Array do
+    initialize_with do
+      [
+        {
+          vnp_participant_id: '150584',
+          participant_relationship_type_name: 'Guardian',
+          family_relationship_type_name: 'Other',
+          begin_date: nil,
+          end_date: nil,
+          event_date: nil,
+          marriage_state: nil,
+          marriage_city: nil,
+          marriage_country: nil,
+          divorce_state: nil,
+          divorce_city: nil,
+          divorce_country: nil,
+          marriage_termination_type_code: nil,
+          living_expenses_paid_amount: '.5',
+          child_prevly_married_ind: nil,
+          guardian_particpant_id: '150583',
+          type: 'stepchild'
+        },
+        {
+          vnp_participant_id: '150585',
+          participant_relationship_type_name: 'Guardian',
+          family_relationship_type_name: 'Other',
+          begin_date: nil,
+          end_date: nil,
+          event_date: nil,
+          marriage_state: nil,
+          marriage_city: nil,
+          marriage_country: nil,
+          divorce_state: nil,
+          divorce_city: nil,
+          divorce_country: nil,
+          marriage_termination_type_code: nil,
+          living_expenses_paid_amount: '.5',
+          child_prevly_married_ind: nil,
+          guardian_particpant_id: '150583',
+          type: 'stepchild'
+        }
+      ]
+    end
+  end
 end

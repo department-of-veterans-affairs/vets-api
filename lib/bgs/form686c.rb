@@ -33,12 +33,12 @@ module BGS
       marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create_all
       children = Children.new(proc_id: proc_id, payload: payload, user: @user).create_all
 
-      all_dependents = dependents + marriages + children[:dependents]
+      veteran_dependents = dependents + marriages + children[:dependents]
 
       VnpRelationships.new(
         proc_id: proc_id,
         veteran: veteran,
-        dependents: all_dependents,
+        dependents: veteran_dependents,
         step_children: children[:step_children],
         user: @user
       ).create_all

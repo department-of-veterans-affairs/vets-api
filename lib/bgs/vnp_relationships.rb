@@ -17,14 +17,14 @@ module BGS
 
       spouse = @dependents.find { |dependent| dependent[:type] == 'spouse' }
 
-      send_step_child_relationships
+      send_step_children_relationships if @step_children.present?
       send_spouse_marriage_history_relationships(spouse, spouse_marriages)
       send_vet_dependent_relationships(vet_dependents)
     end
 
     private
 
-    def send_step_child_relationships
+    def send_step_children_relationships
       @step_children.each do |step_child|
         bgs_service.create_relationship(
           vnp_relationship.params_for_686c(step_child[:guardian_particpant_id], step_child)

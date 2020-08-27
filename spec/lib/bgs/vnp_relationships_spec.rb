@@ -8,6 +8,7 @@ RSpec.describe BGS::VnpRelationships do
   let(:veteran_hash) { { vnp_participant_id: '146189' } }
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:dependent_relationships) { FactoryBot.build(:dependent_relationships) }
+  let(:step_children_relationships) { FactoryBot.build(:step_children_relationships) }
 
   describe '#create_all' do
     context 'adding children' do
@@ -190,41 +191,61 @@ RSpec.describe BGS::VnpRelationships do
       end
     end
 
-    it 'processes relationships for the veteran and spouse\'s ex-spouses' do
-      VCR.use_cassette('bgs/vnp_relationships/create_all') do
-        bgs_relationship = described_class.new(
-          proc_id: proc_id,
-          veteran: veteran_hash,
-          dependents: dependent_relationships,
-          step_children: [],
-          user: user_object
-        )
+    context 'adding marriage history for spouse\'s ex-spouses' do
+      it 'processes relationships for the veteran and spouse\'s ex-spouses' do
+        VCR.use_cassette('bgs/vnp_relationships/create_all') do
+          bgs_relationship = described_class.new(
+            proc_id: proc_id,
+            veteran: veteran_hash,
+            dependents: dependent_relationships,
+            step_children: [],
+            user: user_object
+          )
 
-        expect(bgs_relationship).to receive(:send_spouse_marriage_history_relationships).with(
-          a_hash_including(
-            family_relationship_type_name: 'Spouse',
-            type: 'spouse',
-            participant_relationship_type_name: 'Spouse'
-          ),
-          [
+          expect(bgs_relationship).to receive(:send_spouse_marriage_history_relationships).with(
             a_hash_including(
-              vnp_participant_id: '29240',
-              type: 'spouse_marriage_history',
-              family_relationship_type_name: 'Ex-Spouse'
-            )
-          ]
-        )
+              family_relationship_type_name: 'Spouse',
+              type: 'spouse',
+              participant_relationship_type_name: 'Spouse'
+            ),
+            [
+              a_hash_including(
+                vnp_participant_id: '29240',
+                type: 'spouse_marriage_history',
+                family_relationship_type_name: 'Ex-Spouse'
+              )
+            ]
+          )
 
-        expect(bgs_relationship).to receive(:send_vet_dependent_relationships).with(
-          [
-            a_hash_including(vnp_participant_id: '29236'),
-            a_hash_including(vnp_participant_id: '29237'),
-            a_hash_including(vnp_participant_id: '29238', participant_relationship_type_name: 'Spouse'),
-            a_hash_including(vnp_participant_id: '29239', type: 'child')
-          ]
-        )
+          expect(bgs_relationship).to receive(:send_vet_dependent_relationships).with(
+            [
+              a_hash_including(vnp_participant_id: '29236'),
+              a_hash_including(vnp_participant_id: '29237'),
+              a_hash_including(vnp_participant_id: '29238', participant_relationship_type_name: 'Spouse'),
+              a_hash_including(vnp_participant_id: '29239', type: 'child')
+            ]
+          )
 
-        bgs_relationship.create_all
+          bgs_relationship.create_all
+        end
+      end
+    end
+
+    context 'adding stepchildren' do
+      it 'creates a relationship between a stepchild that left the house and a guardian' do
+        VCR.use_cassette('bgs/vnp_relationships/step_children') do
+          bgs_relationship = described_class.new(
+            proc_id: proc_id,
+            veteran: veteran_hash,
+            dependents: [],
+            step_children: step_children_relationships,
+            user: user_object
+          )
+
+          expect(bgs_relationship).to receive(:send_step_children_relationships)
+
+          bgs_relationship.create_all
+        end
       end
     end
   end
