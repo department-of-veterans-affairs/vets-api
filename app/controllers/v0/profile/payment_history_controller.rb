@@ -2,13 +2,13 @@
 
 module V0
   module Profile
-    class PaymentsController < ApplicationController
+    class PaymentHistoryController < ApplicationController
       before_action { authorize :bgs, :access? }
 
       def index
         service = BGS::PaymentService.new(current_user)
         response = service.payment_history
-        binding.pry
+
         render(
           json: response,
           serializer: VetPaymentHistorySerializer
