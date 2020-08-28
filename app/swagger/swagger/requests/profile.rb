@@ -1000,6 +1000,25 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/payment_history' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET returns two arrays. One is payments made, the other is payments returned'
+          key :operationId, 'getPaymentHistory'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :PaymentHistory
+            end
+          end
+        end
+      end
     end
   end
 end
