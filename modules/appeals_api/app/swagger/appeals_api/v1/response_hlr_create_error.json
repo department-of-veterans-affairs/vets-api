@@ -30,7 +30,7 @@
                   "properties": {
                     "status": { "type": "integer" },
                     "detail": { "type": "string" },
-                    "sources": { "type": "string" }}}}}}]},
+                    "source": { "type": "string" }}}}}}]},
       "examples": {
         "payloadIsNotJson": {
           "value": {
@@ -43,7 +43,7 @@
             "errors": [
               {"status": 422,
                 "detail": "The property /data/attributes did not contain the required key benefitType",
-                "sources": "/data/included"},
+                "source": "/data/included"},
               {"status": 422,
                 "detail": "The property /data/attributes/veteran did not match the following requirements ...",
-                "sources": "/data/attributes/veteran"}]}}}}}}
+                "source": "/data/attributes/veteran"}]}}}}}}

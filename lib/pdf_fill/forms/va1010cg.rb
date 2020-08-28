@@ -183,6 +183,15 @@ module PdfFill
                 }
               }
             },
+            'signature' => {
+              'name' => {
+                key: PDF_INPUT_LOCATIONS.veteran[:signature][:name]
+              },
+              'date' => {
+                key: PDF_INPUT_LOCATIONS.veteran[:signature][:date],
+                format: 'date'
+              }
+            },
             'plannedClinic' => {
               key: PDF_INPUT_LOCATIONS.veteran[:planned_clinic]
             }
@@ -248,6 +257,15 @@ module PdfFill
               'unknown' => {
                 key: PDF_INPUT_LOCATIONS.primaryCaregiver[:gender][:unknown]
               }
+            },
+            'signature' => {
+              'name' => {
+                key: PDF_INPUT_LOCATIONS.primaryCaregiver[:signature][:name]
+              },
+              'date' => {
+                key: PDF_INPUT_LOCATIONS.primaryCaregiver[:signature][:date],
+                format: 'date'
+              }
             }
           },
           'secondaryCaregiverOne' => {
@@ -269,6 +287,15 @@ module PdfFill
               'unknown' => {
                 key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:gender][:unknown]
               }
+            },
+            'signature' => {
+              'name' => {
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:signature][:name]
+              },
+              'date' => {
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverOne[:signature][:date],
+                format: 'date'
+              }
             }
           },
           'secondaryCaregiverTwo' => {
@@ -289,6 +316,15 @@ module PdfFill
               },
               'unknown' => {
                 key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:gender][:unknown]
+              }
+            },
+            'signature' => {
+              'name' => {
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:signature][:name]
+              },
+              'date' => {
+                key: PDF_INPUT_LOCATIONS.secondaryCaregiverTwo[:signature][:date],
+                format: 'date'
               }
             }
           }
@@ -563,7 +599,7 @@ module PdfFill
         }
       }.freeze
 
-      def merge_fields
+      def merge_fields(options = {})
         @form_data['helpers'] = {
           'veteran' => {},
           'primaryCaregiver' => {},
@@ -573,7 +609,7 @@ module PdfFill
 
         merge_address_helpers
         merge_gender_helpers
-        merge_signature_helpers
+        merge_signature_helpers if options[:sign]
 
         merge_primary_caregiver_enrollment_helpers
         merge_veteran_last_treatment_facility_helper
@@ -603,11 +639,17 @@ module PdfFill
       end
 
       def merge_signature_helpers
+        timestamp = generate_signiture_timestamp
+
         subjects.each do |subject|
-          @form_data['helpers'][subject]['signature'] = {
-            'name' => combine_full_name(@form_data.dig(subject, 'fullName')),
-            'date' => @form_data[subject].present? ? Time.zone.today.to_s : nil
-          }
+          signature = combine_full_name(@form_data.dig(subject, 'fullName'))
+
+          if @form_data[subject].present? && signature
+            @form_data['helpers'][subject]['signature'] = {
+              'name' => "/es/ #{signature}",
+              'date' => timestamp
+            }
+          end
         end
       end
 
@@ -653,6 +695,10 @@ module PdfFill
         selected_facility = caregiver_facilities.find { |facility| facility['code'] == target_facility_code }
         display_value = selected_facility.nil? ? nil : "#{selected_facility['code']} - #{selected_facility['label']}"
         @form_data['helpers']['veteran']['plannedClinic'] = display_value
+      end
+
+      def generate_signiture_timestamp
+        Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m/%d/%Y %l:%M%P %Z')
       end
     end
   end

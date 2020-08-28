@@ -15,28 +15,26 @@ module EVSS
         # @param msg [Hash] The message payload from Sidekiq
         #
         def job_exhausted(msg)
-          submission_id = msg['args'].first
-          jid = msg['jid']
-          error_message = msg['error_message']
-          klass = self.class.name.demodulize
-
           values = {
-            form526_submission_id: submission_id,
-            job_id: jid,
-            job_class: klass,
+            form526_submission_id: msg['args'].first,
+            job_id: msg['jid'],
+            job_class: msg['class'].demodulize,
             status: Form526JobStatus::STATUS[:exhausted],
-            error_class: nil,
-            error_message: error_message,
+            error_class: msg['error_class'],
+            error_message: msg['error_message'],
             updated_at: Time.now.utc
           }
-          Form526JobStatus.upsert({ job_id: jid }, values)
+          Form526JobStatus.upsert(values, unique_by: :job_id)
 
           Rails.logger.error(
-            'Form526 Exhausted', submission_id: submission_id, job_id: jid, error_message: error_message
+            'Form526 Exhausted', submission_id: msg['args'].first,
+                                 job_id: msg['jid'],
+                                 error_class: msg['error_class'],
+                                 error_message: msg['error_message']
           )
           Metrics.new(STATSD_KEY_PREFIX).increment_exhausted
         rescue => e
-          Rails.logger.error('error tracking job exhausted', error: e, class: klass)
+          Rails.logger.error('error tracking job exhausted', error: e, class: msg['class'].demodulize)
         end
       end
 
@@ -46,10 +44,11 @@ module EVSS
       # @param saved_claim_id [Integer] The {SavedClaim} id
       # @param submission_id [Integer] The {Form526Submission} id
       #
-      def with_tracking(job_title, saved_claim_id, submission_id)
+      def with_tracking(job_title, saved_claim_id, submission_id, is_bdd = nil)
         @status_job_title = job_title
         @status_saved_claim_id = saved_claim_id
         @status_submission_id = submission_id
+        @is_bdd = is_bdd
 
         job_try
         yield
@@ -82,7 +81,7 @@ module EVSS
       def retryable_error_handler(error)
         upsert_job_status(Form526JobStatus::STATUS[:retryable_error], error)
         log_error('retryable_error', error)
-        metrics.increment_retryable(error)
+        metrics.increment_retryable(error, @is_bdd)
       end
 
       # Metrics and logging for any non-retryable errors that occurred.
@@ -92,7 +91,7 @@ module EVSS
         upsert_job_status(Form526JobStatus::STATUS[:non_retryable_error], error)
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
         log_error('non_retryable_error', error)
-        metrics.increment_non_retryable(error)
+        metrics.increment_non_retryable(error, @is_bdd)
       end
 
       private
@@ -109,7 +108,7 @@ module EVSS
         }
         values[:error_class] = error.class if error
         values[:error_message] = error_message(error) if error
-        Form526JobStatus.upsert({ job_id: jid }, values)
+        Form526JobStatus.upsert(values, unique_by: :job_id)
       end
 
       def error_message(error)

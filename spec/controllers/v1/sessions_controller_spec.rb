@@ -627,7 +627,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to identity proof URL', :aggregate_failures do
           Timecop.freeze(Time.current)
           expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).and_return(true)
-          expect_any_instance_of(SAML::PostURLService).to receive(:verify_url)
+          expect_any_instance_of(SAML::PostURLService).to receive(:verify_url).and_return(['http://uplevel', {}])
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
           post :saml_callback
@@ -741,6 +741,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+
+        it 'captures the invalid saml response in a PersonalInformationLog' do
+          post(:saml_callback)
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! Other SAML Response Error(s)')
         end
       end
 
@@ -865,6 +871,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+
+        it 'captures the invalid saml response in a PersonalInformationLog' do
+          post(:saml_callback)
+          expect(PersonalInformationLog.count).to be_positive
+          expect(PersonalInformationLog.last.error_class).to eq('Login Failed! on User/Session Validation')
         end
       end
 
