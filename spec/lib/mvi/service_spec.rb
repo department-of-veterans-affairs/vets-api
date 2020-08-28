@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/messages/add_person_message'
 require 'mvi/service'
-require 'mvi/responses/find_profile_response'
 
 describe MVI::Service do
   let(:user_hash) do
