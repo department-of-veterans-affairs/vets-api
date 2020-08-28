@@ -31,6 +31,7 @@ module V0
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}", VERSION_TAG])
+      Rails.logger.info("SSO_NEW_KEY, tags: #{["context:#{type}", VERSION_TAG]}")
       url = url_service.send("#{type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
@@ -140,10 +141,18 @@ module V0
     def login_stats_success(saml_response, tracker)
       type = tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
-      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-      StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags) if cookies.key?(Settings.sso.cookie_name)
+      if type == 'signup'
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG])
+        Rails.logger.info("LOGIN_NEW_USER_KEY, tags: [#{VERSION_TAG}]")
+      end
+      if cookies.key?(Settings.sso.cookie_name)
+        StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
+        Rails.logger.info("LOGIN_SHARED_COOKIE, tags: #{tags}")
+      end
       StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
+      Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
       StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
+      Rails.logger.info("LOGIN_LATENCY, tracker.age: #{tracker.age}, tags: #{tags}")
       callback_stats(:success, saml_response)
     end
 
@@ -155,6 +164,7 @@ module V0
       when :failure
         tags = ["context:#{tracker.payload_attr(:type)}", VERSION_TAG]
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
+        Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags}")
         callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end
     end
