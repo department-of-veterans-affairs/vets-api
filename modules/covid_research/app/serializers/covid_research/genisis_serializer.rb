@@ -17,8 +17,8 @@ module CovidResearch
 
     def serialize(data)
       base[:FormQuestions] = formatted_qs(data)
-      base[:CreatedDateTime] = timestamp
-      base[:UpdatedDateTime] = timestamp
+      base[:CreatedDateTime] = timestamp.iso8601
+      base[:UpdatedDateTime] = timestamp.iso8601
 
       JSON.generate(base)
     end
@@ -39,7 +39,7 @@ module CovidResearch
         else
           {
             QuestionName: key,
-            QuestionValue: data[key]
+            QuestionValue: value(data[key])
           }
         end
       end.flatten
@@ -51,6 +51,16 @@ module CovidResearch
 
     def translate_name(data)
       Volunteer::NameSerializer.new.serialize(data)
+    end
+
+    def value(actual)
+      if actual == true
+        'Yes'
+      elsif actual == false
+        'No'
+      else
+        actual.to_s
+      end
     end
   end
 end
