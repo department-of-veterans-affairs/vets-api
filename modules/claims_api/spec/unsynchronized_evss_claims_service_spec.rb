@@ -10,7 +10,7 @@ RSpec.describe ClaimsApi::UnsynchronizedEVSSClaimService, type: :model do
   before do
     @client_stub = instance_double('EVSS::VSOSearch::Service')
     allow(EVSS::VSOSearch::Service).to receive(:new).with(user) { @client_stub }
-    allow(@client_stub).to receive(:get_current_info) { get_fixture('json/veteran_with_poa') }
+    allow(@client_stub).to receive(:get_current_info) { get_fixture('json/evss_with_poa') }
     @veteran = Veteran::User.new(user)
     @veteran.power_of_attorney = PowerOfAttorney.new(ssn: '123456789')
   end

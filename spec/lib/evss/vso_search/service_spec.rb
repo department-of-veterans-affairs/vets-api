@@ -5,7 +5,7 @@ require 'rails_helper'
 describe EVSS::VSOSearch::Service do
   let(:user) { create(:evss_user) }
   let(:service) { described_class.new(user) }
-  let(:response) { OpenStruct.new(body: get_fixture('json/veteran_with_poa')) }
+  let(:response) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
   def it_returns_valid_payload(method, form = nil)
     allow(service).to receive(:perform).and_return(response)
