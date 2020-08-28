@@ -6,7 +6,7 @@
   parameters:
     verify_stable_pacts:
       type: boolean
-      default: false 
+      default: false
   
   executors:
     vets_api_docker_executor:
