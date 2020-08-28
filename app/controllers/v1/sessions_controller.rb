@@ -203,6 +203,7 @@ module V1
     def new_stats(type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
+      Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
 
     def login_stats(status, saml_response, error = nil)
@@ -211,13 +212,21 @@ module V1
       tags = ["context:#{type}", VERSION_TAG]
       case status
       when :success
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
+        if type == 'signup'
+          StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG])
+          Rails.logger.info("LOGIN_NEW_USER_KEY, tags: [#{VERSION_TAG}]")
+        end
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
+        Rails.logger.info("LOGIN_SHARED_COOKIE, tags: #{tags}")
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
+        Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
+        Rails.logger.info("LOGIN_LATENCY, tracker.age: #{tracker.age}, tags: #{tags}")
       when :failure
-        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags << "error:#{error.code}")
+        tags_and_error_code = tags << "error:#{error.code}"
+        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
+        Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
       end
     end
 
