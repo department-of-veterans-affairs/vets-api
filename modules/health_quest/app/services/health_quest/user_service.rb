@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middleware::HealthQuestLogging
+
 module HealthQuest
   class UserService < HealthQuest::BaseService
     def session(user)
@@ -69,7 +71,7 @@ module HealthQuest
 
     def new_session_token(user)
       url = '/users/v2/session?processRules=true'
-      token = HealthQuest::JWT.new(user).token
+      token = HealthQuest::JwtWrapper.new(user).token
       response = perform(:post, url, token, headers)
       # rubocop:disable Layout/LineLength
       raise Common::Exceptions::BackendServiceException.new('HealthQuest_502', source: self.class) unless body?(response)

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+Faraday::Response.register_middleware health_quest_errors: HealthQuest::Middleware::Response::Errors
+
 module HealthQuest
   class Configuration < Common::Client::Configuration::REST
     def base_path
@@ -8,6 +10,10 @@ module HealthQuest
 
     def service_name
       'HEALTHQUEST'
+    end
+
+    def rsa_key
+      @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.hqva_mobile.key_path))
     end
 
     def connection
