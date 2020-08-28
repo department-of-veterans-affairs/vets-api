@@ -522,7 +522,7 @@ module ClaimsApi
           response 200 do
             key :description, 'upload response'
             content 'application/json' do
-              schema do                
+              schema do
                 key :type, :object
                 key :required, [:data]
                 property :data do

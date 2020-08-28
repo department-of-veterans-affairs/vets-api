@@ -169,8 +169,8 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                 key :'$ref', :Form0966Output
-                end 
+                  key :'$ref', :Form0966Output
+                end
               end
             end
           end
