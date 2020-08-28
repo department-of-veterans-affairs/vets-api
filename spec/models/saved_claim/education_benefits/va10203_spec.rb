@@ -18,19 +18,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   end
 
   describe '#after_submit' do
-    context 'feature flag edu_benefits_stem_scholarship disabled' do
-      before do
-        expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(false)
-      end
-
-      it 'does not call SendSCOEmail' do
-        expect { instance.after_submit(user) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
-      end
-    end
-
     context 'FeatureFlipper send email disabled' do
       before do
-        expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(false)
       end
 
@@ -41,7 +30,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'Not logged in' do
       before do
-        expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         mail = double('mail')
         allow(mail).to receive(:deliver_now)
@@ -55,7 +44,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'authorized' do
       before do
-        expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(true)
@@ -76,9 +65,32 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
     end
 
+    context 'stem_sco_email flipped off' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(false)
+        expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
+        mail = double('mail')
+        allow(mail).to receive(:deliver_now)
+        allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
+      end
+
+      it 'does not call SendSCOEmail' do
+        unauthorized_evss_user = build(:unauthorized_evss_user, :loa3)
+        expect { instance.after_submit(unauthorized_evss_user) }
+          .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+      end
+
+      it 'calls StemApplicantConfirmationMailer' do
+        mail = double('mail')
+        allow(mail).to receive(:deliver_now)
+        expect(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).once.and_return(mail)
+        instance.after_submit(user)
+      end
+    end
+
     context 'unauthorized' do
       before do
-        expect(Flipper).to receive(:enabled?).with(:edu_benefits_stem_scholarship).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(false).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(false)

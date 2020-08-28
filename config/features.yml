@@ -15,6 +15,10 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
+  covid_volunteer_delivery:
+    actor_type: cookie_id
+    description: >
+      Toggles whether COVID Research volunteer submissions will be delivered to genISIS
   dashboard_show_covid19_alert:
     actor_type: user
     description: >
@@ -122,10 +126,6 @@ features:
     actor_type: user
     description: >
       Enables STEM scholarship functionality
-  gibct_estimate_your_benefits:
-    actor_type: user
-    description: >
-      Enable 508 and usability enhancements for the Comparison Tool Profile Page Estimate Your Benefits section benefits estimator panel.
   form526_original_claims:
     actor_type: user
     description: >
@@ -166,10 +166,6 @@ features:
     actor_type: user
     description: >
       Comparison Tool Search Enhancements to improve usability
-  route_st_louis_rpo_to_buffalo_rpo:
-    actor_type: user
-    description: >
-      All submission data that was previously routed to St Louis RPO is routed to the Buffalo RPO
   form996_higher_level_review:
     actor_type: user
     description: >
@@ -226,7 +222,28 @@ features:
     actor_type: user
     description: >
       Enable/disable SCO email per environment
-  show_526_wizard:
-    acto_type: user
+  show526_wizard:
+    actor_type: user
     description: >
       This determines when the wizard should show up on the form 526 intro page
+  show_new_get_medical_records_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/get-medical-records/
+  show_new_refill_track_prescriptions_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
+  show_new_schedule_view_appointments_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
+  show_new_secure_messaging_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
+  show_new_view_test_lab_results_page:
+    acto_type: user
+    description: >
+      This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+

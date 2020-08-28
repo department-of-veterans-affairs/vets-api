@@ -10,9 +10,9 @@ module CovidResearch
 
       def create
         with_monitoring do
-          form_service = FormService.new
-
           if form_service.valid?(payload)
+            deliver(payload)
+
             render json: { status: 'accepted' }, status: :accepted
           else
             StatsD.increment(STATSD_KEY_PREFIX + '.create.fail')
@@ -23,6 +23,16 @@ module CovidResearch
             render json: error, status: 422
           end
         end
+      end
+
+      private
+
+      def deliver(payload)
+        form_service.queue_delivery(payload) if Flipper.enabled?(:covid_volunteer_delivery, @current_user)
+      end
+
+      def form_service
+        @form_service ||= FormService.new
       end
     end
   end

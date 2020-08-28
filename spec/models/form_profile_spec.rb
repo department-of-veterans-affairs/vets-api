@@ -947,6 +947,7 @@ RSpec.describe FormProfile, type: :model do
           v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
           v22_10203_expected['schoolCity'] = 'NORFOLK'
           v22_10203_expected['schoolState'] = 'VA'
+          v22_10203_expected['schoolCountry'] = 'USA'
         end
 
         it 'prefills 10203 with emis and entitlement information' do

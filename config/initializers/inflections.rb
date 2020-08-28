@@ -10,8 +10,10 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'DOD'
   inflect.acronym 'EMIS'
   inflect.acronym 'EVSS'
+  inflect.acronym 'FHIR'
   inflect.acronym 'GIDS'
   inflect.acronym 'GI'
+  inflect.acronym 'HCA'
   inflect.acronym 'IHub'
   inflect.acronym 'MDOT'
   inflect.acronym 'MHV' # My HealtheVet
