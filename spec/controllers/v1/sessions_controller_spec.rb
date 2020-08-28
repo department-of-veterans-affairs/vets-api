@@ -359,6 +359,25 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
     end
+
+    describe 'track' do
+      it 'logs a SAML stat with no params' do
+          expect { get(:tracker) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLTRACKER_KEY,
+                                         tags: ['type:',
+                                                'context:',
+                                                'version:v1'])
+      end
+
+      it 'logs a SAML stat with no params' do
+          expect { get(:tracker, params: { type: 'mhv', authn: 'myhealthevet' }) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLTRACKER_KEY,
+                                         tags: ['type:mhv',
+                                                'context:myhealthevet',
+                                                'version:v1'])
+
+      end
+    end
   end
 
   context 'when logged in' do

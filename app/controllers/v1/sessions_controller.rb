@@ -15,6 +15,7 @@ module V1
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
+    STATSD_SSO_SAMLTRACKER_KEY = 'api.auth.saml_tracker'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -66,6 +67,18 @@ module V1
       handle_callback_error(e, :failed_unknown, resp)
     ensure
       callback_stats(:total)
+    end
+
+    def tracker
+      values = {
+        'id' => params[:saml_uuid],
+        'authn' => params[:authn],
+        'type' => params[:type],
+      }
+      Rails.logger.info("SSOe: SAML Tracker => #{values}")
+      StatsD.increment(STATSD_SSO_SAMLTRACKER_KEY,
+                       tags: ["type:#{params[:type]}", "context:#{params[:authn]}", VERSION_TAG])
+
     end
 
     def metadata
@@ -130,7 +143,13 @@ module V1
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
-                               locals: { url: login_url, params: post_params },
+                               locals: {
+                                 url: login_url,
+                                 params: post_params,
+                                 saml_uuid: helper.tracker.uuid,
+                                 authn: helper.tracker.payload_attr(:authn_context),
+                                 type: helper.tracker.payload_attr(:type),
+                               },
                                format: :html
       render body: result, content_type: 'text/html'
       saml_request_stats(helper.tracker)

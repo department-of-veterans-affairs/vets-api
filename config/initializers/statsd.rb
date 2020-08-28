@@ -45,6 +45,8 @@ LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
                        tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
       StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLRESPONSE_KEY, 0,
                        tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLTRACKER_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
     end
   end
   LOGIN_ERRORS.each do |err|
