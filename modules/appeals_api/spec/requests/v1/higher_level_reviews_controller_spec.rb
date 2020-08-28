@@ -53,6 +53,21 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
       expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
     end
 
+    it 'responds with a 422 when request.body is a Puma::NullIO' do
+      fake_puma_null_io_object = Object.new.tap do |obj|
+        def obj.class
+          OpenStruct.new name: 'Puma::NullIO'
+        end
+      end
+      expect(fake_puma_null_io_object.class.name).to eq 'Puma::NullIO'
+      allow_any_instance_of(ActionDispatch::Request).to(
+        receive(:body).and_return(fake_puma_null_io_object)
+      )
+      post(path, params: @data, headers: @headers)
+      expect(response.status).to eq 422
+      expect(JSON.parse(response.body)['errors']).to be_an Array
+    end
+
     context 'responds with a 422 when request.body isn\'t a JSON *object*' do
       before do
         fake_io_object = OpenStruct.new string: json
