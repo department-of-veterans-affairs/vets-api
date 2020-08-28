@@ -9,7 +9,7 @@ module ClaimsApi
         schema :ErrorModel do
           key :description, 'Errors with some details for the given request'
 
-          key :required, %i[status details]
+          key :required, %i[status detail]
           property :status do
             key :type, :integer
             key :format, :int32
@@ -23,7 +23,7 @@ module ClaimsApi
             key :description, 'a JSON Pointer to the offending attribute in the payload'
           end
 
-          property :details do
+          property :detail do
             key :type, :string
             key :example, 'burial is not currently supported, but will be in a future version'
             key :description, 'A more detailed message about why an error occured'
