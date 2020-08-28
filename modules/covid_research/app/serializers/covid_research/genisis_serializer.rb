@@ -59,7 +59,7 @@ module CovidResearch
       elsif actual == false
         'No'
       else
-        actual
+        actual.to_s
       end
     end
   end
