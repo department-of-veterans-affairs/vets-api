@@ -73,12 +73,11 @@ module V1
       values = {
         'id' => params[:saml_uuid],
         'authn' => params[:authn],
-        'type' => params[:type],
+        'type' => params[:type]
       }
       Rails.logger.info("SSOe: SAML Tracker => #{values}")
       StatsD.increment(STATSD_SSO_SAMLTRACKER_KEY,
                        tags: ["type:#{params[:type]}", "context:#{params[:authn]}", VERSION_TAG])
-
     end
 
     def metadata
@@ -148,7 +147,7 @@ module V1
                                  params: post_params,
                                  saml_uuid: helper.tracker.uuid,
                                  authn: helper.tracker.payload_attr(:authn_context),
-                                 type: helper.tracker.payload_attr(:type),
+                                 type: helper.tracker.payload_attr(:type)
                                },
                                format: :html
       render body: result, content_type: 'text/html'
