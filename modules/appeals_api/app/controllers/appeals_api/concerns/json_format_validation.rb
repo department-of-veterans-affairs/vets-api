@@ -16,7 +16,7 @@ module AppealsApi
 
         render_body_is_not_a_hash_error @json_body
       rescue JSON::ParserError
-        render_body_is_not_a_hash_error request.body
+        render_body_is_not_a_hash_error request.body.string
       end
 
       def render_body_is_not_a_hash_error(body)
