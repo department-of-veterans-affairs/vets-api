@@ -17,7 +17,7 @@ RSpec.describe BGSDependents::Divorce do
       'divorce_city' => 'Tampa',
       'divorce_country' => nil,
       'marriage_termination_type_code' => 'Divorce',
-      'event_dt' => '2020-01-01',
+      'end_date' => '2020-01-01T00:00:00-05:00',
       'vet_ind' => 'N',
       'type' => 'divorce',
       'first' => 'Billy',
