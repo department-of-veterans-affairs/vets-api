@@ -1,0 +1,10 @@
+# Replace with auth credentials
+@user = sampleUser
+@pass = samplePass
+
+### Example call to store data in GenISIS
+POST https://vaausapprne60.aac.dva.va.gov/COVID19Service/formdata
+Content-Type: application/json
+Authorization: Basic {{user}} {{pass}}
+
+< ./example.json

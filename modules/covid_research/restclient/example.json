@@ -1,0 +1,88 @@
+{
+  "GenISISId": 1,
+  "StudyId": 1,
+  "FormName": "COVID-19",
+  "FormVersion": "1.0",
+  "FormSource": "VA",
+  "FormFileName": null,
+  "FormQuestions": [
+    {
+      "QuestionName": "diagnosed",
+      "QuestionValue": "false"
+    },
+    {
+      "QuestionName": "closeContactPositive",
+      "QuestionValue": "UNSURE"
+    },
+    {
+      "QuestionName": "hospitalized",
+      "QuestionValue": false
+    },
+    {
+      "QuestionName": "smokeOrVape",
+      "QuestionValue": "false"
+    },
+    {
+      "QuestionName": "NONE_OF_ABOVE",
+      "QuestionValue": "true"
+    },
+    {
+      "QuestionName": "EMPLOYED_HOME",
+      "QuestionValue": "true"
+    },
+    {
+      "QuestionName": "WORK_FROM_HOME",
+      "QuestionValue": "true"
+    },
+    {
+      "QuestionName": "residentsInHome",
+      "QuestionValue": "THREE_FIVE"
+    },
+    {
+      "QuestionName": "closeContact",
+      "QuestionValue": "ZERO"
+    },
+    {
+      "QuestionName": "firstName",
+      "QuestionValue": "sampleFirstname"
+    },
+    {
+      "QuestionName": "lastName",
+      "QuestionValue": "sampleLastname"
+    },
+    {
+      "QuestionName": "email",
+      "QuestionValue": "user@example.com"
+    },
+    {
+      "QuestionName": "phone",
+      "QuestionValue": "5551234567"
+    },
+    {
+      "QuestionName": "zipCode",
+      "QuestionValue": "12345"
+    },
+    {
+      "QuestionName": "veteranDateOfBirth",
+      "QuestionValue": "2000-01-01"
+    },
+    {
+      "QuestionName": "height",
+      "QuestionValue": "78"
+    },
+    {
+      "QuestionName": "weight",
+      "QuestionValue": "800"
+    },
+    {
+      "QuestionName": "MALE",
+      "QuestionValue": "true"
+    },
+    {
+      "QuestionName": "WHITE",
+      "QuestionValue": "true"
+    }
+  ],
+  "CreatedDateTime": "2020-08-01T12:34:56.789Z",
+  "UpdatedDateTime": "2020-08-09"
+}
