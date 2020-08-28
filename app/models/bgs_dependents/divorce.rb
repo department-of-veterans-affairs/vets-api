@@ -7,7 +7,6 @@ module BGSDependents
     end
 
     def format_info
-      binding.pry
       {
         divorce_state: @divorce_info.dig('location', 'state'),
         divorce_city: @divorce_info.dig('location', 'city'),
