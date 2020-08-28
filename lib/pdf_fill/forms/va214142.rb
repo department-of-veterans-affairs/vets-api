@@ -347,7 +347,7 @@ module PdfFill
         expand_provider_date_range(providers)
       end
 
-      def merge_fields
+      def merge_fields(_options = {})
         expand_va_file_number
 
         expand_ssn

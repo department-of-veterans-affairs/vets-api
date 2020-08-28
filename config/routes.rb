@@ -226,6 +226,7 @@ Rails.application.routes.draw do
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
+      resources :payment_history, only: %i[index]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]

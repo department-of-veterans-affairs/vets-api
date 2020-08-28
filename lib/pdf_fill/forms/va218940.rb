@@ -427,7 +427,7 @@ module PdfFill
         }
       }.freeze
 
-      def merge_fields
+      def merge_fields(_options = {})
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         expand_ssn
         expand_veteran_dob
