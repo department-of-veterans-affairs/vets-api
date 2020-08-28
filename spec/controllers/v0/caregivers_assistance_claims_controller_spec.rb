@@ -49,7 +49,7 @@ shared_examples 'invalid 10-10CG form submission' do |controller_action, expecte
     )
   end
 
-  it 'builds a claim and raises it\'s errors' do
+  it 'builds a claim and raises its errors' do
     params = { caregivers_assistance_claim: { form: '{}' } }
     form_data = params[:caregivers_assistance_claim][:form]
     claim = build(:caregivers_assistance_claim, form: form_data)
@@ -210,7 +210,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
   describe '#download_pdf' do
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
-    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'simple.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
     after do
       File.delete(response_pdf) if File.exist?(response_pdf)
@@ -219,7 +219,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     it_behaves_like 'invalid 10-10CG form submission', :download_pdf
 
     it 'generates a filled out 10-10CG and sends file as response', run_at: '2017-07-25 00:00:00 -0400' do
-      form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
+      form_data = get_fixture('pdf_fill/10-10CG/unsigned/simple').to_json
       params    = { caregivers_assistance_claim: { form: form_data } }
       claim     = build(:caregivers_assistance_claim, form: form_data)
 
