@@ -25,7 +25,7 @@ module CovidResearch
 
       def deliver_form
         with_monitoring do
-          @delivery_response = post(payload.to_json)
+          @delivery_response = post(payload)
 
           StatsD.increment(STATSD_KEY_PREFIX + '.deliver_form.fail') unless @delivery_response.success?
         end
