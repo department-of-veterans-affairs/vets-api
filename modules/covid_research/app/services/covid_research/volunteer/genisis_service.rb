@@ -25,7 +25,7 @@ module CovidResearch
 
       def deliver_form
         with_monitoring do
-          @delivery_response = post(payload)
+          @delivery_response = post(payload.to_json)
 
           StatsD.increment(STATSD_KEY_PREFIX + '.deliver_form.fail') unless @delivery_response.success?
         end
@@ -38,7 +38,7 @@ module CovidResearch
       private
 
       def post(params)
-        conn.post("#{Settings.genisis.service_path}/formdata", params)
+        conn.post("#{Settings.genisis.service_path}/formdata", params, headers)
       end
 
       def headers
