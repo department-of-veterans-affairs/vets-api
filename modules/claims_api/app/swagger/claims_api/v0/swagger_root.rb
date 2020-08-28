@@ -34,7 +34,7 @@ module ClaimsApi
           key :description, '0966 Submissions'
         end
 
-        # TODO include in v0 docs when this endpoint is functional and meant to be consumed
+        # TODO: include in v0 docs when this endpoint is functional and meant to be consumed
         # tag do
         #   key :name, 'Power of Attorney'
         #   key :description, '2122 Submissions'

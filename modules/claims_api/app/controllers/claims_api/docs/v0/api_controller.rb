@@ -8,7 +8,7 @@ module ClaimsApi
   module Docs
     module V0
       class ApiController < ClaimsApi::Docs::ApiController
-        # TODO include Form2122 in v0 docs when this endpoint is functional and meant to be consumed
+        # TODO: include Form2122 in v0 docs when this endpoint is functional and meant to be consumed
         SWAGGERED_CLASSES = [
           ClaimsApi::Claims::ClaimsResponseSwagger,
           ClaimsApi::Forms::Form526ResponseSwagger,
