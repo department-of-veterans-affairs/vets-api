@@ -13,8 +13,14 @@
               "properties": {
                 "status": { "type": "integer" },
                 "detail": { "type": "string" },
-                "source": { "type": "string" }}}}}},
+                "source": { "oneOf": [{ "type": "string" }, { "type": "boolean", "const": false }]}}}}}},
       "examples": {
+        "notJsonObject": {
+          "value": {
+            "errors": [
+              {"status": 422,
+                "detail": "The request body isn't a JSON object: 9873",
+                "source": false}]}},
         "violatesJsonSchema": {
           "value": {
             "errors": [
