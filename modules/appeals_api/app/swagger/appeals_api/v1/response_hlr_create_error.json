@@ -13,7 +13,7 @@
               "properties": {
                 "status": { "type": "integer" },
                 "detail": { "type": "string" },
-                "source": { "oneOf": [{ "type": "string" }, { "type": "boolean", "const": false }]}}}}}},
+                "source": { "oneOf": [{ "type": "string" }, { "type": "boolean", "enum": [false] }]}}}}}},
       "examples": {
         "notJsonObject": {
           "value": {
