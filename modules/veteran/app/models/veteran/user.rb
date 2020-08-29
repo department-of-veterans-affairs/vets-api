@@ -32,8 +32,8 @@ module Veteran
 
     def bgs_service
       @bgs_service ||= BGS::Services.new(
-        external_uid: Settings.bgs.external_uid,
-        external_key: Settings.bgs.external_key
+        external_uid: @user.participant_id,
+        external_key: @user.participant_id
       )
     end
   end
