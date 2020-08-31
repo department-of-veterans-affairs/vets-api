@@ -130,7 +130,6 @@ RSpec.describe 'Intent to file', type: :request do
     it 'responds properly when JSON parse error' do
       with_okta_user(scopes) do |auth_header|
         post "#{path}/validate", params: 'hello', headers: headers.merge(auth_header)
-        pp JSON.parse(response.body)
         expect(response.status).to eq(422)
       end
     end

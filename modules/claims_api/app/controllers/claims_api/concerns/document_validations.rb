@@ -39,7 +39,7 @@ module ClaimsApi
         {
           status: 422,
           source: document.original_filename,
-          details: "#{document.original_filename} exceeds the maximum page dimensions of 11 in x 11 in"
+          detail: "#{document.original_filename} exceeds the maximum page dimensions of 11 in x 11 in"
         }
       end
 
@@ -47,7 +47,7 @@ module ClaimsApi
         {
           status: 422,
           source: document.original_filename,
-          details: "#{document.original_filename} must be in PDF format"
+          detail: "#{document.original_filename} must be in PDF format"
         }
       end
     end

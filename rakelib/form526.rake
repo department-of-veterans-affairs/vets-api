@@ -47,7 +47,7 @@ namespace :form526 do
           ancillary_job_errors[job_status.job_class] += 1
         end
       end
-      version = submission.form.dig('form526', 'form526', 'bddQualified') ? 'BDD' : 'ALL'
+      version = submission.bdd? ? 'BDD' : 'ALL'
       print_row(
         submission.created_at, submission.updated_at, submission.id, submission.submitted_claim_id,
         submission.auth_headers['va_eauth_pid'], submission.workflow_complete, version
@@ -124,11 +124,13 @@ namespace :form526 do
     )
 
     submissions.find_each do |submission|
-      submission.form526_job_statuses.where('error_class is not null').each do |job_status|
+      job_statuses = submission.form526_job_statuses.where.not(status: [Form526JobStatus::STATUS[:try],
+                                                                        Form526JobStatus::STATUS[:success]])
+      job_statuses.each do |job_status|
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
                       job_status.error_class != 'Common::Exceptions::BackendServiceException'
-                     job_status.error_message.gsub(/\[(.*?)\]|\\/, '').scan(MSGS_REGEX)
+                     job_status.error_message.gsub(/\[(\d*)\]|\\/, '').scan(MSGS_REGEX)
                    else
                      [[job_status.error_message]]
                    end
@@ -138,7 +140,7 @@ namespace :form526 do
             sub_id: submission.id,
             p_id: submission.auth_headers['va_eauth_pid'],
             date: submission.created_at,
-            is_bdd: submission.form.dig('form526', 'form526', 'bddQualified'),
+            is_bdd: submission.bdd?,
             job_class: job_status.job_class
           )
           errors[message][:participant_ids].add(submission.auth_headers['va_eauth_pid'])
