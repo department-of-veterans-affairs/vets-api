@@ -44,7 +44,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'authorized' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(true)
@@ -67,7 +67,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'stem_sco_email flipped off' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(false)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         mail = double('mail')
         allow(mail).to receive(:deliver_now)
@@ -90,7 +90,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'unauthorized' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(false).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(false)
