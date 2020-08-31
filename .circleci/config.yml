@@ -11,7 +11,7 @@
       type: boolean
       default: false 
   
-  executors:
+  executors: 
     vets_api_docker_executor:
       docker:
         - image: circleci/ruby:2.6.6-stretch
