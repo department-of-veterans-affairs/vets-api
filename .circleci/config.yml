@@ -78,7 +78,7 @@
     specs:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
-	  parallelism: 4
+      parallelism: 4
       steps:
         - checkout_and_install
         - install_dependencies
