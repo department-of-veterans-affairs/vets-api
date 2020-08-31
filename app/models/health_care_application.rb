@@ -5,6 +5,7 @@ require 'hca/rate_limited_search'
 require 'hca/user_attributes'
 require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
+require 'mvi/attr_service'
 
 class HealthCareApplication < ApplicationRecord
   include TempFormValidation
