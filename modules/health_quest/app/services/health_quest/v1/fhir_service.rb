@@ -4,6 +4,8 @@ require_relative '../base_service'
 require 'common/exceptions/backend_service_exception'
 require 'common/exceptions/invalid_field_value'
 
+Faraday::Response.register_middleware health_quest_errors: HealthQuest::Middleware::Response::Errors
+
 module HealthQuest
   module V1
     # FHIR (DSTU 2) based REST service http://hl7.org/fhir/dstu2/http.html
