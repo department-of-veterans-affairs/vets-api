@@ -92,7 +92,6 @@ RSpec.describe 'Intent to file', type: :request do
 
     it 'responds properly when JSON parse error' do
       post "#{path}/validate", params: 'hello', headers: headers
-      pp JSON.parse(response.body)
       expect(response.status).to eq(422)
     end
   end

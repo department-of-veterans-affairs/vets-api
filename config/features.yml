@@ -15,6 +15,10 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
+  covid_volunteer_delivery:
+    actor_type: cookie_id
+    description: >
+      Toggles whether COVID Research volunteer submissions will be delivered to genISIS
   dashboard_show_covid19_alert:
     actor_type: user
     description: >

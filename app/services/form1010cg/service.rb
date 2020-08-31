@@ -79,7 +79,7 @@ module Form1010cg
       raise 'submission already has attachments'  if  submission.attachments.any?
 
       file_path = begin
-                    claim.to_pdf
+                    claim.to_pdf(sign: true)
                   rescue
                     return false
                   end
