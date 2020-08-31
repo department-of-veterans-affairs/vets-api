@@ -4,7 +4,7 @@ module SAML
   # This class is responsible for providing the URLs for the various SSO and SLO endpoints
   class URLService
     localhost_redirect = Settings.virtual_host_localhost || 'localhost'
-    localhost_IP_redirect = Settings.virtual_host_localhost || '127.0.0.1'
+    localhost_ip_redirect = Settings.virtual_host_localhost || '127.0.0.1'
     VIRTUAL_HOST_MAPPINGS = {
       'https://api.vets.gov' => { base_redirect: 'https://www.vets.gov' },
       'https://staging-api.vets.gov' => { base_redirect: 'https://staging.vets.gov' },
@@ -13,7 +13,7 @@ module SAML
       'https://staging-api.va.gov' => { base_redirect: 'https://staging.va.gov' },
       'https://dev-api.va.gov' => { base_redirect: 'https://dev.va.gov' },
       'http://localhost:3000' => { base_redirect: "http://#{localhost_redirect}:3001" },
-      'http://127.0.0.1:3000' => { base_redirect: "http://#{localhost_IP_redirect}:3001" }
+      'http://127.0.0.1:3000' => { base_redirect: "http://#{localhost_ip_redirect}:3001" }
     }.freeze
 
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
