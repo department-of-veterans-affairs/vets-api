@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 Faraday::Response.register_middleware health_quest_errors: HealthQuest::Middleware::Response::Errors
+Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middleware::HealthQuestLogging
 
 module HealthQuest
   class Configuration < Common::Client::Configuration::REST

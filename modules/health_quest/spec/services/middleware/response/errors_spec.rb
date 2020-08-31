@@ -8,7 +8,10 @@ end
 
 describe HealthQuest::Middleware::Response::Errors do
   let(:env) { OpenStruct.new('success?' => false, status: 'status', body: {}) }
-  let(:env_400) { OpenStruct.new('success?' => false, status: 400, body: {}) }
+  # rubocop:disable Layout/LineLength
+  let(:env_400) { OpenStruct.new('success?' => false, status: 400, body: { 'errors' => ['errorMessage' => 'none'] }.to_json) }
+  # rubocop:enable Layout/LineLength
+  let(:env_409) { OpenStruct.new('success?' => false, status: 409, body: { 'message' => 'none' }.to_json) }
   let(:env_404) { OpenStruct.new('success?' => false, status: 404, body: {}) }
   let(:env_403) { OpenStruct.new('success?' => false, status: 403, body: {}) }
   let(:env_500) { OpenStruct.new('success?' => false, status: 500, body: {}) }
@@ -20,6 +23,7 @@ describe HealthQuest::Middleware::Response::Errors do
   end
   it 'handles 400 errors' do
     expect { described_class.new.on_complete(env_400) }.to raise_error(expected_exception, /HEALTH_QUEST_400/)
+    expect { described_class.new.on_complete(env_409) }.to raise_error(expected_exception, /HEALTH_QUEST_400/)
   end
   it 'handles 403 errors' do
     expect { described_class.new.on_complete(env_403) }.to raise_error(expected_exception, /HEALTH_QUEST_403/)
