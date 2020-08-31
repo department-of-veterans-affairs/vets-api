@@ -7,7 +7,7 @@ module Okta
     def get_apps
       okta_service = Okta::Service.new
       redis = Redis.new
-      base_url = Settings.oidc.base_api_url + '/api/v1/apps?limit=200&filter=status+eq+\"ACTIVE\"'
+      base_url = Settings.oidc.base_api_url + '/api/v1/apps?limit=200&filter=status+eq+"ACTIVE"'
       unfiltered_apps = recursively_get_apps(okta_service, base_url)
 
       # matches any ISO date.
