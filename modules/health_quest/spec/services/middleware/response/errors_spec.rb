@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../support/fixture_helper'
+require_relative '../../../support/health_fixture_helper'
 
 class BackendServiceException
 end
