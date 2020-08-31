@@ -4,7 +4,7 @@
       ... on NodePage {
         fieldRelatedLinks {
           entity {
-            parentFieldName          
+            parentFieldName
           }
         }
       }
@@ -14,61 +14,65 @@
 }
 fragment vaForm on NodeVaForm {
   entityBundle
-    entityId
-    entityPublished
-    title
-    status
-    revisionLog
-    langcode {
-      value
-    }
+  entityId
+  entityPublished
   entityUrl {
-    ... on EntityCanonicalUrl {
-      breadcrumb {
-        url {
-          path
-          routed
-        }
-        text
-      }
-      path
-    }
+    path
   }
-  
-  entityMetatags {
-    __typename
-      key
-      value
+  entityTranslations {
+    entityCreated
+    entityLabel
+    entityId
+    entityChanged
+    entityBundle
+    entityType
+    entityUuid
+  }
+  entityRevisions {
+    entities {
+      entityChanged
+      ... on NodeVaForm {
+        fieldVaFormName
+      }
+    }
   }
   title
-    fieldVaFormName
-    fieldVaFormTitle
-    fieldVaFormType
-    fieldVaFormUrl {
-      uri
-      title
-      options
-    }
+  status
+  revisionLog
+  fieldVaFormDeleted
+  fieldVaFormDeletedDate {
+    value
+  }
+  langcode {
+    value
+  }
+  title
+  fieldVaFormName
+  fieldVaFormTitle
+  fieldVaFormType
+  fieldVaFormUrl {
+    uri
+  }
   fieldVaFormUsage {
     value
-      format
-      processed
+    format
+    processed
   }
   fieldVaFormNumber
-    fieldVaFormToolIntro
-    fieldVaFormToolUrl {
-      uri
-      title
-      options
-    }
+  fieldVaFormToolIntro
+  fieldVaFormToolUrl {
+    uri
+    title
+    options
+  }
   fieldBenefitCategories {
     targetId
-      entity {
-        entityLabel
-          ... on NodeLandingPage {
-            fieldHomePageHubLabel
-          }
+    entity {
+      entityLabel
+      ... on NodeLandingPage {
+        fieldHomePageHubLabel
       }
+    }
   }
   fieldVaFormRevisionDate {
     value
@@ -79,40 +83,28 @@ fragment vaForm on NodeVaForm {
     date
   }
   fieldVaFormNumPages
-    
-    fieldVaFormLinkTeasers {
-      entity {
-        entityLabel
-        parentFieldName
-        ... on ParagraphLinkTeaser {
-          entityId
-          fieldLink {
-            url {
-              path
-            }
-            title
-            options
-          }
-          fieldLinkSummary
-        }
-      }
-    }
-  fieldVaFormRelatedForms {
-    targetId
+
+  fieldVaFormLinkTeasers {
     entity {
-      ... on NodeVaForm {
-        fieldVaFormNumber
-        fieldVaFormName
-        fieldVaFormUsage {
-          value
-          format
-          processed
-        }
-        fieldVaFormToolUrl {
-          uri
+      entityLabel
+      parentFieldName
+      ... on ParagraphLinkTeaser {
+        entityId
+    		fieldLink {
+          url {
+            path
+          }
           title
           options
         }
+        fieldLinkSummary
+      }
+    }
+  }
+  fieldVaFormRelatedForms {
+    entity {
+      ... on NodeVaForm {
+        fieldVaFormNumber
       }
     }
   }

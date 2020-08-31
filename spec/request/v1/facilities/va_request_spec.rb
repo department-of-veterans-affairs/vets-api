@@ -16,16 +16,19 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       expect(parsed_body['data'].collect { |x| x['id'] }).to match(ids)
     end
 
-    context 'pagination metadata' do
-      subject { parsed_body[:meta][:pagination] }
-
-      it { is_expected.to have_key('current_page') }
-      it { is_expected.to have_key('prev_page') }
-      it { is_expected.to have_key('next_page') }
-      it { is_expected.to have_key('total_pages') }
+    it 'is expected to have specified pagination metadata' do
+      current_page = request_params[:page] || 1
+      prev_page = current_page > 1 ? current_page - 1 : nil
+      expect(parsed_body[:meta][:pagination]).to include({
+                                                           current_page: current_page,
+                                                           prev_page: prev_page,
+                                                           next_page: be_kind_of(Integer).or(be_nil),
+                                                           total_pages: be_kind_of(Integer)
+                                                         })
     end
 
     it 'is expected to include pagination links' do
+      current_page = parsed_body[:meta][:pagination][:current_page]
       prev_page = parsed_body[:meta][:pagination][:prev_page]
       next_page = parsed_body[:meta][:pagination][:next_page]
       last_page = parsed_body[:meta][:pagination][:total_pages]
@@ -37,7 +40,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       next_link = next_page ? "http://www.example.com/v1/facilities/va?#{next_params}" : nil
 
       expect(parsed_body[:links]).to match(
-        self: "http://www.example.com/v1/facilities/va?#{params.merge({ page: 1, per_page: 10 }).to_query}",
+        self: "http://www.example.com/v1/facilities/va?#{params.merge({ page: current_page, per_page: 10 }).to_query}",
         first: "http://www.example.com/v1/facilities/va?#{params.merge({ per_page: 10 }).to_query}",
         prev: prev_link,
         next: next_link,
@@ -95,6 +98,16 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
         get '/v1/facilities/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
       end.to instrument('lighthouse.facilities.request.faraday')
     end
+
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      bbox: [-74.730, 40.015, -73.231, 41.515],
+                      page: 2
+                    },
+                    %w[
+                      vc_0102V vc_0857MVC vc_0110V nca_808 vha_526
+                      vha_526QA vc_0109V vha_561GD vc_0132V vha_630A4
+                    ]
 
     it_behaves_like 'paginated request from params with expected IDs',
                     {

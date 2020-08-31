@@ -11,6 +11,8 @@ RSpec.describe 'facilities', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
   describe '/vaos/v0/facilities' do
     context 'with a loa1 user' do
       let(:user) { FactoryBot.create(:user, :loa1) }
@@ -35,6 +37,15 @@ RSpec.describe 'facilities', type: :request do
             expect(response).to match_response_schema('vaos/facilities')
           end
         end
+
+        it 'returns a 200 with the correct camel-inflected schema' do
+          VCR.use_cassette('vaos/systems/get_facilities', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/facilities', params: { facility_codes: 688 }, headers: inflection_header
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('vaos/facilities')
+          end
+        end
       end
 
       context 'with a multiple valid facility codes' do
@@ -44,6 +55,15 @@ RSpec.describe 'facilities', type: :request do
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facilities')
+          end
+        end
+
+        it 'returns a 200 with the correct camel-inflected schema' do
+          VCR.use_cassette('vaos/systems/get_facilities_multiple') do
+            get '/vaos/v0/facilities', params: { facility_codes: [983, 984] }, headers: inflection_header
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('vaos/facilities')
           end
         end
       end
@@ -85,6 +105,17 @@ RSpec.describe 'facilities', type: :request do
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facility_clinics')
+          end
+        end
+
+        it 'returns a 200 with the correct camel-inflected schema' do
+          VCR.use_cassette('vaos/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/facilities/983/clinics',
+                params: { type_of_care_id: '323', system_id: '983' },
+                headers: inflection_header
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('vaos/facility_clinics')
           end
         end
       end
@@ -137,6 +168,15 @@ RSpec.describe 'facilities', type: :request do
             expect(response).to match_response_schema('vaos/facility_cancel_reasons')
           end
         end
+
+        it 'returns a 200 with the correct camel-inflected schema' do
+          VCR.use_cassette('vaos/systems/get_cancel_reasons', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/facilities/984/cancel_reasons', headers: inflection_header
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('vaos/facility_cancel_reasons')
+          end
+        end
       end
     end
   end
@@ -179,6 +219,21 @@ RSpec.describe 'facilities', type: :request do
 
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/facility_available_appointments')
+          end
+        end
+
+        it 'returns a 200 with the correct camel-inflected schema' do
+          VCR.use_cassette('vaos/systems/get_facility_available_appointments', match_requests_on: %i[method uri]) do
+            get "/vaos/v0/facilities/#{facility_id}/available_appointments",
+                params: {
+                  start_date: start_date,
+                  end_date: end_date,
+                  clinic_ids: clinic_ids
+                },
+                headers: inflection_header
+
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('vaos/facility_available_appointments')
           end
         end
       end
@@ -278,6 +333,16 @@ RSpec.describe 'facilities', type: :request do
           expect(response).to match_response_schema('vaos/facility_limits')
         end
       end
+
+      it 'returns a 200 with the correct camel-inflected schema' do
+        VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method uri]) do
+          get '/vaos/v0/facilities/688/limits', params: { type_of_care_id: '323' }, headers: inflection_header
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('vaos/facility_limits')
+        end
+      end
     end
 
     context 'when type_of_care_id is missing' do
@@ -304,6 +369,18 @@ RSpec.describe 'facilities', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/facility_visits')
+        end
+      end
+
+      it 'returns a 200 with the correct camel-inflected schema' do
+        VCR.use_cassette('vaos/systems/get_facility_visits', match_requests_on: %i[method uri]) do
+          get '/vaos/v0/facilities/688/visits/direct',
+              params: { system_id: '688', type_of_care_id: '323' },
+              headers: inflection_header
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('vaos/facility_visits')
         end
       end
     end

@@ -308,9 +308,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/preneeds/burial_forms',
           200,
+          '_headers' => { 'content-type' => 'application/json' },
           '_data' => {
             'application' => attributes_for(:burial_form)
-          }
+          }.to_json
         )
       end
 
@@ -2637,6 +2638,30 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:get, '/v0/dependents_applications/show', 200, headers)
         end
       end
+
+      it 'supports adding a dependency claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          200,
+          headers.merge(
+            '_data' => build(:dependency_claim).parsed_form
+          )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/dependents_applications',
+          422,
+          headers.merge(
+            '_data' => {
+              'dependency_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
     end
 
     describe 'va file number' do
@@ -2645,6 +2670,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
           expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 200, headers)
         end
+      end
+    end
+
+    it "supports returning the vet's payment_history" do
+      expect(subject).to validate(:get, '/v0/profile/payment_history', 401)
+      VCR.use_cassette('bgs/payment_history/find_by_ssn') do
+        expect(subject).to validate(:get, '/v0/profile/payment_history', 200, headers)
       end
     end
   end

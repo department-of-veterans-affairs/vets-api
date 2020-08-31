@@ -8,12 +8,14 @@ module CARMA
   module Models
     class Metadata < Base
       request_payload_key :claim_id,
+                          :claim_guid,
                           :veteran,
                           :primary_caregiver,
                           :secondary_caregiver_one,
                           :secondary_caregiver_two
 
-      attr_accessor       :claim_id
+      attr_accessor       :claim_id,
+                          :claim_guid
 
       attr_reader         :veteran,
                           :primary_caregiver,
@@ -22,6 +24,7 @@ module CARMA
 
       def initialize(args = {})
         @claim_id = args[:claim_id]
+        @claim_guid = args[:claim_guid]
 
         self.veteran = args[:veteran] || {}
         self.primary_caregiver = args[:primary_caregiver] || {}

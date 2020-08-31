@@ -9,19 +9,23 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    STATSD_KEY_PREFIX = 'api.form1010cg.submission'
+    STATSD_KEY_PREFIX = 'api.form1010cg'
     NOT_FOUND         = 'NOT_FOUND'
 
     def self.metrics
+      submission_prefix = STATSD_KEY_PREFIX + '.submission'
       OpenStruct.new(
-        attempt: STATSD_KEY_PREFIX + '.attempt',
-        success: STATSD_KEY_PREFIX + '.success',
-        failure: OpenStruct.new(
-          client: OpenStruct.new(
-            data: STATSD_KEY_PREFIX + '.failure.client.data',
-            qualification: STATSD_KEY_PREFIX + '.failure.client.qualification'
+        submission: OpenStruct.new(
+          attempt: submission_prefix + '.attempt',
+          success: submission_prefix + '.success',
+          failure: OpenStruct.new(
+            client: OpenStruct.new(
+              data: submission_prefix + '.failure.client.data',
+              qualification: submission_prefix + '.failure.client.qualification'
+            )
           )
-        )
+        ),
+        pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
       )
     end
 
@@ -75,7 +79,7 @@ module Form1010cg
       raise 'submission already has attachments'  if  submission.attachments.any?
 
       file_path = begin
-                    claim.to_pdf
+                    claim.to_pdf(sign: true)
                   rescue
                     return false
                   end
@@ -137,8 +141,10 @@ module Form1010cg
         }
       end
 
-      metadata[:veteran][:is_veteran] = is_veteran('veteran')
-
+      # Disabling the veteran status search since there is an issue with searching emis
+      # for a veteran status using an ICN. Only edipi works. Consider adding this back in
+      # once ICN searches work or we refactor our veteran status serach to use the edipi.
+      metadata[:veteran][:is_veteran] = false
       metadata
     end
 

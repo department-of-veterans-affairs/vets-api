@@ -91,6 +91,12 @@ class SavedClaim < ApplicationRecord
     PdfFill::Filler.fill_form(self, file_name)
   end
 
+  def update_form(key, value)
+    application = parsed_form
+    application[key] = value
+    self.form = JSON.generate(application)
+  end
+
   private
 
   def attachment_keys

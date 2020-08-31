@@ -13,6 +13,7 @@
   "schoolName": "School Name",
   "schoolCity": "Test",
   "schoolState": "TN",
+  "schoolCountry": "USA",
   "schoolStudentId": "12345",
   "schoolEmailAddress": "test@school.edu",
   "isActiveDuty": true,
@@ -33,5 +34,6 @@
     "routingNumber": "123456789"
   },
   "preferredContactMethod": "mail",
-  "privacyAgreementAccepted": true
+  "privacyAgreementAccepted": true,
+  "scoEmailSent": true
 }
