@@ -100,8 +100,12 @@ module V1
     def authenticate
       return unless action_name == 'new'
 
-      if %w[mfa verify slo].include?(params[:type])
+      if %w[mfa verify].include?(params[:type])
         super
+      elsif params[:type] == 'slo'
+        # load the session object and current user before attempting to destroy
+        load_user
+        reset_session
       else
         reset_session
       end
