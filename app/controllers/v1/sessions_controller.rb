@@ -212,9 +212,7 @@ module V1
       tags = ["context:#{type}", VERSION_TAG]
       case status
       when :success
-        if type == 'signup'
-          StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG])
-        end
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
