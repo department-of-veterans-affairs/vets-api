@@ -533,6 +533,12 @@ va_mobile:
   key_path: /fake/client/key/path
   timeout: 15
 
+hqva_mobile:
+  url: 'https://veteran.apps.va.gov'
+  mock: false
+  key_path: /fake/client/key/path
+  timeout: 15
+
 lighthouse:
   api_key: fake_key
   facilities:
