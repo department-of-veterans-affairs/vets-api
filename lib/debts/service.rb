@@ -11,17 +11,19 @@ module Debts
     def get_debts(body)
       with_monitoring_and_error_handling do
         GetDebtsResponse.new(perform(:post, 'letterdetails/get', body).body)
-          # .debts
-          # .select do |debt| 
-          #   debt.payee_code == '00' 
-          # end
-          # .each do |debt|
-          #   debt.debt_history.sort! { |a,b| b <=> a }
-          # end
+          .debts
+          .select do |debt|
+            debt['debtHistory'] = sort_by_date(debt['debtHistory'])
+            debt['payeeNumber'] == '00' 
+          end
       end
     end
 
     private
+
+    def sort_by_date(debt_history)
+      debt_history.sort_by {|d| Date::strptime(d['date'], '%m/%d/%Y')}.reverse
+    end
 
     def with_monitoring_and_error_handling
       with_monitoring(2) do
