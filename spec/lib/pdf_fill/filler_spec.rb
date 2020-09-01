@@ -3,8 +3,6 @@
 require 'rails_helper'
 require 'pdf_fill/filler'
 
-PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
-
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
