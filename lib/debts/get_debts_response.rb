@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Debts
-  class GetLettersResponse
+  class GetDebtsResponse
     def initialize(res)
       validate_response_against_schema(res)
       @res = res

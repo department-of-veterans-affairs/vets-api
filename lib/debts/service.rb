@@ -8,9 +8,10 @@ module Debts
 
     STATSD_KEY_PREFIX = 'api.debts'
 
-    def get_letters(body)
+    def get_debts(body)
       with_monitoring_and_error_handling do
-        GetLettersResponse.new(perform(:post, 'letterdetails/get', body).body)
+        GetDebtsResponse.new(perform(:post, 'letterdetails/get', body).body)
+          .select { |debt| debt.payee_code == '00' }
       end
     end
 
