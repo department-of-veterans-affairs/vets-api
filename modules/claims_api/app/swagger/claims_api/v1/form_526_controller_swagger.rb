@@ -140,7 +140,11 @@ module ClaimsApi
             key :description, '526 response'
             content 'application/json' do
               schema do
-                key :'$ref', :ClaimsIndex
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :ClaimsIndex
+                end
               end
             end
           end
@@ -255,7 +259,11 @@ module ClaimsApi
             key :description, '526 response'
             content 'application/json' do
               schema do
-                key :'$ref', :ClaimsIndex
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :ClaimsIndex
+                end
               end
             end
           end
@@ -338,13 +346,15 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
+          request_body do
             key :name, 'payload'
             key :in, :body
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
-            schema do
-              key :'$ref', :Form526Input
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form526Input
+              end
             end
           end
 
@@ -503,7 +513,17 @@ module ClaimsApi
 
           response 200 do
             key :description, 'upload response'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :ClaimsShow
+                end
+              end
+            end
           end
+
           response :default do
             key :description, 'unexpected error'
             content 'application/json' do
