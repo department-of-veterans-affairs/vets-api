@@ -79,7 +79,7 @@ module BGS
       formatted_info = divorce.format_info
       participant = bgs_service.create_participant(@proc_id)
       bgs_service.create_person(person_params(divorce, participant, formatted_info))
-      binding.pry
+
       @dependents << divorce.serialize_dependent_result(
         participant,
         'Spouse',
