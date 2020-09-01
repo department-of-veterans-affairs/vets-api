@@ -11,5 +11,13 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
         JSON.parse(response.body)
       end
     end
+    it 'returns a populated list of applications' do
+      VCR.use_cassette('okta/directories') do
+        get '/services/apps/v0/directory'
+        expect(response).to have_http_status(:ok)
+        body = JSON.parse(response.body)
+        expect(body).not_to be_empty
+      end
+    end
   end
 end
