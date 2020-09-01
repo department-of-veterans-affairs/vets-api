@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Debts
-  class GetDebtsResponse < Common::Base
+  class GetDebtsResponse
     attr_reader :debts
 
     def initialize(res)
