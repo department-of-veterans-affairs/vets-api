@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'okta/service'
 
 RSpec.describe OpenidApplicationController, type: :controller do
   let(:token) { okta_jwt(%w[profile email openid va_profile]) }
