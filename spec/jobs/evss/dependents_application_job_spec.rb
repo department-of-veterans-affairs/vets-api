@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/dependents/service'
-require 'evss/dependents/retrieved_info'
 
 RSpec.describe EVSS::DependentsApplicationJob do
   describe '#perform' do
