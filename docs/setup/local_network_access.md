@@ -2,7 +2,7 @@
 
 These changes will work for accessing a local deploy on another device on the same network.
 
-1. Find the IP of the machine running vets-api and vets-website, i.e `192.168.x.x`
+1. Find the IP of the machine running vets-api and vets-website, i.e `192.168.x.x`. [The IP of the machine may look like `10.0.x.x` or `172.16.x.x` instead](https://en.wikipedia.org/wiki/Private_network#Private_IPv4_addresses)
    1. Mac
       1. System Preferences > Network
       1. Click the connection you are using to connect to the internet
