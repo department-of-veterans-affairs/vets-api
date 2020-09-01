@@ -11,7 +11,6 @@ module V1
     skip_before_action :verify_authenticity_token
 
     REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
-
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
@@ -23,7 +22,6 @@ module V1
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
-
     VERSION_TAG = 'version:v1'
 
     # Collection Action: auth is required for certain types of requests
