@@ -6,7 +6,7 @@ require_relative '../support/health_fixture_helper'
 describe HealthQuest::UserService do
   let(:user) { build(:user, :health_quest, :accountable) }
   let(:subject) { described_class.new }
-  let(:rsa_key) { OpenSSL::PKey::RSA.new(read_fixture_file('open_ssl_rsa_private.pem')) }
+  let(:rsa_key) { OpenSSL::PKey::RSA.new(HealthFixtureHelper.read_fixture_file('open_ssl_rsa_private.pem')) }
 
   let(:token) do
     'eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcmdhbiIsInN1YiI6IjEwMTI4NDU5NDNWOTAwNjgxIiwiYXV0aGVudGljYXRlZCI6dH' \

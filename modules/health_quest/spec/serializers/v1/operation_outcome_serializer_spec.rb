@@ -16,7 +16,7 @@ describe HealthQuest::V1::OperationOutcomeSerializer do
 
       it 'serializes the error in FHIR DSTU 2 format' do
         expect(HealthQuest::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json).to eq(
-          read_fixture_file('operation_outcome_service_exception.json')
+          HealthFixtureHelper.read_fixture_file('operation_outcome_service_exception.json')
         )
       end
     end
@@ -29,7 +29,7 @@ describe HealthQuest::V1::OperationOutcomeSerializer do
 
       it 'serializes the error in FHIR DSTU 2 format' do
         expect(HealthQuest::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json).to eq(
-          read_fixture_file('operation_outcome_system_exception.json')
+          HealthFixtureHelper.read_fixture_file('operation_outcome_system_exception.json')
         )
       end
     end
@@ -40,7 +40,7 @@ describe HealthQuest::V1::OperationOutcomeSerializer do
 
       it 'serializes the error in FHIR DSTU 2 format' do
         expect(HealthQuest::V1::OperationOutcomeSerializer.new(operation_outcome).serialized_json).to eq(
-          read_fixture_file('operation_outcome_information.json')
+          HealthFixtureHelper.read_fixture_file('operation_outcome_information.json')
         )
       end
     end
