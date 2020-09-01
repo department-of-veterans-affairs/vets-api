@@ -143,16 +143,13 @@ module V0
       tags = ["context:#{type}", VERSION_TAG]
       if type == 'signup'
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG])
-        Rails.logger.info("LOGIN_NEW_USER_KEY, tags: [#{VERSION_TAG}]")
       end
       if cookies.key?(Settings.sso.cookie_name)
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
-        Rails.logger.info("LOGIN_SHARED_COOKIE, tags: #{tags}")
       end
       StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
       Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
       StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
-      Rails.logger.info("LOGIN_LATENCY, tracker.age: #{tracker.age}, tags: #{tags}")
       callback_stats(:success, saml_response)
     end
 

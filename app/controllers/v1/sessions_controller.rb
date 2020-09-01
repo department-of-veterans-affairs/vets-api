@@ -214,15 +214,12 @@ module V1
       when :success
         if type == 'signup'
           StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG])
-          Rails.logger.info("LOGIN_NEW_USER_KEY, tags: [#{VERSION_TAG}]")
         end
         # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
-        Rails.logger.info("LOGIN_SHARED_COOKIE, tags: #{tags}")
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
-        Rails.logger.info("LOGIN_LATENCY, tracker.age: #{tracker.age}, tags: #{tags}")
       when :failure
         tags_and_error_code = tags << "error:#{error.code}"
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
