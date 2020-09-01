@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/reference_data/service'
 
 RSpec.describe 'address', type: :request do
   include SchemaMatchers
