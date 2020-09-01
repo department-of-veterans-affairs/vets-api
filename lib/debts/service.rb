@@ -23,7 +23,7 @@ module Debts
     private
 
     def sort_by_date(debt_history)
-      debt_history.sort_by { |d| Date::strptime(d['date'], '%m/%d/%Y') }.reverse
+      debt_history.sort_by { |d| Date.strptime(d['date'], '%m/%d/%Y') }.reverse
     end
 
     def with_monitoring_and_error_handling
