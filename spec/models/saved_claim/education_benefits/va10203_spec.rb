@@ -30,7 +30,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'Not logged in' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, nil).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         mail = double('mail')
         allow(mail).to receive(:deliver_now)
@@ -75,8 +75,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
 
       it 'does not call SendSCOEmail' do
-        unauthorized_evss_user = build(:unauthorized_evss_user, :loa3)
-        expect { instance.after_submit(unauthorized_evss_user) }
+        expect { instance.after_submit(user) }
           .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
       end
 
@@ -100,8 +99,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
 
       it 'does not call SendSCOEmail' do
-        unauthorized_evss_user = build(:unauthorized_evss_user, :loa3)
-        expect { instance.after_submit(unauthorized_evss_user) }
+        expect { instance.after_submit(user) }
           .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
       end
 
