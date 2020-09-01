@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'saml/ssoe_settings_service'
 require 'support/saml/form_validation_helpers'
 require 'support/saml/response_builder'
 require 'support/url_service_helpers'
