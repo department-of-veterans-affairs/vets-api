@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'evss/common_service'
+require 'evss/disability_compensation_form/auth_headers'
+require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
 require 'evss/reference_data/service'
 
