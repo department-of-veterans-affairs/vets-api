@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/auth_headers'
-require 'evss/vso_search/service'
 
 describe Veteran::User do
   context 'initialization' do
