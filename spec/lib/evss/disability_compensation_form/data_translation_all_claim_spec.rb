@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'evss/disability_compensation_form/data_translation_all_claim'
-require 'evss/intent_to_file/intent_to_file'
 
 describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   subject { described_class.new(user, form_content, false) }
