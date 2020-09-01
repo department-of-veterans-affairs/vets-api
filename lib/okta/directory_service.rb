@@ -4,20 +4,21 @@ require 'common/client/base'
 
 module Okta
   class DirectoryService < Common::Client::Base
+    # matches any ISO date.
+    # rubocop:disable Metrics/LineLength
+    ISO_PATTERN = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/.freeze
+    # rubocop:enable Metrics/LineLength
+
     def get_apps
       okta_service = Okta::Service.new
       redis = Redis.new
       base_url = Settings.oidc.base_api_url + '/api/v1/apps?limit=200&filter=status+eq+"ACTIVE"'
       unfiltered_apps = recursively_get_apps(okta_service, base_url)
 
-      # matches any ISO date.
-      # rubocop:disable Metrics/LineLength
-      iso_pattern = /(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d)/
-      # rubocop:enable Metrics/LineLength
 
       # Iterate through the returned applications, and test for pattern matching,
       # adding to our filtered apps array if pattern doesn't match
-      filtered_apps = unfiltered_apps.reject { |app| app['label'] =~ iso_pattern }
+      filtered_apps = unfiltered_apps.reject { |app| app['label'] =~ ISO_PATTERN }
 
       # This feature is currently in early-access and access will need to be requested from okta.
       # We are currently using the EA feature to get all our user grants in the connected-applications
@@ -45,11 +46,11 @@ module Okta
 
     # Check if headers contains 'next' link, since 'next' is always after 'self', we can use .last as a consistent check
     def contains_next(headers)
-      headers['link'].split(',').last.include?('next')
+      headers['link']&.split(',')&.last&.include?('next')
     end
 
     def substring_next_link(headers)
-      headers['link'].split(',').last.split('<').last.split('>').first
+      headers['link']&.split(',')&.last.split('<')&.last.split('>')&.first
     end
 
     def get_scopes(apps)
