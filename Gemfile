@@ -9,9 +9,10 @@ ruby '2.6.6'
 gem 'websocket-extensions', '>= 0.1.5'
 
 # Modules
-gem 'health_quest', path: 'modules/health_quest'
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
+gem 'covid_research', path: 'modules/covid_research'
+gem 'health_quest', path: 'modules/health_quest'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
 gem 'va_forms', path: 'modules/va_forms'
@@ -107,7 +108,6 @@ gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
 gem 'swagger-blocks'
 gem 'typhoeus'
-gem 'upsert'
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
@@ -132,7 +132,7 @@ group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
   gem 'awrence'
   gem 'fakeredis'
-  gem 'pact', git: 'https://github.com/f1337/pact-ruby', branch: 'f1337/bump-thor-dependency', require: false
+  gem 'pact', require: false
   gem 'pact-mock_service', require: false
   gem 'pdf-inspector'
   gem 'rspec-retry'

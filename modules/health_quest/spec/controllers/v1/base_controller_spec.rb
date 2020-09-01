@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require 'rails_helper'
 
@@ -14,7 +15,7 @@ RSpec.describe HealthQuest::V1::BaseController, type: :controller do
     end
 
     def service_error
-      raise Common::Exceptions::BackendServiceException.new('VAOS_502', { source: 'Klass' })
+      raise Common::Exceptions::BackendServiceException.new('HEALTH_QUEST_502', { source: 'Klass' })
     end
   end
 
@@ -26,9 +27,6 @@ RSpec.describe HealthQuest::V1::BaseController, type: :controller do
       get 'service_error' => 'health_quest/v1/base#service_error'
     end
   end
-
-# LJG!
-# base class doesn't have this route 
 
   context 'with a RecordNotFound error' do
     it 'renders json object with developer attributes' do
@@ -56,7 +54,6 @@ RSpec.describe HealthQuest::V1::BaseController, type: :controller do
     end
   end
 
-
   context 'with a BackendServiceError error' do
     it 'renders json object with developer attributes' do
       get :service_error, params: { id: id }
@@ -64,7 +61,7 @@ RSpec.describe HealthQuest::V1::BaseController, type: :controller do
         'id' => id,
         'issue' => [
           {
-            'code' => 'VAOS_502',
+            'code' => 'HEALTH_QUEST_502',
             'details' => {
               'text' => 'Received an an invalid response from the upstream server'
             },

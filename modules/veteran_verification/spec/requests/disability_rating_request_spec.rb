@@ -42,6 +42,20 @@ RSpec.describe 'Disability Rating API endpoint', type: :request do
         end
       end
     end
+
+    it 'returns all the current user disability ratings and ' \
+       'overall service connected combined degree when camel-inflected' do
+      with_okta_configured do
+        VCR.use_cassette('bgs/rating_web_service/rating_data') do
+          get '/services/veteran_verification/v0/disability_rating',
+              params: nil,
+              headers: auth_header.merge('X-Key-Inflection' => 'camel')
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('disability_rating_response')
+        end
+      end
+    end
   end
 
   context 'with request for a jws' do

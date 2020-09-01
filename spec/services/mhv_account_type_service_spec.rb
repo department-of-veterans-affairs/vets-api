@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe MhvAccountTypeService do
+RSpec.describe MHVAccountTypeService do
   subject { described_class.new(user) }
 
   let(:sign_in) { { service_name: 'myhealthevet' } }

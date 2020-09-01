@@ -8,18 +8,19 @@ module BGS
       @dependents = []
       @dependents_application = @payload['dependents_application']
       @user = user
+      @views = payload['view:selectable686_options']
     end
 
     # rubocop:disable Metrics/PerceivedComplexity
     # rubocop:disable Metrics/CyclomaticComplexity
     def create
-      report_674 if @payload['report674']
-      add_children if @payload['add_child']
-      report_deaths if @payload['report_death']
-      report_divorce if @payload['report_divorce']
-      report_stepchild if @payload['report_stepchild_not_in_household']
-      report_child_event('child_marriage') if @payload['report_marriage_of_child_under18']
-      report_child_event('not_attending_school') if @payload['report_child18_or_older_is_not_attending_school']
+      report_674 if @views['report674']
+      add_children if @views['add_child']
+      report_deaths if @views['report_death']
+      report_divorce if @dependents_application['report_divorce']
+      report_stepchild if @views['report_stepchild_not_in_household']
+      report_child_event('child_marriage') if @views['report_marriage_of_child_under18']
+      report_child_event('not_attending_school') if @views['report_child18_or_older_is_not_attending_school']
 
       @dependents
     end
@@ -44,7 +45,8 @@ module BGS
           formatted_info['family_relationship_type'],
           {
             marriage_termination_type_code: formatted_info['reason_marriage_ended'],
-            type: 'child'
+            type: 'child',
+            child_prevly_married_ind: formatted_info['ever_married_ind']
           }
         )
       end
@@ -85,6 +87,7 @@ module BGS
         {
           divorce_state: formatted_info['divorce_state'],
           divorce_city: formatted_info['divorce_city'],
+          divorce_country: formatted_info['divorce_country'],
           marriage_termination_type_code: formatted_info['marriage_termination_type_code']
         }
       )

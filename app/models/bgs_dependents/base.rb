@@ -3,6 +3,7 @@
 module BGSDependents
   class Base < Common::Base
     include ActiveModel::Validations
+    MILITARY_POST_OFFICE_TYPE_CODES = %w[APO DPO FPO].freeze
     # Gets the person's address based on the lives with veteran flag
     #
     # @param dependents_application [Hash] the submitted form information
@@ -43,10 +44,13 @@ module BGSDependents
         event_date: optional_fields[:event_date],
         marriage_state: optional_fields[:marriage_state],
         marriage_city: optional_fields[:marriage_city],
+        marriage_country: optional_fields[:marriage_country],
         divorce_state: optional_fields[:divorce_state],
         divorce_city: optional_fields[:divorce_city],
+        divorce_country: optional_fields[:divorce_country],
         marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
         living_expenses_paid_amount: optional_fields[:living_expenses_paid],
+        child_prevly_married_ind: optional_fields[:child_prevly_married_ind],
         type: optional_fields[:type]
       }
     end
@@ -60,6 +64,7 @@ module BGSDependents
         last_nm: payload['last'],
         suffix_nm: payload['suffix'],
         brthdy_dt: format_date(payload['birth_date']),
+        birth_cntry_nm: payload['place_of_birth_country'],
         birth_state_cd: payload['place_of_birth_state'],
         birth_city_nm: payload['place_of_birth_city'],
         file_nbr: payload['va_file_number'],
@@ -82,7 +87,8 @@ module BGSDependents
     end
 
     def generate_address(address)
-      if address['view:lives_on_military_base'] == true
+      # BGS will throw an error if we pass in a military postal code in for state
+      if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
         address['military_postal_code'] = address.delete('state_code')
         address['military_post_office_type_code'] = address.delete('city')
       end
@@ -91,6 +97,8 @@ module BGSDependents
     end
 
     def create_address_params(proc_id, participant_id, payload)
+      generate_address(payload)
+
       {
         efctv_dt: Time.current.iso8601,
         vnp_ptcpnt_id: participant_id,

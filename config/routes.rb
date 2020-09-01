@@ -286,6 +286,10 @@ Rails.application.routes.draw do
     namespace :coronavirus_chatbot do
       resource :tokens, only: :create
     end
+
+    namespace :ask do
+      resource :asks, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
@@ -324,6 +328,7 @@ Rails.application.routes.draw do
 
   mount VAOS::Engine, at: '/vaos'
   mount HealthQuest::Engine, at: '/health_quest'
+  mount CovidResearch::Engine, at: '/covid-research'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
