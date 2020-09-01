@@ -178,6 +178,10 @@ features:
     actor_type: user
     description: >
       Enables debt letters
+  debt_letters_show_letters_v2:
+      actor_type: user
+      description: >
+        Enables debt letters
   gibct_ch33_benefit_rate_update:
     actor_type: user
     description: >
