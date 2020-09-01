@@ -2,8 +2,6 @@
 
 require 'securerandom'
 require 'rails_helper'
-require 'saml/url_service'
-require 'support/url_service_helpers'
 require 'support/saml/form_validation_helpers'
 require 'saml/post_url_service'
 

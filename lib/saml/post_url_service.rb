@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/routing_error'
 require_relative 'url_service'
 
 module SAML
