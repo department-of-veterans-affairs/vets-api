@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'evss/letters/download_service'
-require 'evss/letters/letter'
+require 'evss/letters/letter' # included in test to access LETTER_TYPES
 
 describe EVSS::Letters::DownloadService do
   describe '.find_by_user' do
