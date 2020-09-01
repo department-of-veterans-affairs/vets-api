@@ -2,7 +2,7 @@
   "expected": [
     {
       "QuestionName": "diagnosed",
-      "QuestionValue": false
+      "QuestionValue": "No"
     },
     {
       "QuestionName": "closeContactPositive",
@@ -10,23 +10,23 @@
     },
     {
       "QuestionName": "hospitalized",
-      "QuestionValue": false
+      "QuestionValue": "No"
     },
     {
       "QuestionName": "smokeOrVape",
-      "QuestionValue": false
+      "QuestionValue": "No"
     },
     {
       "QuestionName": "ANOTHER_SERIOUS_CHRONIC_ILLNESS",
-      "QuestionValue": true
+      "QuestionValue": "Yes"
     },
     {
       "QuestionName": "STUDENT",
-      "QuestionValue": true
+      "QuestionValue": "Yes"
     },
     {
       "QuestionName": "WALK_BIKE",
-      "QuestionValue": true
+      "QuestionValue": "Yes"
     },
     {
       "QuestionName": "residentsInHome",
@@ -66,11 +66,11 @@
     },
     {
       "QuestionName": "MALE",
-      "QuestionValue": true
+      "QuestionValue": "Yes"
     },
     {
       "QuestionName": "WHITE",
-      "QuestionValue": true
+      "QuestionValue": "Yes"
     }
   ]
 }

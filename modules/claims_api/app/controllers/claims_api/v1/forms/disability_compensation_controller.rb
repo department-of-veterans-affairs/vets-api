@@ -64,7 +64,7 @@ module ClaimsApi
               errors: [
                 {
                   status: 422,
-                  details: 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
+                  detail: 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
                 }
               ]
             }
@@ -77,7 +77,7 @@ module ClaimsApi
 
           unless @claim
             render(
-              json: { errors: [{ status: 404, details: "Claim not found: #{params[:id]}" }] },
+              json: { errors: [{ status: 404, detail: "Claim not found: #{params[:id]}" }] },
               status: :not_found
             )
           end

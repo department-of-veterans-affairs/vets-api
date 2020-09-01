@@ -6,6 +6,7 @@ module ClaimsApi
   module V0
     class Form0966ControllerSwagger
       include Swagger::Blocks
+      EXAMPLE_PATH = ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'forms', 'form_0966_v0_example.json')
 
       swagger_path '/forms/0966' do
         operation :get do
@@ -143,9 +144,11 @@ module ClaimsApi
                 property :data do
                   key :type, :object
                   key :required, [:attributes]
-                  key :example, type: 'form/0966', attributes: { type: 'compensation' }
+                  # key :example, type: 'form/0966', attributes: { type: 'compensation' }
+                  key :example, JSON.parse(File.read(EXAMPLE_PATH))
                   property :attributes do
                     key :type, :object
+                    key :required, %i[type]
                     property :type do
                       key :type, :string
                       key :example, 'compensation'
@@ -155,6 +158,22 @@ module ClaimsApi
                         burial
                         pension
                       ]
+                    end
+                    property :participant_claimant_id do
+                      key :type, :integer
+                      key :example, 123_456_789
+                      key :description, I18n.t('claims_api.field_descriptions.participant_claimant_id')
+                    end
+                    property :participant_vet_id do
+                      key :type, :integer
+                      key :example, 987_654_321
+                      key :description, I18n.t('claims_api.field_descriptions.participant_vet_id')
+                    end
+                    property :received_date do
+                      key :type, :string
+                      key :format, :date
+                      key :example, '2015-01-05T17:42:12.058Z'
+                      key :description, I18n.t('claims_api.field_descriptions.received_date')
                     end
                   end
                 end
@@ -166,7 +185,11 @@ module ClaimsApi
             key :description, '0966 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form0966Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form0966Output
+                end
               end
             end
           end
@@ -278,7 +301,11 @@ module ClaimsApi
             key :description, '0966 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form0966Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form0966Output
+                end
               end
             end
           end
