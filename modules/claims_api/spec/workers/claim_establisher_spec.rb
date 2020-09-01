@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
-require 'claims_api/claim_establisher'
 
 RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   subject { described_class }
