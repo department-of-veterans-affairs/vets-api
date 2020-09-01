@@ -11,7 +11,13 @@ module Debts
     def get_debts(body)
       with_monitoring_and_error_handling do
         GetDebtsResponse.new(perform(:post, 'letterdetails/get', body).body)
-          .select { |debt| debt.payee_code == '00' }
+          # .debts
+          # .select do |debt| 
+          #   debt.payee_code == '00' 
+          # end
+          # .each do |debt|
+          #   debt.debt_history.sort! { |a,b| b <=> a }
+          # end
       end
     end
 

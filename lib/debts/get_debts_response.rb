@@ -2,6 +2,9 @@
 
 module Debts
   class GetDebtsResponse
+
+    attribute :debts, Array[Debts::Debt]
+
     def initialize(res)
       validate_response_against_schema(res)
       @res = res
