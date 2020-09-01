@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
+require 'json_schemer'
+require 'vets_json_schema'
+require_relative '../../request.rb'
+
 module DecisionReview
   module HigherLevelReview
     module Create
       class Request < DecisionReview::Request
-        HEADERS_VALIDATOR = JSONSchemer.schema(VetsJsonSchema::SCHEMAS['20-0996_HEADERS'])
+        HEADERS_VALIDATOR = JSONSchemer.schema(VetsJsonSchema::SCHEMAS['HLR-CREATE-REQUEST-HEADERS'])
         raise unless HEADERS_VALIDATOR
-        BODY_VALIDATOR = JSONSchemer.schema(VetsJsonSchema::SCHEMAS['20-0996'])
+        BODY_VALIDATOR = JSONSchemer.schema(VetsJsonSchema::SCHEMAS['HLR-CREATE-REQUEST-BODY'])
         raise unless BODY_VALIDATOR
 
         def perform_args

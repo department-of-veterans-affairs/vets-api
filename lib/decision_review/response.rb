@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'json_schemer'
+require 'vets_json_schema'
+require_relative 'response_schema_error'
+
 module DecisionReview
   class Response < SimpleDelegator
     VALIDATORS_BY_STATUS = VetsJsonSchema::SCHEMAS.reduce({}) do |acc, (key, schema)|
