@@ -15,3 +15,4 @@ Dir[File.join(ENGINE_RAILS_ROOT, '../../spec/support/**/*.rb')].sort.each { |f| 
 RSpec.configure do |config|
   config.use_transactional_fixtures = true
 end
+
