@@ -45,8 +45,6 @@
             path: ./rspec
         - store_artifacts:
             path: ./ci
-        - store_artifacts:
-            path: ./coverage
     bundle_audit:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
@@ -56,9 +54,7 @@
         - store_test_results:
             path: ./rspec
         - store_artifacts:
-            path: ./ci
-        - store_artifacts:
-            path: ./coverage	
+            path: ./ci	
     security_audit:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
