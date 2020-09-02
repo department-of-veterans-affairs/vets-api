@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'saml/settings_service'
-require 'sm/client'
-require 'support/sm_client_helpers'
-require 'rx/client'
-require 'support/rx_client_helpers'
+
 require 'bb/client'
+require 'rx/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
+require 'support/sm_client_helpers'
+require 'support/rx_client_helpers'
+require 'sm/client'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do

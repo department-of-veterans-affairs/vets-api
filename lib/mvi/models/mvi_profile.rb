@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/attribute_types/date_time_string'
+require_relative 'mvi_profile_address'
 
 module MVI
   module Models

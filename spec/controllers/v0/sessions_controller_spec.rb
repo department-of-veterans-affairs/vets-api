@@ -471,11 +471,19 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'sends STATSD callback metrics' do
-          expect { post(:saml_callback) }
+          SAMLRequestTracker.create(
+            uuid: login_uuid,
+            payload: { type: 'idme' }
+          )
+          expect { post(:saml_callback, params: { RelayState: '{"type":"idme"}' }) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
                                          tags: ['status:success', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0'],
                                          **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLRESPONSE_KEY,
+                                          tags: ['type:idme', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0'])
+            .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
+                                          tags: ['type:idme', "context:#{LOA::IDME_LOA3_VETS}", 'version:v0'])
         end
       end
 

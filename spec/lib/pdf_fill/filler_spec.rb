@@ -1,5 +1,7 @@
-require 'rails_helper'
 # frozen_string_literal: true
+
+require 'rails_helper'
+require 'pdf_fill/filler'
 
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers

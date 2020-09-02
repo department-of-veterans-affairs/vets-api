@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/base_form_controller'
+require 'evss/intent_to_file/service'
 
 module ClaimsApi
   module V0

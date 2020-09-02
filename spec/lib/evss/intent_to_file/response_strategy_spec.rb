@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/intent_to_file/response_strategy'
 
 describe EVSS::IntentToFile::ResponseStrategy do
   let(:user) { build(:user, :loa3) }

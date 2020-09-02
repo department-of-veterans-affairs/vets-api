@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'evss/response'
+require 'evss/pciu_address'
+require 'evss/pciu_address/control_information'
 
 module EVSS
   module PCIUAddress
@@ -11,12 +13,12 @@ module EVSS
     # @param response [Hash] The API response
     #
     # @!attribute address
-    #   @return [EVSS::PCIUAddress::Address] The address data returned by the service
+    #   @return [EVSS::PCIUAddress] The address data returned by the service
     # @!attribute control_information
     #   @return[EVSS::PCIUAddress::ControlInformation]
     #
     class AddressResponse < EVSS::Response
-      attribute :address, EVSS::PCIUAddress::Address
+      attribute :address, EVSS::PCIUAddress
       attribute :control_information, EVSS::PCIUAddress::ControlInformation
 
       def initialize(status, response = nil)
@@ -29,7 +31,7 @@ module EVSS
       end
 
       def address=(attrs)
-        super EVSS::PCIUAddress::Address.build_address(attrs)
+        super EVSS::PCIUAddress.build_address(attrs)
       end
     end
   end
