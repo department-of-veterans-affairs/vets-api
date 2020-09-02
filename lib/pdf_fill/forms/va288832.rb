@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
+
 module PdfFill
   module Forms
     class Va288832 < FormBase
@@ -367,3 +369,5 @@ module PdfFill
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
