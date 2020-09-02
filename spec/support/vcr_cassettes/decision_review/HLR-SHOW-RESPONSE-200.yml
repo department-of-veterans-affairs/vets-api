@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://staging-api.va.gov/services/appeals/v1/decision_reviews/higher_level_reviews/75f5735b-c41d-499c-8ae2-ab2740180254
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/higher_level_reviews/75f5735b-c41d-499c-8ae2-ab2740180254
     body:
       encoding: US-ASCII
       string: ''
