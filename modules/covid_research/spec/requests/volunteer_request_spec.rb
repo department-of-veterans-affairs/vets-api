@@ -73,5 +73,21 @@ RSpec.describe 'covid research volunteer submissions', type: :request do
         post '/covid-research/volunteer/create', params: valid
       end
     end
+
+    context 'email confirmation' do
+      let(:mailer) { CovidResearch::Volunteer::SubmissionMailer }
+
+      it 'addresses the confirmation to the email in the submission' do
+        expect(mailer).to receive(:build).with(JSON.parse(valid)['email']).and_call_original
+
+        post '/covid-research/volunteer/create', params: valid
+      end
+
+      it 'delivers the confirmation' do
+        expect_any_instance_of(Mail::Message).to receive(:deliver)
+
+        post '/covid-research/volunteer/create', params: valid
+      end
+    end
   end
 end
