@@ -3,6 +3,7 @@
 require 'common/client/concerns/service_status'
 require 'common/models/base'
 require 'json_schemer'
+require 'vets_json_schema'
 
 module DecisionReview
   module Responses
@@ -31,7 +32,9 @@ module DecisionReview
       private
 
       def json_format_is_valid?(body, schema_name)
-        JSONSchemer.schema(VetsJsonSchema::SCHEMAS[schema_name]).validate(body).to_a.empty?
+        schema = VetsJsonSchema::SCHEMAS[schema_name]
+        errors = JSONSchemer.schema(schema).validate(body).to_a
+        errors.empty?
       end
     end
   end
