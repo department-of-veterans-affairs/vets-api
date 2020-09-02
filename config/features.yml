@@ -231,23 +231,23 @@ features:
     description: >
       This determines when the wizard should show up on the form 526 intro page
   show_new_get_medical_records_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/get-medical-records/
   show_new_refill_track_prescriptions_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
   show_new_schedule_view_appointments_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
   show_new_secure_messaging_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
   show_new_view_test_lab_results_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
   gibct_benefit_filter_enhancement:
