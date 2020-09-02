@@ -67,8 +67,15 @@ class V1::Facilities::CcpController < FacilitiesController
 
   def provider_search(options = {})
     api.provider_locator(ppms_params.merge(options)).map do |provider|
-      prov_info = api.provider_info(provider['ProviderIdentifier'])
-      provider.add_details(prov_info)
+      begin
+        prov_info = api.provider_info(provider['ProviderIdentifier'])
+        provider.add_details(prov_info)
+      rescue => e
+        if Rails.env.production?
+          log_exception_to_sentry(e, provider_info: provider['ProviderIdentifier'], external_service: :ppms)
+        end
+      end
+
       provider
     end
   end
