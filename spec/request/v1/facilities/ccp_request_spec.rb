@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 vcr_options = {
-  cassette_name: ['facilities/va/ppms'],
+  cassette_name: ['facilities/ppms/ppms'],
   match_requests_on: %i[path query],
   allow_playback_repeats: true,
   record: :new_episodes
@@ -23,6 +23,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
           type: 'provider',
           specialties: ['213E00000X']
         }
+      end
+
+      it 'gracefully handles ppms provider lookup failures' do
+        VCR.use_cassette('facilities/ppms/ppms') do
+          get '/v1/facilities/ccp', params: params
+
+
+        end
       end
 
       context 'specialties=261QU0200X' do

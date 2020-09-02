@@ -1552,19 +1552,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it '400s on improper id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
           end
         end
 
         it '404s if provider is missing' do
-          VCR.use_cassette('facilities/va/ppms_nonexistent', match_requests_on: [:method]) do
+          VCR.use_cassette('facilities/ppms/ppms_nonexistent', match_requests_on: [:method]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 404, 'id' => 'ccp_123123')
           end
         end
 
         it 'supports getting the services list' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_1407842941')
           end
         end
