@@ -42,19 +42,6 @@ module EVSS
       validates :address_two, pciu_address_line: true, length: { maximum: 35 }
       validates :address_three, pciu_address_line: true, length: { maximum: 35 }
       validates :type, inclusion: { in: ADDRESS_TYPES.values }
-
-      def self.build_address(attrs)
-        case attrs['type']
-        when ADDRESS_TYPES[:domestic]
-          EVSS::PCIUAddress::DomesticAddress.new(attrs)
-        when ADDRESS_TYPES[:international]
-          EVSS::PCIUAddress::InternationalAddress.new(attrs)
-        when ADDRESS_TYPES[:military]
-          EVSS::PCIUAddress::MilitaryAddress.new(attrs)
-        else
-          raise ArgumentError, "Unsupported address type: #{attrs['type']}"
-        end
-      end
     end
   end
 end

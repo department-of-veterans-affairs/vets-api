@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/filler'
+
 class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   FORM = '10-10CG'
 
