@@ -9,25 +9,25 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    STATSD_KEY_PREFIX = 'api.form1010cg'
-    NOT_FOUND         = 'NOT_FOUND'
+    # STATSD_KEY_PREFIX = 'api.form1010cg'
+    NOT_FOUND = 'NOT_FOUND'
 
-    def self.metrics
-      submission_prefix = STATSD_KEY_PREFIX + '.submission'
-      OpenStruct.new(
-        submission: OpenStruct.new(
-          attempt: submission_prefix + '.attempt',
-          success: submission_prefix + '.success',
-          failure: OpenStruct.new(
-            client: OpenStruct.new(
-              data: submission_prefix + '.failure.client.data',
-              qualification: submission_prefix + '.failure.client.qualification'
-            )
-          )
-        ),
-        pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
-      )
-    end
+    # def self.metrics
+    #   submission_prefix = STATSD_KEY_PREFIX + '.submission'
+    #   OpenStruct.new(
+    #     submission: OpenStruct.new(
+    #       attempt: submission_prefix + '.attempt',
+    #       success: submission_prefix + '.success',
+    #       failure: OpenStruct.new(
+    #         client: OpenStruct.new(
+    #           data: submission_prefix + '.failure.client.data',
+    #           qualification: submission_prefix + '.failure.client.qualification'
+    #         )
+    #       )
+    #     ),
+    #     pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
+    #   )
+    # end
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
