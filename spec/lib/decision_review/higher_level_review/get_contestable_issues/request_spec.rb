@@ -9,12 +9,7 @@ require 'rails_helper'
 describe DecisionReview::HigherLevelReview::GetContestableIssues::Request do
   let(:data) { Struct.new(:headers, :benefit_type).new headers, benefit_type }
 
-  let(:headers) do
-    {
-      'X-VA-SSN' => '123456789',
-      'X-VA-Receipt-Date' => '1970-01-01'
-    }
-  end
+  let(:headers) { VetsJsonSchema::EXAMPLES['HLR-GET-CONTESTABLE-ISSUES-REQUEST-HEADERS'] }
 
   let(:benefit_type) { 'compensation' }
 

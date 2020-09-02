@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require_relative '../../response.rb'
+
 module DecisionReview
   module HigherLevelReview
     module GetContestableIssues
-      class Response
-        SCHEMA_REGEX = /GET_CONTESTABLE_ISSUES_FOR_HLR_(\d+)_RESPONSE/
+      class Response < DecisionReview::Response
+        SCHEMA_REGEX = /HLR-GET-CONTESTABLE-ISSUES-RESPONSE-(\d+)/
       end
     end
   end
