@@ -72,7 +72,7 @@ class V1::Facilities::CcpController < FacilitiesController
         provider.add_details(prov_info)
       rescue => e
         if Rails.env.production?
-          log_exception_to_sentry(e, provider_info: provider['ProviderIdentifier'], external_service: :ppms)
+          log_exception_to_sentry(e, { provider_info: provider['ProviderIdentifier'] }, { external_service: :ppms })
         end
       end
 
