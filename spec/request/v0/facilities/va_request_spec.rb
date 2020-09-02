@@ -287,7 +287,11 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
     end
 
     it 'responds to GET #index with success even if no providers are found' do
-      VCR.use_cassette('facilities/ppms/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
+      VCR.use_cassette(
+        'facilities/ppms/ppms_empty_search',
+        match_requests_on: [:method],
+        allow_playback_repeats: true
+      ) do
         get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
         expect(response).to be_successful
         expect(response.body).to be_a(String)
