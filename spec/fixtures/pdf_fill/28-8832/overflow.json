@@ -1,9 +1,9 @@
 {
   "claimant_information": {
     "full_name": {
-      "first": "Dardan",
+      "first": "Ddddaaaarrrrddddaaaannnn",
       "middle": "Adam",
-      "last": "Testy",
+      "last": "Tttteeeessssttttyyyy",
       "suffix": "Jr."
     },
     "va_file_number": "22334455",
@@ -12,13 +12,23 @@
   },
   "claimant_address": {
     "country_name": "USA",
-    "address_line1": "123 Sunshine Blvd",
+    "address_line1": "123 Sunshine Boulevard Avenue Lane",
     "address_line2": "Apt 1",
-    "city": "Miami",
+    "city": "Mmmmiiiiaaaammmmiiii",
     "state_code": "FL",
     "zip_code": "33928-0808"
   },
   "phone_number":"8888675309",
   "claimant_email_address":"vet123@test.com",
-  "status": "isVeteran"
+  "veteran_information": {
+    "full_name": {
+      "first": "Jerry",
+      "middle": "Mark",
+      "last": "Brooks",
+      "suffix": "Sr."
+    },
+    "va_file_number": "55667788",
+    "ssn": "796104437"
+  },
+  "status": "isSpouse"
 }

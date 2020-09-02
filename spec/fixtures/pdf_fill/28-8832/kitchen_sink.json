@@ -20,5 +20,15 @@
   },
   "phone_number":"8888675309",
   "claimant_email_address":"vet123@test.com",
-  "status": "isVeteran"
+  "veteran_information": {
+    "full_name": {
+      "first": "Jerry",
+      "middle": "Mark",
+      "last": "Brooks",
+      "suffix": "Sr."
+    },
+    "va_file_number": "55667788",
+    "ssn": "796104437"
+  },
+  "status": "isSpouse"
 }
