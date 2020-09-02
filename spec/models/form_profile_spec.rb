@@ -1057,12 +1057,6 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'with a higher level review form' do
-      it 'returns the va profile mapped to the higher level review form' do
-        expect_prefilled('20-0996')
-      end
-    end
-
     context 'with a pension application form' do
       it 'returns the va profile mapped to the pension form' do
         expect_prefilled('21P-527EZ')
