@@ -10,6 +10,7 @@ describe DecisionReview::Service do
 
   describe '#post_higher_level_reviews' do
     subject { described_class.new.post_higher_level_reviews(body: body.to_json, user: user) }
+
     let(:body) { VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY'] }
 
     context '200 response' do
@@ -40,6 +41,7 @@ describe DecisionReview::Service do
 
   describe '#get_higher_level_reviews' do
     subject { described_class.new.get_higher_level_reviews(uuid) }
+
     let(:uuid) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
 
     context '200 response' do
@@ -72,6 +74,7 @@ describe DecisionReview::Service do
     subject do
       described_class.new.get_higher_level_review_contestable_issues(benefit_type: benefit_type, user: user)
     end
+
     let(:benefit_type) { 'compensation' }
 
     context '200 response' do
