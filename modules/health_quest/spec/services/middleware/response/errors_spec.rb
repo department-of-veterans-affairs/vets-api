@@ -3,9 +3,6 @@
 require 'rails_helper'
 require_relative '../../../support/health_fixture_helper'
 
-class BackendServiceException
-end
-
 describe HealthQuest::Middleware::Response::Errors do
   let(:env) { OpenStruct.new('success?' => false, status: 'status', body: {}) }
   # rubocop:disable Layout/LineLength
