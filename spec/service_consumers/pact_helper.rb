@@ -60,10 +60,10 @@ Pact.service_provider 'VA.gov API' do
 
   honours_pacts_from_pact_broker do
     pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com',
-    { 
-      username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'], 
-      password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD'] 
-    }
+                         {
+                           username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
+                           password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
+                         }
   end
 
   app_version git_sha
