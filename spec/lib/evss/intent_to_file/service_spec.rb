@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/intent_to_file/service'
 
 describe EVSS::IntentToFile::Service do
   describe '.find_by_user' do

@@ -3,6 +3,7 @@
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 require_dependency 'emis/responses'
+require 'emis/military_information_service_v2'
 
 module EMISRedis
   # Generic model for caching EMIS data in Redis
