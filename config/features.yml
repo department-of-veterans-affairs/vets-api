@@ -250,4 +250,7 @@ features:
     acto_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
-
+  gibct_benefit_filter_enhancement:
+    actor_type: user
+    description: >
+      Comparison Tool Search Results Benefit UI Enhancements to improve usability
