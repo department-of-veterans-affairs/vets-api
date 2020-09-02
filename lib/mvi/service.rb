@@ -146,21 +146,21 @@ module MVI
       )
     end
 
-    def mvi_error_handler(user_identity, e, source = '')
-      case e
+    def mvi_error_handler(user_identity, error, source = '')
+      case error
       when MVI::Errors::DuplicateRecords
-        log_message_to_sentry('MVI Duplicate Record', :warn)
+        log_exception_to_sentry(error, nil, nil, 'warn')
       when MVI::Errors::RecordNotFound
         Rails.logger.info('MVI Record Not Found')
       when MVI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user_identity.mhv_icn.present?
-          log_message_to_sentry("MVI Invalid Request (Possible RecordNotFound) #{source}", :error)
+          log_exception_to_sentry(error, {}, { message: 'Possible RecordNotFound', source: source })
         else
-          log_message_to_sentry('MVI Invalid Request', :error)
+          log_exception_to_sentry(error, {}, { message: 'MVI Invalid Request', source: source })
         end
       when MVI::Errors::FailedRequestError
-        log_message_to_sentry('MVI Failed Request', :error)
+        log_exception_to_sentry(error)
       end
     end
 
