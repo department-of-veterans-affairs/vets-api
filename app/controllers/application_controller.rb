@@ -104,8 +104,6 @@ class ApplicationController < ActionController::API
         Common::Exceptions::Unauthorized.new(detail: exception.detail)
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
-      when ActionController::UnknownFormat
-        Common::Exceptions::UnknownFormat.new
       when Common::Exceptions::BaseError
         exception
       when Breakers::OutageException

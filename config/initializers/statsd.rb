@@ -125,6 +125,15 @@ StatsD.increment(Form1010cg::Service.metrics.submission.failure.client.data, 0)
 StatsD.increment(Form1010cg::Service.metrics.submission.failure.client.qualification, 0)
 StatsD.increment(Form1010cg::Service.metrics.pdf_download, 0)
 
+# init form 526
+%w[try success non_retryable_error retryable_error exhausted].each do |str|
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitUploads::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{CentralMail::SubmitForm4142Job::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm0781::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm8940::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526Cleanup::STATSD_KEY_PREFIX}.#{str}", 0)
+end
+
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
           "status:#{payload[:status]}"]

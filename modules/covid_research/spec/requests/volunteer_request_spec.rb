@@ -53,5 +53,25 @@ RSpec.describe 'covid research volunteer submissions', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
+
+    context 'feature flag' do
+      let(:form_service) { CovidResearch::Volunteer::FormService }
+
+      it 'schedules delivery when the `covid_volunteer_delivery` flag is true' do
+        Flipper.enable(:covid_volunteer_delivery)
+        allow_any_instance_of(form_service).to receive(:valid?).and_return(true)
+        expect_any_instance_of(form_service).to receive(:queue_delivery)
+
+        post '/covid-research/volunteer/create', params: valid
+      end
+
+      it 'does not schedule delivery when the `covid_volunteer_delivery` flag is false' do
+        Flipper.disable(:covid_volunteer_delivery)
+        allow_any_instance_of(form_service).to receive(:valid?).and_return(true)
+        expect_any_instance_of(form_service).not_to receive(:queue_delivery)
+
+        post '/covid-research/volunteer/create', params: valid
+      end
+    end
   end
 end

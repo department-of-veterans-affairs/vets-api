@@ -34,9 +34,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: dc915217579b72750612686e95048151c4c64566
+  revision: 64537e01a2eef2299bf851d1fb0051eb285bea3c
   specs:
-    bgs_ext (0.14.5)
+    bgs_ext (0.14.6)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -86,11 +86,6 @@ PATH
   remote: modules/openid_auth
   specs:
     openid_auth (0.0.1)
-
-PATH
-  remote: modules/va_facilities
-  specs:
-    va_facilities (0.0.1)
 
 PATH
   remote: modules/va_forms
@@ -789,7 +784,6 @@ GEM
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
     unicode-display_width (1.7.0)
-    upsert (2.9.10)
     uri_template (0.7.0)
     utf8-cleaner (0.2.5)
       activesupport
@@ -965,9 +959,7 @@ DEPENDENCIES
   timecop
   typhoeus
   tzinfo-data
-  upsert
   utf8-cleaner
-  va_facilities!
   va_forms!
   vaos!
   vba_documents!

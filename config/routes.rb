@@ -226,6 +226,7 @@ Rails.application.routes.draw do
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
+      resources :payment_history, only: %i[index]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -288,6 +289,10 @@ Rails.application.routes.draw do
     namespace :coronavirus_chatbot do
       resource :tokens, only: :create
     end
+
+    namespace :ask do
+      resource :asks, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
@@ -317,7 +322,6 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'

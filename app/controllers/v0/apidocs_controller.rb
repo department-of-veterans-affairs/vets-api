@@ -222,6 +222,7 @@ module V0
       Swagger::Schemas::UserInternalServices,
       Swagger::Schemas::Permission,
       Swagger::Schemas::ValidVaFileNumber,
+      Swagger::Schemas::PaymentHistory,
       Swagger::Schemas::Vet360::Address,
       Swagger::Schemas::Vet360::Email,
       Swagger::Schemas::Vet360::Telephone,
