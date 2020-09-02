@@ -50,7 +50,7 @@ module DecisionReview
       end
     end
 
-    def get_contestable_issues(user:, benefit_type:)
+    def get_higher_level_review_contestable_issues(user:, benefit_type:)
       with_monitoring_and_error_handling do
         raw_response = perform(:get, "higher_level_reviews/contestable_issues/#{benefit_type}", nil, get_contestable_issues_headers(user))
         DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200')
