@@ -2,6 +2,7 @@
 
 require 'common/client/concerns/service_status'
 require 'common/models/base'
+require 'json_schemer'
 
 module DecisionReview
   module Responses
@@ -34,8 +35,7 @@ module DecisionReview
       private
 
       def json_format_is_valid?(body, schema_name)
-        schema_path = Rails.root.join('lib', 'decision_review', 'schemas', "#{schema_name}.json").to_s
-        JSON::Validator.validate!(schema_path, body, strict: false)
+        JSONSchemer.schema(VetsJsonSchema::SCHEMAS[schema_name]).validate(body).to_a.empty?
       end
     end
   end

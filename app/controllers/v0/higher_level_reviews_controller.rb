@@ -8,7 +8,7 @@ module V0
     end
 
     def create
-      review = decision_review_service.post_higher_level_reviews(request.raw_post)
+      review = decision_review_service.post_higher_level_reviews(body: request.raw_post, user: current_user)
       render status: review.status, json: review.body
     end
   end

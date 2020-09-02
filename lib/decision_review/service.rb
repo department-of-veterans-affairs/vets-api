@@ -29,24 +29,10 @@ module DecisionReview
     # @return [DecisionReview::Responses::Response] Response object that includes the body,
     #                                               status, and schema validations.
     #
-    def post_higher_level_reviews(request_body)
+    def post_higher_level_reviews(body:, user:)
       with_monitoring_and_error_handling do
-        raw_response = perform(:post, 'higher_level_reviews', request_body)
-        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'intake_status')
-      end
-    end
-
-    ##
-    # Retrieve a Higher Level Review intake status.
-    #
-    # @param uuid [uuid] The intake uuid provided from the response of creating a new Higher Level Review
-    # @return [DecisionReview::Responses::Response] Response object that includes the body,
-    #                                               status, and schema avalidations.
-    #
-    def get_higher_level_reviews_intake_status(uuid)
-      with_monitoring_and_error_handling do
-        raw_response = perform(:get, "intake_statuses/#{uuid}", nil)
-        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'intake_status')
+        raw_response = perform(:post, 'higher_level_reviews', request_body, post_higher_level_reviews_headers(user))
+        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'HLR-CREATE-RESPONSE-200')
       end
     end
 
@@ -60,23 +46,40 @@ module DecisionReview
     def get_higher_level_reviews(uuid)
       with_monitoring_and_error_handling do
         raw_response = perform(:get, "higher_level_reviews/#{uuid}", nil)
-        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'review')
+        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'HLR-SHOW-RESPONSE-200')
       end
     end
 
-    def get_contestable_issues(user)
+    def get_contestable_issues(user:, benefit_type:)
       with_monitoring_and_error_handling do
-        raw_response = perform(:get, 'contestable_issues', nil, request_headers(user))
-        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'contestable_issues')
+        raw_response = perform(:get, "higher_level_reviews/contestable_issues/#{benefit_type}", nil, get_contestable_issues_headers(user))
+        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200')
       end
     end
 
     private
 
-    def request_headers(user)
+    def post_higher_level_reviews_headers(user)
+      raise Common::Exceptions::Forbidden unless user.ssn && user.first_name && user.last_name && user.birth_date
+
       {
-        'x-va-ssn' => user.ssn,
-        'x-va-receipt-date' => Time.current.strftime('%Y-%m-%d')
+        'X-VA-SSN' => user.ssn,
+        'X-VA-First-Name' => user.first_name,
+        'X-VA-Middle-Initial' => user.middle_name.presence&.first,
+        'X-VA-Last-Name' => user.last_name,
+        'X-VA-Birth-Date' => user.birth_date,
+        'X-VA-File-Number' => nil,
+        'X-VA-Service-Number' => nil,
+        'X-VA-Insurance-Policy-Number' => nil
+      }.compact
+    end
+
+    def get_contestable_issues_headers(user)
+      raise Common::Exceptions::Forbidden unless user.ssn
+
+      {
+        'X-VA-SSN' => user.ssn,
+        'X-VA-Receipt-Date' => Time.zone.now.strftime('%F')
       }
     end
 

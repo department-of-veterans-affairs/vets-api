@@ -122,13 +122,12 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: :index do
-      collection do
-        resources :higher_level_reviews, only: %i[show create]
-        resources :intake_statuses, only: :show
-        resources :contestable_issues, only: :index
-      end
+    resources :appeals, only: :index
+
+    namespace :higher_level_reviews do
+      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
+    resources :higher_level_reviews, only: %i[create show]
 
     scope :messaging do
       scope :health do
