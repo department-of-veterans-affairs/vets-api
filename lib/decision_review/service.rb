@@ -31,7 +31,7 @@ module DecisionReview
     #
     def post_higher_level_reviews(body:, user:)
       with_monitoring_and_error_handling do
-        raw_response = perform(:post, 'higher_level_reviews', request_body, post_higher_level_reviews_headers(user))
+        raw_response = perform(:post, 'higher_level_reviews', body, post_higher_level_reviews_headers(user))
         DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'HLR-CREATE-RESPONSE-200')
       end
     end
@@ -123,10 +123,7 @@ module DecisionReview
       when Common::Client::Errors::ClientError
         save_error_details(error)
         raise Common::Exceptions::Forbidden if error.status == 403
-        raise raise_backend_exception('DR_401', self.class, error) if error.status == 401
-
-        code = error.body['errors'].first.dig('code')
-        raise_backend_exception("DR_#{code}", self.class, error)
+        raise_backend_exception("DR_#{error&.status}", self.class)
       else
         raise error
       end
