@@ -64,7 +64,7 @@ module AppsApi
             property :permissions do
               key :description, I18n.t('apps_api.field_descriptions.permissions')
               key :type, :array
-              key :example, ['Read Perscription History', 'Read Personal Medical History','Family Medical History']
+              key :example, ['Read Perscription History', 'Read Personal Medical History', 'Family Medical History']
             end
             property :privacyPolicyURL do
               key :description, I18n.t('apps_api.field_descriptions.privacyPolicyURL')

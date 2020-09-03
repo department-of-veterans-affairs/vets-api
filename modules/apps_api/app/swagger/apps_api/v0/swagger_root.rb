@@ -9,7 +9,7 @@ module AppsApi
         info do
           key :version, '0.0.0'
           key :title, 'Apps Api'
-          key :description, File.read(AppsApi::Engine.root.join('app', 'swagger', 'apps_api','v0', 'description.md'))
+          key :description, File.read(AppsApi::Engine.root.join('app', 'swagger', 'apps_api', 'v0', 'description.md'))
           contact do
             key :name, 'va.gov'
           end

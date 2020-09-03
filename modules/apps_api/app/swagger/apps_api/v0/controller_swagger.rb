@@ -7,7 +7,6 @@ module AppsApi
 
       swagger_path 'apps' do
         operation :get do
-
           key :summary, 'All Applications'
           key :description, 'Returns all Applications currently onboarded to Va.gov'
           key :operationId, 'getAllApps'
@@ -17,7 +16,6 @@ module AppsApi
           key :tags, [
             'Apps'
           ]
-
           response 200 do
             key :description, 'Directory index response'
             content 'application/json' do
@@ -30,10 +28,8 @@ module AppsApi
               end
             end
           end
-
         end
       end
-
     end
   end
 end
