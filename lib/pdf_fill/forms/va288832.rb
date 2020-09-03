@@ -280,7 +280,7 @@ module PdfFill
         } # end date_signed
       }.freeze
 
-      def merge_fields
+      def merge_fields(_options = {})
         merge_claimant_helpers
         merge_veteran_helpers
 

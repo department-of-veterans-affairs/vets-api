@@ -8,6 +8,7 @@ require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
 require 'pdf_fill/forms/va686c674'
+require 'pdf_fill/forms/va288832'
 
 module PdfFill
   module Filler
