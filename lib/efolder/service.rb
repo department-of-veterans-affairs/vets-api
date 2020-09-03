@@ -16,9 +16,7 @@ module Efolder
     end
 
     def list_documents
-      docs = []
-
-      vbms_docs.each do |document|
+      vbms_docs.map do |document|
         if @bgs_doc_uuids.include?(document[:document_id].delete('{}'))
           docs.append(
             document.marshal_dump.slice(
@@ -27,8 +25,6 @@ module Efolder
           )
         end
       end
-
-      docs
     end
 
     def get_document(document_id)
