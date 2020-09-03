@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative 'base'
+require 'common/models/attribute_types/iso8601_time'
+
 module Vet360
   module Models
     class Telephone < Base
