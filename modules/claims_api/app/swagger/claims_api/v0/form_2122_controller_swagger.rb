@@ -137,7 +137,11 @@ module ClaimsApi
             key :description, '0966 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
@@ -257,7 +261,11 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
@@ -352,7 +360,103 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
+              end
+            end
+          end
+
+          response :default do
+            key :description, 'unexpected error'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      swagger_path '/forms/2122/active' do
+        operation :get do
+          key :summary, 'Check active power of attorney status'
+          key :description, 'Returns last active JSON payload.'
+          key :operationId, 'getActive2122Poa'
+          key :tags, [
+            'Power of Attorney'
+          ]
+
+          security do
+            key :bearer_token, []
+          end
+
+          parameter do
+            key :name, 'X-VA-SSN'
+            key :in, :header
+            key :description, 'SSN of Veteran to fetch'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-First-Name'
+            key :in, :header
+            key :description, 'First Name of Veteran to fetch'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Last-Name'
+            key :in, :header
+            key :description, 'Last Name of Veteran to fetch'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Birth-Date'
+            key :in, :header
+            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-EDIPI'
+            key :in, :header
+            key :description, 'EDIPI Number of Veteran to fetch'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-User'
+            key :in, :header
+            key :description, 'VA username of the person making the request'
+            key :required, false
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, '2122 response'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end

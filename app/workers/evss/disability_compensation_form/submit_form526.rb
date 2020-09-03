@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/service_exception'
+require 'evss/disability_compensation_form/gateway_timeout'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job

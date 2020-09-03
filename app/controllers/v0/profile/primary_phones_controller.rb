@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/pciu/service'
+
 module V0
   module Profile
     class PrimaryPhonesController < ApplicationController
