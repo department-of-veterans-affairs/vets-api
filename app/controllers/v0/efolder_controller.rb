@@ -17,10 +17,7 @@ module V0
     private
 
     def service
-      Efolder::Service.new do |service|
-        service.file_number = @current_user.ssn
-        service.included_doc_types = params[:included_doc_types] if params[:included_doc_types].present?
-      end
+      Efolder::Service.new(@current_user)
     end
   end
 end

@@ -9,29 +9,17 @@ module Efolder
   #
 
   class Service
-    attr_accessor :file_number, :included_doc_types
-
-    def initialize
-      yield self
+    def initialize(user)
+      @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
     end
 
     def list_documents
-      documents = @client.send_request(
-        VBMS::Requests::FindDocumentVersionReference.new(@file_number)
-      )
-
-      if @included_doc_types.present?
-        documents = documents.find_all do |record|
-          @included_doc_types.include?(record.doc_type)
-        end
-      end
-
-      documents.map do |document|
-        document.marshal_dump.slice(
-          :document_id, :doc_type, :type_description, :received_at
-        )
-      end
+      bgs_doc_uuids
+      #vbms_docs
+      # vbms_docs.reject do |document|
+      #   !bgs_doc_uuids.include?(document[:document_id].delete('{}'))
+      # end
     end
 
     def get_document(document_id)
@@ -43,6 +31,41 @@ module Efolder
     end
 
     private
+
+    def vbms_docs
+      documents = @client.send_request(
+        VBMS::Requests::FindDocumentVersionReference.new(file_number)
+      )
+
+      documents.map do |document|
+        document.marshal_dump.slice(
+          :document_id, :doc_type, :type_description, :received_at
+        )
+      end
+    end
+
+    def file_number
+      bgs_file_number = BGS::PeopleService.new(@user).find_person_by_participant_id[:file_nbr]
+      bgs_file_number.nil? ? @user.ssn : bgs_file_number
+    end
+
+    def bgs_doc_uuids
+      uuids = []
+      BGS::UploadedDocumentService
+        .new(@user)
+        .get_documents
+        .each do |claim|
+          uploaded_docs = claim[:uplded_dcmnts]
+          if uploaded_docs.is_a?(Hash)
+            uuids << uploaded_docs[:uuid_txt]
+          else
+            uploaded_docs.each do |doc|
+              uuids << doc[:uuid_txt]
+            end
+          end
+        end
+      uuids.compact
+    end
 
     def verify_document_in_folder(document_id)
       raise Common::Exceptions::Unauthorized unless list_documents.any? do |document|
