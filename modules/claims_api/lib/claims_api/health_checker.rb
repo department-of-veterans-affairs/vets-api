@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'bgs/service'
+require 'mvi/service'
+
 module ClaimsApi
   class HealthChecker
     BGS_WSDL = "#{Settings.bgs.url}/VetRecordServiceBean/VetRecordWebService?WSDL"
