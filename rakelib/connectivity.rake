@@ -119,6 +119,7 @@ namespace :connectivity do
 
   desc 'Check SM'
   task sm: :environment do
+    require 'sm/client'
     check 'SM', Settings.mhv.sm.host do
       SM::Client.new(session: { user_id: '12210827' }).authenticate
     end
