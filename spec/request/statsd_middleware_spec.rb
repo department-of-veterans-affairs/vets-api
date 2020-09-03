@@ -54,13 +54,13 @@ RSpec.describe StatsdMiddleware, type: :request do
     end.to trigger_statsd_measure('api.request.db_runtime', tags: tags, times: 1, value: be_between(0, 100))
   end
 
-  it 'sends view_runtime data to statsd' do
-    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index status:200]
-    expect do
-      get '/v0/prescriptions'
-    end.to trigger_statsd_measure('api.request.view_runtime', tags: tags, times: 1, value: be_between(0, 100))
-  end
+  # it 'sends view_runtime data to statsd' do
+  #   stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+  #   tags = %w[controller:v0/prescriptions action:index status:200]
+  #   expect do
+  #     get '/v0/prescriptions'
+  #   end.to trigger_statsd_measure('api.request.view_runtime', tags: tags, times: 1, value: be_between(0, 100))
+  # end
 
   it 'handles a missing route correctly' do
     tags = %w[controller:application action:routing_error source_app:not_provided status:404]
