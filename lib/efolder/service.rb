@@ -18,10 +18,8 @@ module Efolder
     def list_documents
       vbms_docs.map do |document|
         if @bgs_doc_uuids.include?(document[:document_id].delete('{}'))
-          docs.append(
-            document.marshal_dump.slice(
-              :document_id, :doc_type, :type_description, :received_at
-            )
+          document.marshal_dump.slice(
+            :document_id, :doc_type, :type_description, :received_at
           )
         end
       end
