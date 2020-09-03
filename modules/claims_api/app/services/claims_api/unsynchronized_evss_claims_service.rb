@@ -3,6 +3,7 @@
 require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
+require 'evss/error_middleware/evss_error'
 
 module ClaimsApi
   class UnsynchronizedEVSSClaimService

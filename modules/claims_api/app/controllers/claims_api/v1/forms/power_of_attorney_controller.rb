@@ -2,6 +2,8 @@
 
 require_dependency 'claims_api/concerns/poa_verification'
 require_dependency 'claims_api/concerns/document_validations'
+require 'evss/power_of_attorney_verifier'
+
 
 module ClaimsApi
   module V1
