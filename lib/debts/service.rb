@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require_relative 'configuration'
-require_relative 'get_letters_response'
+require_relative 'get_debts_response'
 
 module Debts
   class Service < Common::Client::Base
