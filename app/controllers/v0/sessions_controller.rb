@@ -20,7 +20,6 @@ module V0
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
-    STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
     VERSION_TAG = 'version:v0'
@@ -175,7 +174,6 @@ module V0
       type = tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-      StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags) if cookies.key?(Settings.sso.cookie_name)
       StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
       Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
       StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
