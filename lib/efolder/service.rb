@@ -36,7 +36,7 @@ module Efolder
     private
 
     def vbms_docs
-      documents = @client.send_request(
+      @client.send_request(
         VBMS::Requests::FindDocumentVersionReference.new(file_number)
       )
     end

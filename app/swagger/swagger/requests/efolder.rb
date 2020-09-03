@@ -7,7 +7,7 @@ module Swagger
 
       swagger_path '/v0/efolder' do
         operation :get do
-          key :summary 'Provides a list of document ids and descriptions from eFolder'
+          key :summary, 'Provides a list of document ids and descriptions from eFolder'
           key :description, "Provides a list of document ids and descriptions from eFolder.
             The documents provided are extracted from VBMS and compared against a list of
             documents for the user that is provided by BGS. A merge function between the 
