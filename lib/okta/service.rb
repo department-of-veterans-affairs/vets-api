@@ -36,7 +36,7 @@ module Okta
 
     def get_app_scopes(app_id)
       with_monitoring do
-        get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}/tokens")
+        get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}/grants")
       end
     end
 

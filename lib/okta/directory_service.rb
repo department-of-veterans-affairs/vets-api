@@ -19,14 +19,11 @@ module Okta
       # Iterate through the returned applications, and test for pattern matching,
       # adding to our filtered apps array if pattern doesn't match
       filtered_apps = unfiltered_apps.reject { |app| app['label'] =~ ISO_PATTERN }
-
-      # This feature is currently in early-access and access will need to be requested from okta.
-      # We are currently using the EA feature to get all our user grants in the connected-applications
-      # profile feature so this shouldn't be an issue to add as well.
-      # get_scopes(apps)
+      # Get all consent grants assigned to each application in our filtered list
+      filtered_apps = get_scopes(okta_service,filtered_apps)
 
       redis.set('okta_directory_apps', filtered_apps.to_json)
-      unfiltered_apps
+      filtered_apps
     end
 
     def recursively_get_apps(okta_service, url = '', unfiltered_apps = [])
@@ -53,12 +50,13 @@ module Okta
       headers['link']&.split(',')&.last.split('<')&.last.split('>')&.first
     end
 
-    def get_scopes(apps)
+    def get_scopes(okta_service,apps)
       apps.each do |app|
-        scopes = okta_service.get_app_scopes(app['id'])
-        app['scopes'] = scopes
+        response = okta_service.get_app_scopes(app['id'])
+        app['permissions'] = response.body
       end
       apps
     end
+
   end
 end
