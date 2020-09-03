@@ -2,7 +2,7 @@
 
 require_dependency 'claims_api/application_controller'
 require_dependency 'claims_api/concerns/poa_verification'
-require 'evss/error_middleware/evss_error'
+require 'evss/error_middleware'
 
 module ClaimsApi
   module V1

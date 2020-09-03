@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/application_controller'
-require 'evss/error_middleware/evss_error'
+require 'evss/error_middleware'
 
 module ClaimsApi
   module V0
