@@ -89,7 +89,8 @@ module BGS
           divorce_city: formatted_info['divorce_city'],
           divorce_country: formatted_info['divorce_country'],
           end_date: formatted_info['end_date'],
-          marriage_termination_type_code: formatted_info['marriage_termination_type_code']
+          marriage_termination_type_code: formatted_info['marriage_termination_type_code'],
+          type: 'divorce'
         }
       )
     end
