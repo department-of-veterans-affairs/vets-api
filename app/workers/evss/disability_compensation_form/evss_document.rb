@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'central_mail/datestamp_pdf'
+require 'pdf_fill/filler'
+
 module EVSS
   module DisabilityCompensationForm
     # Base document class for the 526 ancillary forms

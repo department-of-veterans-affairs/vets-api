@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/form_helper'
+
 module PdfFill
   module Forms
     module CommonPtsd
