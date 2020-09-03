@@ -2,7 +2,6 @@
 
 require 'json_schema/json_api_missing_attribute'
 require 'claims_api/form_schemas'
-require 'bgs'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
