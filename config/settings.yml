@@ -533,6 +533,12 @@ va_mobile:
   key_path: /fake/client/key/path
   timeout: 15
 
+hqva_mobile:
+  url: 'https://veteran.apps.va.gov'
+  mock: false
+  key_path: /fake/client/key/path
+  timeout: 15
+
 lighthouse:
   api_key: fake_key
   facilities:
@@ -572,7 +578,6 @@ vanotify:
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
-  mock: false
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
