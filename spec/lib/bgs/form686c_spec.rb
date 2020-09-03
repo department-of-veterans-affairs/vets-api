@@ -1,14 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/benefit_claim'
-require 'bgs/dependents'
 require 'bgs/form686c'
-require 'bgs/service'
-require 'bgs/student_school'
-require 'bgs/vnp_benefit_claim'
-require 'bgs/vnp_relationships'
-require 'bgs/vnp_veteran'
 
 RSpec.describe BGS::Form686c do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
