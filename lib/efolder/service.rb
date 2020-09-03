@@ -12,14 +12,23 @@ module Efolder
     def initialize(user)
       @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
+      @bgs_doc_uuids = bgs_doc_uuids
     end
 
     def list_documents
-      bgs_doc_uuids
-      #vbms_docs
-      # vbms_docs.reject do |document|
-      #   !bgs_doc_uuids.include?(document[:document_id].delete('{}'))
-      # end
+      docs = []
+
+      vbms_docs.each do |document|
+        if @bgs_doc_uuids.include?(document[:document_id].delete('{}'))
+          docs.append(
+            document.marshal_dump.slice(
+              :document_id, :doc_type, :type_description, :received_at
+            )
+          )
+        end
+      end
+
+      docs
     end
 
     def get_document(document_id)
@@ -36,12 +45,6 @@ module Efolder
       documents = @client.send_request(
         VBMS::Requests::FindDocumentVersionReference.new(file_number)
       )
-
-      documents.map do |document|
-        document.marshal_dump.slice(
-          :document_id, :doc_type, :type_description, :received_at
-        )
-      end
     end
 
     def file_number
