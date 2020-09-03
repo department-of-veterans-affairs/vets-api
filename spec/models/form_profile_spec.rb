@@ -678,7 +678,7 @@ RSpec.describe FormProfile, type: :model do
         'attributes' => {
           'veteran' => {
             'address' => {
-              'zipCode5' => user.va_profile[:address][:postal_code][0..4]
+              'zipCode5' => user.va_profile[:address][:zip_code]
             },
             'phone' => {
               'phoneNumber' => us_phone
@@ -1055,101 +1055,100 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a higher level review form' do
       it 'returns the va profile mapped to the higher level review form' do
-
         schema_name = '20-0996'
         schema = VetsJsonSchema::SCHEMAS[schema_name]
-        full_example = JSON.parse(<<'HEREDOC')
-{
-  "data": {
-    "type": "higherLevelReview",
-    "attributes": {
-      "informalConference": true,
-      "sameOffice": true,
-      "benefitType": "compensation",
-      "veteran": {
-        "address": {
-          "zipCode5": "66002"
-        },
-        "phone": {
-          "countryCode": "34",
-          "areaCode": "555",
-          "phoneNumber": "8001111",
-          "phoneNumberExt": "2"
-        },
-        "emailAddressText": "josie@example.com",
-        "timezone": "America/Chicago"
-      },
-      "informalConferenceTimes": [
-        "1230-1400 ET",
-        "1400-1630 ET"
-      ],
-      "informalConferenceRep": {
-        "name": "Helen Holly",
-        "phone": {
-          "countryCode": "6",
-          "areaCode": "555",
-          "phoneNumber": "8001111",
-          "phoneNumberExt": "2"
-        }
-      }
-    }
-  },
-  "included": [
-    {
-      "type": "contestableIssue",
-      "attributes": {
-        "issue": "tinnitus",
-        "decisionDate": "1900-01-01",
-        "decisionIssueId": 1,
-        "ratingIssueReferenceId": "2",
-        "ratingDecisionReferenceId": "3"
-      }
-    },
-    {
-      "type": "contestableIssue",
-      "attributes": {
-        "issue": "left knee",
-        "decisionDate": "1900-01-02",
-        "decisionIssueId": 4,
-        "ratingIssueReferenceId": "5"
-      }
-    },
-    {
-      "type": "contestableIssue",
-      "attributes": {
-        "issue": "right knee",
-        "decisionDate": "1900-01-03",
-        "ratingIssueReferenceId": "6",
-        "ratingDecisionReferenceId": "7"
-      }
-    },
-    {
-      "type": "contestableIssue",
-      "attributes": {
-        "issue": "PTSD",
-        "decisionDate": "1900-01-04",
-        "decisionIssueId": 8,
-        "ratingDecisionReferenceId": "9"
-      }
-    },
-    {
-      "type": "contestableIssue",
-      "attributes": {
-        "issue": "Traumatic Brain Injury",
-        "decisionDate": "1900-01-05",
-        "decisionIssueId": 10
-      }
-    },
-    {
-      "type": "contestableIssue",
-      "attributes": {
-        "issue": "right shoulder",
-        "decisionDate": "1900-01-06"
-      }
-    }
-  ]
-}
-HEREDOC
+        full_example = JSON.parse(<<~'HEREDOC')
+          {
+            "data": {
+              "type": "higherLevelReview",
+              "attributes": {
+                "informalConference": true,
+                "sameOffice": true,
+                "benefitType": "compensation",
+                "veteran": {
+                  "address": {
+                    "zipCode5": "66002"
+                  },
+                  "phone": {
+                    "countryCode": "34",
+                    "areaCode": "555",
+                    "phoneNumber": "8001111",
+                    "phoneNumberExt": "2"
+                  },
+                  "emailAddressText": "josie@example.com",
+                  "timezone": "America/Chicago"
+                },
+                "informalConferenceTimes": [
+                  "1230-1400 ET",
+                  "1400-1630 ET"
+                ],
+                "informalConferenceRep": {
+                  "name": "Helen Holly",
+                  "phone": {
+                    "countryCode": "6",
+                    "areaCode": "555",
+                    "phoneNumber": "8001111",
+                    "phoneNumberExt": "2"
+                  }
+                }
+              }
+            },
+            "included": [
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "tinnitus",
+                  "decisionDate": "1900-01-01",
+                  "decisionIssueId": 1,
+                  "ratingIssueReferenceId": "2",
+                  "ratingDecisionReferenceId": "3"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "left knee",
+                  "decisionDate": "1900-01-02",
+                  "decisionIssueId": 4,
+                  "ratingIssueReferenceId": "5"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "right knee",
+                  "decisionDate": "1900-01-03",
+                  "ratingIssueReferenceId": "6",
+                  "ratingDecisionReferenceId": "7"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "PTSD",
+                  "decisionDate": "1900-01-04",
+                  "decisionIssueId": 8,
+                  "ratingDecisionReferenceId": "9"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "Traumatic Brain Injury",
+                  "decisionDate": "1900-01-05",
+                  "decisionIssueId": 10
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "right shoulder",
+                  "decisionDate": "1900-01-06"
+                }
+              }
+            ]
+          }
+        HEREDOC
 
         prefill_data = Oj.load(described_class.for(schema_name).prefill(user).to_json)['form_data']
 
