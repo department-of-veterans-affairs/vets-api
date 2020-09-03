@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
+require_relative 'configuration'
+require_relative 'get_letters_response'
+
 module Debts
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring

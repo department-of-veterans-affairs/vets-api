@@ -12,6 +12,8 @@ module V0
     REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
+    STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
+    STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -31,6 +33,7 @@ module V0
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}", VERSION_TAG])
+      Rails.logger.info("SSO_NEW_KEY, tags: #{["context:#{type}", VERSION_TAG]}")
       url = url_service.send("#{type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
@@ -39,6 +42,7 @@ module V0
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
       redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
+      saml_request_stats(url_service.tracker)
     end
 
     def saml_logout_callback
@@ -59,7 +63,7 @@ module V0
 
     def saml_callback
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-
+      saml_response_stats(saml_response)
       if saml_response.valid?
         user_login(saml_response)
       else
@@ -107,13 +111,15 @@ module V0
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
-        redirect_to url_service(user_session_form.saml_uuid).login_redirect_url
-        if location.start_with?(url_service.base_redirect_url)
+        helper = url_service(user_session_form.saml_uuid)
+        redirect_to helper.login_redirect_url
+        if location.start_with?(helper.base_redirect_url)
           # only record login stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
           login_stats(:success, saml_response, user_session_form)
         else
+          saml_request_stats(helper.tracker)
           callback_stats(:success, saml_response)
         end
       else
@@ -137,12 +143,40 @@ module V0
       end
     end
 
+    def saml_request_stats(tracker)
+      values = {
+        'id' => tracker&.uuid,
+        'authn' => tracker&.payload_attr(:authn_context),
+        'type' => tracker&.payload_attr(:type)
+      }
+      Rails.logger.info("ID.me: SAML Request => #{values}")
+      StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
+                       tags: ["type:#{tracker&.payload_attr(:type)}",
+                              "context:#{tracker&.payload_attr(:authn_context)}",
+                              VERSION_TAG])
+    end
+
+    def saml_response_stats(saml_response)
+      type = JSON.parse(params[:RelayState] || '{}')['type']
+      values = {
+        'id' => saml_response.in_response_to,
+        'authn' => saml_response.authn_context,
+        'type' => type
+      }
+      Rails.logger.info("ID.me: SAML Response => #{values}")
+      StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,
+                       tags: ["type:#{type}",
+                              "context:#{saml_response.authn_context}",
+                              VERSION_TAG])
+    end
+
     def login_stats_success(saml_response, tracker)
       type = tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
       StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags) if cookies.key?(Settings.sso.cookie_name)
       StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
+      Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
       StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       callback_stats(:success, saml_response)
     end
@@ -155,6 +189,7 @@ module V0
       when :failure
         tags = ["context:#{tracker.payload_attr(:type)}", VERSION_TAG]
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
+        Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags}")
         callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end
     end

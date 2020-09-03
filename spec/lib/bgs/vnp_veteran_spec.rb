@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs/vnp_veteran'
+
 RSpec.describe BGS::VnpVeteran do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:all_flows_payload) { FactoryBot.build(:form_686c_674) }

@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
 require 'base64'
-require 'saml/url_service'
 require 'saml/errors'
+require 'saml/post_url_service'
 require 'saml/responses/login'
 require 'saml/responses/logout'
+require 'saml/ssoe_settings_service'
+require 'saml/url_service'
 
 module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
     REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
-
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
@@ -23,7 +24,6 @@ module V1
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
     STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
-
     VERSION_TAG = 'version:v1'
 
     # Collection Action: auth is required for certain types of requests
@@ -203,6 +203,7 @@ module V1
     def new_stats(type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: tags)
+      Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
 
     def login_stats(status, saml_response, error = nil)
@@ -212,12 +213,14 @@ module V1
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-        # track users who have a shared sso cookie
         StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
+        Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
       when :failure
-        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags << "error:#{error.code}")
+        tags_and_error_code = tags << "error:#{error.code}"
+        StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
+        Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
       end
     end
 
@@ -228,7 +231,6 @@ module V1
                          tags: ['status:success',
                                 "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
-        # track users who have a shared sso cookie
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure',
