@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/contact_information/service'
 
 describe Vet360::ContactInformation::Service, skip_vet360: true do
   subject { described_class.new(user) }

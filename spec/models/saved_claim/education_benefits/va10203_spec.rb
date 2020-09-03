@@ -30,7 +30,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'Not logged in' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, nil).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         mail = double('mail')
         allow(mail).to receive(:deliver_now)
@@ -44,7 +44,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'authorized' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(true)
@@ -67,7 +67,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'stem_sco_email flipped off' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(false)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         mail = double('mail')
         allow(mail).to receive(:deliver_now)
@@ -75,8 +75,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
 
       it 'does not call SendSCOEmail' do
-        unauthorized_evss_user = build(:unauthorized_evss_user, :loa3)
-        expect { instance.after_submit(unauthorized_evss_user) }
+        expect { instance.after_submit(user) }
           .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
       end
 
@@ -90,7 +89,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'unauthorized' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(false).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(false)
@@ -100,8 +99,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
 
       it 'does not call SendSCOEmail' do
-        unauthorized_evss_user = build(:unauthorized_evss_user, :loa3)
-        expect { instance.after_submit(unauthorized_evss_user) }
+        expect { instance.after_submit(user) }
           .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
       end
 

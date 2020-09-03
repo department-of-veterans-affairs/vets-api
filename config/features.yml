@@ -15,6 +15,10 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
+  covid_volunteer_delivery:
+    actor_type: cookie_id
+    description: >
+      Toggles whether COVID Research volunteer submissions will be delivered to genISIS
   dashboard_show_covid19_alert:
     actor_type: user
     description: >
@@ -174,10 +178,10 @@ features:
     actor_type: user
     description: >
       Enables debt letters
-  gibct_ch33_benefit_rate_update:
+  debt_letters_show_letters_v2:
     actor_type: user
     description: >
-      Update to Chapter 33/Post-9/11 GI Bill benefit rates set to go live 8/1
+      Enables debt letters
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: >
@@ -205,7 +209,7 @@ features:
   show_edu_benefits_1990e_wizard:
     actor_type: user
     description: >
-     This determines when the wizard should show up on the 1990e introduction page
+      This determines when the wizard should show up on the 1990e introduction page
   get_help_ask_form:
     actor_type: user
     description: >
@@ -223,23 +227,26 @@ features:
     description: >
       This determines when the wizard should show up on the form 526 intro page
   show_new_get_medical_records_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/get-medical-records/
   show_new_refill_track_prescriptions_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/refill-track-prescriptions/
   show_new_schedule_view_appointments_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/schedule-view-va-appointments/
   show_new_secure_messaging_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/secure-messaging/
   show_new_view_test_lab_results_page:
-    acto_type: user
+    actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
-
+  gibct_benefit_filter_enhancement:
+    actor_type: user
+    description: >
+      Comparison Tool Search Results Benefit UI Enhancements to improve usability

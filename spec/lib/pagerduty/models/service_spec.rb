@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'support/pagerduty/services/valid'
 require 'support/pagerduty/services/invalid'
+require 'pagerduty/models/service'
 
 describe PagerDuty::Models::Service do
   let(:pagerduty_service) { build :pagerduty_service }
