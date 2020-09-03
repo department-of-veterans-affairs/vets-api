@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'bgs/benefit_claim'
-require 'bgs/service'
 
 RSpec.describe BGS::BenefitClaim do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
