@@ -26,6 +26,7 @@ module Vet360
       attribute :address_line3, String
       attribute :address_pou, String # purpose of use
       attribute :address_type, String
+      attribute :bad_address_indicator, Boolean
       attribute :city, String
       attribute :country_name, String
       attribute :country_code_iso2, String
@@ -36,8 +37,12 @@ module Vet360
       attribute :created_at, Common::ISO8601Time
       attribute :effective_end_date, Common::ISO8601Time
       attribute :effective_start_date, Common::ISO8601Time
+      attribute :geocode_date, Common::ISO8601Time
+      attribute :geocode_precision, Integer
       attribute :id, Integer
       attribute :international_postal_code, String
+      attribute :latitude, Float
+      attribute :longitude, Float
       attribute :province, String
       attribute :source_date, Common::ISO8601Time
       attribute :source_system_user, String
