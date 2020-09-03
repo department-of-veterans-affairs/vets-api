@@ -5,7 +5,7 @@ class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
   include SetAwsConfig
   include ValidatePdf
 
-  MAX_FILE_SIZE = 25.megabytes
+  MAX_FILE_SIZE = 50.megabytes
 
   def initialize(guid)
     super
