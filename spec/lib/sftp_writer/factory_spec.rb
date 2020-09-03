@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require 'sftp_writer/factory'
-
 RSpec.describe SFTPWriter::Factory, type: :model, form: :education_benefits do
   subject { described_class }
 

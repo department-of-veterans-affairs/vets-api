@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/intent_to_file/service'
-require 'evss/intent_to_file/response_strategy'
-
 module V0
   class IntentToFilesController < ApplicationController
     before_action { authorize :evss, :access_form526? }

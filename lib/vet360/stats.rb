@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
-require 'vet360/service'
-
 module Vet360
   class Stats
-    STATSD_KEY_PREFIX = 'api.vet360'
     FINAL_SUCCESS = %w[COMPLETED_SUCCESS COMPLETED_NO_CHANGES_DETECTED].freeze
     FINAL_FAILURE = %w[REJECTED COMPLETED_FAILURE].freeze
 
@@ -19,7 +16,7 @@ module Vet360
       def increment(*args)
         buckets = args.map(&:downcase).join('.')
 
-        StatsD.increment("#{STATSD_KEY_PREFIX}.#{buckets}")
+        StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.#{buckets}")
       end
 
       # If the passed response contains a transaction status that is in one of the final
@@ -44,7 +41,7 @@ module Vet360
       #   For example, 'VET360_ADDR133'.
       #
       def increment_exception(key)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.exceptions", tags: ["exception:#{key.downcase}"])
+        StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions", tags: ["exception:#{key.downcase}"])
       end
 
       private

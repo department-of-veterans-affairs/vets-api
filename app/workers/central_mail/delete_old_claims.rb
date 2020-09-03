@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pension_burial/tag_sentry'
-
 module CentralMail
   class DeleteOldClaims
     include Sidekiq::Worker

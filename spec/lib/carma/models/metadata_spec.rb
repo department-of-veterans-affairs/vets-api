@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'carma/models/metadata'
 
 RSpec.describe CARMA::Models::Metadata, type: :model do
   describe '#claim_id' do

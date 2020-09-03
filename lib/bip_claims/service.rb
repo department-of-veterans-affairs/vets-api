@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
-require 'common/client/concerns/monitoring'
-require_relative 'configuration'
-require_relative 'veteran'
-
 module BipClaims
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.bip_claims'

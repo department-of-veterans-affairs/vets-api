@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'core_extensions/immutable_string'
-
 module Common
   module Client
     module Middleware

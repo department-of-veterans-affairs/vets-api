@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require 'evss/gi_bill_status/amendment'
 
 module EVSS
   module GiBillStatus

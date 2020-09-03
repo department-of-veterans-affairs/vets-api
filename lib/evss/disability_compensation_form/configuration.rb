@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/configuration'
-
 module EVSS
   module DisabilityCompensationForm
     # Configuration for the 526 form, used by the {EVSS::DisabilityCompensationForm::Service} to

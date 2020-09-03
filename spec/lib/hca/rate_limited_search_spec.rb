@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'hca/rate_limited_search'
 
 describe HCA::RateLimitedSearch do
   let(:user_attributes) { HealthCareApplication.user_attributes(create(:health_care_application).parsed_form) }

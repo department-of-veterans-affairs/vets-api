@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'central_mail/service'
-require 'central_mail/datestamp_pdf'
 require 'pdf_info'
 
 module CentralMail

@@ -2,7 +2,6 @@
 
 require 'yaml'
 require 'csv'
-require_relative 'parser'
 
 module Vet360
   module Exceptions

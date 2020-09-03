@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'debts/service'
-
 module V0
   class DebtsController < ApplicationController
     def index

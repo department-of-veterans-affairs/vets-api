@@ -2,7 +2,6 @@
 
 require 'common/client/base'
 require 'hca/enrollment_system'
-require 'hca/configuration'
 
 module HCA
   class Service < Common::Client::Base

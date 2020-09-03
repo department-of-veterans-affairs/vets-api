@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pdf_info'
-
 module ClaimsApi
   module DocumentValidations
     extend ActiveSupport::Concern

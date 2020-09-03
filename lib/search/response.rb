@@ -2,7 +2,6 @@
 
 require 'common/client/concerns/service_status'
 require 'common/models/base'
-require 'search/pagination'
 
 module Search
   class ResultsResponse < Common::Base

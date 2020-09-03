@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/vso_search/configuration'
 
 describe EVSS::VSOSearch::Configuration do
   describe '#base_path' do

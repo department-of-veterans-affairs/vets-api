@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pension_burial/processing_office'
 
 RSpec.describe PensionBurial::ProcessingOffice do
   context '#for_zip' do

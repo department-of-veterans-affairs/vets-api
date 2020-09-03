@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/attribute_types/iso8601_time'
-require 'pagerduty/response'
-require 'pagerduty/models/service'
 
 module PagerDuty
   module ExternalServices

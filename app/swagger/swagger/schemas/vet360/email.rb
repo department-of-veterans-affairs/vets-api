@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/pciu/email_address'
-
 module Swagger
   module Schemas
     module Vet360

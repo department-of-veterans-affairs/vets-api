@@ -2,7 +2,6 @@
 
 require 'common/client/concerns/service_status'
 require 'evss/response'
-require_relative 'letter'
 
 module EVSS
   module Letters

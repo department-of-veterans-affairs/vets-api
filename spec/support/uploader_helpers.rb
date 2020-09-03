@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/virus_scan'
-
 module UploaderHelpers
   extend ActiveSupport::Concern
 

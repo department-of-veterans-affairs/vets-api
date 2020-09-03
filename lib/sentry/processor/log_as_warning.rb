@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/exceptions'
-require 'evss/error_middleware'
-require 'evss/disability_compensation_form/gateway_timeout'
-
 module Sentry
   module Processor
     class LogAsWarning < Raven::Processor

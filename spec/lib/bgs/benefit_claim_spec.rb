@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs/benefit_claim'
 
 RSpec.describe BGS::BenefitClaim do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }

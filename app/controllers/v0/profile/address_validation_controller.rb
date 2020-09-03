@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'vet360/models/validation_address'
-require 'vet360/address_validation/service'
-
 module V0
   module Profile
     class AddressValidationController < ApplicationController

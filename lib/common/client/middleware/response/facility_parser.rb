@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'facility_wait_time'
+require 'facility_access'
 
 module Common
   module Client

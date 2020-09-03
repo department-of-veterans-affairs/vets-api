@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/base_service'
-require 'evss/gi_bill_status/configuration'
-require 'evss/gi_bill_status/gi_bill_status_response'
 
 module EVSS
   module GiBillStatus

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'base_address'
-
 module Vet360
   module Models
     class Address < BaseAddress

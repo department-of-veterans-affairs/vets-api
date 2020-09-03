@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'beta_switch'
 require 'common/models/base'
 require 'common/models/redis_store'
 require 'mvi/messages/find_profile_message'

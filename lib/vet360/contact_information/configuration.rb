@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'vet360/configuration'
-
 module Vet360
   module ContactInformation
     class Configuration < Vet360::Configuration

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ihub/appointments/service'
-
 module V0
   class AppointmentsController < ApplicationController
     def index

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'csv'
-require 'mvi/models/mvi_profile'
 require 'mvi/responses/id_parser'
 
 namespace :mvi do

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'deployment_location_v2'
-
 module EMIS
   module Models
     # EMIS veteran deployments data

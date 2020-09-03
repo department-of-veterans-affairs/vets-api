@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ihub/configuration'
-
 module IHub
   module Appointments
     class Configuration < IHub::Configuration

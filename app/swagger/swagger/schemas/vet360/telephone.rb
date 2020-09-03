@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'vet360/models/telephone'
-
 module Swagger
   module Schemas
     module Vet360

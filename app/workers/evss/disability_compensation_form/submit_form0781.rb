@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'central_mail/datestamp_pdf'
-require 'pdf_fill/filler'
-
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm0781 < Job

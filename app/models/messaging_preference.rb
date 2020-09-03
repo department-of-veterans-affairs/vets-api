@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require 'evss/pciu/email_address'
-
 # Secure Messaging Notification Preference Model
 class MessagingPreference < Common::Base
   include ActiveModel::Validations

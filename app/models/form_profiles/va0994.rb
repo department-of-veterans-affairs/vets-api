@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/ppiu/service'
-
 module VA0994
   FORM_ID = '22-0994'
 

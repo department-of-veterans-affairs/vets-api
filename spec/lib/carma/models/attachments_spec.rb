@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'carma/models/attachments'
 
 RSpec.describe CARMA::Models::Attachments, type: :model do
   let(:subject) { described_class.new('aB935000000A9GoCAK', 'Jane', 'Doe') }

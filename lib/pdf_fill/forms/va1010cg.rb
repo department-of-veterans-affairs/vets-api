@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/form_base'
-
 # rubocop:disable Metrics/ClassLength
 
 module PdfFill

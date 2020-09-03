@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/base_error'
-require 'common/exceptions/serializable_error'
-
 module Common
   module Exceptions
     # Internal Server Error - all exceptions not readily accounted fall into this tier

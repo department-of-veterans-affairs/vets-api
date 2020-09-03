@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/pciu/phone_number'
-
 FactoryBot.define do
   factory :phone_number, class: 'EVSS::PCIU::PhoneNumber' do
     country_code { '1' }

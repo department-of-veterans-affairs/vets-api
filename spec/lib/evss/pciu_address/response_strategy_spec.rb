@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/pciu_address/response_strategy'
 
 describe EVSS::PCIUAddress::ResponseStrategy do
   let(:user) { build(:user, :loa3) }

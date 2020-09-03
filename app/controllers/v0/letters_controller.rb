@@ -1,9 +1,6 @@
-# frozen_string_literal: true
-
 require 'common/exceptions/record_not_found'
-require 'evss/letters/download_service'
-require 'evss/letters/service'
 
+# frozen_string_literal: true
 module V0
   class LettersController < ApplicationController
     before_action { authorize :evss, :access? }

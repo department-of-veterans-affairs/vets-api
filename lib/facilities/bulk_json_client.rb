@@ -11,4 +11,13 @@ module Facilities
       perform(:get, 'atcapis/v1.1/patientwaittimes', {}, nil).body
     end
   end
+
+  class AccessSatisfactionClient < Common::Client::Base
+    configuration Facilities::AccessSatisfactionConfiguration
+
+    def download
+      query = { 'location' => '*' }
+      perform(:get, 'Shep/getRawData', query, nil).body
+    end
+  end
 end

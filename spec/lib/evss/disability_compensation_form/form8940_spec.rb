@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/disability_compensation_form/form8940'
 
 describe EVSS::DisabilityCompensationForm::Form8940 do
   subject { described_class.new(user, form_content) }

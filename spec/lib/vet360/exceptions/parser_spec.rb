@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/exceptions/parser'
 
 describe Vet360::Exceptions::Parser do
   describe '#known_keys' do

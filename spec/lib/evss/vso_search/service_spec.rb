@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/vso_search/service'
 
 describe EVSS::VSOSearch::Service do
   let(:user) { create(:evss_user) }

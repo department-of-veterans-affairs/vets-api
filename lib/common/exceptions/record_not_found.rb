@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/base_error'
-require 'common/exceptions/serializable_error'
-
 module Common
   module Exceptions
     # Record Not Found - if no record exists having id, or resource having id does not belong to requester

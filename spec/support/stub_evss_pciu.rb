@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/pciu/service'
-
 def stub_evss_pciu(user)
   email_response = VCR.use_cassette('evss/pciu/email') do
     EVSS::PCIU::Service.new(user).get_email_address

@@ -2,7 +2,6 @@
 
 require 'net/sftp'
 require 'sentry_logging'
-require 'sftp_writer/factory'
 
 module EducationForm
   WINDOWS_NOTEPAD_LINEBREAK = "\r\n"

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/gis/client'
 
 RSpec.describe Facilities::Gis::Client do
   RSpec::Matchers.define :has_order_and_offset do |order, offset|

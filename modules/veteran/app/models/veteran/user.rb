@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/auth_headers'
-require 'evss/vso_search/service'
-
 # Veteran model
 module Veteran
   class User < Base

@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/base_error'
-require 'common/exceptions/serializable_error'
-
 module Common
   module Exceptions
     # Message Authenticity Error - When a message with a signature cannot be verified

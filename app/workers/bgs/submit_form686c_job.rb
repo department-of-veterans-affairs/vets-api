@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'bgs/form686c'
-
 module BGS
   class SubmitForm686cJob
     class Invalid686cClaim < StandardError; end

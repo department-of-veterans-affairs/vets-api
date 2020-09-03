@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
-require 'facilities/ppms/client'
 
 class V0::Facilities::VaController < FacilitiesController
   TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'

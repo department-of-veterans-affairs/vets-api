@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'hca/enrollment_eligibility/service'
 
 describe HCA::EnrollmentEligibility::Service do
   describe '#lookup_user' do

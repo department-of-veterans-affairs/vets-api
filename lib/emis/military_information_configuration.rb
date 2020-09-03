@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/soap'
-require 'emis/configuration'
 
 module EMIS
   # Configuration for {EMIS::MilitaryInformationService}

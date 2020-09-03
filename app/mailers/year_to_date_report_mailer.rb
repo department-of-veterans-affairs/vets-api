@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'reports/uploader'
-
 class YearToDateReportMailer < ApplicationMailer
   REPORT_TEXT = 'Year to date report'
 

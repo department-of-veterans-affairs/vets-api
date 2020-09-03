@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require 'pdf_info'
 
 class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations

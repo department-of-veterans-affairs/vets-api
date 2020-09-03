@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/exceptions'
-
 module EVSS
   class ErrorMiddleware < Faraday::Response::Middleware
     class EVSSError < StandardError

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'hca/enrollment_eligibility/status_matcher'
 
 describe HCA::EnrollmentEligibility::StatusMatcher do
   describe '#parse' do

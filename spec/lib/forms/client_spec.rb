@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'forms/client'
 
 describe Forms::Client do
   subject { described_class.new(search_term) }

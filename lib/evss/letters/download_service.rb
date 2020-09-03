@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-require 'common/client/concerns/monitoring'
+require 'common/client/base'
 require 'common/exceptions/record_not_found'
-require 'evss/service'
-require_relative 'download_configuration'
+require 'common/exceptions/gateway_timeout'
 
 module EVSS
   module Letters

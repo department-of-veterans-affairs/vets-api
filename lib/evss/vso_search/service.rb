@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/service'
-require 'evss/vso_search/configuration'
-
 module EVSS
   module VSOSearch
     ##

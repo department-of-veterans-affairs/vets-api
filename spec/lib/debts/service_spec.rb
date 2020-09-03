@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'debts/service'
 
 RSpec.describe Debts::Service do
   describe '#get_letters' do

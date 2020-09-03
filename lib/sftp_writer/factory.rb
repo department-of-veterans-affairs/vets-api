@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'local'
-require_relative 'remote'
-
 module SFTPWriter
   class Factory
     def self.get_writer(config)

@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'configuration'
-require_relative 'address_response'
-require 'evss/pciu/request_body'
-
 module EVSS
   module PCIUAddress
     ##

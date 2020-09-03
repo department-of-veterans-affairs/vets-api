@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/reference_data/service'
 
 describe EVSS::ReferenceData::Service do
   subject { described_class.new(user) }

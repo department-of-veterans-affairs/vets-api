@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 require 'sentry/processor/email_sanitizer'
-require 'sentry/processor/filter_request_body'
-require 'sentry/processor/log_as_warning'
-require 'sentry/processor/pii_sanitizer'
-
 Raven.configure do |config|
   config.dsn = Settings.sentry.dsn if Settings.sentry.dsn
 

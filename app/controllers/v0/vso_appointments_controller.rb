@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vso_pdf/vso_appointment_form'
+require 'vsopdf/vso_appointment_form'
 
 module V0
   class VSOAppointmentsController < ApplicationController

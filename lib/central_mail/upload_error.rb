@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'central_mail/upload_error'
-
 module CentralMail
   class UploadError < StandardError
     attr_accessor :code

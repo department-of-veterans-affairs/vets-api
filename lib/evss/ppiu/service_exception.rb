@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'evss/logged_service_exception'
+require 'evss/service_exception'
 
 module EVSS
   module PPIU

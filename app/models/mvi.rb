@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'mvi/responses/find_profile_response'
-require 'mvi/orch_search_service'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 

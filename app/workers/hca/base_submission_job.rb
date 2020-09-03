@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'hca/service'
-require 'hca/soap_parser'
-
 module HCA
   class BaseSubmissionJob
     include Sidekiq::Worker

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'base'
-
 module CARMA
   module Models
     class Attachment < Base

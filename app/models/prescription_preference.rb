@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require 'evss/pciu/email_address'
 
 ##
 # Models Prescription notification preference

@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'csv'
-require 'vet360/service'
 
 describe Vet360::Service do
   subject       { described_class.new(user) }

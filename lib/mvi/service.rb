@@ -1,18 +1,13 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'mvi/configuration'
+require 'mvi/responses/find_profile_response'
 require 'common/client/concerns/monitoring'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
-require 'sentry_logging'
-require_relative 'configuration'
 require 'mvi/errors/errors'
-require 'mvi/messages/add_person_message'
-require 'mvi/messages/find_profile_message'
-require 'mvi/messages/find_profile_message_icn'
-require 'mvi/messages/find_profile_message_edipi'
-require 'mvi/responses/add_person_response'
-require 'mvi/responses/find_profile_response'
+require 'sentry_logging'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access

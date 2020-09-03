@@ -53,7 +53,7 @@ class VSOAppointmentForm
   def generate_pdf
     tmpf = Tempfile.new(['vsopdf', '.pdf'])
     args = to_pdf_args.merge("F[0].Page_1[0].authorize[0]": 1, "F[0].Page_1[0].authorize[1]": 1)
-    PdfForms.new(Settings.binaries.pdftk).fill_form 'lib/vso_pdf/VBA-21-22-ARE.pdf', tmpf.path, args
+    PdfForms.new(Settings.binaries.pdftk).fill_form 'lib/vsopdf/VBA-21-22-ARE.pdf', tmpf.path, args
     tmpf.close
     tmpf.path
   end

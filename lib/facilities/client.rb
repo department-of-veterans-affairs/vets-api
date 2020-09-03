@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'facilities/configuration'
 
 module Facilities
   # Core class responsible for api interface operations

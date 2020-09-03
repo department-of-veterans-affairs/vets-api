@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/base_error'
-require 'common/exceptions/serializable_error'
-
 module Common
   module Exceptions
     # Ambiguous Request - the parameters passed in could not determine what query to call

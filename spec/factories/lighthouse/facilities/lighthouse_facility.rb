@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'lighthouse/facilities/facility'
-
 FactoryBot.define do
   factory :lighthouse_facility, class: Lighthouse::Facilities::Facility do
     # vha_648A4

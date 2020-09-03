@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/cache_aside'
-require_relative 'intent_to_file_response'
 
 module EVSS
   module IntentToFile

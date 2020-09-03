@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/pciu/base_model'
-
 module EVSS
   module PCIU
     ##

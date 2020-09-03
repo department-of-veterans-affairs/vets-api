@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'openssl'
-require 'okta/service'
 
 module OIDC
   class KeyService

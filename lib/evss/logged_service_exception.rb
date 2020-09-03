@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/service_exception'
-
 module EVSS
   class LoggedServiceException < EVSS::ServiceException
     def initialize(res_body, user, req_body = nil)

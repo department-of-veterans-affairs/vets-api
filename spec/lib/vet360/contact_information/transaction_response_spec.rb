@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/contact_information/transaction_response'
 
 describe Vet360::ContactInformation::TransactionResponse do
   describe '.from' do

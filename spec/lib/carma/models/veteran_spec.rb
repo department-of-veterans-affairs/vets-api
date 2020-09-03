@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'carma/models/veteran'
 
 RSpec.describe CARMA::Models::Veteran, type: :model do
   describe '#icn' do

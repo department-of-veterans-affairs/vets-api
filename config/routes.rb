@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'flipper/admin_user_constraint'
-
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]

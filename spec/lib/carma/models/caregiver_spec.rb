@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'carma/models/caregiver'
 
 RSpec.describe CARMA::Models::Caregiver, type: :model do
   describe '#icn' do

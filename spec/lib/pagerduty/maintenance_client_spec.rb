@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pagerduty/maintenance_client'
 
 describe PagerDuty::MaintenanceClient do
   let(:subject) { described_class.new }

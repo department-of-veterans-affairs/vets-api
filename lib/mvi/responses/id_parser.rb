@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'icn_with_aaid_parser'
-
 module MVI
   module Responses
     class IdParser

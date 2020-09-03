@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/models/telephone'
 
 describe Vet360::Models::Telephone do
   describe '#formatted_phone' do

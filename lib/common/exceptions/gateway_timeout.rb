@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/base_error'
-
 module Common
   module Exceptions
     class GatewayTimeout < BaseError

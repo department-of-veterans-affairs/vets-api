@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'base'
-require_relative 'message'
-
 module Vet360
   module Models
     class Transaction < Base

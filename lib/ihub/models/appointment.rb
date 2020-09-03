@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ihub/models/base'
-
 module IHub
   module Models
     class Appointment < Base

@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/reference_data/service'
-require 'evss/pciu_address/service'
-require 'evss/pciu_address/response_strategy'
-
 module V0
   class AddressesController < ApplicationController
     before_action { authorize :evss, :access? }
@@ -16,7 +12,7 @@ module V0
     end
 
     def update
-      address = EVSS::PCIUAddress.build_address(
+      address = EVSS::PCIUAddress::Address.build_address(
         params.permit(
           :type, :address_effective_date,
           :address_one, :address_two, :address_three,

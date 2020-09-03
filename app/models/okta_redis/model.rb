@@ -2,7 +2,6 @@
 
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
-require 'okta/service'
 require 'sentry_logging'
 
 module OktaRedis

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/file_helpers'
-
 module CentralMail
   class DatestampPdf
     def initialize(file_path, append_to_stamp: nil)

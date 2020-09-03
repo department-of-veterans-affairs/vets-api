@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/ppiu/payment_information'
 
 describe EVSS::PPIU::PaymentInformation do
   let(:payment_information) do

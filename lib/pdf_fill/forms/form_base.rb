@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/form_value'
-
 module PdfFill
   module Forms
     class FormBase

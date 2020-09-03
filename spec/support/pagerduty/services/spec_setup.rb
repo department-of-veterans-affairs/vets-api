@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'pagerduty/external_services/service'
-
 RSpec.shared_context 'simulating Redis caching of PagerDuty#get_services' do
   let(:get_services_response) do
     VCR.use_cassette('pagerduty/external_services/get_services', VCR::MATCH_EVERYTHING) do
