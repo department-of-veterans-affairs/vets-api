@@ -34,7 +34,8 @@ module V0
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}", VERSION_TAG])
       Rails.logger.info("SSO_NEW_KEY, tags: #{["context:#{type}", VERSION_TAG]}")
-      url = url_service.send("#{type}_url")
+      helper = url_service
+      url = helper.send("#{type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
@@ -42,7 +43,7 @@ module V0
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
       redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
-      saml_request_stats(url_service.tracker)
+      saml_request_stats(helper.tracker)
     end
 
     def saml_logout_callback
