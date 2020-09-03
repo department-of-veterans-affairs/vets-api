@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'caseflow/service'
+
 module AppealsApi
   class HealthChecker
     def self.services_are_healthy?
