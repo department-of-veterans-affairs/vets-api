@@ -230,11 +230,12 @@ module V1
                                 "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
       when :failure
+        tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure',
                                 "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ["error:#{failure_tag}", VERSION_TAG])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [tag, VERSION_TAG])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', 'context:unknown', VERSION_TAG])
@@ -250,7 +251,7 @@ module V1
       log_message_to_sentry(exc.message, level, extra_context: context)
       redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, response, exc) unless response.nil?
-      callback_stats(status, response, tag || code)
+      callback_stats(status, response, tag)
       PersonalInformationLog.create(
         error_class: exc,
         data: {

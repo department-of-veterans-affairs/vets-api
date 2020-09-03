@@ -135,8 +135,11 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
+                                          tags: ['error:auth_too_late', 'version:v0'], **once)
           expect(response).to have_http_status(:found)
+          expect(response.location).to eq('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
           expect(cookies['vagov_session_dev']).to be_nil
         end
       end

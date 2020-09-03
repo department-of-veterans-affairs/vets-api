@@ -353,6 +353,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                                                 'version:v1'])
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
                                           tags: ['context:idme', 'version:v1', 'error:101'])
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
+                                          tags: ['error:multiple_mhv_ids', 'version:v1'])
 
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
