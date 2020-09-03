@@ -1,10 +1,30 @@
 # frozen_string_literal: true
 
+module CallChain
+  def self.caller_method(depth=1)
+    parse_caller(caller(depth+1).first).last
+  end
+
+  private
+
+  # Copied from ActionMailer
+  def self.parse_caller(at)
+    if /^(.+?):(\d+)(?::in `(.*)')?/ =~ at
+      file   = Regexp.last_match[1]
+      line   = Regexp.last_match[2].to_i
+      method = Regexp.last_match[3]
+      [file, line, method]
+    end
+  end
+end
+
 module Breakers
   class StatsdPlugin
     def get_tags(request)
       tags = []
       if request
+        calling_controller = caller.select{|c| c[/vets.*controller/]}.first.gsub(/.*vets\-api/, '').gsub(/\.rb.*/, '.rb')
+        tags.append("controller:#{calling_controller}")
         tags.append("endpoint:#{filtered_endpoint_tag(request.url.path)}") if request.url&.path
         tags.append("method:#{request.method}") if request.method
       end

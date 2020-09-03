@@ -165,7 +165,6 @@ end
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
 
 ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_, start_time, end_time, _, payload|
-  duration = end_time - start_time
   measurement = case payload[:url].path
                 when /ProviderLocator/
                   'facilities.ppms.provider_locator'
@@ -182,4 +181,14 @@ ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') 
   duration = end_time - start_time
 
   StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
+end
+
+require 'active_support/notifications'
+
+ActiveSupport::Notifications.subscribe('request.faraday') do |name, start_time, end_time, _, env|
+  url = env[:url]
+  duration = end_time - start_time
+  http_method = env[:method].to_s.upcase
+  StatsD.measure('api.external.request.duration', duration, tags: ["host:#{url.host}"])
+  StatsD.increment('api.external.request.total', tags: ["host:#{url.host}"])
 end
