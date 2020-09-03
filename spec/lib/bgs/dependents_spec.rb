@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 require 'bgs/dependents'
+require 'bgs/exceptions/service_exception'
 require 'bgs/service'
-require 'bgs/exceptions'
 
 RSpec.describe BGS::Dependents do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
