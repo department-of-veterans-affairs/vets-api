@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/cache_aside'
+require 'gi/client'
+require 'gi/search_client'
 
 # Facade for GIDS.
 class GIDSRedis < Common::RedisStore
