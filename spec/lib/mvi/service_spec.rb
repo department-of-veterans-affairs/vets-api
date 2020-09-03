@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'mvi/service'
-require 'mvi/responses/find_profile_response'
 
 describe MVI::Service do
   let(:user_hash) do
@@ -103,9 +102,7 @@ describe MVI::Service do
 
     context 'invalid requests' do
       it 'responds with a SERVER_ERROR if request is invalid', :aggregate_failures do
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
-        )
+        expect(subject).to receive(:log_exception_to_sentry)
 
         VCR.use_cassette('mvi/add_person/add_person_invalid_request') do
           response = subject.add_person(user)
@@ -122,9 +119,7 @@ describe MVI::Service do
       end
 
       it 'responds with a SERVER_ERROR if the user has duplicate keys in the system', :aggregate_failures do
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
-        )
+        expect(subject).to receive(:log_exception_to_sentry)
 
         VCR.use_cassette('mvi/add_person/add_person_duplicate') do
           response = subject.add_person(user)
@@ -276,9 +271,7 @@ describe MVI::Service do
     context 'invalid requests' do
       it 'responds with a SERVER_ERROR if ICN is invalid', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound) find_profile', :error
-        )
+        expect(subject).to receive(:log_exception_to_sentry)
 
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
           response = subject.find_profile(user)
@@ -289,9 +282,7 @@ describe MVI::Service do
 
       it 'responds with a SERVER_ERROR if ICN has no matches', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound) find_profile', :error
-        )
+        expect(subject).to receive(:log_exception_to_sentry)
 
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
           response = subject.find_profile(user)
@@ -406,9 +397,8 @@ describe MVI::Service do
       it 'raises a invalid request error', :aggregate_failures do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
-        )
+        expect(subject).to receive(:log_exception_to_sentry)
+
         VCR.use_cassette('mvi/find_candidate/invalid') do
           response = subject.find_profile(user)
           server_error_502_expectations_for(response)
@@ -420,9 +410,8 @@ describe MVI::Service do
       let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
 
       it 'raises a invalid request error', :aggregate_failures do
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Failed Request', :error
-        )
+        expect(subject).to receive(:log_exception_to_sentry)
+
         stub_request(:post, Settings.mvi.url).to_return(status: 200, body: body)
         response = subject.find_profile(user)
         server_error_502_expectations_for(response)
@@ -475,7 +464,7 @@ describe MVI::Service do
 
       it 'returns not found, does not log sentry', :aggregate_failures do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
-          expect(subject).not_to receive(:log_message_to_sentry)
+          expect(subject).not_to receive(:log_exception_to_sentry)
           response = subject.find_profile(user)
 
           record_not_found_404_expectations_for(response)
@@ -497,7 +486,7 @@ describe MVI::Service do
           allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
           VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
-            expect(subject).not_to receive(:log_message_to_sentry)
+            expect(subject).not_to receive(:log_exception_to_sentry)
             response = subject.find_profile(user)
 
             record_not_found_404_expectations_for(response)
@@ -542,9 +531,7 @@ describe MVI::Service do
       end
 
       it 'raises MVI::Errors::RecordNotFound', :aggregate_failures do
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Duplicate Record', :warn
-        )
+        expect(subject).to receive(:log_exception_to_sentry)
 
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
           response = subject.find_profile(user)
