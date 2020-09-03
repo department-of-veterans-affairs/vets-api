@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'bgs/vnp_veteran'
+require 'bgs/service'
 
 RSpec.describe BGS::VnpVeteran do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
