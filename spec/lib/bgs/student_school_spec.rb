@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'bgs/student_school'
-require 'bgs/service'
 
 RSpec.describe BGS::StudentSchool do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }

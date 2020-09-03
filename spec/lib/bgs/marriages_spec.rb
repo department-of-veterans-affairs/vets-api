@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'bgs/marriages'
-require 'bgs/service'
 
 RSpec.describe BGS::Marriages do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
