@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs/children'
 
 RSpec.describe BGS::Children do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
