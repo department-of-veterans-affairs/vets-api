@@ -10,7 +10,7 @@ module Swagger
           key :summary, 'Provides a list of document ids and descriptions from eFolder'
           key :description, "Provides a list of document ids and descriptions from eFolder.
             The documents provided are extracted from VBMS and compared against a list of
-            documents for the user that is provided by BGS. A merge function between the 
+            documents for the user that is provided by BGS. A merge function between the
             two lists is performed to determine which documents should be viewable for the
             veteran."
           key :operationId, 'getDocuments'
@@ -43,7 +43,7 @@ module Swagger
         operation :get do
           key :summary, 'Allows the veteran to download the document'
           key :description, "Provides a method to download a PDF copy
-          of the document. The ID passed into the query string of the 
+          of the document. The ID passed into the query string of the
           URL must match the ID that is attached to the document that
           is provided by VBMS."
           key :operationId, 'getDocument'
