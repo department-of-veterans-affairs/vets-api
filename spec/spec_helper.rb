@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'fakeredis/rspec'
-require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
@@ -11,10 +10,7 @@ require 'support/silence_stream'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/sidekiq/batch'
 require 'support/stub_emis'
-require 'support/stub_evss_pciu'
-require 'support/vet360/stub_vet360'
 require 'support/okta_users_helpers'
-require 'support/poa_stub'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -25,6 +21,8 @@ unless ENV['NOCOVERAGE']
     track_files '**/{app,lib}/**/*.rb'
 
     add_filter 'app/controllers/concerns/accountable.rb'
+    add_filter 'app/models/in_progress_disability_compensation_form.rb'
+    add_filter 'app/serializers/appeal_serializer.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'

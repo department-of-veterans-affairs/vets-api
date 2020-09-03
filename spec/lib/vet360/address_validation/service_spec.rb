@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/address_validation/service'
 
 describe Vet360::AddressValidation::Service do
   let(:base_address) { build(:vet360_validation_address) }

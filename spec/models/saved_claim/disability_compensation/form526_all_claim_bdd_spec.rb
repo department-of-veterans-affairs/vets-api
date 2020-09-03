@@ -7,7 +7,10 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526AllClaim do
 
   before do
     create(:in_progress_form, form_id: FormProfiles::VA526ezbdd::FORM_ID, user_uuid: user.uuid)
+    Timecop.freeze(Date.new(2020, 8, 1))
   end
+
+  after { Timecop.return }
 
   describe '#to_submission_data' do
     context 'without a 4142 submission' do

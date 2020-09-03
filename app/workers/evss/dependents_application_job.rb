@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/dependents/retrieved_info'
+require 'evss/dependents/service'
+
 module EVSS
   class DependentsApplicationJob
     include Sidekiq::Worker
