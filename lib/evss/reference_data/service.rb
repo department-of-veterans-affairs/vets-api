@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+require 'evss/pciu_address/countries_response'
+require 'evss/pciu_address/states_response'
+require 'evss/service'
+require_relative 'configuration'
+require_relative 'intake_sites_response'
+
 module EVSS
   module ReferenceData
     class Service < EVSS::Service
