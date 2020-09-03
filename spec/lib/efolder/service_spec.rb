@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
+require 'efolder/service'
 
 RSpec.describe Efolder::Service do
   subject do
