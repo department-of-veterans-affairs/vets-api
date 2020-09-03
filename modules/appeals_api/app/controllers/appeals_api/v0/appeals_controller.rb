@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+require 'caseflow/service'
 require_dependency 'appeals_api/application_controller'
+require 'decision_review/service'
 
 module AppealsApi
   module V0
