@@ -21,7 +21,6 @@ FactoryBot.define do
     updated_at           { '2017-04-09T11:52:03-06:00' }
     vet360_id { '12345' }
 
-
     trait :mailing do
       address_pou { Vet360::Models::Address::CORRESPONDENCE }
       address_line1 { '1515 Broadway' }

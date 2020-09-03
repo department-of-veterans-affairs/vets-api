@@ -11,7 +11,7 @@ describe Vet360::Models::Address, :aggregate_failures do
       expect(address.latitude).to eq(38.901)
       expect(address.longitude).to eq(-77.0347)
       expect(address.geocode_precision).to eq(100)
-      expect(address.geocode_date).to eq(Time.parse('2018-04-13 17:01:18 UTC'))
+      expect(address.geocode_date).to eq(Time.zone.parse('2018-04-13 17:01:18 UTC'))
       expect(address.bad_address_indicator).to eq(false)
     end
   end
