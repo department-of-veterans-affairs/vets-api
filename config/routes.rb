@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'flipper/admin_user_constraint'
+
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
@@ -226,6 +228,7 @@ Rails.application.routes.draw do
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
+      resources :payment_history, only: %i[index]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'caseflow/service'
+require 'decision_review/service'
+
 class AppealsBaseController < ApplicationController
   include ActionController::Serialization
   before_action { authorize :appeals, :access? }

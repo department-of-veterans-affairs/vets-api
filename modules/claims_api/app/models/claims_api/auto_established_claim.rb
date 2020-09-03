@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/concerns/file_data'
+require 'json_marshal/marshaller'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord

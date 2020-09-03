@@ -38,7 +38,7 @@ module CovidResearch
       private
 
       def post(params)
-        conn.post("#{Settings.genisis.service_path}/formdata", params)
+        conn.post("#{Settings.genisis.service_path}/formdata", params, headers)
       end
 
       def headers
