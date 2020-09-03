@@ -206,7 +206,7 @@ module V0
                          tags: ['status:failure',
                                 "context:#{saml_response.authn_context}",
                                 VERSION_TAG])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag, VERSION_TAG])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ["error:#{failure_tag}", VERSION_TAG])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', 'context:unknown', VERSION_TAG])
