@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'evss/disability_compensation_form/service_exception'
+require 'evss/disability_compensation_form/service'
 
 module ClaimsApi
   class ClaimEstablisher
