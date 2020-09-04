@@ -83,6 +83,12 @@ PATH
       sidekiq
 
 PATH
+  remote: modules/mobile
+  specs:
+    mobile (0.1.0)
+      rails (~> 6.0.3, >= 6.0.3.2)
+
+PATH
   remote: modules/openid_auth
   specs:
     openid_auth (0.0.1)
@@ -893,6 +899,7 @@ DEPENDENCIES
   mail (= 2.7.1)
   memoist
   mini_magick (~> 4.10.1)
+  mobile!
   net-sftp
   nokogiri (~> 1.10)
   notifications-ruby-client (~> 5.1)
