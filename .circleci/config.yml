@@ -140,6 +140,9 @@
                 paths: 
                   - ~/vets-api/vendor/bundle
             - install_dependencies
+            - store_artifacts:
+                path: coverage/.resultset.json
+                prefix: coverage # must be called coverage to be picked up by the report_coverage script
     install_dependencies:
         steps:
             - run:
