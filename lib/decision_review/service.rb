@@ -32,7 +32,7 @@ module DecisionReview
     def post_higher_level_reviews(body:, user:)
       with_monitoring_and_error_handling do
         raw_response = perform(:post, 'higher_level_reviews', body, post_higher_level_reviews_headers(user))
-        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'HLR-CREATE-RESPONSE-200')
+        validate_against_schema(raw_response.body, 'HLR-CREATE-RESPONSE-200')
       end
     end
 
@@ -65,6 +65,12 @@ module DecisionReview
 
     def post_higher_level_reviews_headers(user)
       raise Common::Exceptions::Forbidden unless user.ssn && user.first_name && user.last_name && user.birth_date
+      unless user.ssn
+        raise Common::Exceptions::Forbidden.new(
+                source: "#{self.class}#post_higher_level_reviews_headers"
+                detail: "user"
+              )
+      end
 
       {
         'X-VA-SSN' => user.ssn,
@@ -79,7 +85,12 @@ module DecisionReview
     end
 
     def get_contestable_issues_headers(user)
-      raise Common::Exceptions::Forbidden unless user.ssn
+      unless user.ssn
+        raise Common::Exceptions::Forbidden.new(
+                source: "#{self.class}#get_contestable_issues_headers"
+                detail: "user.ssn is nil"
+              )
+      end
 
       {
         'X-VA-SSN' => user.ssn,
@@ -96,9 +107,7 @@ module DecisionReview
     end
 
     def save_error_details(error)
-      Raven.tags_context(
-        external_service: self.class.to_s.underscore
-      )
+      Raven.tags_context external_service: self.class.to_s.underscore
 
       Raven.extra_context(
         url: config.base_path,
@@ -107,31 +116,43 @@ module DecisionReview
       )
     end
 
-    def raise_backend_exception(key, source, error = nil)
+    def raise_backend_exception(key:, source:, error: nil)
       raise DecisionReview::ServiceException.new(
-        key,
-        { source: source.to_s },
-        error&.status,
-        error&.body
+        key: key,
+        response_values: { source: source.to_s },
+        original_status: error&.status,
+        original_body: error&.body
+      )
+    end
+
+    def raise_unmapped_service_exception(source:, error: nil)
+      raise_backend_exception(
+        key: DecisionReview::ServiceException::UNMAPPED_KEY,
+        source: source,
+        error: error
       )
     end
 
     def handle_error(error)
       case error
       when Faraday::ParsingError
-        Raven.extra_context(
-          message: error.message,
-          url: config.base_path
-        )
-        raise_backend_exception('DR_502', self.class)
+        Raven.extra_context(message: error.message, url: config.base_path)
+        raise_backend_exception(key: 'DR_502', source: self.class)
       when Common::Client::Errors::ClientError
         save_error_details(error)
         raise Common::Exceptions::Forbidden if error.status == 403
-
-        raise_backend_exception("DR_#{error&.status}", self.class)
+        raise_backend_exception(key: "DR_#{error&.status}", source: self.class, error: error)
+      when DecisionReview::SchemaError
+        raise_backend_exception(key: "DR_schema_error", source: self.class, error: error)
       else
         raise error
       end
+    end
+
+    def validate_against_schema(json:, schema_name:)
+      schema = VetsJsonSchema::SCHEMAS[schema_name]
+      errors = JSONSchemer.schema(schema).validate(json).to_a
+      raise Common::Exceptions::SchemaValidationErrors.new() unless errors.empty?
     end
   end
 end

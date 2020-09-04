@@ -17,7 +17,7 @@ module DecisionReview
     #   @return [Integer] The HTTP status code.
     #
     class Response < Common::Base
-      attribute :body, String
+      attr_reader :body, String
       attribute :status, Integer
 
       def initialize(status, body, schema_name)
