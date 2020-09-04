@@ -85,16 +85,20 @@
         - store_test_results:
             path: /tmp/rspec
         - store_artifacts:
-            path: ./coverage
-        - run:
-            name: Stash coverage Results
-            command: |
-                mkdir coverage_results
-                cp -R coverage/.resultset.json coverage_results/.resultset-${CIRCLE_NODE_INDEX}.json 
-        - persist_to_workspace:
-            root: .
-            paths:
-              - coverage_results
+            path: coverage/.resultset.json
+            prefix: coverage # must be called coverage to be picked up by the report_coverage script
+        # - run:
+        #     name: Stash coverage Results
+        #     command: |
+        #         mkdir coverage_results
+        #         cp -R coverage/.resultset.json coverage_results/.resultset-${CIRCLE_NODE_INDEX}.json
+        # - persist_to_workspace:
+        #     root: .
+        #     paths:
+        #       - coverage_results
+    coverage:
+      name: Merge and copy coverage data
+      command: bundle exec report_coverage
   workflows:
     test_and_build: 
       unless: << pipeline.parameters.verify_stable_pacts >>
@@ -104,6 +108,9 @@
         - security_audit
         - lint
         - specs
+        - coverage:
+            requires:
+                - specs
     pact_verification:
       when: << pipeline.parameters.verify_stable_pacts >>
       jobs:
