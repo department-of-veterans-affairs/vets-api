@@ -97,7 +97,10 @@
         #     paths:
         #       - coverage_results
     coverage:
+      working_directory: ~/vets-api
+      executor: vets_api_docker_executor
       steps:
+        - checkout_and_install
         - run:
             name: Merge and copy coverage data
             command: bundle exec report_coverage
