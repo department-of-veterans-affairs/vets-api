@@ -7,6 +7,9 @@
 # Username: COVTestUser
 # Password: VAcovid-19test!
 
+require 'common/client/base'
+require 'common/client/concerns/monitoring'
+
 module CovidResearch
   module Volunteer
     class GenisisService < Common::Client::Base
