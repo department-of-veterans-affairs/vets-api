@@ -537,7 +537,7 @@
 
 #VANotify
 - :name: 'VANotify'
-  :base_uri: <%= "#{URI(Settings.vanotify.client_url).host}:#{URI(Settings.vanotify.client_url).port}" %>
+  :base_uri: 'http://fakeapi.com'
   :endpoints:
     - :method: :post
       :path: "/v2/notifications/email"
