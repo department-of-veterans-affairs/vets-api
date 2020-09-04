@@ -2,6 +2,7 @@
 
 require_dependency 'claims_api/intent_to_file_serializer'
 require_dependency 'claims_api/concerns/poa_verification'
+require 'evss/intent_to_file/service'
 
 module ClaimsApi
   module V1
@@ -24,15 +25,16 @@ module ClaimsApi
             target_veteran.participant_id,
             ClaimsApi::IntentToFile::ITF_TYPES[active_param]
           )
-          if bgs_response.present?
+          if bgs_response.is_a?(Array)
             bgs_active = bgs_response.detect do |itf|
-              itf.present? && itf[:itf_status_type_cd] == 'Active' && itf[:exprtn_dt].to_datetime > Time.zone.now
+              active?(itf)
             end
-            if bgs_active.present?
-              render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
-            else
-              render json: itf_not_found, status: :not_found
-            end
+          elsif active?(bgs_response)
+            bgs_active = bgs_response
+          end
+
+          if bgs_active.present?
+            render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
           else
             render json: itf_not_found, status: :not_found
           end
@@ -43,6 +45,10 @@ module ClaimsApi
         end
 
         private
+
+        def active?(itf)
+          itf.present? && itf[:itf_status_type_cd] == 'Active' && itf[:exprtn_dt].to_datetime > Time.zone.now
+        end
 
         def active_param
           params.require(:type)

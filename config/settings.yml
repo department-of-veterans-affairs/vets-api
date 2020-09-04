@@ -515,12 +515,16 @@ flipper:
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
+    - shallie@governmentcio.com
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
     - tony.williams@va.gov
     - jennie.mcgibney@va.gov
+    - callen@governmentcio.com # Remove after Profile 2.0 UAT
+    - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
+    - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
 
 bgs:
   application: ~
@@ -576,6 +580,7 @@ vanotify:
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+  mock: false
 
 # Settings to connect to the drupal forms graphql api
 va_forms:

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/base_error'
+require 'common/exceptions/serializable_error'
+
 module Common
   module Exceptions
     # Invalid Resource - if a requested route does not exist

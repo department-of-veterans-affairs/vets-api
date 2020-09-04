@@ -74,12 +74,14 @@ Some examples of configuration that will need to be added to these files are:
 The following features require additional configuration, click for details.
 
 - [Authentication with ID.me](/docs/setup/authentication_with_idme.md)
+- [Education Benefits](/docs/setup/edu_benefits.md)
 - [EVSS](/docs/setup/evss.md)
 - [Facilities Locator](/docs/setup/facilities_locator.md)
-- [My HealtheVet (MHV)](/docs/setup/mhv.md)
-- [Education Benefits](/docs/setup/edu_benefits.md)
-- [Master Veteran Index (MVI)](/docs/setup/mvi.md)
+- [Local Network Access](/docs/setup/local_network_access.md)
 - [Mailers](/docs/setup/mailer.md)
+- [Master Veteran Index (MVI)](/docs/setup/mvi.md)
+- [My HealtheVet (MHV)](/docs/setup/mhv.md)
+- [Virtual Machine Access](/docs/setup/virtual_machine_access.md)
 
 To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/models/permission'
 
 describe Vet360::Models::Permission do
   describe 'validations' do

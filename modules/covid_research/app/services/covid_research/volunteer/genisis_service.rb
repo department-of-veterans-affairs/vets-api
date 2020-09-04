@@ -32,13 +32,13 @@ module CovidResearch
       end
 
       def payload
-        serializer.serialize(submission)
+        serializer.serialize(JSON.parse(submission))
       end
 
       private
 
       def post(params)
-        conn.post("#{Settings.genisis.service_path}/formdata", params)
+        conn.post("#{Settings.genisis.service_path}/formdata", params, headers)
       end
 
       def headers

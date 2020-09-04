@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs/dependents'
 
 RSpec.describe BGS::Dependents do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
@@ -103,8 +104,9 @@ RSpec.describe BGS::Dependents do
           expect(dependents).to include(
             a_hash_including(
               divorce_state: 'FL',
-              divorce_city: 'Tampa'
-              # marriage_termination_type_code: 'Divorce'
+              divorce_city: 'Tampa',
+              end_date: Time.new('2020-01-01').iso8601,
+              type: 'divorce'
             )
           )
         end
