@@ -9,7 +9,7 @@
   parameters:
     verify_stable_pacts:
       type: boolean
-      default: false 
+      default: false
   
   executors: 
     vets_api_docker_executor:
@@ -38,13 +38,14 @@
       executor: vets_api_docker_executor
       steps:
         - checkout_and_install
-        - install_dependencies
         - setup_test_db
         - verify_stable_pacts
         - store_test_results:
             path: ./rspec
         - store_artifacts:
             path: ./ci
+        - store_artifacts:
+            path: ./coverage
     bundle_audit:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
@@ -54,7 +55,9 @@
         - store_test_results:
             path: ./rspec
         - store_artifacts:
-            path: ./ci	
+            path: ./ci
+        - store_artifacts:
+            path: ./coverage	
     security_audit:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
@@ -74,18 +77,24 @@
     specs:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
-      parallelism: 4
+      parallelism: 4 
       steps:
         - checkout_and_install
-        - install_dependencies
         - setup_test_db
         - specs
         - store_test_results:
-            path: ./rspec
-        - store_artifacts:
-            path: ./ci
+            path: /tmp/rspec
         - store_artifacts:
             path: ./coverage
+        - run:
+            name: Stash coverage Results
+            command: |
+                mkdir coverage_results
+                cp -R coverage/.resultset.json coverage_results/.resultset-${CIRCLE_NODE_INDEX}.json 
+        - persist_to_workspace:
+            root: .
+            paths:
+              - coverage_results
   workflows:
     test_and_build: 
       unless: << pipeline.parameters.verify_stable_pacts >>
@@ -104,9 +113,21 @@
     checkout_and_install:
         steps:
             - checkout
-            - ruby/load-cache
-            - ruby/install-deps
-            - ruby/save-cache
+            - save_cache:
+                key: v2-repo-{{ .Environment.CIRCLE_SHA1 }}
+                paths:
+                  - ~/vets-api
+            - restore_cache:
+                keys:
+                  - gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+                  - gem-cache-{{ arch }}-{{ .Branch }}
+                  - gem-cache
+            - run: bundle install --path vendor/bundle
+            - save_cache:
+                key: gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+                paths: 
+                  - ~/vets-api/vendor/bundle
+            - install_dependencies
     install_dependencies:
         steps:
             - run:
@@ -144,4 +165,4 @@
                 command: circleci tests glob "spec/**/*_spec.rb" + glob "modules/*/spec/**/*_spec.rb" | circleci tests split --split-by=timings > /tmp/tests-to-run
             - run:
                 name: Run all RSpec specs
-                command: bundle exec rspec --pattern $(cat /tmp/tests-to-run) --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
+                command: bundle exec rspec --pattern $(cat /tmp/tests-to-run) --format progress --format RspecJunitFormatter -o /tmp/rspec/rspec.xml --format html --out /tmp/ci/rspec.html
