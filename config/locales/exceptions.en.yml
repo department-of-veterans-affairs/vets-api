@@ -1730,6 +1730,36 @@ en:
         detail: Record not found
         code: LIGHTHOUSE_FACILITIES404
         status: 404
+      VANOTIFY_400:
+        <<: *external_defaults
+        title: Bad request
+        detail: Bad request
+        code: VANOTIFY_400
+        status: 400
+      VANOTIFY_403:
+        <<: *external_defaults
+        title: Authentication error
+        detail: Authentication error
+        code: VANOTIFY_403
+        status: 403
+      VANOTIFY_404:
+        <<: *external_defaults
+        title: Not found
+        detail: Not found
+        code: VANOTIFY_404
+        status: 404
+      VANOTIFY_429:
+        <<: *external_defaults
+        title: Exceeded rate or send limits
+        detail: Exceeded rate or send limits
+        code: VANOTIFY_429
+        status: 429
+      VANOTIFY_500:
+        <<: *external_defaults
+        title: Internal server error
+        detail: Internal server error
+        code: VANOTIFY_500
+        status: 500  
 
   decision_review:
     exceptions:
