@@ -37,6 +37,8 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/claims_api/lib/claims_api/health_checker.rb'
+    add_filter 'modules/health_quest/lib/health_quest.rb'
+    add_filter 'modules/health_quest/lib/health_quest/engine.rb'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
