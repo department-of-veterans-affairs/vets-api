@@ -3,5 +3,8 @@
 require 'health_quest/engine'
 
 module HealthQuest
-  # Your code goes here...
+	# this is just here for RSpec test purposes
+	def self.team_name
+		'Health Care Experience Team'
+	end	
 end
