@@ -1,5 +1,14 @@
 # frozen_string_literal: true
 
+require_relative 'benefit_claim'
+require_relative 'dependents'
+require_relative 'marriages'
+require_relative 'service'
+require_relative 'student_school'
+require_relative 'vnp_benefit_claim'
+require_relative 'vnp_relationships'
+require_relative 'vnp_veteran'
+
 module BGS
   class Form686c
     def initialize(user)
@@ -29,12 +38,20 @@ module BGS
     private
 
     def process_relationships(proc_id, veteran, payload)
-      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
-      marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create
+      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create_all
+      marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create_all
+      children = Children.new(proc_id: proc_id, payload: payload, user: @user).create_all
 
-      all_dependents = dependents + marriages
+      veteran_dependents = dependents + marriages + children[:dependents]
 
-      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: all_dependents, user: @user).create_all
+      VnpRelationships.new(
+        proc_id: proc_id,
+        veteran: veteran,
+        dependents: veteran_dependents,
+        step_children: children[:step_children],
+        user: @user
+      ).create_all
+
       process_674(proc_id, dependents, payload)
     end
 

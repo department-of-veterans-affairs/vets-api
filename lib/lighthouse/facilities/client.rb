@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'lighthouse/facilities/response'
+require_relative 'response'
+require_relative 'configuration'
 
 module Lighthouse
   module Facilities

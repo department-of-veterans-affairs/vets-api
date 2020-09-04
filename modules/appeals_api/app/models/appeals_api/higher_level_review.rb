@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+require 'central_mail/service'
+
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
     include SentryLogging

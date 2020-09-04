@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'ihub/appointments/service'
 
 describe IHub::Appointments::Service do
   subject { described_class.new(user) }

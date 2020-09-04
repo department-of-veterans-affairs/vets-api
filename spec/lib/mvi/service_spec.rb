@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'mvi/service'
-require 'mvi/responses/find_profile_response'
 
 describe MVI::Service do
   let(:user_hash) do
