@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'vba_documents/upload_error'
+require 'central_mail/service'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
