@@ -369,9 +369,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'efolder index' do
+        expect(subject).to validate(
+          :get,
+          '/v0/efolder',
+          200,
+          headers
+        )
       end
 
       context 'efolder show' do
+        expect(subject).to validate(
+          :get,
+          '/v0/efolder/{id}',
+          200,
+          headers
+        )
       end
     end
 
