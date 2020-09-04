@@ -3,6 +3,7 @@
 require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/error_middleware'
+require 'common/exceptions'
 
 module ClaimsApi
   class BaseDisabilityCompensationController < ClaimsApi::BaseFormController

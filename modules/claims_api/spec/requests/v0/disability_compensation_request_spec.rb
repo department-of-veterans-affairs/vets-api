@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/disability_compensation_form/configuration'
 require 'evss/disability_compensation_form/service'
+require 'common/exceptions'
 
 RSpec.describe 'Disability Claims ', type: :request do
   let(:headers) do
