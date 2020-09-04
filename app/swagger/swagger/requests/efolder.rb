@@ -16,14 +16,6 @@ module Swagger
           key :operationId, 'getDocuments'
           key :tags, %w[efolder]
 
-          parameter do
-            key :name, :included_doc_types
-            key :in, :body
-            key :description, 'List of doc_types to include in the response'
-            key :required, false
-            key :type, :array
-          end
-
           response 200 do
             key :description, 'Document metadata retrieved successfully'
 
