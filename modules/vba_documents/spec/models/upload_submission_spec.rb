@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'central_mail/service'
 
 describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_pending) { FactoryBot.create(:upload_submission) }
