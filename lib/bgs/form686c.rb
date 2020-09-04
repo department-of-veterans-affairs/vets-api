@@ -1,5 +1,14 @@
 # frozen_string_literal: true
 
+require_relative 'benefit_claim'
+require_relative 'dependents'
+require_relative 'marriages'
+require_relative 'service'
+require_relative 'student_school'
+require_relative 'vnp_benefit_claim'
+require_relative 'vnp_relationships'
+require_relative 'vnp_veteran'
+
 module BGS
   class Form686c
     def initialize(user)

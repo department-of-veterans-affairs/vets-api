@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'service'
+
 module BGS
   class Marriages
     def initialize(proc_id:, payload:, user:)
