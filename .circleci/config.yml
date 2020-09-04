@@ -97,8 +97,10 @@
         #     paths:
         #       - coverage_results
     coverage:
-      name: Merge and copy coverage data
-      command: bundle exec report_coverage
+      steps:
+        - run:
+            name: Merge and copy coverage data
+            command: bundle exec report_coverage
   workflows:
     test_and_build: 
       unless: << pipeline.parameters.verify_stable_pacts >>
