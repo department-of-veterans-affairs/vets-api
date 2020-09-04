@@ -46,8 +46,6 @@ LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
     (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
       StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
                        tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
-                       tags: ["version:#{v}", "context:#{ctx}"])
     end
   end
   (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
