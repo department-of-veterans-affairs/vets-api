@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/resource'
+require 'common/models/base'
 
 module VAOS
   class DateTimeMdy < Virtus::Attribute

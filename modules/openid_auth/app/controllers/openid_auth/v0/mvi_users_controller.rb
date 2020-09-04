@@ -2,6 +2,7 @@
 
 require_dependency 'openid_auth/application_controller'
 require 'mvi/service'
+require 'common/exceptions'
 
 module OpenidAuth
   module V0
