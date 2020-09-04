@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'central_mail/service'
 
 RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
   describe '#get /metadata' do
