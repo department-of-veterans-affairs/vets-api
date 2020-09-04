@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 module Debts
-  class GetLettersResponse
+  class GetDebtsResponse
+    attr_reader :debts
+
     def initialize(res)
       validate_response_against_schema(res)
-      @res = res
+      @debts = res
     end
 
     def to_json(*_args)
-      @res.to_json
+      @debts.to_json
     end
 
     private
