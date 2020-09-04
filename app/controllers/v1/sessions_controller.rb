@@ -22,7 +22,6 @@ module V1
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
-    STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
     VERSION_TAG = 'version:v1'
 
@@ -213,7 +212,6 @@ module V1
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-        StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
@@ -232,11 +230,12 @@ module V1
                                 "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
       when :failure
+        tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure',
                                 "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag, VERSION_TAG])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [tag, VERSION_TAG])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', 'context:unknown', VERSION_TAG])
@@ -252,7 +251,7 @@ module V1
       log_message_to_sentry(exc.message, level, extra_context: context)
       redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, response, exc) unless response.nil?
-      callback_stats(status, response, tag || code)
+      callback_stats(status, response, tag)
       PersonalInformationLog.create(
         error_class: exc,
         data: {
