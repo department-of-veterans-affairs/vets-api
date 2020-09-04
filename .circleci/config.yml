@@ -103,7 +103,7 @@
         - checkout_and_install
         - run:
             name: Merge and copy coverage data
-            command: bundle exec report_coverage
+            command: bundle exec report_coverage -b --branch 'circle-parallel'
   workflows:
     test_and_build: 
       unless: << pipeline.parameters.verify_stable_pacts >>
