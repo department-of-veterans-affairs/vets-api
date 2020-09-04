@@ -1759,7 +1759,7 @@ en:
         title: Internal server error
         detail: Internal server error
         code: VANOTIFY_500
-        status: 500  
+        status: 500
 
   decision_review:
     exceptions:

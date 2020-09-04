@@ -1,5 +1,7 @@
 = HealthQuest
-TODO: Short description and motivation.
+
+ This is the health quest service, it has some endpoints and code copied from VAOS but will also at some point
+ have endpoints in MAP for access to Patient Generated Data.
 
 == Installation
 Ensure the following line is in the root project's Gemfile:
