@@ -22,7 +22,7 @@ module Efolder
             :document_id, :doc_type, :type_description, :received_at
           )
         end
-      end
+      end.compact
     end
 
     def get_document(document_id)

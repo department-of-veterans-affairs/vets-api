@@ -7,8 +7,8 @@ require 'efolder/service'
 RSpec.describe Efolder::Service do
   subject { described_class.new(user) }
 
-  let(:ssn) { '796330625' }
-  let(:user) { build(:user, :loa3, ssn: ssn) }
+  let(:file_number) { '796043735' }
+  let(:user) { build(:user, :loa3, ssn: file_number) }
   let(:vbms_client) { FakeVbms.new }
 
   def stub_vbms_client_request(request_name, args, return_val)
@@ -52,8 +52,12 @@ RSpec.describe Efolder::Service do
         )
       end
 
-      it 'downloads a debt letter' do
-        expect(subject.get_document(document_id)).to eq(content)
+      it 'downloads a document' do
+        VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            expect(subject.get_document(document_id)).to eq(content)
+          end
+        end
       end
     end
 
@@ -68,9 +72,13 @@ RSpec.describe Efolder::Service do
 
   describe '#list_documents' do
     it 'lists document ids and descriptions' do
-      expect(subject.list_documents.to_json).to eq(
-        get_fixture('vbms/list_documents').to_json
-      )
+      VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
+        VCR.use_cassette('bgs/people_service/person_data') do
+          expect(subject.list_documents.to_json).to eq(
+            get_fixture('vbms/list_documents').to_json
+          )
+        end
+      end
     end
   end
 end
