@@ -41,8 +41,8 @@ module V1
         redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
       else
         render_login(type)
-        new_stats(type)
       end
+      new_stats(type)
     end
 
     def ssoe_slo_callback
