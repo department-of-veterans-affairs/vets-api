@@ -2,6 +2,7 @@
 
 require 'bgs/service'
 require 'mvi/service'
+require 'evss/service'
 
 module ClaimsApi
   class HealthChecker
