@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'caseflow/service'
+require 'common/exceptions'
 
 class AppealsApi::V1::DecisionReviews::HigherLevelReviews::ContestableIssuesController < AppealsApi::ApplicationController # rubocop:disable Layout/LineLength
   skip_before_action(:authenticate)
