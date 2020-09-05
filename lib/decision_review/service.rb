@@ -86,7 +86,7 @@ module DecisionReview
 
       {
         'X-VA-SSN' => user.ssn,
-        'X-VA-Receipt-Date' => Time.zone.now.strftime('%F')
+        'X-VA-Receipt-Date' => Time.zone.now.strftime('%Y-%m-%d')
       }
     end
 
