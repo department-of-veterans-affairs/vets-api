@@ -4,7 +4,6 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 
 require 'decision_review/configuration'
-require 'decision_review/responses/response'
 require 'decision_review/service_exception'
 
 module DecisionReview
@@ -31,8 +30,10 @@ module DecisionReview
     #
     def post_higher_level_reviews(body:, user:)
       with_monitoring_and_error_handling do
-        raw_response = perform(:post, 'higher_level_reviews', body, post_higher_level_reviews_headers(user))
-        validate_against_schema(raw_response.body, 'HLR-CREATE-RESPONSE-200')
+        headers = post_higher_level_reviews_headers(user)
+        response = perform :post, 'higher_level_reviews', body, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema response.body, 'HLR-CREATE-RESPONSE-200'
       end
     end
 
@@ -45,31 +46,27 @@ module DecisionReview
     #
     def get_higher_level_reviews(uuid)
       with_monitoring_and_error_handling do
-        raw_response = perform(:get, "higher_level_reviews/#{uuid}", nil)
-        DecisionReview::Responses::Response.new(raw_response.status, raw_response.body, 'HLR-SHOW-RESPONSE-200')
+        response = perform :get, "higher_level_reviews/#{uuid}", nil
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema response.body, 'HLR-SHOW-RESPONSE-200'
       end
     end
 
     def get_higher_level_review_contestable_issues(user:, benefit_type:)
       with_monitoring_and_error_handling do
-        raw_response = perform(
-          :get, "higher_level_reviews/contestable_issues/#{benefit_type}", nil, get_contestable_issues_headers(user)
-        )
-        DecisionReview::Responses::Response.new(
-          raw_response.status, raw_response.body, 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
-        )
+        path = "higher_level_reviews/contestable_issues/#{benefit_type}"
+        headers = get_contestable_issues_headers(user)
+        response = perform :get, path, nil, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema response.body, 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
       end
     end
 
     private
 
     def post_higher_level_reviews_headers(user)
-      raise Common::Exceptions::Forbidden unless user.ssn && user.first_name && user.last_name && user.birth_date
-      unless user.ssn
-        raise Common::Exceptions::Forbidden.new(
-                source: "#{self.class}#post_higher_level_reviews_headers"
-                detail: "user"
-              )
+      unless user.ssn && user.first_name && user.last_name && user.birth_date
+        raise Common::Exceptions::Forbidden.new source: "#{self.class}##{__method__}"
       end
 
       {
@@ -85,12 +82,7 @@ module DecisionReview
     end
 
     def get_contestable_issues_headers(user)
-      unless user.ssn
-        raise Common::Exceptions::Forbidden.new(
-                source: "#{self.class}#get_contestable_issues_headers"
-                detail: "user.ssn is nil"
-              )
-      end
+      raise Common::Exceptions::Forbidden.new source: "#{self.class}##{__method__}" unless user.ssn
 
       {
         'X-VA-SSN' => user.ssn,
@@ -108,51 +100,49 @@ module DecisionReview
 
     def save_error_details(error)
       Raven.tags_context external_service: self.class.to_s.underscore
-
-      Raven.extra_context(
-        url: config.base_path,
-        message: error.message,
-        body: error.body
-      )
-    end
-
-    def raise_backend_exception(key:, source:, error: nil)
-      raise DecisionReview::ServiceException.new(
-        key: key,
-        response_values: { source: source.to_s },
-        original_status: error&.status,
-        original_body: error&.body
-      )
-    end
-
-    def raise_unmapped_service_exception(source:, error: nil)
-      raise_backend_exception(
-        key: DecisionReview::ServiceException::UNMAPPED_KEY,
-        source: source,
-        error: error
-      )
+      Raven.extra_context url: config.base_path, message: error.message
     end
 
     def handle_error(error)
-      case error
-      when Faraday::ParsingError
-        Raven.extra_context(message: error.message, url: config.base_path)
-        raise_backend_exception(key: 'DR_502', source: self.class)
-      when Common::Client::Errors::ClientError
-        save_error_details(error)
-        raise Common::Exceptions::Forbidden if error.status == 403
-        raise_backend_exception(key: "DR_#{error&.status}", source: self.class, error: error)
-      when DecisionReview::SchemaError
-        raise_backend_exception(key: "DR_schema_error", source: self.class, error: error)
-      else
-        raise error
-      end
+      save_error_details error
+      source_hash = { source: "#{error.class} raised in #{self.class}" }
+
+      raise case error
+            when Faraday::ParsingError
+              DecisionReview::ServiceException.new key: 'DR_502', response_values: source_hash
+            when Common::Client::Errors::ClientError
+              Raven.extra_context body: error.body, status: error.status
+              if error.status == 403
+                Common::Exceptions::Forbidden.new source_hash
+              else
+                DecisionReview::ServiceException.new(
+                  key: "DR_#{error.status}",
+                  response_values: source_hash,
+                  original_status: error.status,
+                  original_body: error.body
+                )
+              end
+            else
+              error
+            end
     end
 
     def validate_against_schema(json:, schema_name:)
       schema = VetsJsonSchema::SCHEMAS[schema_name]
-      errors = JSONSchemer.schema(schema).validate(json).to_a
-      raise Common::Exceptions::SchemaValidationErrors.new() unless errors.empty?
+      errors = remove_pii_from_json_schemer_errors JSONSchemer.schema(schema).validate(json).to_a
+      return if errors.empty?
+
+      raise Common::Exceptions::SchemaValidationErrors, errors
+    end
+
+    def raise_schema_error_unless_200_status(status)
+      return if status == 200
+
+      raise Common::Exceptions::SchemaValidationErrors, ["expecting 200 status received #{status}"]
+    end
+
+    def remove_pii_from_json_schemer_errors(errors)
+      errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
     end
   end
 end
