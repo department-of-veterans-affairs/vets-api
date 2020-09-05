@@ -28,10 +28,10 @@ module DecisionReview
     # @return [DecisionReview::Responses::Response] Response object that includes the body,
     #                                               status, and schema validations.
     #
-    def post_higher_level_reviews(body:, user:)
+    def post_higher_level_reviews(request_body:, user:)
       with_monitoring_and_error_handling do
         headers = post_higher_level_reviews_headers(user)
-        response = perform :post, 'higher_level_reviews', body, headers
+        response = perform :post, 'higher_level_reviews', request_body, headers
         raise_schema_error_unless_200_status response.status
         validate_against_schema response.body, 'HLR-CREATE-RESPONSE-200'
       end
