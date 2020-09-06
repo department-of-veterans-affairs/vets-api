@@ -9,16 +9,18 @@ describe DecisionReview::Service do
   let(:ssn_with_mockdata) { '212222112' }
   let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
 
-  describe '#post_higher_level_reviews' do
-    subject { described_class.new.post_higher_level_reviews(body: body.to_json, user: user) }
+  describe '#create_higher_level_review' do
+    subject { described_class.new.create_higher_level_review(request_body: body.to_json, user: user) }
 
     let(:body) { VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY'] }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
-          expect(subject).to be_a DecisionReview::Responses::Response
-          expect(subject).to be_ok
+          expect(subject).to respond_to :status
+          expect(subject.status).to be 200
+          expect(subject).to respond_to :body
+          expect(subject.body).to be_a Hash
         end
       end
     end
@@ -40,16 +42,18 @@ describe DecisionReview::Service do
     end
   end
 
-  describe '#get_higher_level_reviews' do
-    subject { described_class.new.get_higher_level_reviews(uuid) }
+  describe '#get_higher_level_review' do
+    subject { described_class.new.get_higher_level_review(uuid) }
 
     let(:uuid) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
         VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200') do
-          expect(subject).to be_a DecisionReview::Responses::Response
-          expect(subject).to be_ok
+          expect(subject).to respond_to :status
+          expect(subject.status).to be 200
+          expect(subject).to respond_to :body
+          expect(subject.body).to be_a Hash
         end
       end
     end
@@ -71,7 +75,7 @@ describe DecisionReview::Service do
     end
   end
 
-  describe '#get_higher_level_reviews_contestable_issues' do
+  describe '#get_higher_level_review_contestable_issues' do
     subject do
       described_class.new.get_higher_level_review_contestable_issues(benefit_type: benefit_type, user: user)
     end
@@ -81,8 +85,10 @@ describe DecisionReview::Service do
     context '200 response' do
       it 'returns a properly formatted 200 response' do
         VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
-          expect(subject).to be_a DecisionReview::Responses::Response
-          expect(subject).to be_ok
+          expect(subject).to respond_to :status
+          expect(subject.status).to be 200
+          expect(subject).to respond_to :body
+          expect(subject.body).to be_a Hash
         end
       end
     end

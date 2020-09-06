@@ -8,10 +8,7 @@ require 'decision_review/service_exception'
 
 module DecisionReview
   ##
-  # Proxy Service for Decision Reviews API.
-  #
-  # @example Create a service and create/retrieve higher reviews
-  #   response = DecisionReview::Service.new.post_higher_level_reviews(request_json)
+  # Proxy Service for the Lighthouse Decision Reviews API.
   #
   class Service < Common::Client::Base
     include SentryLogging
@@ -21,50 +18,66 @@ module DecisionReview
 
     STATSD_KEY_PREFIX = 'api.decision_review'
 
+    HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS['HLR-CREATE-RESPONSE-200']
+    raise unless HLR_CREATE_RESPONSE_SCHEMA.is_a? Hash
+    HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS['HLR-SHOW-RESPONSE-200']
+    raise unless HLR_SHOW_RESPONSE_SCHEMA.is_a? Hash
+    HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS['HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200']
+    raise unless HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA.is_a? Hash
+
     ##
-    # Create a Higher Level Review for a veteran.
+    # Create a Higher-Level Review
     #
-    # @param request_body [JSON] JSON serialized version of a Higher Level Review Form
-    # @return [DecisionReview::Responses::Response] Response object that includes the body,
-    #                                               status, and schema validations.
+    # @param request_body [JSON] JSON serialized version of a Higher-Level Review Form (20-0996)
+    # @param user [User] Veteran who the form is in regard to
+    # @return [Faraday::Response]
     #
-    def post_higher_level_reviews(request_body:, user:)
+    def create_higher_level_review(request_body:, user:)
       with_monitoring_and_error_handling do
-        headers = post_higher_level_reviews_headers(user)
+        headers = create_higher_level_review_headers(user)
         response = perform :post, 'higher_level_reviews', request_body, headers
         raise_schema_error_unless_200_status response.status
-        validate_against_schema response.body, 'HLR-CREATE-RESPONSE-200'
+        validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA
+        response
       end
     end
 
     ##
-    # Retrieve a Higher Level Review results.
+    # Retrieve a Higher-Level Review
     #
-    # @param uuid [uuid] The intake uuid provided from the response of creating a new Higher Level Review
-    # @return [DecisionReview::Responses::Response] Response object that includes the body,
-    #                                               status, and schema avalidations.
+    # @param uuid [uuid] A Higher-Level Review's UUID (included in a create_higher_level_review response)
+    # @return [Faraday::Response]
     #
-    def get_higher_level_reviews(uuid)
+    def get_higher_level_review(uuid)
       with_monitoring_and_error_handling do
         response = perform :get, "higher_level_reviews/#{uuid}", nil
         raise_schema_error_unless_200_status response.status
-        validate_against_schema response.body, 'HLR-SHOW-RESPONSE-200'
+        validate_against_schema json: response.body, schema: HLR_SHOW_RESPONSE_SCHEMA
+        response
       end
     end
 
+    ##
+    # Get Contestable Issues for a Higher-Level Review
+    #
+    # @param user [User] Veteran who the form is in regard to
+    # @param benefit_type [String] Type of benefit the decision review is for
+    # @return [Faraday::Response]
+    #
     def get_higher_level_review_contestable_issues(user:, benefit_type:)
       with_monitoring_and_error_handling do
         path = "higher_level_reviews/contestable_issues/#{benefit_type}"
         headers = get_contestable_issues_headers(user)
         response = perform :get, path, nil, headers
         raise_schema_error_unless_200_status response.status
-        validate_against_schema response.body, 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
+        validate_against_schema json: response.body, schema: HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA
+        response
       end
     end
 
     private
 
-    def post_higher_level_reviews_headers(user)
+    def create_higher_level_review_headers(user)
       unless user.ssn && user.first_name && user.last_name && user.birth_date
         raise Common::Exceptions::Forbidden.new source: "#{self.class}##{__method__}"
       end
@@ -127,12 +140,11 @@ module DecisionReview
             end
     end
 
-    def validate_against_schema(json:, schema_name:)
-      schema = VetsJsonSchema::SCHEMAS[schema_name]
-      errors = remove_pii_from_json_schemer_errors JSONSchemer.schema(schema).validate(json).to_a
+    def validate_against_schema(json:, schema:)
+      errors = JSONSchemer.schema(schema).validate(json).to_a
       return if errors.empty?
 
-      raise Common::Exceptions::SchemaValidationErrors, errors
+      raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
     end
 
     def raise_schema_error_unless_200_status(status)
