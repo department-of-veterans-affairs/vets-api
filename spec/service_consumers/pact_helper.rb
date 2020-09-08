@@ -66,6 +66,10 @@ Pact.service_provider 'VA.gov API' do
                          }
   end
 
+  # Optionally specify the consumer version tags for the pacts you want to verify
+  # This will verify the latest pact with the tag `master`
+  consumer_version_tags ['master']
+
   app_version git_sha
   app_version_tags git_branch
   publish_verification_results publish_flag if ENV['CIRCLE_JOB']
