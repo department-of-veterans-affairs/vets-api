@@ -23,7 +23,10 @@ RSpec.describe CovidResearch::Volunteer::FormCryptoService do
 
   context 'decryption' do
     it 'decrypts to a known value when given the iv' do
-      expect(subject.decrypt_form(encrypted_form, iv)).to eq(raw_form)
+      actual = JSON.parse(subject.decrypt_form(encrypted_form, iv))
+      expected = JSON.parse(raw_form)
+
+      expect(actual).to eq(expected)
     end
   end
 end
