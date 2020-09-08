@@ -53,6 +53,7 @@ unless ENV['NOCOVERAGE']
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'VAOS', 'modules/vaos/'
+    add_group 'HealthQuest', 'modules/health_quest/'
 
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
