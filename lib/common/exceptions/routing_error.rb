@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'base_error'
-
 module Common
   module Exceptions
     # Routing Error - if route is invalid
