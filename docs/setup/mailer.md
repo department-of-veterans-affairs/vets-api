@@ -1,6 +1,6 @@
 ## Mailers
 
-[Location of mailers](app/mailers/)
+[Location of mailers](/app/mailers/)
 
 [Location of views](/app/mailers/views)
 
