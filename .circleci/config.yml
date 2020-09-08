@@ -100,7 +100,7 @@
             - checkout
             - ruby/save-cache
             - ruby/load-cache
-            - ruby/install-deps
+            - run: bundle install --path vendor/bundle
             - ruby/save-cache
             - install_dependencies
     install_dependencies:
