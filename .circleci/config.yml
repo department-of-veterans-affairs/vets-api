@@ -87,17 +87,8 @@
         - store_artifacts:
             path: coverage/.resultset.json
             prefix: coverage # must be called coverage to be picked up by the report_coverage script
-        # - run:
-        #     name: Stash coverage Results
-        #     command: |
-        #         mkdir coverage_results
-        #         cp -R coverage/.resultset.json coverage_results/.resultset-${CIRCLE_NODE_INDEX}.json
-        # - persist_to_workspace:
-        #     root: .
-        #     paths:
-        #       - coverage_results
   workflows:
-    test_and_build: 
+    test_and_build:
       unless: << pipeline.parameters.verify_stable_pacts >>
       jobs:
         - verify_pacts
