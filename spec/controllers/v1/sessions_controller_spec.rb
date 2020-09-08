@@ -262,6 +262,13 @@ RSpec.describe V1::SessionsController, type: :controller do
                                   'originating_request_id' => nil, 'type' => 'signup')
           end
         end
+
+        context 'routes /v1/sessions/slo/new to SessionController#new' do
+          it 'redirects' do
+            expect(get(:new, params: { type: :slo }))
+              .to redirect_to('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+          end
+        end
       end
 
       context 'routes requiring auth' do
