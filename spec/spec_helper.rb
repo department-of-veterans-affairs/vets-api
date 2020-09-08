@@ -55,7 +55,7 @@ unless ENV['NOCOVERAGE']
     add_group 'VAOS', 'modules/vaos/'
 
     SimpleCov.minimum_coverage_by_file 90
-    SimpleCov.refuse_coverage_drop unless
+    SimpleCov.refuse_coverage_drop
   end
 end
 
