@@ -250,3 +250,7 @@ features:
     actor_type: user
     description: >
       Comparison Tool Search Results Benefit UI Enhancements to improve usability
+  mobile_api:
+    actor_type: user
+    description: >
+      API endpoints consumed by the VA Mobile App (iOS/Android)
