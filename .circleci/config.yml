@@ -98,10 +98,20 @@
     checkout_and_install:
         steps:
             - checkout
-            - ruby/save-cache
-            - ruby/load-cache
+            - save_cache:
+                key: v2-repo-{{ .Environment.CIRCLE_SHA1 }}
+                paths:
+                  - ~/vets-api
+            - restore_cache:
+                keys:
+                  - gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+                  - gem-cache-{{ arch }}-{{ .Branch }}
+                  - gem-cache
             - run: bundle install --path vendor/bundle
-            - ruby/save-cache
+            - save_cache:
+                key: gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+                paths:
+                  - ~/vets-api/vendor/bundle
             - install_dependencies
     install_dependencies:
         steps:
