@@ -26,6 +26,15 @@ module MVI
       def initialize(response)
         @original_body = locate_element(response.body, BODY_XPATH)
         @code = locate_element(@original_body, CODE_XPATH)
+
+        if failed_or_invalid?
+          PersonalInformationLog.create(
+            error_class: 'MVI::Errors',
+            data: {
+              payload: response.body
+            }
+          )
+        end
       end
 
       # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
