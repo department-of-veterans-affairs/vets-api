@@ -496,7 +496,7 @@ describe PdfFill::Forms::Va21p527ez do
   )
 
   describe '#combine_name_addr' do
-    xit 'combines name addr in both formats' do
+    it 'combines name addr in both formats' do
       expect(
         JSON.parse(
           basic_class.combine_name_addr(

@@ -81,7 +81,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
   end
 
   context 'pdf content verification' do
-    xit 'generates the expected pdf' do
+    it 'generates the expected pdf' do
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
       path = described_class.new.generate_pdf(higher_level_review.id)
       expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996.pdf')
