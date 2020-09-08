@@ -15,85 +15,67 @@ class ApplicationController < ActionController::API
 
   protect_from_forgery with: :exception, if: -> { ActionController::Base.allow_forgery_protection }
   after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
-
+  
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Common::Exceptions::Unauthorized,
     Common::Exceptions::RoutingError,
     Common::Exceptions::Forbidden,
     Breakers::OutageException
   ].freeze
-
+  
   VERSION_STATUS = {
     draft: 'Draft Version',
     current: 'Current Version',
     previous: 'Previous Version',
     deprecated: 'Deprecated Version'
   }.freeze
-
+  
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   skip_before_action :verify_authenticity_token, only: :routing_error
   before_action :set_tags_and_extra_context
-
+  
   def cors_preflight
     head(:ok)
   end
-
+  
   def routing_error
     raise Common::Exceptions::RoutingError, params[:path]
   end
-
+  
   def clear_saved_form(form_id)
     InProgressForm.form_for_user(form_id, current_user)&.destroy if current_user
   end
-
+  
   # I'm commenting this out for now, we can put it back in if we encounter it
   # def action_missing(m, *_args)
   #   Rails.logger.error(m)
   #   raise Common::Exceptions::RoutingError
   # end
-
+  #
+  
   private
-
+  
   attr_reader :current_user
-
+  
   def set_csrf_header
     token = form_authenticity_token
     response.set_header('X-CSRF-Token', token)
     Rails.logger.info('CSRF response token', csrf_token: token)
   end
-
+  
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
     return if controller_name == 'example'
     raise Common::Exceptions::NotASafeHostError, request.host unless Settings.virtual_hosts.include?(request.host)
   end
-
+  
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
   end
-
-  # rubocop:disable Metrics/BlockLength
+  
   rescue_from 'Exception' do |exception|
-    # report the original 'cause' of the exception when present
-    if skip_sentry_exception_types.include?(exception.class)
-      Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
-    else
-      extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
-      if exception.is_a?(Common::Exceptions::BackendServiceException)
-        # Add additional user specific context to the logs
-        if current_user.present?
-          extra[:icn] = current_user.icn
-          extra[:mhv_correlation_id] = current_user.mhv_correlation_id
-        end
-        # Warn about VA900 needing to be added to exception.en.yml
-        if exception.generic_error?
-          log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
-        end
-      end
-    end
-
     va_exception =
       case exception
       when Pundit::NotAuthorizedError
@@ -114,21 +96,41 @@ class ApplicationController < ActionController::API
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
-
+    
     unless skip_sentry_exception_types.include?(exception.class)
-      va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
-      log_exception_to_sentry(exception, extra.merge(va_exception_info))
+      report_original_exception(exception)
+      report_mapped_exception(exception, va_exception)
     end
-
+    
     headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
     render_errors(va_exception)
   end
-  # rubocop:enable Metrics/BlockLength
 
+  def report_original_exception(exception)
+    # report the original 'cause' of the exception when present
+    if skip_sentry_exception_types.include?(exception.class)
+      Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
+    elsif exception.is_a?(Common::Exceptions::BackendServiceException) && exception.generic_error?
+      # Warn about VA900 needing to be added to exception.en.yml
+      log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
+    end
+  end
+
+  def report_mapped_exception(exception, va_exception)
+    extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
+    # Add additional user specific context to the logs
+    if exception.is_a?(Common::Exceptions::BackendServiceException) && current_user.present?
+      extra[:icn] = current_user.icn
+      extra[:mhv_correlation_id] = current_user.mhv_correlation_id
+    end
+    va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
+    log_exception_to_sentry(exception, extra.merge(va_exception_info))
+  end
+  
   def render_errors(va_exception)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
-
+  
   def set_tags_and_extra_context
     RequestStore.store['request_id'] = request.uuid
     RequestStore.store['additional_request_attributes'] = {
@@ -139,7 +141,7 @@ class ApplicationController < ActionController::API
     Raven.user_context(user_context) if current_user
     Raven.tags_context(tags_context)
   end
-
+  
   def user_context
     {
       uuid: current_user&.uuid,
@@ -148,7 +150,7 @@ class ApplicationController < ActionController::API
       mhv_icn: current_user&.mhv_icn
     }
   end
-
+  
   def tags_context
     { controller_name: controller_name }.tap do |tags|
       if current_user.present?
@@ -160,30 +162,30 @@ class ApplicationController < ActionController::API
       end
     end
   end
-
+  
   def set_app_info_headers
-    headers['X-Git-SHA']           = AppInfo::GIT_REVISION
+    headers['X-Git-SHA'] = AppInfo::GIT_REVISION
     headers['X-GitHub-Repository'] = AppInfo::GITHUB_URL
   end
-
+  
   def saml_settings(options = {})
     callback_url = URI.parse(Settings.saml.callback_url)
     callback_url.host = request.host if Settings.review_instance_slug.blank?
     options.reverse_merge!(assertion_consumer_service_url: callback_url.to_s)
     SAML::SettingsService.saml_settings(options)
   end
-
+  
   def pagination_params
     {
       page: params[:page],
       per_page: params[:per_page]
     }
   end
-
+  
   def render_job_id(jid)
     render json: { job_id: jid }, status: :accepted
   end
-
+  
   def append_info_to_payload(payload)
     super
     payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]
