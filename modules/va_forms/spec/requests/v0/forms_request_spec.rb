@@ -1,17 +1,24 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
+require 'json'
 RSpec.describe 'VA Forms', type: :request do
   include SchemaMatchers
 
-  let!(:form) { FactoryBot.create(:va_form) }
+  let!(:form) do
+    create(:va_form)
+    create(:va_form, form_name: '527')
+    create(:va_form, :has_been_deleted)
+  end
   let(:base_url) { '/services/va_forms/v0/forms' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   describe 'GET :index' do
-    it 'returns the forms' do
+    it 'returns the forms', focus: true do
+      # create(:va_form, :has)
       get base_url
+      body = response.parsed_body
+      puts body.to_json
       expect(response).to match_response_schema('va_forms/forms')
     end
 
