@@ -67,7 +67,7 @@ Pact.service_provider 'VA.gov API' do
 
    # Optionally specify the consumer version tags for the pacts you want to verify
    # This will verify the latest pact with the tag `master`
-   consumer_version_tags ['pact-search']
+   consumer_version_tags ['pact-search', 'pact-user', 'pact-hca']
   end
 
   app_version git_sha
