@@ -43,7 +43,7 @@ module Efolder
 
     def file_number
       bgs_file_number = BGS::PeopleService.new(@user).find_person_by_participant_id[:file_nbr]
-      bgs_file_number.nil? ? @user.ssn : bgs_file_number
+      bgs_file_number.empty? ? @user.ssn : bgs_file_number
     end
 
     def bgs_doc_uuids

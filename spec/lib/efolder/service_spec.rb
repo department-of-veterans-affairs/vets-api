@@ -65,7 +65,11 @@ RSpec.describe Efolder::Service do
       let(:document_id) { '{abc}' }
 
       it 'raises an unauthorized error' do
-        expect { subject.get_document(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+        VCR.use_cassette('bgs/uploaded_document_service/uploaded_document_data') do
+          VCR.use_cassette('bgs/people_service/person_data') do
+            expect { subject.get_document(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+          end
+        end
       end
     end
   end
