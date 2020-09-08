@@ -9,25 +9,25 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    # STATSD_KEY_PREFIX = 'api.form1010cg'
-    NOT_FOUND = 'NOT_FOUND'
+    STATSD_KEY_PREFIX = 'api.form1010cg'
+    NOT_FOUND         = 'NOT_FOUND'
 
-    # def self.metrics
-    #   submission_prefix = STATSD_KEY_PREFIX + '.submission'
-    #   OpenStruct.new(
-    #     submission: OpenStruct.new(
-    #       attempt: submission_prefix + '.attempt',
-    #       success: submission_prefix + '.success',
-    #       failure: OpenStruct.new(
-    #         client: OpenStruct.new(
-    #           data: submission_prefix + '.failure.client.data',
-    #           qualification: submission_prefix + '.failure.client.qualification'
-    #         )
-    #       )
-    #     ),
-    #     pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
-    #   )
-    # end
+    def self.metrics
+      submission_prefix = STATSD_KEY_PREFIX + '.submission'
+      OpenStruct.new(
+        submission: OpenStruct.new(
+          attempt: submission_prefix + '.attempt',
+          success: submission_prefix + '.success',
+          failure: OpenStruct.new(
+            client: OpenStruct.new(
+              data: submission_prefix + '.failure.client.data',
+              qualification: submission_prefix + '.failure.client.qualification'
+            )
+          )
+        ),
+        pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
+      )
+    end
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -36,6 +36,7 @@ module Form1010cg
 
       # The CaregiversAssistanceClaim we are processing with this service
       @claim        = claim
+      # The Form1010cg::Submission
       @submission   = submission
 
       # Store for the search results we will run on MVI and eMIS
@@ -57,9 +58,13 @@ module Form1010cg
     def process_claim!
       raise 'submission already present' if submission.present?
 
+      log 'Submission Attempt', { veteran_name: claim.veteran_data['fullName'] }
+
       assert_veteran_status
 
       carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!(carma_client)
+
+      log 'Submission Successful', { metadata: carma_submission.to_request_payload['metadata'] }
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
@@ -91,9 +96,12 @@ module Form1010cg
           claim.veteran_data['fullName']['last']
         )
 
-        carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
+        document_id = CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG']
+        carma_attachments.add(document_id, file_path)
 
         carma_attachments.submit!(carma_client)
+        log 'Attachment(s) Delivery', response: carma_attachments.response
+
         submission.attachments = carma_attachments.to_hash
       rescue
         # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
@@ -102,7 +110,7 @@ module Form1010cg
         #
         # Regardless of the reason, we shouldn't raise an error when sending attachments fails.
         # It's non-critical and we don't want the error to bubble up to the response,
-        # misleading the user to think thier claim was not submitted.
+        # misleading the user to think their claim was not submitted.
         #
         # If we made it this far, there is a submission that exists in CARMA.
         # So the user should get a sucessful response, whether attachments reach CARMA or not.
@@ -161,8 +169,10 @@ module Form1010cg
 
       case response.status
       when 'OK'
+        log "MPI Profile found for #{form_subject.titleize}"
         return @cache[:icns][form_subject] = response.profile.icn
       when 'NOT_FOUND'
+        log "MPI Profile NOT FOUND for #{form_subject.titleize}"
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
@@ -203,6 +213,13 @@ module Form1010cg
 
     def emis_service
       @emis_service ||= EMIS::VeteranStatusService.new
+    end
+
+    def log(message, additional_context = {})
+      context = { claim_guid: claim.guid }.merge(additional_context)
+      context[:carma_case_id] = submission&.carma_case_id unless submission.nil?
+
+      Rails.logger.info "[Form 10-10CG] #{message}", context
     end
 
     # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
