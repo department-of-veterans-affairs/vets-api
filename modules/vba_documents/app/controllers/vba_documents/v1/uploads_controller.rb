@@ -5,6 +5,7 @@ require 'zip'
 require_dependency 'vba_documents/application_controller'
 require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/payload_manager'
+require 'common/exceptions'
 
 module VBADocuments
   module V1
