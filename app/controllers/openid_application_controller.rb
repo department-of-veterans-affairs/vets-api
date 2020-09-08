@@ -7,6 +7,7 @@ require 'saml/settings_service'
 require 'sentry_logging'
 require 'oidc/key_service'
 require 'okta/user_profile'
+require 'okta/service'
 require 'jwt'
 
 class OpenidApplicationController < ApplicationController

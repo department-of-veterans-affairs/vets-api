@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 module VAOS
   module V1
     # FHIR (DSTU 2) Operation Outcome serializer. Follows the interface of ActiveModel Serializers.

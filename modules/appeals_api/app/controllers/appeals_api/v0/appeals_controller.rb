@@ -3,6 +3,7 @@
 require 'caseflow/service'
 require_dependency 'appeals_api/application_controller'
 require 'decision_review/service'
+require 'common/exceptions'
 
 module AppealsApi
   module V0

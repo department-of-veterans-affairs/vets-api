@@ -179,13 +179,9 @@ features:
     description: >
       Enables debt letters
   debt_letters_show_letters_v2:
-      actor_type: user
-      description: >
-        Enables debt letters
-  gibct_ch33_benefit_rate_update:
     actor_type: user
     description: >
-      Update to Chapter 33/Post-9/11 GI Bill benefit rates set to go live 8/1
+      Enables debt letters
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: >
@@ -213,7 +209,7 @@ features:
   show_edu_benefits_1990e_wizard:
     actor_type: user
     description: >
-     This determines when the wizard should show up on the 1990e introduction page
+      This determines when the wizard should show up on the 1990e introduction page
   get_help_ask_form:
     actor_type: user
     description: >
