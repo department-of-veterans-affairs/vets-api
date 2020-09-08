@@ -65,10 +65,10 @@ Pact.service_provider 'VA.gov API' do
                            password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
                          }
 
-   # Optionally specify the consumer version tags for the pacts you want to verify
-   # This will verify the latest pact with the tag `master`
-   # consumer_version_tags ['pact-search', 'pact-user', 'pact-hca']
-   consumer_version_tags ['master']
+    # Optionally specify the consumer version tags for the pacts you want to verify
+    # This will verify the latest pact with the tag `master`
+    # consumer_version_tags ['pact-search', 'pact-user', 'pact-hca']
+    consumer_version_tags ['master']
   end
 
   app_version git_sha
