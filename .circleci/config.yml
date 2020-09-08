@@ -96,14 +96,6 @@
         #     root: .
         #     paths:
         #       - coverage_results
-    coverage:
-      working_directory: ~/vets-api
-      executor: vets_api_docker_executor
-      steps:
-        - checkout_and_install
-        - run:
-            name: Merge and copy coverage data
-            command: bundle exec report_coverage -b --branch 'circle-parallel'
   workflows:
     test_and_build: 
       unless: << pipeline.parameters.verify_stable_pacts >>
@@ -113,9 +105,6 @@
         - security_audit
         - lint
         - specs
-        - coverage:
-            requires:
-                - specs
     pact_verification:
       when: << pipeline.parameters.verify_stable_pacts >>
       jobs:
