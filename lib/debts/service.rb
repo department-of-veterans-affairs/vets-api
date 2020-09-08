@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
+require_relative 'configuration'
+require_relative 'get_debts_response'
+
 module Debts
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
@@ -8,13 +12,23 @@ module Debts
 
     STATSD_KEY_PREFIX = 'api.debts'
 
-    def get_letters(body)
+    def get_debts(body)
       with_monitoring_and_error_handling do
-        GetLettersResponse.new(perform(:post, 'letterdetails/get', body).body)
+        GetDebtsResponse
+          .new(perform(:post, 'letterdetails/get', body).body)
+          .debts
+          .select do |debt|
+            debt['debtHistory'] = sort_by_date(debt['debtHistory'])
+            debt['payeeNumber'] == '00'
+          end
       end
     end
 
     private
+
+    def sort_by_date(debt_history)
+      debt_history.sort_by { |d| Date.strptime(d['date'], '%m/%d/%Y') }.reverse
+    end
 
     def with_monitoring_and_error_handling
       with_monitoring(2) do

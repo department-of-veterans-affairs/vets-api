@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/intent_to_file/response_strategy'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526Cleanup < Job

@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'evss/pciu/configuration'
+require 'evss/pciu/email_address_response'
+require 'evss/pciu/phone_number_response'
+require 'evss/pciu/request_body'
+require 'evss/service'
 
 module EVSS
   module PCIU

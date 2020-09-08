@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/saml/form_validation_helpers'
 require 'support/saml/response_builder'
 require 'support/url_service_helpers'
-require 'support/saml/form_validation_helpers'
 
 RSpec.describe V1::SessionsController, type: :controller do
   include SAML::ResponseBuilder
@@ -353,6 +353,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                                                 'version:v1'])
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
                                           tags: ['context:idme', 'version:v1', 'error:101'])
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
+                                          tags: ['error:multiple_mhv_ids', 'version:v1'])
 
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -513,9 +515,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['context:verify', 'version:v1'],
-                                          **once)
 
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
 
@@ -567,8 +566,6 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
                                          tags: ['status:success', 'context:multifactor', 'version:v1'], **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['context:mfa', 'version:v1'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -832,9 +829,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['context:mhv', 'version:v1'],
-                                          **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!

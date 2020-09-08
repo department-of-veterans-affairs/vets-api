@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'attr_encrypted'
+require 'pdf_fill/filler'
 
 # Base class to hold common functionality for Claim submissions.
 # Subclasses need to several constants and methods defined:
