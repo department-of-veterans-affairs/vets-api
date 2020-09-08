@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bip_claims/service'
+
 module StructuredData
   class ProcessDataJob
     include Sidekiq::Worker

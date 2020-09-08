@@ -2,11 +2,6 @@
 
 require 'rails_helper'
 require 'emis/veteran_status_service'
-require 'emis/responses/get_veteran_status_response'
-
-# frozen_string_literal: true
-require 'emis/service'
-require 'emis/veteran_status_configuration'
 
 describe EMIS::VeteranStatusService do
   let(:edipi_veteran) { '1068619536' }

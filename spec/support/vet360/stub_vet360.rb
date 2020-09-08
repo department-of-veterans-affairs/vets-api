@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+require 'vet360/contact_information/service'
+require 'vet360/contact_information/person_response'
+require 'vet360/models/address'
+require 'vet360/models/telephone'
+require 'vet360/models/permission'
+
 # rubocop:disable Metrics/MethodLength
 def stub_vet360(person = nil)
   person ||= build(

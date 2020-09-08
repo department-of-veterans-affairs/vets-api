@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'service'
+
 module BGS
   class VnpBenefitClaim
     def initialize(proc_id:, veteran:, user:)

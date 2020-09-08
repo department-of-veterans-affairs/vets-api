@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/dependents/retrieved_info'
+
 class ScrubbedString < Virtus::Attribute
   def coerce(value)
     ['NONE'].include?(value.to_s.upcase) ? '' : value
