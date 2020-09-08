@@ -42,10 +42,6 @@
         - verify_stable_pacts
         - store_test_results:
             path: ./rspec
-        - store_artifacts:
-            path: ./ci
-        - store_artifacts:
-            path: ./coverage
     bundle_audit:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
@@ -56,8 +52,6 @@
             path: ./rspec
         - store_artifacts:
             path: ./ci
-        - store_artifacts:
-            path: ./coverage
     security_audit:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
@@ -83,10 +77,9 @@
         - setup_test_db
         - specs
         - store_test_results:
-            path: /tmp/rspec
+            path: ./rspec
         - store_artifacts:
-            path: coverage/.resultset.json
-            prefix: coverage # must be called coverage to be picked up by the report_coverage script
+            path: ./ci
   workflows:
     test_and_build:
       unless: << pipeline.parameters.verify_stable_pacts >>
@@ -160,4 +153,4 @@
                 command: circleci tests glob "spec/**/*_spec.rb" + glob "modules/*/spec/**/*_spec.rb" | circleci tests split --split-by=timings > /tmp/tests-to-run
             - run:
                 name: Run all RSpec specs
-                command: bundle exec rspec --pattern $(cat /tmp/tests-to-run) --format progress --format RspecJunitFormatter -o /tmp/rspec/rspec.xml --format html --out /tmp/ci/rspec.html
+                command: bundle exec rspec --pattern $(cat /tmp/tests-to-run) --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
