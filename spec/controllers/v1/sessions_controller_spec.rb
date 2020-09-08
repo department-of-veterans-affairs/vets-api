@@ -366,9 +366,9 @@ RSpec.describe V1::SessionsController, type: :controller do
       it 'ignores a SAML stat without params' do
         expect { get(:tracker) }
           .not_to trigger_statsd_increment(described_class::STATSD_SSO_SAMLTRACKER_KEY,
-                                       tags: ['type:',
-                                              'context:',
-                                              'version:v1'])
+                                           tags: ['type:',
+                                                  'context:',
+                                                  'version:v1'])
       end
 
       it 'logs a SAML stat with valid params' do

@@ -69,12 +69,14 @@ module V1
     end
 
     def tracker
-      id, type, authn = params[:id], params[:type], params[:authn]
+      id = params[:id]
+      type = params[:type]
+      authn = params[:authn]
       values = { 'id' => id, 'type' => type, 'authn' => authn }
       if REDIRECT_URLS.include?(type) && SAML::User::AUTHN_CONTEXTS.keys.include?(authn)
         Rails.logger.info("SSOe: SAML Tracker => #{values}")
         StatsD.increment(STATSD_SSO_SAMLTRACKER_KEY,
-                          tags: ["type:#{type}", "context:#{authn}", VERSION_TAG])
+                         tags: ["type:#{type}", "context:#{authn}", VERSION_TAG])
       end
     end
 
