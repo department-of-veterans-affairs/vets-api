@@ -262,10 +262,17 @@ RSpec.describe V1::SessionsController, type: :controller do
                                   'originating_request_id' => nil, 'type' => 'signup')
           end
         end
+
+        context 'routes /v1/sessions/slo/new to SessionController#new' do
+          it 'redirects' do
+            expect(get(:new, params: { type: :slo }))
+              .to redirect_to('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+          end
+        end
       end
 
       context 'routes requiring auth' do
-        %w[mfa verify slo].each do |type|
+        %w[mfa verify].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, params: { type: type })
             expect(response).to have_http_status(:unauthorized)
@@ -359,6 +366,24 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
+      end
+    end
+
+    describe 'track' do
+      it 'ignores a SAML stat without params' do
+        expect { get(:tracker) }
+          .not_to trigger_statsd_increment(described_class::STATSD_SSO_SAMLTRACKER_KEY,
+                                           tags: ['type:',
+                                                  'context:',
+                                                  'version:v1'])
+      end
+
+      it 'logs a SAML stat with valid params' do
+        expect { get(:tracker, params: { type: 'mhv', authn: 'myhealthevet' }) }
+          .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLTRACKER_KEY,
+                                       tags: ['type:mhv',
+                                              'context:myhealthevet',
+                                              'version:v1'])
       end
     end
   end
