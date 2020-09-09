@@ -574,7 +574,7 @@ coronavirus_chatbot:
 
 # Settings for notifications client
 vanotify:
-  client_url: fake_client_url
+  client_url: http://fakeapi.com
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
