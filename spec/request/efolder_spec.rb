@@ -23,7 +23,7 @@ RSpec.describe 'eFolder API Endpoint', type: :request do
     stub_efolder_documents(:show)
 
     it 'sends the doc pdf' do
-      get "/v0/efolder/#{document_id}", params: { filename: 'test.pdf' }
+      get "/v0/efolder/#{CGI.escape(document_id)}", params: { filename: 'test.pdf' }
       expect(response.body).to eq(content)
     end
   end
