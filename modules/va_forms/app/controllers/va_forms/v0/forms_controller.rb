@@ -8,7 +8,8 @@ module VaForms
       def index
         render json: Form.search(search_term: params[:query], show_deleted: params[:show_deleted]),
                serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: VaForms::FormListSerializer
+               each_serializer: VaForms::FormListSerializer,
+               show_deleted: params[:show_deleted]
       end
 
       def show

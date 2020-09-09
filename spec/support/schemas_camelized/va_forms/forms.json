@@ -1,28 +1,20 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": [
-    "data"
-  ],
+  "required": ["data"],
   "properties": {
     "data": {
       "type": "array",
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "required": [
-          "id",
-          "type",
-          "attributes"
-        ],
+        "required": ["id", "type", "attributes"],
         "properties": {
           "id": {
             "type": "string"
           },
           "type": {
-            "enum": [
-              "va_form"
-            ]
+            "enum": ["va_form"]
           },
           "attributes": {
             "type": "object",
@@ -46,16 +38,10 @@
                 "type": "string"
               },
               "firstIssuedOn": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "lastRevisionOn": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "pages": {
                 "type": "integer"
@@ -64,58 +50,38 @@
                 "type": "boolean"
               },
               "formDetailsUrl": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "sha256": {
                 "type": "string"
               },
               "formUsage": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "formToolIntro": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "formToolUrl": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "formType": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "language": {
-                "type": [
-                  "string",
-                  "null"
-                ]
+                "type": ["string", "null"]
               },
               "relatedForms": {
-                "type": [
-                  "array",
-                  "null"
-                ],
+                "type": ["array", "null"],
                 "items": {
                   "type": "string"
                 }
               },
               "benefitCategories": {
-                "type": [
-                  "array",
-                  "null"
-                ]
+                "type": ["array", "null"]
+              },
+              "deleted_at": {
+                "type": ["string", "null"],
+                "format": "date-time"
               }
             }
           }

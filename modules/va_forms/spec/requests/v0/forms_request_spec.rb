@@ -8,17 +8,23 @@ RSpec.describe 'VA Forms', type: :request do
   let!(:form) do
     create(:va_form)
     create(:va_form, form_name: '527')
-    create(:va_form, :has_been_deleted)
+    create(:deleted_va_form)
   end
   let(:base_url) { '/services/va_forms/v0/forms' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   describe 'GET :index' do
-    it 'returns the forms', focus: true do
-      # create(:va_form, :has)
+    it 'returns the forms' do
       get base_url
-      body = response.parsed_body
-      puts body.to_json
+      expect(JSON.parse(response.body)['data'].length).to eq(2)
+      expect(response).to match_response_schema('va_forms/forms')
+    end
+
+    it 'returns deleted forms when show_deleted param is true' do
+      get "#{base_url}?show_deleted=true"
+      data = JSON.parse(response.body)['data']
+      expect(data.length).to eq(3)
+      expect(data[2]['attributes']['deleted_at']).to be_truthy
       expect(response).to match_response_schema('va_forms/forms')
     end
 
@@ -26,6 +32,15 @@ RSpec.describe 'VA Forms', type: :request do
       get base_url, headers: inflection_header
       expect(response).to match_camelized_response_schema('va_forms/forms')
     end
+
+    # it 'returns deleted forms when camel-inflected and show_deleted param is true' do
+    #   get "#{base_url}?show_deleted=true", headers: inflection_header
+    #   data = JSON.parse(response.body)['data']
+    #   puts data
+    #   expect(data.length).to eq(3)
+    #   expect(data[2]['attributes']['deleted_at']).to be_truthy
+    #   expect(response).to match_camelized_response_schema('va_forms/forms')
+    # end
 
     it 'correctly returns a matched query' do
       get "#{base_url}?query=526"

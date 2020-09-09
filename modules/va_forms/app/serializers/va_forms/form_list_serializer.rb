@@ -9,6 +9,12 @@ module VaForms
                :form_usage, :form_tool_intro, :form_tool_url, :form_details_url,
                :form_type, :language, :related_forms, :benefit_categories
 
+    attribute :deleted_at, if: :show_deleted?
+
+    def show_deleted?
+      instance_options[:show_deleted]
+    end
+
     def id
       object.form_name
     end
