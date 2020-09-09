@@ -32,12 +32,3 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash)
   end
 end
-
-RSpec.describe EVSSClaim::DocumentUpload, type: :job do
-  it 're-queues the job into the new namespace' do
-    expect { described_class.new.perform(nil, nil, nil) }
-      .to change { EVSS::DocumentUpload.jobs.size }
-      .from(0)
-      .to(1)
-  end
-end
