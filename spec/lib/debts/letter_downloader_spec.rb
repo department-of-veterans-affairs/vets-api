@@ -60,7 +60,9 @@ RSpec.describe Debts::LetterDownloader do
       let(:document_id) { '{abc}' }
 
       it 'raises an unauthorized error' do
-        expect { subject.get_letter(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+        VCR.use_cassette('bgs/people_service/person_data') do
+          expect { subject.get_letter(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+        end
       end
     end
   end
