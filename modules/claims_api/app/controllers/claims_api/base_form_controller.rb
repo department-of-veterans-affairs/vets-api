@@ -2,6 +2,8 @@
 
 require 'json_schema/json_api_missing_attribute'
 require 'claims_api/form_schemas'
+require 'evss/disability_compensation_auth_headers'
+require 'evss/auth_headers'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
