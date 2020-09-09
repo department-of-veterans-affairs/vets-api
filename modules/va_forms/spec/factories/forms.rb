@@ -9,7 +9,7 @@ FactoryBot.define do
     last_revision_on { Time.zone.today }
     pages { 2 }
     valid_pdf { true }
-    sequence(:sha256) { |n| "abcd#{n}"}
+    sequence(:sha256) { |n| "abcd#{n}" }
 
     trait :has_been_deleted do
       deleted_at { '2020-07-16T00:00:00.000Z' }

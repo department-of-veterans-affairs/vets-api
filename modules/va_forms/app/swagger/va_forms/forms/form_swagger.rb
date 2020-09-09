@@ -99,6 +99,7 @@ module VaForms
               key :type, :string
               key :example, '2018-07-30T17:31:15.958Z'
               key :format, 'date-time'
+            end
             property :related_forms do
               key :description, I18n.t('va_forms.field_descriptions.related_forms')
               key :type, :array
