@@ -18,7 +18,7 @@ info:
 
   termsOfService: 'https://developer.va.gov/terms-of-service'
   contact:
-    name: Vets.gov
+    name: va.gov
 tags:
   - name: apps
     description: Applications API
@@ -38,7 +38,7 @@ paths:
     get:
       tags:
         - apps
-      summary: Retrieve OAuth Applications available 
+      summary: Retrieve OAuth Applications available
       operationId: getApps
       responses:
         '200':
@@ -61,7 +61,7 @@ paths:
                         type: number
                         description: 'Counter used for pagination'
                         example: 1
-                    
+
 components:
   schemas:
     App:
@@ -109,7 +109,7 @@ components:
               items:
                 type: string
                 description: An array of all consent scopes the application would request
-              example: 
+              example:
                 - Read Perscription History
                 - Read Personal Medical History
                 - Read Family Medical History

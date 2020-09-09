@@ -37,12 +37,6 @@ module AppsApi
               key :example, 'Web'
             end
 
-            property :type do
-              key :description, I18n.t('apps_api.field_descriptions.type')
-              key :type, :string
-              key :example, 'Third-Party'
-            end
-
             property :iconURL do
               key :description, I18n.t('apps_api.field_descriptions.iconUrl')
               key :type, :string

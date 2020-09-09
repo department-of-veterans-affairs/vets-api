@@ -15,7 +15,7 @@ module Okta
       base_url = Settings.oidc.base_api_url + '/api/v1/apps?limit=200&filter=status+eq+"ACTIVE"'
       unfiltered_apps = recursively_get_apps(okta_service, base_url)
 
-
+#
       # Iterate through the returned applications, and test for pattern matching,
       # adding to our filtered apps array if pattern doesn't match
       filtered_apps = unfiltered_apps.reject { |app| app['label'] =~ ISO_PATTERN }
@@ -30,7 +30,7 @@ module Okta
       apps_response = okta_service.get_apps(url)
       # Moving apps in response body to iterable array
       unfiltered_apps.concat(apps_response.body)
-
+#
       # Check headers for ['link'] where 'rel' == next
       # If the next link exists, call okta_service.get_apps(next_link) and filter based on iso_pattern
       if contains_next(apps_response.headers)
