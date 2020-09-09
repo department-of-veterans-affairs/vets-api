@@ -2,6 +2,7 @@
 
 require 'active_model'
 require 'common/models/form'
+require 'common/exceptions'
 
 module VAOS
   class MessageForm < Common::Form
