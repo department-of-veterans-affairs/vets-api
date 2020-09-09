@@ -3,7 +3,7 @@
   orbs:
     ruby: circleci/ruby@0.2.1
 
-  # Pipeline params are needed for API v2 in order  to
+  # Pipeline params are needed for API v2 in order to
   # trigger a conditional verification task workflow via webhook from the pact broker
   # Triggering a specific job via v1.1 of the Circle API is being depreciated
   parameters:
