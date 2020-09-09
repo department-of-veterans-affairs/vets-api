@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 91c92dfca26649764745186b4348e1455441925e
+  revision: ec2d8b3d8bb10b9a37c425c350cfeb694ea0d7af
   branch: master
   specs:
-    vets_json_schema (6.7.3)
+    vets_json_schema (8.1.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -81,6 +81,12 @@ PATH
     covid_research (0.1.0)
       rails (~> 6.0.3, >= 6.0.3.2)
       sidekiq
+
+PATH
+  remote: modules/mobile
+  specs:
+    mobile (0.1.0)
+      rails (~> 6.0.3, >= 6.0.3.2)
 
 PATH
   remote: modules/openid_auth
@@ -893,6 +899,7 @@ DEPENDENCIES
   mail (= 2.7.1)
   memoist
   mini_magick (~> 4.10.1)
+  mobile!
   net-sftp
   nokogiri (~> 1.10)
   notifications-ruby-client (~> 5.1)

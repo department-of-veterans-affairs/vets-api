@@ -568,10 +568,11 @@ coronavirus_chatbot:
 
 # Settings for notifications client
 vanotify:
-  client_url: fake_client_url
+  client_url: http://fakeapi.com
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+  mock: false
 
 # Settings to connect to the drupal forms graphql api
 va_forms:

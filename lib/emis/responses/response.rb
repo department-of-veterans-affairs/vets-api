@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'emis/errors/service_error'
+
 module EMIS
   module Responses
     # Generic EMIS response wrapper used to translate the XML data

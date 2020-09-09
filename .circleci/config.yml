@@ -3,15 +3,15 @@
   orbs:
     ruby: circleci/ruby@0.2.1
 
-  # Pipeline params are needed for API v2 in order to 
+  # Pipeline params are needed for API v2 in order to
   # trigger a conditional verification task workflow via webhook from the pact broker
   # Triggering a specific job via v1.1 of the Circle API is being depreciated
   parameters:
     verify_stable_pacts:
       type: boolean
-      default: false 
-  
-  executors: 
+      default: false
+
+  executors:
     vets_api_docker_executor:
       docker:
         - image: circleci/ruby:2.6.6-stretch
@@ -38,13 +38,10 @@
       executor: vets_api_docker_executor
       steps:
         - checkout_and_install
-        - install_dependencies
         - setup_test_db
         - verify_stable_pacts
         - store_test_results:
             path: ./rspec
-        - store_artifacts:
-            path: ./ci
     bundle_audit:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
@@ -54,7 +51,7 @@
         - store_test_results:
             path: ./rspec
         - store_artifacts:
-            path: ./ci	
+            path: ./ci
     security_audit:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
@@ -62,7 +59,7 @@
         - checkout_and_install
         - security_check
         - store_artifacts:
-            path: ./ci	
+            path: ./ci
     lint:
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
@@ -77,17 +74,14 @@
       parallelism: 4
       steps:
         - checkout_and_install
-        - install_dependencies
         - setup_test_db
         - specs
         - store_test_results:
             path: ./rspec
         - store_artifacts:
             path: ./ci
-        - store_artifacts:
-            path: ./coverage
   workflows:
-    test_and_build: 
+    test_and_build:
       unless: << pipeline.parameters.verify_stable_pacts >>
       jobs:
         - verify_pacts
@@ -104,9 +98,21 @@
     checkout_and_install:
         steps:
             - checkout
-            - ruby/load-cache
-            - ruby/install-deps
-            - ruby/save-cache
+            - save_cache:
+                key: v2-repo-{{ .Environment.CIRCLE_SHA1 }}
+                paths:
+                  - ~/vets-api
+            - restore_cache:
+                keys:
+                  - gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+                  - gem-cache-{{ arch }}-{{ .Branch }}
+                  - gem-cache
+            - run: bundle install --path vendor/bundle
+            - save_cache:
+                key: gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+                paths:
+                  - ~/vets-api/vendor/bundle
+            - install_dependencies
     install_dependencies:
         steps:
             - run:
@@ -131,12 +137,12 @@
         steps:
             - run:
                 name: Static security analysis using Brakeman
-                command: bundle exec brakeman --exit-on-warn --run-all-checks --confidence-level=2 -o ./ci/brakeman.html -o ./ci/brakeman.text											
+                command: bundle exec brakeman --exit-on-warn --run-all-checks --confidence-level=2 -o ./ci/brakeman.html -o ./ci/brakeman.text
     linting:
         steps:
             - run:
                 name: Lint code with Rubocop
-                command: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress --format RuboCop::Formatter::JUnitFormatter --out ./ci/rubocop.xml --format html --out ./ci/rubocop.html 
+                command: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress --format RuboCop::Formatter::JUnitFormatter --out ./ci/rubocop.xml --format html --out ./ci/rubocop.html
     specs:
         steps:
             - run:
