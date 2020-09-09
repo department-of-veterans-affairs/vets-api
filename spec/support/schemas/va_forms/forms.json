@@ -38,15 +38,15 @@
               "form_details_url": { "type": ["string", "null"] },
               "form_type": { "type": ["string", "null"] },
               "language": { "type": ["string", "null"] },
+              "deleted_at": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              },
               "related_forms": {
                 "type": ["array", "null"],
                 "items": { "type": "string" }
               },
-              "benefit_categories": { "type": ["array", "null"] },
-              "deleted_at": {
-                "type": ["string", "null"],
-                "format": "date-time"
-              }
+              "benefit_categories": { "type": ["array", "null"] }
             }
           }
         }

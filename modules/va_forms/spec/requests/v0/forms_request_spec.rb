@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'json'
+
 RSpec.describe 'VA Forms', type: :request do
   include SchemaMatchers
 
@@ -14,16 +14,11 @@ RSpec.describe 'VA Forms', type: :request do
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   describe 'GET :index' do
-    it 'returns the forms' do
+    it 'returns the forms, including those that have been deleted' do
       get base_url
-      expect(JSON.parse(response.body)['data'].length).to eq(2)
-      expect(response).to match_response_schema('va_forms/forms')
-    end
-
-    it 'returns deleted forms when show_deleted param is true' do
-      get "#{base_url}?show_deleted=true"
       data = JSON.parse(response.body)['data']
-      expect(data.length).to eq(3)
+      expect(JSON.parse(response.body)['data'].length).to eq(3)
+      expect(data[1]['attributes']['deleted_at']).to be_nil
       expect(data[2]['attributes']['deleted_at']).to be_truthy
       expect(response).to match_response_schema('va_forms/forms')
     end
@@ -32,15 +27,6 @@ RSpec.describe 'VA Forms', type: :request do
       get base_url, headers: inflection_header
       expect(response).to match_camelized_response_schema('va_forms/forms')
     end
-
-    # it 'returns deleted forms when camel-inflected and show_deleted param is true' do
-    #   get "#{base_url}?show_deleted=true", headers: inflection_header
-    #   data = JSON.parse(response.body)['data']
-    #   puts data
-    #   expect(data.length).to eq(3)
-    #   expect(data[2]['attributes']['deleted_at']).to be_truthy
-    #   expect(response).to match_camelized_response_schema('va_forms/forms')
-    # end
 
     it 'correctly returns a matched query' do
       get "#{base_url}?query=526"

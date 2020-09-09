@@ -70,6 +70,10 @@
               "language": {
                 "type": ["string", "null"]
               },
+              "deletedAt": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              },
               "relatedForms": {
                 "type": ["array", "null"],
                 "items": {
@@ -78,10 +82,6 @@
               },
               "benefitCategories": {
                 "type": ["array", "null"]
-              },
-              "deleted_at": {
-                "type": ["string", "null"],
-                "format": "date-time"
               }
             }
           }
