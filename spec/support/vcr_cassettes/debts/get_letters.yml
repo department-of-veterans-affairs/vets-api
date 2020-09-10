@@ -5,7 +5,7 @@ http_interactions:
     uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/debtletter/letterdetails/get
     body:
       encoding: UTF-8
-      string: '{"fileNumber":"000000009"}'
+      string: '{"fileNumber":"796043735"}'
     headers:
       Accept:
       - application/json
@@ -35,7 +35,7 @@ http_interactions:
       string: |-
         [
           {
-            "fileNumber": "000000009",
+            "fileNumber": "796043735",
             "payeeNumber": "00",
             "personEntitled": "STUB_M",
             "deductionCode": "21",
@@ -53,7 +53,7 @@ http_interactions:
             ]
           },
           {
-            "fileNumber": "000000009",
+            "fileNumber": "796043735",
             "payeeNumber": "00",
             "personEntitled": "STUB_M",
             "deductionCode": "30",
@@ -85,7 +85,7 @@ http_interactions:
             ]
           },
           {
-            "fileNumber": "000000009",
+            "fileNumber": "796043735",
             "payeeNumber": "00",
             "personEntitled": "STUB_M",
             "deductionCode": "30",
@@ -103,7 +103,7 @@ http_interactions:
             ]
           },
           {
-            "fileNumber": "000000009",
+            "fileNumber": "796043735",
             "payeeNumber": "00",
             "personEntitled": "STUB_M",
             "deductionCode": "44",
