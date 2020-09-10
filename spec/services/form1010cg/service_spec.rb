@@ -688,7 +688,6 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'if provided submission already has attachments' do
-        # TODO: lets start using factory bot here....
         subject.submission = double(carma_case_id: 'CAS_1234', attachments: [{ id: 'CAS_qwer' }])
         expect { subject.submit_attachment }.to raise_error('submission already has attachments')
       end
