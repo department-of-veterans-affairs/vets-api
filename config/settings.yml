@@ -397,7 +397,11 @@ reports:
 oidc:
   auth_server_metadata_url: ~
   issuer: ~
+  issuer_prefix: ~
   audience: ~
+  isolated_audience:
+    default: ~
+    veteran_verification: ~
   base_api_url: https://example.com
   base_api_token: ~
 
@@ -456,10 +460,6 @@ search:
   mock_search: true
   url: https://search.usa.gov/api/v2
 
-bing:
-  base_api_url: "https://dev.virtualearth.net/REST/v1"
-  key: fake_key
-
 flipper:
   admin_user_emails:
     - alastair@adhocteam.us
@@ -510,12 +510,16 @@ flipper:
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
+    - shallie@governmentcio.com
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
     - tony.williams@va.gov
     - jennie.mcgibney@va.gov
+    - callen@governmentcio.com # Remove after Profile 2.0 UAT
+    - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
+    - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
 
 bgs:
   application: ~
@@ -528,6 +532,12 @@ bgs:
 
 va_mobile:
   url: "https://veteran.apps.va.gov"
+  mock: false
+  key_path: /fake/client/key/path
+  timeout: 15
+
+hqva_mobile:
+  url: 'https://veteran.apps.va.gov'
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
@@ -567,13 +577,21 @@ coronavirus_chatbot:
 
 # Settings for notifications client
 vanotify:
-  client_url: fake_client_url
+  client_url: http://fakeapi.com
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+  mock: false
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
+genisis:
+  base_url: https://vaausapprne60.aac.dva.va.gov
+  service_path: /COVID19Service
+  user: TestUser
+  pass: bogus

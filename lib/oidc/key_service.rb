@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'openssl'
+require 'okta/service'
 
 module OIDC
   class KeyService
@@ -8,10 +9,12 @@ module OIDC
     # Map from kid to OpenSSL::RSA::PKey for all current keys
     @current_keys = {}
     @cache_miss_kids = {}
+    @expected_iss = nil
     KID_CACHE_PERIOD_SECS = 60
     KID_CACHE_MAX_SIZE = 10
 
-    def self.get_key(expected_kid)
+    def self.get_key(expected_kid, expected_iss)
+      @expected_iss = expected_iss
       found = @current_keys[expected_kid]
       if found.nil? && should_refresh?(expected_kid)
         refresh expected_kid
@@ -57,7 +60,7 @@ module OIDC
 
     def self.fetch_keys
       okta = Okta::Service.new
-      key_response = okta.oidc_jwks_keys
+      key_response = okta.oidc_jwks_keys(@expected_iss)
       key_response.body
     end
 

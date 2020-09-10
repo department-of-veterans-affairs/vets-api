@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require_relative 'facility'
 
 module Lighthouse
   module Facilities

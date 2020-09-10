@@ -50,6 +50,8 @@ module BGSDependents
         divorce_country: optional_fields[:divorce_country],
         marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
         living_expenses_paid_amount: optional_fields[:living_expenses_paid],
+        child_prevly_married_ind: optional_fields[:child_prevly_married_ind],
+        guardian_particpant_id: optional_fields[:guardian_particpant_id],
         type: optional_fields[:type]
       }
     end

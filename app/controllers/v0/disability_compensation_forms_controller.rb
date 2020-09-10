@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+require 'evss/common_service'
+require 'evss/disability_compensation_auth_headers'
+require 'evss/disability_compensation_form/form4142'
+require 'evss/disability_compensation_form/service'
+require 'evss/reference_data/service'
+
 module V0
   class DisabilityCompensationFormsController < ApplicationController
     before_action { authorize :evss, :access? }

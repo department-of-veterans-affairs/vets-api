@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-require 'sidekiq'
 require_dependency 'vba_documents/multipart_parser'
 require_dependency 'vba_documents/payload_manager'
+require 'central_mail/utilities'
+require 'central_mail/service'
+require 'pdf_info'
+require 'sidekiq'
 require 'vba_documents/object_store'
 require 'vba_documents/upload_error'
 

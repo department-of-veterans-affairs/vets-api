@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/service_exception'
+require 'evss/disability_compensation_form/gateway_timeout'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
@@ -24,7 +27,7 @@ module EVSS
       #
       def perform(submission_id)
         super(submission_id)
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id) do
+        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           service = service(submission.auth_headers)
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
@@ -48,7 +51,7 @@ module EVSS
       def retryable_error_handler(error)
         # update JobStatus, log and metrics in JobStatus#retryable_error_handler
         super(error)
-        raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
+        raise error
       end
 
       def service(_auth_headers)

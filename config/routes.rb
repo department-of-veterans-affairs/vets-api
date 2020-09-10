@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'flipper/admin_user_constraint'
+
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
@@ -17,6 +19,7 @@ Rails.application.routes.draw do
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
+  get '/v1/sessions/tracker', to: 'v1/sessions#tracker'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
@@ -86,6 +89,8 @@ Rails.application.routes.draw do
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
+
+    resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
@@ -224,6 +229,7 @@ Rails.application.routes.draw do
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
+      resources :payment_history, only: %i[index]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -286,6 +292,10 @@ Rails.application.routes.draw do
     namespace :coronavirus_chatbot do
       resource :tokens, only: :create
     end
+
+    namespace :ask do
+      resource :asks, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
@@ -315,7 +325,6 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
@@ -324,6 +333,7 @@ Rails.application.routes.draw do
 
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
+  mount Mobile::Engine, at: '/mobile'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

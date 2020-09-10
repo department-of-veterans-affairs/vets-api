@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/models/address'
 
 describe Vet360::Models::Address do
   let(:address) { build(:vet360_address) }

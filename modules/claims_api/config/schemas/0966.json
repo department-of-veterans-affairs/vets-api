@@ -13,6 +13,19 @@
         "pension",
         "burial"
       ]
+    },
+    "participant_claimant_id": {
+      "type": "string",
+      "example": "123456789"
+    },
+    "participant_vet_id": {
+      "type": "string",
+      "example": "987654321"
+    },
+    "received_date": {
+      "type": "string",
+      "example": "2015-01-05T17:42:12.058Z",
+      "format": "datetime"
     }
   }
 }

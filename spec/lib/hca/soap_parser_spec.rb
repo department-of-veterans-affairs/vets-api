@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'hca/soap_parser'
 
 describe HCA::SOAPParser do
   let(:parser) { described_class.new }

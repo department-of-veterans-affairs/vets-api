@@ -32,7 +32,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       }
     }
     time = '2020-04-23T21:06:12.531Z'
-    attrs = { status: :processed, updatedAt: time, createdAt: time, formData: example_all_fields_used }
+    attrs = { status: :processing, updatedAt: time, createdAt: time, formData: example_all_fields_used }
     example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
 
     {

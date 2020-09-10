@@ -9,6 +9,7 @@ module VA10203
     attribute :name, String
     attribute :city, String
     attribute :state, String
+    attribute :country, String
   end
 
   class FormEntitlementInformation
@@ -26,7 +27,7 @@ class FormProfiles::VA10203 < FormProfile
   def prefill(user)
     authorized = user.authorize :evss, :access?
 
-    if Flipper.enabled?(:stem_sco_email) && authorized
+    if Flipper.enabled?(:stem_sco_email, user) && authorized
       gi_bill_status = get_gi_bill_status(user)
       @remaining_entitlement = initialize_entitlement_information(gi_bill_status)
       @school_information = initialize_school_information(gi_bill_status)
@@ -78,7 +79,8 @@ class FormProfiles::VA10203 < FormProfile
     VA10203::FormInstitutionInfo.new(
       name: profile_response[:data][:attributes][:name],
       city: profile_response[:data][:attributes][:city],
-      state: profile_response[:data][:attributes][:state]
+      state: profile_response[:data][:attributes][:state],
+      country: profile_response[:data][:attributes][:country]
     )
   rescue => e
     Rails.logger.error "Failed to retrieve GIDS data: #{e.message}"

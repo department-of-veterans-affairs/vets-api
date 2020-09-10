@@ -14,6 +14,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
     @data = fixture_to_s 'valid_200996.json'
     @invalid_data = fixture_to_s 'invalid_200996.json'
     @headers = fixture_as_json 'valid_200996_headers.json'
+    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json'
     @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
   end
 
@@ -22,10 +23,22 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
   describe '#create' do
     let(:path) { base_path 'higher_level_reviews' }
 
-    it 'create an HLR and persist the data' do
-      post(path, params: @data, headers: @headers)
-      expect(parsed['data']['type']).to eq('higherLevelReview')
-      expect(parsed['data']['attributes']['status']).to eq('pending')
+    context 'creates an HLR and persists the data' do
+      it 'with all headers' do
+        post(path, params: @data, headers: @headers)
+        expect(parsed['data']['type']).to eq('higherLevelReview')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+      it 'with the minimum required headers' do
+        post(path, params: @data, headers: @minimum_required_headers)
+        expect(parsed['data']['type']).to eq('higherLevelReview')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+      it 'fails when a required header is missing' do
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+      end
     end
 
     it 'create the job to build the PDF' do
@@ -38,6 +51,52 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
       post(path, params: @data, headers: @invalid_headers)
       expect(response.status).to eq(422)
       expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
+    end
+
+    it 'responds with a 422 when request.body is a Puma::NullIO' do
+      fake_puma_null_io_object = Object.new.tap do |obj|
+        def obj.class
+          OpenStruct.new name: 'Puma::NullIO'
+        end
+      end
+      expect(fake_puma_null_io_object.class.name).to eq 'Puma::NullIO'
+      allow_any_instance_of(ActionDispatch::Request).to(
+        receive(:body).and_return(fake_puma_null_io_object)
+      )
+      post(path, params: @data, headers: @headers)
+      expect(response.status).to eq 422
+      expect(JSON.parse(response.body)['errors']).to be_an Array
+    end
+
+    context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+      before do
+        fake_io_object = OpenStruct.new string: json
+        allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+      end
+
+      context 'request.body is a JSON string' do
+        let(:json) { '"Hello!"' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+        end
+      end
+
+      context 'request.body is a JSON integer' do
+        let(:json) { '66' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+        end
+      end
     end
   end
 

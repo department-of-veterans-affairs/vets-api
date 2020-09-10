@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require 'common/exceptions/base_error'
+
 module Common
   module Exceptions
     # This will return a generic error, to customize
