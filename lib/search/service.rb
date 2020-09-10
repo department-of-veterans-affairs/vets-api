@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require 'common/client/errors/client_error'
+require 'common/client/errors'
 require 'search/response'
 require 'search/configuration'
 
