@@ -46,7 +46,8 @@ module Form1010cg
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
-        submitted_at: carma_submission.submitted_at
+        submitted_at: carma_submission.submitted_at,
+        metadata: carma_submission.request_body['metadata']
       )
 
       submit_attachment

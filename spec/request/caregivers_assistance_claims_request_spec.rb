@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 
+# TODO: Add expectations for logging and StatsD increments
+
 RSpec.describe 'Caregivers Assistance Claims', type: :request do
   let(:uri) { 'http://localhost:3000' }
   let(:headers) do

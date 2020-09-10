@@ -646,7 +646,8 @@ RSpec.describe Form1010cg::Service do
       expected = {
         results: {
           carma_case_id: 'aB935000000A9GoCAK',
-          submitted_at: DateTime.new
+          submitted_at: DateTime.new,
+          metadata: :REQUEST_METADATA
         }
       }
 
@@ -658,6 +659,7 @@ RSpec.describe Form1010cg::Service do
         expect(carma_submission).to receive(:submit!) {
           expect(carma_submission).to receive(:carma_case_id).and_return(expected[:results][:carma_case_id])
           expect(carma_submission).to receive(:submitted_at).and_return(expected[:results][:submitted_at])
+          expect(carma_submission).to receive(:request_body).and_return({ 'metadata' => expected[:results][:metadata] })
 
           carma_submission
         }
@@ -672,6 +674,7 @@ RSpec.describe Form1010cg::Service do
       expect(result).to be_a(Form1010cg::Submission)
       expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
       expect(result.submitted_at).to eq(expected[:results][:submitted_at])
+      expect(result.metadata).to eq(:REQUEST_METADATA)
     end
   end
 
