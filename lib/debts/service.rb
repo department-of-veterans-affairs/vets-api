@@ -23,7 +23,7 @@ module Debts
     def get_debts
       {
         has_dependent_debts: veteran_has_dependent_debts?,
-        debts: sorted_debts
+        debts: debts_with_sorted_histories
       }
     end
 
@@ -38,7 +38,7 @@ module Debts
       bgs_file_number.presence || @user.ssn
     end
 
-    def sorted_debts
+    def debts_with_sorted_histories
       @debts.select do |debt|
         debt['debtHistory'] = sort_by_date(debt['debtHistory'])
         debt['payeeNumber'] == '00'
