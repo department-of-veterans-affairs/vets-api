@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
+require 'caseflow/service'
+require 'central_mail/service'
+require 'emis/service'
+require 'gibft/service'
+require 'mvi/service'
 require 'saml/errors'
+require 'saml/responses/base'
+require 'saml/user'
+require 'stats_d_metric'
+require 'search/service'
+require 'vet360/exceptions/parser'
+require 'vet360/service'
 
 host = Settings.statsd.host
 port = Settings.statsd.port
@@ -35,8 +46,6 @@ LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
     (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
       StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
                        tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
-                       tags: ["version:#{v}", "context:#{ctx}"])
     end
   end
   (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
@@ -44,6 +53,8 @@ LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
       StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
                        tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
       StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLRESPONSE_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLTRACKER_KEY, 0,
                        tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
     end
   end

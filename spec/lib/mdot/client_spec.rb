@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'mdot/client'
+require 'mdot/exceptions/service_exception'
 
 describe MDOT::Client, type: :mdot_helpers do
   subject { described_class.new(user) }
@@ -34,7 +35,7 @@ describe MDOT::Client, type: :mdot_helpers do
         VCR.use_cassette('mdot/get_supplies_502') do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:502'
+              'error:CommonClientErrorsClientError', 'status:502'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(
@@ -54,7 +55,7 @@ describe MDOT::Client, type: :mdot_helpers do
         VCR.use_cassette('mdot/get_supplies_503') do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:503'
+              'error:CommonClientErrorsClientError', 'status:503'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(
@@ -74,7 +75,7 @@ describe MDOT::Client, type: :mdot_helpers do
         VCR.use_cassette('mdot/get_supplies_403') do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:403'
+              'error:CommonClientErrorsClientError', 'status:403'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(
@@ -94,7 +95,7 @@ describe MDOT::Client, type: :mdot_helpers do
         VCR.use_cassette('mdot/get_supplies_422') do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.get_supplies.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:422'
+              'error:CommonClientErrorsClientError', 'status:422'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(
@@ -177,7 +178,7 @@ describe MDOT::Client, type: :mdot_helpers do
         VCR.use_cassette('mdot/submit_order_502') do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:502'
+              'error:CommonClientErrorsClientError', 'status:502'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(

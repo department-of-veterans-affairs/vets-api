@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/concerns/defaultable'
 
 describe Vet360::Concerns::Defaultable do
   describe 'set_defaults' do
