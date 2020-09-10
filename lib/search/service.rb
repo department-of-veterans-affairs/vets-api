@@ -6,7 +6,6 @@ require 'common/client/errors'
 require 'search/response'
 require 'search/configuration'
 
-
 module Search
   # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
   # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
