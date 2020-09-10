@@ -5,12 +5,19 @@ require 'webdrivers'
 browser = Watir::Browser.new
 browser.goto 'https://iris--tst.custhelp.com/app/ask'
 
+def select_topic(browser, topic_labels)
+  topic_labels.each do |label|
+    browser.link(visible_text: label).click
+  end
+end
+
 browser.button(id: 'rn_ProductCategoryInput_3_Product_Button').click
-browser.link(id: 'ygtvlabelel2').click
-browser.link(id: 'ygtvlabelel33').click
+select_topic(browser, ['E-Benefits Portal', 'About eBenefits'])
 browser.button(id: 'rn_ProductCategoryInput_3_Product_ConfirmButton').click
 
-browser.select_list(name: 'Incident.CustomFields.c.route_to_state').option(text: 'ALABAMA').select
+sleep(10)
+
+# browser.select_list(name: 'Incident.CustomFields.c.route_to_state').option(text: 'ALABAMA').select
 
 browser.button(id: 'rn_ProductCategoryInput_6_Category_Button').click
 query = 'Array.from(document.getElementsByClassName("ygtvlabel")).filter((element) => element.innerHTML === "Question")[0].click();'
