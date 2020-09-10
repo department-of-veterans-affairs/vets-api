@@ -51,6 +51,7 @@ ClaimsApi::Engine.routes.draw do
       get '2122/active', to: 'power_of_attorney#active'
       put '2122/:id', to: 'power_of_attorney#upload'
       get '2122/:id', to: 'power_of_attorney#status'
+      post '2122/validate', to: 'power_of_attorney#validate'
     end
   end
 
