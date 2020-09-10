@@ -6,11 +6,16 @@ browser = Watir::Browser.new
 browser.goto 'https://iris--tst.custhelp.com/app/ask'
 
 browser.button(id: 'rn_ProductCategoryInput_3_Product_Button').click
-# query = 'Array.from(document.getElementsByClassName("ygtvlabel")).filter((element) => element.innerHTML === "Guardianship/Custodianship Issues")[0].click();'
-# query = 'return Array.from(document.getElementsByClassName("ygtvlabel")).length;'
+browser.link(id: 'ygtvlabelel2').click
+browser.link(id: 'ygtvlabelel33').click
+browser.button(id: 'rn_ProductCategoryInput_3_Product_ConfirmButton').click
 
-# browser.execute_script(query)
-# browser.button(id: 'rn_ProductCategoryInput_3_Product_ConfirmButton').click
+browser.select_list(name: 'Incident.CustomFields.c.route_to_state').option(text: 'ALABAMA').select
+
+browser.button(id: 'rn_ProductCategoryInput_6_Category_Button').click
+query = 'Array.from(document.getElementsByClassName("ygtvlabel")).filter((element) => element.innerHTML === "Question")[0].click();'
+browser.execute_script(query)
+browser.button(id: 'rn_ProductCategoryInput_6_Category_ConfirmButton').click
 
 browser.textarea(name: 'Incident.Threads').set 'This is our test question'
 
@@ -25,6 +30,11 @@ browser.text_field(name: 'Incident.CustomFields.c.incomingemail_Validation').set
 browser.select_list(name: 'Incident.CustomFields.c.country').option(text: 'United States').select
 browser.select_list(name: 'Incident.CustomFields.c.state').option(text: 'Illinois').select
 browser.text_field(name: 'Incident.CustomFields.c.zipcode').set '60601'
+
+browser.button(id: 'rn_FormSubmit_58_Button').click
+browser.button(visible_text: 'Finish Submitting Question').click
+
+puts browser.element(tag_name: 'b', visible_text: /#[0-9-]*/).inner_text
 
 sleep(5)
 
