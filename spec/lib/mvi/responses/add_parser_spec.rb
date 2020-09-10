@@ -62,6 +62,7 @@ describe MVI::Responses::AddParser do
       it 'returns true' do
         allow(faraday_response).to receive(:body) { body }
         expect(parser).to be_failed_or_invalid
+        expect(PersonalInformationLog.last.error_class).to eq 'MVI::Errors'
       end
     end
   end

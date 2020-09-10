@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
+  get '/v1/sessions/tracker', to: 'v1/sessions#tracker'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
@@ -88,6 +89,8 @@ Rails.application.routes.draw do
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
+
+    resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
@@ -330,6 +333,7 @@ Rails.application.routes.draw do
 
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
+  mount Mobile::Engine, at: '/mobile'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

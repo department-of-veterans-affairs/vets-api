@@ -38,11 +38,12 @@ module V0
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
+      else
+        saml_request_stats(helper.tracker)
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
       redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
-      saml_request_stats(helper.tracker)
     end
 
     def saml_logout_callback

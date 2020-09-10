@@ -36,7 +36,7 @@ describe Forms::Client do
 
       it 'logs an error and raise GatewayTimeout exception' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.forms.get_all.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.forms.get_all.fail', tags: ['error:CommonExceptionsGatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.forms.get_all.total')
         expect { subject.get_all }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -50,7 +50,7 @@ describe Forms::Client do
 
       it 'raises backend exception' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.forms.get_all.fail', tags: ['error:Common::Client::Errors::ClientError']
+          'api.forms.get_all.fail', tags: ['error:CommonClientErrorsClientError']
         )
         expect(StatsD).to receive(:increment).once.with('api.forms.get_all.total')
         expect { subject.get_all }.to raise_error(Common::Exceptions::BackendServiceException)
