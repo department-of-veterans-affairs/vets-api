@@ -35,7 +35,7 @@ describe EVSS::Letters::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_letters.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_letters.fail', tags: ['error:CommonExceptionsGatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_letters.total')
           expect(Raven).to receive(:tags_context).once.with(team: 'benefits-memorial-1')
@@ -80,7 +80,7 @@ describe EVSS::Letters::Service do
 
         it 'logs an error and raise GatewayTimeout' do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_letter_beneficiary.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+            'api.evss.get_letter_beneficiary.fail', tags: ['error:CommonExceptionsGatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_letter_beneficiary.total')
           expect(Raven).to receive(:tags_context).once.with(team: 'benefits-memorial-1')
