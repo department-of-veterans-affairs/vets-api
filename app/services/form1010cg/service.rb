@@ -9,25 +9,7 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    STATSD_KEY_PREFIX = 'api.form1010cg'
-    NOT_FOUND         = 'NOT_FOUND'
-
-    def self.metrics
-      submission_prefix = STATSD_KEY_PREFIX + '.submission'
-      OpenStruct.new(
-        submission: OpenStruct.new(
-          attempt: submission_prefix + '.attempt',
-          success: submission_prefix + '.success',
-          failure: OpenStruct.new(
-            client: OpenStruct.new(
-              data: submission_prefix + '.failure.client.data',
-              qualification: submission_prefix + '.failure.client.qualification'
-            )
-          )
-        ),
-        pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
-      )
-    end
+    NOT_FOUND = 'NOT_FOUND'
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -58,13 +40,9 @@ module Form1010cg
     def process_claim!
       raise 'submission already present' if submission.present?
 
-      log 'Submission Attempt', { veteran_name: claim.veteran_data['fullName'] }
-
       assert_veteran_status
 
       carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!(carma_client)
-
-      log 'Submission Successful', { metadata: carma_submission.to_request_payload['metadata'] }
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
@@ -100,8 +78,6 @@ module Form1010cg
         carma_attachments.add(document_id, file_path)
 
         carma_attachments.submit!(carma_client)
-        log 'Attachment(s) Delivery', response: carma_attachments.response
-
         submission.attachments = carma_attachments.to_hash
       rescue
         # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
@@ -169,10 +145,10 @@ module Form1010cg
 
       case response.status
       when 'OK'
-        log "MPI Profile found for #{form_subject.titleize}"
+        log_mpi_search_result form_subject, true
         return @cache[:icns][form_subject] = response.profile.icn
       when 'NOT_FOUND'
-        log "MPI Profile NOT FOUND for #{form_subject.titleize}"
+        log_mpi_search_result form_subject, false
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
@@ -215,11 +191,12 @@ module Form1010cg
       @emis_service ||= EMIS::VeteranStatusService.new
     end
 
-    def log(message, additional_context = {})
-      context = { claim_guid: claim.guid }.merge(additional_context)
-      context[:carma_case_id] = submission&.carma_case_id unless submission.nil?
-
-      Rails.logger.info "[Form 10-10CG] #{message}", context
+    def log_mpi_search_result(form_subject, was_found)
+      Form1010cg::Auditor.instance.log_mpi_search_result(
+        claim_guid: claim.guid,
+        form_subject: form_subject,
+        was_found: was_found
+      )
     end
 
     # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.

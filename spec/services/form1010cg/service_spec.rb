@@ -24,9 +24,11 @@ RSpec.describe Form1010cg::Service do
         'primaryPhoneNumber' => Faker::Number.number(digits: 10).to_s
       }
 
+      # Required properties for all caregivers
+      data['vetRelationship'] = 'Daughter' if form_subject != :veteran
+
       # Required properties for :primaryCaregiver
       if form_subject == :primaryCaregiver
-        data['vetRelationship'] = 'Daughter'
         data['medicaidEnrolled'] = true
         data['medicareEnrolled'] = false
         data['tricareEnrolled'] = false
@@ -338,6 +340,71 @@ RSpec.describe Form1010cg::Service do
         expect(result).to eq(:ICN_123)
       end
     end
+
+    describe 'logging' do
+      let(:subject) do
+        described_class.new(
+          build(
+            :caregivers_assistance_claim,
+            form: {
+              'veteran' => build_claim_data_for.call(:veteran),
+              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver),
+              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne),
+              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo)
+            }.to_json
+          )
+        )
+      end
+
+      it 'will log the result of a successful search' do
+        %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
+          expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+            double(status: 'OK', profile: double(icn: :ICN_123))
+          )
+
+          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+            claim_guid: subject.claim.guid,
+            form_subject: form_subject,
+            was_found: true
+          )
+
+          subject.icn_for(form_subject)
+        end
+      end
+
+      it 'will log the result of a unsuccessful search' do
+        %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
+          expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+            double(status: 'NOT_FOUND', error: double)
+          )
+
+          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+            claim_guid: subject.claim.guid,
+            form_subject: form_subject,
+            was_found: false
+          )
+
+          subject.icn_for(form_subject)
+        end
+      end
+
+      it 'will not log the search result when reading from cache' do
+        expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+          double(status: 'OK', profile: double(icn: :ICN_123))
+        )
+
+        # Exception would be raised if this is called more (or less than) than one time
+        expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+          claim_guid: subject.claim.guid,
+          form_subject: 'veteran',
+          was_found: true
+        )
+
+        5.times do
+          subject.icn_for('veteran')
+        end
+      end
+    end
   end
 
   describe '#is_veteran' do
@@ -618,6 +685,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'if provided submission already has attachments' do
+        # TODO: lets start using factory bot here....
         subject.submission = double(carma_case_id: 'CAS_1234', attachments: [{ id: 'CAS_qwer' }])
         expect { subject.submit_attachment }.to raise_error('submission already has attachments')
       end

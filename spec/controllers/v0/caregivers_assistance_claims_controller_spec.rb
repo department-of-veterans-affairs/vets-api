@@ -2,16 +2,12 @@
 
 require 'rails_helper'
 
-shared_examples 'invalid 10-10CG form submission' do |controller_action, expected_stat_increments = []|
+shared_examples '10-10CG request with invalid params' do |controller_action|
   before do
-    expected_stat_increments.each do |stat|
-      expect(StatsD).to receive(:increment).with(stat)
-    end
+    expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
   end
 
   it 'requires "caregivers_assistance_claim" param' do
-    expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
-
     post controller_action, params: {}
 
     expect(response).to have_http_status(:bad_request)
@@ -30,12 +26,9 @@ shared_examples 'invalid 10-10CG form submission' do |controller_action, expecte
   end
 
   it 'requires "caregivers_assistance_claim.form" param' do
-    expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
-
     post controller_action, params: { caregivers_assistance_claim: { form: nil } }
 
     expect(response).to have_http_status(:bad_request)
-
     res_body = JSON.parse(response.body)
 
     expect(res_body['errors'].size).to eq(1)
@@ -48,12 +41,22 @@ shared_examples 'invalid 10-10CG form submission' do |controller_action, expecte
       }
     )
   end
+end
+
+shared_examples '10-10CG request with invalid form data' do |controller_action|
+  let(:form_data) do
+    '{}'
+  end
+
+  let(:params) do
+    { caregivers_assistance_claim: { form: form_data } }
+  end
+
+  let(:claim) do
+    build(:caregivers_assistance_claim, form: form_data)
+  end
 
   it 'builds a claim and raises its errors' do
-    params = { caregivers_assistance_claim: { form: '{}' } }
-    form_data = params[:caregivers_assistance_claim][:form]
-    claim = build(:caregivers_assistance_claim, form: form_data)
-
     expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
       form: form_data
     ).and_return(
@@ -87,17 +90,39 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   end
 
   describe '#create' do
-    it_behaves_like 'invalid 10-10CG form submission', :create, [
-      'api.form1010cg.submission.attempt',
-      'api.form1010cg.submission.failure.client.data'
-    ]
+    it_behaves_like '10-10CG request with invalid params', :create do
+      before do
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_failure_client_data)
+      end
+    end
+
+    it_behaves_like '10-10CG request with invalid form data', :create do
+      before do
+        # Need to build a duplicate claim in order to not change the state of the
+        # mocked claim that is passed into the src code for testing
+        expected_errors = build(:caregivers_assistance_claim, form: form_data).tap(&:valid?).errors.messages
+
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+          :submission_failure_client_data,
+          claim_guid: claim.guid,
+          errors: expected_errors
+        )
+      end
+    end
 
     it 'submits claim with Form1010cg::Service' do
       claim = build(:caregivers_assistance_claim)
       form_data = claim.form
       params = { caregivers_assistance_claim: { form: form_data } }
       service = double
-      submission = double(carma_case_id: 'A_123', submitted_at: DateTime.now.iso8601)
+      submission = double(
+        carma_case_id: 'A_123',
+        submitted_at: DateTime.now.iso8601,
+        attachments: :attachments_uploaded,
+        metadata: :metadata_submitted
+      )
 
       expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
         form: form_data
@@ -108,8 +133,14 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
       expect(service).to receive(:process_claim!).and_return(submission)
 
-      expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-      expect(StatsD).to receive(:increment).with('api.form1010cg.submission.success')
+      expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
+      expect(Form1010cg::Auditor.instance).to receive(:record).with(
+        :submission_success,
+        claim_guid: claim.guid,
+        carma_case_id: submission.carma_case_id,
+        attachments: submission.attachments,
+        metadata: submission.metadata
+      )
 
       post :create, params: params
 
@@ -126,10 +157,10 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
     context 'when Form1010cg::Service raises InvalidVeteranStatus' do
       it 'renders backend service outage' do
-        claim = build(:caregivers_assistance_claim)
-        form_data = claim.form
-        params = { caregivers_assistance_claim: { form: form_data } }
-        service = double
+        claim         = build(:caregivers_assistance_claim)
+        form_data     = claim.form
+        params        = { caregivers_assistance_claim: { form: form_data } }
+        service       = double
 
         expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
           form: form_data
@@ -140,8 +171,12 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
 
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+          :submission_failure_client_qualification,
+          claim_guid: claim.guid,
+          veteran_name: claim.veteran_data['fullName']
+        )
 
         post :create, params: params
 
@@ -192,8 +227,12 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
 
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+          :submission_failure_client_qualification,
+          claim_guid: claim.guid,
+          veteran_name: claim.veteran_data['fullName']
+        )
 
         invalid_veteran_status_response = post :create, params: params
 
@@ -216,7 +255,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       File.delete(response_pdf) if File.exist?(response_pdf)
     end
 
-    it_behaves_like 'invalid 10-10CG form submission', :download_pdf
+    it_behaves_like '10-10CG request with invalid params', :download_pdf
+    it_behaves_like '10-10CG request with invalid form data', :download_pdf
 
     it 'generates a filled out 10-10CG and sends file as response', run_at: '2017-07-25 00:00:00 -0400' do
       form_data = get_fixture('pdf_fill/10-10CG/unsigned/simple').to_json
@@ -230,7 +270,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       )
 
       expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
-      expect(StatsD).to receive(:increment).with('api.form1010cg.pdf_download')
+      expect(Form1010cg::Auditor.instance).to receive(:record).with(:pdf_download)
 
       post :download_pdf, params: params
 
