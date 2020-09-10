@@ -60,7 +60,7 @@ describe DecisionReview::Service do
         VCR.use_cassette('decision_review/400_intake_status') do
           expect(StatsD).to receive(:increment).once.with(
             'api.decision_review.post_higher_level_reviews.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:400'
+              'error:CommonClientErrorsClientError', 'status:400'
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.decision_review.post_higher_level_reviews.total')
@@ -102,7 +102,7 @@ describe DecisionReview::Service do
           }
           expect(StatsD).to receive(:increment).once.with(
             'api.decision_review.post_higher_level_reviews.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:404'
+              'error:CommonClientErrorsClientError', 'status:404'
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.decision_review.post_higher_level_reviews.total')
@@ -118,7 +118,7 @@ describe DecisionReview::Service do
 
       it 'logs an error and raise GatewayTimeout exception' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.decision_review.post_higher_level_reviews.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.decision_review.post_higher_level_reviews.fail', tags: ['error:CommonExceptionsGatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.decision_review.post_higher_level_reviews.total')
         expect { subject.post_higher_level_reviews({}) }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -144,7 +144,7 @@ describe DecisionReview::Service do
         VCR.use_cassette('decision_review/403_intake_status') do
           expect(StatsD).to receive(:increment).once.with(
             'api.decision_review.post_higher_level_reviews.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:403'
+              'error:CommonClientErrorsClientError', 'status:403'
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.decision_review.post_higher_level_reviews.total')
@@ -170,7 +170,7 @@ describe DecisionReview::Service do
         VCR.use_cassette('decision_review/404_get_intake_status') do
           expect(StatsD).to receive(:increment).once.with(
             'api.decision_review.get_higher_level_reviews_intake_status.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:404'
+              'error:CommonClientErrorsClientError', 'status:404'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(
@@ -200,7 +200,7 @@ describe DecisionReview::Service do
         VCR.use_cassette('decision_review/404_review') do
           expect(StatsD).to receive(:increment).once.with(
             'api.decision_review.get_higher_level_reviews.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:404'
+              'error:CommonClientErrorsClientError', 'status:404'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(
@@ -230,7 +230,7 @@ describe DecisionReview::Service do
         VCR.use_cassette('decision_review/422_contestable_issues') do
           expect(StatsD).to receive(:increment).once.with(
             'api.decision_review.get_contestable_issues.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:422'
+              'error:CommonClientErrorsClientError', 'status:422'
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.decision_review.get_contestable_issues.total')

@@ -3,14 +3,14 @@
 	"closeContactPositive": "NO",
 	"hospitalized": false,
 	"smokeOrVape": false,
-	"healthHistory": {
-		"ANOTHER_SERIOUS_CHRONIC_ILLNESS": true
+	"HEALTH_HISTORY": {
+		"HEALTH_HISTORY::ANOTHER_SERIOUS_CHRONIC_ILLNESS": true
 	},
-	"employmentStatus": {
-		"STUDENT": true
+	"EMPLOYMENT_STATUS": {
+		"EMPLOYMENT_STATUS::STUDENT": true
 	},
-	"transportation": {
-		"WALK_BIKE": true
+	"TRANSPORTATION": {
+		"TRANSPORTATION::WALK_BIKE": true
 	},
 	"residentsInHome": "ONE_TWO",
 	"closeContact": "ONE_TEN",
@@ -24,10 +24,10 @@
 	"zipCode": "33755",
 	"veteranDateOfBirth": "1970-10-07",
 	"weight": "150",
-	"gender": {
-		"MALE": true
+	"GENDER": {
+		"GENDER::MALE": true
 	},
-	"raceEthnicityOrigin": {
-		"WHITE": true
+	"RACE_ETHNICITY_ORIGIN": {
+		"RACE_ETHNICITY_ORIGIN::WHITE": true
 	}
 }
