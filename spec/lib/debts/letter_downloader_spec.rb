@@ -5,9 +5,10 @@ require 'debts/letter_downloader'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
 RSpec.describe Debts::LetterDownloader do
-  subject { described_class.new(file_number) }
+  subject { described_class.new(user) }
 
-  let(:file_number) { '796330625' }
+  let(:file_number) { '796043735' }
+  let(:user) { build(:user, :loa3, ssn: file_number) }
   let(:vbms_client) { FakeVbms.new }
 
   def stub_vbms_client_request(request_name, args, return_val)
