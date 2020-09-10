@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'vet360/models/address'
 
-describe Vet360::Models::Address, :aggregate_failures do
+describe Vet360::Models::Address do
   let(:address) { build(:vet360_address) }
 
   describe 'geolocation' do
@@ -38,7 +38,7 @@ describe Vet360::Models::Address, :aggregate_failures do
     end
   end
 
-  describe 'validation' do
+  describe 'validation', :aggregate_failures do
     context 'for any type of address' do
       it 'address_pou is requred' do
         expect(address.valid?).to eq(true)
