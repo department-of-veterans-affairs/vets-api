@@ -30,7 +30,6 @@ module HealthQuest
             jti: jti(env, response_env),
             status: response_env.status,
             duration: Time.current - start_time,
-            # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
             url: "(#{env.method.upcase}) #{env.url}"
           }
 
