@@ -26,6 +26,14 @@ RSpec.describe Debts::LetterDownloader do
     get_fixture("vbms/#{path}").map { |r| OpenStruct.new(r) }
   end
 
+  def use_person_and_letter_cassettes
+    VCR.use_cassette('bgs/people_service/person_data') do
+      VCR.use_cassette('debts/get_letters') do
+        yield
+      end
+    end
+  end
+
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(vbms_client)
 
@@ -53,7 +61,9 @@ RSpec.describe Debts::LetterDownloader do
       end
 
       it 'downloads a debt letter' do
-        expect(subject.get_letter(document_id)).to eq(content)
+        use_person_and_letter_cassettes do
+          expect(subject.get_letter(document_id)).to eq(content)
+        end
       end
     end
 
@@ -61,7 +71,7 @@ RSpec.describe Debts::LetterDownloader do
       let(:document_id) { '{abc}' }
 
       it 'raises an unauthorized error' do
-        VCR.use_cassette('bgs/people_service/person_data') do
+        use_person_and_letter_cassettes do
           expect { subject.get_letter(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
         end
       end
@@ -70,9 +80,11 @@ RSpec.describe Debts::LetterDownloader do
 
   describe '#list_letters' do
     it 'gets letter ids and descriptions' do
-      expect(subject.list_letters.to_json).to eq(
-        get_fixture('vbms/list_letters').to_json
-      )
+      use_person_and_letter_cassettes do
+        expect(subject.list_letters.to_json).to eq(
+          get_fixture('vbms/list_letters').to_json
+        )
+      end
     end
   end
 end
