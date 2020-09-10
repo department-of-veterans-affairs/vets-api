@@ -9,6 +9,8 @@ module BGSDependents
     def format_info
       {
         'death_date': @death_info['date'],
+        'ssn': @death_info['ssn'],
+        'birth_date': @death_info['birth_date'],
         'vet_ind': 'N'
       }.merge(@death_info['full_name'])
     end

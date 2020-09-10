@@ -7,6 +7,8 @@ RSpec.describe BGSDependents::Death do
     {
       'date' => '2019-03-03',
       'vet_ind' => 'N',
+      'ssn' => '846685794',
+      'birth_date' => '2009-03-03',
       'location' => { 'state' => 'CA', 'city' => 'Hollywood' },
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' },
       'dependent_type' => 'CHILD',
@@ -17,6 +19,8 @@ RSpec.describe BGSDependents::Death do
     {
       :death_date => '2019-03-03',
       :vet_ind => 'N',
+      :ssn => '846685794',
+      :birth_date => '2009-03-03',
       'first' => 'Billy',
       'middle' => 'Yohan',
       'last' => 'Johnson',
