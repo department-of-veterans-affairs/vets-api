@@ -2,7 +2,6 @@
 
 require_relative '../configuration'
 
-# LJG NOTE: Added these to make things work. Autoloading may not be consistent, not sure ?
 Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middleware::HealthQuestLogging
 Faraday::Response.register_middleware health_quest_errors: HealthQuest::Middleware::Response::Errors
 
@@ -10,12 +9,10 @@ module HealthQuest
   module V1
     class FHIRConfiguration < HealthQuest::Configuration
       def base_path
-        # LJG NOTE: - alternate from VAOS here
         "#{Settings.hqva_mobile.url}/vsp/v1/"
       end
 
       def service_name
-        # LJG NOTE: - service name
         'HealthQuest::FHIR'
       end
 

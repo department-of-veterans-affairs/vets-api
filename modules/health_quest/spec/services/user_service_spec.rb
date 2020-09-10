@@ -63,8 +63,6 @@ describe HealthQuest::UserService do
 
         it 'makes a call out to the the health_quest user service once' do
           VCR.use_cassette('health_quest/users/post_session') do
-            # LJG NOTE: this code was copied from VAOS and it does not fail rubocop, not sure why
-            # -> Do not stub methods of the object under test
             # rubocop:disable RSpec/SubjectStub
             expect(subject).to receive(:perform).once.and_return(response)
             # rubocop:enable RSpec/SubjectStub
