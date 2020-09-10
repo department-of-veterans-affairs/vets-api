@@ -35,7 +35,7 @@ module Debts
 
     def init_file_number
       bgs_file_number = BGS::PeopleService.new(@user).find_person_by_participant_id[:file_nbr]
-      bgs_file_number.empty? ? @user.ssn : bgs_file_number
+      bgs_file_number.blank? ? @user.ssn : bgs_file_number
     end
 
     def sorted_debts
