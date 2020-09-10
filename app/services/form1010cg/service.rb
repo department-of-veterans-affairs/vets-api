@@ -81,8 +81,7 @@ module Form1010cg
           claim.veteran_data['fullName']['last']
         )
 
-        document_id = CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG']
-        carma_attachments.add(document_id, file_path)
+        carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
 
         carma_attachments.submit!(carma_client)
         submission.attachments = carma_attachments.to_hash
