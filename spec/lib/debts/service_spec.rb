@@ -25,7 +25,7 @@ RSpec.describe Debts::Service do
         ) do
           expect(StatsD).to receive(:increment).once.with(
             'api.debts.get_debts.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:400'
+              'error:CommonClientErrorsClientError', 'status:400'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'common/exceptions'
 
 RSpec.describe VAOS::V1::BaseController, type: :controller do
   let(:user) { create(:user) }

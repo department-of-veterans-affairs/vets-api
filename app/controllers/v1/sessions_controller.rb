@@ -16,13 +16,13 @@ module V1
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
+    STATSD_SSO_SAMLTRACKER_KEY = 'api.auth.saml_tracker'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
-    STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
     VERSION_TAG = 'version:v1'
 
@@ -68,6 +68,18 @@ module V1
       callback_stats(:total)
     end
 
+    def tracker
+      id = params[:id]
+      type = params[:type]
+      authn = params[:authn]
+      values = { 'id' => id, 'type' => type, 'authn' => authn }
+      if REDIRECT_URLS.include?(type) && SAML::User::AUTHN_CONTEXTS.keys.include?(authn)
+        Rails.logger.info("SSOe: SAML Tracker => #{values}")
+        StatsD.increment(STATSD_SSO_SAMLTRACKER_KEY,
+                         tags: ["type:#{type}", "context:#{authn}", VERSION_TAG])
+      end
+    end
+
     def metadata
       meta = OneLogin::RubySaml::Metadata.new
       render xml: meta.generate(saml_settings), content_type: 'application/xml'
@@ -100,8 +112,12 @@ module V1
     def authenticate
       return unless action_name == 'new'
 
-      if %w[mfa verify slo].include?(params[:type])
+      if %w[mfa verify].include?(params[:type])
         super
+      elsif params[:type] == 'slo'
+        # load the session object and current user before attempting to destroy
+        load_user
+        reset_session
       else
         reset_session
       end
@@ -130,7 +146,13 @@ module V1
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
-                               locals: { url: login_url, params: post_params },
+                               locals: {
+                                 url: login_url,
+                                 params: post_params,
+                                 saml_uuid: helper.tracker.uuid,
+                                 authn: helper.tracker.payload_attr(:authn_context),
+                                 type: helper.tracker.payload_attr(:type)
+                               },
                                format: :html
       render body: result, content_type: 'text/html'
       saml_request_stats(helper.tracker)
@@ -213,7 +235,6 @@ module V1
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-        StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags)
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
@@ -232,11 +253,12 @@ module V1
                                 "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
       when :failure
+        tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure',
                                 "context:#{saml_response&.authn_context}",
                                 VERSION_TAG])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag, VERSION_TAG])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [tag, VERSION_TAG])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', 'context:unknown', VERSION_TAG])
@@ -252,7 +274,7 @@ module V1
       log_message_to_sentry(exc.message, level, extra_context: context)
       redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, response, exc) unless response.nil?
-      callback_stats(status, response, tag || code)
+      callback_stats(status, response, tag)
       PersonalInformationLog.create(
         error_class: exc,
         data: {

@@ -38,12 +38,20 @@ module BGS
     private
 
     def process_relationships(proc_id, veteran, payload)
-      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create
-      marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create
+      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create_all
+      marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create_all
+      children = Children.new(proc_id: proc_id, payload: payload, user: @user).create_all
 
-      all_dependents = dependents + marriages
+      veteran_dependents = dependents + marriages + children[:dependents]
 
-      VnpRelationships.new(proc_id: proc_id, veteran: veteran, dependents: all_dependents, user: @user).create_all
+      VnpRelationships.new(
+        proc_id: proc_id,
+        veteran: veteran,
+        dependents: veteran_dependents,
+        step_children: children[:step_children],
+        user: @user
+      ).create_all
+
       process_674(proc_id, dependents, payload)
     end
 
