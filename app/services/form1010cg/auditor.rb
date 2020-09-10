@@ -44,7 +44,7 @@ module Form1010cg
       )
     end
 
-    def record_submission_failure_client_data(claim_guid: nil, errors: [])
+    def record_submission_failure_client_data(errors:, claim_guid: nil)
       increment self.class.metrics.submission.failure.client.data
       log 'Submission Failed: invalid data provided by client', claim_guid: claim_guid, errors: errors
     end
@@ -70,8 +70,6 @@ module Form1010cg
     end
 
     def log(message, data_hash = {})
-      # TODO: consider using [Form 10-10CG] as log tag
-      # Rails.logger.tagged(LOGGER_PREFIX) { Rails.logger.send log_level, message, data_hash }
       Rails.logger.send :info, "[#{LOGGER_PREFIX}] #{message}", data_hash
     end
   end

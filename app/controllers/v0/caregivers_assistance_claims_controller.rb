@@ -57,12 +57,9 @@ module V0
 
     def form_submission
       params.require(:caregivers_assistance_claim).require(:form)
-    rescue
-      # TODO: consider passing the errors: e.message
-      #     rescue => e
-      #     auditor.record(:submission_failure_client_data, errors: e.message)
-      auditor.record(:submission_failure_client_data)
-      raise
+    rescue => e
+      auditor.record(:submission_failure_client_data, errors: [e.message])
+      raise e
     end
 
     def backend_service_outage

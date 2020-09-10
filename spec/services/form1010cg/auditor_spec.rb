@@ -99,25 +99,26 @@ RSpec.describe Form1010cg::Auditor do
 
   describe '#record_submission_failure_client_data' do
     context 'requires' do
-      it 'no arguments' do
-        # TODO: consider requiring :errors
-        expect { subject.record_submission_failure_client_data }.not_to raise_error
+      it 'errors:' do
+        expect { subject.record_submission_failure_client_data }.to raise_error(ArgumentError) do |e|
+          expect(e.message).to eq('missing keyword: errors')
+        end
+
+        expect { subject.record_submission_failure_client_data(errors: %w[error1 error2]) }.not_to raise_error
       end
     end
 
     context 'accepts' do
       it 'claim_guid:' do
-        expect { subject.record_submission_failure_client_data(claim_guid: 'uuid-1234') }.not_to raise_error
-      end
-
-      it 'errors:' do
-        expect { subject.record_submission_failure_client_data(errors: %w[error1 error2]) }.not_to raise_error
+        expect do
+          subject.record_submission_failure_client_data(errors: %w[error1 error2], claim_guid: 'uuid-1234')
+        end.not_to raise_error
       end
     end
 
     context 'increments' do
       it 'api.form1010cg.submission.failure.client.data' do
-        expected_context = { claim_guid: 'uuid-123', errors: %w[error1 error2] }
+        expected_context = { errors: %w[error1 error2], claim_guid: 'uuid-123' }
 
         expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
         subject.record_submission_failure_client_data(**expected_context)
@@ -127,7 +128,7 @@ RSpec.describe Form1010cg::Auditor do
     context 'logs' do
       it '[Form 10-10CG] Submission Failed: invalid data provided by client' do
         expected_message = '[Form 10-10CG] Submission Failed: invalid data provided by client'
-        expected_context = { claim_guid: 'uuid-123', errors: %w[error1 error2] }
+        expected_context = { errors: %w[error1 error2], claim_guid: 'uuid-123' }
 
         expect(Rails.logger).to receive(:info).with(expected_message, **expected_context)
 

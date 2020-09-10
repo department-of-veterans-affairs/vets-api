@@ -2,98 +2,115 @@
 
 require 'rails_helper'
 
-shared_examples '10-10CG request with invalid params' do |controller_action|
-  before do
-    expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
-  end
-
-  it 'requires "caregivers_assistance_claim" param' do
-    post controller_action, params: {}
-
-    expect(response).to have_http_status(:bad_request)
-
-    res_body = JSON.parse(response.body)
-
-    expect(res_body['errors'].size).to eq(1)
-    expect(res_body['errors'][0]).to eq(
-      {
-        'title' => 'Missing parameter',
-        'detail' => 'The required parameter "caregivers_assistance_claim", is missing',
-        'code' => '108',
-        'status' => '400'
-      }
-    )
-  end
-
-  it 'requires "caregivers_assistance_claim.form" param' do
-    post controller_action, params: { caregivers_assistance_claim: { form: nil } }
-
-    expect(response).to have_http_status(:bad_request)
-    res_body = JSON.parse(response.body)
-
-    expect(res_body['errors'].size).to eq(1)
-    expect(res_body['errors'][0]).to eq(
-      {
-        'title' => 'Missing parameter',
-        'detail' => 'The required parameter "form", is missing',
-        'code' => '108',
-        'status' => '400'
-      }
-    )
-  end
-end
-
-shared_examples '10-10CG request with invalid form data' do |controller_action|
-  let(:form_data) do
-    '{}'
-  end
-
-  let(:params) do
-    { caregivers_assistance_claim: { form: form_data } }
-  end
-
-  let(:claim) do
-    build(:caregivers_assistance_claim, form: form_data)
-  end
-
-  it 'builds a claim and raises its errors' do
-    expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-      form: form_data
-    ).and_return(
-      claim
-    )
-
-    expect(Form1010cg::Service).not_to receive(:new).with(claim)
-
-    post controller_action, params: params
-
-    res_body = JSON.parse(response.body)
-
-    expect(response.status).to eq(422)
-
-    expect(res_body['errors']).to be_present
-    expect(res_body['errors'].size).to eq(2)
-    expect(res_body['errors'][0]['title']).to include("did not contain a required property of 'veteran'")
-    expect(res_body['errors'][0]['code']).to eq('100')
-    expect(res_body['errors'][0]['status']).to eq('422')
-    expect(res_body['errors'][1]['title']).to include(
-      "did not contain a required property of 'primaryCaregiver'"
-    )
-    expect(res_body['errors'][1]['code']).to eq('100')
-    expect(res_body['errors'][1]['status']).to eq('422')
-  end
-end
-
 RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   it 'inherits from ActionController::API' do
     expect(described_class.ancestors).to include(ActionController::API)
   end
 
+  shared_examples '10-10CG request with missing param: caregivers_assistance_claim' do |controller_action|
+    before do
+      expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+    end
+
+    it 'requires "caregivers_assistance_claim" param' do
+      post controller_action, params: {}
+
+      expect(response).to have_http_status(:bad_request)
+
+      res_body = JSON.parse(response.body)
+
+      expect(res_body['errors'].size).to eq(1)
+      expect(res_body['errors'][0]).to eq(
+        {
+          'title' => 'Missing parameter',
+          'detail' => 'The required parameter "caregivers_assistance_claim", is missing',
+          'code' => '108',
+          'status' => '400'
+        }
+      )
+    end
+  end
+
+  shared_examples '10-10CG request with missing param: form' do |controller_action|
+    before do
+      expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+    end
+
+    it 'requires "caregivers_assistance_claim.form" param' do
+      post controller_action, params: { caregivers_assistance_claim: { form: nil } }
+
+      expect(response).to have_http_status(:bad_request)
+      res_body = JSON.parse(response.body)
+
+      expect(res_body['errors'].size).to eq(1)
+      expect(res_body['errors'][0]).to eq(
+        {
+          'title' => 'Missing parameter',
+          'detail' => 'The required parameter "form", is missing',
+          'code' => '108',
+          'status' => '400'
+        }
+      )
+    end
+  end
+
+  shared_examples '10-10CG request with invalid form data' do |controller_action|
+    let(:form_data) { '{}' }
+    let(:params) { { caregivers_assistance_claim: { form: form_data } } }
+    let(:claim) { build(:caregivers_assistance_claim, form: form_data) }
+
+    before do
+      expect_any_instance_of(Form1010cg::Service).not_to receive(:process_claim!)
+    end
+
+    it 'builds a claim and raises its errors' do
+      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+        form: form_data
+      ).and_return(
+        claim
+      )
+
+      expect(Form1010cg::Service).not_to receive(:new).with(claim)
+
+      post controller_action, params: params
+
+      res_body = JSON.parse(response.body)
+
+      expect(response.status).to eq(422)
+
+      expect(res_body['errors']).to be_present
+      expect(res_body['errors'].size).to eq(2)
+      expect(res_body['errors'][0]['title']).to include(
+        "did not contain a required property of 'veteran'"
+      )
+      expect(res_body['errors'][0]['code']).to eq('100')
+      expect(res_body['errors'][0]['status']).to eq('422')
+      expect(res_body['errors'][1]['title']).to include(
+        "did not contain a required property of 'primaryCaregiver'"
+      )
+      expect(res_body['errors'][1]['code']).to eq('100')
+      expect(res_body['errors'][1]['status']).to eq('422')
+    end
+  end
+
   describe '#create' do
-    it_behaves_like '10-10CG request with invalid params', :create do
+    it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :create do
       before do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_failure_client_data)
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+          :submission_failure_client_data,
+          errors: ['param is missing or the value is empty: caregivers_assistance_claim']
+        )
+      end
+    end
+
+    it_behaves_like '10-10CG request with missing param: form', :create do
+      before do
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
+        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+          :submission_failure_client_data,
+          errors: ['param is missing or the value is empty: form']
+        )
       end
     end
 
@@ -251,11 +268,12 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
-    after do
+    after(:all) do
       File.delete(response_pdf) if File.exist?(response_pdf)
     end
 
-    it_behaves_like '10-10CG request with invalid params', :download_pdf
+    it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :download_pdf
+    it_behaves_like '10-10CG request with missing param: form', :download_pdf
     it_behaves_like '10-10CG request with invalid form data', :download_pdf
 
     it 'generates a filled out 10-10CG and sends file as response', run_at: '2017-07-25 00:00:00 -0400' do
