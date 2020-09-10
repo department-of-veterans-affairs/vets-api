@@ -9,7 +9,9 @@ module HealthQuest
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
       with_monitoring do
+        puts 'call GET !!!!!!!!!!!!!!!!!!'
         response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
+        puts 'after get:' + response.inspect[0..200]
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)

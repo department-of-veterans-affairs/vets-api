@@ -113,6 +113,47 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
             .to eq('"invalid" is not a valid value for "end_date"')
         end
       end
+
+      it 'has access and returns va appointments' do
+        VCR.use_cassette('health_quest/appointments/get_appointments', match_requests_on: %i[method uri]) do
+          get '/health_quest/v0/appointments', params: params
+
+          expect(response).to have_http_status(:success)
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('health_quest/va_appointments', { strict: false })
+        end
+      end
+
+      context 'with no appointments' do
+        it 'returns an empty list' do
+          VCR.use_cassette('health_quest/appointments/get_appointments_empty', match_requests_on: %i[method uri]) do
+            get '/health_quest/v0/appointments', params: params
+            expect(response).to have_http_status(:success)
+            expect(JSON.parse(response.body)).to eq(
+              'data' => [],
+              'meta' => {
+                'pagination' => {
+                  'current_page' => 0,
+                  'per_page' => 0,
+                  'total_entries' => 0,
+                  'total_pages' => 0
+                }
+              }
+            )
+            expect(response).to match_response_schema('health_quest/va_appointments')
+          end
+        end
+      end
+
+      context 'with a response that includes blank providers' do
+        it 'parses the data and does not throw an undefined method error' do
+          VCR.use_cassette('health_quest/appointments/get_appointments_map_error', match_requests_on: %i[method uri]) do
+            get '/health_quest/v0/appointments', params: params
+            expect(response).to have_http_status(:success)
+            expect(response).to match_response_schema('health_quest/va_appointments', { strict: false })
+          end
+        end
+      end
     end
   end
 end
