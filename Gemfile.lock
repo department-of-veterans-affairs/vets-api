@@ -83,6 +83,11 @@ PATH
       sidekiq
 
 PATH
+  remote: modules/health_quest
+  specs:
+    health_quest (0.1.0)
+
+PATH
   remote: modules/mobile
   specs:
     mobile (0.1.0)
@@ -885,6 +890,7 @@ DEPENDENCIES
   guard-rspec (~> 4.7)
   guard-rubocop
   gyoku
+  health_quest!
   holidays
   httpclient
   ice_nine
