@@ -86,6 +86,15 @@
             path: /tmp/rspec
         - store_artifacts:
             path: ./coverage
+        - run:
+            name: Stash coverage Results
+            command: |
+                mkdir coverage_results
+                cp -R coverage/.resultset.json coverage_results/.resultset-${CIRCLE_NODE_INDEX}.json
+        - persist_to_workspace:
+            root: .
+            paths:
+              - coverage_results
   workflows:
     test_and_build:
       unless: << pipeline.parameters.verify_stable_pacts >>
