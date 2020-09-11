@@ -258,3 +258,7 @@ features:
     actor_type: user
     description: >
       API endpoints consumed by the VA Mobile App (iOS/Android)
+  stem_document_type:
+    actor_type: user
+    description: >
+      This will allow spool files generated for the 10203 form to use the correct form id
