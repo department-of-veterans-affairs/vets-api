@@ -130,6 +130,11 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   class: VBADocuments::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful submissions"
 
+VBADocuments::RunUnsuccessfulSubmissions:
+  cron: "0 0 * * MON-FRI America/New_York"
+  class: VBADocuments::RunUnsuccessfulSubmissions
+  description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
+
 AppealsApi::HigherLevelReviewUploadStatusBatch:
   every: "60m"
   class: AppealsApi::HigherLevelReviewUploadStatusBatch
