@@ -109,7 +109,7 @@ RSpec.describe EducationForm::EducationFacility do
         form = education_benefits_claim.parsed_form
         form['isEdithNourseRogersScholarship'] = true
         education_benefits_claim.saved_claim.form = form.to_json
-        education_benefits_claim.saved_claim.form_id = '22-1995S'
+        education_benefits_claim.saved_claim.form_id = '22-1995'
         expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
       it 'routes Philippines to Eastern RPO' do
@@ -121,27 +121,7 @@ RSpec.describe EducationForm::EducationFacility do
           }
         }
         education_benefits_claim.saved_claim.form = form.to_json
-        education_benefits_claim.saved_claim.form_id = '22-1995S'
-        expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
-      end
-    end
-
-    context '22-1995S' do
-      it 'routes to Eastern RPO' do
-        form = education_benefits_claim.parsed_form
-        education_benefits_claim.saved_claim.form = form.to_json
-        education_benefits_claim.saved_claim.form_id = '22-1995S'
-        expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
-      end
-      it 'routes Philippines to Eastern RPO' do
-        form = education_benefits_claim.parsed_form
-        form['newSchool'] = {
-          'address' => {
-            'country': 'PHL'
-          }
-        }
-        education_benefits_claim.saved_claim.form = form.to_json
-        education_benefits_claim.saved_claim.form_id = '22-1995S'
+        education_benefits_claim.saved_claim.form_id = '22-1995'
         expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
     end
