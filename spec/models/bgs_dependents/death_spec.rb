@@ -17,10 +17,10 @@ RSpec.describe BGSDependents::Death do
   end
   let(:formatted_params_result) do
     {
-      :death_date => '2019-03-03',
-      :vet_ind => 'N',
-      :ssn => '846685794',
-      :birth_date => '2009-03-03',
+      'death_date' => '2019-03-03',
+      'vet_ind' => 'N',
+      'ssn' => '846685794',
+      'birth_date' => '2009-03-03',
       'first' => 'Billy',
       'middle' => 'Yohan',
       'last' => 'Johnson',
