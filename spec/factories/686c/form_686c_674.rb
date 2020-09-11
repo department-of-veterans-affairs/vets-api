@@ -148,8 +148,8 @@ FactoryBot.define do
                 'middle' => 'Bob',
                 'last' => 'Thorton'
               },
-              "ssn"=>"231547897",
-              "birth_date"=>"2010-01-01"
+              'ssn' => '231547897',
+              'birth_date' => '2010-01-01'
             }
           ],
           'child_stopped_attending_school' => {
@@ -159,8 +159,8 @@ FactoryBot.define do
               'last' => 'Johnson',
               'suffix' => 'Sr.'
             },
-            "ssn"=>"897524564",
-            "birth_date"=>"2005-01-02",
+            'ssn' => '897524564',
+            'birth_date' => '2005-01-02',
             'date_child_left_school' => '2019-03-03'
           },
           'child_marriage' => {
@@ -170,8 +170,8 @@ FactoryBot.define do
               'last' => 'Beanstalk',
               'suffix' => 'Sr.'
             },
-            "ssn"=>"879534579",
-            "birth_date"=>"2012-01-04",
+            'ssn' => '879534579',
+            'birth_date' => '2012-01-04',
             'date_married' => '1977-02-01'
           },
           'deaths' => [
@@ -188,8 +188,8 @@ FactoryBot.define do
                 'suffix' => 'Sr.'
               },
               'dependent_type' => 'CHILD',
-              "ssn"=>"987459874",
-              "birth_date"=>"1990-01-01",
+              'ssn' => '987459874',
+              'birth_date' => '1990-01-01',
               'child_status' => {
                 'child_under18' => true
               }
@@ -205,8 +205,8 @@ FactoryBot.define do
                 'last' => 'Mission'
               },
               'dependent_type' => 'SPOUSE',
-              "ssn"=>"987459874",
-              "birth_date"=>"1995-01-01"
+              'ssn' => '987459874',
+              'birth_date' => '1995-01-01'
             }
           ],
           'veteran_was_married_before' => true,
