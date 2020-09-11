@@ -10,6 +10,11 @@ module HealthQuest
         render json: res
       end
 
+      def show
+        apt = appointment_by_id
+        render json: HealthQuest::V0::VAAppointmentsSerializer.new(apt[:data], meta: apt[:meta])
+      end
+
       private
 
       def appointment_service
