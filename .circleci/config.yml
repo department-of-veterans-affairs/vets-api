@@ -95,6 +95,25 @@
             root: .
             paths:
               - coverage_results
+    coverage:
+      working_directory: ~/vets-api
+      executor: vets_api_docker_executor
+      steps:
+        - restore_cache:
+            key: v2-repo-{{ .Environment.CIRCLE_SHA1 }}
+        - restore_cache:
+            keys:
+              - gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+              - gem-cache-{{ arch }}-{{ .Branch }}
+              - gem-cache
+        - run: bundle install --path vendor/bundle
+        - install_dependencies
+        - run:
+            name: Merge and Check Coverage
+            command: RUN_COVERAGE=true bundle exec rake simplecov:report_coverage
+        - store_artifacts:
+            path: ~/vets-api/coverage
+            destination: coverage
   workflows:
     test_and_build:
       unless: << pipeline.parameters.verify_stable_pacts >>
