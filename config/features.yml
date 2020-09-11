@@ -114,6 +114,10 @@ features:
     actor_type: user
     description: >
       Enables Express Care request flow in VAOS
+  va_online_scheduling_flat_facility_page:
+    actor_type: user
+    description: >
+      Enables the new VA facility choice page with a flat list
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -250,3 +254,7 @@ features:
     actor_type: user
     description: >
       Comparison Tool Search Results Benefit UI Enhancements to improve usability
+  mobile_api:
+    actor_type: user
+    description: >
+      API endpoints consumed by the VA Mobile App (iOS/Android)

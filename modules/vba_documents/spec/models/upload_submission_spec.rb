@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'central_mail/service'
+require 'common/exceptions'
 
 describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_pending) { FactoryBot.create(:upload_submission) }
