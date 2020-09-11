@@ -39,7 +39,6 @@
   jobs:
     verify_pacts:
       <<: *defaults
-      executor: vets_api_docker_executor
       steps:
         - checkout_and_install
         - setup_test_db
@@ -52,7 +51,6 @@
             path: ./coverage
     bundle_audit:
       <<: *defaults
-      executor: vets_api_docker_executor
       steps:
         - checkout_and_install
         - bundle_audit
@@ -64,7 +62,6 @@
             path: ./coverage
     security_audit:
       <<: *defaults
-      executor: vets_api_docker_executor
       steps:
         - checkout_and_install
         - security_check
@@ -72,7 +69,6 @@
             path: ./ci
     lint:
       <<: *defaults
-      executor: vets_api_docker_executor
       steps:
         - checkout_and_install
         - linting
@@ -80,7 +76,6 @@
             path: ./ci
     specs:
       <<: *defaults
-      executor: vets_api_docker_executor
       parallelism: 4
       steps:
         - checkout_and_install
@@ -101,7 +96,6 @@
               - coverage_results
     coverage:
       <<: *defaults
-      executor: vets_api_docker_executor
       steps:
         - attach_workspace:
             at: .
