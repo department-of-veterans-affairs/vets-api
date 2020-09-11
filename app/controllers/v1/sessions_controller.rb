@@ -69,7 +69,7 @@ module V1
     end
 
     def tracker
-      id = pparams[:id]
+      id = params[:id]
       type = params[:type]
       authn = params[:authn]
       values = { 'id' => id, 'type' => type, 'authn' => authn }
