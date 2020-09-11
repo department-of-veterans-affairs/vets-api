@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
+require 'central_mail/service'
+require 'common/exceptions'
 
 module AppealsApi
   class HigherLevelReview < ApplicationRecord

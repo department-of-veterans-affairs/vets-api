@@ -126,6 +126,7 @@ module V0
       Swagger::Requests::DependentsApplications,
       Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::EducationBenefitsClaims,
+      Swagger::Requests::Efolder,
       Swagger::Requests::FeatureToggles,
       Swagger::Requests::Forms,
       Swagger::Requests::Gibct::CalculatorConstants,

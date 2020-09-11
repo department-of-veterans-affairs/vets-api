@@ -2,6 +2,7 @@
 
 # Bypass authentication
 require_dependency 'covid_research/application_controller'
+require 'common/client/concerns/monitoring'
 
 module CovidResearch
   class BaseController < ApplicationController

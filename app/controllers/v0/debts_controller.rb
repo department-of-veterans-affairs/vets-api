@@ -5,13 +5,13 @@ require 'debts/service'
 module V0
   class DebtsController < ApplicationController
     def index
-      render json: service.get_debts(fileNumber: @current_user.ssn)
+      render json: service.get_debts
     end
 
     private
 
     def service
-      Debts::Service.new
+      Debts::Service.new(@current_user)
     end
   end
 end

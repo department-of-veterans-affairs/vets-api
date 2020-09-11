@@ -20,7 +20,6 @@ module V0
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     STATSD_LOGIN_STATUS_SUCCESS = 'api.auth.login.success'
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
-    STATSD_LOGIN_SHARED_COOKIE = 'api.auth.sso_shared_cookie'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
 
     VERSION_TAG = 'version:v0'
@@ -34,15 +33,17 @@ module V0
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}", VERSION_TAG])
       Rails.logger.info("SSO_NEW_KEY, tags: #{["context:#{type}", VERSION_TAG]}")
-      url = url_service.send("#{type}_url")
+      helper = url_service
+      url = helper.send("#{type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
+      else
+        saml_request_stats(helper.tracker)
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
       redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
-      saml_request_stats(url_service.tracker)
     end
 
     def saml_logout_callback
@@ -174,7 +175,6 @@ module V0
       type = tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
-      StatsD.increment(STATSD_LOGIN_SHARED_COOKIE, tags: tags) if cookies.key?(Settings.sso.cookie_name)
       StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
       Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
       StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
