@@ -58,7 +58,7 @@ GIT
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: ef1a32ac46896d1d8999171b67803058dd697d75
-  branch: LinnJS-1010cg-gender-update--2
+  branch: LinnJS-1010cg-gender-update
   specs:
     vets_json_schema (10.0.0)
       multi_json (~> 1.0)
