@@ -214,4 +214,17 @@ namespace :form526 do
       puts "\n\n"
     end
   end
+
+  # EVSS has asked us to re-upload files that were corrupted upstream
+  desc 'Resubmit uploads to EVSS for submitted claims given an array of saved_claim_ids'
+  task retry_corrupted_uploads: :environment do |_, args|
+    raise 'No saved_claim_ids provided' unless args.extras.count.positive?
+
+    form_submissions = Form526Submission.where(saved_claim_id: args.extras)
+    form_submissions.each do |form_submission|
+      form_submission.send(:submit_uploads)
+      puts "reuploaded files for saved_claim_id #{form_submission.saved_claim_id}"
+    end
+    puts "reuploaded files for #{form_submissions.count} submissions"
+  end
 end
