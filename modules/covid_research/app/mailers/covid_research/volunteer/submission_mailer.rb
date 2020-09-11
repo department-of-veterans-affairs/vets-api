@@ -11,6 +11,7 @@ module CovidResearch
         mail(
           to: recipient,
           subject: SIGNUP_SUBJECT,
+          content_type: 'text/html',
           body: body
         )
       end
