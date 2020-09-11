@@ -123,6 +123,9 @@
         - security_audit
         - lint
         - specs
+        - coverage:
+            requires:
+              - specs
     pact_verification:
       when: << pipeline.parameters.verify_stable_pacts >>
       jobs:
