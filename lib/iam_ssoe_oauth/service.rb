@@ -10,7 +10,7 @@ module IAMSSOeOAuth
   #
   # @example create a new instance and call the introspect endpoint
   #   token = 'ypXeAwQedpmAy5xFD2u5'
-  #   service = IamSsoeAuth::Service.new
+  #   service = IAMSSOeOAuth::Service.new
   #   response = service.post_introspect(token)
   #
   class Service < Common::Client::Base
