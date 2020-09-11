@@ -2,6 +2,7 @@
 
 require 'common/models/base'
 require 'date'
+require 'common/exceptions'
 
 module VeteranVerification
   class DisabilityRating

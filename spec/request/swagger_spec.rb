@@ -7,6 +7,7 @@ require 'rx/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
+require 'support/stub_efolder_documents'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
 require 'sm/client'
@@ -353,6 +354,41 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(
             :get,
             '/v0/debt_letters/{id}',
+            200,
+            headers.merge(
+              'id' => CGI.escape(document_id)
+            )
+          )
+        end
+      end
+    end
+
+    context 'eFolder tests' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+
+      context 'efolder index' do
+        stub_efolder_documents(:index)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/efolder',
+            200,
+            headers
+          )
+        end
+      end
+
+      context 'efolder show' do
+        stub_efolder_documents(:show)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/efolder/{id}',
             200,
             headers.merge(
               'id' => CGI.escape(document_id)
@@ -1552,19 +1588,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it '400s on improper id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
           end
         end
 
         it '404s if provider is missing' do
-          VCR.use_cassette('facilities/va/ppms_nonexistent', match_requests_on: [:method]) do
+          VCR.use_cassette('facilities/ppms/ppms_nonexistent', match_requests_on: [:method]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 404, 'id' => 'ccp_123123')
           end
         end
 
         it 'supports getting the services list' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_1407842941')
           end
         end

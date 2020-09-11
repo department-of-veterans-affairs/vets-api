@@ -17,7 +17,7 @@ module V0
     private
 
     def service
-      @service ||= Debts::LetterDownloader.new(@current_user.ssn)
+      @service ||= Debts::LetterDownloader.new(@current_user)
     end
   end
 end

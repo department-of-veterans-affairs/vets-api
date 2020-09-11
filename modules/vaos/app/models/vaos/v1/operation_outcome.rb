@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 module VAOS
   module V1
     # FHIR (DSTU 2) Operation Outcome model. Wrapped for exceptions so they can be

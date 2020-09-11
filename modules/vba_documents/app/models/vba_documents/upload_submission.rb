@@ -2,6 +2,7 @@
 
 require_dependency 'vba_documents/upload_error'
 require 'central_mail/service'
+require 'common/exceptions'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
