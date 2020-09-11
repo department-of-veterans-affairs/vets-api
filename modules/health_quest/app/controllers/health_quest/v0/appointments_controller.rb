@@ -17,6 +17,10 @@ module HealthQuest
 
       private
 
+      def appointment_by_id
+        appointment_service.get_appointment_by_id(params[:id])
+      end
+
       def appointment_service
         HealthQuest::AppointmentService.new(current_user)
       end
