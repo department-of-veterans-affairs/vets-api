@@ -47,8 +47,6 @@
             path: ./rspec
         - store_artifacts:
             path: ./ci
-        - store_artifacts:
-            path: ./coverage
     bundle_audit:
       <<: *defaults
       steps:
@@ -58,8 +56,6 @@
             path: ./rspec
         - store_artifacts:
             path: ./ci
-        - store_artifacts:
-            path: ./coverage
     security_audit:
       <<: *defaults
       steps:
