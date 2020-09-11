@@ -939,7 +939,7 @@ DEPENDENCIES
   rack-cors
   rack-test
   rack-vcr
-  rails (~> 6.0.3)
+  rails (~> 6.0.2)
   rails-session_cookie
   rails_semantic_logger (~> 4.4)
   rainbow
