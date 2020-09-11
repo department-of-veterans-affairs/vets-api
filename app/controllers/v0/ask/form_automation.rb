@@ -1,7 +1,7 @@
 require 'watir'
 require 'webdrivers'
 
-browser = Watir::Browser.new
+browser = Watir::Browser.new :chrome, headless: true
 browser.goto 'https://iris--tst.custhelp.com/app/ask'
 
 request = {
