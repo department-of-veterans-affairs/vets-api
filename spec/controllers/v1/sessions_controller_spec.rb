@@ -381,7 +381,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       it 'logs a SAML stat with valid params' do
         allow(Rails.logger).to receive(:info)
         expect(Rails.logger)
-          .to receive(:info).with('SSOe: SAML Tracker => {"id"=>"1", "type"=>"mhv", "authn"=>"myhealthevet"}') 
+          .to receive(:info).with('SSOe: SAML Tracker => {"id"=>"1", "type"=>"mhv", "authn"=>"myhealthevet"}')
         expect { get(:tracker, params: { id: 1, type: 'mhv', authn: 'myhealthevet' }) }
           .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLTRACKER_KEY,
                                        tags: ['type:mhv',
