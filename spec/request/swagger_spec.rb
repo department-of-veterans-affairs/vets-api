@@ -1646,38 +1646,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'higher_level_reviews' do
       context 'GET' do
         it 'documents higher_level_reviews 200' do
-          VCR.use_cassette('decision_review/200_review') do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
             expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
-                                        200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
+                                        200, headers.merge('uuid' => '75f5735b-c41d-499c-8ae2-ab2740180254'))
           end
         end
 
         it 'documents higher_level_reviews 404' do
-          VCR.use_cassette('decision_review/404_review') do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-404') do
             expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
-                                        404, headers.merge('uuid' => '1234'))
-          end
-        end
-
-        it 'documents higher_level_reviews 502' do
-          VCR.use_cassette('decision_review/502_review') do
-            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
-                                        502, headers.merge('uuid' => '1234'))
+                                        404, headers.merge('uuid' => '0'))
           end
         end
       end
 
       context 'POST' do
-        it 'documents higher_level_reviews 202' do
-          VCR.use_cassette('decision_review/202_intake_status') do
-            expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
-                                        202, headers)
-          end
-        end
-
-        [400, 403, 404, 409, 422].each do |status|
+        [200, 422].each do |status|
           it "documents higher_level_reviews #{status}" do
-            VCR.use_cassette("decision_review/#{status}_intake_status") do
+            VCR.use_cassette("decision_review/HLR-CREATE-RESPONSE-#{status}") do
               expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
                                           status, headers)
             end
@@ -1686,34 +1672,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'intake_statuses' do
-      it 'documents intake_statuses 200' do
-        VCR.use_cassette('decision_review/200_intake_status') do
-          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
-                                      200, headers.merge('intake_id' => '1234567890'))
-        end
-      end
-
-      it 'documents intake_statuses 404' do
-        VCR.use_cassette('decision_review/404_get_intake_status') do
-          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
-                                      404, headers.merge('intake_id' => '1234'))
-        end
-      end
-
-      it 'documents intake_statuses 502' do
-        VCR.use_cassette('decision_review/502_intake_status') do
-          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
-                                      502, headers.merge('intake_id' => '1234'))
-        end
-      end
-    end
-
     describe 'contestable_issues' do
-      [200, 404, 422, 502].each do |status_code|
+      [200, 404, 422].each do |status_code|
         it "documents contestable_issues #{status_code}" do
-          VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
-            expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
+          VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-#{status_code}") do
+            expect(subject).to validate(
+              :get,
+              '/v0/appeals/higher_level_reviews/contestable_issues/compensation',
+              status_code,
+              headers
+            )
           end
         end
       end
