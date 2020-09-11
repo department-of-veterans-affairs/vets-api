@@ -11,6 +11,13 @@ module HealthQuest
       new_session_token(user)
     end
 
+    def extend_session(account_uuid)
+      unless session_creation_locked?(account_uuid)
+        lock_session_creation(account_uuid)
+        HealthQuest::ExtendSessionJob.perform_async(account_uuid)
+      end
+    end
+
     def update_session_token(account_uuid)
       cached = cached_by_account_uuid(account_uuid)
       if cached
@@ -24,7 +31,12 @@ module HealthQuest
                             active_jti: decoded_token(cached.token)['jti']
                           })
         save_session!(account_uuid, new_token)
+      else
+        Rails.logger.warn('HealthQuest no session to update', account_uuid: account_uuid)
       end
+    rescue => e
+      Rails.logger.error('HealthQuest session update failed', { account_uuid: account_uuid, error: e.message })
+      raise e
     end
 
     private
