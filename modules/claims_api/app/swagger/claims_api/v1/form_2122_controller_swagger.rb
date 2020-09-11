@@ -477,7 +477,7 @@ module ClaimsApi
           key :description, 'Accepts JSON payload.'
           key :operationId, 'validate2122poa'
           key :tags, [
-              'Power of Attorney'
+            'Power of Attorney'
           ]
 
           security do
@@ -546,14 +546,14 @@ module ClaimsApi
             key :description, 'Valid'
             content 'application/json' do
               key(
-                  :examples,
-                  {
-                      default: {
-                          value: {
-                              data: { type: 'powerOfAttorneyValidation', attributes: { status: 'valid' } }
-                          }
-                      }
+                :examples,
+                {
+                  default: {
+                    value: {
+                      data: { type: 'powerOfAttorneyValidation', attributes: { status: 'valid' } }
+                    }
                   }
+                }
               )
               schema do
                 key :type, :object
