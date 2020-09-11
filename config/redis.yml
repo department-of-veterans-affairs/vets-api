@@ -102,6 +102,9 @@ development: &defaults
   saml_request_tracker:
     namespace: saml_request_tracker
     each_ttl: 3600 # 1 hour
+  iam_ssoe_session:
+    namespace: iam-ssoe-session
+    each_ttl: 1800
 
 test:
   <<: *defaults

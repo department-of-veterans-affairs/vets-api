@@ -26,6 +26,9 @@ Gem::Specification.new do |spec|
   spec.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
 
   spec.add_dependency 'rails', '~> 6.0.3', '>= 6.0.3.2'
+  spec.add_dependency 'redis-objects', '~> 1.5'
+  spec.add_dependency 'dry-struct', '~> 1.3'
+  spec.add_dependency 'dry-types', '~> 1.4'
 
   spec.add_development_dependency 'pg'
   spec.add_development_dependency 'activerecord-postgis-adapter', '~> 6.0.0'

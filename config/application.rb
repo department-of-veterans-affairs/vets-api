@@ -72,7 +72,7 @@ module VetsAPI
     config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies
     config.middleware.insert_after ActionDispatch::Cookies,
-                                   ActionDispatch::Session::CookieStore,
+                                   ActionDispatch::IAMSSOeSession::CookieStore,
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
                                    http_only: true
