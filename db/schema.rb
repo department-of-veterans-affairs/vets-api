@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_08_17_140442) do
+ActiveRecord::Schema.define(version: 2020_09_11_143406) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 2020_08_17_140442) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "sec_id"
+    t.index ["icn"], name: "index_accounts_on_icn"
     t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
     t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
@@ -150,6 +151,25 @@ ActiveRecord::Schema.define(version: 2020_08_17_140442) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "auto_established_claim_id"
+  end
+
+  create_table "disability_compensation_job_statuses", id: :serial, force: :cascade do |t|
+    t.integer "disability_compensation_submission_id", null: false
+    t.string "job_id", null: false
+    t.string "job_class", null: false
+    t.string "status", null: false
+    t.string "error_message"
+    t.datetime "updated_at", null: false
+    t.index ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id"
+    t.index ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true
+  end
+
+  create_table "disability_compensation_submissions", id: :serial, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "disability_compensation_id"
+    t.integer "va526ez_submit_transaction_id"
+    t.boolean "complete", default: false
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
