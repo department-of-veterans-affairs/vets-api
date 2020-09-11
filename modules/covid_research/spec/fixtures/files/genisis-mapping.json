@@ -17,15 +17,15 @@
       "QuestionValue": "No"
     },
     {
-      "QuestionName": "ANOTHER_SERIOUS_CHRONIC_ILLNESS",
+      "QuestionName": "HEALTH_HISTORY::ANOTHER_SERIOUS_CHRONIC_ILLNESS",
       "QuestionValue": "Yes"
     },
     {
-      "QuestionName": "STUDENT",
+      "QuestionName": "EMPLOYMENT_STATUS::STUDENT",
       "QuestionValue": "Yes"
     },
     {
-      "QuestionName": "WALK_BIKE",
+      "QuestionName": "TRANSPORTATION::WALK_BIKE",
       "QuestionValue": "Yes"
     },
     {
@@ -69,11 +69,11 @@
       "QuestionValue": "150"
     },
     {
-      "QuestionName": "MALE",
+      "QuestionName": "GENDER::MALE",
       "QuestionValue": "Yes"
     },
     {
-      "QuestionName": "WHITE",
+      "QuestionName": "RACE_ETHNICITY_ORIGIN::WHITE",
       "QuestionValue": "Yes"
     }
   ]
