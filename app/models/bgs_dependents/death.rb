@@ -12,7 +12,7 @@ module BGSDependents
         'ssn': @death_info['ssn'],
         'birth_date': @death_info['birth_date'],
         'vet_ind': 'N'
-      }.merge(@death_info['full_name'])
+      }.merge(@death_info['full_name']).with_indifferent_access
     end
   end
 end

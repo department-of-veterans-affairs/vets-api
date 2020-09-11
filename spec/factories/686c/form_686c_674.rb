@@ -45,7 +45,9 @@ FactoryBot.define do
               'state' => 'FL',
               'city' => 'Tampa'
             },
-            'reason_marriage_ended' => 'Divorce'
+            'reason_marriage_ended' => 'Divorce',
+            'ssn' => '579854687',
+            'birth_date' => '1994-03-03'
           },
           'view:selectable686_options' => {
             'report_divorce' => true
@@ -145,7 +147,9 @@ FactoryBot.define do
                 'first' => 'Billy',
                 'middle' => 'Bob',
                 'last' => 'Thorton'
-              }
+              },
+              "ssn"=>"231547897",
+              "birth_date"=>"2010-01-01"
             }
           ],
           'child_stopped_attending_school' => {
@@ -155,6 +159,8 @@ FactoryBot.define do
               'last' => 'Johnson',
               'suffix' => 'Sr.'
             },
+            "ssn"=>"897524564",
+            "birth_date"=>"2005-01-02",
             'date_child_left_school' => '2019-03-03'
           },
           'child_marriage' => {
@@ -164,6 +170,8 @@ FactoryBot.define do
               'last' => 'Beanstalk',
               'suffix' => 'Sr.'
             },
+            "ssn"=>"879534579",
+            "birth_date"=>"2012-01-04",
             'date_married' => '1977-02-01'
           },
           'deaths' => [
@@ -180,6 +188,8 @@ FactoryBot.define do
                 'suffix' => 'Sr.'
               },
               'dependent_type' => 'CHILD',
+              "ssn"=>"987459874",
+              "birth_date"=>"1990-01-01",
               'child_status' => {
                 'child_under18' => true
               }
@@ -194,7 +204,9 @@ FactoryBot.define do
                 'first' => 'Frida',
                 'last' => 'Mission'
               },
-              'dependent_type' => 'SPOUSE'
+              'dependent_type' => 'SPOUSE',
+              "ssn"=>"987459874",
+              "birth_date"=>"1995-01-01"
             }
           ],
           'veteran_was_married_before' => true,
