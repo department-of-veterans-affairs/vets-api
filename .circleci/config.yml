@@ -99,6 +99,8 @@
       working_directory: ~/vets-api
       executor: vets_api_docker_executor
       steps:
+        - attach_workspace:
+            at: .
         - restore_cache:
             key: v2-repo-{{ .Environment.CIRCLE_SHA1 }}
         - restore_cache:
