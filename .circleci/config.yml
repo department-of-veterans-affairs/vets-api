@@ -32,9 +32,13 @@
             POSTGRES_PASSWORD: ""
         - image: circleci/redis:3.2-alpine # 3.2.4 engine on AWS Elasticache
 
+  defaults: &defaults
+    working_directory: ~/vets-api
+    executor: vets_api_docker_executor
+
   jobs:
     verify_pacts:
-      working_directory: ~/vets-api
+      <<: *defaults
       executor: vets_api_docker_executor
       steps:
         - checkout_and_install
@@ -47,7 +51,7 @@
         - store_artifacts:
             path: ./coverage
     bundle_audit:
-      working_directory: ~/vets-api
+      <<: *defaults
       executor: vets_api_docker_executor
       steps:
         - checkout_and_install
@@ -59,7 +63,7 @@
         - store_artifacts:
             path: ./coverage
     security_audit:
-      working_directory: ~/vets-api
+      <<: *defaults
       executor: vets_api_docker_executor
       steps:
         - checkout_and_install
@@ -67,7 +71,7 @@
         - store_artifacts:
             path: ./ci
     lint:
-      working_directory: ~/vets-api
+      <<: *defaults
       executor: vets_api_docker_executor
       steps:
         - checkout_and_install
@@ -75,7 +79,7 @@
         - store_artifacts:
             path: ./ci
     specs:
-      working_directory: ~/vets-api
+      <<: *defaults
       executor: vets_api_docker_executor
       parallelism: 4
       steps:
@@ -96,7 +100,7 @@
             paths:
               - coverage_results
     coverage:
-      working_directory: ~/vets-api
+      <<: *defaults
       executor: vets_api_docker_executor
       steps:
         - attach_workspace:
