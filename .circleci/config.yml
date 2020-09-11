@@ -43,19 +43,11 @@
         - checkout_and_install
         - setup_test_db
         - verify_stable_pacts
-        - store_test_results:
-            path: ./rspec
-        - store_artifacts:
-            path: ./ci
     bundle_audit:
       <<: *defaults
       steps:
         - checkout_and_install
         - bundle_audit
-        - store_test_results:
-            path: ./rspec
-        - store_artifacts:
-            path: ./ci
     security_audit:
       <<: *defaults
       steps:
