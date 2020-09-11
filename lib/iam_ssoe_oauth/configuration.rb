@@ -3,11 +3,11 @@
 require 'common/client/configuration/rest'
 
 module IAMSSOeOAuth
-  # Configuration for the SSOeOAuth::Service. A singleton class that returns
+  # Configuration for the IAMSSOeOAuth::Service. A singleton class that returns
   # a connection that can make signed requests
   #
   # @example set the configuration in the service
-  #   configuration SSOeOAuth::Configuration
+  #   configuration IAMSSOeOAuth::Configuration
   #
   class Configuration < Common::Client::Configuration::REST
     CERT_PATH = Settings.iam_ssoe.client_cert_path
@@ -17,7 +17,7 @@ module IAMSSOeOAuth
     # @return String the service base path from the environment settings
     #
     def base_path
-      Settings.iam_ssoe.oauthe_url
+      Settings.iam_ssoe.oauth_url
     end
 
     # Service name for breakers integration

@@ -14,9 +14,11 @@ module Debts
       1334
     ].freeze
 
-    def initialize(file_number)
-      @file_number = file_number
+    def initialize(user)
+      @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
+      @service = debts_service
+      verify_no_dependent_debts
     end
 
     def get_letter(document_id)
@@ -29,7 +31,7 @@ module Debts
 
     def list_letters
       debts_records = @client.send_request(
-        VBMS::Requests::FindDocumentVersionReference.new(@file_number)
+        VBMS::Requests::FindDocumentVersionReference.new(@service.file_number)
       ).find_all do |record|
         DEBTS_DOCUMENT_TYPES.include?(record.doc_type)
       end
@@ -42,6 +44,14 @@ module Debts
     end
 
     private
+
+    def debts_service
+      Debts::Service.new(@user)
+    end
+
+    def verify_no_dependent_debts
+      raise Common::Exceptions::Unauthorized if @service.veteran_has_dependent_debts?
+    end
 
     def verify_letter_in_folder(document_id)
       raise Common::Exceptions::Unauthorized unless list_letters.any? do |letter|

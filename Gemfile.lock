@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 8fcd11a03aa1e081a72a0a249ba092da6c5f064a
+  revision: 8d7f9cc4e531eaeee7811d5633368a06af7f80c2
   branch: master
   specs:
-    vets_json_schema (9.0.0)
+    vets_json_schema (9.1.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -939,7 +939,7 @@ DEPENDENCIES
   rack-cors
   rack-test
   rack-vcr
-  rails (~> 6.0.2)
+  rails (~> 6.0.3)
   rails-session_cookie
   rails_semantic_logger (~> 4.4)
   rainbow
