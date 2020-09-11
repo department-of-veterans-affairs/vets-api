@@ -20,7 +20,7 @@ module HealthQuest
     private
 
     def deserialized_appointments(json_hash)
-      appointment_list = json_hash.dig(:data, :appointment_list)                   
+      appointment_list = json_hash.dig(:data, :appointment_list)
       return [] unless appointment_list
 
       appointment_list.map { |appointments| OpenStruct.new(appointments) }
