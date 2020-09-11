@@ -5,13 +5,13 @@ Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middl
 
 module HealthQuest
   class AppointmentService < HealthQuest::SessionService
-    def get_appointments(type, start_date, end_date, pagination_params = {})
+    def get_appointments(start_date, end_date, pagination_params = {})
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
       with_monitoring do
-        response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
+        response = perform(:get, get_appointments_base_url, params, headers, timeout: 55)
         {
-          data: deserialized_appointments(response.body, type),
+          data: deserialized_appointments(response.body),
           meta: pagination(pagination_params)
         }
       end
@@ -19,12 +19,8 @@ module HealthQuest
 
     private
 
-    def deserialized_appointments(json_hash, type)
-      appointment_list = if type == 'va'
-                           json_hash.dig(:data, :appointment_list)
-                         else
-                           json_hash[:booked_appointment_collections].first[:booked_cc_appointments]
-                         end
+    def deserialized_appointments(json_hash)
+      appointment_list = json_hash.dig(:data, :appointment_list)                   
       return [] unless appointment_list
 
       appointment_list.map { |appointments| OpenStruct.new(appointments) }
@@ -42,12 +38,8 @@ module HealthQuest
       }
     end
 
-    def get_appointments_base_url(type)
-      if type == 'va'
-        "/appointments/v1/patients/#{user.icn}/appointments"
-      else
-        "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
-      end
+    def get_appointments_base_url
+      "/appointments/v1/patients/#{user.icn}/appointments"
     end
 
     def date_params(start_date, end_date)

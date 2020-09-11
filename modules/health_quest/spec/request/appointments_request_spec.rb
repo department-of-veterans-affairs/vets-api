@@ -29,7 +29,7 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
     describe 'GET appointments' do
       let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
       let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
-      let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
+      let(:params) { { start_date: start_date, end_date: end_date } }
 
       context 'with flipper disabled' do
         it 'does not have access' do
@@ -54,16 +54,6 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
         end
       end
 
-      context 'without a type' do
-        it 'has a parameter missing exception' do
-          get '/health_quest/v0/appointments', params: params.except(:type)
-          expect(response).to have_http_status(:bad_request)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('The required parameter "type", is missing')
-        end
-      end
-
       context 'without a start_date' do
         it 'has a parameter missing exception' do
           get '/health_quest/v0/appointments', params: params.except(:start_date)
@@ -81,16 +71,6 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail'])
             .to eq('The required parameter "end_date", is missing')
-        end
-      end
-
-      context 'with an invalid type' do
-        it 'has an invalid field type exception' do
-          get '/health_quest/v0/appointments', params: params.merge(type: 'invalid')
-          expect(response).to have_http_status(:bad_request)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('"invalid" is not a valid value for "type"')
         end
       end
 

@@ -3,18 +3,14 @@
 module HealthQuest
   module V0
     class AppointmentsController < HealthQuest::V0::BaseController
-      before_action :validate_params, only: :index
+      before_action :valid_params_present?, only: :index
 
       def index
-        res = each_serializer.new(appointments[:data], meta: appointments[:meta])
+        res = serializer.new(appointments[:data], meta: appointments[:meta])
         render json: res
       end
 
       private
-
-      def appointment_by_id
-        appointment_service.get_appointment_by_id(params[:id])
-      end
 
       def appointment_service
         HealthQuest::AppointmentService.new(current_user)
@@ -22,22 +18,16 @@ module HealthQuest
 
       def appointments
         @appointments ||=
-          appointment_service.get_appointments(type, start_date, end_date, pagination_params)
+          appointment_service.get_appointments(start_date, end_date, pagination_params)
       end
 
-      def each_serializer
-        "HealthQuest::V0::#{params[:type].upcase}AppointmentsSerializer".constantize
+      def serializer
+        HealthQuest::V0::VAAppointmentsSerializer
       end
 
-      def validate_params
-        raise Common::Exceptions::ParameterMissing, 'type' if type.blank?
-        raise Common::Exceptions::InvalidFieldValue.new('type', type) unless %w[va cc].include?(type)
+      def valid_params_present?
         raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
         raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
-      end
-
-      def type
-        params[:type]
       end
 
       def start_date
