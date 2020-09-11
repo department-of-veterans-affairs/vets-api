@@ -69,7 +69,7 @@ module V1
     end
 
     def tracker
-      id = params[:id]
+      id = pparams[:id]
       type = params[:type]
       authn = params[:authn]
       values = { 'id' => id, 'type' => type, 'authn' => authn }
@@ -149,7 +149,7 @@ module V1
                                locals: {
                                  url: login_url,
                                  params: post_params,
-                                 saml_uuid: helper.tracker.uuid,
+                                 id: helper.tracker.uuid,
                                  authn: helper.tracker.payload_attr(:authn_context),
                                  type: helper.tracker.payload_attr(:type)
                                },

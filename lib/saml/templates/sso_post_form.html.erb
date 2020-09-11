@@ -26,15 +26,14 @@
 
   <script>
     (function() {
-      var form = document.getElementById("saml-form");
       var req = new XMLHttpRequest();
-      var qs = "saml_uuid=" + encodeURIComponent("<%= saml_uuid %>") +
+      var qs = "id=" + encodeURIComponent("<%= id %>") +
                 "&authn=" + encodeURIComponent("<%= authn %>") +
                 "&type=" + encodeURIComponent("<%= type %>");
       var url = location.origin + "/v1/sessions/tracker?" + qs;
       req.open("GET", url);
       req.send();
-      form.submit();
+      document.getElementById("saml-form").submit();
     })();
   </script>
 </body>
