@@ -34,7 +34,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 64537e01a2eef2299bf851d1fb0051eb285bea3c
+  revision: f8e5d69ed0cb1791bc41e5b6e55b22134c39fad4
   specs:
     bgs_ext (0.14.6)
       httpclient
@@ -60,7 +60,7 @@ GIT
   revision: f668cf68253bb389b027948ca153f9afc0a81571
   branch: the-rest-of-the-decision-review-api-schemas--edm
   specs:
-    vets_json_schema (8.2.0)
+    vets_json_schema (10.1.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 

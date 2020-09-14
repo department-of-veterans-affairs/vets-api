@@ -256,7 +256,7 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
 
   context 'Community Care (PPMS)' do
     around do |example|
-      VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
+      VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
         example.run
       end
     end
@@ -270,7 +270,7 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
 
     it 'responds to GET #index with bbox, address, and ccp type' do
       VCR.use_cassette(
-        'facilities/va/ppms_new_query',
+        'facilities/ppms/ppms_new_query',
         match_requests_on: %i[path query],
         allow_playback_repeats: true
       ) do
@@ -287,7 +287,11 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
     end
 
     it 'responds to GET #index with success even if no providers are found' do
-      VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
+      VCR.use_cassette(
+        'facilities/ppms/ppms_empty_search',
+        match_requests_on: [:method],
+        allow_playback_repeats: true
+      ) do
         get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
         expect(response).to be_successful
         expect(response.body).to be_a(String)
