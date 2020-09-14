@@ -1673,14 +1673,49 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'contestable_issues' do
-      [200, 404, 422].each do |status_code|
-        it "documents contestable_issues #{status_code}" do
-          VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-#{status_code}") do
+      let(:benefit_type) { 'compensation' }
+      let(:ssn) { '212222112' }
+      let(:receipt_date) { '2020-09-02' }
+      let(:status) { 200 }
+
+      it 'documents contestable_issues 200' do
+        VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
+          expect(subject).to validate(
+            :get,
+            '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
+            status,
+            headers.merge('benefit_type' => benefit_type)
+          )
+        end
+      end
+
+      context '404' do
+        let(:ssn) { '000000000' }
+        let(:status) { 404 }
+
+        it 'documents contestable_issues 404' do
+          VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
             expect(subject).to validate(
               :get,
-              '/v0/higher_level_reviews/contestable_issues/compensation',
-              status_code,
-              headers
+              '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
+              status,
+              headers.merge('benefit_type' => benefit_type)
+            )
+          end
+        end
+      end
+
+      context '422' do
+        let(:benefit_type) { 'apricot' }
+        let(:status) { 422 }
+
+        it 'documents contestable_issues 422' do
+          VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
+            expect(subject).to validate(
+              :get,
+              '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
+              status,
+              headers.merge('benefit_type' => benefit_type)
             )
           end
         end

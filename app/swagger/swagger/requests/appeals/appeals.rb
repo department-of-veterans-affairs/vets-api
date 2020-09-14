@@ -70,11 +70,6 @@ module Swagger
               schema '$ref': :hlrShowRoot
             end
 
-            response 403 do
-              key :description, 'Logged-in user is missing a required field: SSN, first name, last name, birth date'
-              schema '$ref': :Errors
-            end
-
             response 422 do
               key :description, 'Malformed request'
               schema '$ref': :Errors
@@ -140,13 +135,6 @@ module Swagger
             response 422 do
               key :description, 'Malformed request'
               schema '$ref': :Errors
-            end
-
-            response 502 do
-              key :description, 'Internal server error'
-              schema do
-                key :'$ref', :Errors
-              end
             end
           end
         end
