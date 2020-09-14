@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/base_error'
-
+# lib/tasks/simplecov_parallel.rake
 if Rails.env.test?
   require_relative '../../spec/simplecov_helper'
   namespace :simplecov do
