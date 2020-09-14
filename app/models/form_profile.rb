@@ -98,13 +98,13 @@ class FormProfile
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
     dependents: ['686C-674'],
-    decision_review: ['20-0996'],
+    decision_review: ['HLR-CREATE-REQUEST-BODY'],
     mdot: ['MDOT']
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ' => ::FormProfiles::VA1010ez,
-    '20-0996' => ::FormProfiles::VA0996,
+    'HLR-CREATE-REQUEST-BODY' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '21-526EZ-BDD' => ::FormProfiles::VA526ezbdd,
     '22-1990' => ::FormProfiles::VA1990,
