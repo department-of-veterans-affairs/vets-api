@@ -261,4 +261,4 @@ features:
   stem_document_type:
     actor_type: user
     description: >
-      This will allow spool files generated for the 10203 form to use the correct form id
+      Set 10203 spool file document type
