@@ -37,7 +37,7 @@ module Vet360
       attribute :effective_end_date, Common::ISO8601Time
       attribute :effective_start_date, Common::ISO8601Time
       attribute :geocode_date, Common::ISO8601Time
-      attribute :geocode_precision, Integer
+      attribute :geocode_precision, Float
       attribute :id, Integer
       attribute :international_postal_code, String
       attribute :latitude, Float
