@@ -1,5 +1,0 @@
-veteranFullName: [identity_information, full_name]
-veteranSocialSecurityNumber: [identity_information, ssn]
-homePhone: [contact_information, us_phone]
-veteranAddress: [contact_information, address]
-email: [contact_information, email]

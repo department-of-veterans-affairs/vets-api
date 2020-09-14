@@ -8,7 +8,9 @@ module BGSDependents
 
     def format_info
       {
-        event_date: @child_info['date_child_left_school']
+        event_date: @child_info['date_child_left_school'],
+        ssn: @child_info['ssn'],
+        birth_date: @child_info['birth_date']
       }.merge(@child_info['full_name']).with_indifferent_access
     end
   end
