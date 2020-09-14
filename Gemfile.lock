@@ -57,8 +57,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: ac1568051f8562ec4ed7d0e2b6381e03853b8773
-  branch: bah-1995S-removal
+  revision: 1bbec5911c16a5d458e567b7f5c64e8303e295d2
+  branch: master
   specs:
     vets_json_schema (10.2.0)
       multi_json (~> 1.0)
