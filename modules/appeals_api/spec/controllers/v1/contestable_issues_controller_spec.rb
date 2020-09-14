@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'caseflow/service'
+require 'common/exceptions'
 
 describe AppealsApi::V1::DecisionReviews::HigherLevelReviews::ContestableIssuesController do
   describe '#get_contestable_issues_from_caseflow' do

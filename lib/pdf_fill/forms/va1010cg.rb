@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/form_base'
+
 # rubocop:disable Metrics/ClassLength
 
 module PdfFill
@@ -633,7 +635,7 @@ module PdfFill
           @form_data['helpers'][subject]['gender'] = {
             'male' => @form_data.dig(subject, 'gender') == 'M' ? '1' : 'Off',
             'female' => @form_data.dig(subject, 'gender') == 'F' ? '2' : 'Off',
-            'unknown' => @form_data.dig(subject, 'gender') == 'U' ? '3' : 'Off'
+            'unknown' => @form_data.dig(subject, 'gender').nil? ? '3' : 'Off'
           }
         end
       end

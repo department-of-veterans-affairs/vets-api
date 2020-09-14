@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/models/base'
 
 describe Vet360::Models::Base do
   describe 'validation' do

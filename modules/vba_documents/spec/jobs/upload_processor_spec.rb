@@ -4,6 +4,7 @@ require 'rails_helper'
 require_relative '../support/vba_document_fixtures'
 require 'vba_documents/object_store'
 require 'vba_documents/upload_processor'
+require 'central_mail/service'
 
 RSpec.describe VBADocuments::UploadProcessor, type: :job do
   include VBADocuments::Fixtures

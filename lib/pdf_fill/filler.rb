@@ -1,5 +1,15 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/va21p527ez'
+require 'pdf_fill/forms/va21p530'
+require 'pdf_fill/forms/va214142'
+require 'pdf_fill/forms/va210781a'
+require 'pdf_fill/forms/va210781'
+require 'pdf_fill/forms/va218940'
+require 'pdf_fill/forms/va1010cg'
+require 'pdf_fill/forms/va686c674'
+require 'pdf_fill/forms/va288832'
+
 module PdfFill
   module Filler
     module_function
@@ -13,7 +23,8 @@ module PdfFill
       '21-0781' => PdfFill::Forms::Va210781,
       '21-8940' => PdfFill::Forms::Va218940,
       '10-10CG' => PdfFill::Forms::Va1010cg,
-      '686C-674' => PdfFill::Forms::Va686c674
+      '686C-674' => PdfFill::Forms::Va686c674,
+      '28-8832' => PdfFill::Forms::Va288832
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)

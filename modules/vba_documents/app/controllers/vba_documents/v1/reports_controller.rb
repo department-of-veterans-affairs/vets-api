@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'vba_documents/application_controller'
+require 'common/exceptions'
 
 module VBADocuments
   module V1

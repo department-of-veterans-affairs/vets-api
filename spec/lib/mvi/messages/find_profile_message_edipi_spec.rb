@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/messages/find_profile_message'
+require 'mvi/messages/find_profile_message_edipi'
 
 describe MVI::Messages::FindProfileMessageEdipi do
   describe '.to_xml' do
