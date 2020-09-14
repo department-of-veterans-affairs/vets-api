@@ -67,7 +67,7 @@ Pact.service_provider 'VA.gov API' do
      # When using WIP pacts feature,
      # it's best to turn on pending pacts so that any WIP pact failures
      # don't cause the build to fail
-     enable_pending true           
+     enable_pending true
 
      # When verifying pacts, the verification task can be configured
      # to include all "work in progress" pacts (as well as the pacts that you
@@ -77,7 +77,7 @@ Pact.service_provider 'VA.gov API' do
     # Optionally specify the consumer version tags for the pacts you want to verify
     # This will verify the latest pact with the tag `master`
     # consumer_version_tags ['pact-search', 'pact-user', 'pact-hca']
-    consumer_version_tags ['master']
+    # consumer_version_tags ['master']
 
   end
 
