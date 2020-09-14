@@ -69,6 +69,16 @@ Pact.service_provider 'VA.gov API' do
     # This will verify the latest pact with the tag `master`
     # consumer_version_tags ['pact-search', 'pact-user', 'pact-hca']
     consumer_version_tags ['master']
+
+    # When verifying pacts, the verification task can be configured
+    # to include all "work in progress" pacts (as well as the pacts that you
+    # specify by tag, like master or prod).
+    include_wip_pacts_since "2020-09-01"
+
+    # When using WIP pacts feature,
+    # it's best to turn on pending pacts so that any WIP pact failures
+    # don't cause the build to fail
+    enable_pending true
   end
 
   app_version git_sha
