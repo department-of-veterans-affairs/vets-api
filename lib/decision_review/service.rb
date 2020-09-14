@@ -85,11 +85,11 @@ module DecisionReview
       end
 
       {
-        'X-VA-SSN' => user.ssn,
-        'X-VA-First-Name' => user.first_name,
-        'X-VA-Middle-Initial' => user.middle_name.presence&.first,
-        'X-VA-Last-Name' => user.last_name,
-        'X-VA-Birth-Date' => user.birth_date,
+        'X-VA-SSN' => user.ssn.to_s,
+        'X-VA-First-Name' => user.first_name.to_s,
+        'X-VA-Middle-Initial' => user.middle_name.presence&.first.to_s,
+        'X-VA-Last-Name' => user.last_name.to_s,
+        'X-VA-Birth-Date' => user.birth_date.to_s,
         'X-VA-File-Number' => nil,
         'X-VA-Service-Number' => nil,
         'X-VA-Insurance-Policy-Number' => nil
@@ -100,7 +100,7 @@ module DecisionReview
       raise Common::Exceptions::Forbidden.new source: "#{self.class}##{__method__}" unless user.ssn
 
       {
-        'X-VA-SSN' => user.ssn,
+        'X-VA-SSN' => user.ssn.to_s,
         'X-VA-Receipt-Date' => Time.zone.now.strftime('%Y-%m-%d')
       }
     end

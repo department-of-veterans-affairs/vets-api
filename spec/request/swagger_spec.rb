@@ -1646,15 +1646,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'higher_level_reviews' do
       context 'GET' do
         it 'documents higher_level_reviews 200' do
-          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
-            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
+          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200') do
+            expect(subject).to validate(:get, '/v0/higher_level_reviews/{uuid}',
                                         200, headers.merge('uuid' => '75f5735b-c41d-499c-8ae2-ab2740180254'))
           end
         end
 
         it 'documents higher_level_reviews 404' do
-          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-404') do
-            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
+          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404') do
+            expect(subject).to validate(:get, '/v0/higher_level_reviews/{uuid}',
                                         404, headers.merge('uuid' => '0'))
           end
         end
@@ -1664,7 +1664,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         [200, 422].each do |status|
           it "documents higher_level_reviews #{status}" do
             VCR.use_cassette("decision_review/HLR-CREATE-RESPONSE-#{status}") do
-              expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
+              expect(subject).to validate(:post, '/v0/higher_level_reviews',
                                           status, headers)
             end
           end
@@ -1678,7 +1678,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-#{status_code}") do
             expect(subject).to validate(
               :get,
-              '/v0/appeals/higher_level_reviews/contestable_issues/compensation',
+              '/v0/higher_level_reviews/contestable_issues/compensation',
               status_code,
               headers
             )
