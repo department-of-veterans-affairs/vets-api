@@ -10,6 +10,10 @@ module V0
 
         claim = SavedClaim::Ask.new(form: form_submission)
 
+        service = OracleRPAService.new(claim)
+
+        service.submit_form
+
         validate!(claim)
 
         render json: { 'message': '200 ok' }
