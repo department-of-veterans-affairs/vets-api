@@ -14,7 +14,6 @@ RSpec.describe Form1010cg::Service do
         },
         'ssnOrTin' => Faker::IDNumber.valid.remove('-'),
         'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
-        'gender' => %w[M F].sample,
         'address' => {
           'street' => Faker::Address.street_address,
           'city' => Faker::Address.city,
@@ -237,55 +236,6 @@ RSpec.describe Form1010cg::Service do
 
       3.times do
         expect(subject.icn_for('primaryCaregiver')).to eq('NOT_FOUND')
-      end
-    end
-
-    context 'when gender is "U"' do
-      it 'will search MVI with gender: nil' do
-        veteran_data = build_claim_data_for.call(:veteran) do |data|
-          data['gender'] = 'U'
-        end
-
-        subject = described_class.new(
-          build(
-            :caregivers_assistance_claim,
-            form: {
-              'veteran' => veteran_data,
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
-            }.to_json
-          )
-        )
-
-        expected_mvi_search_params = {
-          first_name: veteran_data['fullName']['first'],
-          middle_name: veteran_data['fullName']['middle'],
-          last_name: veteran_data['fullName']['last'],
-          birth_date: veteran_data['dateOfBirth'],
-          gender: nil,
-          ssn: veteran_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
-        }
-
-        expect(UserIdentity).to receive(:new).with(
-          expected_mvi_search_params
-        ).and_return(
-          :user_identity
-        )
-
-        expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
-          :user_identity
-        ).and_return(
-          double(status: 'OK', profile: double(icn: :ICN_123))
-        )
-
-        result = subject.icn_for('veteran')
-
-        expect(result).to eq(:ICN_123)
       end
     end
 
