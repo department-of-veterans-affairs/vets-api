@@ -6,7 +6,6 @@ module Mobile
   module V0
     class UsersController < ApplicationController
       def show
-        # TODO: return full set of user data, including latest appeals, claims, and appointments
         render json: Mobile::V0::UserSerializer.new(@current_user)
       end
     end

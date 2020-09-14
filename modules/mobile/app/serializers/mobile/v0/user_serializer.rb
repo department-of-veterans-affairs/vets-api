@@ -7,6 +7,7 @@ module Mobile
     class UserSerializer
       include FastJsonapi::ObjectSerializer
 
+      # TODO: return full set of user data, including latest appeals, claims, and appointments
       attributes :first_name,
                  :middle_name,
                  :last_name,
