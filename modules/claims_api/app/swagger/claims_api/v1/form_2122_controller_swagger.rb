@@ -131,7 +131,11 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
@@ -238,7 +242,11 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
@@ -324,7 +332,11 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
@@ -432,7 +444,11 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end

@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
+
+require 'carma/models/submission'
+require 'carma/models/attachments'
+require 'mvi/service'
+require 'emis/service'
+
 module Form1010cg
   class Service
     class InvalidVeteranStatus < StandardError
@@ -79,7 +85,7 @@ module Form1010cg
       raise 'submission already has attachments'  if  submission.attachments.any?
 
       file_path = begin
-                    claim.to_pdf
+                    claim.to_pdf(sign: true)
                   rescue
                     return false
                   end
@@ -218,7 +224,7 @@ module Form1010cg
         middle_name: data['fullName']['middle'],
         last_name: data['fullName']['last'],
         birth_date: data['dateOfBirth'],
-        gender: data['gender'] == 'U' ? nil : data['gender'],
+        gender: data['gender'],
         ssn: data['ssnOrTin'],
         email: data['email'] || 'no-email@example.com',
         uuid: SecureRandom.uuid,

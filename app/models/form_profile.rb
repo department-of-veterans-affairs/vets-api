@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'string_helpers'
+require 'sentry_logging'
+
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model
@@ -228,7 +231,8 @@ class FormProfile
       city: address.city,
       state: address.state_code || address.province,
       country: address.country_code_iso3,
-      postal_code: address.zip_plus_four || address.international_postal_code
+      postal_code: address.zip_plus_four || address.international_postal_code,
+      zip_code: address.zip_code
     }.compact
   end
 

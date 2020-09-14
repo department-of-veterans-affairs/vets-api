@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'saml/settings_service'
-require 'sm/client'
-require 'support/sm_client_helpers'
-require 'rx/client'
-require 'support/rx_client_helpers'
+
 require 'bb/client'
+require 'rx/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
+require 'support/stub_efolder_documents'
+require 'support/sm_client_helpers'
+require 'support/rx_client_helpers'
+require 'sm/client'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -353,6 +354,41 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(
             :get,
             '/v0/debt_letters/{id}',
+            200,
+            headers.merge(
+              'id' => CGI.escape(document_id)
+            )
+          )
+        end
+      end
+    end
+
+    context 'eFolder tests' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+
+      context 'efolder index' do
+        stub_efolder_documents(:index)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/efolder',
+            200,
+            headers
+          )
+        end
+      end
+
+      context 'efolder show' do
+        stub_efolder_documents(:show)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/efolder/{id}',
             200,
             headers.merge(
               'id' => CGI.escape(document_id)
@@ -1552,19 +1588,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it '400s on improper id' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
           end
         end
 
         it '404s if provider is missing' do
-          VCR.use_cassette('facilities/va/ppms_nonexistent', match_requests_on: [:method]) do
+          VCR.use_cassette('facilities/ppms/ppms_nonexistent', match_requests_on: [:method]) do
             expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 404, 'id' => 'ccp_123123')
           end
         end
 
         it 'supports getting the services list' do
-          VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query]) do
+          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
             expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_1407842941')
           end
         end
@@ -2670,6 +2706,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         VCR.use_cassette('bgs/person_web_service/find_person_by_participant_id') do
           expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 200, headers)
         end
+      end
+    end
+
+    it "supports returning the vet's payment_history" do
+      expect(subject).to validate(:get, '/v0/profile/payment_history', 401)
+      VCR.use_cassette('bgs/payment_history/find_by_ssn') do
+        expect(subject).to validate(:get, '/v0/profile/payment_history', 200, headers)
       end
     end
   end

@@ -552,6 +552,36 @@ en:
         code: 'VAOS_502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
+      HEALTH_QUEST_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'HEALTH_QUEST_400'
+        detail: 'Appointment request id is invalid'
+        status: 400
+      HEALTH_QUEST_204:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'HEALTH_QUEST_400'
+        detail: 'Appointment request id is invalid'
+        status: 400
+      HEALTH_QUEST_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'HEALTH_QUEST_403'
+        detail: 'This user is forbidden from performing requests on the upstream server'
+        status: 403
+      HEALTH_QUEST_404:
+        <<: *external_defaults
+        title: Not Found
+        code: 'HEALTH_QUEST_404'
+        detail: 'The resource could not be found'
+        status: 404      
+      HEALTH_QUEST_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'HEALTH_QUEST_502'
+        detail: 'Received an an invalid response from the upstream server'
+        status: 502  
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
@@ -1700,6 +1730,36 @@ en:
         detail: Record not found
         code: LIGHTHOUSE_FACILITIES404
         status: 404
+      VANOTIFY_400:
+        <<: *external_defaults
+        title: Bad request
+        detail: Bad request
+        code: VANOTIFY_400
+        status: 400
+      VANOTIFY_403:
+        <<: *external_defaults
+        title: Authentication error
+        detail: Authentication error
+        code: VANOTIFY_403
+        status: 403
+      VANOTIFY_404:
+        <<: *external_defaults
+        title: Not found
+        detail: Not found
+        code: VANOTIFY_404
+        status: 404
+      VANOTIFY_429:
+        <<: *external_defaults
+        title: Exceeded rate or send limits
+        detail: Exceeded rate or send limits
+        code: VANOTIFY_429
+        status: 429
+      VANOTIFY_500:
+        <<: *external_defaults
+        title: Internal server error
+        detail: Internal server error
+        code: VANOTIFY_500
+        status: 500
 
   decision_review:
     exceptions:

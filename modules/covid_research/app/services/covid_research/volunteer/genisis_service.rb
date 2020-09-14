@@ -7,6 +7,9 @@
 # Username: COVTestUser
 # Password: VAcovid-19test!
 
+require 'common/client/base'
+require 'common/client/concerns/monitoring'
+
 module CovidResearch
   module Volunteer
     class GenisisService < Common::Client::Base
@@ -38,7 +41,7 @@ module CovidResearch
       private
 
       def post(params)
-        conn.post("#{Settings.genisis.service_path}/formdata", params)
+        conn.post("#{Settings.genisis.service_path}/formdata", params, headers)
       end
 
       def headers

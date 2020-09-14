@@ -222,10 +222,10 @@ RSpec.describe Form526Submission do
         Flipper.enable(:form526_confirmation_email)
 
         allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
-          expect(args[1]['full_name']).to eql('some name')
-          expect(args[1]['submitted_claim_id']).to be(123_654_879)
-          expect(args[1]['email']).to eql('test@email.com')
-          expect(args[1]['date_submitted']).to eql('July 20, 2012')
+          expect(args[0]['full_name']).to eql('some name')
+          expect(args[0]['submitted_claim_id']).to be(123_654_879)
+          expect(args[0]['email']).to eql('test@email.com')
+          expect(args[0]['date_submitted']).to eql('July 20, 2012')
         end
 
         options = {

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'caseflow/service'
 
 describe AppealsApi::V1::DecisionReviews::HigherLevelReviews::ContestableIssuesController, type: :request do
   let(:get_issues) do

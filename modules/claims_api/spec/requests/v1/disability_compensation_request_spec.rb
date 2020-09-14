@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/disability_compensation_auth_headers'
+require 'evss/disability_compensation_form/configuration'
+require 'evss/disability_compensation_form/service'
+require 'common/exceptions'
 
 RSpec.describe 'Disability Claims ', type: :request do
   let(:headers) do
@@ -170,6 +174,45 @@ RSpec.describe 'Disability Claims ', type: :request do
             post path, params: data, headers: headers.merge(auth_header)
             expect(response.status).to eq 422
             expect(JSON.parse(response.body)['errors']).to be_an Array
+          end
+        end
+      end
+
+      context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+        before do
+          fake_io_object = OpenStruct.new string: json
+          allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+        end
+
+        context 'request.body is a JSON string' do
+          let(:json) { '"Hello!"' }
+
+          it 'responds with a properly formed error object' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                body = JSON.parse(response.body)
+                expect(response.status).to eq 422
+                expect(body['errors']).to be_an Array
+                expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+              end
+            end
+          end
+        end
+
+        context 'request.body is a JSON integer' do
+          let(:json) { '66' }
+
+          it 'responds with a properly formed error object' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                body = JSON.parse(response.body)
+                expect(response.status).to eq 422
+                expect(body['errors']).to be_an Array
+                expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+              end
+            end
           end
         end
       end
