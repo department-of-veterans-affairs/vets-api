@@ -37,8 +37,6 @@ class IAMUser < ::User
   # but JSON API requires an id with each resource
   #
   def id
-    puts "last_name #{last_name}"
-    puts "email #{email}"
     Digest::UUID.uuid_v5(last_name, email)
   end
 
