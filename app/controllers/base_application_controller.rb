@@ -20,17 +20,17 @@ class BaseApplicationController < ActionController::API
 
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   before_action :set_tags_and_extra_context
-  
+
   def cors_preflight
     head(:ok)
   end
-  
+
   def routing_error
     raise Common::Exceptions::RoutingError, params[:path]
   end
-  
+
   private
-  
+
   attr_reader :current_user
 
   def append_info_to_payload(payload)
@@ -38,7 +38,7 @@ class BaseApplicationController < ActionController::API
     payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]
     payload[:user_uuid] = current_user.uuid if current_user.present?
   end
-  
+
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
     return if controller_name == 'example'
@@ -53,7 +53,7 @@ class BaseApplicationController < ActionController::API
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
   end
-  
+
   rescue_from 'Exception' do |exception|
     va_exception =
       case exception
@@ -75,16 +75,16 @@ class BaseApplicationController < ActionController::API
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
-    
+
     unless skip_sentry_exception_types.include?(exception.class)
       report_original_exception(exception)
       report_mapped_exception(exception, va_exception)
     end
-    
+
     headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
     render_errors(va_exception)
   end
-  
+
   def render_errors(va_exception)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end

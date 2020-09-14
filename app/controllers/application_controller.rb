@@ -13,7 +13,7 @@ class ApplicationController < BaseApplicationController
 
   protect_from_forgery with: :exception, if: -> { ActionController::Base.allow_forgery_protection }
   after_action :set_csrf_header, if: -> { ActionController::Base.allow_forgery_protection }
-  
+
   VERSION_STATUS = {
     draft: 'Draft Version',
     current: 'Current Version',
@@ -24,37 +24,37 @@ class ApplicationController < BaseApplicationController
   # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   skip_before_action :verify_authenticity_token, only: :routing_error
-  
+
   def clear_saved_form(form_id)
     InProgressForm.form_for_user(form_id, current_user)&.destroy if current_user
   end
-  
+
   private
-  
+
   def set_csrf_header
     token = form_authenticity_token
     response.set_header('X-CSRF-Token', token)
     Rails.logger.info('CSRF response token', csrf_token: token)
   end
-  
+
   def saml_settings(options = {})
     callback_url = URI.parse(Settings.saml.callback_url)
     callback_url.host = request.host if Settings.review_instance_slug.blank?
     options.reverse_merge!(assertion_consumer_service_url: callback_url.to_s)
     SAML::SettingsService.saml_settings(options)
   end
-  
+
   def pagination_params
     {
       page: params[:page],
       per_page: params[:per_page]
     }
   end
-  
+
   def render_job_id(jid)
     render json: { job_id: jid }, status: :accepted
   end
-  
+
   def append_info_to_payload(payload)
     super
     payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]

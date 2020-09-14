@@ -4,10 +4,10 @@ module Mobile
   class ApplicationController < BaseApplicationController
     before_action :check_feature_flag, :authenticate
 
-    TOKEN_REGEX = /Bearer /.freeze
+    ACCESS_TOKEN_REGEX = /^Bearer /.freeze
 
     private
-    
+
     def check_feature_flag
       return nil if Flipper.enabled?(:mobile_api)
 
@@ -24,72 +24,49 @@ module Mobile
 
       render json: message, status: :not_found
     end
-    
-    def authenticate
-      raise Common::Exceptions::Forbidden.new(detail: 'Missing bearer auth token') if auth_token.nil?
-      @session_object = IAMSSOeSession.find(auth_token)
-      
-      service = VAOS::AppointmentService.facilities
 
-      if @session_object.nil?
-        iam_ssoe_user_traits = iam_ssoe_service.post_introspect(auth_token)
-        @user_identity = UserIdentity.new(normalize_traits(iam_ssoe_user_traits))
-        # @current_user =
+    def authenticate
+      raise Common::Exceptions::Forbidden.new(detail: 'Missing bearer auth token') if access_token.nil?
+
+      @session = IAMSession.find(access_token)
+
+      if @session
+        @current_user = IAMUser.find(@session.uuid)
       else
-        @current_user = User.find(@session_object.uuid)
+        create_iam_session
       end
     end
-    
-    def auth_token
-      @auth_token ||= request.authorization.to_s[TOKEN_REGEX]
+
+    def access_token
+      header = request.headers['Authorization']
+      @access_token ||= header.gsub(ACCESS_TOKEN_REGEX, '')
     end
-    
+
+    def create_iam_session
+      iam_profile = iam_ssoe_service.post_introspect(access_token)
+      user_identity = build_identity(iam_profile)
+      build_user(user_identity)
+      build_session(user_identity)
+    end
+
+    def build_identity(iam_profile)
+      user_identity = IAMUserIdentity.build_from_iam_profile(iam_profile)
+      user_identity.save
+      user_identity
+    end
+
+    def build_session(user_identity)
+      session = IAMSession.new(token: access_token, uuid: user_identity.uuid)
+      session.save
+    end
+
+    def build_user(user_identity)
+      @current_user = IAMUser.build_from_user_identity(user_identity)
+      @current_user.save
+    end
+
     def iam_ssoe_service
       IAMSSOeOAuth::Service.new
     end
-    
-    def normalize_traits(traits)
-      {
-        uuid: traits[:email],
-        email: traits[:email],
-        first_name: traits[:email],
-        middle_name: traits[:email],
-        last_name: traits[:email],
-        common_name: traits[:email],
-        gender: traits[:email],
-        birth_date: traits[:email],
-        zip: traits[:email],
-        ssn: traits[:email],
-        loa: traits[:email],
-        multifactor: traits[:email], # used by F/E to decision on whether or not to prompt user to add MFA
-        authn_context: traits[:email], # used by F/E to handle various identity related complexities pending refactor
-        idme_uuid: traits[:email],
-        sec_id: traits[:email],
-        mhv_icn:  traits[:email],# only needed by B/E not serialized in user_serializer
-        mhv_correlation_id:  traits[:email], # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
-        mhv_account_type:  traits[:email], # this is only available for MHV sign-in users
-        dslogon_edipi:  traits[:email], # this is only available for dslogon users
-        sign_in:, Hash  traits[:email], # original sign_in (see sso_service#mergable_identity_attributes)
-        authenticated_by_ssoe: traits[:email]
-      }
-    end
   end
 end
-
-def self.build_from_okta_profile(uuid:, profile:, ttl:)
-  identity = new(
-    uuid: uuid,
-    email: profile['email'],
-    first_name: profile['firstName'],
-    middle_name: profile['middleName'],
-    last_name: profile['lastName'],
-    mhv_icn: profile['icn'],
-    loa: profile.derived_loa
-  )
-  identity.expire(ttl)
-  identity
-end
-
-validates :uuid, presence: true
-validates :loa, presence: true
-validate  :loa_highest_present
