@@ -26,7 +26,6 @@ module Vet360
       attribute :address_line3, String
       attribute :address_pou, String # purpose of use
       attribute :address_type, String
-      attribute :bad_address_indicator, Boolean
       attribute :city, String
       attribute :country_name, String
       attribute :country_code_iso2, String

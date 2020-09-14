@@ -3,7 +3,6 @@
 FactoryBot.define do
   factory :vet360_address, class: 'Vet360::Models::Address' do
     address_line1 { '140 Rock Creek Rd' }
-    bad_address_indicator { 'N' }
     address_pou { Vet360::Models::Address::RESIDENCE }
     address_type { Vet360::Models::Address::DOMESTIC }
     city { 'Washington' }

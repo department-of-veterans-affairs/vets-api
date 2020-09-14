@@ -12,7 +12,6 @@ describe Vet360::Models::Address do
       expect(address.longitude).to eq(-77.0347)
       expect(address.geocode_precision).to eq(100)
       expect(address.geocode_date).to eq(Time.zone.parse('2018-04-13 17:01:18 UTC'))
-      expect(address.bad_address_indicator).to eq(false)
     end
   end
 
