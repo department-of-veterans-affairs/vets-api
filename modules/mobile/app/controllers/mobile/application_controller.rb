@@ -11,10 +11,6 @@ module Mobile
       head(:ok)
     end
 
-    def routing_error
-      raise Common::Exceptions::RoutingError, params[:path]
-    end
-
     private
 
     def check_feature_flag
@@ -35,7 +31,12 @@ module Mobile
     end
 
     def authenticate
-      raise Common::Exceptions::Forbidden.new(detail: 'Missing bearer auth token') if access_token.nil?
+      if request.headers['Authorization'].nil?
+        raise Common::Exceptions::Forbidden.new(detail: 'Missing Authorization header')
+      end
+      if access_token.blank?
+        raise Common::Exceptions::Forbidden.new(detail: 'Authorization header Bearer token is blank')
+      end
 
       @session = IAMSession.find(access_token)
 
@@ -47,8 +48,7 @@ module Mobile
     end
 
     def access_token
-      header = request.headers['Authorization']
-      @access_token ||= header.gsub(ACCESS_TOKEN_REGEX, '')
+      @access_token ||= request.headers['Authorization'].gsub(ACCESS_TOKEN_REGEX, '')
     end
 
     def create_iam_session

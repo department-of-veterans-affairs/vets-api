@@ -32,7 +32,7 @@ module IAMSSOeOAuth
       response = perform(
         :post, INTROSPECT_PATH, encoded_params(token), { 'Content-Type' => 'application/x-www-form-urlencoded' }
       )
-      raise Common::Exceptions::Unauthorized if inactive?(response)
+      raise Common::Exceptions::Forbidden, detail: 'IAM user session is inactive' if inactive?(response)
 
       response.body
     end
