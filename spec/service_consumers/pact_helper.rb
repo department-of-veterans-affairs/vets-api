@@ -64,17 +64,15 @@ Pact.service_provider 'VA.gov API' do
                            username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
                            password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
                          }
-
+     # When using WIP pacts feature,
+     # it's best to turn on pending pacts so that any WIP pact failures
+     # don't cause the build to fail
+     enable_pending true           
 
      # When verifying pacts, the verification task can be configured
      # to include all "work in progress" pacts (as well as the pacts that you
      # specify by tag, like master or prod).
      include_wip_pacts_since "2020-09-01"
-
-     # When using WIP pacts feature,
-     # it's best to turn on pending pacts so that any WIP pact failures
-     # don't cause the build to fail
-     enable_pending true
 
     # Optionally specify the consumer version tags for the pacts you want to verify
     # This will verify the latest pact with the tag `master`
