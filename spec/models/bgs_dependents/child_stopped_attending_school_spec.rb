@@ -6,6 +6,8 @@ RSpec.describe BGSDependents::ChildStoppedAttendingSchool do
   let(:child_info) do
     {
       'date_child_left_school' => '2019-03-03',
+      'ssn' => '213648794',
+      'birth_date' => '2003-03-03',
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' }
     }
   end
@@ -15,7 +17,9 @@ RSpec.describe BGSDependents::ChildStoppedAttendingSchool do
       'first' => 'Billy',
       'middle' => 'Yohan',
       'last' => 'Johnson',
-      'suffix' => 'Sr.'
+      'suffix' => 'Sr.',
+      'ssn' => '213648794',
+      'birth_date' => '2003-03-03'
     }
   end
 
