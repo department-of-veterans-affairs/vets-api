@@ -1055,9 +1055,9 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a higher level review form' do
       it 'returns the va profile mapped to the higher level review form' do
-        schema_name = 'HLR-CREATE-REQUEST-BODY'
+        schema_name = '20-0996'
         schema = VetsJsonSchema::SCHEMAS[schema_name]
-        full_example = VetsJsonSchema::EXAMPLES[schema_name]
+        full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
 
         prefill_data = Oj.load(described_class.for(schema_name).prefill(user).to_json)['form_data']
 
