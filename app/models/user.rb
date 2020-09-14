@@ -101,7 +101,6 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
-    raise 'foo'
     identity.mhv_correlation_id || mvi.mhv_correlation_id
   end
 
