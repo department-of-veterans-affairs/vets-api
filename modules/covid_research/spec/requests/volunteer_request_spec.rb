@@ -75,16 +75,10 @@ RSpec.describe 'covid research volunteer submissions', type: :request do
     end
 
     context 'email confirmation' do
-      let(:mailer) { CovidResearch::Volunteer::SubmissionMailer }
+      let(:confirmation_job) { CovidResearch::Volunteer::ConfirmationMailerJob }
 
-      it 'addresses the confirmation to the email in the submission' do
-        expect(mailer).to receive(:build).with(JSON.parse(valid)['email']).and_call_original
-
-        post '/covid-research/volunteer/create', params: valid
-      end
-
-      it 'delivers the confirmation' do
-        expect_any_instance_of(Mail::Message).to receive(:deliver)
+      it 'schedules delivery via Sidekiq' do
+        expect(confirmation_job).to receive(:perform_async).with(JSON.parse(valid)['email'])
 
         post '/covid-research/volunteer/create', params: valid
       end
