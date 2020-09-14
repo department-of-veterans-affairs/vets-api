@@ -224,7 +224,7 @@ module Form1010cg
         middle_name: data['fullName']['middle'],
         last_name: data['fullName']['last'],
         birth_date: data['dateOfBirth'],
-        gender: data['gender'] == 'U' ? nil : data['gender'],
+        gender: data['gender'],
         ssn: data['ssnOrTin'],
         email: data['email'] || 'no-email@example.com',
         uuid: SecureRandom.uuid,

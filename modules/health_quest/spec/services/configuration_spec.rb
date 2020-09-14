@@ -11,7 +11,6 @@ describe HealthQuest::Configuration do
 
   describe '#connection' do
     before do
-      # LJG NOTE: this is just to increase code coverage area for simplecov gem
       @hq_debug_prev = ENV['HEALTH_QUEST_DEBUG']
       ENV['HEALTH_QUEST_DEBUG'] = 'true'
     end
