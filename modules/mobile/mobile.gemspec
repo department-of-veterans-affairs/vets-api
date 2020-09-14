@@ -28,8 +28,6 @@ Gem::Specification.new do |spec|
   spec.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
   spec.test_files = Dir['spec/**/*']
   
-  spec.add_dependency 'sidekiq'
-  
   spec.add_development_dependency 'factory_bot_rails'
   spec.add_development_dependency 'pg'
   spec.add_development_dependency 'rspec-rails'

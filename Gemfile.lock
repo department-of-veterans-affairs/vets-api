@@ -91,7 +91,6 @@ PATH
   remote: modules/mobile
   specs:
     mobile (0.1.0)
-      sidekiq
 
 PATH
   remote: modules/openid_auth
