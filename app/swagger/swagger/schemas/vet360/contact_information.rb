@@ -57,7 +57,6 @@ module Swagger
                   property :city, type: :string, example: 'Fulton'
                   property :country_code_iso3, type: %i[string], example: 'USA'
                   property :country_code_fips, type: %i[string null], example: 'US'
-
                   property :id, type: :integer, example: 123
                   property :international_postal_code, type: %i[string null], example: '54321'
                   property :latitude, type: %i[float null], example: 38.901
