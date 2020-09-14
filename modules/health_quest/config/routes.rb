@@ -5,5 +5,4 @@ HealthQuest::Engine.routes.draw do
     resources :appointments, only: %i[index show] do
     end
   end
-
 end
