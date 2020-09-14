@@ -21,14 +21,6 @@ class BaseApplicationController < ActionController::API
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   before_action :set_tags_and_extra_context
 
-  def cors_preflight
-    head(:ok)
-  end
-
-  def routing_error
-    raise Common::Exceptions::RoutingError, params[:path]
-  end
-
   private
 
   attr_reader :current_user

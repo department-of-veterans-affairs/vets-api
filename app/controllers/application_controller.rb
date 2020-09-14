@@ -25,6 +25,14 @@ class ApplicationController < BaseApplicationController
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   skip_before_action :verify_authenticity_token, only: :routing_error
 
+  def cors_preflight
+    head(:ok)
+  end
+
+  def routing_error
+    raise Common::Exceptions::RoutingError, params[:path]
+  end
+
   def clear_saved_form(form_id)
     InProgressForm.form_for_user(form_id, current_user)&.destroy if current_user
   end

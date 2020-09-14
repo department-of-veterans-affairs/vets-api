@@ -3,8 +3,17 @@
 module Mobile
   class ApplicationController < BaseApplicationController
     before_action :check_feature_flag, :authenticate
+    skip_before_action :authenticate, only: %i[cors_preflight routing_error]
 
     ACCESS_TOKEN_REGEX = /^Bearer /.freeze
+
+    def cors_preflight
+      head(:ok)
+    end
+
+    def routing_error
+      raise Common::Exceptions::RoutingError, params[:path]
+    end
 
     private
 
