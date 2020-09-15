@@ -87,7 +87,7 @@ module DecisionReview
       {
         'X-VA-SSN' => user.ssn.to_s,
         'X-VA-First-Name' => user.first_name.to_s,
-        'X-VA-Middle-Initial' => user.middle_name.presence&.first.to_s,
+        'X-VA-Middle-Initial' => user.middle_name.presence&.first&.to_s,
         'X-VA-Last-Name' => user.last_name.to_s,
         'X-VA-Birth-Date' => user.birth_date.to_s,
         'X-VA-File-Number' => nil,
