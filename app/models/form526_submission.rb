@@ -129,7 +129,8 @@ class Form526Submission < ApplicationRecord
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     if submission.form526_job_statuses.all?(&:success?)
-      user = User.find(user_uuid)
+      user = User.find(submission.user_uuid)
+      Rails.logger.info('User info', user_uuid: submission.user_uuid, user: user.to_yaml)
       if Flipper.enabled?(:form526_confirmation_email, user)
         submission.send_form526_confirmation_email(options['full_name'])
       end
