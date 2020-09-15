@@ -49,7 +49,6 @@ RSpec.describe Debts::LetterDownloader do
 
   describe '#get_letter' do
     context 'with a document in the users folder' do
-
       let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
 
       before do
