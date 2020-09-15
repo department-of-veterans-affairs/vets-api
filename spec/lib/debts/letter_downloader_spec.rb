@@ -49,7 +49,7 @@ RSpec.describe Debts::LetterDownloader do
 
   describe '#get_letter' do
     context 'with a document in the users folder' do
-      
+
       let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
 
       before do
@@ -94,7 +94,7 @@ RSpec.describe Debts::LetterDownloader do
       it 'returns a filename' do
         use_person_and_letter_cassettes do
           expect(subject.file_name(good_document_id)).to eq(
-            "DMC - Debt Increase Letter June 03, 2020"
+            'DMC - Debt Increase Letter June 03, 2020'
           )
         end
       end
