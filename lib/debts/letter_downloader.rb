@@ -29,6 +29,15 @@ module Debts
       ).content
     end
 
+    def file_name(document_id)
+      document = @client.send_request(
+        VBMS::Requests::FindDocumentVersionReference.new(@service.file_number)
+      ).detect do |doc|
+        doc.document_id == document_id
+      end
+      "#{document.type_description} #{document.upload_date.to_formatted_s(:long)}"
+    end
+
     def list_letters
       debts_records = @client.send_request(
         VBMS::Requests::FindDocumentVersionReference.new(@service.file_number)
