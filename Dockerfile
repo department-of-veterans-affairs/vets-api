@@ -13,6 +13,11 @@ RUN groupadd -g $userid -r vets-api && \
     useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     dumb-init clamav clamdscan clamav-daemon imagemagick pdftk curl poppler-utils libpq5 vim
+RUN apt-get install xvfb -y
+RUN echo `which xvfb`
+RUN apt install wget
+RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN dpkg -i google-chrome-stable_current_amd64.deb; apt-get -fy install
 # The pki work below is for parity with the non-docker BRD deploys to mount certs into
 # the container, we need to get rid of it and refactor the configuration bits into
 # something more continer friendly in a later bunch of work

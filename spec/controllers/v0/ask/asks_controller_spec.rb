@@ -23,6 +23,10 @@ RSpec.describe V0::Ask::AsksController, type: :controller do
       context 'enabled' do
         context 'when form is valid' do
           it 'returns 200 OK' do
+            VCR.configure do |c|
+              c.allow_http_connections_when_no_cassette = true
+            end
+
             form_data = get_fixture('ask/minimal').to_json
             params = { inquiry: { form: form_data } }
             claim = build(:ask, form: form_data)

@@ -112,6 +112,10 @@ gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/
 gem 'virtus'
 gem 'will_paginate'
 gem 'zero_downtime_migrations'
+gem 'webdrivers'
+gem 'watir'
+gem 'headless'
+gem 'selenium-webdriver'
 
 group :development do
   gem 'benchmark-ips'
