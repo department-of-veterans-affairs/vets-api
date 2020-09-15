@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'emis/service'
+
 module V0
   module Profile
     class ServiceHistoriesController < ApplicationController

@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require_relative 'configuration'
+require 'salesforce/service'
 
 module CARMA
   module Client

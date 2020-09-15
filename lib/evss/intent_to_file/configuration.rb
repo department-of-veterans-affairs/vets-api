@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/configuration'
+
 module EVSS
   module IntentToFile
     ##
