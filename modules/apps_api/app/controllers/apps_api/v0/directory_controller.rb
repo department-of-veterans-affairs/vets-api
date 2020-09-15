@@ -12,16 +12,12 @@ module AppsApi
       # and filters out any that contain an ISO date in their label
       def index
         redis = Redis.new
-
-        filtered_apps = []
         # Check for existing cache of our app list
-        redis_response = redis.get('okta_directory_apps')
-        if redis_response
-          filtered_apps = JSON.parse redis.get('okta_directory_apps')
-        else
-          filtered_apps = Okta::DirectoryService.new.get_apps
-        end
-
+        filtered_apps = if redis.get('okta_directory_apps')
+                          JSON.parse redis.get('okta_directory_apps')
+                        else
+                          Okta::DirectoryService.new.get_apps
+                        end
         render json: {
           data: filtered_apps
         }
