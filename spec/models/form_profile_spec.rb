@@ -674,23 +674,19 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v20_0996_expected) do
     {
-      'data' =>
-        {
-          'attributes' =>
-            {
-              'veteran' =>
-                {
-                  'addressLine1' => street_check[:street],
-                  'addressLine2' => street_check[:street2],
-                  'city' => user.va_profile[:address][:city],
-                  'stateOrProvinceCode' => user.va_profile[:address][:state],
-                  'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
-                  'phoneNumber' => us_phone,
-                  'emailAddress' => user.pciu_email,
-                  'ssnLastFour' => user.ssn.last(4)
-                }
-            }
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'address' => {
+              'zipCode5' => user.va_profile[:address][:zip_code]
+            },
+            'phone' => {
+              'phoneNumber' => us_phone
+            },
+            'emailAddressText' => user.pciu_email
+          }
         }
+      }
     }
   end
 
@@ -987,7 +983,6 @@ RSpec.describe FormProfile, type: :model do
           22-1990N
           22-1990E
           22-1995
-          22-1995S
           22-5490
           22-5495
           40-10007
@@ -1059,7 +1054,111 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a higher level review form' do
       it 'returns the va profile mapped to the higher level review form' do
-        expect_prefilled('20-0996')
+        schema_name = '20-0996'
+        schema = VetsJsonSchema::SCHEMAS[schema_name]
+        full_example = JSON.parse(<<~'HEREDOC')
+          {
+            "data": {
+              "type": "higherLevelReview",
+              "attributes": {
+                "informalConference": true,
+                "sameOffice": true,
+                "benefitType": "compensation",
+                "veteran": {
+                  "address": {
+                    "zipCode5": "66002"
+                  },
+                  "phone": {
+                    "countryCode": "34",
+                    "areaCode": "555",
+                    "phoneNumber": "8001111",
+                    "phoneNumberExt": "2"
+                  },
+                  "emailAddressText": "josie@example.com",
+                  "timezone": "America/Chicago"
+                },
+                "informalConferenceTimes": [
+                  "1230-1400 ET",
+                  "1400-1630 ET"
+                ],
+                "informalConferenceRep": {
+                  "name": "Helen Holly",
+                  "phone": {
+                    "countryCode": "6",
+                    "areaCode": "555",
+                    "phoneNumber": "8001111",
+                    "phoneNumberExt": "2"
+                  }
+                }
+              }
+            },
+            "included": [
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "tinnitus",
+                  "decisionDate": "1900-01-01",
+                  "decisionIssueId": 1,
+                  "ratingIssueReferenceId": "2",
+                  "ratingDecisionReferenceId": "3"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "left knee",
+                  "decisionDate": "1900-01-02",
+                  "decisionIssueId": 4,
+                  "ratingIssueReferenceId": "5"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "right knee",
+                  "decisionDate": "1900-01-03",
+                  "ratingIssueReferenceId": "6",
+                  "ratingDecisionReferenceId": "7"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "PTSD",
+                  "decisionDate": "1900-01-04",
+                  "decisionIssueId": 8,
+                  "ratingDecisionReferenceId": "9"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "Traumatic Brain Injury",
+                  "decisionDate": "1900-01-05",
+                  "decisionIssueId": 10
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "right shoulder",
+                  "decisionDate": "1900-01-06"
+                }
+              }
+            ]
+          }
+        HEREDOC
+
+        prefill_data = Oj.load(described_class.for(schema_name).prefill(user).to_json)['form_data']
+
+        test_data = full_example.deep_merge prefill_data
+
+        errors = JSON::Validator.fully_validate(
+          schema,
+          test_data,
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
     end
 

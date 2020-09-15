@@ -25,6 +25,7 @@ RSpec.describe Common::Client::Concerns::Monitoring, type: :model do
 
   it 'increments the total' do
     VCR.use_cassette('shared/success') do
+      expect(StatsD).to receive(:increment).once.with(total_key)
       service.request(:get, nil)
       redis_key = StatsDMetric.find(total_key)
       expect(redis_key).to be_truthy
@@ -34,6 +35,9 @@ RSpec.describe Common::Client::Concerns::Monitoring, type: :model do
   context 'when a request fails' do
     it 'increments the failure total' do
       VCR.use_cassette('shared/failure') do
+        expect(StatsD).to receive(:increment).once.with(fail_key,
+                                                        tags: ['error:CommonClientErrorsClientError', 'status:404'])
+        expect(StatsD).to receive(:increment).once.with(total_key)
         expect { service.request(:get, nil) }.to raise_error(Common::Client::Errors::ClientError)
         redis_key = StatsDMetric.find(fail_key)
         expect(redis_key).to be_truthy

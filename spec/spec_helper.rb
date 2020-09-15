@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'fakeredis/rspec'
-require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
@@ -11,10 +10,7 @@ require 'support/silence_stream'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/sidekiq/batch'
 require 'support/stub_emis'
-require 'support/stub_evss_pciu'
-require 'support/vet360/stub_vet360'
 require 'support/okta_users_helpers'
-require 'support/poa_stub'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -25,6 +21,8 @@ unless ENV['NOCOVERAGE']
     track_files '**/{app,lib}/**/*.rb'
 
     add_filter 'app/controllers/concerns/accountable.rb'
+    add_filter 'app/models/in_progress_disability_compensation_form.rb'
+    add_filter 'app/serializers/appeal_serializer.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
@@ -39,6 +37,8 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
     add_filter 'modules/claims_api/lib/claims_api/health_checker.rb'
+    add_filter 'modules/health_quest/lib/health_quest.rb'
+    add_filter 'modules/health_quest/lib/health_quest/engine.rb'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
 
@@ -55,9 +55,10 @@ unless ENV['NOCOVERAGE']
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'VAOS', 'modules/vaos/'
+    add_group 'HealthQuest', 'modules/health_quest/'
 
-    SimpleCov.minimum_coverage_by_file 90
-    SimpleCov.refuse_coverage_drop
+    SimpleCov.minimum_coverage_by_file 90 unless ENV['CIRCLE_JOB']
+    SimpleCov.refuse_coverage_drop unless ENV['CIRCLE_JOB']
   end
 end
 

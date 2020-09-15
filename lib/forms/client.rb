@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require_relative 'configuration'
+require_relative 'responses/response'
 
 module Forms
   # Proxy Service for Forms API.

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'common/exceptions'
 
 describe VAOS::AppointmentService do
   subject { described_class.new(user) }
