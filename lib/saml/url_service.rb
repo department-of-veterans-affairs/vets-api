@@ -55,9 +55,7 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
-      if auth == 'success'
-        return verify_url if user.loa[:current] < user.loa[:highest]
-      end
+      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
       # if the original auth request was an inbound ssoe autologin (type custom)
       # and authentication failed, set 'force-needed' so the FE can silently fail
