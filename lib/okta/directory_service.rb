@@ -55,6 +55,5 @@ module Okta
       end
       apps
     end
-
   end
 end
