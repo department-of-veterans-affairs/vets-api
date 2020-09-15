@@ -106,7 +106,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
       end
 
       context 'with a user who has a cached iam session' do
-        before { sign_in }
+        before { iam_sign_in }
 
         it 'returns returns ok without hitting the introspect endpoint' do
           get :index

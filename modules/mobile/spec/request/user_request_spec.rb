@@ -6,7 +6,7 @@ require_relative '../rails_helper'
 RSpec.describe 'user', type: :request do
   describe 'GET /mobile/v0/user' do
     context 'with a user who has a cached iam session' do
-      before { sign_in }
+      before { iam_sign_in }
 
       let(:expected_body) do
         {
