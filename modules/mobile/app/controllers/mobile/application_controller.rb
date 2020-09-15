@@ -31,17 +31,13 @@ module Mobile
     end
 
     def authenticate
-      if request.headers['Authorization'].nil?
-        raise Common::Exceptions::Forbidden.new(detail: 'Missing Authorization header')
-      end
-      if access_token.blank?
-        raise Common::Exceptions::Forbidden.new(detail: 'Authorization header Bearer token is blank')
-      end
+      raise_forbidden('Missing Authorization header') if request.headers['Authorization'].nil?
+      raise_forbidden('Authorization header Bearer token is blank') if access_token.blank?
 
-      @session = IAMSession.find(access_token)
+      session = IAMSession.find(access_token)
 
-      if @session
-        @current_user = IAMUser.find(@session.uuid)
+      if session
+        @current_user = IAMUser.find(session.uuid)
       else
         create_iam_session
       end
@@ -56,6 +52,9 @@ module Mobile
       user_identity = build_identity(iam_profile)
       build_user(user_identity)
       build_session(user_identity)
+    rescue Common::Exceptions::Forbidden => e
+      StatsD.increment('mobile.application_controller.create_iam_session.inactive_session')
+      raise e
     end
 
     def build_identity(iam_profile)
@@ -76,6 +75,10 @@ module Mobile
 
     def iam_ssoe_service
       IAMSSOeOAuth::Service.new
+    end
+
+    def raise_forbidden(detail)
+      raise Common::Exceptions::Forbidden.new(detail: detail)
     end
   end
 end

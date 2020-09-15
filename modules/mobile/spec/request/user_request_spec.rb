@@ -25,7 +25,7 @@ RSpec.describe 'user', type: :request do
 
       it 'returns returns basic user info without hitting the introspect endpoint' do
         get '/mobile/v0/user', headers: { 'Authorization' => "Bearer #{access_token}" }
-        
+
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to eq(expected_body)
       end
