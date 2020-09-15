@@ -334,6 +334,7 @@ RSpec/SubjectStub:
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
     - 'spec/lib/carma/client/client_spec.rb'
     - 'spec/services/form1010cg/service_spec.rb'
+    - 'spec/services/form1010cg/auditor_spec.rb'
 
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:
