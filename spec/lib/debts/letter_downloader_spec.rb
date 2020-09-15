@@ -20,7 +20,7 @@ RSpec.describe Debts::LetterDownloader do
       "VBMS::Requests::#{request_name}".constantize
     ).to receive(:new).at_most(:twice).with(args).and_return(request_double)
 
-    expect(vbms_client).to receive(:send_request).with(
+    expect(vbms_client).to receive(:send_request).at_most(:twice).with(
       request_double
     ).and_return(
       return_val
