@@ -18,7 +18,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         it 'returns forbidden' do
           get :index
 
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:unauthorized)
           expect(error_detail).to eq('Missing Authorization header')
         end
 
@@ -35,7 +35,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         it 'returns forbidden' do
           get :index
 
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:unauthorized)
           expect(error_detail).to eq('Authorization header Bearer token is blank')
         end
 
@@ -56,7 +56,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
             get :index
           end
 
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:unauthorized)
           expect(error_detail).to eq('IAM user session is inactive')
         end
 
