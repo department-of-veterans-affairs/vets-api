@@ -65,7 +65,7 @@ RSpec.describe Debts::LetterDownloader do
 
       it 'downloads a debt letter' do
         use_person_and_letter_cassettes do
-          expect(subject.get_letter(document_id)).to eq(content)
+          expect(subject.get_letter(good_document_id)).to eq(content)
         end
       end
     end
