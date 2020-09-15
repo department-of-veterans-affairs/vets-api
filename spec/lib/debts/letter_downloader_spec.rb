@@ -16,7 +16,7 @@ RSpec.describe Debts::LetterDownloader do
   def stub_vbms_client_request(request_name, args, return_val)
     request_double = double
     return_val.map { |letter| letter.upload_date = Date.parse(letter.upload_date) }
-    expect("VBMS::Requests::#{request_name}".constantize).to receive(:new).twice.with(args).and_return(request_double)
+    expect("VBMS::Requests::#{request_name}".constantize).to receive(:new).at_most(:twice).with(args).and_return(request_double)
 
     expect(vbms_client).to receive(:send_request).with(
       request_double
