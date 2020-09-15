@@ -30,6 +30,8 @@ module Debts
     end
 
     def file_name(document_id)
+      verify_letter_in_folder(document_id)
+
       document = vbms_documents.detect { |doc| doc.document_id == document_id }
       "#{document.type_description} #{document.upload_date.to_formatted_s(:long)}"
     end

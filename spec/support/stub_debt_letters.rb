@@ -17,12 +17,20 @@ def stub_debt_letters(method)
       expect(letter_downloader).to receive(:get_letter).with(document_id).and_return(content)
       expect(letter_downloader).to receive(:file_name).with(document_id).and_return('filename.pdf')
     end
-  else
+  elsif method == :index
     let(:list_letters_res) { get_fixture('vbms/list_letters') }
 
     before do
       expect(letter_downloader).to receive(:list_letters).and_return(
         list_letters_res
+      )
+    end
+  else
+    let(:list_letters_res) { get_fixture('vbms/list_letters') }
+
+    before do
+      expect(letter_downloader).to receive(:vbms_documents).and_return(
+
       )
     end
   end
