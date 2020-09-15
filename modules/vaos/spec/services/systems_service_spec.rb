@@ -532,21 +532,13 @@ describe VAOS::SystemsService do
     context 'with a site_codes param array' do
       it 'returns an array', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_direct_booking_eligibility_criteria_by_site_codes',
-                         match_requests_on: %i[method uri]) do
+                         record: :new_episodes) do
           response = subject.get_direct_booking_elig_crit(site_codes: %w[442 534])
           expect(response.size).to eq(2)
           first_result = response.first
+          second_result = response.second
           expect(first_result.id).to eq('442')
-          expect(first_result.request_settings.first).to eq(
-            {
-              id: '203',
-              type_of_care: 'Audiology',
-              patient_history_duration: 0,
-              stop_codes: [{ primary: '203' }],
-              submitted_request_limit: 2,
-              enterprise_submitted_request_limit: 2
-            }
-          )
+          expect(second_result.id).to eq('534')
         end
       end
     end
