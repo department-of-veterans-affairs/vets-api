@@ -46,12 +46,6 @@ RSpec.describe Form1010cg::Auditor do
   end
 
   describe '#record_submission_attempt' do
-    context 'requires' do
-      it 'no arguments' do
-        expect { subject.record_submission_attempt }.not_to raise_error
-      end
-    end
-
     context 'increments' do
       it 'api.form1010cg.submission.attempt' do
         expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
@@ -168,12 +162,6 @@ RSpec.describe Form1010cg::Auditor do
   end
 
   describe '#record_pdf_download' do
-    context 'requires' do
-      it 'no arguments' do
-        expect { subject.record_pdf_download }.not_to raise_error
-      end
-    end
-
     context 'increments' do
       it 'api.form1010cg.submission.failure.client.data' do
         expect(StatsD).to receive(:increment).with('api.form1010cg.pdf_download')
