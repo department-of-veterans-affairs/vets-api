@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/validation_errors'
+require 'vet360/contact_information/service'
+
 module Vet360
   module Writeable
     extend ActiveSupport::Concern
