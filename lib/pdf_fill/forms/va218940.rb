@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
+
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
@@ -423,7 +427,7 @@ module PdfFill
         }
       }.freeze
 
-      def merge_fields
+      def merge_fields(_options = {})
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         expand_ssn
         expand_veteran_dob

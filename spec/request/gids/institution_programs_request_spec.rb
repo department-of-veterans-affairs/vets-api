@@ -22,6 +22,15 @@ RSpec.describe 'institution programs', type: :request do
     expect(response).to match_response_schema('gi/autocomplete')
   end
 
+  it 'responds to GET #autocomplete when camel-inflected' do
+    VCR.use_cassette('gi_client/gets_a_list_of_institution_program_autocomplete_suggestions') do
+      get '/v0/gi/institution_programs/autocomplete?term=code', headers: { 'X-Key-Inflection' => 'camel' }
+    end
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_camelized_response_schema('gi/autocomplete')
+  end
+
   it 'responds to GET #autocomplete with bad encoding' do
     VCR.use_cassette('gi_client/gets_a_list_of_institution_program_autocomplete_suggestions') do
       get '/v0/gi/institution_programs/autocomplete?term=%ADcode'

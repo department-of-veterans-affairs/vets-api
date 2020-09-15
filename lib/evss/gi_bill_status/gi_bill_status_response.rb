@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/client/concerns/service_status'
+require 'evss/gi_bill_status/enrollment'
+require 'evss/gi_bill_status/entitlement'
 require 'evss/response'
 
 module EVSS

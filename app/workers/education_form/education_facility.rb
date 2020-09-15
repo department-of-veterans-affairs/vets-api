@@ -5,18 +5,15 @@ module EducationForm
     # sourced from http://www.vba.va.gov/pubs/forms/VBA-22-1990-ARE.pdf
 
     EASTERN = %w[
-      CT DE DC ME MD MA NC NH NJ NY PA RI VT VA
-      VI AA
+      CO CT DE DC IA IL IN KS KY MA ME MI MD MN MO MT NC ND NE
+      NH NJ NY OH PA RI SD TN VT VA WV WI WY VI AA
     ].freeze
 
-    # We need to keep SOUTHERN because existing records will have
+    # We need to keep SOUTHERN and CENTRAL because existing records will have
     # this as a region, and we need to continue to show the counts
     # in the YTD reports.
     SOUTHERN = %w[].freeze
-
-    CENTRAL = %w[
-      CO IA IL IN KS KY MI MN MO MT NE ND OH SD TN WV WI WY
-    ].freeze
+    CENTRAL = %w[].freeze
 
     WESTERN = %w[
       AK AL AR AZ CA FL GA HI ID LA MS NM NV OK OR SC TX UT WA
@@ -52,6 +49,13 @@ module EducationForm
       western: 'MUSKOGEE (351)'
     }.freeze
 
+    EMAIL_NAMES = {
+      eastern: 'Eastern Region',
+      southern: 'Southern Region',
+      central: 'Central Region',
+      western: 'Western Region'
+    }.freeze
+
     FACILITY_IDS = {
       eastern: 307,
       southern: 316,
@@ -71,10 +75,8 @@ module EducationForm
       return :western if model.form_type == '0993'
 
       # special case 0994
-      return :eastern if model.form_type == '0994'
-
-      # special case 1995s
-      return :eastern if model.form_type == '1995s'
+      # special case 10203
+      return :eastern if %w[0994 10203].include?(model.form_type)
 
       # special case Philippines
       return :western if address&.country == 'PHL'
@@ -84,21 +86,10 @@ module EducationForm
 
     def self.check_area(address)
       area = address&.state
-      if Flipper.enabled?(:route_st_louis_rpo_to_buffalo_rpo)
-        if WESTERN.any? { |state| state == area }
-          :western
-        else
-          :eastern
-        end
+      if WESTERN.any? { |state| state == area }
+        :western
       else
-        case area
-        when *CENTRAL
-          :central
-        when *WESTERN
-          :western
-        else
-          :eastern
-        end
+        :eastern
       end
     end
 
@@ -118,7 +109,7 @@ module EducationForm
         record.educationProgram&.address || record.veteranAddress
       when '1990E', '5490', '5495'
         record.educationProgram&.address || record.relativeAddress
-      when '1995', '1995s'
+      when '1995'
         record.newSchool&.address || record.veteranAddress
       end
     end

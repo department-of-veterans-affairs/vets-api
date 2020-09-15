@@ -30,6 +30,8 @@ RSpec.describe 'health records', type: :request do
     }
   end
 
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
   context 'forbidden user' do
     let(:current_user) { build(:user) }
 
@@ -52,6 +54,16 @@ RSpec.describe 'health records', type: :request do
     expect(response).to match_response_schema('extract_statuses')
   end
 
+  it 'responds to GET #refresh when camel-inflected' do
+    VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
+      get '/v0/health_records/refresh', headers: inflection_header
+    end
+
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_camelized_response_schema('extract_statuses')
+  end
+
   it 'responds to GET #eligible_data_classes' do
     VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
       get '/v0/health_records/eligible_data_classes'
@@ -60,6 +72,16 @@ RSpec.describe 'health records', type: :request do
     expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('eligible_data_classes')
+  end
+
+  it 'responds to GET #eligible_data_classes when camel-inflected' do
+    VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
+      get '/v0/health_records/eligible_data_classes', headers: inflection_header
+    end
+
+    expect(response).to be_successful
+    expect(response.body).to be_a(String)
+    expect(response).to match_camelized_response_schema('eligible_data_classes')
   end
 
   it 'responds to POST #create to generate a new report' do

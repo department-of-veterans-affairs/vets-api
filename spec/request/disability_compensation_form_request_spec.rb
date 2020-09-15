@@ -7,6 +7,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   let(:user) { build(:disabilities_compensation_user) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
+  let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
   before do
     sign_in_as(user)
@@ -21,6 +22,13 @@ RSpec.describe 'Disability compensation form', type: :request do
           expect(response).to match_response_schema('rated_disabilities')
         end
       end
+      it 'matches the rated disabilities schema when camel-inflected' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('rated_disabilities')
+        end
+      end
     end
 
     context 'with a 500 response' do
@@ -29,6 +37,30 @@ RSpec.describe 'Disability compensation form', type: :request do
           get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('evss_errors', strict: false)
+        end
+      end
+      it 'returns a bad gateway response with camel-inflection' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
+    end
+
+    context 'with a 401 response' do
+      it 'returns a bad gateway response' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_401') do
+          get '/v0/disability_compensation_form/submit_all_claim', params: nil, headers: headers
+          expect(response).to have_http_status(:not_found)
+          expect(response).to match_response_schema('evss_errors', strict: false)
+        end
+      end
+      it 'returns a bad gateway response with camel-inflection' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_401') do
+          get '/v0/disability_compensation_form/submit_all_claim', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:not_found)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -41,6 +73,13 @@ RSpec.describe 'Disability compensation form', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
+      it 'returns a not authorized response with camel-inflection' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
+          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:forbidden)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
+        end
+      end
     end
 
     context 'with a generic 400 response' do
@@ -51,14 +90,11 @@ RSpec.describe 'Disability compensation form', type: :request do
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
-    end
-
-    context 'with a 401 response' do
-      it 'returns a bad gateway response' do
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_401') do
-          get '/v0/disability_compensation_form/submit', params: nil, headers: headers
-          expect(response).to have_http_status(:not_found)
-          expect(response).to match_response_schema('evss_errors', strict: false)
+      it 'returns a bad request response with camel-inflection' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
+          get '/v0/disability_compensation_form/rated_disabilities', params: nil, headers: headers_with_camel
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -80,6 +116,16 @@ RSpec.describe 'Disability compensation form', type: :request do
       expect(conditions.count).to eq 3
     end
 
+    it 'returns matching conditions with camel-inflection', :aggregate_failures do
+      get '/v0/disability_compensation_form/suggested_conditions?name_part=art',
+          params: nil,
+          headers: headers_with_camel
+
+      expect(response).to have_http_status(:ok)
+      expect(response).to match_camelized_response_schema('suggested_conditions')
+      expect(conditions.count).to eq 3
+    end
+
     it 'returns an empty array when no conditions match', :aggregate_failures do
       get '/v0/disability_compensation_form/suggested_conditions?name_part=xyz', params: nil, headers: headers
       expect(response).to have_http_status(:ok)
@@ -92,7 +138,7 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
   end
 
-  describe 'Post /v0/disability_compensation_form/submit' do
+  describe 'Post /v0/disability_compensation_form/submit_all_claim' do
     before do
       VCR.insert_cassette('emis/get_military_service_episodes/valid')
       VCR.insert_cassette('evss/ppiu/payment_information')
@@ -109,53 +155,51 @@ RSpec.describe 'Disability compensation form', type: :request do
       let(:jid) { "JID-#{SecureRandom.base64}" }
 
       before do
-        allow(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly).to receive(:perform_async).and_return(jid)
         allow(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).and_return(jid)
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
-      end
-
-      context 'with an `increase only` claim' do
-        let(:valid_increase_form) { File.read 'spec/support/disability_compensation_form/front_end_submission.json' }
-
-        it 'matches the submit_disability_form schema' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-            post '/v0/disability_compensation_form/submit', params: valid_increase_form, headers: headers
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('submit_disability_form')
-          end
-        end
-
-        it 'starts the submit job' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-            expect(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly).to receive(:perform_async).once
-            post '/v0/disability_compensation_form/submit', params: valid_increase_form, headers: headers
-          end
-        end
       end
 
       context 'with an `all claims` claim' do
         let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
 
         it 'matches the rated disabilites schema' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-            post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('submit_disability_form')
-          end
+          post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('submit_disability_form')
+        end
+
+        it 'matches the rated disabilites schema with camel-inflection' do
+          post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers_with_camel
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('submit_disability_form')
         end
 
         it 'starts the submit job' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-            expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
-            post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers
-          end
+          expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
+          post '/v0/disability_compensation_form/submit_all_claim', params: all_claims_form, headers: headers
+        end
+      end
+
+      context 'with an `bdd` claim' do
+        let(:bdd_form) { File.read 'spec/support/disability_compensation_form/bdd_fe_submission.json' }
+
+        it 'matches the rated disabilites schema' do
+          post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('submit_disability_form')
+        end
+
+        it 'matches the rated disabilites schema with camel-inflection' do
+          post '/v0/disability_compensation_form/submit_all_claim', params: bdd_form, headers: headers_with_camel
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('submit_disability_form')
         end
       end
     end
 
     context 'with invalid json body' do
       it 'returns a 422' do
-        post '/v0/disability_compensation_form/submit', params: { 'form526' => nil }.to_json, headers: headers
+        post '/v0/disability_compensation_form/submit_all_claim', params: { 'form526' => nil }.to_json, headers: headers
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end

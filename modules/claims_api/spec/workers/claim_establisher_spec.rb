@@ -2,6 +2,10 @@
 
 require 'rails_helper'
 require 'sidekiq/testing'
+require 'evss/disability_compensation_auth_headers'
+require 'evss/auth_headers'
+require 'evss/disability_compensation_form/service'
+require 'evss/disability_compensation_form/service_exception'
 Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
@@ -30,8 +34,8 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   end
 
   it 'sets a status of established on successful call' do
-    evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::ServiceAllClaim')
-    allow(EVSS::DisabilityCompensationForm::ServiceAllClaim).to receive(:new) { evss_service_stub }
+    evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::Service')
+    allow(EVSS::DisabilityCompensationForm::Service).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:submit_form526) { OpenStruct.new(claim_id: 1337) }
 
     subject.new.perform(claim.id)
@@ -45,7 +49,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   it 'sets the status of the claim to an error if it raises an error on EVSS' do
     body = { 'messages' => [{ 'key' => 'serviceError', 'severity' => 'FATAL', 'text' => 'Not established.' }] }
-    allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim).to(
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceException.new(body))
     )
     expect { subject.new.perform(claim.id) }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)

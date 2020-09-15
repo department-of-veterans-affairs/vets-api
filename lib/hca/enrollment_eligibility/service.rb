@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require_relative 'configuration'
+
 module HCA
   module EnrollmentEligibility
     class Service < Common::Client::Base
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
 
       XPATH_PREFIX = 'env:Envelope/env:Body/getEESummaryResponse/summary/'
       configuration HCA::EnrollmentEligibility::Configuration

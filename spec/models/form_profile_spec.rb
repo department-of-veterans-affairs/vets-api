@@ -674,23 +674,19 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v20_0996_expected) do
     {
-      'data' =>
-        {
-          'attributes' =>
-            {
-              'veteran' =>
-                {
-                  'addressLine1' => street_check[:street],
-                  'addressLine2' => street_check[:street2],
-                  'city' => user.va_profile[:address][:city],
-                  'stateOrProvinceCode' => user.va_profile[:address][:state],
-                  'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
-                  'phoneNumber' => us_phone,
-                  'emailAddress' => user.pciu_email,
-                  'ssnLastFour' => user.ssn.last(4)
-                }
-            }
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'address' => {
+              'zipCode5' => user.va_profile[:address][:zip_code]
+            },
+            'phone' => {
+              'phoneNumber' => us_phone
+            },
+            'emailAddressText' => user.pciu_email
+          }
         }
+      }
     }
   end
 
@@ -743,6 +739,14 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
+  describe '#extract_pciu_data' do
+    it 'rescues EVSS::ErrorMiddleware::EVSSError errors' do
+      expect(user).to receive(:pciu_primary_phone).and_raise(EVSS::ErrorMiddleware::EVSSError)
+
+      expect(form_profile.send(:extract_pciu_data, user, :pciu_primary_phone)).to eq('')
+    end
+  end
+
   describe '#prefill_form' do
     def can_prefill_emis(yes)
       expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
@@ -765,6 +769,8 @@ RSpec.describe FormProfile, type: :model do
 
       if form_id == '1010ez'
         '10-10EZ'
+      elsif form_id == '21-526EZ'
+        '21-526EZ-ALLCLAIMS'
       else
         form_id
       end.tap do |schema_form_id|
@@ -913,6 +919,47 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
+      context 'with emis prefill for 10203' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'prefills 10203' do
+          expect_prefilled('22-10203')
+        end
+      end
+
+      context 'with emis and GiBillStatus prefill for 10203' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_10203_expected['remainingEntitlement'] = {
+            'months' => 0,
+            'days' => 12
+          }
+          v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+          v22_10203_expected['schoolCity'] = 'NORFOLK'
+          v22_10203_expected['schoolState'] = 'VA'
+          v22_10203_expected['schoolCountry'] = 'USA'
+        end
+
+        it 'prefills 10203 with emis and entitlement information' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+                VCR.use_cassette('gi_client/gets_the_institution_details') do
+                  prefilled_data = Oj.load(described_class.for('22-10203').prefill(user).to_json)['form_data']
+                  expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
+                end
+              end
+            end
+          end
+        end
+      end
+
       context 'with a user that can prefill emis' do
         before do
           stub_methods_for_emis_data
@@ -936,14 +983,12 @@ RSpec.describe FormProfile, type: :model do
           22-1990N
           22-1990E
           22-1995
-          22-1995S
           22-5490
           22-5495
           40-10007
           1010ez
           22-0993
           FEEDBACK-TOOL
-          22-10203
           686C-674
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
@@ -1009,7 +1054,111 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a higher level review form' do
       it 'returns the va profile mapped to the higher level review form' do
-        expect_prefilled('20-0996')
+        schema_name = '20-0996'
+        schema = VetsJsonSchema::SCHEMAS[schema_name]
+        full_example = JSON.parse(<<~'HEREDOC')
+          {
+            "data": {
+              "type": "higherLevelReview",
+              "attributes": {
+                "informalConference": true,
+                "sameOffice": true,
+                "benefitType": "compensation",
+                "veteran": {
+                  "address": {
+                    "zipCode5": "66002"
+                  },
+                  "phone": {
+                    "countryCode": "34",
+                    "areaCode": "555",
+                    "phoneNumber": "8001111",
+                    "phoneNumberExt": "2"
+                  },
+                  "emailAddressText": "josie@example.com",
+                  "timezone": "America/Chicago"
+                },
+                "informalConferenceTimes": [
+                  "1230-1400 ET",
+                  "1400-1630 ET"
+                ],
+                "informalConferenceRep": {
+                  "name": "Helen Holly",
+                  "phone": {
+                    "countryCode": "6",
+                    "areaCode": "555",
+                    "phoneNumber": "8001111",
+                    "phoneNumberExt": "2"
+                  }
+                }
+              }
+            },
+            "included": [
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "tinnitus",
+                  "decisionDate": "1900-01-01",
+                  "decisionIssueId": 1,
+                  "ratingIssueReferenceId": "2",
+                  "ratingDecisionReferenceId": "3"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "left knee",
+                  "decisionDate": "1900-01-02",
+                  "decisionIssueId": 4,
+                  "ratingIssueReferenceId": "5"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "right knee",
+                  "decisionDate": "1900-01-03",
+                  "ratingIssueReferenceId": "6",
+                  "ratingDecisionReferenceId": "7"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "PTSD",
+                  "decisionDate": "1900-01-04",
+                  "decisionIssueId": 8,
+                  "ratingDecisionReferenceId": "9"
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "Traumatic Brain Injury",
+                  "decisionDate": "1900-01-05",
+                  "decisionIssueId": 10
+                }
+              },
+              {
+                "type": "contestableIssue",
+                "attributes": {
+                  "issue": "right shoulder",
+                  "decisionDate": "1900-01-06"
+                }
+              }
+            ]
+          }
+        HEREDOC
+
+        prefill_data = Oj.load(described_class.for(schema_name).prefill(user).to_json)['form_data']
+
+        test_data = full_example.deep_merge prefill_data
+
+        errors = JSON::Validator.fully_validate(
+          schema,
+          test_data,
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
     end
 
@@ -1042,6 +1191,13 @@ RSpec.describe FormProfile, type: :model do
         instance1.prefill(user)
         instance2.prefill(user)
       end
+    end
+  end
+
+  describe '#load_form_mapping' do
+    it 'loads 526ez when BDD is given' do
+      the_yaml = described_class.load_form_mapping('21-526EZ-BDD')
+      expect(the_yaml['veteran']).to eq(%w[veteran_contact_information veteran])
     end
   end
 end

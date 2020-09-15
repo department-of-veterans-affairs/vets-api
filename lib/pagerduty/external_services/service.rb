@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
+require 'common/client/concerns/monitoring'
+require 'pagerduty/configuration'
+require 'pagerduty/service'
+require_relative 'response'
+
 module PagerDuty
   module ExternalServices
     class Service < PagerDuty::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
 
       # Equivalent to 'External:'
       QUERY = 'External%3A'

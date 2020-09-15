@@ -6,6 +6,7 @@ module ClaimsApi
   module V1
     class Form0966ControllerSwagger
       include Swagger::Blocks
+      EXAMPLE_PATH = ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'forms', 'form_0966_v1_example.json')
 
       swagger_path '/forms/0966' do
         operation :get do
@@ -129,8 +130,9 @@ module ClaimsApi
                 property :data do
                   key :type, :object
                   key :required, [:attributes]
-                  key :example, type: 'form/0966', attributes: { type: 'compensation' }
+                  key :example, JSON.parse(File.read(EXAMPLE_PATH))
                   property :attributes do
+                    key :required, %i[type]
                     key :type, :object
                     property :type do
                       key :type, :string
@@ -142,6 +144,16 @@ module ClaimsApi
                         pension
                       ]
                     end
+                    property :participant_claimant_id do
+                      key :type, :integer
+                      key :example, 123_456_789
+                      key :description, I18n.t('claims_api.field_descriptions.participant_claimant_id')
+                    end
+                    property :participant_vet_id do
+                      key :type, :integer
+                      key :example, 987_654_321
+                      key :description, I18n.t('claims_api.field_descriptions.participant_vet_id')
+                    end
                   end
                 end
               end
@@ -152,7 +164,11 @@ module ClaimsApi
             key :description, '0966 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form0966Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form0966Output
+                end
               end
             end
           end
@@ -246,12 +262,103 @@ module ClaimsApi
             key :description, '0966 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form0966Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form0966Output
+                end
               end
             end
           end
           response :default do
             key :description, 'unexpected error'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      swagger_path '/forms/0966/validate' do
+        operation :post do
+          key :summary, ' 0966 Intent to File form submission dry run'
+          key :description, 'Accepts JSON payload.'
+          key :operationId, 'validate0966itf'
+          key :tags, [
+            'Intent to File'
+          ]
+
+          security do
+            key :bearer_token, []
+          end
+
+          request_body do
+            key :description, 'JSON API Payload of Veteran being submitted'
+            key :required, true
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :type, :object
+                  key :required, [:attributes]
+                  key :example, type: 'form/0966', attributes: { type: 'compensation' }
+                  property :attributes do
+                    key :type, :object
+                    property :type do
+                      key :type, :string
+                      key :example, 'compensation'
+                      key :description, 'Required by JSON API standard'
+                      key :enum, %w[
+                        compensation
+                        burial
+                        pension
+                      ]
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          response 200 do
+            key :description, 'Valid'
+            content 'application/json' do
+              key(
+                :examples,
+                {
+                  default: {
+                    value: {
+                      data: { type: 'intentToFileValidation', attributes: { status: 'valid' } }
+                    }
+                  }
+                }
+              )
+              schema do
+                key :type, :object
+                property :data do
+                  key :type, :object
+                  property :type, type: :string
+                  property :attributes do
+                    key :type, :object
+                    property :status, type: :string
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Invalid Payload'
             content 'application/json' do
               schema do
                 key :type, :object

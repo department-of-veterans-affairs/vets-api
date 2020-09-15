@@ -20,12 +20,14 @@ ClaimsApi::Engine.routes.draw do
       get '0966', to: 'intent_to_file#schema'
       post '0966', to: 'intent_to_file#submit_form_0966'
       get '0966/active', to: 'intent_to_file#active'
+      post '0966/validate', to: 'intent_to_file#validate'
       ## 2122 Forms
       get '2122', to: 'power_of_attorney#schema'
       post '2122', to: 'power_of_attorney#submit_form_2122'
       get '2122/active', to: 'power_of_attorney#active'
       put '2122/:id', to: 'power_of_attorney#upload'
       get '2122/:id', to: 'power_of_attorney#status'
+      post '2122/validate', to: 'power_of_attorney#validate'
     end
   end
 
@@ -42,12 +44,14 @@ ClaimsApi::Engine.routes.draw do
       get '0966', to: 'intent_to_file#schema'
       post '0966', to: 'intent_to_file#submit_form_0966'
       get '0966/active', to: 'intent_to_file#active'
+      post '0966/validate', to: 'intent_to_file#validate'
       ## 2122 Forms
       get '2122', to: 'power_of_attorney#schema'
       post '2122', to: 'power_of_attorney#submit_form_2122'
       get '2122/active', to: 'power_of_attorney#active'
       put '2122/:id', to: 'power_of_attorney#upload'
       get '2122/:id', to: 'power_of_attorney#status'
+      post '2122/validate', to: 'power_of_attorney#validate'
     end
   end
 

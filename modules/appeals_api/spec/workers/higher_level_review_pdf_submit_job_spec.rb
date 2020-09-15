@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'sidekiq/testing'
+require 'central_mail/service'
 
 Sidekiq::Testing.fake!
 
@@ -35,7 +36,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     expect(capture_body).to be_a(Hash)
     expect(capture_body).to have_key('metadata')
     expect(capture_body).to have_key('document')
-    metadata = capture_body['metadata']
+    metadata = JSON.parse(capture_body['metadata'])
     expect(metadata['uuid']).to eq(higher_level_review.id)
     updated = AppealsApi::HigherLevelReview.find(higher_level_review.id)
     expect(updated.status).to eq('submitted')
@@ -55,7 +56,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     expect(capture_body).to be_a(Hash)
     expect(capture_body).to have_key('metadata')
     expect(capture_body).to have_key('document')
-    metadata = capture_body['metadata']
+    metadata = JSON.parse(capture_body['metadata'])
     expect(metadata['uuid']).to eq(higher_level_review.id)
     updated = AppealsApi::HigherLevelReview.find(higher_level_review.id)
     expect(updated.status).to eq('error')

@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
+require 'string_helpers'
+
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
@@ -420,7 +425,7 @@ module PdfFill
       end
 
       # rubocop:disable Metrics/MethodLength
-      def merge_fields
+      def merge_fields(_options = {})
         expand_signature(@form_data['claimantFullName'])
 
         %w[veteranFullName claimantFullName].each do |attr|

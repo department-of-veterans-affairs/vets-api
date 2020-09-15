@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 module Common
   module Client
     module Middleware
@@ -8,7 +10,7 @@ module Common
         # Faraday response middleware that checks the MHV service XML/HTML response for errors and raises
         # the appropriate exception for our application.
         #
-        class MhvXmlHtmlErrors < Faraday::Response::Middleware
+        class MHVXmlHtmlErrors < Faraday::Response::Middleware
           include SentryLogging
           attr_reader :status
 
@@ -44,4 +46,4 @@ module Common
   end
 end
 
-Faraday::Response.register_middleware mhv_xml_html_errors: Common::Client::Middleware::Response::MhvXmlHtmlErrors
+Faraday::Response.register_middleware mhv_xml_html_errors: Common::Client::Middleware::Response::MHVXmlHtmlErrors

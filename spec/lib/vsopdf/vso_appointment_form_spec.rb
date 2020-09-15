@@ -2,7 +2,7 @@
 
 require 'pdf_forms'
 require 'rails_helper'
-require 'vsopdf/vso_appointment_form'
+require 'vso_pdf/vso_appointment_form'
 
 describe VSOAppointmentForm do
   include SchemaMatchers
@@ -53,7 +53,7 @@ describe VSOAppointmentForm do
   end
 
   it 'generates central mail metadata' do
-    meta = form.get_metadata 'lib/vsopdf/VBA-21-22-ARE.pdf'
+    meta = form.get_metadata 'lib/vso_pdf/VBA-21-22-ARE.pdf'
     expect(meta[:numberAttachments]).to eq 0
     expect(meta[:veteranFirstName]).to eq 'Graham'
     expect(meta[:veteranLastName]).to eq 'Test'

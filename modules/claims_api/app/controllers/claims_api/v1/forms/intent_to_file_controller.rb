@@ -2,6 +2,7 @@
 
 require_dependency 'claims_api/intent_to_file_serializer'
 require_dependency 'claims_api/concerns/poa_verification'
+require 'evss/intent_to_file/service'
 
 module ClaimsApi
   module V1
@@ -10,48 +11,62 @@ module ClaimsApi
         include ClaimsApi::PoaVerification
 
         before_action { permit_scopes %w[claim.write] }
-        before_action :validate_json_schema, only: %i[submit_form_0966]
-        before_action :check_future_type, only: [:submit_form_0966]
+        before_action :validate_json_schema, only: %i[submit_form_0966 validate]
 
         FORM_NUMBER = '0966'
         def submit_form_0966
-          response = itf_service.create_intent_to_file(form_type)
-          render json: response['intent_to_file'],
+          bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
+          render json: bgs_response,
                  serializer: ClaimsApi::IntentToFileSerializer
         end
 
         def active
-          response = itf_service.get_active(active_param)
-          render json: response['intent_to_file'],
-                 serializer: ClaimsApi::IntentToFileSerializer
+          bgs_response = bgs_service.intent_to_file.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
+            target_veteran.participant_id,
+            ClaimsApi::IntentToFile::ITF_TYPES[active_param]
+          )
+          if bgs_response.is_a?(Array)
+            bgs_active = bgs_response.detect do |itf|
+              active?(itf)
+            end
+          elsif active?(bgs_response)
+            bgs_active = bgs_response
+          end
+
+          if bgs_active.present?
+            render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
+          else
+            render json: itf_not_found, status: :not_found
+          end
+        end
+
+        def validate
+          render json: validation_success
         end
 
         private
 
-        def active_param
-          params.require(:type)
+        def active?(itf)
+          itf.present? && itf[:itf_status_type_cd] == 'Active' && itf[:exprtn_dt].to_datetime > Time.zone.now
         end
 
-        def check_future_type
-          unless form_type == 'compensation'
-            error = {
-              errors: [
-                {
-                  status: 422,
-                  details: "#{form_type.titleize} claims are not currently supported, but will be in a future version"
-                }
-              ]
-            }
-            render json: error, status: :unprocessable_entity
-          end
+        def active_param
+          params.require(:type)
         end
 
         def form_type
           form_attributes['type']
         end
 
-        def itf_service
-          EVSS::IntentToFile::Service.new(target_veteran)
+        def validation_success
+          {
+            data: {
+              type: 'intentToFileValidation',
+              attributes: {
+                status: 'valid'
+              }
+            }
+          }
         end
       end
     end

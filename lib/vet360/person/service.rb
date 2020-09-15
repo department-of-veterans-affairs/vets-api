@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require 'mvi/responses/id_parser'
+require 'vet360/contact_information/configuration'
 require 'vet360/contact_information/transaction_response'
+require 'vet360/service'
 
 module Vet360
   module Person
     class Service < Vet360::Service
-      include Common::Client::Monitoring
+      include Common::Client::Concerns::Monitoring
       include ERB::Util
 
       AAID = MVI::Responses::IdParser::ICN_ASSIGNING_AUTHORITY_ID

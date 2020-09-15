@@ -107,7 +107,12 @@ RSpec.describe SAML::User do
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           multifactor: false,
           loa: { current: 1, highest: 1 },
-          sign_in: { service_name: 'idme', account_type: 'N/A', ssoe: true },
+          sign_in: {
+            service_name: 'idme',
+            account_type: 'N/A',
+            ssoe: true,
+            transactionid: 'abcd1234xyz'
+          },
           sec_id: nil,
           authenticated_by_ssoe: true,
           common_name: nil
@@ -141,7 +146,12 @@ RSpec.describe SAML::User do
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           multifactor: true,
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'idme', account_type: 'N/A', ssoe: true },
+          sign_in: {
+            service_name: 'idme',
+            account_type: 'N/A',
+            ssoe: true,
+            transactionid: 'abcd1234xyz'
+          },
           sec_id: nil,
           authenticated_by_ssoe: true,
           common_name: nil
@@ -176,7 +186,7 @@ RSpec.describe SAML::User do
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           multifactor: true,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'idme', account_type: 'N/A', ssoe: true },
+          sign_in: { service_name: 'idme', account_type: 'N/A', ssoe: true, transactionid: 'abcd1234xyz' },
           sec_id: '1008830476',
           authenticated_by_ssoe: true,
           common_name: 'vets.gov.user+262@example.com'
@@ -212,7 +222,7 @@ RSpec.describe SAML::User do
           email: 'alexmac_0@example.com',
           idme_uuid: '881571066e5741439652bc80759dd88c',
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced', ssoe: true },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced', ssoe: true, transactionid: 'abcd1234xyz' },
           sec_id: nil,
           multifactor: multifactor,
           authenticated_by_ssoe: true,
@@ -251,7 +261,7 @@ RSpec.describe SAML::User do
           email: 'alexmac_0@example.com',
           idme_uuid: '881571066e5741439652bc80759dd88c',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced', ssoe: true },
+          sign_in: { service_name: 'myhealthevet', account_type: 'Advanced', ssoe: true, transactionid: 'abcd1234xyz' },
           sec_id: '1013183292',
           multifactor: multifactor,
           authenticated_by_ssoe: true,
@@ -285,7 +295,12 @@ RSpec.describe SAML::User do
           email: 'pv+mhvtestb@example.com',
           idme_uuid: '72782a87a807407f83e8a052d804d7f7',
           loa: { current: 1, highest: 1 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Basic', ssoe: true },
+          sign_in: {
+            service_name: 'myhealthevet',
+            account_type: 'Basic',
+            ssoe: true,
+            transactionid: 'abcd1234xyz'
+          },
           sec_id: nil,
           multifactor: true,
           authenticated_by_ssoe: true,
@@ -322,7 +337,12 @@ RSpec.describe SAML::User do
           email: 'k+tristanmhv@example.com',
           idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Premium', ssoe: true },
+          sign_in: {
+            service_name: 'myhealthevet',
+            account_type: 'Premium',
+            ssoe: true,
+            transactionid: 'VDeAfteF14dJV9gke1tQ4rBX2UntryiGMkD5anKJiHQ='
+          },
           sec_id: '1012853550',
           multifactor: multifactor,
           authenticated_by_ssoe: true,
@@ -360,7 +380,12 @@ RSpec.describe SAML::User do
           email: 'k+tristanmhv@example.com',
           idme_uuid: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'Premium', ssoe: true },
+          sign_in: {
+            service_name: 'myhealthevet',
+            account_type: 'Premium',
+            ssoe: true,
+            transactionid: 'VDeAfteF14dJV9gke1tQ4rBX2UntryiGMkD5anKJiHQ='
+          },
           sec_id: '1012853550',
           multifactor: multifactor,
           authenticated_by_ssoe: true,
@@ -635,7 +660,11 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           idme_uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'dslogon', account_type: '1', ssoe: true },
+          sign_in: {
+            service_name: 'dslogon',
+            account_type: '1',
+            ssoe: true
+          },
           sec_id: nil,
           multifactor: multifactor,
           authenticated_by_ssoe: true
@@ -667,7 +696,12 @@ RSpec.describe SAML::User do
           email: 'iam.tester@example.com',
           idme_uuid: '363761e8857642f7b77ef7d99200e711',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'dslogon', account_type: '2', ssoe: true },
+          sign_in: {
+            service_name: 'dslogon',
+            account_type: '2',
+            ssoe: true,
+            transactionid: '3oiTInhBKGiA/FbtYGVloGdOqUtvKCw4rcuchfwPNAo='
+          },
           sec_id: '1013173963',
           multifactor: false,
           authenticated_by_ssoe: true,
@@ -705,7 +739,12 @@ RSpec.describe SAML::User do
           email: 'Test0206@gmail.com',
           idme_uuid: '1655c16aa0784dbe973814c95bd69177',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'dslogon', account_type: '2', ssoe: true },
+          sign_in: {
+            service_name: 'dslogon',
+            account_type: '2',
+            ssoe: true,
+            transactionid: 'abcd1234xyz'
+          },
           sec_id: '0000028007',
           multifactor: multifactor,
           authenticated_by_ssoe: true,
@@ -742,7 +781,12 @@ RSpec.describe SAML::User do
           email: 'Test0206@gmail.com',
           idme_uuid: '1655c16aa0784dbe973814c95bd69177',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'dslogon', account_type: '2', ssoe: true },
+          sign_in: {
+            service_name: 'dslogon',
+            account_type: '2',
+            ssoe: true,
+            transactionid: 'abcd1234xyz'
+          },
           sec_id: '0000028007',
           multifactor: multifactor,
           authenticated_by_ssoe: true,
@@ -778,7 +822,12 @@ RSpec.describe SAML::User do
           email: nil,
           idme_uuid: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'dslogon', account_type: 'N/A', ssoe: true },
+          sign_in: {
+            service_name: 'dslogon',
+            account_type: 'N/A',
+            ssoe: true,
+            transactionid: 'yGXMk81W0r3aArfVXHdZuCl5utlNQ1adITH8QHsLlB0'
+          },
           sec_id: '1012779219',
           multifactor: multifactor,
           authenticated_by_ssoe: true,
@@ -796,6 +845,7 @@ RSpec.describe SAML::User do
           expect { subject.validate! }.to raise_error { |error|
             expect(error).to be_a(SAML::UserAttributeError)
             expect(error.message).to eq('User attributes is missing an ID.me UUID')
+            expect(error.identifier).to eq('1012779219V964737')
           }
         end
       end
@@ -828,7 +878,12 @@ RSpec.describe SAML::User do
           email: nil,
           idme_uuid: '53f065475a794e14a32d707bfd9b215f',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'myhealthevet', account_type: 'N/A', ssoe: true },
+          sign_in: {
+            service_name: 'myhealthevet',
+            account_type: 'N/A',
+            ssoe: true,
+            transactionid: '6e/7qHvlmQR0NPaplboby1mJJlKDKz2UEXk9Ul9e5tU='
+          },
           sec_id: '1013062086',
           multifactor: multifactor,
           authenticated_by_ssoe: true,
@@ -864,7 +919,12 @@ RSpec.describe SAML::User do
           email: 'vets.gov.user+262@gmail.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'idme', account_type: 'N/A', ssoe: true },
+          sign_in: {
+            service_name: 'idme',
+            account_type: 'N/A',
+            ssoe: true,
+            transactionid: 'HZmR3a1TZAnLNzLfliYLFXO6Xu1cUEA1p18v2B3bekI='
+          },
           sec_id: '1012827134',
           multifactor: multifactor,
           authenticated_by_ssoe: true,

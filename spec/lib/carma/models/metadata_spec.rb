@@ -1,12 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'carma/models/metadata'
 
 RSpec.describe CARMA::Models::Metadata, type: :model do
   describe '#claim_id' do
     it 'is accessible' do
       subject.claim_id = 123
       expect(subject.claim_id).to eq(123)
+    end
+  end
+
+  describe '#claim_guid' do
+    it 'is accessible' do
+      subject.claim_guid = 'my-uuid'
+      expect(subject.claim_guid).to eq('my-uuid')
     end
   end
 
@@ -78,6 +86,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
     it 'accepts :claim_id, :veteran, :primary_caregiver, :secondary_caregiver_one, :secondary_caregiver_two' do
       subject = described_class.new(
         claim_id: 123,
+        claim_guid: 'my-uuid',
         veteran: {
           icn: 'VET1234',
           is_veteran: true
@@ -94,6 +103,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       )
 
       expect(subject.claim_id).to eq(123)
+      expect(subject.claim_guid).to eq('my-uuid')
       expect(subject.veteran.icn).to eq('VET1234')
       expect(subject.veteran.is_veteran).to eq(true)
       expect(subject.primary_caregiver.icn).to eq('PC1234')
@@ -111,6 +121,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       expect(described_class.request_payload_keys).to eq(
         %i[
           claim_id
+          claim_guid
           veteran
           primary_caregiver
           secondary_caregiver_one
@@ -123,11 +134,12 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
   describe '#to_request_payload' do
     describe 'can receive :to_request_payload' do
       it 'with a minimal data set' do
-        subject = described_class.new claim_id: 123
+        subject = described_class.new claim_id: 123, claim_guid: 'my-uuid'
 
         expect(subject.to_request_payload).to eq(
           {
             'claimId' => 123,
+            'claimGuid' => 'my-uuid',
             'veteran' => {
               'icn' => nil,
               'isVeteran' => nil
@@ -144,6 +156,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       it 'with a maximum data set' do
         subject = described_class.new(
           claim_id: 123,
+          claim_guid: 'my-uuid',
           veteran: {
             icn: 'VET1234',
             is_veteran: true
@@ -162,6 +175,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
         expect(subject.to_request_payload).to eq(
           {
             'claimId' => 123,
+            'claimGuid' => 'my-uuid',
             'veteran' => {
               'icn' => 'VET1234',
               'isVeteran' => true

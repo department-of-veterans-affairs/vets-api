@@ -1,5 +1,15 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/forms/va21p527ez'
+require 'pdf_fill/forms/va21p530'
+require 'pdf_fill/forms/va214142'
+require 'pdf_fill/forms/va210781a'
+require 'pdf_fill/forms/va210781'
+require 'pdf_fill/forms/va218940'
+require 'pdf_fill/forms/va1010cg'
+require 'pdf_fill/forms/va686c674'
+require 'pdf_fill/forms/va288832'
+
 module PdfFill
   module Filler
     module_function
@@ -12,7 +22,9 @@ module PdfFill
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
       '21-8940' => PdfFill::Forms::Va218940,
-      '10-10CG' => PdfFill::Forms::Va1010cg
+      '10-10CG' => PdfFill::Forms::Va1010cg,
+      '686C-674' => PdfFill::Forms::Va686c674,
+      '28-8832' => PdfFill::Forms::Va288832
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
@@ -31,24 +43,24 @@ module PdfFill
       end
     end
 
-    def fill_form(saved_claim)
+    def fill_form(saved_claim, file_name_extension = nil, fill_options = {})
       form_id = saved_claim.form_id
       form_class = FORM_CLASSES[form_id]
 
-      process_form(form_id, saved_claim.parsed_form, form_class, saved_claim.id)
+      process_form(form_id, saved_claim.parsed_form, form_class, file_name_extension || saved_claim.id, fill_options)
     end
 
     def fill_ancillary_form(form_data, claim_id, form_id)
       process_form(form_id, form_data, FORM_CLASSES[form_id], claim_id)
     end
 
-    def process_form(form_id, form_data, form_class, claim_id)
+    def process_form(form_id, form_data, form_class, file_name_extension, fill_options = {})
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/#{form_id}_#{claim_id}.pdf"
+      file_path = "#{folder}/#{form_id}_#{file_name_extension}.pdf"
       hash_converter = HashConverter.new(form_class.date_strftime)
       new_hash = hash_converter.transform_data(
-        form_data: form_class.new(form_data).merge_fields,
+        form_data: form_class.new(form_data).merge_fields(fill_options),
         pdftk_keys: form_class::KEY
       )
       PDF_FORMS.fill_form(

@@ -1,0 +1,10 @@
+version: '3.4'
+services:
+  redis:
+    ports:
+      - "63790:6379"
+  vets-api:
+    volumes:
+      - ../devops:/srv/devops/src
+    environment:
+      HOST: "0.0.0.0"

@@ -2,6 +2,7 @@
 
 require_dependency 'claims_api/concerns/poa_verification'
 require_dependency 'claims_api/concerns/document_validations'
+require 'evss/power_of_attorney_verifier'
 
 module ClaimsApi
   module V1
@@ -10,9 +11,10 @@ module ClaimsApi
         include ClaimsApi::DocumentValidations
 
         before_action { permit_scopes %w[claim.write] }
-        before_action :validate_json_schema, only: %i[submit_form_2122]
+        before_action :validate_json_schema, only: %i[submit_form_2122 validate]
         before_action :validate_documents_content_type, only: %i[upload]
         before_action :validate_documents_page_size, only: %i[upload]
+        before_action :find_poa_by_id, only: %i[upload status]
 
         FORM_NUMBER = '2122'
 
@@ -37,29 +39,28 @@ module ClaimsApi
 
           # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless header_request?
+          data = power_of_attorney.form_data
+          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id) if data['signatureImages'].present?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         def upload
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
-
           # This job only occurs when a Representative submits a PoA request to ensure they've also uploaded a document.
-          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) if header_request?
+          ClaimsApi::PoaUpdater.perform_async(@power_of_attorney.id) if header_request?
 
-          power_of_attorney.set_file_data!(documents.first, params[:doc_type])
-          power_of_attorney.status = 'submitted'
-          power_of_attorney.save!
-          power_of_attorney.reload
+          @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
+          @power_of_attorney.status = 'submitted'
+          @power_of_attorney.save!
+          @power_of_attorney.reload
 
           # This job will trigger whether submission is from a Veteran or Representative when a document is sent.
-          ClaimsApi::VbmsUploader.perform_async(power_of_attorney.id)
-          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          ClaimsApi::VbmsUploadJob.perform_async(@power_of_attorney.id)
+          render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         def status
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
-          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         def active
@@ -70,6 +71,10 @@ module ClaimsApi
             previous_poa = ClaimsApi::PowerOfAttorney.new(form_data: {}, current_poa: current_poa)
             render json: previous_poa, serializer: ClaimsApi::PowerOfAttorneySerializer
           end
+        end
+
+        def validate
+          render json: validation_success
         end
 
         private
@@ -96,6 +101,26 @@ module ClaimsApi
         def source_name
           user = header_request? ? @current_user : target_veteran
           "#{user.first_name} #{user.last_name}"
+        end
+
+        def find_poa_by_id
+          @power_of_attorney = ClaimsApi::PowerOfAttorney.find_by id: params[:id]
+          render_poa_not_found unless @power_of_attorney
+        end
+
+        def render_poa_not_found
+          render json: { errors: [{ status: 404, detail: 'POA not found' }] }, status: :not_found
+        end
+
+        def validation_success
+          {
+            data: {
+              type: 'powerOfAttorneyValidation',
+              attributes: {
+                status: 'valid'
+              }
+            }
+          }
         end
       end
     end

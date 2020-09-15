@@ -1,5 +1,18 @@
 # frozen_string_literal: true
 
+require 'caseflow/service'
+require 'central_mail/service'
+require 'emis/service'
+require 'gibft/service'
+require 'mvi/service'
+require 'saml/errors'
+require 'saml/responses/base'
+require 'saml/user'
+require 'stats_d_metric'
+require 'search/service'
+require 'vet360/exceptions/parser'
+require 'vet360/service'
+
 host = Settings.statsd.host
 port = Settings.statsd.port
 
@@ -10,6 +23,9 @@ StatsD.backend = if host.present? && port.present?
                  end
 
 # Initialize session controller metric counters at 0
+LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
+               UserSessionForm::ERRORS.values +
+               SAML::UserAttributeError::ERRORS.values
 %w[v0 v1].each do |v|
   StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0,
                    tags: ["version:#{v}"])
@@ -20,24 +36,31 @@ StatsD.backend = if host.present? && port.present?
                      tags: ["version:#{v}", "context:#{t}"])
     StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
                      tags: ["version:#{v}", "context:#{t}"])
-    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
-                     tags: ["version:#{v}", "context:#{t}"])
+
+    LOGIN_ERRORS.each do |err|
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
+                       tags: ["version:#{v}", "context:#{t}", "error:#{err[:code]}"])
+    end
   end
   %w[success failure].each do |s|
     (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
       StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
                        tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
-      StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0,
-                       tags: ["version:#{v}", "context:#{ctx}"])
     end
   end
   (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
-    StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
-                     tags: ["version:#{v}", "context:#{ctx}"])
+    V1::SessionsController::REDIRECT_URLS.each do |t|
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLRESPONSE_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLTRACKER_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+    end
   end
-  SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
+  LOGIN_ERRORS.each do |err|
     StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,
-                     tags: ["version:#{v}", "error:#{known_error[:tag]}"])
+                     tags: ["version:#{v}", "error:#{err[:tag]}"])
   end
 end
 
@@ -105,6 +128,22 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
+
+# init Form1010cg
+StatsD.increment(Form1010cg::Auditor.metrics.submission.attempt, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.success, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.data, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
+
+# init form 526
+%w[try success non_retryable_error retryable_error exhausted].each do |str|
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitUploads::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{CentralMail::SubmitForm4142Job::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm0781::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm8940::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526Cleanup::STATSD_KEY_PREFIX}.#{str}", 0)
+end
 
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",

@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require_relative 'eligibility'
+require_relative 'supply'
+require_relative 'token'
 
 module MDOT
   class Response < Common::Base
@@ -32,7 +35,7 @@ module MDOT
       eligibility = MDOT::Eligibility.new
 
       supplies.each do |supply|
-        group = supply.product_group.downcase.to_sym
+        group = supply.product_group.downcase.pluralize.to_sym
         eligibility.send("#{group}=", true) if eligibility.attributes.key?(group) && supply.available_for_reorder
       end
 

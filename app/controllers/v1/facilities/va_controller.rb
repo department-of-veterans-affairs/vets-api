@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/client'
+
 class V1::Facilities::VaController < FacilitiesController
   # Index supports the following query parameters:
   # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
@@ -8,13 +10,13 @@ class V1::Facilities::VaController < FacilitiesController
   def index
     api_results = api.get_facilities(lighthouse_params)
 
-    render_collection(serializer, api_results)
+    render_json(serializer, lighthouse_params, api_results)
   end
 
   def show
     api_result = api.get_by_id(params[:id])
 
-    render_json(serializer, api_result)
+    render_json(serializer, lighthouse_params, api_result)
   end
 
   private

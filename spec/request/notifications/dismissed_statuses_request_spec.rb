@@ -7,6 +7,8 @@ RSpec.describe 'dismissed statuses', type: :request do
 
   let(:user) { build(:user, :accountable) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+  let(:headers_with_camel) { headers.merge(inflection_header) }
   let(:notification_subject) { Notification::FORM_10_10EZ }
 
   before do
@@ -24,6 +26,13 @@ RSpec.describe 'dismissed statuses', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('dismissed_status')
+      end
+
+      it 'matches the dismissed_statuses camel-inflected schema', :aggregate_failures do
+        get "/v0/notifications/dismissed_statuses/#{notification_subject}", headers: inflection_header
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('dismissed_status')
       end
     end
 
@@ -52,6 +61,13 @@ RSpec.describe 'dismissed statuses', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('dismissed_status')
+      end
+
+      it 'matches the dismissed status camel-inflected schema', :aggregate_failures do
+        post '/v0/notifications/dismissed_statuses', params: post_body, headers: headers_with_camel
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('dismissed_status')
       end
     end
 
@@ -123,6 +139,15 @@ RSpec.describe 'dismissed statuses', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('dismissed_status')
+      end
+
+      it 'matches the dismissed status camel-inflected schema', :aggregate_failures do
+        patch "/v0/notifications/dismissed_statuses/#{notification_subject}",
+              params: patch_body,
+              headers: headers_with_camel
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('dismissed_status')
       end
 
       it 'correctly updates their Notification record', :aggregate_failures do

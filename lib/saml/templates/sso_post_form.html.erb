@@ -25,9 +25,17 @@
   <% end %>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function(event) {
-      document.getElementById("saml-form").submit();
-    });
+    (function() {
+      var form = document.getElementById("saml-form");
+      var req = new XMLHttpRequest();
+      var qs = "saml_uuid=" + encodeURIComponent("<%= saml_uuid %>") +
+                "&authn=" + encodeURIComponent("<%= authn %>") +
+                "&type=" + encodeURIComponent("<%= type %>");
+      var url = location.origin + "/v1/sessions/tracker?" + qs;
+      req.open("GET", url);
+      req.send();
+      form.submit();
+    })();
   </script>
 </body>
 </html>

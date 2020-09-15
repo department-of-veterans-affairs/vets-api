@@ -61,7 +61,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   def validation_success
     {
       data: {
-        type: 'appeals_api_higher_level_review_validation',
+        type: 'higherLevelReviewValidation',
         attributes: {
           status: 'valid'
         }
@@ -70,8 +70,10 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def headers
-    HEADERS.reduce({}) do |hash, key|
-      hash.merge({ key => request.headers[key] })
+    HEADERS.reduce({}) do |acc, header_key|
+      header_value = request.headers[header_key]
+
+      header_value.nil? ? acc : acc.merge({ header_key => header_value })
     end
   end
 
@@ -114,6 +116,6 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def render_higher_level_review
-    render json: @higher_level_review, serializer: AppealsApi::HigherLevelReviewSerializer
+    render json: AppealsApi::HigherLevelReviewSerializer.new(@higher_level_review).serializable_hash
   end
 end

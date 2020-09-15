@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:education_benefits_claim) do
-    Flipper.enable('edu_benefits_stem_scholarship')
     create(:va1990).education_benefits_claim
   end
 
@@ -117,24 +116,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           submission_attributes.merge(
             'form_type' => '1995',
             'transfer_of_entitlement' => true
-          )
-        )
-      end
-    end
-
-    context 'with a form type of 1995s' do
-      subject do
-        create(:va1995s)
-      end
-
-      it 'creates a submission' do
-        subject
-
-        expect(associated_submission).to eq(
-          submission_attributes.merge(
-            'form_type' => '1995s',
-            'transfer_of_entitlement' => false,
-            'chapter33' => true
           )
         )
       end

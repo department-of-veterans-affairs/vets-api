@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'string_helpers'
+require 'sentry_logging'
+
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model
@@ -89,7 +92,7 @@ class FormProfile
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
-    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
+    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-5490
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203],
     evss: %w[21-526EZ 21-526EZ-BDD],
     hca: ['1010ez'],
@@ -108,7 +111,6 @@ class FormProfile
     '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
     '22-1995' => ::FormProfiles::VA1995,
-    '22-1995S' => ::FormProfiles::VA1995s,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530' => ::FormProfiles::VA21p530,
@@ -156,7 +158,11 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
+    if form_id == '1010EZ' # our first form. lessons learned.
+      form_id = form_id.downcase
+    elsif form_id == '21-526EZ-BDD'
+      form_id = '21-526EZ' # the front end treats the forms differently, but the back end doesn't
+    end
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
@@ -224,7 +230,8 @@ class FormProfile
       city: address.city,
       state: address.state_code || address.province,
       country: address.country_code_iso3,
-      postal_code: address.zip_plus_four || address.international_postal_code
+      postal_code: address.zip_plus_four || address.international_postal_code,
+      zip_code: address.zip_code
     }.compact
   end
 
@@ -286,7 +293,7 @@ class FormProfile
 
   def extract_pciu_data(user, method)
     user&.send(method)
-  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
+  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
     ''
   end
 

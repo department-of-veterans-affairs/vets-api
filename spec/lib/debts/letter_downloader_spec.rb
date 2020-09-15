@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'debts/letter_downloader'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
 RSpec.describe Debts::LetterDownloader do
-  subject { described_class.new(file_number) }
+  subject { described_class.new(user) }
 
-  let(:file_number) { '796330625' }
+  let(:file_number) { '796043735' }
+  let(:user) { build(:user, :loa3, ssn: file_number) }
   let(:vbms_client) { FakeVbms.new }
 
   def stub_vbms_client_request(request_name, args, return_val)
@@ -22,6 +24,14 @@ RSpec.describe Debts::LetterDownloader do
 
   def get_vbms_fixture(path)
     get_fixture("vbms/#{path}").map { |r| OpenStruct.new(r) }
+  end
+
+  def use_person_and_letter_cassettes
+    VCR.use_cassette('bgs/people_service/person_data') do
+      VCR.use_cassette('debts/get_letters') do
+        yield
+      end
+    end
   end
 
   before do
@@ -51,7 +61,9 @@ RSpec.describe Debts::LetterDownloader do
       end
 
       it 'downloads a debt letter' do
-        expect(subject.get_letter(document_id)).to eq(content)
+        use_person_and_letter_cassettes do
+          expect(subject.get_letter(document_id)).to eq(content)
+        end
       end
     end
 
@@ -59,16 +71,20 @@ RSpec.describe Debts::LetterDownloader do
       let(:document_id) { '{abc}' }
 
       it 'raises an unauthorized error' do
-        expect { subject.get_letter(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+        use_person_and_letter_cassettes do
+          expect { subject.get_letter(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+        end
       end
     end
   end
 
   describe '#list_letters' do
     it 'gets letter ids and descriptions' do
-      expect(subject.list_letters.to_json).to eq(
-        get_fixture('vbms/list_letters').to_json
-      )
+      use_person_and_letter_cassettes do
+        expect(subject.list_letters.to_json).to eq(
+          get_fixture('vbms/list_letters').to_json
+        )
+      end
     end
   end
 end

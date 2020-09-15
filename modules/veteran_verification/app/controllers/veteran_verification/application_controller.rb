@@ -14,5 +14,9 @@ module VeteranVerification
     def set_default_format_to_json
       request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?
     end
+
+    def fetch_aud
+      Settings.oidc.isolated_audience.veteran_verification
+    end
   end
 end

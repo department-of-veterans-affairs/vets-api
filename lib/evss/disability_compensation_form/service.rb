@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require_relative '../disability_compensation_auth_headers.rb'
+require 'common/client/errors'
+require 'evss/disability_compensation_auth_headers.rb'
+require_relative 'configuration'
+require_relative 'rated_disabilities_response'
+require_relative 'form_submit_response'
 
 module EVSS
   module DisabilityCompensationForm
@@ -66,8 +69,12 @@ module EVSS
       private
 
       def handle_error(error)
-        if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
-          save_error_details(error)
+        # Common::Client::Errors::ClientError is raised from Common::Client::Base#request after it rescues
+        # Faraday::ClientError.  EVSS::ErrorMiddleware::EVSSError is raised from EVSS::ErrorMiddleware when
+        # there is a 200-response with an error message in the body
+        if ((error.is_a?(Common::Client::Errors::ClientError) && error.status != 403) ||
+           error.is_a?(EVSS::ErrorMiddleware::EVSSError)) && error.body.is_a?(Hash)
+          save_error_details(error) # Sentry extra_context
           raise EVSS::DisabilityCompensationForm::ServiceException, error.body
         else
           super(error)

@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<samlp:Response xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Destination="https://staging-api.va.gov/v1/sessions/callback" ID="FIMRSP_f29305dd-0172-1f44-bde6-82084609aa37" InResponseTo="_ac74902d-ba3a-4f02-b3d9-72c3a8b0f504" IssueInstant="2020-06-26T21:40:21Z" Version="2.0">
+  <saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://sqa.eauth.va.gov/isam/sps/saml20idp/saml20</saml:Issuer>
+  <ds:Signature Id="uuidf29305de-0172-1c0a-a905-82084609aa37">
+    <ds:SignedInfo>
+      <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+      <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+      <ds:Reference URI="#FIMRSP_f29305dd-0172-1f44-bde6-82084609aa37">
+        <ds:Transforms>
+          <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+          <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+            <xc14n:InclusiveNamespaces xmlns:xc14n="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="samlp saml xs ds xsi"/>
+          </ds:Transform>
+        </ds:Transforms>
+        <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+        <ds:DigestValue>6hAtaOOrIfKMkGqKAMPYmHc9dc/GZyDYwCVjfx5WN84=</ds:DigestValue>
+      </ds:Reference>
+    </ds:SignedInfo>
+    <ds:SignatureValue>mZtfT5SlydKKD+dMA14pf4atNlygM360y/rXZ3NesCVs5DRMZ1wl8CFSj6LjUDpZ46xB38bQsaVtH8sH89GHxpMKF9A7N12DJvC2cTAruINxcx3qE1QMPmZKAjSG8WuhnXaaeBGUNT4Q32544LJb8P4mW3Ad5zDHBEWyGxbrYvAVLuLy8ZzAq2BG/obgVLqnlAtMDiBjoNgrlBlR6vlcH4O1KvwTrybYdbAdiku1ZEx4gIW1mktJ8OH+0jkJwrLAB9eIesae9/Idd79pAWNSi0kcu7lchUQS2eukiEVC3fhXGUhsyna7D8/bxSLDrNfiapRxEfUr8ugDRKN8qpXiaphwmSVel1FoYv0erNKvVTprKC5ABI2VgGC+kvoV0omsr5TWxcjt+orfd5Q9/UZWL23XJINFJvURvHKFF7ldLnQK8VrrGxUfpkcO97F9xNowLNRX07x3TCecgxvR5lxO4+Fx/tcr1Q3a3at5w5VByebm2A5FTykNX5PEAHcWYdpZjvqajws135DeMXbu02gR71lBoUSJP/w8w/IfI2OnhP35dgHw3HDKugjhwbpoI8YP/Vc5AaS+OonqiN4k9yVl8Zlc51LnXhCTyeilAg7vDbtNeT/2mpjpxvs9CcEKmHPOYDq/ZOIepb2qChMnZYt1kRTpDfA7rKi12CrnIJkntd4=</ds:SignatureValue>
+    <ds:KeyInfo>
+      <ds:X509Data>
+        <ds:X509Certificate>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</ds:X509Certificate>
+      </ds:X509Data>
+    </ds:KeyInfo>
+  </ds:Signature>
+  <samlp:Status>
+    <samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+  </samlp:Status>
+  <saml:Assertion xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="Assertion-uuidf2930596-0172-1eab-98ae-82084609aa37" IssueInstant="2020-06-26T21:40:21Z" Version="2.0">
+    <saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://sqa.eauth.va.gov/isam/sps/saml20idp/saml20</saml:Issuer>
+    <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="uuidf2930597-0172-1fbe-8a80-82084609aa37">
+      <ds:SignedInfo>
+        <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+        <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+        <ds:Reference URI="#Assertion-uuidf2930596-0172-1eab-98ae-82084609aa37">
+          <ds:Transforms>
+            <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+            <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+              <xc14n:InclusiveNamespaces xmlns:xc14n="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList=""/>
+            </ds:Transform>
+          </ds:Transforms>
+          <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+          <ds:DigestValue>xbEYke+HHklNaP1ybTGHwq/kjYuxzpVhuyKu2S7Y5oc=</ds:DigestValue>
+        </ds:Reference>
+      </ds:SignedInfo>
+      <ds:SignatureValue>o5/KhsX3XuIdjgexoqW9ZypfN9YMQApTh+8NBh0MQIM8NjfEOLGzdYlNAdOsOMkrBv/x69R+5aXMMcloBWOtSXJ5Myo9BcyIxX+DwYx+E+ctnNSFKp1sjR6ORJ0R3jRmc4X4SWppn93FTl4VMl/qhPG4gEV0UX+hqCuT1EJWTS0b3IBKrYtV20ve2IEuVrK0uA845Psr+WJ0YRzhJVFFp7AP3w8nQxpCUgWWokZ7HDKLGZTpCp2nM8cjbmUCtczfaNHqg6rFoMiIGDGCGw7ZWye9BCkHLTd1gJiSb3TgbTT/G25tBnv5KmCECaRjtJr+l/7WJIvGiVuk3Cr1Rgg/33kJ1x9rbGSQh8lk01EWYIEgPQBWUb0fOFlLUWYE9bqywhPGvIy5RUEu5Xx0LMDRYXWO25cvoY9qm7UNyacG/GFxU3uLPq/asZnaM05LBrrsC4rI7e7roSRoS2A08NH50hD22XQuL/wQHUNJcCBgV/P9v7FGHeBxG/fkqim9r9MwX8e5wz1erYBpaPRq4fLGRbqDWhco2cHtLFMKAwbM3tgWoi1a/jnS5uxj9Z4ECQZiNFt6gnibLvipjXiO2ockKi2A5mTTDAoYOvVkGeFpgv3JlFH7HPBXfc97mDo3aKvJVfbTDczyEThkIeJoEerHz/T+Vy88UeA1G89EcACXgT4=</ds:SignatureValue>
+      <ds:KeyInfo>
+        <ds:X509Data>
+          <ds:X509Certificate>MIIHtDCCBpygAwIBAgIQDm5lwus1yeX+EQ0flFWo+TANBgkqhkiG9w0BAQsFADBEMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMR4wHAYDVQQDExVEaWdpQ2VydCBHbG9iYWwgQ0EgRzIwHhcNMTkxMDE3MDAwMDAwWhcNMjExMDE1MTIwMDAwWjCBiDELMAkGA1UEBhMCVVMxDjAMBgNVBAgTBVRleGFzMRIwEAYDVQQHEwlBcmxpbmd0b24xLDAqBgNVBAoTI1UuUy4gRGVwYXJ0bWVudCBvZiBWZXRlcmFucyBBZmZhaXJzMQwwCgYDVQQLEwNJQU0xGTAXBgNVBAMTEGRldi5lYXV0aC52YS5nb3YwggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCsj0gJSiIGdq1oPdXEaHpwJHNQSd4lyMf0W4cN8Ahkz1geYjpLveE989uHwMAYOAc9/bSc8LDDNbi/4lNBfbW85nxWnUFbKZuaPZX/XK3582eDvbeyx0FePoddK9Cxdfbns/EU+3hTGb8W/u6W+TebItp+a7Vl/ZCqZn43KYP0WUv7mF9Oox5hdb3LA99XARSqpNSG2zO77IP1ChIJ2QwE63zrDJ/JBsVg4lrvAylZes6lUThcBBMm2/E/vxSinQie7mi7tJ14fCgUtAMvcPS6mvTe+P9ORuNVWY1awTLh8F/WpWnvD47BGsnP2Fkky0yfYEQv8vj6I3jASBubiUeqg/3P6FoMy3DfuTpCx4ob8Q1xVrj36i//b/jKm1fVF+t4zF7seOqmLOkqmMpiyAsPoQudhKYWw4gLe8zqtEsH3qdqoVt5i5xufPz7jsvH2ner3uvxQWPuQuz2a/Y6S3jXjnhcuvRF/iC+M8aqV3cM8UHa+O+o3jcTdiu/cI1CvCbvTSPO7E4n+7gaHg6cfP+Jt2TZWfTrk+7XRMaiO/+COmCW+hlSfUzyan29iCSdKaHnvJsbUqIWu930ptWzYVqkF/ZVSeigKF/2EwdK7n07XrzQeiTST90U6tn+XfuWibLPlFCDCRj9uEwAP2BwmQj850AKFPp9lJta86+OTXZDLQIDAQABo4IDWzCCA1cwHwYDVR0jBBgwFoAUJG4rLdBqklFRJWkBqppHponnQCAwHQYDVR0OBBYEFDoJZGeD8zsSHnwRW0oguU1q3KFZMBsGA1UdEQQUMBKCEGRldi5lYXV0aC52YS5nb3YwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjB3BgNVHR8EcDBuMDWgM6Axhi9odHRwOi8vY3JsMy5kaWdpY2VydC5jb20vRGlnaUNlcnRHbG9iYWxDQUcyLmNybDA1oDOgMYYvaHR0cDovL2NybDQuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0R2xvYmFsQ0FHMi5jcmwwTAYDVR0gBEUwQzA3BglghkgBhv1sAQEwKjAoBggrBgEFBQcCARYcaHR0cHM6Ly93d3cuZGlnaWNlcnQuY29tL0NQUzAIBgZngQwBAgIwdAYIKwYBBQUHAQEEaDBmMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wPgYIKwYBBQUHMAKGMmh0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEdsb2JhbENBRzIuY3J0MAkGA1UdEwQCMAAwggF/BgorBgEEAdZ5AgQCBIIBbwSCAWsBaQB2AKS5CZC0GFgUh7sTosxncAo8NZgE+RvfuON3zQ7IDdwQAAABbdr69lAAAAQDAEcwRQIgJPKEiKE2UFa5QYGdiFFp1D+x7lKCQQLxVbCf+C0bhMQCIQDUvedBNDFaFyBSkcT3QHMluumE6QwvOCX/lKTMHdt3yAB3AESUZS6w7s6vxEAH2Kj+KMDa5oK+2MsxtT/TM5a1toGoAAABbdr69kMAAAQDAEgwRgIhAI+OImKMf2ACdZUVgv6HR+xRwc+nZ3zABH1GmK11px04AiEA7yi+JcNBZup6EiRkRqYPZqc5BWLJ/uJ26Cre66LMNhoAdgC72d+8H4pxtZOUI5eqkntHOFeVCqtS6BqQlmQ2jh7RhQAAAW3a+vZTAAAEAwBHMEUCIQDQC6Z1HeHrr+lthDKZ55xNx8fAPLGt3CoTo3EtsRb4EwIgBxrdXOsNRHcQjDOyn/J+9O4aB7MnvlN7MaN0HB7uVbcwDQYJKoZIhvcNAQELBQADggEBAAD5fR7booawHrDSpwkYiwMErjnLBp2Q4WkEg1AFOVekrOuQgnpoFXS/wNfd5cHA5hGcd3WCzXPBYMoymK/fdyY6PUT57+N47PV87WbW589AMzBdcG7orO+n273zWu8WRbtOpEUM/6sRM1gri+xO7XQPxsyLwcJ8De5NMfpbrzCpKExluqlyRYt9CFeNbCPl03C+6g0BqPLj1mw1YWNdo+sotBKsm+0v08FUpjWwxE0ovwpjW3/z0Kkr8gYimePAnKGbWrI5jqrabHSY9Jl3eZZlnVRet206aYymvUZMqZi3YDcnOEhd9W8YHVVCJjmOaB0GM21Wo0hBgVJizXQKHAY=</ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </ds:Signature>
+    <saml:Subject>
+      <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:secid">1012827134</saml:NameID>
+      <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+        <saml:SubjectConfirmationData InResponseTo="_ac74902d-ba3a-4f02-b3d9-72c3a8b0f504" NotOnOrAfter="2020-06-26T21:45:21Z" Recipient="https://staging-api.va.gov/v1/sessions/callback"/>
+      </saml:SubjectConfirmation>
+    </saml:Subject>
+    <saml:Conditions NotBefore="2020-06-26T21:35:21Z" NotOnOrAfter="2020-06-26T21:45:21Z">
+      <saml:AudienceRestriction>
+        <saml:Audience>https://ssoe-sp-staging.va.gov</saml:Audience>
+      </saml:AudienceRestriction>
+    </saml:Conditions>
+    <saml:AuthnStatement AuthnInstant="2020-06-26T21:40:21Z" SessionIndex="uuidf2928f5b-0172-1621-9f87-948c66318f6a" SessionNotOnOrAfter="2020-06-26T22:40:20Z">
+      <saml:AuthnContext>
+        <saml:AuthnContextClassRef>http://idmanagement.gov/ns/assurance/loa/3</saml:AuthnContextClassRef>
+      </saml:AuthnContext>
+    </saml:AuthnStatement>
+    <saml:AttributeStatement>
+      <saml:Attribute Name="va_eauth_phone" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_lastname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">GPKTESTNINE</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_aal_idme_highest" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">2</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_ial" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">2</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_icn" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">1012827134V054550</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_city" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_ial_idme_highest" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">classic_loa3</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_country" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_csp_identifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">200VIDM</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_gender" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">MALE</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_street2" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_aal" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">2</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_csp_method" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">IDME</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_dodedipnid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">1320002060</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_emailaddress" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">vets.gov.user+262@gmail.com</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_cspid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">200VIDM_54e78de6140d473f87960f211be49c08</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_authncontextclassref" NameFormat="urn:ibm:names:ITFIM:5.1:accessmanager">
+        <saml:AttributeValue xsi:type="xs:string">http://idmanagement.gov/ns/assurance/loa/3</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_issueinstant" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">2020-06-26T21:40:15Z</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_middlename" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_birthDate_v1" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">19690407</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_state" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_birlsfilenumber" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">666271151</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_postalcode" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_street3" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_csid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">idme</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_proofingAuthority" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">FICAM</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_pid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">600152411</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_credentialassurancelevel" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">3</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_pnidtype" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">SSN</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_mcid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">WSSOE2006261740157791890435580</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_firstname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">JERRY</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_prefix" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_street" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_csponly" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">false</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_pnid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">666271152</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_commonname" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">vets.gov.user+262@gmail.com</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_transactionid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">9f0v81+n6k6xyuNIh2L215xmnKVEMerFIIMIis3buwg=</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_suffix" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_uid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">54e78de6140d473f87960f211be49c08</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_isDelegate" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">false</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_secid" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">1012827134</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_gcIds" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">1012827134V054550^NI^200M^USVHA^P|10894456^PI^200MHS^USVHA^A|943523^PI^979^USVHA^A|552151501^PI^989^USVHA^A|666271151^PI^200BRLS^USVBA^A|1320002060^NI^200DOD^USDOD^A|20381^PI^200VETS^USDVA^A|54e78de6140d473f87960f211be49c08^PN^200VIDM^USDVA^A|1012827134^PN^200PROV^USDVA^A|600152411^PI^200CORP^USVBA^A</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_persontype" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_multifactor" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">true</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_street1" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">NOT_FOUND</saml:AttributeValue>
+      </saml:Attribute>
+      <saml:Attribute Name="va_eauth_mhvien" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+        <saml:AttributeValue xsi:type="xs:string">10894456</saml:AttributeValue>
+      </saml:Attribute>
+    </saml:AttributeStatement>
+  </saml:Assertion>
+</samlp:Response>
