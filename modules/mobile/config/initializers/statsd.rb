@@ -9,8 +9,10 @@ Mobile::ApplicationController.statsd_count_success :authenticate, 'mobile.applic
 StatsD.increment('mobile.application_controller.authenticate.success', 0)
 StatsD.increment('mobile.application_controller.authenticate.failure', 0)
 
-Mobile::ApplicationController.statsd_count_success :create_iam_session, 'mobile.application_controller.create_iam_session'
-Mobile::ApplicationController.statsd_measure :create_iam_session, 'mobile.application_controller.create_iam_session.measure'
+Mobile::ApplicationController.statsd_count_success :create_iam_session,
+                                                   'mobile.application_controller.create_iam_session'
+Mobile::ApplicationController.statsd_measure :create_iam_session,
+                                             'mobile.application_controller.create_iam_session.measure'
 StatsD.increment('mobile.application_controller.create_iam_session.success', 0)
 StatsD.increment('mobile.application_controller.create_iam_session.failure', 0)
 StatsD.increment('mobile.application_controller.create_iam_session.inactive_session', 0)
