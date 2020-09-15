@@ -131,11 +131,11 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
 
 # init Form1010cg
-StatsD.increment(Form1010cg::Service.metrics.submission.attempt, 0)
-StatsD.increment(Form1010cg::Service.metrics.submission.success, 0)
-StatsD.increment(Form1010cg::Service.metrics.submission.failure.client.data, 0)
-StatsD.increment(Form1010cg::Service.metrics.submission.failure.client.qualification, 0)
-StatsD.increment(Form1010cg::Service.metrics.pdf_download, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.attempt, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.success, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.data, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 
 # init form 526
 %w[try success non_retryable_error retryable_error exhausted].each do |str|

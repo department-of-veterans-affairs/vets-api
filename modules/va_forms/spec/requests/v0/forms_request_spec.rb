@@ -5,13 +5,21 @@ require 'rails_helper'
 RSpec.describe 'VA Forms', type: :request do
   include SchemaMatchers
 
-  let!(:form) { FactoryBot.create(:va_form) }
+  let!(:form) do
+    create(:va_form)
+    create(:va_form, form_name: '527')
+    create(:deleted_va_form)
+  end
   let(:base_url) { '/services/va_forms/v0/forms' }
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   describe 'GET :index' do
-    it 'returns the forms' do
+    it 'returns the forms, including those that have been deleted' do
       get base_url
+      data = JSON.parse(response.body)['data']
+      expect(JSON.parse(response.body)['data'].length).to eq(3)
+      expect(data[1]['attributes']['deleted_at']).to be_nil
+      expect(data[2]['attributes']['deleted_at']).to be_truthy
       expect(response).to match_response_schema('va_forms/forms')
     end
 

@@ -11,7 +11,7 @@ module ClaimsApi
         include ClaimsApi::DocumentValidations
 
         before_action { permit_scopes %w[claim.write] }
-        before_action :validate_json_schema, only: %i[submit_form_2122]
+        before_action :validate_json_schema, only: %i[submit_form_2122 validate]
         before_action :validate_documents_content_type, only: %i[upload]
         before_action :validate_documents_page_size, only: %i[upload]
         before_action :find_poa_by_id, only: %i[upload status]
@@ -73,6 +73,10 @@ module ClaimsApi
           end
         end
 
+        def validate
+          render json: validation_success
+        end
+
         private
 
         def current_poa
@@ -106,6 +110,17 @@ module ClaimsApi
 
         def render_poa_not_found
           render json: { errors: [{ status: 404, detail: 'POA not found' }] }, status: :not_found
+        end
+
+        def validation_success
+          {
+            data: {
+              type: 'powerOfAttorneyValidation',
+              attributes: {
+                status: 'valid'
+              }
+            }
+          }
         end
       end
     end
