@@ -8,8 +8,6 @@ module AppsApi
     class DirectoryController < ApplicationController
       skip_before_action(:authenticate)
 
-      # When this endpoint is hit, it sends a request to Okta to return all applications on our organization,
-      # and filters out any that contain an ISO date in their label
       def index
         redis = Redis.new
         # Check for existing cache of our app list
