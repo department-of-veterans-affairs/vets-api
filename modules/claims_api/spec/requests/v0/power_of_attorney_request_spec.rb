@@ -110,5 +110,26 @@ RSpec.describe 'Power of Attorney ', type: :request do
         expect(power_of_attorney.status).to eq('submitted')
       end
     end
+
+    describe '#validate' do
+      it 'returns a response when valid' do
+        post "#{path}/validate", params: data, headers: headers
+        parsed = JSON.parse(response.body)
+        expect(parsed['data']['attributes']['status']).to eq('valid')
+        expect(parsed['data']['type']).to eq('powerOfAttorneyValidation')
+      end
+
+      it 'returns a response when invalid' do
+        post "#{path}/validate", params: { data: { attributes: nil } }.to_json, headers: headers
+        parsed = JSON.parse(response.body)
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed['errors']).not_to be_empty
+      end
+
+      it 'responds properly when JSON parse error' do
+        post "#{path}/validate", params: 'hello', headers: headers
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
   end
 end
