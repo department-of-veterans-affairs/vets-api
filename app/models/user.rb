@@ -3,10 +3,11 @@
 require 'beta_switch'
 require 'common/models/base'
 require 'common/models/redis_store'
+require 'evss/auth_headers'
+require 'evss/common_service'
+require 'evss/pciu/service'
 require 'mvi/messages/find_profile_message'
 require 'mvi/service'
-require 'evss/common_service'
-require 'evss/auth_headers'
 require 'saml/user'
 
 class User < Common::RedisStore
