@@ -13,7 +13,6 @@ class BaseApplicationController < ActionController::API
   include ExceptionHandling
   
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
-  before_action :set_tags_and_extra_context
 
   attr_reader :current_user
   
@@ -34,9 +33,5 @@ class BaseApplicationController < ActionController::API
   def set_app_info_headers
     headers['X-Git-SHA'] = AppInfo::GIT_REVISION
     headers['X-GitHub-Repository'] = AppInfo::GITHUB_URL
-  end
-
-  def render_errors(va_exception)
-    render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 end

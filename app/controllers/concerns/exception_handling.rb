@@ -52,4 +52,57 @@ module ExceptionHandling
   def render_errors(va_exception)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
+
+  def report_original_exception(exception)
+    # report the original 'cause' of the exception when present
+    if skip_sentry_exception_types.include?(exception.class)
+      Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
+    elsif exception.is_a?(Common::Exceptions::BackendServiceException) && exception.generic_error?
+      # Warn about VA900 needing to be added to exception.en.yml
+      log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
+    end
+  end
+
+  def report_mapped_exception(exception, va_exception)
+    extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
+    # Add additional user specific context to the logs
+    if exception.is_a?(Common::Exceptions::BackendServiceException) && current_user.present?
+      extra[:icn] = current_user.icn
+      extra[:mhv_correlation_id] = current_user.mhv_correlation_id
+    end
+    va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
+    log_exception_to_sentry(exception, extra.merge(va_exception_info))
+  end
+
+  def set_tags_and_extra_context
+    RequestStore.store['request_id'] = request.uuid
+    RequestStore.store['additional_request_attributes'] = {
+      'remote_ip' => request.remote_ip,
+      'user_agent' => request.user_agent
+    }
+    Raven.extra_context(request_uuid: request.uuid)
+    Raven.user_context(user_context) if current_user
+    Raven.tags_context(tags_context)
+  end
+
+  def user_context
+    {
+      uuid: current_user&.uuid,
+      authn_context: current_user&.authn_context,
+      loa: current_user&.loa,
+      mhv_icn: current_user&.mhv_icn
+    }
+  end
+
+  def tags_context
+    { controller_name: controller_name }.tap do |tags|
+      if current_user.present?
+        tags[:sign_in_method] = current_user.identity.sign_in[:service_name]
+        # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
+        tags[:sign_in_acct_type] = current_user.identity.sign_in[:account_type]
+      else
+        tags[:sign_in_method] = 'not-signed-in'
+      end
+    end
+  end
 end
