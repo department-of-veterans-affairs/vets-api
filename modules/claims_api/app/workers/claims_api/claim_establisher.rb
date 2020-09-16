@@ -14,17 +14,20 @@ module ClaimsApi
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
 
-      begin
-        response = service(auth_headers).submit_form526(form_data)
-        auto_claim.evss_id = response.claim_id
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
-        auto_claim.save
-      rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
-        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-        auto_claim.evss_response = e.messages
-        auto_claim.save
-        raise e
-      end
+      response = service(auth_headers).submit_form526(form_data)
+      auto_claim.evss_id = response.claim_id
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
+      auto_claim.save
+    rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.evss_response = e.messages
+      auto_claim.save
+      raise e
+    rescue ::Common::Exceptions::BackendServiceException => e
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
+      auto_claim.save
+      raise e
     end
 
     private
