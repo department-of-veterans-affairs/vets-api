@@ -44,8 +44,8 @@ Flipper::UI.configuration.feature_creation_enabled = false
 FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
   Flipper.add(feature) unless Flipper.exist?(feature)
 
-  # default features to be enabled in development and test unless override set in config/features.yml
-  if feature_config.dig('default_enabled_environments', Rails.env) && Rails.env.in?('development', 'test')
+  # default features to enabled for test and those explicitly set for development
+  if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
     Flipper.enable(feature)
   end
 rescue

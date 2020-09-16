@@ -23,28 +23,23 @@ features:
       Toggles whether COVID Research volunteer submissions will be delivered to genISIS
   dashboard_show_covid19_alert:
     actor_type: user
-    default_enabled_environments:
     description: >
       Allows for showing a special COVID19 alert on the My VA Dashboard
   facility_locator_show_community_cares:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: A fast and dirty way to get the operating status from lighthouse
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
   facility_locator_ppms_location_query:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: Use the Lat/Long instead of an address
   facility_locator_ppms_forced_unique_id:
     actor_type: user
@@ -54,61 +49,46 @@ features:
     description: Have the front end use the V1 api
   facilities_ppms_suppress_community_care:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: Hide ppms community care searches
   profile_schema_forms:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
   profile_show_receive_text_notifications:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       https://www.va.gov/profile/ show Receive Text Notifications
   profile_show_profile_2.0:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Enables Profile 2.0
   va_online_scheduling:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Allows veterans to view their VA and Community Care appointments
   va_online_scheduling_cancel:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Allows veterans to cancel VA appointments
   va_online_scheduling_requests:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Allows veterans to submit requests for VA appointments
   va_online_scheduling_community_care:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Allows veterans to submit requests for Community Care appointments
   va_online_scheduling_direct:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Allows veterans to directly schedule VA appointments
   va_online_scheduling_past:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Allows veterans to see past appointments
   va_online_scheduling_vsp_appointment_list:
@@ -149,68 +129,49 @@ features:
       Enables the new VA facility choice page with a flat list
   va_global_downtime_notification:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Enables global downtime notification- do not use in production
   ssoe:
     actor_type: cookie_id
-    default_enabled_environments:
-      development: false
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   edu_benefits_stem_scholarship:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Enables STEM scholarship functionality
   form526_original_claims:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
   form526_benefits_delivery_at_discharge:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
   form526_confirmation_email:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
   va_view_dependents_access:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Allows us to gate the View/ Modify dependents content in a progressive rollout
   ssoe_ebenefits_links:
     actor_type: user
-    default_enabled_environments:
-      development: false
     description: >
       Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.
   ssoe_inbound:
     actor_type: cookie_id
-    default_enabled_environments:
-      development: false
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
     actor_type: cookie_id
-    default_enabled_environments:
-      development: false
     description: >
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   stub_carma_responses:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.
   gibct_eyb_bottom_sheet:
