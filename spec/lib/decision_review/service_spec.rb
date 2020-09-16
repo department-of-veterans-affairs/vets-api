@@ -27,16 +27,12 @@ describe DecisionReview::Service do
 
     context '422 response' do
       let(:body) { {} }
-      let(:exception) do
-        subject
-      rescue => e
-        e
-      end
 
       it 'throws a DR_422 exception' do
         VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
-          expect(exception).to be_a DecisionReview::ServiceException
-          expect(exception.key).to eq 'DR_422'
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_422'))
+          )
         end
       end
     end
@@ -60,16 +56,12 @@ describe DecisionReview::Service do
 
     context '404 response' do
       let(:uuid) { '0' }
-      let(:exception) do
-        subject
-      rescue => e
-        e
-      end
 
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404') do
-          expect(exception).to be_a DecisionReview::ServiceException
-          expect(exception.key).to eq 'DR_404'
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
+          )
         end
       end
     end
@@ -98,32 +90,23 @@ describe DecisionReview::Service do
         allow_any_instance_of(User).to receive(:ssn).and_return('000000000')
       end
 
-      let(:exception) do
-        subject
-      rescue => e
-        e
-      end
-
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
-          expect(exception).to be_a DecisionReview::ServiceException
-          expect(exception.key).to eq 'DR_404'
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
+          )
         end
       end
     end
 
     context '422 response' do
       let(:benefit_type) { 'apricot' }
-      let(:exception) do
-        subject
-      rescue => e
-        e
-      end
 
       it 'throws a DR_422 exception' do
         VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422') do
-          expect(exception).to be_a DecisionReview::ServiceException
-          expect(exception.key).to eq 'DR_422'
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_422'))
+          )
         end
       end
     end
