@@ -1,0 +1,42 @@
+[
+  {
+    "schemaKey": "veteranStatus",
+    "fieldName": "Incident.CustomFields.c.vet_status",
+    "fieldType": "select_list"
+  },
+  {
+    "schemaKey": "preferredContactMethod",
+    "fieldName": "Incident.CustomFields.c.form_of_response",
+    "fieldType": "select_list"
+  },
+  {
+    "schemaKey": "fullName.title",
+    "fieldName": "Incident.CustomFields.c.form_of_address",
+    "fieldType": "select_list"
+  },
+  {
+    "schemaKey": "fullName.first",
+    "fieldName": "Incident.CustomFields.c.first_name",
+    "fieldType": "text_field"
+  },
+  {
+    "schemaKey": "fullName.last",
+    "fieldName": "Incident.CustomFields.c.last_name",
+    "fieldType": "text_field"
+  },
+  {
+    "schemaKey": "address.country",
+    "fieldName": "Incident.CustomFields.c.country",
+    "fieldType": "select_list"
+  },
+  {
+    "schemaKey": "address.state",
+    "fieldName": "Incident.CustomFields.c.state",
+    "fieldType": "select_list"
+  },
+  {
+    "schemaKey": "address.postalCode",
+    "fieldName": "Incident.CustomFields.c.zipcode",
+    "fieldType": "text_field"
+  }
+]
