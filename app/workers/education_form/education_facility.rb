@@ -75,9 +75,8 @@ module EducationForm
       return :western if model.form_type == '0993'
 
       # special case 0994
-      # special case 1995s
       # special case 10203
-      return :eastern if %w[0994 1995s 10203].include?(model.form_type)
+      return :eastern if %w[0994 10203].include?(model.form_type)
 
       # special case Philippines
       return :western if address&.country == 'PHL'
@@ -110,7 +109,7 @@ module EducationForm
         record.educationProgram&.address || record.veteranAddress
       when '1990E', '5490', '5495'
         record.educationProgram&.address || record.relativeAddress
-      when '1995', '1995s'
+      when '1995'
         record.newSchool&.address || record.veteranAddress
       end
     end

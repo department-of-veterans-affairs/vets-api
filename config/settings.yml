@@ -1,4 +1,6 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
+vsp_environment:
+
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
 # For CORS requests; separate multiple origins with a comma
@@ -405,6 +407,14 @@ oidc:
 sentry:
   dsn: ~
 
+iam_ssoe:
+  client_cert_path: ~
+  client_key_path: ~
+  client_id: 'Mobile_App_API_Server_LOWERS'
+  # oauth (rest) and sts (soap) services are on different hosts
+  oauth_url: "https://int.fed.eauth.va.gov:444"
+  sts_url: "https://preprod.services.eauth.va.gov:9301"
+
 statsd:
   host: ~
   port: ~
@@ -528,6 +538,12 @@ bgs:
   ssl_verify_mode: 'peer'
 
 va_mobile:
+  url: 'https://veteran.apps.va.gov'
+  mock: false
+  key_path: /fake/client/key/path
+  timeout: 15
+
+hqva_mobile:
   url: 'https://veteran.apps.va.gov'
   mock: false
   key_path: /fake/client/key/path
