@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require 'common/client/errors'
 require 'search/response'
+require 'search/configuration'
 
 module Search
   # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
