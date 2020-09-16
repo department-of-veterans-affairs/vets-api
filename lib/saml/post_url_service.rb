@@ -31,7 +31,6 @@ module SAML
         @type = JSON.parse(params[:RelayState])['type']
       end
       @query_params = {}
-      require 'pry'; binding.pry
       @tracker = initialize_tracker(params)
 
       Raven.extra_context(params: params)

@@ -21,9 +21,7 @@ module SAML
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params, :tracker
 
-    # rubocop:disable Metrics/ParameterLists
-    def initialize(saml_settings, session: nil, user: nil, params: {},
-                   loa3_context: LOA::IDME_LOA3_VETS)
+    def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
@@ -46,7 +44,6 @@ module SAML
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
     end
-    # rubocop:enable Metrics/ParameterLists
 
     # REDIRECT_URLS
     def base_redirect_url
@@ -215,10 +212,9 @@ module SAML
     end
 
     def previous_saml_uuid(params)
-      if (params[:action] == 'saml_callback') && params[:SAMLResponse].present?
+      if params[:action] == 'saml_callback'
         settings = SAML::SSOeSettingsService.saml_settings
-        resp = SAML::Responses::Login.new(params[:SAMLResponse], settings: settings)
-        return resp.in_response_to
+        SAML::Responses::Login.new(params[:SAMLResponse], settings: settings).in_response_to
       end
     end
 
