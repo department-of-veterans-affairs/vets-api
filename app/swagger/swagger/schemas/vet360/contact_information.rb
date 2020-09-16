@@ -59,13 +59,13 @@ module Swagger
                   property :country_code_fips, type: %i[string null], example: 'US'
                   property :id, type: :integer, example: 123
                   property :international_postal_code, type: %i[string null], example: '54321'
-                  property :latitude, type: %i[float null], example: 38.901
-                  property :longitude, type: %i[float null], example: -77.0347
+                  property :latitude, type: %i[number null], example: 38.901
+                  property :longitude, type: %i[number null], example: -77.0347
                   property :province, type: %i[string null]
                   property :state_code, type: :string, example: 'NY'
                   property :zip_code, type: :string, example: '97062'
                   property :zip_code_suffix, type: %i[string null], example: '1234'
-                  property :geocode_precision, type: %i[float null], example: 100.0
+                  property :geocode_precision, type: %i[number null], example: 100.0
                   property :geocode_date,
                            type: %i[string null],
                            format: 'date-time',
@@ -108,13 +108,13 @@ module Swagger
                   property :country_code_fips, type: %i[string null], example: 'US'
                   property :id, type: :integer, example: 123
                   property :international_postal_code, type: %i[string null], example: '54321'
-                  property :latitude, type: %i[float null], example: 38.901
-                  property :longitude, type: %i[float null], example: -77.0347
+                  property :latitude, type: %i[number null], example: 38.901
+                  property :longitude, type: %i[number null], example: -77.0347
                   property :province, type: %i[string null]
                   property :state_code, type: :string, example: 'NY'
                   property :zip_code, type: :string, example: '97062'
                   property :zip_code_suffix, type: %i[string null], example: '1234'
-                  property :geocode_precision, type: %i[float null], example: 100.0
+                  property :geocode_precision, type: %i[number null], example: 100.0
                   property :geocode_date,
                            type: %i[string null],
                            format: 'date-time',
