@@ -7,25 +7,18 @@ module SentryLogging
     rails_logger(level, formatted_message)
 
     if Settings.sentry.dsn.present?
-      Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
-      Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
+      set_raven_metadata(extra_context, tags_context)
       Raven.capture_message(message, level: level)
     end
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
-  def log_exception_to_sentry(
-    exception,
-    extra_context = {},
-    tags_context = {},
-    level = 'error'
-  )
+  def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
     level = 'info' if extra_context.is_a?(Hash) && client_error?(extra_context[:va_exception_errors])
     level = normalize_level(level)
     if Settings.sentry.dsn.present?
-      Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
-      Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
+      set_raven_metadata(extra_context, tags_context)
       Raven.capture_exception(exception.cause.presence || exception, level: level)
     end
 
@@ -76,5 +69,10 @@ module SentryLogging
 
   def evss_503?(code, status)
     (code == 'EVSS503' && status.to_i == 503)
+  end
+
+  def set_raven_metadata(extra_context, tags_context)
+    Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
+    Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
   end
 end
