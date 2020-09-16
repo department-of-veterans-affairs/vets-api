@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/ppiu/service'
+
 PPIUPolicy = Struct.new(:user, :ppiu) do
   def access?
     user.loa3? && user.multifactor

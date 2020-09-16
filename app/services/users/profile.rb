@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+require 'common/client/concerns/service_status'
+
 module Users
   class Profile
     include Common::Client::Concerns::ServiceStatus

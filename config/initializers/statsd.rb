@@ -3,6 +3,7 @@
 require 'caseflow/service'
 require 'central_mail/service'
 require 'emis/service'
+require 'evss/service'
 require 'gibft/service'
 require 'mvi/service'
 require 'saml/errors'
