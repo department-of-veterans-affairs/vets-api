@@ -262,6 +262,10 @@ features:
     actor_type: user
     description: >
       API endpoints consumed by the VA Mobile App (iOS/Android)
+  show_chapter_36:
+    actor_type: user
+    description: >
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
   stem_document_type:
     actor_type: user
     description: >
