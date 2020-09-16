@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Files uploaded as part of a form526 submission that will be sent to EVSS upon form submission.
 class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
