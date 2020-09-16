@@ -41,9 +41,7 @@ FLIPPER_ACTOR_STRING = 'cookie_id'
 
 Flipper::UI.configuration.feature_creation_enabled = false
 # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
-FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
-  feature_config = FLIPPER_FEATURE_CONFIG['features'][feature]
-
+FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
   Flipper.add(feature) unless Flipper.exist?(feature)
 
   # default features to be enabled in development and test unless override set in config/features.yml
