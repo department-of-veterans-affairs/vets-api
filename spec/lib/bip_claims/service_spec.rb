@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bip_claims/service'
 
 RSpec.describe BipClaims::Service do
   let(:service) { described_class.new }

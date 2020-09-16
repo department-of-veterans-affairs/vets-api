@@ -7,6 +7,7 @@ RSpec.describe 'email_address', type: :request do
 
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
   before do
     Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
@@ -27,6 +28,17 @@ RSpec.describe 'email_address', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
+        end
+      end
+
+      it 'matches the email address camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/post_email_success') do
+          post('/v0/profile/email_addresses',
+               params: { email_address: 'test@example.com' }.to_json,
+               headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
         end
       end
 
@@ -58,6 +70,17 @@ RSpec.describe 'email_address', type: :request do
         end
       end
 
+      it 'matches the errors camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
+          post('/v0/profile/email_addresses',
+               params: { id: 42, email_address: 'person42@example.com' }.to_json,
+               headers: headers_with_camel)
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_camelized_response_schema('errors')
+        end
+      end
+
       it 'does not invalidate the cache' do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
           expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
@@ -86,6 +109,14 @@ RSpec.describe 'email_address', type: :request do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include "email-address - can't be blank"
       end
+
+      it 'matches the errors camel-inflected schema', :aggregate_failures do
+        post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(errors_for(response)).to include "email-address - can't be blank"
+      end
     end
   end
 
@@ -100,6 +131,17 @@ RSpec.describe 'email_address', type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
+        end
+      end
+
+      it 'matches the email address camel-inflected schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/put_email_success') do
+          put('/v0/profile/email_addresses',
+              params: { id: 42, email_address: 'person42@example.com' }.to_json,
+              headers: headers_with_camel)
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
         end
       end
 
@@ -130,6 +172,14 @@ RSpec.describe 'email_address', type: :request do
         expect(response).to match_response_schema('errors')
         expect(errors_for(response)).to include "email-address - can't be blank"
       end
+
+      it 'matches the errors camel-inflected schema', :aggregate_failures do
+        put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
+        expect(errors_for(response)).to include "email-address - can't be blank"
+      end
     end
 
     context 'when effective_end_date is included' do
@@ -154,6 +204,16 @@ RSpec.describe 'email_address', type: :request do
           expect(response).to match_response_schema('vet360/transaction_response')
         end
       end
+
+      it 'effective_end_date is NOT included in the request body when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/put_email_ignore_eed', VCR::MATCH_EVERYTHING) do
+          # The cassette we're using includes the effectiveEndDate in the body.
+          # So this test will not pass if it's missing
+          put('/v0/profile/email_addresses', params: email.to_json, headers: headers_with_camel)
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+        end
+      end
     end
   end
 
@@ -176,6 +236,16 @@ RSpec.describe 'email_address', type: :request do
           delete('/v0/profile/email_addresses', params: email.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
+        end
+      end
+
+      it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/delete_email_success', VCR::MATCH_EVERYTHING) do
+          # The cassette we're using includes the effectiveEndDate in the body.
+          # So this test will not pass if it's missing
+          delete('/v0/profile/email_addresses', params: email.to_json, headers: headers_with_camel)
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('vet360/transaction_response')
         end
       end
     end

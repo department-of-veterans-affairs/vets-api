@@ -11,6 +11,17 @@ FactoryBot.define do
     end
     source_data { { 'name': 'Abe Lincoln', 'icn': '123', 'email': '1@2.com' } }
 
+    trait :with_full_headers do
+      auth_headers {
+        {
+          'va_eauth_pnid': '796378881',
+          'va_eauth_birthdate': '1953-12-05',
+          'va_eauth_firstName': 'JESSE',
+          'va_eauth_lastName': 'GRAY'
+        }
+      }
+    end
+
     after(:build) do |power_of_attorney|
       power_of_attorney.set_file_data!(
         Rack::Test::UploadedFile.new(

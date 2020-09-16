@@ -92,16 +92,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    context 'with a 1995s form' do
-      let(:application_1606) { create(:va1995s_full_form).education_benefits_claim }
-
-      it 'tracks the 1995s form' do
-        expect(subject).to receive(:track_form_type).with('22-1995s', 999)
-        result = subject.format_application(application_1606, rpo: 999)
-        expect(result).to be_a(EducationForm::Forms::VA1995s)
-      end
-    end
-
     context 'result tests' do
       subject { described_class.new.format_application(application_1606).text }
 
@@ -128,14 +118,14 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         FactoryBot.create(:va0994_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
-        # ensure our test data is spread across 3 regions..
-        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(3)
+        # ensure our test data is spread across 2 regions..
+        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(2)
       end
 
       it 'processes the valid messages' do
         expect(subject).to receive(:log_exception_to_sentry).once
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
-        expect(Dir[spool_files].count).to eq(3)
+        expect(Dir[spool_files].count).to eq(2)
       end
     end
 
@@ -186,9 +176,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       output = subject.group_submissions_by_region(submissions)
 
-      expect(output[:eastern].length).to be(2)
+      expect(output[:eastern].length).to be(3)
       expect(output[:western].length).to be(3)
-      expect(output[:central].length).to be(1)
     end
   end
 

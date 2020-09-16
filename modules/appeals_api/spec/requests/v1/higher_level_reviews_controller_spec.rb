@@ -3,17 +3,18 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :request do
+describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :request do
   include FixtureHelpers
 
   def base_path(path)
-    "/services/appeals/v1/decision_review/#{path}"
+    "/services/appeals/v1/decision_reviews/#{path}"
   end
 
   before(:all) do
     @data = fixture_to_s 'valid_200996.json'
     @invalid_data = fixture_to_s 'invalid_200996.json'
     @headers = fixture_as_json 'valid_200996_headers.json'
+    @minimum_required_headers = fixture_as_json 'valid_200996_headers_minimum.json'
     @invalid_headers = fixture_as_json 'invalid_200996_headers.json'
   end
 
@@ -22,10 +23,22 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
   describe '#create' do
     let(:path) { base_path 'higher_level_reviews' }
 
-    it 'create an HLR and persist the data' do
-      post(path, params: @data, headers: @headers)
-      expect(parsed['data']['type']).to eq('appeals_api_higher_level_reviews')
-      expect(parsed['data']['attributes']['status']).to eq('pending')
+    context 'creates an HLR and persists the data' do
+      it 'with all headers' do
+        post(path, params: @data, headers: @headers)
+        expect(parsed['data']['type']).to eq('higherLevelReview')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+      it 'with the minimum required headers' do
+        post(path, params: @data, headers: @minimum_required_headers)
+        expect(parsed['data']['type']).to eq('higherLevelReview')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+      it 'fails when a required header is missing' do
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+      end
     end
 
     it 'create the job to build the PDF' do
@@ -39,6 +52,52 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       expect(response.status).to eq(422)
       expect(parsed['errors'][0]['detail']).to eq('Veteran birth date isn\'t in the past: 3000-12-31')
     end
+
+    it 'responds with a 422 when request.body is a Puma::NullIO' do
+      fake_puma_null_io_object = Object.new.tap do |obj|
+        def obj.class
+          OpenStruct.new name: 'Puma::NullIO'
+        end
+      end
+      expect(fake_puma_null_io_object.class.name).to eq 'Puma::NullIO'
+      allow_any_instance_of(ActionDispatch::Request).to(
+        receive(:body).and_return(fake_puma_null_io_object)
+      )
+      post(path, params: @data, headers: @headers)
+      expect(response.status).to eq 422
+      expect(JSON.parse(response.body)['errors']).to be_an Array
+    end
+
+    context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+      before do
+        fake_io_object = OpenStruct.new string: json
+        allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+      end
+
+      context 'request.body is a JSON string' do
+        let(:json) { '"Hello!"' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+        end
+      end
+
+      context 'request.body is a JSON integer' do
+        let(:json) { '66' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+        end
+      end
+    end
   end
 
   describe '#validate' do
@@ -47,7 +106,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
     it 'returns a response when valid' do
       post(path, params: @data, headers: @headers)
       expect(parsed['data']['attributes']['status']).to eq('valid')
-      expect(parsed['data']['type']).to eq('appeals_api_higher_level_review_validation')
+      expect(parsed['data']['type']).to eq('higherLevelReviewValidation')
     end
 
     it 'returns a response when invalid' do
@@ -79,7 +138,7 @@ describe AppealsApi::V1::DecisionReview::HigherLevelReviewsController, type: :re
       uuid = create(:higher_level_review).id
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
-      expect(parsed.dig('data', 'attributes', 'form_data')).to be_a Hash
+      expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end
 
     it 'returns an error when given a bad uuid' do

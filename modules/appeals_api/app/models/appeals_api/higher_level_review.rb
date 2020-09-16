@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+require 'central_mail/service'
+require 'common/exceptions'
+
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
     include SentryLogging
+
+    REMOVE_PII = proc { update form_data: nil, auth_headers: nil }
 
     class << self
       def refresh_statuses_using_central_mail!(higher_level_reviews)
@@ -37,10 +43,12 @@ module AppealsApi
         date < Time.zone.today
       end
 
+      define_method :remove_pii, &REMOVE_PII
+
       private
 
       def parse_central_mail_response(response)
-        JSON.parse(response.body).map do |(hash)|
+        JSON.parse(response.body).flatten.map do |hash|
           Struct.new(:id, :status, :error_message).new(*hash.values_at('uuid', 'status', 'errorMessage'))
         end
       end
@@ -53,7 +61,7 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    STATUSES = %w[pending submitted processing error uploaded received success vbms expired].freeze
+    STATUSES = %w[pending submitting submitted processing error uploaded received success vbms expired].freeze
     validates :status, inclusion: { 'in': STATUSES }
 
     CENTRAL_MAIL_STATUS_TO_HLR_ATTRIBUTES = lambda do
@@ -80,7 +88,14 @@ module AppealsApi
     RECEIVED_OR_PROCESSING = %w[received processing].freeze
     raise unless RECEIVED_OR_PROCESSING - STATUSES == []
 
-    scope :received_or_processing, -> { where(status: RECEIVED_OR_PROCESSING) }
+    COMPLETE_STATUSES = %w[success error].freeze
+    raise unless COMPLETE_STATUSES - STATUSES == []
+
+    scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
+    scope :completed, -> { where status: COMPLETE_STATUSES }
+    scope :has_pii, -> { where.not encrypted_form_data: nil, encrypted_auth_headers: nil }
+    scope :has_not_been_updated_in_a_week, -> { where 'updated_at < ?', 1.week.ago }
+    scope :ready_to_have_pii_expunged, -> { has_pii.completed.has_not_been_updated_in_a_week }
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
     NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
@@ -92,7 +107,8 @@ module AppealsApi
       :informal_conference_rep_name_and_phone_number_is_not_too_long,
       :birth_date_is_a_date,
       :birth_date_is_in_the_past,
-      :contestable_issue_dates_are_valid_dates
+      :contestable_issue_dates_are_valid_dates,
+      if: proc { |a| a.form_data.present? }
     )
 
     # 1. VETERAN'S NAME
@@ -203,7 +219,7 @@ module AppealsApi
     end
 
     def informal_conference_times
-      data_attributes&.dig('informalConferenceTimes')
+      data_attributes&.dig('informalConferenceTimes') || []
     end
 
     def informal_conference_rep_name_and_phone_number
@@ -221,11 +237,11 @@ module AppealsApi
     end
 
     def consumer_name
-      auth_headers['X-Consumer-Username']
+      auth_headers&.dig('X-Consumer-Username')
     end
 
     def consumer_id
-      auth_headers['X-Consumer-ID']
+      auth_headers&.dig('X-Consumer-ID')
     end
 
     def central_mail_status
@@ -246,6 +262,8 @@ module AppealsApi
 
       update! attributes
     end
+
+    define_method :remove_pii, &REMOVE_PII
 
     private
 

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-require 'evss/jwt'
+require 'evss/pciu_address/countries_response'
+require 'evss/pciu_address/states_response'
+require 'evss/service'
+require_relative 'configuration'
+require_relative 'intake_sites_response'
 
 module EVSS
   module ReferenceData
@@ -31,13 +35,11 @@ module EVSS
         end
       end
 
-      private
-
-      # overrides EVSS::Service#headers_for_user
-      def headers_for_user(user)
-        {
-          Authorization: "Bearer #{EVSS::Jwt.new(user).encode}"
-        }
+      def get_separation_locations
+        with_monitoring_and_error_handling do
+          raw_response = perform(:get, 'intakesites')
+          EVSS::ReferenceData::IntakeSitesResponse.new(raw_response.status, raw_response)
+        end
       end
     end
   end

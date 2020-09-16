@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'flipper/admin_user_constraint'
+
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
@@ -17,12 +19,15 @@ Rails.application.routes.draw do
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
+  get '/v1/sessions/tracker', to: 'v1/sessions#tracker'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+    resources :debts, only: :index
+    resources :debt_letters, only: %i[index show]
 
     resource :form526_opt_in, only: :create
 
@@ -37,11 +42,13 @@ Rails.application.routes.draw do
       get 'rated_disabilities'
       get 'rating_info'
       get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
-      post 'submit'
       post 'submit_all_claim'
       get 'suggested_conditions'
       get 'user_submissions'
+      get 'separation_locations'
     end
+
+    post '/mvi_users/:id', to: 'mvi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
@@ -70,6 +77,7 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
 
     resources :caregivers_assistance_claims, only: :create
+    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -81,6 +89,8 @@ Rails.application.routes.draw do
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
+
+    resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
@@ -218,6 +228,8 @@ Rails.application.routes.draw do
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
+      resource :valid_va_file_number, only: %i[show]
+      resources :payment_history, only: %i[index]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -229,14 +241,6 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
-
-      resource :reference_data, only: %i[show] do
-        collection do
-          get 'countries', to: 'reference_data#countries'
-          get 'states', to: 'reference_data#states'
-          get 'zipcodes', to: 'reference_data#zipcodes'
-        end
-      end
     end
 
     resources :search, only: :index
@@ -288,12 +292,26 @@ Rails.application.routes.draw do
     namespace :coronavirus_chatbot do
       resource :tokens, only: :create
     end
+
+    namespace :ask do
+      resource :asks, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
+    end
+
+    namespace :facilities, module: 'facilities' do
+      resources :va, only: %i[index show]
+      resources :ccp, only: %i[index show] do
+        get 'specialties', on: :collection, to: 'ccp#specialties'
+      end
+      resources :va_ccp, only: [] do
+        get 'urgent_care', on: :collection
+      end
     end
   end
 
@@ -307,47 +325,22 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
-
-  # TEMPORARILY SUPPORT THE BELOW REWRITE RULES
-  # rubocop:disable Layout/LineLength
-  get '/v0/vaos/appointments', to: 'vaos/v0/appointments#index', defaults: { format: :json }
-  post '/v0/vaos/appointments', to: 'vaos/v0/appointments#create', defaults: { format: :json }
-  put '/v0/vaos/appointments/cancel', to: 'vaos/v0/appointments#cancel', defaults: { format: :json }
-  get '/v0/vaos/appointment_requests', to: 'vaos/v0/appointment_requests#index', defaults: { format: :json }
-  put '/v0/vaos/appointment_requests/:id', to: 'vaos/v0/appointment_requests#update', defaults: { format: :json }
-  patch '/v0/vaos/appointment_requests/:id', to: 'vaos/v0/appointment_requests#update', defaults: { format: :json }
-  post '/v0/vaos/appointment_requests', to: 'vaos/v0/appointment_requests#create', defaults: { format: :json }
-  get '/v0/vaos/appointment_requests/:appointment_request_id/messages', to: 'vaos/v0/messages#index', defaults: { format: :json }
-  post '/v0/vaos/appointment_requests/:appointment_request_id/messages', to: 'vaos/v0/messages#create', defaults: { format: :json }
-  get '/v0/vaos/community_care/eligibility/:service_type', to: 'vaos/v0/cc_eligibility#show', defaults: { format: :json }
-  get '/v0/vaos/community_care/supported_sites', to: 'vaos/v0/cc_supported_sites#index', defaults: { format: :json }
-  get '/v0/vaos/systems', to: 'vaos/v0/systems#index', defaults: { format: :json }
-  get '/v0/vaos/systems/:system_id/direct_scheduling_facilities', to: 'vaos/v0/direct_scheduling_facilities#index', defaults: { format: :json }
-  get '/v0/vaos/systems/:system_id/pact', to: 'vaos/v0/pact#index', defaults: { format: :json }
-  get '/v0/vaos/systems/:system_id/clinic_institutions', to: 'vaos/v0/clinic_institutions#index', defaults: { format: :json }
-  get '/v0/vaos/facilities', to: 'vaos/v0/facilities#index', defaults: { format: :json }
-  get '/v0/vaos/facilities/:facility_id/clinics', to: 'vaos/v0/clinics#index', defaults: { format: :json }
-  get '/v0/vaos/facilities/:facility_id/cancel_reasons', to: 'vaos/v0/cancel_reasons#index', defaults: { format: :json }
-  get '/v0/vaos/facilities/:facility_id/available_appointments', to: 'vaos/v0/available_appointments#index', defaults: { format: :json }
-  get '/v0/vaos/facilities/:facility_id/limits', to: 'vaos/v0/limits#index', defaults: { format: :json }
-  get '/v0/vaos/facilities/:facility_id/visits/:schedule_type', to: 'vaos/v0/visits#index', defaults: { format: :json }
-  get '/v0/vaos/preferences', to: 'vaos/v0/preferences#show', defaults: { format: :json }
-  put '/v0/vaos/preferences', to: 'vaos/v0/preferences#update', defaults: { format: :json }
-  patch '/v0/vaos/preferences', to: 'vaos/v0/preferences#update', defaults: { format: :json }
-  # rubocop:enable Layout/LineLength
-  # TEMPORARILY SUPPORT THE ABOVE REWRITE RULES
+  mount CovidResearch::Engine, at: '/covid-research'
+  mount Mobile::Engine, at: '/mobile'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
+    require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
+    require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
 

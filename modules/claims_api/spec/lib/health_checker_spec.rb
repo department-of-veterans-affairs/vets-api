@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'claims_api/health_checker'
+require 'mvi/service'
 
 describe ClaimsApi::HealthChecker do
   describe 'something' do

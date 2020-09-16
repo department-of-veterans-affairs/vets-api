@@ -3,45 +3,49 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::CaregiversAssistanceClaim do
-  let(:build_claim_data_for) do
-    lambda do |form_subject, &mutations|
-      data = {
-        'fullName' => {
-          'first' => Faker::Name.first_name,
-          'last' => Faker::Name.last_name
-        },
-        'ssnOrTin' => Faker::IDNumber.valid.remove('-'),
-        'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
-        'gender' => %w[M F].sample,
-        'address' => {
-          'street' => Faker::Address.street_address,
-          'city' => Faker::Address.city,
-          'state' => Faker::Address.state_abbr,
-          'postalCode' => Faker::Address.postcode
-        }
-      }
-
-      # Required properties for :primaryCaregiver
-      if form_subject == :primaryCaregiver
-        data['vetRelationship'] = 'Daughter'
-        data['medicaidEnrolled'] = true
-        data['medicareEnrolled'] = false
-        data['tricareEnrolled'] = false
-        data['champvaEnrolled'] = false
-      end
-
-      # Required property for :veteran
-      data['plannedClinic'] = '568A4' if form_subject == :veteran
-
-      mutations&.call data
-
-      data
-    end
-  end
-
   describe '#to_pdf' do
-    it 'raises a NotImplementedError' do
-      expect { subject.to_pdf }.to raise_error(NotImplementedError)
+    let(:claim) do
+      build(:caregivers_assistance_claim)
+    end
+
+    it 'calls PdfFill::Filler#fill_form' do
+      expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid, {}).once.and_return(:expected_file_paths)
+      expect(claim.to_pdf).to eq(:expected_file_paths)
+    end
+
+    it 'passes arguments to PdfFill::Filler#fill_form' do
+      expect(PdfFill::Filler).to receive(
+        :fill_form
+      ).with(
+        claim,
+        'my_other_filename',
+        {}
+      ).once.and_return(:expected_file_paths)
+
+      # Calling with only filename
+      claim.to_pdf('my_other_filename')
+
+      expect(PdfFill::Filler).to receive(
+        :fill_form
+      ).with(
+        claim,
+        claim.guid,
+        save: true
+      ).once.and_return(:expected_file_paths)
+
+      # Calling with only options
+      claim.to_pdf(save: true)
+
+      expect(PdfFill::Filler).to receive(
+        :fill_form
+      ).with(
+        claim,
+        'my_other_filename',
+        save: false
+      ).once.and_return(:expected_file_paths)
+
+      # Calling with filename and options
+      claim.to_pdf('my_other_filename', save: false)
     end
   end
 

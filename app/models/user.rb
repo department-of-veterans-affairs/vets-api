@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'beta_switch'
 require 'common/models/base'
 require 'common/models/redis_store'
+require 'evss/auth_headers'
+require 'evss/common_service'
+require 'evss/pciu/service'
 require 'mvi/messages/find_profile_message'
 require 'mvi/service'
-require 'evss/common_service'
-require 'evss/auth_headers'
 require 'saml/user'
 
 class User < Common::RedisStore
@@ -47,15 +49,15 @@ class User < Common::RedisStore
   end
 
   def pciu_email
-    pciu.get_email_address.email
+    pciu&.get_email_address&.email
   end
 
   def pciu_primary_phone
-    pciu.get_primary_phone.to_s
+    pciu&.get_primary_phone&.to_s
   end
 
   def pciu_alternate_phone
-    pciu.get_alternate_phone.to_s
+    pciu&.get_alternate_phone&.to_s
   end
 
   def first_name
@@ -104,7 +106,15 @@ class User < Common::RedisStore
   end
 
   def mhv_account_type
-    identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
+    identity.mhv_account_type || MHVAccountTypeService.new(self).mhv_account_type
+  end
+
+  def mhv_account_state
+    return 'DEACTIVATED' if (va_profile.mhv_ids.to_a - va_profile.active_mhv_ids.to_a).any?
+    return 'MULTIPLE' if va_profile.active_mhv_ids.to_a.size > 1
+    return 'NONE' if mhv_correlation_id.blank?
+
+    'OK'
   end
 
   def loa
@@ -210,7 +220,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
+    @mhv_account ||= MHVAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
                                .tap { |m| m.user = self } # MHV account should not re-initialize use
   end
 
@@ -318,6 +328,6 @@ class User < Common::RedisStore
   private
 
   def pciu
-    @pciu ||= EVSS::PCIU::Service.new self
+    @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
   end
 end

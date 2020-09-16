@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require 'common/client/errors'
 require 'search/response'
+require 'search/configuration'
 
 module Search
   # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
@@ -10,7 +13,7 @@ module Search
   # @see https://search.usa.gov/sites/7378/api_instructions
   #
   class Service < Common::Client::Base
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     STATSD_KEY_PREFIX = 'api.search'
 

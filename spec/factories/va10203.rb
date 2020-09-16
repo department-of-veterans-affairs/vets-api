@@ -10,7 +10,72 @@ FactoryBot.define do
         },
         veteranSocialSecurityNumber: '111223334',
         benefit: 'transferOfEntitlement',
-        isEdithNourseRogersScholarship: true,
+        isEnrolledStem: true,
+        isPursuingTeachingCert: true,
+        benefitLeft: 'moreThanSixMonths',
+        degreeName: 'Degree Name',
+        schoolName: 'School Name',
+        schoolCity: 'Test',
+        schoolState: 'TN',
+        schoolCountry: 'USA',
+        schoolEmailAddress: 'test@edu_sample.com',
+        schoolStudentId: '01010101',
+        isActiveDuty: true,
+        veteranAddress: {
+          city: 'Milwaukee',
+          country: 'USA',
+          postalCode: '53130',
+          state: 'WI',
+          street: '123 Main St'
+        },
+        email: 'test@sample.com',
+        mobilePhone: '5551110001',
+        bankAccount: {
+          accountNumber: '88888888888',
+          accountType: 'checking',
+          bankName: 'First Bank of JSON',
+          routingNumber: '123456789'
+        },
+        privacyAgreementAccepted: true
+      }.to_json
+    }
+  end
+
+  trait :school_changed do
+    form {
+      {
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        veteranSocialSecurityNumber: '111223334',
+        benefit: 'transferOfEntitlement',
+        isEnrolledStem: true,
+        isPursuingTeachingCert: true,
+        benefitLeft: 'moreThanSixMonths',
+        degreeName: 'Degree Name',
+        schoolName: 'School Name 2',
+        schoolCity: 'Test 2',
+        schoolState: 'SC',
+        schoolCountry: 'USA',
+        schoolEmailAddress: 'test@edu_sample.com',
+        schoolStudentId: '01010101',
+        isActiveDuty: true,
+        veteranAddress: {
+          city: 'Milwaukee',
+          country: 'USA',
+          postalCode: '53130',
+          state: 'WI',
+          street: '123 Main St'
+        },
+        email: 'test@sample.com',
+        mobilePhone: '5551110001',
+        bankAccount: {
+          accountNumber: '88888888888',
+          accountType: 'checking',
+          bankName: 'First Bank of JSON',
+          routingNumber: '123456789'
+        },
         privacyAgreementAccepted: true
       }.to_json
     }

@@ -1,0 +1,33 @@
+{
+	"diagnosed": false,
+	"closeContactPositive": "NO",
+	"hospitalized": false,
+	"smokeOrVape": false,
+	"HEALTH_HISTORY": {
+		"HEALTH_HISTORY::ANOTHER_SERIOUS_CHRONIC_ILLNESS": true
+	},
+	"EMPLOYMENT_STATUS": {
+		"EMPLOYMENT_STATUS::STUDENT": true
+	},
+	"TRANSPORTATION": {
+		"TRANSPORTATION::WALK_BIKE": true
+	},
+	"residentsInHome": "ONE_TWO",
+	"closeContact": "ONE_TEN",
+	"veteranFullName": {
+		"first": "sven",
+		"last": "Tester"
+	},
+	"height": 67,
+	"email": "test@test.com",
+	"phone": "5554447788",
+	"zipCode": "33755",
+	"veteranDateOfBirth": "1970-10-07",
+	"weight": "150",
+	"GENDER": {
+		"GENDER::MALE": true
+	},
+	"RACE_ETHNICITY_ORIGIN": {
+		"RACE_ETHNICITY_ORIGIN::WHITE": true
+	}
+}

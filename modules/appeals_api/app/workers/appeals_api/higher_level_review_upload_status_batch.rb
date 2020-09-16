@@ -29,7 +29,7 @@ module AppealsApi
     end
 
     def enabled?
-      Settings.decision_review.higher_level_review_updater_enabled
+      Settings.modules_appeals_api.higher_level_review_updater_enabled
     end
   end
 end

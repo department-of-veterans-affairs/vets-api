@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+require 'common/client/concerns/service_status'
+
 module Users
   class Profile
-    include Common::Client::ServiceStatus
+    include Common::Client::Concerns::ServiceStatus
 
     HTTP_OK = 200
     HTTP_SOME_ERRORS = 296
@@ -107,7 +110,9 @@ module Users
           gender: user.va_profile.gender,
           given_names: user.va_profile.given_names,
           is_cerner_patient: !user.va_profile.cerner_id.nil?,
-          facilities: user.va_treatment_facility_ids.map { |id| facility(id) }
+          facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
+          va_patient: user.va_patient?,
+          mhv_account_state: user.mhv_account_state
         }
       else
         scaffold.errors << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error

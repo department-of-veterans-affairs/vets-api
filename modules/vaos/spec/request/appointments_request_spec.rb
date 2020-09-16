@@ -10,6 +10,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
   context 'loa1 user' do
     let(:current_user) { build(:user, :loa1) }
 
@@ -45,8 +47,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     let(:current_user) { build(:user, :vaos) }
 
     describe 'GET appointments' do
-      let(:start_date) { Time.zone.parse('2019-11-14T07:00:00Z') }
-      let(:end_date) { Time.zone.parse('2020-03-14T08:00:00Z') }
+      let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
+      let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
       let(:params) { { type: 'va', start_date: start_date, end_date: end_date } }
 
       context 'with flipper disabled' do
@@ -142,12 +144,31 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
       end
 
+      it 'has access and returns va appointments when camel-inflected' do
+        VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
+          get '/vaos/v0/appointments', params: params, headers: inflection_header
+
+          expect(response).to have_http_status(:success)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('vaos/va_appointments', { strict: false })
+        end
+      end
+
       it 'has access and returns cc appointments' do
         VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
           get '/vaos/v0/appointments', params: params.merge(type: 'cc')
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('vaos/cc_appointments')
+        end
+      end
+
+      it 'has access and returns cc appointments when camel-inflected' do
+        VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+          get '/vaos/v0/appointments', params: params.merge(type: 'cc'), headers: inflection_header
+          expect(response).to have_http_status(:success)
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('vaos/cc_appointments')
         end
       end
 
@@ -170,6 +191,25 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(response).to match_response_schema('vaos/va_appointments')
           end
         end
+
+        it 'returns an empty list when camel-inflected' do
+          VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments', params: params, headers: inflection_header
+            expect(response).to have_http_status(:success)
+            expect(JSON.parse(response.body)).to eq(
+              'data' => [],
+              'meta' => {
+                'pagination' => {
+                  'currentPage' => 0,
+                  'perPage' => 0,
+                  'totalEntries' => 0,
+                  'totalPages' => 0
+                }
+              }
+            )
+            expect(response).to match_camelized_response_schema('vaos/va_appointments')
+          end
+        end
       end
 
       context 'with a response that includes blank providers' do
@@ -178,6 +218,14 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             get '/vaos/v0/appointments', params: params
             expect(response).to have_http_status(:success)
             expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
+          end
+        end
+
+        it 'parses the data and does not throw an undefined method error when camel-inflected' do
+          VCR.use_cassette('vaos/appointments/get_appointments_map_error', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments', params: params, headers: inflection_header
+            expect(response).to have_http_status(:success)
+            expect(response).to match_camelized_response_schema('vaos/va_appointments', { strict: false })
           end
         end
       end

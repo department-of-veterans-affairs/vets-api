@@ -2,6 +2,7 @@
 
 require_relative './middleware/response/errors'
 require_relative './middleware/vaos_logging'
+require 'common/client/configuration/rest'
 
 module VAOS
   class Configuration < Common::Client::Configuration::REST
@@ -17,11 +18,6 @@ module VAOS
 
     def rsa_key
       @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.va_mobile.key_path))
-    end
-
-    # overriding the default error threshold from 50 to 90
-    def breakers_error_threshold
-      90
     end
 
     def connection

@@ -33,7 +33,7 @@
     "hlrCreateData": {
       "type": "object",
       "properties": {
-        "type":       { "type": "string", "enum": ["HigherLevelReview"] },
+        "type":       { "type": "string", "enum": ["higherLevelReview"] },
         "attributes": { "$ref": "#/definitions/hlrCreateDataAttributes" }
       },
       "additionalProperties": false,
@@ -86,17 +86,7 @@
 
     "hlrCreateBenefitType": {
       "type": "string",
-      "enum": [
-        "compensation",
-        "pension",
-        "fiduciary",
-        "insurance",
-        "education",
-        "voc_rehab",
-        "loan_guaranty",
-        "vha",
-        "nca"
-      ]
+      "enum": [ "compensation" ]
     },
 
 
@@ -137,7 +127,7 @@
       "type": "object",
       "properties": {
         "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
-        "areaCode":        { "type": "string", "pattern": "[2-9][0-9]{2}" },
+        "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$" },
         "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
         "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
       },
@@ -183,7 +173,6 @@
       "type": "array",
       "items": { "$ref": "#/definitions/hlrCreateContestableIssue" },
       "minItems": 1,
-      "maxItems": 6,
       "uniqueItems": true
     },
 
@@ -191,7 +180,7 @@
     "hlrCreateContestableIssue": {
       "type": "object",
       "properties": {
-        "type":       { "type": "string", "enum": ["ContestableIssue"] },
+        "type":       { "type": "string", "enum": ["contestableIssue"] },
         "attributes": { "$ref": "#/definitions/hlrCreateContestableIssueAttributes" }
       },
       "additionalProperties": false,
@@ -205,8 +194,8 @@
         "issue":                 { "$ref": "#/definitions/nonBlankStringMaxLength140" },
         "decisionDate":          { "$ref": "#/definitions/date" },
         "decisionIssueId":       { "type": "integer" },
-        "ratingIssueId":         { "type": "string" },
-        "ratingDecisionIssueId": { "type": "string" }
+        "ratingIssueReferenceId":    { "type": "string" },
+        "ratingDecisionReferenceId": { "type": "string" }
       },
       "additionalProperties": false,
       "required": [ "issue", "decisionDate" ]

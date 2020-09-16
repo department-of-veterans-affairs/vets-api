@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
+require 'facilities/ppms/client'
 
 class V0::Facilities::VaController < FacilitiesController
   TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
@@ -18,21 +19,6 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def facilities
-    if Flipper.enabled?(:facility_locator_lighthouse_api)
-      api_facilities
-    else
-      ar_facilities
-    end
-  end
-
-  def api_facilities
-    resource = api.get_facilities(lighthouse_params)
-    render json: resource,
-           each_serializer: Lighthouse::Facilities::LegacySerializer,
-           meta: metadata(resource)
-  end
-
-  def ar_facilities
     resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
     render json: resource,
            each_serializer: VAFacilitySerializer,
@@ -40,21 +26,6 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def show
-    if Flipper.enabled?(:facility_locator_lighthouse_api)
-      api_show
-    else
-      ar_show
-    end
-  end
-
-  def api_show
-    results = api.get_by_id(params[:id])
-    raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
-
-    render json: results, serializer: Lighthouse::Facilities::LegacySerializer
-  end
-
-  def ar_show
     results = BaseFacility.find_facility_by_id(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
 

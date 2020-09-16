@@ -1,0 +1,80 @@
+{
+  "expected": [
+    {
+      "QuestionName": "diagnosed",
+      "QuestionValue": "No"
+    },
+    {
+      "QuestionName": "closeContactPositive",
+      "QuestionValue": "NO"
+    },
+    {
+      "QuestionName": "hospitalized",
+      "QuestionValue": "No"
+    },
+    {
+      "QuestionName": "smokeOrVape",
+      "QuestionValue": "No"
+    },
+    {
+      "QuestionName": "HEALTH_HISTORY::ANOTHER_SERIOUS_CHRONIC_ILLNESS",
+      "QuestionValue": "Yes"
+    },
+    {
+      "QuestionName": "EMPLOYMENT_STATUS::STUDENT",
+      "QuestionValue": "Yes"
+    },
+    {
+      "QuestionName": "TRANSPORTATION::WALK_BIKE",
+      "QuestionValue": "Yes"
+    },
+    {
+      "QuestionName": "residentsInHome",
+      "QuestionValue": "ONE_TWO"
+    },
+    {
+      "QuestionName": "closeContact",
+      "QuestionValue": "ONE_TEN"
+    },
+    {
+      "QuestionName": "firstName",
+      "QuestionValue": "sven"
+    },
+    {
+      "QuestionName": "lastName",
+      "QuestionValue": "Tester"
+    },
+    {
+      "QuestionName": "height",
+      "QuestionValue": "67"
+    },
+    {
+      "QuestionName": "email",
+      "QuestionValue": "test@test.com"
+    },
+    {
+      "QuestionName": "phone",
+      "QuestionValue": "5554447788"
+    },
+    {
+      "QuestionName": "zipCode",
+      "QuestionValue": "33755"
+    },
+    {
+      "QuestionName": "veteranDateOfBirth",
+      "QuestionValue": "1970-10-07"
+    },
+    {
+      "QuestionName": "weight",
+      "QuestionValue": "150"
+    },
+    {
+      "QuestionName": "GENDER::MALE",
+      "QuestionValue": "Yes"
+    },
+    {
+      "QuestionName": "RACE_ETHNICITY_ORIGIN::WHITE",
+      "QuestionValue": "Yes"
+    }
+  ]
+}

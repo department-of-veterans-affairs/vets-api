@@ -1,8 +1,11 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
+vsp_environment:
+
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+web_origin_regex: \Ahttps?:\/\/www\.va\.gov\z
 
 # Settings for SAML authentication
 saml:
@@ -16,13 +19,16 @@ saml:
 
 # Settings for new SAML authentication with SSOe
 saml_ssoe:
-  idp_metadata_file: /fake/path/to/metadata
-  cert_path: config/certs/vetsgov-localhost.crt
+  idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
+  cert_path: ~
   cert_new_path: ~
-  key_path: config/certs/vetsgov-localhost.key
-  issuer: https://ssoe-sp-dev.va.gov
+  key_path: ~
+  issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://pint.eauth.va.gov/pkmslogout
+  logout_url: https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html
+  request_signing: false
+  response_signing: false
+  response_encryption: false
 
 session_cookie:
   secure: false
@@ -56,6 +62,12 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
+debts:
+  client_id: "0be3d60e3983438199f192b6e723a6f0"
+  client_secret: "secret"
+  mock: true
+  url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465'
+
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
@@ -71,8 +83,6 @@ salesforce-carma:
 
 salesforce:
   env: dev
-  signing_key_path: 'spec/fixtures/vic/private.key'
-  consumer_key: d669f7d339fd25af442bf75bb643c4c45f0f05fb3cb39cc77521e2011c6bb84086bb624d7ef14d715736
 
 # Settings for Education Benefits
 edu:
@@ -125,7 +135,7 @@ ihub:
 # Settings for Medical Devices Ordering Tool
 mdot:
   prefill: true
-  url: https://dlc-dummy.herokuapp.com
+  url: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4466
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
   enabled: false
@@ -133,9 +143,12 @@ mdot:
 # Settings for Decision Reviews
 decision_review:
   prefill: true
-  url: https://sandbox-api.va.gov/services/appeals/v3/decision_review
+  url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+
+# Settings for modules/appeals_api
+modules_appeals_api:
   higher_level_review_updater_enabled: true
   schema_dir: config/schemas
 
@@ -176,6 +189,7 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
+  mock_reference: false
   mock_itf: true
   mock_disabilities_form: true
   mock_common_service: true
@@ -185,9 +199,6 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
-  jwt:
-    issuer: fake_issuer
-    key: fake_key
   reference_data_service:
     enabled: false
   international_postal_codes: 'config/evss/international_postal_codes.json'
@@ -320,30 +331,32 @@ vic:
   signing_key_path: /fake/signing/key/path
   prefill: true
   s3:
-    aws_access_key_id: 'aws_access_key_id'
-    aws_secret_access_key: 'aws_secret_access_key'
-    region: 'region'
-    bucket: 'bucket'
+    aws_access_key_id: "aws_access_key_id"
+    aws_secret_access_key: "aws_secret_access_key"
+    region: "region"
+    bucket: "bucket"
 
 # Settings for (preneeds) burials.
 preneeds:
   host: http://some.fakesite.com
-  wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
+  wsdl: "config/preneeds/wsdl/preneeds.wsdl"
 
 # Settings for VBA Document upload service module
 vba_documents:
   unsuccessful_report_enabled: false
   location:
-    prefix:  http://some.fakesite.com/path
+    prefix: http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
   s3:
     enabled: false
-    aws_access_key_id: 'aws_access_key_id'
-    aws_secret_access_key: 'aws_secret_access_key'
-    region: 'region'
-    bucket: 'bucket'
+    aws_access_key_id: "aws_access_key_id"
+    aws_secret_access_key: "aws_secret_access_key"
+    region: "region"
+    bucket: "bucket"
   sns:
-    topic_arn: ~
+    topic_arns:
+      - vetsgov-arn
+      - vagov-arn
 
 #Settings for Claims Api Module
 claims_api:
@@ -383,12 +396,24 @@ reports:
 oidc:
   auth_server_metadata_url: ~
   issuer: ~
+  issuer_prefix: ~
   audience: ~
+  isolated_audience:
+    default: ~
+    veteran_verification: ~
   base_api_url: https://example.com
   base_api_token: ~
 
 sentry:
   dsn: ~
+
+iam_ssoe:
+  client_cert_path: ~
+  client_key_path: ~
+  client_id: 'Mobile_App_API_Server_LOWERS'
+  # oauth (rest) and sts (soap) services are on different hosts
+  oauth_url: "https://int.fed.eauth.va.gov:444"
+  sts_url: "https://preprod.services.eauth.va.gov:9301"
 
 statsd:
   host: ~
@@ -433,10 +458,6 @@ betamocks:
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
-faraday_socks_proxy:
-  enabled: false
-  uri: socks5://localhost:2002
-
 google_analytics_tracking_id: ~
 
 # Settings for search
@@ -446,49 +467,67 @@ search:
   mock_search: true
   url: https://search.usa.gov/api/v2
 
-bing:
-  base_api_url: 'https://dev.virtualearth.net/REST/v1'
-  key: fake_key
-
 flipper:
   admin_user_emails:
     - alastair@adhocteam.us
     - anna@adhoc.team
+    - bconley@governmentcio.com
     - bill.ryan@adhocteam.us
+    - cory.trimm@va.gov
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
+    - filip.fafara@gmail.com
+    - grodriguez@governmentcio.com
+    - hughes_dustin@bah.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
+    - jesse.cohn@adhocteam.us
     - johnny@oddball.io
     - johnpaul.ashenfelter@oddball.io
     - kabrown@thoughtworks.com
     - kam@adhocteam.us
     - keifer@oddball.io
+    - kadams@governmentcio.com
     - kenneth.gary@va.gov
+    - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
+    - ltran@thoughtworks.com
+    - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
+    - mdewey@governmentcio.com
+    - micah@adhocteam.us
+    - michael.fleet@oddball.io
     - n.ratana@gmail.com
     - narin@adhocteam.us
+    - nick.sullivan@adhocteam.us
     - osanchez@governmentcio.com
-    - patrick@adhocteam.us
     - patrick.bateman@va.gov
+    - patrick@adhocteam.us
+    - pherbert@thoughtworks.com
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
     - rian.fowler@adhoc.team
     - rianfowler@outlook.com
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
-    - shaun.hubbard@thoughtworks.com
+    - saman.moshafi@thoughtworks.com
+    - samara.strauss@va.gov
+    - shallie@governmentcio.com
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
-    
+    - tony.williams@va.gov
+    - jennie.mcgibney@va.gov
+    - callen@governmentcio.com # Remove after Profile 2.0 UAT
+    - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
+    - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
+
 bgs:
   application: ~
   client_station_id: ~
@@ -499,7 +538,13 @@ bgs:
   ssl_verify_mode: 'peer'
 
 va_mobile:
-  url: 'https://veteran.apps.va.gov/'
+  url: 'https://veteran.apps.va.gov'
+  mock: false
+  key_path: /fake/client/key/path
+  timeout: 15
+
+hqva_mobile:
+  url: 'https://veteran.apps.va.gov'
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
@@ -536,3 +581,24 @@ coronavirus_chatbot:
   app_secret: fake_secret
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
+
+# Settings for notifications client
+vanotify:
+  client_url: http://fakeapi.com
+  api_key: fake_secret
+  template_id:
+    form526_confirmation_email: fake_template_id
+  mock: false
+
+# Settings to connect to the drupal forms graphql api
+va_forms:
+  drupal_username: ~
+  drupal_password: ~
+  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
+genisis:
+  base_url: https://vaausapprne60.aac.dva.va.gov
+  service_path: /COVID19Service
+  user: TestUser
+  pass: bogus

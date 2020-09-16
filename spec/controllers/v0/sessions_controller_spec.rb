@@ -41,13 +41,15 @@ RSpec.describe V0::SessionsController, type: :controller do
     )
   end
 
+  let(:login_uuid) { '5678' }
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
   let(:authn_context) { LOA::IDME_LOA1_VETS }
   let(:valid_saml_response) do
     build_saml_response(
       authn_context: authn_context,
       level_of_assurance: ['3'],
-      attributes: build(:idme_loa1, level_of_assurance: ['3'])
+      attributes: build(:idme_loa1, level_of_assurance: ['3']),
+      in_response_to: login_uuid
     )
   end
 
@@ -133,8 +135,11 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
+                                         tags: ['error:auth_too_late', 'version:v0'], **once)
           expect(response).to have_http_status(:found)
+          expect(response.location).to eq('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
           expect(cookies['vagov_session_dev']).to be_nil
         end
       end
@@ -187,7 +192,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       before do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
         cookies['vagov_session_dev'] = 'bar'
@@ -253,7 +258,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         context 'saml_logout_response is success' do
           before do
             mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-            allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+            allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
             allow(SingleLogoutRequest).to receive(:find).with('1234').and_return(nil)
             allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
             Session.find(token).to_hash.each { |k, v| session[k] = v }
@@ -282,7 +287,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'saml_logout_response is success' do
         before do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
-          allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+          allow(MHVAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(SingleLogoutRequest).to receive(:find).with('1234').and_call_original
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
           Session.find(token).to_hash.each { |k, v| session[k] = v }
@@ -393,13 +398,15 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
           Timecop.freeze(Time.current)
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
+          SAMLRequestTracker.create(
+            uuid: login_uuid,
+            payload: { type: 'mfa' }
+          )
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
                                          tags: ['status:success', 'context:multifactor', 'version:v0'], **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:1', 'idp:idme', 'context:multifactor', 'version:v0'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -462,6 +469,22 @@ RSpec.describe V0::SessionsController, type: :controller do
               'expirationTime' => cookie_expiration_time
             )
           Timecop.return
+        end
+
+        it 'sends STATSD callback metrics' do
+          SAMLRequestTracker.create(
+            uuid: login_uuid,
+            payload: { type: 'idme' }
+          )
+          expect { post(:saml_callback, params: { RelayState: '{"type":"idme"}' }) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
+                                         tags: ['status:success', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0'],
+                                         **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLRESPONSE_KEY,
+                                          tags: ['type:idme', "context:#{LOA::IDME_LOA1_VETS}", 'version:v0'])
+            .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
+                                          tags: ['type:idme', "context:#{LOA::IDME_LOA3_VETS}", 'version:v0'])
         end
       end
 
@@ -619,14 +642,15 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'allows user to sign in even if user attributes are not available' do
+          SAMLRequestTracker.create(
+            uuid: login_uuid,
+            payload: { type: 'mhv' }
+          )
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
           callback_tags = ['status:success', 'context:myhealthevet', 'version:v0']
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['loa:3', 'idp:myhealthevet', 'context:myhealthevet', 'version:v0'],
-                                          **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!

@@ -1,6 +1,8 @@
 development: &defaults
   redis:
     url: <%= Settings.redis.app_data.url %>
+  sidekiq:
+    url: <%= Settings.redis.sidekiq.url %>
   # DO NOT CHANGE BELOW TTL (We have agreement with MHV on this for SSO)
   session_store:
     namespace: vets-api-session
@@ -33,6 +35,9 @@ development: &defaults
   sm_store:
     namespace: sm-service
     each_ttl: 1200
+  mdot:
+    namespace: mdot
+    each_ttl: 1800
   mvi_profile_response:
     namespace: mvi-profile-response
     each_ttl: 86400
@@ -91,6 +96,9 @@ development: &defaults
   va_mobile_session:
     namespace: va-mobile-session
     each_ttl: 855
+  va_mobile_session_refresh_lock:
+    namespace: va-mobile-session-refresh-lock
+    each_ttl: 60
   saml_request_tracker:
     namespace: saml_request_tracker
     each_ttl: 3600 # 1 hour

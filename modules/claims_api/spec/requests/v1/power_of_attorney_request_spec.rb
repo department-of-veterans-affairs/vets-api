@@ -70,7 +70,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       it 'requires poa_code subfield' do
         with_okta_user(scopes) do |auth_header|
           params = json_data
-          params['data']['attributes']['poaCode'] = nil
+          params['data']['attributes']['serviceOrganization']['poaCode'] = nil
           post path, params: params.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
@@ -132,6 +132,33 @@ RSpec.describe 'Power of Attorney ', type: :request do
           power_of_attorney.reload
           expect(power_of_attorney.file_data).not_to be_nil
           expect(power_of_attorney.status).to eq('submitted')
+        end
+      end
+    end
+
+    describe '#validate' do
+      it 'returns a response when valid' do
+        with_okta_user(scopes) do |auth_header|
+          post "#{path}/validate", params: data, headers: headers.merge(auth_header)
+          parsed = JSON.parse(response.body)
+          expect(parsed['data']['attributes']['status']).to eq('valid')
+          expect(parsed['data']['type']).to eq('powerOfAttorneyValidation')
+        end
+      end
+
+      it 'returns a response when invalid' do
+        with_okta_user(scopes) do |auth_header|
+          post "#{path}/validate", params: { data: { attributes: nil } }.to_json, headers: headers.merge(auth_header)
+          parsed = JSON.parse(response.body)
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(parsed['errors']).not_to be_empty
+        end
+      end
+
+      it 'responds properly when JSON parse error' do
+        with_okta_user(scopes) do |auth_header|
+          post "#{path}/validate", params: 'hello', headers: headers.merge(auth_header)
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
     end

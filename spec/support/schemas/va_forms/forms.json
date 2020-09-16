@@ -1,6 +1,6 @@
 {
-  "$schema" : "http://json-schema.org/draft-04/schema#",
-  "type" : "object",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
   "required": ["data"],
   "properties": {
     "data": {
@@ -10,7 +10,7 @@
         "type": "object",
         "required": ["id", "type", "attributes"],
         "properties": {
-          "id": { "type": "string"},
+          "id": { "type": "string" },
           "type": { "enum": ["va_form"] },
           "attributes": {
             "type": "object",
@@ -31,7 +31,22 @@
               "last_revision_on": { "type": ["string", "null"] },
               "pages": { "type": "integer" },
               "valid_pdf": { "type": "boolean" },
-              "sha256": { "type": "string" }
+              "sha256": { "type": "string" },
+              "form_usage": { "type": ["string", "null"] },
+              "form_tool_intro": { "type": ["string", "null"] },
+              "form_tool_url": { "type": ["string", "null"] },
+              "form_details_url": { "type": ["string", "null"] },
+              "form_type": { "type": ["string", "null"] },
+              "language": { "type": ["string", "null"] },
+              "deleted_at": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              },
+              "related_forms": {
+                "type": ["array", "null"],
+                "items": { "type": "string" }
+              },
+              "benefit_categories": { "type": ["array", "null"] }
             }
           }
         }
@@ -39,4 +54,3 @@
     }
   }
 }
-

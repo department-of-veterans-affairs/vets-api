@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'evss/disability_compensation_form/service_exception'
+require 'evss/disability_compensation_form/service'
 
 module ClaimsApi
   class ClaimEstablisher
@@ -33,7 +35,7 @@ module ClaimsApi
           auth_headers
         )
       else
-        EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
+        EVSS::DisabilityCompensationForm::Service.new(
           auth_headers
         )
       end

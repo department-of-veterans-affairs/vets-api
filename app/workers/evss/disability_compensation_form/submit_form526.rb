@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/service_exception'
+require 'evss/disability_compensation_form/gateway_timeout'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
@@ -24,12 +27,12 @@ module EVSS
       #
       def perform(submission_id)
         super(submission_id)
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id) do
+        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           service = service(submission.auth_headers)
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
-      rescue Common::Exceptions::GatewayTimeout => e
+      rescue Common::Exceptions::GatewayTimeout, Breakers::OutageException => e
         retryable_error_handler(e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         # retry submitting the form for specific upstream errors
@@ -46,8 +49,9 @@ module EVSS
       end
 
       def retryable_error_handler(error)
+        # update JobStatus, log and metrics in JobStatus#retryable_error_handler
         super(error)
-        raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
+        raise error
       end
 
       def service(_auth_headers)
@@ -62,16 +66,11 @@ module EVSS
       # @param error [EVSS::DisabilityCompensationForm::ServiceException]
       #
       def retry_form526_error_handler!(error)
-        if (error.key == 'evss.external_service_unavailable' && ep_code_valid?(error)) ||
-           error.key == 'evss.disability_compensation_form.pif_in_use'
+        if error.retryable?
           retryable_error_handler(error)
         else
           non_retryable_error_handler(error)
         end
-      end
-
-      def ep_code_valid?(error)
-        error.messages.none? { |msg| msg['text'].include?('EP Code is not valid') }
       end
     end
   end

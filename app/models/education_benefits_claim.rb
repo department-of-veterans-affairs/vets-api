@@ -2,17 +2,8 @@
 
 require 'attr_encrypted'
 class EducationBenefitsClaim < ApplicationRecord
-  if Flipper.enabled?(:edu_benefits_stem_scholarship)
-    FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203].freeze
-    FORM_HEADERS = %w[
-      22-1990 22-1995 22-1990e 22-5490 22-5495 22-1990n 22-0993 22-0994 22-10203
-    ].freeze
-  else
-    FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995s].freeze
-    FORM_HEADERS = [
-      '22-1990', '22-1995', '22-1990e', '22-5490', '22-5495', '22-1990n', '22-0993', '22-0994', '22-1995 STEM'
-    ].freeze
-  end
+  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203].freeze
+  FORM_HEADERS = %w[22-1990 22-1995 22-1990e 22-5490 22-5495 22-1990n 22-0993 22-0994 22-10203].freeze
 
   APPLICATION_TYPES = %w[
     chapter33
@@ -125,8 +116,6 @@ class EducationBenefitsClaim < ApplicationRecord
       return benefits
     when '0994'
       benefits['vettec'] = true
-    when '1995s'
-      benefits['chapter33'] = true
     else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?
