@@ -54,6 +54,8 @@ features:
     description: Have the front end use the V1 api
   facilities_ppms_suppress_community_care:
     actor_type: user
+    default_enabled_environments:
+      development: false
     description: Hide ppms community care searches
   profile_schema_forms:
     actor_type: user
