@@ -2,9 +2,16 @@
   "topic": "Policy Questions",
   "inquiryType": "Question",
   "query": "Some question?",
+  "veteranStatus": "general",
   "fullName": {
+    "title": "Dr.",
     "first": "Jane",
     "last": "Doe"
+  },
+  "address": {
+    "country": "USA",
+    "state": "Alabama",
+    "postalCode": "20201"
   },
   "preferredContactMethod": "email",
   "email": "jane.doe@va.gov",
