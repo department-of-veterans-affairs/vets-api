@@ -8,7 +8,7 @@ module V0
 
     def create
       render json: decision_review_service
-        .create_higher_level_review(request_body: JSON.parse(request.body.string), user: current_user)
+        .create_higher_level_review(request_body: JSON.parse(request.body.string.presence || '{}'), user: current_user)
         .body
     end
   end
