@@ -8,16 +8,17 @@ module V0
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
     def create
-      increment Form1010cg::Service.metrics.submission.attempt
-      claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
+      auditor.record(:submission_attempt)
 
-      if claim.valid?
-        submission = ::Form1010cg::Service.new(claim).process_claim!
-        increment Form1010cg::Service.metrics.submission.success
+      @claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
+
+      if @claim.valid?
+        submission = ::Form1010cg::Service.new(@claim).process_claim!
+        record_submission_success submission
         render json: submission, serializer: ::Form1010cg::SubmissionSerializer
       else
-        increment Form1010cg::Service.metrics.submission.failure.client.data
-        raise(Common::Exceptions::ValidationErrors, claim)
+        auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)
+        raise(Common::Exceptions::ValidationErrors, @claim)
       end
     end
 
@@ -40,7 +41,7 @@ module V0
 
         File.delete(source_file_path)
 
-        increment Form1010cg::Service.metrics.pdf_download
+        auditor.record(:pdf_download)
 
         send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
       else
@@ -56,18 +57,33 @@ module V0
 
     def form_submission
       params.require(:caregivers_assistance_claim).require(:form)
-    rescue
-      increment Form1010cg::Service.metrics.submission.failure.client.data
-      raise
+    rescue => e
+      auditor.record(:submission_failure_client_data, errors: [e.message])
+      raise e
     end
 
     def backend_service_outage
-      increment Form1010cg::Service.metrics.submission.failure.client.qualification
+      auditor.record(
+        :submission_failure_client_qualification,
+        claim_guid: @claim.guid,
+        veteran_name: @claim.veteran_data['fullName']
+      )
+
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
     end
 
-    def increment(stat)
-      StatsD.increment stat
+    def record_submission_success(submission)
+      submission_context = {
+        carma_case_id: submission.carma_case_id,
+        attachments: submission.attachments,
+        metadata: submission.metadata
+      }
+
+      auditor.record(:submission_success, claim_guid: @claim.guid, **submission_context)
+    end
+
+    def auditor
+      Form1010cg::Auditor.instance
     end
   end
 end
