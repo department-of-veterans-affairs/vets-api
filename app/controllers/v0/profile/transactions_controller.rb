@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'vet360/contact_information/service'
+
 module V0
   module Profile
     class TransactionsController < ApplicationController

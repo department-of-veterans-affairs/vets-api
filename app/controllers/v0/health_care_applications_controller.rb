@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'hca/service'
+
 module V0
   class HealthCareApplicationsController < ApplicationController
     FORM_ID = '1010ez'
