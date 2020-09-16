@@ -44,11 +44,7 @@
     "alternativePhoneNumber": "9990239330",
     "email": "MMMMMMMMM-MMMMMMMMM-MMMMMMMMM-MMMMMMMMM@MM.MMM",
     "vetRelationship": "Spouse",
-    "medicaidEnrolled": true,
-    "medicareEnrolled": false,
-    "champvaEnrolled": true,
-    "tricareEnrolled": false,
-    "otherHealthInsuranceName": " NNNNNNNNN NNNNNNNNN NNNNNNNNN NNNNNNNNN NNNNNNNNN"
+    "hasHealthInsurance": true
   },
   "secondaryCaregiverOne": {
     "fullName": {

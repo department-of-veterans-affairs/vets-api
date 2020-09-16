@@ -44,11 +44,7 @@
     "alternativePhoneNumber": "9990239330",
     "email": "primaryCaregiverEmail@email.com",
     "vetRelationship": "Spouse",
-    "medicaidEnrolled": false,
-    "medicareEnrolled": true,
-    "champvaEnrolled": false,
-    "tricareEnrolled": true,
-    "otherHealthInsuranceName": "MyHealth Global"
+    "hasHealthInsurance": true
   },
   "secondaryCaregiverOne": {
     "fullName": {
