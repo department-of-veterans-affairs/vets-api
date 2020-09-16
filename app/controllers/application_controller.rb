@@ -62,10 +62,4 @@ class ApplicationController < BaseApplicationController
   def render_job_id(jid)
     render json: { job_id: jid }, status: :accepted
   end
-
-  def append_info_to_payload(payload)
-    super
-    payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]
-    payload[:user_uuid] = current_user.uuid if current_user.present?
-  end
 end
