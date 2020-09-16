@@ -3,9 +3,7 @@
 module Headers
   extend ActiveSupport::Concern
 
-  included do
-    prepend_before_action :block_unknown_hosts, :set_app_info_headers
-  end
+  included { prepend_before_action :block_unknown_hosts, :set_app_info_headers }
 
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts

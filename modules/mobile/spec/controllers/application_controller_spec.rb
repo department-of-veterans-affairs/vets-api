@@ -25,7 +25,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         it 'increments the failure metric once' do
           expect do
             get :index
-          end.to trigger_statsd_increment('mobile.application_controller.authenticate.failure', times: 1)
+          end.to trigger_statsd_increment('mobile.authentication.failure', times: 1)
         end
       end
 
@@ -42,7 +42,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         it 'increments the failure metric once' do
           expect do
             get :index
-          end.to trigger_statsd_increment('mobile.application_controller.authenticate.failure', times: 1)
+          end.to trigger_statsd_increment('mobile.authentication.failure', times: 1)
         end
       end
     end
@@ -60,12 +60,12 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           expect(error_detail).to eq('IAM user session is inactive')
         end
 
-        it 'increments the failure metric once' do
+        it 'increments the auth failure metric once' do
           expect do
             VCR.use_cassette('iam_ssoe_oauth/introspect_inactive') do
               get :index
             end
-          end.to trigger_statsd_increment('mobile.application_controller.authenticate.failure', times: 1)
+          end.to trigger_statsd_increment('mobile.authentication.failure', times: 1)
         end
 
         it 'increments the inactive session metric once' do
@@ -73,11 +73,11 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
             VCR.use_cassette('iam_ssoe_oauth/introspect_inactive') do
               get :index
             end
-          end.to trigger_statsd_increment('mobile.application_controller.create_iam_session.inactive_session', times: 1)
+          end.to trigger_statsd_increment('iam_ssoe_oauth.inactive_session', times: 1)
         end
       end
 
-      context 'with a user who has an active iam session' do
+      context 'with a user who has a non-cached active iam session' do
         it 'returns ok' do
           VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
             get :index
@@ -86,18 +86,26 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'increments the success metric once' do
+        it 'increments the auth success metric once' do
           expect do
             VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
               get :index
             end
-          end.to trigger_statsd_increment('mobile.application_controller.authenticate.success', times: 1)
+          end.to trigger_statsd_increment('mobile.authentication.success', times: 1)
+        end
+
+        it 'increments the session creation success metric once' do
+          expect do
+            VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
+              get :index
+            end
+          end.to trigger_statsd_increment('iam_ssoe_oauth.create_user_session.success', times: 1)
         end
 
         it 'measures the session creation execution time' do
           expect(StatsD).to receive(:measure).with('api.request.view_runtime', any_args)
           expect(StatsD).to receive(:measure).with('api.request.db_runtime', any_args)
-          expect(StatsD).to receive(:measure).with('mobile.application_controller.create_iam_session.measure', any_args)
+          expect(StatsD).to receive(:measure).with('iam_ssoe_oauth.create_user_session.measure', any_args)
 
           VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
             get :index
@@ -105,21 +113,19 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         end
       end
 
-      context 'with a user who has a cached iam session' do
+      context 'with a user who has a cached active iam session' do
         before { iam_sign_in }
 
         it 'returns returns ok without hitting the introspect endpoint' do
           get :index
-          puts response.body
+
           expect(response).to have_http_status(:ok)
         end
 
-        it 'increments the success metric once' do
+        it 'increments the auth success metric once' do
           expect do
-            VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
-              get :index
-            end
-          end.to trigger_statsd_increment('mobile.application_controller.authenticate.success', times: 1)
+            get :index
+          end.to trigger_statsd_increment('mobile.authentication.success', times: 1)
         end
       end
     end

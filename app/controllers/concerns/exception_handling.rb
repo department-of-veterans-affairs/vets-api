@@ -16,6 +16,7 @@ module ExceptionHandling
     SKIP_SENTRY_EXCEPTION_TYPES
   end
 
+  # rubocop:disable Metrics/BlockLength
   included do
     rescue_from 'Exception' do |exception|
       va_exception =
@@ -38,16 +39,17 @@ module ExceptionHandling
         else
           Common::Exceptions::InternalServerError.new(exception)
         end
-    
+
       unless skip_sentry_exception_types.include?(exception.class)
         report_original_exception(exception)
         report_mapped_exception(exception, va_exception)
       end
-    
+
       headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
       render_errors(va_exception)
     end
   end
+  # rubocop:enable Metrics/BlockLength
 
   def render_errors(va_exception)
     render json: { errors: va_exception.errors }, status: va_exception.status_code

@@ -7,7 +7,8 @@ module Mobile
     include Instrumentation
     include Pundit
     include SentryLogging
-    
+    include SentryControllerLogging
+
     before_action :check_feature_flag, :authenticate
     skip_before_action :authenticate, only: :cors_preflight
 
@@ -42,47 +43,12 @@ module Mobile
       raise_unauthorized('Missing Authorization header') if request.headers['Authorization'].nil?
       raise_unauthorized('Authorization header Bearer token is blank') if access_token.blank?
 
-      session = IAMSession.find(access_token)
-
-      if session
-        @current_user = IAMUser.find(session.uuid)
-      else
-        create_iam_session
-      end
+      session_manager = IAMSSOeOAuth::SessionManager.new(access_token)
+      @current_user = session_manager.find_or_create_user
     end
 
     def access_token
       @access_token ||= request.headers['Authorization'].gsub(ACCESS_TOKEN_REGEX, '')
-    end
-
-    def create_iam_session
-      iam_profile = iam_ssoe_service.post_introspect(access_token)
-      user_identity = build_identity(iam_profile)
-      build_user(user_identity)
-      build_session(user_identity)
-    rescue Common::Exceptions::Unauthorized => e
-      StatsD.increment('mobile.application_controller.create_iam_session.inactive_session')
-      raise e
-    end
-
-    def build_identity(iam_profile)
-      user_identity = IAMUserIdentity.build_from_iam_profile(iam_profile)
-      user_identity.save
-      user_identity
-    end
-
-    def build_session(user_identity)
-      session = IAMSession.new(token: access_token, uuid: user_identity.uuid)
-      session.save
-    end
-
-    def build_user(user_identity)
-      @current_user = IAMUser.build_from_user_identity(user_identity)
-      @current_user.save
-    end
-
-    def iam_ssoe_service
-      IAMSSOeOAuth::Service.new
     end
 
     def raise_unauthorized(detail)
