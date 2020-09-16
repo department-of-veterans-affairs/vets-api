@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
 module Mobile
-  class ApplicationController < BaseApplicationController
+  class ApplicationController < ActionController::API
+    include ExceptionHandling
+    include Headers
+    include Instrumentation
+    include Pundit
+    include SentryLogging
+    
     before_action :check_feature_flag, :authenticate
-    skip_before_action :authenticate, only: %i[cors_preflight routing_error]
+    skip_before_action :authenticate, only: :cors_preflight
 
     ACCESS_TOKEN_REGEX = /^Bearer /.freeze
 
@@ -12,6 +18,8 @@ module Mobile
     end
 
     private
+
+    attr_reader :current_user
 
     def check_feature_flag
       return nil if Flipper.enabled?(:mobile_api)
