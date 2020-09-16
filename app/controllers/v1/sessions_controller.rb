@@ -145,7 +145,7 @@ module V1
                                locals: {
                                  url: login_url,
                                  params: post_params,
-                                 saml_uuid: url_service.tracker.uuid,
+                                 id: url_service.tracker.uuid,
                                  authn: url_service.tracker.payload_attr(:authn_context),
                                  type: url_service.tracker.payload_attr(:type)
                                },

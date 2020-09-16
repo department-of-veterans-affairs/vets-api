@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'attr_encrypted'
+require 'common/convert_to_pdf'
 
 # Persistent backing of a Shrine file upload, primarily used by SavedClaim
 # at the moment. Current subclasses are PensionBurial
