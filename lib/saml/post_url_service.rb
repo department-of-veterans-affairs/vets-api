@@ -11,9 +11,7 @@ module SAML
   # @see SAML::URLService
   #
   class PostURLService < URLService
-    # rubocop:disable Metrics/ParameterLists
-    def initialize(saml_settings, session: nil, user: nil, params: {},
-                   loa3_context: LOA::IDME_LOA3_VETS)
+    def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
@@ -36,7 +34,6 @@ module SAML
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def should_uplevel?
       user.loa[:current] < user.loa[:highest]
