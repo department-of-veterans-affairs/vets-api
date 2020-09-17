@@ -73,6 +73,16 @@ describe DecisionReview::Service do
         end
       end
     end
+
+    context 'user is missing data' do
+      before do
+        allow_any_instance_of(User).to receive(:ssn).and_return(nil)
+      end
+
+      it 'throws a Common::Exceptions::Forbidden exception' do
+        expect { subject }.to raise_error Common::Exceptions::Forbidden
+      end
+    end
   end
 
   describe '#get_higher_level_review' do
