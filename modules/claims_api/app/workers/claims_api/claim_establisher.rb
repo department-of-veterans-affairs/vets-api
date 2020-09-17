@@ -3,10 +3,12 @@
 require 'sidekiq'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
+require 'sentry_logging'
 
 module ClaimsApi
   class ClaimEstablisher
     include Sidekiq::Worker
+    include SentryLogging
 
     def perform(auto_claim_id)
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
@@ -22,12 +24,12 @@ module ClaimsApi
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
       auto_claim.save
-      raise e
+      log_exception_to_sentry(e)
     rescue ::Common::Exceptions::BackendServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = [{ 'key' => e.status_code, 'severity' => 'FATAL', 'text' => e.original_body }]
       auto_claim.save
-      raise e
+      log_exception_to_sentry(e)
     end
 
     private
