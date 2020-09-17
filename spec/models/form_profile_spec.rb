@@ -720,7 +720,8 @@ RSpec.describe FormProfile, type: :model do
       'veteranInformation' => {
         'fullName' => {
           'first' => 'Cosmo',
-          'last' => 'Kramer'
+          'last' => 'Kramer',
+          'suffix' => user.va_profile[:suffix]
         },
         'ssn' => user.ssn
       },
@@ -1003,6 +1004,7 @@ RSpec.describe FormProfile, type: :model do
           22-0993
           FEEDBACK-TOOL
           686C-674
+          28-8832
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
