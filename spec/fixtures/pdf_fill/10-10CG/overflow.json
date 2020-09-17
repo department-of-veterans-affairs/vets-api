@@ -7,7 +7,7 @@
     },
     "ssnOrTin": "789787893",
     "dateOfBirth": "1990-07-03",
-    "gender": "F",
+    "gender": "M",
     "address": {
       "street": " DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD",
       "street2": " DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD",
@@ -15,8 +15,8 @@
       "state": "WA",
       "postalCode": "98101-1234"
     },
-    "primaryPhoneNumber": "8887775544",
-    "alternativePhoneNumber": "8887775544",
+    "primaryPhoneNumber": "8887775541",
+    "alternativePhoneNumber": "8887775542",
     "email": "FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-F@FFFF.FFF",
     "plannedClinic": "740",
     "lastTreatmentFacility": {

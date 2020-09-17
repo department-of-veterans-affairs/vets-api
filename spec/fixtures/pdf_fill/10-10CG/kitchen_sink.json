@@ -15,8 +15,8 @@
         "state": "WA",
         "postalCode": "98101"
       },
-      "primaryPhoneNumber": "8887775544",
-      "alternativePhoneNumber": "8887775544",
+      "primaryPhoneNumber": "8887775541",
+      "alternativePhoneNumber": "8887775542",
       "email": "veteranEmail@email.com",
       "plannedClinic": "740",
       "lastTreatmentFacility": {
@@ -32,10 +32,10 @@
     },
     "ssnOrTin": "202901412",
     "dateOfBirth": "1978-07-03",
-    "gender": "M",
+    "gender": "F",
     "address": {
       "street": "111 2nd St S",
-      "street2": "#501",
+      "street2": "#502",
       "city": "Seattle",
       "state": "WA",
       "postalCode": "98101"
