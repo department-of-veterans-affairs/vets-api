@@ -19,7 +19,8 @@ Rails.application.routes.draw do
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
-  get '/v1/sessions/tracker', to: 'v1/sessions#tracker'
+  # don't use the word "tracker" in the url, as some ad blockers will prevent the call
+  get '/v1/sessions/trace', to: 'v1/sessions#tracker'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
@@ -331,6 +332,7 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
   mount Mobile::Engine, at: '/mobile'

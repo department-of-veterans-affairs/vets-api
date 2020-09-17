@@ -92,7 +92,7 @@ class FormProfile
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
-    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
+    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-5490
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203],
     evss: %w[21-526EZ 21-526EZ-BDD],
     hca: ['1010ez'],
@@ -112,7 +112,6 @@ class FormProfile
     '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
     '22-1995' => ::FormProfiles::VA1995,
-    '22-1995S' => ::FormProfiles::VA1995s,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530' => ::FormProfiles::VA21p530,

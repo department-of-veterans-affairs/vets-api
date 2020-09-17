@@ -996,7 +996,6 @@ RSpec.describe FormProfile, type: :model do
           22-1990N
           22-1990E
           22-1995
-          22-1995S
           22-5490
           22-5495
           40-10007

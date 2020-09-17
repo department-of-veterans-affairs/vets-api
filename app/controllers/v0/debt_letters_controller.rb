@@ -10,14 +10,14 @@ module V0
       send_data(
         service.get_letter(params[:id]),
         type: 'application/pdf',
-        filename: 'letter.pdf'
+        filename: service.file_name(params[:id])
       )
     end
 
     private
 
     def service
-      @service ||= Debts::LetterDownloader.new(@current_user.ssn)
+      @service ||= Debts::LetterDownloader.new(@current_user)
     end
   end
 end

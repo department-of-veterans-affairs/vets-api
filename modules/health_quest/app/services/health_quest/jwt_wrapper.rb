@@ -3,7 +3,6 @@
 module HealthQuest
   class JwtWrapper
     VERSION = 2.1
-    # LJG NOTE: ISS set to healthquest
     ISS = 'gov.va.healthquest'
     ID_TYPE = 'ICN'
     AUTHORITY = 'gov.va.iam.ssoe.v1'
