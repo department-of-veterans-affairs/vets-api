@@ -28,15 +28,13 @@ features:
       Allows for showing a special COVID19 alert on the My VA Dashboard
   facility_locator_show_community_cares:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: A fast and dirty way to get the operating status from lighthouse
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
@@ -59,14 +57,12 @@ features:
     description: Hide ppms community care searches
   profile_schema_forms:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
   profile_show_receive_text_notifications:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       https://www.va.gov/profile/ show Receive Text Notifications
   profile_show_profile_2.0:
@@ -77,20 +73,17 @@ features:
       Enables Profile 2.0
   va_online_scheduling:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Allows veterans to view their VA and Community Care appointments
   va_online_scheduling_cancel:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Allows veterans to cancel VA appointments
   va_online_scheduling_requests:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Allows veterans to submit requests for VA appointments
   va_online_scheduling_community_care:
@@ -161,8 +154,7 @@ features:
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   edu_benefits_stem_scholarship:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Enables STEM scholarship functionality
   form526_original_claims:
@@ -179,8 +171,7 @@ features:
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
   form526_confirmation_email:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
   va_view_dependents_access:
@@ -209,8 +200,7 @@ features:
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   stub_carma_responses:
     actor_type: user
-    default_enabled_environments:
-      development: true
+    enable_in_development: true
     description: >
       All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.
   gibct_eyb_bottom_sheet:
