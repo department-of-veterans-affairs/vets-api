@@ -2,6 +2,15 @@
 
 The COVID Research module currently serves one very small function.  It exists to process Corona Virus Research volunteer submissions.  There is currently **only one** route in this entire module.
 
+## Metrics
+
+There are a few basic metrics around this functionality:
+
+  * submissions received (`api_covid_research_volunteer_create_total`)
+  * submissions delivered to `genISIS` (`api_covid_research_volunteer_deliver_form_total`)
+  * invalid submissions (`api_covid_research_volunteer_create_fail`)
+  * `genISIS` delivery failures (`api_covid_research_volunteer_deliver_form_fail`)
+
 ## Architecture
 
 There are four main pieces that are used in support of this feature/behavior:
