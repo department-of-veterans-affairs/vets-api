@@ -11,6 +11,7 @@ module CovidResearch
       def create
         with_monitoring do
           if form_service.valid?(payload)
+            ConfirmationMailerJob.perform_async(payload['email'])
             deliver(payload)
 
             render json: { status: 'accepted' }, status: :accepted
