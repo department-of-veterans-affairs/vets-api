@@ -9,6 +9,43 @@ describe DecisionReview::Service do
   let(:ssn_with_mockdata) { '212222112' }
   let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
 
+  describe 'VetsJsonSchema used in service' do
+    describe 'ensure HLR schemas are present' do
+      %w[
+        HLR-CREATE-REQUEST-BODY
+        HLR-CREATE-REQUEST-HEADERS
+        HLR-CREATE-RESPONSE-200
+        HLR-CREATE-RESPONSE-422
+        HLR-GET-CONTESTABLE-ISSUES-REQUEST-BENEFIT-TYPE
+        HLR-GET-CONTESTABLE-ISSUES-REQUEST-HEADERS
+        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200
+        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404
+        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422
+        HLR-SHOW-RESPONSE-200
+        HLR-SHOW-RESPONSE-404
+      ].each do |schema_name|
+        it("#{schema_name} schema is present") { expect(VetsJsonSchema::SCHEMAS[schema_name]).to be_a Hash }
+      end
+    end
+
+    describe 'ensure HLR schema examples are present' do
+      %w[
+        HLR-CREATE-REQUEST-BODY
+        HLR-CREATE-REQUEST-HEADERS
+        HLR-CREATE-RESPONSE-200
+        HLR-CREATE-RESPONSE-422
+        HLR-GET-CONTESTABLE-ISSUES-REQUEST-HEADERS
+        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200
+        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404
+        HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422
+        HLR-SHOW-RESPONSE-200
+        HLR-SHOW-RESPONSE-404
+      ].each do |schema_name|
+        it("#{schema_name} schema example is present") { expect(VetsJsonSchema::EXAMPLES).to have_key schema_name }
+      end
+    end
+  end
+
   describe '#create_higher_level_review' do
     subject { described_class.new.create_higher_level_review(request_body: body.to_json, user: user) }
 
