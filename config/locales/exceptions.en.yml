@@ -1787,108 +1787,18 @@ en:
         code: DR_401
         detail: Invalid api_key for the upstream server
         status: 502
-      DR_malformed_request:
+      DR_422:
         <<: *defaults
         title: Malformed Request
         detail: The request was malformed and could not be processed
         code: DR_malformed_request
-        status: 400
-      DR_veteran_not_accessible:
+        status: 422
+      DR_404:
         <<: *defaults
-        title: Veteran not Accessible
-        detail: You don't have permission to view this veteran's information
-        code: DR_veteran_not_accessible
-        status: 403
-      DR_veteran_not_found:
-        <<: *defaults
-        title: Veteran Not Found
-        detail: The veteran could not be found
-        code: DR_veteran_not_found
+        title: Not Found
+        detail: Not Found
+        code: DR_not_found
         status: 404
-      DR_decision_review_not_found:
-        <<: *defaults
-        title: Decision Review Not Found
-        detail: The decision review could not be found
-        code: DR_decision_review_not_found
-        status: 404
-      DR_duplicate_intake_in_progress:
-        <<: *defaults
-        title: Duplicate Intake In Progress
-        detail: Another duplicate intake is already in progress
-        code: DR_duplicate_intake_in_progress
-        status: 409
-      DR_incident_flash:
-        <<: *defaults
-        title: Incident Flash
-        detail: The veteran has an incident flash
-        code: DR_incident_flash
-        status: 422
-      DR_invalid_benefit_type:
-        <<: *defaults
-        title: Invalid Benefit Type
-        detail: That Line of Business (benefit type) is either invalid or not currently supported
-        code: DR_invalid_benefit_type
-        status: 422
-      DR_invalid_file_number:
-        <<: *defaults
-        title: Invalid File Number
-        detail: Veteran ID not found
-        code: DR_invalid_file_number
-        status: 422
-      DR_request_issue_cannot_be_empty:
-        <<: *defaults
-        title: Request Issue Cannot Be Empty
-        detail: A request issue cannot be empty
-        code: DR_request_issue_cannot_be_empty
-        status: 422
-      DR_request_issue_category_invalid_for_benefit_type:
-        <<: *defaults
-        title: Request Issue Category Invalid for Benefit Type
-        detail: The Category is invalid for the benefit type
-        code: DR_request_issue_category_invalid_for_benefit_type
-        status: 422
-      DR_malformed_contestable_issues:
-        <<: *defaults
-        title: Malformed Contestable Issues
-        detail: Malformed ContestableIssues
-        code: DR_malformed_contestable_issues
-        status: 422
-      DR_contestable_issue_params_must_have_ids:
-        <<: *defaults
-        title: Contestable Issue Params Must Have Ids
-        detail: A contestable issue must have at least one of the following- decisionIssueId, ratingIssueId, ratingDecisionIssueId
-        code: DR_contestable_issue_params_must_have_ids
-        status: 422
-      DR_could_not_find_contestable_issue:
-        <<: *defaults
-        title: Could Not Find Contestable Issue
-        detail: Could not find ContestableIssue
-        code: DR_could_not_find_contestable_issue
-        status: 422
-      DR_veteran_has_multiple_phone_numbers:
-        <<: *defaults
-        title: Veteran Has Multiple Phone Numbers
-        detail: The veteran has multiple active phone numbers
-        code: DR_veteran_has_multiple_phone_numbers
-        status: 422
-      DR_veteran_not_modifiable:
-        <<: *defaults
-        title: Veteran Not Modifiable
-        detail: You don't have permission to intake this veteran
-        code: DR_veteran_not_modifiable
-        status: 422
-      DR_veteran_not_valid:
-        <<: *defaults
-        title: Veteran Not Valid
-        detail: The veteran's profile has missing or invalid information required to create an EP
-        code: DR_veteran_not_valid
-        status: 422
-      DR_bad_receipt_date:
-        <<: *defaults
-        title: Bad Receipt Date
-        detail: Bad receipt date
-        code: DR_bad_receipt_date
-        status: 422
 
   evss:
     external_service_unavailable:

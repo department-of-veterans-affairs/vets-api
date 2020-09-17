@@ -43,10 +43,6 @@ sso:
   cookie_secure: false
   cookie_domain: localhost
 
-ssoe:
-  redirects:
-    myvahealth: https://ehrm-va-test.patientportal.us.healtheintent.com/
-
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
