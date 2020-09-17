@@ -45,9 +45,7 @@ FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
   Flipper.add(feature) unless Flipper.exist?(feature)
 
   # default features to enabled for test and those explicitly set for development
-  if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
-    Flipper.enable(feature)
-  end
+  Flipper.enable(feature) if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
 rescue
   # make sure we can still run rake tasks before table has been created
   nil
