@@ -39,6 +39,7 @@ redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_option
 services = [
   Debts::Configuration.instance.breakers_service,
   Caseflow::Configuration.instance.breakers_service,
+  DecisionReview::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
   BB::Configuration.instance.breakers_service,
   EMIS::MilitaryInformationConfiguration.instance.breakers_service,

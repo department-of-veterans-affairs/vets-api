@@ -117,7 +117,6 @@ module V0
     SWAGGERED_CLASSES = [
       Swagger::Requests::Address,
       Swagger::Requests::Appeals::Appeals,
-      Swagger::Requests::Appeals::ContestableIssues,
       Swagger::Requests::Appointments,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
@@ -168,10 +167,7 @@ module V0
       Swagger::Responses::UnprocessableEntityError,
       Swagger::Schemas::Address,
       Swagger::Schemas::Appeals::Requests,
-      Swagger::Schemas::Appeals::HigherLevelReviewRequest,
       Swagger::Schemas::Appeals::HigherLevelReview,
-      Swagger::Schemas::Appeals::IntakeStatus,
-      Swagger::Schemas::Appeals::ContestableIssues,
       Swagger::Schemas::AsyncTransaction::Vet360,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
