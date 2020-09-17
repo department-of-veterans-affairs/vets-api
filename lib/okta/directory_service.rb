@@ -18,16 +18,17 @@ module Okta
       # Iterate through the returned applications, and test for pattern matching,
       # adding to our filtered apps array if pattern doesn't match
       filtered_apps = unfiltered_apps.reject { |app| app['label'] =~ ISO_PATTERN }
-      # Get all consent grants assigned to each application in our filtered list
-      filtered_apps = get_scopes(okta_service, filtered_apps)
-
+      # Create a map of authorization servers,
+      # with each server containing a list of all clients and scopes of that server
+      auth_server_map = make_server_map(okta_service)
+      # Set cache
       redis.set('okta_directory_apps', filtered_apps.to_json)
+      redis.set('okta_auth_server_map', auth_server_map.to_json)
       filtered_apps
     end
 
     def recursively_get_apps(okta_service, url = '', unfiltered_apps = [])
       apps_response = okta_service.get_apps(url)
-      # Moving apps in response body to iterable array
       unfiltered_apps.concat(apps_response.body)
       # Check headers for ['link'] where 'rel' == next
       # If the next link exists, call okta_service.get_apps(next_link) and filter based on iso_pattern
@@ -39,7 +40,6 @@ module Okta
       unfiltered_apps
     end
 
-    # Check if headers contains 'next' link, since 'next' is always after 'self', we can use .last as a consistent check
     def contains_next(headers)
       headers['link']&.split(',')&.last&.include?('next')
     end
@@ -48,12 +48,34 @@ module Okta
       headers['link']&.split(',')&.last&.split('<')&.last&.split('>')&.first
     end
 
-    def get_scopes(okta_service, apps)
-      apps.each do |app|
-        response = okta_service.get_app_scopes(app['id'])
-        app['permissions'] = response.body
+    def make_server_map(okta_service)
+      authorization_servers = okta_service.get_auth_servers
+      resp_body = authorization_servers.body
+      server_client_map = {}
+      resp_body.each do |server|
+        server_clients = okta_service.get_clients(server['id'])
+        server_scopes = okta_service.get_server_scopes(server['id'])
+        server_client_map[server['id']] = {
+          clients => server_clients.body,
+          scopes => server_scopes.body
+        }
       end
-      apps
+      server_client_map
+    end
+
+    def parse_scope_permissions(filtered_apps, auth_server_map)
+      # For each app in our filtered_apps, if its id is present in a authorization_server's clients array,
+      # add each scope description to our the applications permissions array.
+      filtered_apps.each do |app|
+        auth_server_map.each do |auth_server|
+          # if our current app.id is present in the auth server, attach it's scopes to app.permissions
+          if auth_server[0][:clients].any? { |h| h[:client_id] == app['id'] }
+            app['permissions'].concat(auth_server[0][:scopes].collect { |scope| scope[:description] })
+          end
+        end
+        app['permissions'] = app['permissions'].uniq # remove duplicate scopes that may be shared across auth servers
+      end
+      filtered_apps
     end
   end
 end

@@ -10,12 +10,14 @@ module AppsApi
 
       def index
         redis = Redis.new
-        # Check for existing cache of our app list
+        directory_service = Okta::DirectoryService.new
         filtered_apps = if redis.get('okta_directory_apps')
                           JSON.parse redis.get('okta_directory_apps')
                         else
-                          Okta::DirectoryService.new.get_apps
+                          directory_service.get_apps
                         end
+        auth_server_map = JSON.parse redis.get('okta_auth_server_map')
+        filtered_apps = directory_service.parse_scope_permissions(filtered_apps, auth_server_map)
         render json: {
           data: filtered_apps
         }
