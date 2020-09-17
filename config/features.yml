@@ -170,10 +170,6 @@ features:
     actor_type: user
     description: >
       Comparison Tool Search Enhancements to improve usability
-  gibct_school_ratings:
-    actor_type: user
-    description: >
-      Show/Hide the school ratings section of the Comparison Tool School Profile Page.    
   form996_higher_level_review:
     actor_type: user
     description: >
@@ -262,6 +258,10 @@ features:
     actor_type: user
     description: >
       API endpoints consumed by the VA Mobile App (iOS/Android)
+  show_chapter_36:
+    actor_type: user
+    description: >
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
   stem_document_type:
     actor_type: user
     description: >
