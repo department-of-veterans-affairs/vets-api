@@ -10,13 +10,11 @@ RSpec.describe SAML::PostURLService do
 
   context 'using loa/3/vets context' do
     subject do
-      described_class.new(saml_settings, session: session, user: user,
-                                         params: params, previous_saml_uuid: previous_saml_uuid)
+      described_class.new(saml_settings, session: session, user: user, params: params)
     end
 
     let(:user) { build(:user) }
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
-    let(:previous_saml_uuid) { nil }
 
     around do |example|
       User.create(user)

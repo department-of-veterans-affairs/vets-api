@@ -199,7 +199,8 @@ module SAML
     def previous_saml_uuid(params)
       if params[:action] == 'saml_callback'
         settings = SAML::SSOeSettingsService.saml_settings
-        SAML::Responses::Login.new(params[:SAMLResponse], settings: settings).in_response_to
+        resp = SAML::Responses::Login.new(params[:SAMLResponse] || '', settings: settings)
+        resp&.in_response_to
       end
     end
 
