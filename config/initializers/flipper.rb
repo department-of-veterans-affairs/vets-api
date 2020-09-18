@@ -43,7 +43,7 @@ Flipper::UI.configuration.feature_creation_enabled = false
 # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
 FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
   unless Flipper.exist?(feature)
-    Flipper.add(feature) 
+    Flipper.add(feature)
 
     # default features to enabled for test and those explicitly set for development
     Flipper.enable(feature) if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
