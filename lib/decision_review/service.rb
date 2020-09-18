@@ -2,7 +2,9 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-
+require 'common/client/errors'
+require 'common/exceptions/forbidden'
+require 'common/exceptions/schema_validation_errors'
 require 'decision_review/configuration'
 require 'decision_review/service_exception'
 
