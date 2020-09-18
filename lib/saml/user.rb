@@ -43,6 +43,10 @@ module SAML
       log_warnings_to_sentry
     end
 
+    def validate!
+      @user_attributes.validate!
+    end
+
     def changing_multifactor?
       return false if authn_context.nil?
 
@@ -50,7 +54,7 @@ module SAML
     end
 
     def to_hash
-      user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
+      user_attributes.to_hash.merge(serializable_attributes.index_with { |k| send(k) })
     end
 
     private

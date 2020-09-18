@@ -1,4 +1,4 @@
-version: "2"         # required to adjust maintainability checks
+version: '2'         # required to adjust maintainability checks
 checks:
   argument-count:
     config:
@@ -9,6 +9,9 @@ checks:
   file-lines:
     config:
       threshold: 250
+  identical-code:
+    config:
+      threshold: # language-specific defaults. an override will affect all languages.
   method-complexity:
     config:
       threshold: 5
@@ -29,23 +32,11 @@ checks:
       threshold: # language-specific defaults. an override will affect all languages.
     exclude_patterns:
       - '*/engine.rb'
-      - "**/swagger/**.rb"
-  identical-code:
-    config:
-      threshold: # language-specific defaults. an override will affect all languages.
+      - '**/swagger/**.rb'
 plugins:
-  rubocop:
-    enabled: true
-    channel: rubocop-0-78
   brakeman:
-    enabled: true
+    enabled: false
   bundler-audit:
-    enabled: true
-exclude_patterns:
-  - 'config/'
-  - 'db/'
-  - '**/spec/'
-  - 'benchmark/'
-  - 'docs/'
-  - '.rubocop.yml'
-  - '.rubocop_todo.yml'
+    enabled: false
+  rubocop:
+    enabled: false

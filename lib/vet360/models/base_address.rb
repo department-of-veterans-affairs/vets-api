@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative 'base'
+require 'common/models/attribute_types/iso8601_time'
+require 'vet360/concerns/defaultable'
+
 module Vet360
   module Models
     class BaseAddress < Base
@@ -7,6 +11,7 @@ module Vet360
 
       VALID_ALPHA_REGEX = /[a-zA-Z ]+/.freeze
       VALID_NUMERIC_REGEX = /[0-9]+/.freeze
+      ADDRESS_FIELD_LIMIT = 35
 
       RESIDENCE      = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
@@ -31,8 +36,12 @@ module Vet360
       attribute :created_at, Common::ISO8601Time
       attribute :effective_end_date, Common::ISO8601Time
       attribute :effective_start_date, Common::ISO8601Time
+      attribute :geocode_date, Common::ISO8601Time
+      attribute :geocode_precision, Float
       attribute :id, Integer
       attribute :international_postal_code, String
+      attribute :latitude, Float
+      attribute :longitude, Float
       attribute :province, String
       attribute :source_date, Common::ISO8601Time
       attribute :source_system_user, String
@@ -51,12 +60,16 @@ module Vet360
       validates(:zip_code, length: { maximum: 5 })
 
       validates(
-        :address_line1,
-        :address_line2,
-        :address_line3,
         :city,
         :province,
         length: { maximum: 100 }
+      )
+
+      validates(
+        :address_line1,
+        :address_line2,
+        :address_line3,
+        length: { maximum: ADDRESS_FIELD_LIMIT }
       )
 
       validates(
@@ -91,6 +104,8 @@ module Vet360
         presence: true,
         inclusion: { in: ADDRESS_TYPES }
       )
+
+      validates(:country_code_iso3, presence: true)
 
       with_options if: proc { |a| [DOMESTIC, MILITARY].include?(a.address_type) } do
         validates :state_code, presence: true

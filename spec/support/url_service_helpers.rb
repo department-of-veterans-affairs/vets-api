@@ -5,7 +5,7 @@ RSpec::Matchers.define :be_an_idme_saml_url do |expected_url_partial|
     # Use the URI library to parse the string, returning false if this fails.
     query_params = CGI.parse(URI.parse(actual_url).query)
     relay_state_params = query_params['RelayState'].present? ? JSON.parse(query_params['RelayState']&.first) : nil
-    other_params = Hash[query_params.except('RelayState', 'SAMLRequest').map { |k, v| [k, v.first] }]
+    other_params = query_params.except('RelayState', 'SAMLRequest').transform_values(&:first)
     values_match?(Regexp.new(Regexp.escape(expected_url_partial)), actual_url) &&
       (relay_state_params.present? ? values_match?(relay_state_params, @relay_state_params) : true) &&
       (other_params.present? ? values_match?(other_params, @other_params) : true)

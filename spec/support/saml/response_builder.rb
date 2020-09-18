@@ -9,10 +9,9 @@ module SAML
       ' Military Service Information"}}'
     ].freeze
 
-    def create_user_identity(authn_context:, account_type:, level_of_assurance:, attributes:, issuer: nil)
+    def create_user_identity(authn_context:, level_of_assurance:, attributes:, issuer: nil)
       saml = build_saml_response(
         authn_context: authn_context,
-        account_type: account_type,
         level_of_assurance: level_of_assurance,
         attributes: attributes,
         issuer: issuer
@@ -24,7 +23,7 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
     def build_saml_response(
-      authn_context:, account_type:, level_of_assurance:,
+      authn_context:, level_of_assurance:,
       attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil
     )
       verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
@@ -34,7 +33,6 @@ module SAML
           previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1_VETS
           create_user_identity(
             authn_context: previous_context,
-            account_type: account_type,
             level_of_assurance: level_of_assurance,
             attributes: existing_attributes,
             issuer: issuer
@@ -47,7 +45,6 @@ module SAML
                                           .gsub(%r{loa/3}, 'loa/1/vets')
           create_user_identity(
             authn_context: previous_context,
-            account_type: account_type,
             level_of_assurance: '1',
             attributes: existing_attributes,
             issuer: issuer
@@ -84,7 +81,7 @@ module SAML
     def saml_response_click_deny
       build_invalid_saml_response(
         in_response_to: uuid,
-        decrypted_document: nil,
+        decrypted_document: document_partial,
         errors: ['The status code of the Response was not Success, was Responder => AuthnFailed '\
                  '-> Subject did not consent to attribute release',
                  'SAML Response must contain 1 assertion',
@@ -131,10 +128,10 @@ module SAML
       )
     end
 
-    def saml_response_multi_error
+    def saml_response_multi_error(in_response_to = nil)
       build_invalid_saml_response(
         status_message: 'Subject did not consent to attribute release',
-        in_response_to: uuid,
+        in_response_to: in_response_to || uuid,
         decrypted_document: document_partial,
         errors: ['Subject did not consent to attribute release', 'Other random error']
       )

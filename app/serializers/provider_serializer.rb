@@ -4,7 +4,12 @@ class ProviderSerializer < ActiveModel::Serializer
   type 'cc_provider'
 
   def id
-    "ccp_#{object.ProviderIdentifier}"
+    if Flipper.enabled?(:facility_locator_ppms_forced_unique_id)
+      obj_id = object.ProviderHexdigest || object.ProviderIdentifier
+      "ccp_#{obj_id}"
+    else
+      "ccp_#{object.ProviderIdentifier}"
+    end
   end
 
   def unique_id
@@ -12,20 +17,13 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   def name
-    if Flipper.enabled?(:facilities_ppms_caresite_name)
-      fipper_enabled_name
-    else
-      object.ProviderName || object.Name
-    end
-  end
-
-  def fipper_enabled_name
-    possible_name = case object.ProviderType
-                    when /GroupPracticeOrAgency/i
-                      object.CareSite
-                    else
-                      object.ProviderName
-                    end
+    possible_name =
+      case object.ProviderType
+      when /GroupPracticeOrAgency/i
+        object.CareSite
+      else
+        object.ProviderName
+      end
     [possible_name, object.Name].find(&:present?)
   end
 

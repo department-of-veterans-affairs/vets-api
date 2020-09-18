@@ -5,7 +5,7 @@ if Settings.vbms.present?
   ENV['CONNECT_VBMS_BASE_URL'] = Settings.vbms.url
   ENV['CONNECT_VBMS_CERT'] = Settings.vbms.cert
   ENV['CONNECT_VBMS_CLIENT_KEYFILE'] = Settings.vbms.client_keyfile
-  ENV['CONNECT_VBMS_KEYPASS'] = Settings.vbms.keypass
+  ENV['CONNECT_VBMS_KEYPASS'] = Settings.vbms.keypass if Settings.vbms.keypass.present?
   ENV['CONNECT_VBMS_SAML'] = Settings.vbms.saml
   ENV['CONNECT_VBMS_SERVER_CERT'] = Settings.vbms.server_cert
   ENV['CONNECT_VBMS_SHA256'] = 'true'

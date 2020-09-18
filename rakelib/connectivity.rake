@@ -7,10 +7,6 @@
 # Allows running on development machines
 Rails.logger = Logger.new(STDOUT)
 
-# For Rx/SM
-REDIS_CONFIG = Rails.application.config_for(:redis).freeze
-Redis.current = Redis.new(REDIS_CONFIG['redis'])
-
 class ConnectivityError < StandardError; end
 
 # Convenience function that runs a connectivity example and prints out
@@ -123,6 +119,7 @@ namespace :connectivity do
 
   desc 'Check SM'
   task sm: :environment do
+    require 'sm/client'
     check 'SM', Settings.mhv.sm.host do
       SM::Client.new(session: { user_id: '12210827' }).authenticate
     end

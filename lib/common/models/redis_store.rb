@@ -92,7 +92,7 @@ module Common
       @persisted = true
     end
 
-    def update_attributes!(attributes_hash)
+    def update!(attributes_hash)
       self.attributes = attributes_hash
       save!
     end

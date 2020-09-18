@@ -2,6 +2,10 @@
 
 require 'rails_helper'
 require 'sidekiq/testing'
+require 'evss/disability_compensation_auth_headers'
+require 'evss/auth_headers'
+require 'evss/disability_compensation_form/service'
+require 'evss/disability_compensation_form/service_exception'
 Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
@@ -30,26 +34,40 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   end
 
   it 'sets a status of established on successful call' do
-    evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::ServiceAllClaim')
-    allow(EVSS::DisabilityCompensationForm::ServiceAllClaim).to receive(:new) { evss_service_stub }
+    evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::Service')
+    allow(EVSS::DisabilityCompensationForm::Service).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:submit_form526) { OpenStruct.new(claim_id: 1337) }
 
     subject.new.perform(claim.id)
     claim.reload
     expect(claim.evss_id).to eq(1337)
+    expect(claim.form_data).to be_empty
+    expect(claim.auth_headers).to be_empty
+    expect(claim.file_data).to be_nil
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
   end
 
-  it 'sets the status of the claim to an error if it raises an error on EVSS' do
+  it 'sets the status of the claim to an error if it raises an EVSS::DisabilityCompensationForm::Service error' do
     body = { 'messages' => [{ 'key' => 'serviceError', 'severity' => 'FATAL', 'text' => 'Not established.' }] }
-    allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim).to(
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceException.new(body))
     )
-    expect { subject.new.perform(claim.id) }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
-
+    subject.new.perform(claim.id)
     claim.reload
-    expect(claim.evss_id).to eq(nil)
+    expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body['messages'])
+    expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+  end
+
+  it 'sets the status of the claim to an error if it raises an Common::Exceptions::BackendServiceException error' do
+    body = [{ 'key' => 400, 'severity' => 'FATAL', 'text' => nil }]
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
+      receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException.new)
+    )
+    subject.new.perform(claim.id)
+    claim.reload
+    expect(claim.evss_id).to be_nil
+    expect(claim.evss_response).to eq(body)
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
   end
 end

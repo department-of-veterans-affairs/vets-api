@@ -4,7 +4,7 @@ module V0
   class FeatureTogglesController < ApplicationController
     # the feature toggle does not require authentication, but if a user is logged we might use @current_user
     skip_before_action :authenticate
-    before_action :validate_session
+    before_action :load_user
 
     def index
       if params[:features].present?

@@ -5,9 +5,10 @@ inherit_from: .rubocop_todo.yml
 require:
   - rubocop-rails
   - rubocop-rspec
+  - rubocop-thread_safety
 
 AllCops:
-  TargetRailsVersion: 5.2
+  TargetRailsVersion: 6.0
   Include:
     - '**/Gemfile'
     - '**/config.ru'
@@ -15,6 +16,7 @@ AllCops:
     - '**/*.rake'
     - '**/*.rb'
   Exclude:
+    - 'bin/*'
     - db/schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
@@ -104,11 +106,13 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
     - 'rakelib/**/*.rake'
+    - 'lib/tasks/**/*.rake'
     - 'config/**/*.rb'
     - 'app/swagger/**/*.rb'
     - 'app/controllers/v0/apidocs_controller.rb'
     - 'modules/*/spec/**/*.rb'
     - 'modules/*/app/swagger/**/*.rb'
+    - 'modules/*/config/routes.rb'
 
 # Don't worry about ambiguous blocks in RSpec
 # Official recommendation from rubocop team is to disable this rule for specs.
@@ -135,7 +139,7 @@ Style/FormatStringToken:
 
 Lint/BooleanSymbol:
   Exclude:
-    - "app/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
+    - "app/swagger/swagger/schemas/gibct/institutions.rb" #Swagger blocks defines keys as :true, need to keep as is
 
 # Use `Time` when dealing with current dates and times; it has support for timezones (system/local and utc), whereas `DateTime` only supports offsets from UTC.
 # However, if you need to deal with dates and times in a historical context you'll want to use DateTime to avoid making the same mistakes as UNESCO.
@@ -183,6 +187,8 @@ RSpec/FilePath:
     - 'spec/request/in_progress_forms_request_spec.rb'
     - 'spec/jobs/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
+  CustomTransform:
+    SSOeSettingsService: ssoe_settings_service
 
 # Was determined that using described_class makes the code less readable.
 RSpec/DescribedClass:
@@ -312,6 +318,7 @@ RSpec/SubjectStub:
     - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
     - 'spec/jobs/education_form/forms/va1990_spec.rb'
     - 'spec/jobs/transactional_email_analytics_job_spec.rb'
+    - 'spec/jobs/form526_confirmation_email_job_spec.rb'
     - 'spec/lib/bb/generate_report_request_form_spec.rb'
     - 'spec/lib/common/models/redis_store_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
@@ -325,7 +332,44 @@ RSpec/SubjectStub:
     - 'spec/services/evss_claim_service_spec.rb'
     - 'spec/services/mhv_accounts_service_spec.rb'
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
+    - 'spec/lib/carma/client/client_spec.rb'
+    - 'spec/services/form1010cg/service_spec.rb'
+    - 'spec/services/form1010cg/auditor_spec.rb'
 
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:
   EnforcedStyle: arguments
+
+# Added in v0.81
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
+# Added in v0.82
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Style/ExponentialNotation:
+  Enabled: true
+
+# Added in v0.83
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+
+Style/SlicingWithRange:
+  Enabled: true
+
+# Added in v0.84
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true

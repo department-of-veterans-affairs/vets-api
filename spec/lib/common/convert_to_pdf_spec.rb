@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'common/convert_to_pdf'
 
 describe Common::ConvertToPdf, uploader_helpers: true do
   stub_virus_scan

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/ppiu/service'
 
 describe EVSS::PPIU::Service do
   subject { described_class.new(user) }
@@ -49,7 +50,7 @@ describe EVSS::PPIU::Service do
 
       it 'logs an error and raise GatewayTimeout', :aggregate_failures do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.get_payment_information.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.get_payment_information.fail', tags: ['error:CommonExceptionsGatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.get_payment_information.total')
         expect { subject.get_payment_information }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -60,7 +61,7 @@ describe EVSS::PPIU::Service do
       it 'logs the message to sentry', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/service_error') do
           expect(StatsD).to receive(:increment).once.with(
-            'api.evss.get_payment_information.fail', tags: ['error:Common::Client::Errors::ClientError', 'status:500']
+            'api.evss.get_payment_information.fail', tags: ['error:CommonClientErrorsClientError', 'status:500']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_payment_information.total')
           expect { subject.get_payment_information }.to raise_error(EVSS::PPIU::ServiceException)
@@ -122,7 +123,7 @@ describe EVSS::PPIU::Service do
 
       it 'logs an error and raise GatewayTimeout', :aggregate_failures do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.update_payment_information.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.update_payment_information.fail', tags: ['error:CommonExceptionsGatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.update_payment_information.total')
         expect { subject.update_payment_information(request_payload) }.to raise_error(
@@ -131,12 +132,20 @@ describe EVSS::PPIU::Service do
       end
     end
 
+    context 'with an EVSSError' do
+      it 'handles the error correctly' do
+        VCR.use_cassette('evss/ppiu/routing_number_error') do
+          expect { subject.update_payment_information(request_payload) }.to raise_error(EVSS::PPIU::ServiceException)
+        end
+      end
+    end
+
     context 'with a client error' do
       it 'logs the message to sentry', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_service_error') do
           expect(StatsD).to receive(:increment).once.with(
             'api.evss.update_payment_information.fail', tags: [
-              'error:Common::Client::Errors::ClientError', 'status:500'
+              'error:CommonClientErrorsClientError', 'status:500'
             ]
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.update_payment_information.total')

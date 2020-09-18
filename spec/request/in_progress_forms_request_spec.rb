@@ -178,7 +178,8 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             'version' => 1,
             'return_url' => 'foo.com',
             'expires_at' => 1_488_412_800,
-            'last_updated' => 1_483_228_800
+            'last_updated' => 1_483_228_800,
+            'in_progress_form_id' => in_progress_form.id
           )
         end
 
@@ -238,52 +239,6 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         it 'returns the deleted form id' do
           expect { subject }.to change(InProgressForm, :count).by(-1)
           expect(response).to have_http_status(:ok)
-        end
-      end
-    end
-
-    describe '#proxy_add' do
-      context 'user is missing birls and participant ids' do
-        context 'and is NOT completing form 526' do
-          let(:user) { build(:user_with_no_ids) }
-          let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
-
-          it 'call to add user to MVI is skipped' do
-            expect(in_progress_form.form_id).not_to eq('21-526EZ') # check test set up
-            expect_any_instance_of(Mvi).not_to receive(:mvi_add_person)
-            get v0_in_progress_form_url(in_progress_form.form_id), params: nil
-          end
-        end
-
-        context 'and is completing form 526' do
-          let(:user) { build(:user_with_no_ids) }
-          let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
-
-          it 'call is made to add user to MVI' do
-            VCR.use_cassette('mvi/add_person/add_person_success') do
-              VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
-                expect(in_progress_form.form_id).to eq('21-526EZ') # check test set up
-                # expect success to be achieved by calling mvi_add_person
-                expect_any_instance_of(Mvi).to receive(:mvi_add_person).once
-                get v0_in_progress_form_url(in_progress_form.form_id), params: nil # call show endpoint
-                expect(response.status).to eq(200)
-              end
-            end
-          end
-        end
-      end
-
-      context 'user is only missing birls id and is completing form 21-526EZ' do
-        let(:user) { build(:user_with_no_birls_id) }
-        let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ') }
-
-        it 'returns an error response' do
-          VCR.use_cassette('mvi/add_person/add_person_success') do
-            VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
-              get v0_in_progress_form_url(in_progress_form.form_id), params: nil
-              expect(response).to have_http_status(:internal_server_error)
-            end
-          end
         end
       end
     end

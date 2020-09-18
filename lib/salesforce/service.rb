@@ -2,7 +2,7 @@
 
 module Salesforce
   class Service < Common::Client::Base
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
 
@@ -40,7 +40,7 @@ module Salesforce
     def get_client
       Restforce.new(
         oauth_token: get_oauth_token,
-        instance_url: self.class.parent::Configuration::SALESFORCE_INSTANCE_URL,
+        instance_url: self.class.module_parent::Configuration::SALESFORCE_INSTANCE_URL,
         api_version: '41.0'
       )
     end

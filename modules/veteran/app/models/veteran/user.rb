@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'evss/auth_headers'
+require 'evss/vso_search/service'
+
 # Veteran model
 module Veteran
   class User < Base
@@ -19,7 +22,7 @@ module Veteran
 
     def initialize(user)
       @user = user
-      build_from_json(EVSS::VsoSearch::Service.new(user).get_current_info(auth_headers))
+      build_from_json(EVSS::VSOSearch::Service.new(user).get_current_info(auth_headers))
     end
 
     def build_from_json(json_data)

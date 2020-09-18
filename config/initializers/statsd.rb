@@ -1,5 +1,19 @@
 # frozen_string_literal: true
 
+require 'caseflow/service'
+require 'central_mail/service'
+require 'emis/service'
+require 'evss/service'
+require 'gibft/service'
+require 'mvi/service'
+require 'saml/errors'
+require 'saml/responses/base'
+require 'saml/user'
+require 'stats_d_metric'
+require 'search/service'
+require 'vet360/exceptions/parser'
+require 'vet360/service'
+
 host = Settings.statsd.host
 port = Settings.statsd.port
 
@@ -10,32 +24,45 @@ StatsD.backend = if host.present? && port.present?
                  end
 
 # Initialize session controller metric counters at 0
+LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
+               UserSessionForm::ERRORS.values +
+               SAML::UserAttributeError::ERRORS.values
+%w[v0 v1].each do |v|
+  StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0,
+                   tags: ["version:#{v}"])
+  StatsD.increment(V1::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0,
+                   tags: ["version:#{v}"])
+  V1::SessionsController::REDIRECT_URLS.each do |t|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_NEW_KEY, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
+    StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_SUCCESS, 0,
+                     tags: ["version:#{v}", "context:#{t}"])
 
-StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0)
-StatsD.increment(V0::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0)
-StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS, 0)
-StatsD.increment(V1::SessionsController::STATSD_LOGIN_SHARED_COOKIE, 0)
-
-SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
-  StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ["error:#{known_error[:tag]}"])
-end
-
-%w[success failure].each do |s|
-  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
-    StatsD.increment(
-      V0::SessionsController::STATSD_SSO_CALLBACK_KEY,
-      0,
-      tags: ["status:#{s}", "context:#{ctx}"]
-    )
+    LOGIN_ERRORS.each do |err|
+      StatsD.increment(V1::SessionsController::STATSD_LOGIN_STATUS_FAILURE, 0,
+                       tags: ["version:#{v}", "context:#{t}", "error:#{err[:code]}"])
+    end
   end
-end
-
-V0::SessionsController::REDIRECT_URLS.each do |ctx|
-  StatsD.increment(
-    V0::SessionsController::STATSD_SSO_NEW_KEY,
-    0,
-    tags: ["context:#{ctx}"]
-  )
+  %w[success failure].each do |s|
+    (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+      StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_KEY, 0,
+                       tags: ["version:#{v}", "status:#{s}", "context:#{ctx}"])
+    end
+  end
+  (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
+    V1::SessionsController::REDIRECT_URLS.each do |t|
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLREQUEST_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLRESPONSE_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+      StatsD.increment(V1::SessionsController::STATSD_SSO_SAMLTRACKER_KEY, 0,
+                       tags: ["version:#{v}", "context:#{ctx}", "type:#{t}"])
+    end
+  end
+  LOGIN_ERRORS.each do |err|
+    StatsD.increment(V1::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0,
+                     tags: ["version:#{v}", "error:#{err[:tag]}"])
+  end
 end
 
 # init GiBillStatus stats to 0
@@ -71,9 +98,9 @@ StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_
 StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.non_retryable_error", 0)
 StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.exhausted", 0)
 
-# init appeals
-StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
-StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
+# init caseflow
+StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
+StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
 
 # init  mvi
 StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
@@ -103,6 +130,22 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
 
+# init Form1010cg
+StatsD.increment(Form1010cg::Auditor.metrics.submission.attempt, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.success, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.data, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
+
+# init form 526
+%w[try success non_retryable_error retryable_error exhausted].each do |str|
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitUploads::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{CentralMail::SubmitForm4142Job::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm0781::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm8940::STATSD_KEY_PREFIX}.#{str}", 0)
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526Cleanup::STATSD_KEY_PREFIX}.#{str}", 0)
+end
+
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
           "status:#{payload[:status]}"]
@@ -121,3 +164,23 @@ end
 
 # init Facilities Jobs
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
+
+ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_, start_time, end_time, _, payload|
+  duration = end_time - start_time
+  measurement = case payload[:url].path
+                when /ProviderLocator/
+                  'facilities.ppms.provider_locator'
+                when /PlaceOfServiceLocator/
+                  'facilities.ppms.place_of_service_locator'
+                when %r{Providers\(\d+\)/ProviderServices}
+                  'facilities.ppms.providers.provider_services'
+                when /Providers\(\d+\)/
+                  'facilities.ppms.providers'
+                end
+  StatsD.measure(measurement, duration, tags: ['facilities.ppms']) if measurement
+end
+ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, _|
+  duration = end_time - start_time
+
+  StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
+end

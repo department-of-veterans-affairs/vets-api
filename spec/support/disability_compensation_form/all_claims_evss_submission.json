@@ -1,6 +1,7 @@
 {
     "form526": {
         "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+        "bddQualified": false,
         "claimantCertification": true,
         "directDeposit": {
             "accountNumber": "123123123123",

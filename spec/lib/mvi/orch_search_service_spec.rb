@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mvi/orch_search_service'
 
 describe MVI::OrchSearchService do
   let(:user) { build(:user, :loa3, user_hash) }
@@ -28,6 +29,18 @@ describe MVI::OrchSearchService do
           expect(response.status).to eq('OK')
           expect(response.profile.icn).to eq('1008709396V637156')
           Settings.mvi.vba_orchestration = false
+        end
+      end
+    end
+
+    context 'with an invalid user' do
+      let(:user) { build(:user, :loa1) }
+
+      it 'raises an unprocessable entity error' do
+        expect { described_class.new.find_profile(user) }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::UnprocessableEntity)
+          expect(error.errors.first.source).to eq('OrchSearchService')
+          expect(error.errors.first.detail).to eq('User is invalid or missing edipi')
         end
       end
     end

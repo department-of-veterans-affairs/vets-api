@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
+require 'facilities/ppms/client'
 
 class V0::Facilities::VaController < FacilitiesController
   TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
@@ -60,6 +61,14 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   private
+
+  def api
+    Lighthouse::Facilities::Client.new
+  end
+
+  def lighthouse_params
+    params.permit :lat, :long, :page, :per_page, :services, :type, :zip, bbox: []
+  end
 
   def validate_types_name_part
     raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?

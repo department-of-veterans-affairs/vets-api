@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require 'caseflow/service'
 require_dependency 'appeals_api/application_controller'
+require 'decision_review/service'
+require 'common/exceptions'
 
 module AppealsApi
   module V0
@@ -9,7 +12,7 @@ module AppealsApi
 
       def index
         log_request
-        appeals_response = Appeals::Service.new.get_appeals(
+        appeals_response = Caseflow::Service.new.get_appeals(
           target_veteran,
           'Consumer' => consumer,
           'VA-User' => requesting_va_user
@@ -18,10 +21,6 @@ module AppealsApi
         render(
           json: appeals_response.body
         )
-      end
-
-      def healthcheck
-        render json: Appeals::Service.new.healthcheck.body
       end
 
       private

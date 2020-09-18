@@ -12,10 +12,10 @@ info:
 
     ### 1. Get Access Credentials
 
-    Get started by filling out the form on the [Apply for VA Lighthouse Developer Access](/apply) page. 
-    
+    Get started by filling out the form on the [Apply for VA Lighthouse Developer Access](/apply) page.
+
     After submitting a request, you will receive your credentials for using the API in the Sandbox environment, which allows you to try it out with mock data before moving to the Production environment.
-    
+
     ### 2. Test the  API
 
     In the endpoint documentation below, we've provided a curl command builder for trying out the API before implementation with your app.
@@ -48,7 +48,7 @@ info:
 
     ### Sandbox vs. Production Data
     APIs accessed via the Sandbox environment are using the same underlying logic as VA’s production APIs; only the underlying data store is different.
-  
+
     ### Rate Limiting
     We implemented basic rate limiting of 60 requests per minute. If you exceed this quota, your request will return a 429 status code. You may petition for increased rate limits by emailing, and requests will be decided on a case by case basis.
 
@@ -114,8 +114,8 @@ paths:
             application/jwt:
               schema:
                 $ref: '#/components/schemas/DisabilityRatingToken'
-        '404':
-          description: No disability ratings found
+        '502':
+          description: BGS service responded with something other than the expected disability rating response.
   /service_history:
     get:
       tags:
@@ -175,12 +175,31 @@ components:
         type:
           description: JSON API type specification
           type: string
-          example: 'document_upload'
+          example: 'disability-rating'
         attributes:
-          $ref: '#/components/schemas/RatingAttributes'
-    RatingAttributes:
+          $ref: '#/components/schemas/DisabilityRatingAttributes'
+    DisabilityRatingAttributes:
       description: |
         Body of the disability rating response
+      required:
+        - combined_disability_rating
+        - individual_ratings
+      properties:
+        combined_disability_rating:
+          description: Overall severity rating determined by VA calculation of each service related conditions. Used to help determine disability compensation (pay) and related benefits.
+          type: integer
+          example: 100
+        combined_effective_date:
+          description: When the Veteran could begin claiming benefits for combined disability rating
+          type: datetime
+          example: "2018-03-27T21:00:41.000+0000"
+        individual_ratings:
+          description: list of individual service connected disabilty ratings
+          type: array
+          items:
+            $ref: '#/components/schemas/individual_ratings'
+    individual_ratings:
+      description: list of service connected disability ratings
       required:
         - decision
         - effective_date
@@ -241,6 +260,14 @@ components:
         attributes:
           type: object
           properties:
+            first_name:
+              type: string
+              description: Veteran first name
+              example: "Abraham"
+            last_name:
+              type: string
+              description: Veteran last name
+              example: "Lincoln"
             start_date:
               type: string
               format: date
@@ -255,10 +282,22 @@ components:
               type: string
               description: Branch of military including National Guard or Reserve status
               example: "Air Force"
-            pay_grade_code:
+            pay_grade:
               type: string
-              description: Defines the level of compensation for a position, normalized across military branches
-              example: "06"
+              description: |
+                Defines the level of compensation for a position, normalized across military branches
+
+                Possible values include the concatenation of Pay Plan Code and Pay Grade Code.
+                Pay Plan Code is represented as a two-character code, and can be one of five values:
+                 - CC (Commissioned Corps)
+                 - MC (Cadet)
+                 - ME (Enlisted)
+                 - MO (Officer)
+                 - MW (Warrant Officer)
+
+                Pay Grade Code is a value between 01 and 10.
+                Pay Plan Code is concatenated with Pay Grade Code to determine the full Pay Grade value, with the leading character (M or C) stripped from Pay Plan Code.
+              example: "W01"
             discharge_status:
               type: string
               description: |

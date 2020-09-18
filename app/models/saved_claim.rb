@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'attr_encrypted'
+require 'pdf_fill/filler'
 
 # Base class to hold common functionality for Claim submissions.
 # Subclasses need to several constants and methods defined:
@@ -87,8 +88,14 @@ class SavedClaim < ApplicationRecord
     errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form))
   end
 
-  def to_pdf
-    PdfFill::Filler.fill_form(self)
+  def to_pdf(file_name = nil)
+    PdfFill::Filler.fill_form(self, file_name)
+  end
+
+  def update_form(key, value)
+    application = parsed_form
+    application[key] = value
+    self.form = JSON.generate(application)
   end
 
   private

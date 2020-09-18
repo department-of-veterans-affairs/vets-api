@@ -12,8 +12,9 @@ RSpec.describe 'prescriptions', type: :request do
 
   let(:va_patient) { true }
   let(:current_user) do
-    build(:user, :mhv, authn_context: LOA::IDME_LOA3_VETS, va_patient: va_patient, mhv_account_type: mhv_account_type)
+    build(:user, :mhv, authn_context: LOA::IDME_LOA3_VETS, va_patient: va_patient, mhv_account_type: mhv_account_type, sign_in: { service_name: 'idme' })
   end
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
@@ -51,6 +52,16 @@ RSpec.describe 'prescriptions', type: :request do
         expect(response).to match_response_schema('prescription')
       end
 
+      it 'responds to GET #show with camel-inlfection' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
+          get '/v0/prescriptions/13651310', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('prescription')
+      end
+
       it 'responds to GET #index with no parameters' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
           get '/v0/prescriptions'
@@ -60,6 +71,17 @@ RSpec.describe 'prescriptions', type: :request do
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('prescriptions')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
+      end
+
+      it 'responds to GET #index with no parameters when camel-inflected' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+          get '/v0/prescriptions', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('prescriptions')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
       end
 
       it 'responds to GET #index with refill_status=active' do
@@ -73,6 +95,17 @@ RSpec.describe 'prescriptions', type: :request do
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
       end
 
+      it 'responds to GET #index with refill_status=active when camel-inflected' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
+          get '/v0/prescriptions?refill_status=active', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('prescriptions')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescriptionName' => 'ASC')
+      end
+
       it 'responds to GET #index with filter' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
           get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess'
@@ -81,6 +114,16 @@ RSpec.describe 'prescriptions', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('prescriptions_filtered')
+      end
+
+      it 'responds to GET #index with filter when camel-inflected' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+          get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess', headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('prescriptions_filtered')
       end
 
       it 'responds to POST #refill' do
@@ -104,6 +147,17 @@ RSpec.describe 'prescriptions', type: :request do
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
         end
 
+        it 'responds to GET #show of nested tracking resource when camel-inflected' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
+            get '/v0/prescriptions/13650541/trackings', headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('trackings')
+          expect(JSON.parse(response.body)['meta']['sort']).to eq('shippedDate' => 'DESC')
+        end
+
         it 'responds to GET #show of nested tracking resource with a shipment having no other prescriptions' do
           VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_with_empty_other_prescriptions') do
             get '/v0/prescriptions/13650541/trackings'
@@ -113,6 +167,17 @@ RSpec.describe 'prescriptions', type: :request do
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('trackings')
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+        end
+
+        it 'responds to GET #show of nested tracking resource with a shipment having no other prescriptions when camel-inflected' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_with_empty_other_prescriptions') do
+            get '/v0/prescriptions/13650541/trackings', headers: inflection_header
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_camelized_response_schema('trackings')
+          expect(JSON.parse(response.body)['meta']['sort']).to eq('shippedDate' => 'DESC')
         end
       end
 

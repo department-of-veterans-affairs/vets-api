@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'flipper/admin_user_constraint'
+
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
@@ -12,18 +14,21 @@ Rails.application.routes.draw do
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
-  get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
   post '/v1/sessions/callback', to: 'v1/sessions#saml_callback', module: 'v1'
   get '/v1/sessions/:type/new',
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
+  # don't use the word "tracker" in the url, as some ad blockers will prevent the call
+  get '/v1/sessions/trace', to: 'v1/sessions#tracker'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+    resources :debts, only: :index
+    resources :debt_letters, only: %i[index show]
 
     resource :form526_opt_in, only: :create
 
@@ -38,11 +43,13 @@ Rails.application.routes.draw do
       get 'rated_disabilities'
       get 'rating_info'
       get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
-      post 'submit'
       post 'submit_all_claim'
       get 'suggested_conditions'
       get 'user_submissions'
+      get 'separation_locations'
     end
+
+    post '/mvi_users/:id', to: 'mvi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
@@ -70,8 +77,8 @@ Rails.application.routes.draw do
 
     resource :hca_attachments, only: :create
 
-    # Excluding this feature until external service (CARMA) is connected
-    resources :caregivers_assistance_claims, only: :create if Rails.env.test?
+    resources :caregivers_assistance_claims, only: :create
+    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -83,6 +90,8 @@ Rails.application.routes.draw do
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
+
+    resources :efolder, only: %i[index show]
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
@@ -119,13 +128,12 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: :index do
-      collection do
-        resources :higher_level_reviews, only: %i[show create]
-        resources :intake_statuses, only: :show
-        resources :contestable_issues, only: :index
-      end
+    resources :appeals, only: :index
+
+    namespace :higher_level_reviews do
+      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
+    resources :higher_level_reviews, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -183,6 +191,10 @@ Rails.application.routes.draw do
       resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
     end
 
+    namespace :mdot do
+      resources :supplies, only: %i[create]
+    end
+
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }
@@ -197,24 +209,16 @@ Rails.application.routes.draw do
     namespace :vic do
       resources :profile_photo_attachments, only: %i[create show]
       resources :supporting_documentation_attachments, only: :create
-      resources :vic_submissions, only: %i[create show]
     end
 
     resources :gi_bill_feedbacks, only: %i[create show]
 
     resource :address, only: %i[show update] do
       collection do
-        if Settings.evss&.reference_data_service&.enabled
-          get 'countries', to: 'addresses#rds_countries'
-          get 'states', to: 'addresses#rds_states'
-        else
-          get 'countries', to: 'addresses#countries'
-          get 'states', to: 'addresses#states'
-        end
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
       end
     end
-
-    resources :performance_monitorings, only: :create
 
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
@@ -224,6 +228,8 @@ Rails.application.routes.draw do
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
+      resource :valid_va_file_number, only: %i[show]
+      resources :payment_history, only: %i[index]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -235,14 +241,6 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
-
-      resource :reference_data, only: %i[show] do
-        collection do
-          get 'countries', to: 'reference_data#countries'
-          get 'states', to: 'reference_data#states'
-          get 'zipcodes', to: 'reference_data#zipcodes'
-        end
-      end
     end
 
     resources :search, only: :index
@@ -290,12 +288,30 @@ Rails.application.routes.draw do
         defaults: { feature: feature }
       )
     end
+
+    namespace :coronavirus_chatbot do
+      resource :tokens, only: :create
+    end
+
+    namespace :ask do
+      resource :asks, only: :create
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
+    end
+
+    namespace :facilities, module: 'facilities' do
+      resources :va, only: %i[index show]
+      resources :ccp, only: %i[index show] do
+        get 'specialties', on: :collection, to: 'ccp#specialties'
+      end
+      resources :va_ccp, only: [] do
+        get 'urgent_care', on: :collection
+      end
     end
   end
 
@@ -309,18 +325,22 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
-    mount VaFacilities::Engine, at: '/va_facilities'
     mount Veteran::Engine, at: '/veteran'
     mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
-  mount VAOS::Engine, at: '/v0/vaos'
+  mount HealthQuest::Engine, at: '/health_quest'
+  mount VAOS::Engine, at: '/vaos'
+  mount CovidResearch::Engine, at: '/covid-research'
+  mount Mobile::Engine, at: '/mobile'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
+    require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
+    require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
 

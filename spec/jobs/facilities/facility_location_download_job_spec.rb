@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/bulk_json_client'
+require 'facilities/access_satisfaction_client'
+require 'facilities/access_wait_time_client'
+require 'facilities/access_data_download'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
   before { BaseFacility.validate_on_load = false }
@@ -21,7 +23,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/nca_facilities', allow_playback_repeats: true) do
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
         facility = Facilities::NCAFacility.first
-        facility.update_attributes(name: 'FIRST')
+        facility.update(name: 'FIRST')
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
         reloaded_facility = Facilities::NCAFacility.find facility.id
         expect(facility.name).to eq(reloaded_facility.name)
@@ -32,7 +34,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/nca_facilities', allow_playback_repeats: true) do
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
         facility = Facilities::NCAFacility.first
-        facility.update_attributes(name: 'FIRST', fingerprint: 'changed')
+        facility.update(name: 'FIRST', fingerprint: 'changed')
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
         reloaded_facility = Facilities::NCAFacility.find facility.id
         expect(facility.name).not_to eq(reloaded_facility.name)

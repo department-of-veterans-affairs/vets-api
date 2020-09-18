@@ -43,9 +43,9 @@ module EVSS
 
       def convert_to_json
         {
-          pciu_key => Hash[
-            request_attrs.as_json.map { |k, v| [k.camelize(:lower), v] }
-          ]
+          pciu_key =>
+            request_attrs.as_json.transform_keys { |k| k.camelize(:lower) }
+
         }.to_json
       end
     end

@@ -2,6 +2,7 @@
 
 require_dependency 'vba_documents/application_controller'
 require_dependency 'vba_documents/object_store'
+require 'common/exceptions'
 
 module VBADocuments
   module Internal
@@ -37,7 +38,7 @@ module VBADocuments
         # Make sure the message we're receiving is from the topic
         # we're expecting to get messages from
         def verify_topic_arn
-          unless Settings.vba_documents.sns.topic_arn == json_params['TopicArn']
+          unless Settings.vba_documents.sns.topic_arns.include? json_params['TopicArn']
             raise Common::Exceptions::ParameterMissing, 'TopicArn'
           end
         end

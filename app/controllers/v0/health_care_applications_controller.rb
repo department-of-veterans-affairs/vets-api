@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'hca/service'
+
 module V0
   class HealthCareApplicationsController < ApplicationController
     FORM_ID = '1010ez'
@@ -7,7 +9,7 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      validate_session
+      load_user
 
       health_care_application = HealthCareApplication.new(params.permit(:form))
       health_care_application.async_compatible = params[:async_all]
@@ -26,7 +28,7 @@ module V0
     end
 
     def enrollment_status
-      validate_session
+      load_user
       loa3 = current_user&.loa3?
 
       icn =

@@ -10,5 +10,6 @@ module MDOT
     attribute :state, String
     attribute :country, String
     attribute :postal_code, String
+    attribute :is_military_base, Boolean, default: false
   end
 end

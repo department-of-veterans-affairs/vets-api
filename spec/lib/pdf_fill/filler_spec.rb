@@ -1,9 +1,9 @@
-require 'rails_helper'
 # frozen_string_literal: true
 
-PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+require 'rails_helper'
+require 'pdf_fill/filler'
 
-describe PdfFill::Filler do
+describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
   describe '#combine_extras' do
@@ -43,39 +43,50 @@ describe PdfFill::Filler do
     end
   end
 
-  def simplify_fields(fields)
-    fields.map do |field|
-      {
-        name: field.name,
-        value: field.value
-      }
-    end
-  end
-
-  def compare_pdfs(pdf1, pdf2)
-    fields = []
-    [pdf1, pdf2].each do |pdf|
-      fields << simplify_fields(described_class::PDF_FORMS.get_fields(pdf))
-    end
-
-    fields[0] == fields[1]
-  end
-
   describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21P-530 21P-527EZ].each do |form_id|
+    [
+      {
+        form_id: '21P-530',
+        factory: :burial_claim
+      },
+      {
+        form_id: '21P-527EZ',
+        factory: :pension_claim
+      },
+      {
+        form_id: '10-10CG',
+        factory: :caregivers_assistance_claim,
+        input_data_fixture_dir: 'pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
+        fill_options: {
+          sign: false
+        }
+      },
+      {
+        form_id: '10-10CG',
+        factory: :caregivers_assistance_claim,
+        input_data_fixture_dir: 'pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
+        fill_options: {
+          sign: true
+        }
+      },
+      {
+        form_id: '686C-674',
+        factory: :dependency_claim
+      }
+    ].each do |form_id:, factory:, **options|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
-            let(:form_data) do
-              get_fixture("pdf_fill/#{form_id}/#{type}")
-            end
+            let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "pdf_fill/#{form_id}" }
+            let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "pdf_fill/#{form_id}" }
+            let(:form_data) { get_fixture("#{input_data_fixture_dir}/#{type}") }
+            let(:saved_claim) { create(factory, form: form_data.to_json) }
 
             it 'fills the form correctly' do
-              fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
-              saved_claim = create(fact_name, form: form_data.to_json)
-
               if type == 'overflow'
-                # compare_pdfs only compares based on filled fields, it doesn't read the extras page
+                # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil
 
                 expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
@@ -84,20 +95,25 @@ describe PdfFill::Filler do
                 end
               end
 
-              file_path = described_class.fill_form(saved_claim)
+              file_path = if options[:fill_options]
+                            described_class.fill_form(saved_claim, nil, options[:fill_options])
+                          else
+                            # Should be able to call without any additional arguments
+                            described_class.fill_form(saved_claim)
+                          end
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
 
                 expect(
-                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                  FileUtils.compare_file(extras_path, "spec/fixtures/#{output_pdf_fixture_dir}/overflow_extras.pdf")
                 ).to eq(true)
 
                 File.delete(extras_path)
               end
 
               expect(
-                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+                pdfs_fields_match?(file_path, "spec/fixtures/#{output_pdf_fixture_dir}/#{type}.pdf")
               ).to eq(true)
 
               File.delete(file_path)
@@ -109,7 +125,7 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21-4142 21-0781a 21-0781 21-8940].each do |form_id|
+    %w[21-4142 21-0781a 21-0781 21-8940 28-8832].each do |form_id|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
@@ -119,7 +135,7 @@ describe PdfFill::Filler do
 
             it 'fills the form correctly' do
               if type == 'overflow'
-                # compare_pdfs only compares based on filled fields, it doesn't read the extras page
+                # pdfs_fields_match? only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil
                 expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
                   the_extras_generator = extras_generator
@@ -140,7 +156,7 @@ describe PdfFill::Filler do
               end
 
               expect(
-                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+                pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)
 
               File.delete(file_path)

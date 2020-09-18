@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require_relative 'configuration'
+
 module CentralMail
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.central_mail'
-    include Common::Client::Monitoring
+    include Common::Client::Concerns::Monitoring
 
     configuration CentralMail::Configuration
 

@@ -1,23 +1,25 @@
 # frozen_string_literal: true
 
+require 'evss/configuration'
+
 module EVSS
   module ReferenceData
     # HTTP client configuration for the {ReferenceData::Service} to
     # set the base path and a service name for breakers and metrics
     #
-    class Configuration < EVSS::AWSConfiguration
+    class Configuration < EVSS::Configuration
       ##
       # @return [String] Base path for ReferenceData URLs.
       #
       def base_path
-        Settings.evss.aws.url.to_s
+        "#{Settings.evss.url}/wss-referencedata-services-web/rest/referencedata/v1"
       end
 
       ##
       # @return [String] Service name to use in breakers and metrics.
       #
       def service_name
-        'EVSS/AWS/ReferenceData'
+        'EVSS/ReferenceData'
       end
 
       ##
@@ -25,7 +27,7 @@ module EVSS
       #
       def mock_enabled?
         # TODO: create mock data
-        false
+        Settings.evss.mock_reference || false
       end
     end
   end

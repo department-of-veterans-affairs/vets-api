@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-Sidekiq::Testing.fake!
 
 RSpec.describe Form526Submission do
   subject do
@@ -14,7 +12,7 @@ RSpec.describe Form526Submission do
     )
   end
 
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:disabilities_compensation_user) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -26,23 +24,9 @@ RSpec.describe Form526Submission do
   describe '#start' do
     before { Sidekiq::Worker.clear_all }
 
-    context 'when it is increase only' do
-      let(:klass) { EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly }
-
-      it 'returns a bid' do
-        expect(subject.start(klass)).to be_a(String)
-      end
-
-      it 'queues a increase only job' do
-        expect { subject.start(klass) }.to change(klass.jobs, :size).by(1)
-      end
-    end
-
     context 'when it is all claims' do
-      let(:klass) { EVSS::DisabilityCompensationForm::SubmitForm526AllClaim }
-
       it 'queues an all claims job' do
-        expect { subject.start(klass) }.to change(klass.jobs, :size).by(1)
+        expect { subject.start }.to change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
       end
     end
   end
@@ -121,7 +105,7 @@ RSpec.describe Form526Submission do
 
       it 'queues 1 upload jobs' do
         expect do
-          subject.perform_ancillary_jobs
+          subject.perform_ancillary_jobs('some name')
         end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
       end
     end
@@ -133,7 +117,7 @@ RSpec.describe Form526Submission do
 
       it 'queues a 4142 job' do
         expect do
-          subject.perform_ancillary_jobs
+          subject.perform_ancillary_jobs('some name')
         end.to change(CentralMail::SubmitForm4142Job.jobs, :size).by(1)
       end
     end
@@ -145,7 +129,7 @@ RSpec.describe Form526Submission do
 
       it 'queues a 0781 job' do
         expect do
-          subject.perform_ancillary_jobs
+          subject.perform_ancillary_jobs('some name')
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm0781.jobs, :size).by(1)
       end
     end
@@ -157,8 +141,49 @@ RSpec.describe Form526Submission do
 
       it 'queues a 8940 job' do
         expect do
-          subject.perform_ancillary_jobs
+          subject.perform_ancillary_jobs('some name')
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
+      end
+    end
+  end
+
+  describe '#get_full_name' do
+    [
+      {
+        input:
+          {
+            first_name: 'Joe',
+            middle_name: 'Doe',
+            last_name: 'Smith',
+            suffix: 'Jr.'
+          },
+        expected: 'JOE DOE SMITH JR.'
+      },
+      {
+        input:
+          {
+            first_name: 'Joe',
+            middle_name: nil,
+            last_name: 'Smith',
+            suffix: nil
+          },
+        expected: 'JOE SMITH'
+      }, {
+        input:
+          {
+            first_name: 'Joe',
+            middle_name: 'Doe',
+            last_name: 'Smith',
+            suffix: nil
+          },
+        expected: 'JOE DOE SMITH'
+      }
+    ].each do |test_param|
+      it 'gets correct full name' do
+        allow(User).to receive(:find).with(anything).and_return(user)
+        allow_any_instance_of(User).to receive(:full_name_normalized).and_return(test_param[:input])
+
+        expect(subject.get_full_name).to eql(test_param[:expected])
       end
     end
   end
@@ -186,6 +211,31 @@ RSpec.describe Form526Submission do
       end
     end
 
+    context 'with multiple successful jobs and email' do
+      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
+
+      before { Timecop.freeze(Time.zone.parse('2012-07-20 14:15:00 UTC')) }
+
+      after { Timecop.return }
+
+      it 'calls confirmation email job with correct personalization' do
+        Flipper.enable(:form526_confirmation_email)
+
+        allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
+          expect(args[0]['full_name']).to eql('some name')
+          expect(args[0]['submitted_claim_id']).to be(123_654_879)
+          expect(args[0]['email']).to eql('test@email.com')
+          expect(args[0]['date_submitted']).to eql('July 20, 2012')
+        end
+
+        options = {
+          'submission_id' => subject.id,
+          'full_name' => 'some name'
+        }
+        subject.workflow_complete_handler(nil, options)
+      end
+    end
+
     context 'with mixed result jobs' do
       subject { create(:form526_submission, :with_mixed_status) }
 
@@ -205,6 +255,35 @@ RSpec.describe Form526Submission do
         subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
         subject.reload
         expect(subject.workflow_complete).to be_falsey
+      end
+    end
+
+    context 'with submission confirmation email when successful job statuses' do
+      subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+
+      it 'returns zero jobs triggered when feature flag disabled' do
+        Flipper.disable(:form526_confirmation_email)
+        expect do
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+      end
+
+      it 'returns one job triggered when feature flag enabled' do
+        Flipper.enable(:form526_confirmation_email)
+        expect do
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
+      end
+    end
+
+    context 'with submission confirmation email when failed job statuses' do
+      Flipper.enable(:form526_confirmation_email)
+      subject { create(:form526_submission, :with_mixed_status) }
+
+      it 'returns zero jobs triggered' do
+        expect do
+          subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
       end
     end
   end

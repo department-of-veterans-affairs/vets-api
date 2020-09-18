@@ -11,7 +11,7 @@ describe Common::Client::Middleware::Response do
   subject(:appeals_client) do
     Faraday.new do |conn|
       conn.response :snakecase
-      conn.response :raise_error, error_prefix: 'AppealsStatus'
+      conn.response :raise_error, error_prefix: 'CaseflowStatus'
       conn.response :caseflow_errors
       conn.response :json_parser
 
@@ -29,13 +29,13 @@ describe Common::Client::Middleware::Response do
 
   it 'raises client response error' do
     message = 'BackendServiceException: {:status=>404, :detail=>"Veteran not found", ' \
-              ':code=>"APPEALSSTATUS404", :source=>"A veteran with that SSN was not found in our systems."}'
+              ':code=>"CASEFLOWSTATUS404", :source=>"A veteran with that SSN was not found in our systems."}'
     expect { appeals_client.get('not-found') }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
         expect(error.message).to eq(message)
         expect(error.errors.first[:detail]).to eq('Appeals data for a veteran with that SSN was not found')
-        expect(error.errors.first[:code]).to eq('APPEALSSTATUS404')
+        expect(error.errors.first[:code]).to eq('CASEFLOWSTATUS404')
       end
   end
 end

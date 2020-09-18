@@ -10,16 +10,25 @@ require 'statsd-instrument'
 require 'statsd/instrument/matchers'
 require 'rspec/rails'
 require 'webmock/rspec'
+require 'sidekiq/semantic_logging'
+require 'sidekiq/error_tag'
+require 'support/mvi/stub_mvi'
+require 'support/stub_evss_pciu'
+require 'support/vet360/stub_vet360'
 require 'support/factory_bot'
 require 'support/serializer_spec_helper'
 require 'support/validation_helpers'
 require 'support/model_helpers'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
+require 'support/vcr'
+require 'support/mdot_helpers'
+require 'support/poa_stub'
+require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
-require 'common/exceptions'
+require 'super_diff/rspec-rails'
 require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -33,7 +42,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 #   expect(something).to equal(2)
 # end
 def with_settings(settings, temp_values)
-  old_settings = temp_values.keys.map { |k| [k, settings[k]] }.to_h
+  old_settings = temp_values.keys.index_with { |k| settings[k] }
 
   # The `Config` object doesn't support `.merge!`, so manually copy
   # the updated values.
@@ -58,32 +67,7 @@ module VCR
   end
 end
 
-VCR.configure do |c|
-  c.cassette_library_dir = 'spec/support/vcr_cassettes'
-  c.hook_into :webmock
-  c.configure_rspec_metadata!
-  c.filter_sensitive_data('<PENSIONS_TOKEN>') { Settings.central_mail.upload.token }
-  c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
-  c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
-  c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
-  c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
-  c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
-  c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
-  c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
-  c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
-  c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
-  c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
-  c.filter_sensitive_data('<OKTA_TOKEN>') { Settings.oidc.base_api_token }
-  c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
-  c.filter_sensitive_data('<AV_KEY>') { Settings.vet360.address_validation.api_key }
-  c.before_record do |i|
-    %i[response request].each do |env|
-      next unless i.send(env).headers.keys.include?('Token')
-
-      i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
-    end
-  end
-end
+VCR.configure(&:configure_rspec_metadata!)
 
 ActiveRecord::Migration.maintain_test_schema!
 
@@ -91,7 +75,6 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Testing.server_middleware do |chain|
   chain.add Sidekiq::SemanticLogging
-  # chain.add Sidekiq::Instrument::ServerMiddleware
   chain.add Sidekiq::ErrorTag
 end
 
@@ -119,6 +102,10 @@ RSpec.configure do |config|
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
   config.include(UploaderHelpers, uploader_helpers: true)
+
+  %i[controller mdot_helpers request].each do |type|
+    config.include(MDOTHelpers, type: type)
+  end
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
@@ -151,6 +138,10 @@ RSpec.configure do |config|
   # serializer_spec_helper
   config.include SerializerSpecHelper, type: :serializer
 
+  %i[model controller request].each do |type|
+    config.include PdfFillHelper, type: type
+  end
+
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request
   config.include AuthenticatedSessionHelper, type: :controller
@@ -162,18 +153,6 @@ RSpec.configure do |config|
 
   config.before :each, type: :controller do
     request.host = Settings.hostname
-  end
-
-  config.before(:all) do
-    unless defined?(Sidekiq::Batch)
-      Sidekiq::Batch = Class.new do
-        def on(_callback, _klass, _options) end
-
-        def jobs
-          yield
-        end
-      end
-    end
   end
 
   config.before do |example|

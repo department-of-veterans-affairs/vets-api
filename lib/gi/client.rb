@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'common/client/base'
+require_relative 'configuration'
+require_relative 'gids_response'
+
 module GI
   # Core class responsible for api interface operations
   class Client < Common::Client::Base
@@ -17,16 +21,6 @@ module GI
 
     def get_calculator_constants(params = {})
       response = perform(:get, 'calculator/constants', params)
-      gids_response(response)
-    end
-
-    def get_institution_search_results(params = {})
-      response = perform(:get, 'institutions', params)
-      gids_response(response)
-    end
-
-    def get_institution_program_search_results(params = {})
-      response = perform(:get, 'institution_programs', params)
       gids_response(response)
     end
 

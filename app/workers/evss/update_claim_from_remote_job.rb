@@ -14,7 +14,7 @@ module EVSS
       raw_claim = EVSS::ClaimsService.new(
         auth_headers
       ).find_claim_with_docs_by_id(claim.evss_id).body.fetch('claim', {})
-      claim.update_attributes(data: raw_claim)
+      claim.update(data: raw_claim)
       set_status(user_uuid, claim_id, 'SUCCESS')
     rescue ActiveRecord::ConnectionTimeoutError
       set_status(user_uuid, claim_id, 'FAILED')

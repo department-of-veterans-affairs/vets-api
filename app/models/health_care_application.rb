@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+require 'hca/service'
+require 'hca/rate_limited_search'
+require 'hca/user_attributes'
+require 'hca/enrollment_eligibility/service'
+require 'hca/enrollment_eligibility/status_matcher'
+require 'mvi/attr_service'
+
 class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
@@ -133,7 +140,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def set_result_on_success!(result)
-    update_attributes!(
+    update!(
       state: 'success',
       # this is a string because it overflowed the postgres integer limit in one of the tests
       form_submission_id_string: result[:formSubmissionId].to_s,

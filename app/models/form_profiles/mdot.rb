@@ -1,20 +1,27 @@
 # frozen_string_literal: true
 
+require 'mdot/address'
+require 'mdot/client'
+require 'mdot/eligibility'
+require 'mdot/supply'
+
 module MDOT
-  class FormAddressInformation
+  class FormContactInformation
     include Virtus.model
     attribute :permanent_address, MDOT::Address
     attribute :temporary_address, MDOT::Address
+    attribute :vet_email, String
   end
 
   class FormSupplyInformation
     include Virtus.model
     attribute :available, Array[MDOT::Supply]
+    attribute :eligibility, MDOT::Eligibility
   end
 end
 
 class FormProfiles::MDOT < FormProfile
-  attribute :mdot_contact_information, MDOT::FormAddressInformation
+  attribute :mdot_contact_information, MDOT::FormContactInformation
   attribute :mdot_supplies, MDOT::FormSupplyInformation
 
   def metadata
@@ -35,15 +42,17 @@ class FormProfiles::MDOT < FormProfile
   private
 
   def initialize_mdot_contact_information(response)
-    MDOT::FormAddressInformation.new(
+    MDOT::FormContactInformation.new(
       permanent_address: response&.permanent_address,
-      temporary_address: response&.temporary_address
+      temporary_address: response&.temporary_address,
+      vet_email: response&.vet_email
     )
   end
 
   def initialize_mdot_supplies(response)
     MDOT::FormSupplyInformation.new(
-      available: response&.supplies
+      available: response&.supplies,
+      eligibility: response&.eligibility
     )
   end
 end

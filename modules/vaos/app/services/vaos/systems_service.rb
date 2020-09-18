@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VAOS
-  class SystemsService < VAOS::BaseService
+  class SystemsService < VAOS::SessionService
     AVAILABLE_APPT_FMT = '%m/%d/%Y'
 
     def get_systems
@@ -107,7 +107,7 @@ module VAOS
 
     def get_clinic_institutions(system_id, clinic_ids)
       with_monitoring do
-        url = "/cdw/v2/facilities/#{system_id}/clinics"
+        url = "/cdw/v3/facilities/#{system_id}/clinics"
         # the vaos clinic ids endpoint doesn't follow the url_param[]=1&url_param[]=2 style of passing an array
         url_params = {
           'pageSize' => 0,
@@ -115,6 +115,36 @@ module VAOS
         }
         response = perform(:get, url, url_params, headers)
         response.body[:data].map { |clinic| VAOS::ClinicInstitution.new(clinic) }
+      end
+    end
+
+    def get_request_eligibility_criteria(site_codes: nil, parent_sites: nil)
+      with_monitoring do
+        url = '/facilities/v1/request-eligibility-criteria'
+        url_params = nil
+        if site_codes || parent_sites
+          url_params = {}
+          url_params['site-codes'] = site_codes if site_codes
+          url_params['parent-sites'] = parent_sites if parent_sites
+        end
+        options = { params_encoder: Faraday::FlatParamsEncoder }
+        response = perform(:get, url, url_params, headers, options)
+        response.body.map { |rec| OpenStruct.new(rec) }
+      end
+    end
+
+    def get_direct_booking_elig_crit(site_codes: nil, parent_sites: nil)
+      with_monitoring do
+        url = '/facilities/v1/direct-booking-eligibility-criteria'
+        url_params = nil
+        if site_codes || parent_sites
+          url_params = {}
+          url_params['site-codes'] = site_codes if site_codes
+          url_params['parent-sites'] = parent_sites if parent_sites
+        end
+        options = { params_encoder: Faraday::FlatParamsEncoder }
+        response = perform(:get, url, url_params, headers, options)
+        response.body.map { |rec| OpenStruct.new(rec) }
       end
     end
 

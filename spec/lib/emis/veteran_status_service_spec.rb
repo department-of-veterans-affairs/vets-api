@@ -2,11 +2,6 @@
 
 require 'rails_helper'
 require 'emis/veteran_status_service'
-require 'emis/responses/get_veteran_status_response'
-
-# frozen_string_literal: true
-require 'emis/service'
-require 'emis/veteran_status_configuration'
 
 describe EMIS::VeteranStatusService do
   let(:edipi_veteran) { '1068619536' }
@@ -49,6 +44,9 @@ describe EMIS::VeteranStatusService do
         VCR.use_cassette('emis/get_veteran_status/bad_edipi') do
           response = subject.get_veteran_status(edipi: bad_edipi)
           expect(response).not_to be_ok
+          expect(response.error?).to eq(true)
+          expect(response.error).to be_a(EMIS::Errors::ServiceError)
+          expect(response.error.message).to eq('MIS-ERR-005 EDIPI_BAD_FORMAT EDIPI incorrectly formatted')
         end
       end
     end
@@ -59,6 +57,8 @@ describe EMIS::VeteranStatusService do
           response = subject.get_veteran_status(edipi: missing_edipi)
           expect(response).not_to be_ok
           expect(response).to be_empty
+          expect(response.error?).to eq(false)
+          expect(response.error).to eq(nil)
         end
       end
     end
@@ -94,6 +94,7 @@ describe EMIS::BrokenVeteranStatusService do
       response = subject.get_veteran_status(edipi: edipi)
       expect(response).to be_an_instance_of(EMIS::Responses::ErrorResponse)
       expect(response.error).to be_an_instance_of(Common::Client::Errors::HTTPError)
+      expect(response.error.message).to be('SOAP HTTP call failed')
     end
   end
 end

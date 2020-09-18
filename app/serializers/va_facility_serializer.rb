@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/client'
+
 class VAFacilitySerializer < ActiveModel::Serializer
   type 'va_facilities'
 
@@ -7,6 +9,25 @@ class VAFacilitySerializer < ActiveModel::Serializer
     "#{object.facility_type_prefix}_#{object.unique_id}"
   end
 
-  attributes :unique_id, :name, :facility_type, :classification, :website, :lat, :long,
-             :address, :phone, :hours, :services, :feedback, :access
+  def operating_status
+    if Flipper.enabled?(:facility_locator_pull_operating_status_from_lighthouse)
+      Lighthouse::Facilities::Client.new.get_by_id(id)&.operating_status
+    end
+  end
+
+  attributes  :access,
+              :address,
+              :classification,
+              :facility_type,
+              :feedback,
+              :hours,
+              :lat,
+              :long,
+              :name,
+              :operating_status,
+              :phone,
+              :services,
+              :unique_id,
+              :visn,
+              :website
 end

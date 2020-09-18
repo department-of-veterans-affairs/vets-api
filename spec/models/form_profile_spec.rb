@@ -73,6 +73,31 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v686_c_674_expected) do
+    {
+      'veteranContactInformation' => {
+        'veteranAddress' => {
+          'addressLine1' => '140 Rock Creek Rd',
+          'countryName' => 'USA',
+          'city' => 'Washington',
+          'stateCode' => 'DC',
+          'zipCode' => '20011'
+        },
+        'phoneNumber' => '4445551212',
+        'emailAddress' => 'test2@test1.net'
+      },
+      'veteranInformation' => {
+        'fullName' => {
+          'first' => 'Abraham',
+          'last' => 'Lincoln',
+          'suffix' => 'Jr.'
+        },
+        'ssn' => '796111863',
+        'birthDate' => '1809-02-12'
+      }
+    }
+  end
+
   let(:v21_686_c_expected) do
     {
       'veteranFullName' => {
@@ -372,6 +397,27 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_10203_expected) do
+    {
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'homePhone' => us_phone,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.pciu_email
+    }
+  end
+
   let(:v22_5490_expected) do
     {
       'toursOfDuty' => [
@@ -452,67 +498,66 @@ RSpec.describe FormProfile, type: :model do
         'suffix' => user.va_profile[:suffix]
       },
       'permanentAddress' => {
-        'street' => '101 Example Street',
-        'street2' => 'Apt 2',
-        'city' => 'Kansas City',
-        'state' => 'MO',
-        'country' => 'USA',
-        'postalCode' => '64117'
+        'street' => '456 ANYPLACE RD',
+        'city' => 'PENSACOLA',
+        'state' => 'FL',
+        'country' => 'United States',
+        'postalCode' => '33344'
       },
       'temporaryAddress' => {
-        'street' => '201 Example Street',
-        'city' => 'Galveston',
-        'state' => 'TX',
-        'country' => 'USA',
-        'postalCode' => '77550'
+        'street' => '123 SOMEWHERE',
+        'street2' => 'OUT THERE',
+        'city' => 'DENVER',
+        'state' => 'CO',
+        'country' => 'United States',
+        'postalCode' => '80030'
       },
+      'ssnLastFour' => user.ssn.last(4),
       'gender' => user.gender,
-      'email' => user.pciu_email,
+      'vetEmail' => 'veteran@gmail.com',
       'dateOfBirth' => user.birth_date,
+      'eligibility' => {
+        'accessories' => true,
+        'batteries' => true
+      },
       'supplies' => [
         {
-          'deviceName' => 'OMEGAX d3241',
-          'productName' => 'ZA1239',
-          'productGroup' => 'hearing aid batteries',
-          'productId' => '1',
+          'productName' => 'ERHK HE11 680 MINI',
+          'productGroup' => 'ACCESSORIES',
+          'productId' => 6584,
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-11-22',
+          'nextAvailabilityDate' => '2020-04-22',
+          'quantity' => 1
+        },
+        {
+          'productName' => 'ZA10',
+          'productGroup' => 'BATTERIES',
+          'productId' => 3315,
+          'availableForReorder' => true,
+          'lastOrderDate' => '2019-12-01',
+          'nextAvailabilityDate' => '2020-05-01',
+          'quantity' => 24
+        },
+        {
+          'deviceName' => 'WILLIAMS SOUND CORP./POCKETALKER II',
+          'productName' => 'M312',
+          'productGroup' => 'BATTERIES',
+          'productId' => 2298,
           'availableForReorder' => false,
-          'lastOrderDate' => '2020-01-01',
-          'nextAvailabilityDate' => '2020-09-01',
-          'quantity' => 60,
-          'size' => ''
+          'lastOrderDate' => '2020-05-06',
+          'nextAvailabilityDate' => '2020-10-06',
+          'quantity' => 12
         },
         {
-          'deviceName' => '',
-          'productName' => 'DOME',
-          'productGroup' => 'hearing aid accessories',
-          'productId' => '3',
-          'availableForReorder' => true,
-          'lastOrderDate' => '2019-06-30',
-          'nextAvailabilityDate' => '2019-12-15',
-          'quantity' => 10,
-          'size' => '6mm'
-        },
-        {
-          'deviceName' => '',
-          'productName' => 'DOME',
-          'productGroup' => 'hearing aid accessories',
-          'productId' => '4',
-          'availableForReorder' => true,
-          'lastOrderDate' => '2019-06-30',
-          'nextAvailabilityDate' => '2019-12-15',
-          'quantity' => 10,
-          'size' => '7mm'
-        },
-        {
-          'deviceName' => '',
-          'productName' => 'WaxBuster Single Unit',
-          'productGroup' => 'hearing aid accessories',
-          'productId' => '5',
-          'available_for_reorder' => true,
-          'lastOrderDate' => '2019-06-30',
-          'nextAvailabilityDate' => '2019-12-15',
-          'quantity' => 10,
-          'size' => ''
+          'deviceName' => 'SIVANTOS/SIEMENS/007ASP2',
+          'productName' => 'ZA13',
+          'productGroup' => 'BATTERIES',
+          'productId' => 2314,
+          'availableForReorder' => false,
+          'lastOrderDate' => '2020-05-06',
+          'nextAvailabilityDate' => '2020-10-06',
+          'quantity' => 60
         }
       ]
     }
@@ -629,19 +674,16 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v20_0996_expected) do
     {
-      'data' =>
-      {
-        'attributes' =>
-        {
-          'veteran' =>
-          {
-            'addressLine1' => street_check[:street],
-            'addressLine2' => street_check[:street2],
-            'city' => user.va_profile[:address][:city],
-            'stateOrProvinceCode' => user.va_profile[:address][:state],
-            'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
-            'phoneNumber' => us_phone,
-            'emailAddress' => user.pciu_email
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'address' => {
+              'zipCode5' => user.va_profile[:address][:zip_code]
+            },
+            'phone' => {
+              'phoneNumber' => us_phone
+            },
+            'emailAddressText' => user.pciu_email
           }
         }
       }
@@ -697,6 +739,14 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
+  describe '#extract_pciu_data' do
+    it 'rescues EVSS::ErrorMiddleware::EVSSError errors' do
+      expect(user).to receive(:pciu_primary_phone).and_raise(EVSS::ErrorMiddleware::EVSSError)
+
+      expect(form_profile.send(:extract_pciu_data, user, :pciu_primary_phone)).to eq('')
+    end
+  end
+
   describe '#prefill_form' do
     def can_prefill_emis(yes)
       expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
@@ -719,6 +769,8 @@ RSpec.describe FormProfile, type: :model do
 
       if form_id == '1010ez'
         '10-10EZ'
+      elsif form_id == '21-526EZ'
+        '21-526EZ-ALLCLAIMS'
       else
         form_id
       end.tap do |schema_form_id|
@@ -726,7 +778,6 @@ RSpec.describe FormProfile, type: :model do
 
         schema_data = prefilled_data.deep_dup
 
-        schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) },
@@ -803,6 +854,7 @@ RSpec.describe FormProfile, type: :model do
           to: '2016-06-01'
         )
       end
+
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
       context 'with vets360 prefill on' do
@@ -867,25 +919,77 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
+      context 'with emis prefill for 10203' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'prefills 10203' do
+          expect_prefilled('22-10203')
+        end
+      end
+
+      context 'with emis and GiBillStatus prefill for 10203' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_10203_expected['remainingEntitlement'] = {
+            'months' => 0,
+            'days' => 12
+          }
+          v22_10203_expected['schoolName'] = 'OLD DOMINION UNIVERSITY'
+          v22_10203_expected['schoolCity'] = 'NORFOLK'
+          v22_10203_expected['schoolState'] = 'VA'
+          v22_10203_expected['schoolCountry'] = 'USA'
+        end
+
+        it 'prefills 10203 with emis and entitlement information' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+                VCR.use_cassette('gi_client/gets_the_institution_details') do
+                  prefilled_data = Oj.load(described_class.for('22-10203').prefill(user).to_json)['form_data']
+                  expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
+                end
+              end
+            end
+          end
+        end
+      end
+
       context 'with a user that can prefill emis' do
         before do
           stub_methods_for_emis_data
           can_prefill_emis(true)
         end
 
+        context 'with a user with no vet360_id' do
+          before do
+            allow(user).to receive(:vet360_id).and_return(nil)
+          end
+
+          it 'omits address fields in 686c-674 form' do
+            prefilled_data = described_class.for('686C-674').prefill(user)[:form_data]
+            v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
+            expect(prefilled_data).to eq(v686_c_674_expected)
+          end
+        end
+
         %w[
-          VIC
           22-1990
           22-1990N
           22-1990E
           22-1995
-          22-1995S
           22-5490
           22-5495
           40-10007
           1010ez
           22-0993
           FEEDBACK-TOOL
+          686C-674
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
@@ -950,7 +1054,20 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a higher level review form' do
       it 'returns the va profile mapped to the higher level review form' do
-        expect_prefilled('20-0996')
+        schema_name = '20-0996'
+        schema = VetsJsonSchema::SCHEMAS[schema_name]
+        full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
+
+        prefill_data = Oj.load(described_class.for(schema_name).prefill(user).to_json)['form_data']
+
+        test_data = full_example.deep_merge prefill_data
+
+        errors = JSON::Validator.fully_validate(
+          schema,
+          test_data,
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
     end
 
@@ -983,6 +1100,13 @@ RSpec.describe FormProfile, type: :model do
         instance1.prefill(user)
         instance2.prefill(user)
       end
+    end
+  end
+
+  describe '#load_form_mapping' do
+    it 'loads 526ez when BDD is given' do
+      the_yaml = described_class.load_form_mapping('21-526EZ-BDD')
+      expect(the_yaml['veteran']).to eq(%w[veteran_contact_information veteran])
     end
   end
 end

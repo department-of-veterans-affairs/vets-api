@@ -3,7 +3,7 @@
   "required": [
     "decision_code",
     "decision_text",
-		"diagnostic_code",
+    "diagnostic_code",
     "name",
     "effective_date",
     "rated_disability_id",

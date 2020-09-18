@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+require 'common/client/concerns/service_status'
+
 module Users
   class ExceptionHandler
-    include Common::Client::ServiceStatus
+    include Common::Client::Concerns::ServiceStatus
 
     attr_reader :error, :service
 

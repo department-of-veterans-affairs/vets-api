@@ -20,22 +20,25 @@ module SAML
         idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
         settings = idp_metadata_parser.parse(File.read(Settings.saml_ssoe.idp_metadata_file))
 
-        settings.certificate = Settings.saml_ssoe.certificate
-        settings.private_key = Settings.saml_ssoe.key
-        settings.certificate_new = Settings.saml_ssoe.certificate_new
+        if pki_needed?
+          settings.certificate = Settings.saml_ssoe.certificate
+          settings.private_key = Settings.saml_ssoe.key
+          settings.certificate_new = Settings.saml_ssoe.certificate_new
+        end
         settings.sp_entity_id = Settings.saml_ssoe.issuer
         settings.assertion_consumer_service_url = Settings.saml_ssoe.callback_url
+        settings.compress_request = false
 
-        settings.security[:authn_requests_signed] = true
-        settings.security[:logout_requests_signed] = true
+        settings.security[:authn_requests_signed] = Settings.saml_ssoe.request_signing
+        settings.security[:want_assertions_signed] = Settings.saml_ssoe.response_signing
+        settings.security[:want_assertions_encrypted] = Settings.saml_ssoe.response_encryption
         settings.security[:embed_sign] = false
         settings.security[:signature_method] = XMLSecurity::Document::RSA_SHA1
-        # TODO: Enable these after initial integration with SSOe
-        # settings.security[:want_assertions_signed] = true
-        # settings.security[:want_assertions_encrypted] = true
-        # TODO: Add this to configuration if metadata is not accurate
-        # result.idp_sso_target_url = Settings.saml_ssoe.idp_sso_url
         settings
+      end
+
+      def pki_needed?
+        Settings.saml_ssoe.request_signing || Settings.saml_ssoe.response_encryption
       end
     end
   end

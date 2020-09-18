@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'base_address'
+
 module Vet360
   module Models
     class Address < BaseAddress
       validates(:source_date, presence: true)
-      validates(:country_name, presence: true)
 
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
       # @param body [Hash] the decoded response body from Vet360
@@ -70,8 +71,13 @@ module Vet360
           created_at: body['create_date'],
           effective_end_date: body['effective_end_date'],
           effective_start_date: body['effective_start_date'],
+          geocode_date: body['geocode_date'],
+          geocode_precision: body['geocode_precision'],
           id: body['address_id'],
           international_postal_code: body['int_postal_code'],
+          latitude: body['latitude'],
+          longitude: body['longitude'],
+          province: body['province_name'],
           source_date: body['source_date'],
           state_code: body['state_code'],
           transaction_id: body['tx_audit_id'],

@@ -1,14 +1,24 @@
 # frozen_string_literal: true
 
 module BGS
-  class DependentService
-    def get_dependents(current_user)
-      service = LighthouseBGS::Services.new(
-        external_uid: current_user.icn,
-        external_key: current_user.email
-      )
+  class DependentService < BaseService
+    def get_dependents
+      @service.claimant.find_dependents_by_participant_id(@user.participant_id, @user.ssn)
+    end
 
-      service.claimants.find_dependents_by_participant_id(current_user.participant_id, current_user.ssn)
+    def submit_686c_form(claim)
+      bgs_person = @service.people.find_person_by_ptcpnt_id(@user.participant_id)
+
+      # rubocop:disable Rails/DynamicFindBy
+      bgs_person = @service.people.find_by_ssn(@user.ssn) if bgs_person.nil?
+      # rubocop:enable Rails/DynamicFindBy
+
+      vet_info = VetInfo.new(@user, bgs_person)
+
+      BGS::SubmitForm686cJob.perform_async(@user.uuid, claim.id, vet_info.to_686c_form_hash)
+      VBMS::SubmitDependentsPDFJob.perform_async(claim.id, vet_info.to_686c_form_hash)
+    rescue => e
+      report_error(e)
     end
   end
 end

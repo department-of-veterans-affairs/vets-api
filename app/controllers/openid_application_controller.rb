@@ -6,9 +6,13 @@ require 'common/client/errors'
 require 'saml/settings_service'
 require 'sentry_logging'
 require 'oidc/key_service'
+require 'okta/user_profile'
+require 'okta/service'
 require 'jwt'
 
 class OpenidApplicationController < ApplicationController
+  skip_before_action :verify_authenticity_token
+  skip_after_action :set_csrf_header
   before_action :authenticate
   TOKEN_REGEX = /Bearer /.freeze
 
@@ -40,7 +44,7 @@ class OpenidApplicationController < ApplicationController
     auth_request = request.authorization.to_s
     return unless auth_request[TOKEN_REGEX]
 
-    Token.new(auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, ''))
+    Token.new(auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, ''), fetch_aud)
   end
 
   def establish_session
@@ -71,6 +75,10 @@ class OpenidApplicationController < ApplicationController
     session = Session.new(token: token.to_s, uuid: token.identifiers.uuid)
     session.expire(ttl)
     session
+  end
+
+  def fetch_aud
+    Settings.oidc.isolated_audience.default
   end
 
   attr_reader :current_user, :session, :scopes

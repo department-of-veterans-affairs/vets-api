@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_dependency 'vba_documents/upload_error'
+require 'central_mail/service'
+require 'common/exceptions'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
@@ -8,6 +10,8 @@ module VBADocuments
     include SentryLogging
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
+
+    ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
 
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 

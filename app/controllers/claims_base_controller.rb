@@ -10,6 +10,9 @@
 
 # Current subclasses are PensionClaim and BurialClaim.
 
+require 'pension_burial/tag_sentry'
+require 'common/exceptions/validation_errors'
+
 class ClaimsBaseController < ApplicationController
   skip_before_action(:authenticate)
 
@@ -25,7 +28,7 @@ class ClaimsBaseController < ApplicationController
     claim.process_attachments!
     StatsD.increment("#{stats_key}.success")
     Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-    validate_session
+    load_user
     clear_saved_form(claim.form_id)
     render(json: claim)
   end

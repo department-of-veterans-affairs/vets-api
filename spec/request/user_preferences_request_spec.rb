@@ -14,6 +14,9 @@ describe 'user_preferences', type: :request do
       'Accept' => 'application/json'
     }
   end
+  let(:inflection_header) do
+    { 'X-Key-Inflection' => 'camel' }
+  end
   let(:preference_1) { create :preference }
   let(:preference_2) { create :preference }
   let(:choice_1) { create :preference_choice, preference: preference_1 }
@@ -53,6 +56,13 @@ describe 'user_preferences', type: :request do
       expect(response).to match_response_schema('user_preferences')
     end
 
+    it 'returns the expected shape of attributes with camel-inflection', :aggregate_failures do
+      post '/v0/user/preferences', params: request_body.to_json, headers: headers.merge(inflection_header)
+
+      expect(response).to have_http_status(:ok)
+      expect(response).to match_camelized_response_schema('user_preferences')
+    end
+
     context 'current user does not have an Account record' do
       let(:user) { build(:user, :loa3) }
 
@@ -68,6 +78,14 @@ describe 'user_preferences', type: :request do
         expect(user.account).to be_present
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('user_preferences')
+      end
+
+      it 'creates an Account record for the current user with camel-inflection', :aggregate_failures do
+        post '/v0/user/preferences', params: request_body.to_json, headers: headers.merge(inflection_header)
+
+        expect(user.account).to be_present
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('user_preferences')
       end
     end
 
@@ -201,9 +219,17 @@ describe 'user_preferences', type: :request do
         expect(response).to match_response_schema('delete_all_user_preferences')
         expect(UserPreference.where(account_id: user.account.id).count).to eq 0
       end
+
+      it 'deletes all of a User\'s UserPreferences with camel-inflection', :aggregate_failures do
+        delete '/v0/user/preferences/notifications/delete_all', headers: headers.merge(inflection_header)
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('delete_all_user_preferences')
+        expect(UserPreference.where(account_id: user.account.id).count).to eq 0
+      end
     end
 
-    context 'when given a non existant code' do
+    context 'when given a nonexistent code' do
       it 'returns a 404 not found', :aggregate_failures do
         delete '/v0/user/preferences/garbagecode/delete_all', headers: headers
 
@@ -223,6 +249,20 @@ describe 'user_preferences', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
+        expect(error_details_for(response, key: 'title')).to eq 'Unprocessable Entity'
+        expect(error_details_for(response, key: 'status')).to eq '422'
+        expect(error_details_for(response, key: 'detail')).to include 'ActiveRecord::RecordNotDestroyed'
+      end
+
+      it 'returns a 422 unprocessable with camel-inflection', :aggregate_failures do
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+
+        delete '/v0/user/preferences/notifications/delete_all', headers: headers.merge(inflection_header)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_camelized_response_schema('errors')
         expect(error_details_for(response, key: 'title')).to eq 'Unprocessable Entity'
         expect(error_details_for(response, key: 'status')).to eq '422'
         expect(error_details_for(response, key: 'detail')).to include 'ActiveRecord::RecordNotDestroyed'
@@ -252,6 +292,13 @@ describe 'user_preferences', type: :request do
 
       expect(response).to be_ok
       expect(response).to match_response_schema('user_preferences')
+    end
+
+    it 'returns an index of all of the user\'s preferences with camel-inflection' do
+      get '/v0/user/preferences', headers: headers.merge(inflection_header)
+
+      expect(response).to be_ok
+      expect(response).to match_camelized_response_schema('user_preferences')
     end
   end
 end

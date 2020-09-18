@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'common/exceptions/internal/record_not_found'
-require 'common/exceptions/external/gateway_timeout'
+require 'common/exceptions/record_not_found'
+require 'common/exceptions/gateway_timeout'
 require 'common/client/concerns/monitoring'
+require 'evss/service'
+require_relative 'configuration'
+require_relative 'beneficiary_response'
+require_relative 'letters_response'
+require_relative 'service_exception'
 
 module EVSS
   module Letters
@@ -49,6 +54,7 @@ module EVSS
       private
 
       def handle_error(error)
+        Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
           begin
             log_edipi if invalid_address_error?(error)

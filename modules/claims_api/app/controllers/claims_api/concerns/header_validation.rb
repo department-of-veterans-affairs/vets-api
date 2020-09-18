@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require_dependency 'common/exceptions/internal/parameters_missing'
-require_dependency 'common/exceptions/internal/unauthorized'
+require_dependency 'common/exceptions/parameters_missing'
+require_dependency 'common/exceptions/unauthorized'
+require 'common/exceptions'
 
 module ClaimsApi
   module HeaderValidation

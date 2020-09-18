@@ -1,21 +1,31 @@
 ---
 :services:
 
+- :name: 'debts'
+  :base_uri: <%= "#{URI(Settings.debts.url).host}:#{URI(Settings.debts.url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: "/api/v1/debtletter/letterdetails/get"
+    :file_path: "debts/index"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'fileNumber":"(\w+)"'
+
 - :name: 'MDOT'
   :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
   :endpoints:
   - :method: :get
-    :path: "/mdot/supplies"
+    :path: "/supplies"
     :file_path: "mdot/supplies/index"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'veteranId'
+      :uid_locator: 'va_veteran_id'
   - :method: :post
-    :path: "/mdot/supplies"
+    :path: "/supplies"
     :file_path: "mdot/supplies/create"
     :cache_multiple_responses:
       :uid_location: header
-      :uid_locator: 'veteranId'
+      :uid_locator: 'vaapikey'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
@@ -334,10 +344,17 @@
   :endpoints:
   - :method: :post
     :path: "/VIERSService/eMIS/v1/VeteranStatusService"
-    :file_path: "emis/veteran_status"
+    :file_path: "emis/veteran_status/by_edipi"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>'
+      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>\s*<v13:inputType>EDIPI</v13:inputType>'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/VeteranStatusService"
+    :file_path: "emis/veteran_status/by_icn"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v13:edipiORicnValue>([V0-9]*)<\/v13:edipiORicnValue>\s*<v13:inputType>ICN</v13:inputType>'
 
   - :method: :post
     :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
@@ -359,7 +376,7 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
-      
+
   - :method: :post
     :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
     :file_path: "emis/v2/deployment"
@@ -438,8 +455,8 @@
       :uid_locator: '<v11:eMISunitInformationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
 
 # Appeals
-- :name: 'Appeals'
-  :base_uri: <%= "#{URI(Settings.appeals.host).host}:#{URI(Settings.appeals.host).port}" %>
+- :name: 'Caseflow'
+  :base_uri: <%= "#{URI(Settings.caseflow.host).host}:#{URI(Settings.caseflow.host).port}" %>
   :endpoints:
   - :method: :get
     :path: "/api/v2/appeals"
@@ -447,6 +464,12 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: ssn
+  - :method: :get
+    :path: "/api/v3/decision_reviews/higher_level_reviews/contestable_issues/compensation"
+    :file_path: "modules_appeals_api/contestable_issues"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: X-VA-SSN
   - :method: :get
     :path: "/health-check"
     :file_path: "appeals/health-check"
@@ -511,3 +534,14 @@
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator:  resultOffset
+
+#VANotify
+- :name: 'VANotify'
+  :base_uri: <%= "#{URI(Settings.vanotify.client_url).host}:#{URI(Settings.vanotify.client_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/v2/notifications/email"
+      :file_path: "va_notify/email"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'email_address":"(.*?)"'

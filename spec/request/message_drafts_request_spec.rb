@@ -16,6 +16,7 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
   let(:va_patient) { true }
   let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   before do
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
@@ -65,6 +66,17 @@ RSpec.describe 'Messages Integration', type: :request do
         expect(response).to have_http_status(:created)
       end
 
+      it 'responds to POST #create when camel-inflected' do
+        VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
+          post '/v0/messaging/health/message_drafts', params: params, headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('message')
+        expect(response).to have_http_status(:created)
+      end
+
       it 'responds to PUT #update' do
         VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
           params[:subject] = 'Updated Subject'
@@ -89,6 +101,17 @@ RSpec.describe 'Messages Integration', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'responds to POST #create when camel-inflected' do
+        VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
+          post "/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params: params, headers: inflection_header
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_camelized_response_schema('message')
         expect(response).to have_http_status(:created)
       end
 

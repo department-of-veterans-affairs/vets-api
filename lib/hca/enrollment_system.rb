@@ -604,8 +604,8 @@ module HCA
       }
       data = prepend_namespace(data)
       # This *must* be a symbol. It's a special flag for the Goyuko library.
-      data[:attributes!] = data.keys.each_with_object({}) do |attribute, memo|
-        memo[attribute] = { 'xmlns:eeSummary' => 'http://jaxws.webservices.esr.med.va.gov/schemas' }
+      data[:attributes!] = data.keys.index_with do |_attribute|
+        { 'xmlns:eeSummary' => 'http://jaxws.webservices.esr.med.va.gov/schemas' }
       end
       data
     end
@@ -727,7 +727,7 @@ module HCA
       request = build_form_for_user(current_user)
 
       veteran['attachments']&.each do |attachment|
-        hca_attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
+        hca_attachment = HCAAttachment.find_by(guid: attachment['confirmationCode'])
         request['va:form']['va:attachments'] ||= []
         request['va:form']['va:attachments'] << add_attachment(hca_attachment.get_file, attachment['dd214'])
       end

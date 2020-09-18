@@ -75,9 +75,7 @@ RSpec.describe EducationForm::EducationFacility do
   describe '#regional_office_for' do
     {
       eastern: ['VA', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
-      # rubocop:disable Layout/LineLength
-      central: ['CO', "Central Region\nVA Regional Office\n9770 Page Avenue\nSuite 101 Education\nSt. Louis, MO 63132-1502"],
-      # rubocop:enable Layout/LineLength
+      central: ['CO', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
       western: ['AK', "Western Region\nVA Regional Office\nP.O. Box 8888\nMuskogee, OK 74402-8888"]
     }.each do |region, region_data|
       context "with a #{region} address" do
@@ -96,7 +94,7 @@ RSpec.describe EducationForm::EducationFacility do
 
   describe '#region_for' do
     context '22-1995' do
-      it 'routes to Central RPO' do
+      it 'routes to Eastern RPO for former CENTRAL RPO state' do
         form = education_benefits_claim.parsed_form
         form['newSchool'] = {
           'address' => {
@@ -105,45 +103,12 @@ RSpec.describe EducationForm::EducationFacility do
         }
         education_benefits_claim.saved_claim.form = form.to_json
         education_benefits_claim.saved_claim.form_id = '22-1995'
-        expect(described_class.region_for(education_benefits_claim)).to eq(:central)
+        expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
       it 'routes to Eastern RPO' do
         form = education_benefits_claim.parsed_form
-        form['isEdithNourseRogersScholarship'] = true
         education_benefits_claim.saved_claim.form = form.to_json
-        education_benefits_claim.saved_claim.form_id = '22-1995S'
-        expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
-      end
-      it 'routes Philippines to Eastern RPO' do
-        form = education_benefits_claim.parsed_form
-        form['isEdithNourseRogersScholarship'] = true
-        form['newSchool'] = {
-          'address' => {
-            'country': 'PHL'
-          }
-        }
-        education_benefits_claim.saved_claim.form = form.to_json
-        education_benefits_claim.saved_claim.form_id = '22-1995S'
-        expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
-      end
-    end
-
-    context '22-1995S' do
-      it 'routes to Eastern RPO' do
-        form = education_benefits_claim.parsed_form
-        education_benefits_claim.saved_claim.form = form.to_json
-        education_benefits_claim.saved_claim.form_id = '22-1995S'
-        expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
-      end
-      it 'routes Philippines to Eastern RPO' do
-        form = education_benefits_claim.parsed_form
-        form['newSchool'] = {
-          'address' => {
-            'country': 'PHL'
-          }
-        }
-        education_benefits_claim.saved_claim.form = form.to_json
-        education_benefits_claim.saved_claim.form_id = '22-1995S'
+        education_benefits_claim.saved_claim.form_id = '22-1995'
         expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
     end

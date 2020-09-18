@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require 'evss/gi_bill_status/external_service_unavailable'
 require 'evss/gi_bill_status/gi_bill_status_response'
+require 'evss/gi_bill_status/outside_working_hours'
+require 'evss/gi_bill_status/service'
 
 module V0
   class Post911GIBillStatusesController < ApplicationController
@@ -37,7 +40,7 @@ module V0
         raise EVSS::GiBillStatus::ExternalServiceUnavailable
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
         log_vet_not_found(@current_user, response.timestamp)
-        raise Common::Exceptions::RecordNotFound, @current_user.email
+        raise Common::Exceptions::RecordNotFound, @current_user.common_name
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
         # 403
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'

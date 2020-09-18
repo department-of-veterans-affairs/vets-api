@@ -8,7 +8,7 @@ RSpec.describe PersonalInformationLog do
   end
 
   describe '#decoded_data' do
-    it 'simplies return data when not a logged request/response' do
+    it 'simply returns data when not a logged request/response' do
       expect(pi_log.decoded_data).to eq(pi_log.data)
     end
 

@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 module ClaimsApi
   module FileData
     extend ActiveSupport::Concern
 
     included do
-      attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
+      attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
       def file_name
         file_data['filename']

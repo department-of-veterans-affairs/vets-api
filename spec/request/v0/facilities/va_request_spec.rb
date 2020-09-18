@@ -2,8 +2,20 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
+vcr_options = {
+  cassette_name: '/lighthouse/facilities',
+  match_requests_on: %i[path query],
+  allow_playback_repeats: true,
+  record: :none
+}
+
+RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilities, vcr: vcr_options do
   include SchemaMatchers
+
+  before do
+    Flipper.enable(:facility_locator_pull_operating_status_from_lighthouse, true)
+    Flipper.enable(:facility_locator_ppms_location_query, false)
+  end
 
   BASE_QUERY_PATH = '/v0/facilities/va?'
   PDX_BBOX = 'bbox[]=-122.786758&bbox[]=45.451913&bbox[]=-122.440689&bbox[]=45.64'
@@ -38,6 +50,97 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data']['id']).to eq('vha_648A4')
+    expect(json).to include(
+      {
+        'data' => {
+          'id' => 'vha_648A4',
+          'type' => 'va_facilities',
+          'attributes' => {
+            'access' => {
+              'health' => {
+                'audiology' => {
+                  'new' => 35.0, 'established' => 18.0
+                },
+                'optometry' => {
+                  'new' => 38.0, 'established' => 22.0
+                },
+                'dermatology' => {
+                  'new' => 4.0, 'established' => nil
+                },
+                'primary_care' => {
+                  'new' => 34.0, 'established' => 5.0
+                },
+                'mental_health' => {
+                  'new' => 12.0, 'established' => 3.0
+                },
+                'ophthalmology' => {
+                  'new' => 1.0, 'established' => 4.0
+                },
+                'effective_date' => '2018-02-26'
+              }
+            },
+            'address' => {
+              'mailing' => {},
+              'physical' => {
+                'zip' => '98661-3753',
+                'city' => 'Vancouver',
+                'state' => 'WA',
+                'address_1' => '1601 East 4th Plain Boulevard',
+                'address_2' => nil,
+                'address_3' => nil
+              }
+            },
+            'classification' => 'VA Medical Center (VAMC)',
+            'facility_type' => 'va_health_facility',
+            'feedback' => {
+              'health' => {
+                'effective_date' => '2017-08-15', 'primary_care_urgent' => 0.8, 'primary_care_routine' => 0.84
+              }
+            },
+            'hours' => {
+              'monday' => '730AM-430PM',
+              'tuesday' => '730AM-630PM',
+              'wednesday' => '730AM-430PM',
+              'thursday' => '730AM-430PM',
+              'friday' => '730AM-430PM',
+              'saturday' => '800AM-1000AM',
+              'sunday' => '-'
+            },
+            'lat' => 45.6394162600001,
+            'long' => -122.65528736,
+            'name' => 'Portland VA Medical Center-Vancouver',
+            'operating_status' => {
+              'code' => 'NORMAL'
+            },
+            'phone' => {
+              'fax' => '360-690-0864',
+              'main' => '360-759-1901',
+              'pharmacy' => '503-273-5183',
+              'after_hours' => '360-696-4061',
+              'patient_advocate' => '503-273-5308',
+              'mental_health_clinic' => '503-273-5187',
+              'enrollment_coordinator' => '503-273-5069'
+            },
+            'services' => {
+              'health' => [{
+                'sl1' => ['DentalServices'],
+                'sl2' => []
+              }, {
+                'sl1' => ['MentalHealthCare'],
+                'sl2' => []
+              }, {
+                'sl1' => ['PrimaryCare'],
+                'sl2' => []
+              }],
+              'last_updated' => '2018-03-15'
+            },
+            'unique_id' => '648A4',
+            'visn' => '20',
+            'website' => 'http://www.portland.va.gov/locations/vancouver.asp'
+          }
+        }
+      }
+    )
   end
 
   it 'responds to GET #show for NCA prefix' do
@@ -152,6 +255,12 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
   end
 
   context 'Community Care (PPMS)' do
+    around do |example|
+      VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
+        example.run
+      end
+    end
+
     let(:params) do
       {
         address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
@@ -160,7 +269,11 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
     end
 
     it 'responds to GET #index with bbox, address, and ccp type' do
-      VCR.use_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
+      VCR.use_cassette(
+        'facilities/ppms/ppms_new_query',
+        match_requests_on: %i[path query],
+        allow_playback_repeats: true
+      ) do
         get '/v0/facilities/va', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
         expect(response).to be_successful
         expect(response.body).to be_a(String)
@@ -174,7 +287,11 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
     end
 
     it 'responds to GET #index with success even if no providers are found' do
-      VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
+      VCR.use_cassette(
+        'facilities/ppms/ppms_empty_search',
+        match_requests_on: [:method],
+        allow_playback_repeats: true
+      ) do
         get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
         expect(response).to be_successful
         expect(response.body).to be_a(String)
@@ -238,12 +355,22 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
 
     context 'when facilities are found' do
       let(:facilites) { JSON.parse(response.body)['data'] }
+      let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
       context 'with a health facility type' do
         it 'returns 3 facilities' do
           get '/v0/facilities/suggested?name_part=por&type[]=health'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(3)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            ['Portland VA Medical Center', 'Portland VA Medical Center-Vancouver', 'Portland VA Clinic']
+          )
+        end
+        it 'returns 3 facilities when camel-inflected' do
+          get '/v0/facilities/suggested?name_part=por&type[]=health', headers: inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('suggested_facilities')
           expect(facilites.count).to eq(3)
           expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
             ['Portland VA Medical Center', 'Portland VA Medical Center-Vancouver', 'Portland VA Clinic']
@@ -261,6 +388,15 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
             ['Portland Army Medical Center', 'Portland Naval Hospital']
           )
         end
+        it 'returns 2 facilities when camel-inflected' do
+          get '/v0/facilities/suggested?name_part=por&type[]=dod_health', headers: inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(2)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            ['Portland Army Medical Center', 'Portland Naval Hospital']
+          )
+        end
       end
 
       context 'with multiple facility types' do
@@ -268,6 +404,21 @@ RSpec.describe 'VA GIS Integration', type: :request, team: :facilities do
           get '/v0/facilities/suggested?name_part=por&type[]=health&type[]=dod_health'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(5)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            [
+              'Portland VA Medical Center',
+              'Portland VA Medical Center-Vancouver',
+              'Portland VA Clinic',
+              'Portland Army Medical Center',
+              'Portland Naval Hospital'
+            ]
+          )
+        end
+        it 'returns 5 facilities when camel-inflected' do
+          get '/v0/facilities/suggested?name_part=por&type[]=health&type[]=dod_health', headers: inflection_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_camelized_response_schema('suggested_facilities')
           expect(facilites.count).to eq(5)
           expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
             [
