@@ -18,6 +18,7 @@
 /logfile
 /tmp
 /coverage
+/reports
 
 # Ignore precompiled assets
 public/assets/**
