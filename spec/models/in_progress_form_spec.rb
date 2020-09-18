@@ -20,9 +20,10 @@ RSpec.describe InProgressForm, type: :model do
   end
 
   describe '#metadata' do
-    it 'adds the form expiration time', run_at: '2017-06-01' do
+    it 'adds the form expiration time and id', run_at: '2017-06-01' do
       in_progress_form.save
       expect(in_progress_form.metadata['expires_at']).to eq(1_501_459_200)
+      expect(in_progress_form.metadata['in_progress_form_id']).to be_an(Integer)
     end
   end
 
