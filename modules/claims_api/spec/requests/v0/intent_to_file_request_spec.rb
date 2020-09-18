@@ -61,12 +61,33 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#active' do
-    it 'returns the latest itf of a type' do
+    it 'returns the latest itf of a compensation type' do
       VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
         get "#{path}/active", params: { type: 'compensation' }, headers: headers
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
       end
+    end
+
+    it 'returns the latest itf of a pension type' do
+      VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+        get "#{path}/active", params: { type: 'pension' }, headers: headers
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+      end
+    end
+
+    it 'returns the latest itf of a burial type' do
+      VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+        get "#{path}/active", params: { type: 'burial' }, headers: headers
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+      end
+    end
+
+    it 'fails if passed wrong type' do
+      get "#{path}/active", params: { type: 'test' }, headers: headers
+      expect(response.status).to eq(422)
     end
 
     it 'fails if none is passed in' do
