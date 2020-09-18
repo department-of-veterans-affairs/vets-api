@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 require 'bb/client'
+require 'common/client/errors'
 require 'rx/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
