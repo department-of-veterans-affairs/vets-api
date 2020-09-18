@@ -10,8 +10,10 @@ module ClaimsApi
         skip_before_action(:authenticate)
         before_action :validate_json_format, if: -> { request.post? }
         before_action :validate_json_schema, only: %i[submit_form_0966 validate]
+        before_action :check_for_type, only: %i[active]
 
         FORM_NUMBER = '0966'
+        ITF_TYPES = %w[compensation pension burial].freeze
 
         def submit_form_0966
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
@@ -51,6 +53,20 @@ module ClaimsApi
 
         def active_param
           params.require(:type)
+        end
+
+        def check_for_type
+          if active_param && !ITF_TYPES.include?(active_param)
+            error = {
+              errors: [
+                {
+                  status: 422,
+                  details: "Must include either compensation, pension or burial as a 'type' parameter."
+                }
+              ]
+            }
+            render json: error, status: :unprocessable_entity
+          end
         end
 
         def form_type
