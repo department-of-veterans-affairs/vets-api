@@ -40,9 +40,9 @@ features:
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
-  facility_locator_fe_use_v1:
+  facility_locator_predictive_location_search:
     actor_type: user
-    description: Have the front end use the V1 api
+    description: Use predictive location search in the Facility Locator UI
   facilities_ppms_suppress_community_care:
     actor_type: user
     description: Hide ppms community care searches
