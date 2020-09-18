@@ -41,11 +41,12 @@ FLIPPER_ACTOR_STRING = 'cookie_id'
 
 Flipper::UI.configuration.feature_creation_enabled = false
 # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
-FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
+FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
   unless Flipper.exist?(feature)
     Flipper.add(feature)
-    # default features to enabled for development and test only
-    Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
+
+    # default features to enabled for test and those explicitly set for development
+    Flipper.enable(feature) if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
   end
 rescue
   # make sure we can still run rake tasks before table has been created
