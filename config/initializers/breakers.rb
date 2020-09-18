@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-require 'bb/configuration'
 require 'breakers/statsd_plugin'
+
+require 'bb/configuration'
 require 'caseflow/configuration'
 require 'central_mail/configuration'
 require 'debts/configuration'
