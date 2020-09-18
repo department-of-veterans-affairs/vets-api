@@ -42,7 +42,6 @@ module DecisionReview
         faraday.request :json
 
         faraday.response :betamocks if mock_enabled?
-        faraday.response :snakecase, symbolize: false
         faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
