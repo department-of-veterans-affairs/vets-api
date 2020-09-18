@@ -164,7 +164,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             VCR.use_cassette('evss/claims/claims') do
               with_okta_user(scopes) do |auth_header|
                 params = json_data
-                params['data']['attributes']['disabilities'][0]['specialIssues'] = %w(ALS HEPC)
+                params['data']['attributes']['disabilities'][0]['specialIssues'] = %w[ALS HEPC]
                 post path, params: params.to_json, headers: headers.merge(auth_header)
                 expect(response.status).to eq(200)
               end

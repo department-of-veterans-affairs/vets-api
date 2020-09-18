@@ -136,7 +136,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           it 'returns a successful status' do
             VCR.use_cassette('evss/claims/claims') do
               params = json_data
-              params['data']['attributes']['disabilities'][0]['specialIssues'] = %w(ALS HEPC)
+              params['data']['attributes']['disabilities'][0]['specialIssues'] = %w[ALS HEPC]
               post path, params: params.to_json, headers: headers
               expect(response.status).to eq(200)
             end
