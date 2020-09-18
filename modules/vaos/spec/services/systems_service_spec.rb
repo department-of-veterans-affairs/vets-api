@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'common/exceptions'
 
 describe VAOS::SystemsService do
   subject { VAOS::SystemsService.new(user) }
@@ -522,6 +523,22 @@ describe VAOS::SystemsService do
                                                             { day: 'SATURDAY', can_schedule: false },
                                                             { day: 'SUNDAY', can_schedule: false }] }] }
           )
+        end
+      end
+    end
+  end
+
+  describe '#get_direct_booking_elig_crit' do
+    context 'with a site_codes param array' do
+      it 'returns an array', :aggregate_failures do
+        VCR.use_cassette('vaos/systems/get_direct_booking_eligibility_criteria_by_site_codes',
+                         record: :new_episodes) do
+          response = subject.get_direct_booking_elig_crit(site_codes: %w[442 534])
+          expect(response.size).to eq(2)
+          first_result = response.first
+          second_result = response.second
+          expect(first_result.id).to eq('442')
+          expect(second_result.id).to eq('534')
         end
       end
     end

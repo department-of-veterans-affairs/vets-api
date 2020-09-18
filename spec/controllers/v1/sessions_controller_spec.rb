@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/saml/form_validation_helpers'
 require 'support/saml/response_builder'
 require 'support/url_service_helpers'
-require 'support/saml/form_validation_helpers'
 
 RSpec.describe V1::SessionsController, type: :controller do
   include SAML::ResponseBuilder
@@ -115,102 +115,6 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
                 .to eq({ type: type, authn_context: authn })
             end
-
-            it 'persists redirect application' do
-              expect { get(:new, params: { type: type, clientId: '123123', application: 'myvahealth' }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
-
-              expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
-              expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
-                .to eq({
-                         redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/',
-                         type: type,
-                         authn_context: authn
-                       })
-            end
-
-            it 'adds to parameter to application redirect' do
-              expect do
-                get(:new, params: { type: type, clientId: '123123',
-                                    application: 'myvahealth', to: '/session-api/realm/realm_uuid' })
-              end
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
-
-              expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
-              expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
-                .to eq({
-                         redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com'\
-                         + '/session-api/realm/realm_uuid',
-                         type: type,
-                         authn_context: authn
-                       })
-            end
-
-            it 'allows nested to parameter' do
-              expect do
-                get(:new, params: { type: type, clientId: '123123',
-                                    application: 'myvahealth',
-                                    to: '/session-api/realm/realm_uuid?to=https://ehrm.example.com' })
-              end
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
-
-              expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
-              expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
-                .to eq({
-                         redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com'\
-                         + '/session-api/realm/realm_uuid?to=https://ehrm.example.com',
-                         type: type,
-                         authn_context: authn
-                       })
-            end
-
-            it 'strips CRLF characters from to parameter' do
-              expect do
-                get(:new, params: { type: type, clientId: '123123',
-                                    application: 'myvahealth', to: CGI.unescape('/foo/bar%0D%0ASplitHeader') })
-              end
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
-
-              expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
-              expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
-                .to eq({
-                         redirect: 'https://ehrm-va-test.patientportal.us.healtheintent.com/foo/barSplitHeader',
-                         type: type,
-                         authn_context: authn
-                       })
-            end
-
-            it 'ignores invalid redirect application' do
-              expect { get(:new, params: { type: type, clientId: '123123', application: 'unknown' }) }
-                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["context:#{type}", 'version:v1'], **once)
-
-              expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
-              expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
-                .to eq({
-                         type: type,
-                         authn_context: authn
-                       })
-            end
           end
         end
 
@@ -262,10 +166,17 @@ RSpec.describe V1::SessionsController, type: :controller do
                                   'originating_request_id' => nil, 'type' => 'signup')
           end
         end
+
+        context 'routes /v1/sessions/slo/new to SessionController#new' do
+          it 'redirects' do
+            expect(get(:new, params: { type: :slo }))
+              .to redirect_to('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+          end
+        end
       end
 
       context 'routes requiring auth' do
-        %w[mfa verify slo].each do |type|
+        %w[mfa verify].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, params: { type: type })
             expect(response).to have_http_status(:unauthorized)
@@ -308,15 +219,6 @@ RSpec.describe V1::SessionsController, type: :controller do
         expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback')
       end
 
-      it 'redirect user to external site' do
-        SAMLRequestTracker.create(
-          uuid: login_uuid,
-          payload: { redirect: Settings.ssoe.redirects['myvahealth'] }
-        )
-        allow(SAML::User).to receive(:new).and_return(saml_user)
-        expect(post(:saml_callback)).to redirect_to(Settings.ssoe.redirects['myvahealth'])
-      end
-
       context 'for a user with semantically invalid SAML attributes' do
         let(:invalid_attributes) do
           build(:ssoe_idme_mhv_loa3,
@@ -353,10 +255,33 @@ RSpec.describe V1::SessionsController, type: :controller do
                                                 'version:v1'])
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
                                           tags: ['context:idme', 'version:v1', 'error:101'])
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
+                                          tags: ['error:multiple_mhv_ids', 'version:v1'])
 
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
+      end
+    end
+
+    describe 'track' do
+      it 'ignores a SAML stat without params' do
+        expect { get(:tracker) }
+          .not_to trigger_statsd_increment(described_class::STATSD_SSO_SAMLTRACKER_KEY,
+                                           tags: ['type:',
+                                                  'context:',
+                                                  'version:v1'])
+      end
+
+      it 'logs a SAML stat with valid params' do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger)
+          .to receive(:info).with('SSOe: SAML Tracker => {"id"=>"1", "type"=>"mhv", "authn"=>"myhealthevet"}')
+        expect { get(:tracker, params: { id: 1, type: 'mhv', authn: 'myhealthevet' }) }
+          .to trigger_statsd_increment(described_class::STATSD_SSO_SAMLTRACKER_KEY,
+                                       tags: ['type:mhv',
+                                              'context:myhealthevet',
+                                              'version:v1'])
       end
     end
   end
@@ -495,9 +420,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['context:verify', 'version:v1'],
-                                          **once)
 
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
 
@@ -549,8 +471,6 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY,
                                          tags: ['status:success', 'context:multifactor', 'version:v1'], **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['context:mfa', 'version:v1'], **once)
 
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
@@ -814,9 +734,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_SHARED_COOKIE,
-                                          tags: ['context:mhv', 'version:v1'],
-                                          **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!

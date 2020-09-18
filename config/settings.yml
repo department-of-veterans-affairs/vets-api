@@ -1,4 +1,6 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
+vsp_environment:
+
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
 # For CORS requests; separate multiple origins with a comma
@@ -40,10 +42,6 @@ sso:
   cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
   cookie_secure: false
   cookie_domain: localhost
-
-ssoe:
-  redirects:
-    myvahealth: https://ehrm-va-test.patientportal.us.healtheintent.com/
 
 binaries:
   # you can specify a full path in settings.local.yml if necessary
@@ -405,6 +403,14 @@ oidc:
 sentry:
   dsn: ~
 
+iam_ssoe:
+  client_cert_path: ~
+  client_key_path: ~
+  client_id: 'Mobile_App_API_Server_LOWERS'
+  # oauth (rest) and sts (soap) services are on different hosts
+  oauth_url: "https://int.fed.eauth.va.gov:444"
+  sts_url: "https://preprod.services.eauth.va.gov:9301"
+
 statsd:
   host: ~
   port: ~
@@ -507,12 +513,16 @@ flipper:
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
+    - shallie@governmentcio.com
     - shawkey_daniel@bah.com
     - sonntag_adam@bah.com
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
     - tony.williams@va.gov
     - jennie.mcgibney@va.gov
+    - callen@governmentcio.com # Remove after Profile 2.0 UAT
+    - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
+    - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
 
 bgs:
   application: ~
@@ -524,6 +534,12 @@ bgs:
   ssl_verify_mode: 'peer'
 
 va_mobile:
+  url: 'https://veteran.apps.va.gov'
+  mock: false
+  key_path: /fake/client/key/path
+  timeout: 15
+
+hqva_mobile:
   url: 'https://veteran.apps.va.gov'
   mock: false
   key_path: /fake/client/key/path
@@ -564,10 +580,11 @@ coronavirus_chatbot:
 
 # Settings for notifications client
 vanotify:
-  client_url: fake_client_url
+  client_url: http://fakeapi.com
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+  mock: false
 
 # Settings to connect to the drupal forms graphql api
 va_forms:

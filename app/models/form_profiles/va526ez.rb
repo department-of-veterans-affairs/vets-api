@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/service'
+require 'evss/pciu_address/service'
+require 'evss/ppiu/service'
+
 module VA526ez
   class FormSpecialIssue
     include Virtus.model

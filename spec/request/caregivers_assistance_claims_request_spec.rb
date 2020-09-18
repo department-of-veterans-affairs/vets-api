@@ -157,7 +157,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   describe 'POST /v0/caregivers_assistance_claims/download_pdf' do
     let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
-    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'simple.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
     after do
       File.delete(response_pdf) if File.exist?(response_pdf)

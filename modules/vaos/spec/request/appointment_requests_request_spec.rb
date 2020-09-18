@@ -116,8 +116,13 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       it 'creates a new appointment request' do
         VCR.use_cassette('vaos/appointment_requests/post_request_CC', match_requests_on: %i[method uri]) do
+          allow(Rails.logger).to receive(:info)
           post '/vaos/v0/appointment_requests', params: params
 
+          expect(Rails.logger).to have_received(:info).once.with('VAOS AppointmentRequest',
+                                                                 action: 'create',
+                                                                 type: 'CC',
+                                                                 id: '8a4886686f54d9c6016f7ca0f62f000e')
           expect(response).to have_http_status(:created)
           expect(response.body).to be_a(String)
           expect(json_body_for(response)).to match_schema('vaos/appointment_request')
@@ -151,9 +156,15 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
     it 'cancels an appointment request' do
       VCR.use_cassette('vaos/appointment_requests/put_request', match_requests_on: %i[method uri]) do
+        allow(Rails.logger).to receive(:info)
         put "/vaos/v0/appointment_requests/#{id}", params: params
+
         expect(response).to have_http_status(:success)
         expect(response.body).to be_a(String)
+        expect(Rails.logger).to have_received(:info).with('VAOS AppointmentRequest',
+                                                          action: 'update',
+                                                          type: nil,
+                                                          id: '8a4886886e4c8e22016e92be77cb00f9')
         expect(json_body_for(response)).to match_schema('vaos/appointment_request')
       end
     end

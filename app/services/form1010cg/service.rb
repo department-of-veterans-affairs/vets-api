@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
+
+require 'carma/models/submission'
+require 'carma/models/attachments'
+require 'mvi/service'
+require 'emis/service'
+
 module Form1010cg
   class Service
     class InvalidVeteranStatus < StandardError
@@ -9,25 +15,7 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    STATSD_KEY_PREFIX = 'api.form1010cg'
-    NOT_FOUND         = 'NOT_FOUND'
-
-    def self.metrics
-      submission_prefix = STATSD_KEY_PREFIX + '.submission'
-      OpenStruct.new(
-        submission: OpenStruct.new(
-          attempt: submission_prefix + '.attempt',
-          success: submission_prefix + '.success',
-          failure: OpenStruct.new(
-            client: OpenStruct.new(
-              data: submission_prefix + '.failure.client.data',
-              qualification: submission_prefix + '.failure.client.qualification'
-            )
-          )
-        ),
-        pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
-      )
-    end
+    NOT_FOUND = 'NOT_FOUND'
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -36,6 +24,7 @@ module Form1010cg
 
       # The CaregiversAssistanceClaim we are processing with this service
       @claim        = claim
+      # The Form1010cg::Submission
       @submission   = submission
 
       # Store for the search results we will run on MVI and eMIS
@@ -63,7 +52,8 @@ module Form1010cg
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
-        submitted_at: carma_submission.submitted_at
+        submitted_at: carma_submission.submitted_at,
+        metadata: carma_submission.request_body['metadata']
       )
 
       submit_attachment
@@ -79,7 +69,7 @@ module Form1010cg
       raise 'submission already has attachments'  if  submission.attachments.any?
 
       file_path = begin
-                    claim.to_pdf
+                    claim.to_pdf(sign: true)
                   rescue
                     return false
                   end
@@ -102,7 +92,7 @@ module Form1010cg
         #
         # Regardless of the reason, we shouldn't raise an error when sending attachments fails.
         # It's non-critical and we don't want the error to bubble up to the response,
-        # misleading the user to think thier claim was not submitted.
+        # misleading the user to think their claim was not submitted.
         #
         # If we made it this far, there is a submission that exists in CARMA.
         # So the user should get a sucessful response, whether attachments reach CARMA or not.
@@ -161,8 +151,10 @@ module Form1010cg
 
       case response.status
       when 'OK'
+        log_mpi_search_result form_subject, true
         return @cache[:icns][form_subject] = response.profile.icn
       when 'NOT_FOUND'
+        log_mpi_search_result form_subject, false
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
@@ -205,6 +197,14 @@ module Form1010cg
       @emis_service ||= EMIS::VeteranStatusService.new
     end
 
+    def log_mpi_search_result(form_subject, was_found)
+      Form1010cg::Auditor.instance.log_mpi_search_result(
+        claim_guid: claim.guid,
+        form_subject: form_subject,
+        was_found: was_found
+      )
+    end
+
     # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
     # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
     #
@@ -218,7 +218,7 @@ module Form1010cg
         middle_name: data['fullName']['middle'],
         last_name: data['fullName']['last'],
         birth_date: data['dateOfBirth'],
-        gender: data['gender'] == 'U' ? nil : data['gender'],
+        gender: data['gender'],
         ssn: data['ssnOrTin'],
         email: data['email'] || 'no-email@example.com',
         uuid: SecureRandom.uuid,

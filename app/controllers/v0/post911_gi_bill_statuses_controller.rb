@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+require 'evss/gi_bill_status/external_service_unavailable'
 require 'evss/gi_bill_status/gi_bill_status_response'
+require 'evss/gi_bill_status/outside_working_hours'
+require 'evss/gi_bill_status/service'
 
 module V0
   class Post911GIBillStatusesController < ApplicationController

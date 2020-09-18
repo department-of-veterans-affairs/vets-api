@@ -4,6 +4,8 @@ require_dependency 'claims_api/concerns/mvi_verification'
 require_dependency 'claims_api/concerns/header_validation'
 require_dependency 'claims_api/unsynchronized_evss_claims_service'
 require_dependency 'claims_api/concerns/json_format_validation'
+require 'evss/error_middleware'
+require 'evss/power_of_attorney_verifier'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController

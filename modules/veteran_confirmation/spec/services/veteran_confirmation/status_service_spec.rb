@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mvi/models/mvi_profile'
+require 'mvi/attr_service'
 
 RSpec.describe VeteranConfirmation::StatusService do
   describe '.get_by_attributes' do

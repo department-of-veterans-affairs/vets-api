@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs/student_school'
 
 RSpec.describe BGS::StudentSchool do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }

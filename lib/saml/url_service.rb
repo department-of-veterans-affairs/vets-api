@@ -3,6 +3,8 @@
 module SAML
   # This class is responsible for providing the URLs for the various SSO and SLO endpoints
   class URLService
+    localhost_redirect = Settings.virtual_host_localhost || 'localhost'
+    localhost_ip_redirect = Settings.virtual_host_localhost || '127.0.0.1'
     VIRTUAL_HOST_MAPPINGS = {
       'https://api.vets.gov' => { base_redirect: 'https://www.vets.gov' },
       'https://staging-api.vets.gov' => { base_redirect: 'https://staging.vets.gov' },
@@ -10,8 +12,8 @@ module SAML
       'https://api.va.gov' => { base_redirect: 'https://www.va.gov' },
       'https://staging-api.va.gov' => { base_redirect: 'https://staging.va.gov' },
       'https://dev-api.va.gov' => { base_redirect: 'https://dev.va.gov' },
-      'http://localhost:3000' => { base_redirect: 'http://localhost:3001' },
-      'http://127.0.0.1:3000' => { base_redirect: 'http://127.0.0.1:3001' }
+      'http://localhost:3000' => { base_redirect: "http://#{localhost_redirect}:3001" },
+      'http://127.0.0.1:3000' => { base_redirect: "http://#{localhost_ip_redirect}:3001" }
     }.freeze
 
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
@@ -53,13 +55,7 @@ module SAML
 
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
-      if auth == 'success'
-        return verify_url if user.loa[:current] < user.loa[:highest]
-
-        # if the original auth request specified a redirect, use that
-        redirect_target = @tracker&.payload_attr(:redirect)
-        return redirect_target if redirect_target.present?
-      end
+      return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
       # if the original auth request was an inbound ssoe autologin (type custom)
       # and authentication failed, set 'force-needed' so the FE can silently fail
@@ -203,26 +199,16 @@ module SAML
       end
     end
 
-    def build_redirect(params)
-      default = Settings.ssoe.redirects[params[:application]]
-      return default unless default && params[:to]
-
-      prefix = default.delete_suffix('/')
-      suffix = params[:to].delete_prefix('/').gsub("\r\n", '')
-      [prefix, suffix].join('/')
-    end
-
     # Initialize a new SAMLRequestTracker, if a valid previous SAML UUID is
-    # given, copy over the redirect and created_at timestamp.  This is useful
+    # given, copy over the payload and created_at timestamp.  This is useful
     # for a user that has to go through the upleveling process.
     def initialize_tracker(params, previous_saml_uuid: nil)
       previous = previous_saml_uuid && SAMLRequestTracker.find(previous_saml_uuid)
-      redirect = previous&.payload_attr(:redirect) || build_redirect(params)
       type = previous&.payload_attr(:type) || params[:type]
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: { redirect: redirect, type: type }.compact,
+        payload: { type: type }.compact,
         created_at: previous&.created_at
       )
     end

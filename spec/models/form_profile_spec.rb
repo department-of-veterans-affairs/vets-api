@@ -674,23 +674,19 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v20_0996_expected) do
     {
-      'data' =>
-        {
-          'attributes' =>
-            {
-              'veteran' =>
-                {
-                  'addressLine1' => street_check[:street],
-                  'addressLine2' => street_check[:street2],
-                  'city' => user.va_profile[:address][:city],
-                  'stateOrProvinceCode' => user.va_profile[:address][:state],
-                  'zipPostalCode' => user.va_profile[:address][:postal_code][0..4],
-                  'phoneNumber' => us_phone,
-                  'emailAddress' => user.pciu_email,
-                  'ssnLastFour' => user.ssn.last(4)
-                }
-            }
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'address' => {
+              'zipCode5' => user.va_profile[:address][:zip_code]
+            },
+            'phone' => {
+              'phoneNumber' => us_phone
+            },
+            'emailAddressText' => user.pciu_email
+          }
         }
+      }
     }
   end
 
@@ -987,7 +983,6 @@ RSpec.describe FormProfile, type: :model do
           22-1990N
           22-1990E
           22-1995
-          22-1995S
           22-5490
           22-5495
           40-10007
@@ -1059,7 +1054,20 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a higher level review form' do
       it 'returns the va profile mapped to the higher level review form' do
-        expect_prefilled('20-0996')
+        schema_name = '20-0996'
+        schema = VetsJsonSchema::SCHEMAS[schema_name]
+        full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
+
+        prefill_data = Oj.load(described_class.for(schema_name).prefill(user).to_json)['form_data']
+
+        test_data = full_example.deep_merge prefill_data
+
+        errors = JSON::Validator.fully_validate(
+          schema,
+          test_data,
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
     end
 

@@ -129,7 +129,10 @@ class Form526Submission < ApplicationRecord
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     if submission.form526_job_statuses.all?(&:success?)
-      submission.send_form526_confirmation_email(options['full_name']) if Flipper.enabled?(:form526_confirmation_email)
+      user = User.find(submission.user_uuid)
+      if Flipper.enabled?(:form526_confirmation_email, user)
+        submission.send_form526_confirmation_email(options['full_name'])
+      end
       submission.workflow_complete = true
       submission.save
     end
@@ -143,7 +146,7 @@ class Form526Submission < ApplicationRecord
       'date_submitted' => created_at.strftime('%B %-d, %Y'),
       'full_name' => full_name
     }
-    Form526ConfirmationEmailJob.perform_async(id, personalization_parameters)
+    Form526ConfirmationEmailJob.perform_async(personalization_parameters)
   end
 
   def bdd?

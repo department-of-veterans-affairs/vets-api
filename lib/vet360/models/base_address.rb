@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative 'base'
+require 'common/models/attribute_types/iso8601_time'
+require 'vet360/concerns/defaultable'
+
 module Vet360
   module Models
     class BaseAddress < Base
@@ -32,8 +36,12 @@ module Vet360
       attribute :created_at, Common::ISO8601Time
       attribute :effective_end_date, Common::ISO8601Time
       attribute :effective_start_date, Common::ISO8601Time
+      attribute :geocode_date, Common::ISO8601Time
+      attribute :geocode_precision, Float
       attribute :id, Integer
       attribute :international_postal_code, String
+      attribute :latitude, Float
+      attribute :longitude, Float
       attribute :province, String
       attribute :source_date, Common::ISO8601Time
       attribute :source_system_user, String

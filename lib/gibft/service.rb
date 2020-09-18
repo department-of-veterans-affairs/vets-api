@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'salesforce/service'
+require_relative 'configuration'
+
 module Gibft
   class Service < Salesforce::Service
     configuration Gibft::Configuration
