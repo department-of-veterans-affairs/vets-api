@@ -83,13 +83,40 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#active' do
-    it 'returns the latest itf of a type' do
+    it 'returns the latest itf of a compensation type' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'compensation' }, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
         end
+      end
+    end
+
+    it 'returns the latest itf of a pension type' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+          get "#{path}/active", params: { type: 'pension' }, headers: headers.merge(auth_header)
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+        end
+      end
+    end
+
+    it 'returns the latest itf of a burial type' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+          get "#{path}/active", params: { type: 'burial' }, headers: headers.merge(auth_header)
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+        end
+      end
+    end
+
+    it 'fails if passed with wrong type' do
+      with_okta_user(scopes) do |auth_header|
+        get "#{path}/active", params: { type: 'test' }, headers: headers.merge(auth_header)
+        expect(response.status).to eq(422)
       end
     end
 

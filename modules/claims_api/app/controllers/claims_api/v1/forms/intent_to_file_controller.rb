@@ -15,6 +15,8 @@ module ClaimsApi
         before_action :check_for_type, only: %i[active]
 
         FORM_NUMBER = '0966'
+        ITF_TYPES = %w[compensation pension burial].freeze
+
         def submit_form_0966
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
           render json: bgs_response,
@@ -56,7 +58,7 @@ module ClaimsApi
         end
 
         def check_for_type
-          unless active_param
+          if active_param && !ITF_TYPES.include?(active_param)
             error = {
               errors: [
                 {
