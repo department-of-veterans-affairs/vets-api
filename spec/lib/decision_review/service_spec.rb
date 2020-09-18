@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'common/exceptions/forbidden'
 require 'decision_review/service'
+require 'decision_review/service_exception'
 
 describe DecisionReview::Service do
   subject { described_class.new }
