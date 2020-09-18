@@ -1,8 +1,8 @@
 ---
 # Add a new feture toggle here to ensure that it is initialized in all environments.
 #
-# Features are enabled by default in test environments, and disabled by default in other environments.
-# Set a `enable_in_development` to 'true' to override this behavior for development.
+# Features are enabled by default in the test environment and disabled by default in other environments.
+# To default a feature to enabled in development, set the `enable_in_development` key to true.
 #
 # The description should contain any relevant information for an admin who may toggle the feature.
 #
