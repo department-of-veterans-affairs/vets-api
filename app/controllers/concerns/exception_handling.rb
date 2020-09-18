@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'common/exceptions'
+require 'common/client/errors'
 
 module ExceptionHandling
   extend ActiveSupport::Concern
