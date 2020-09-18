@@ -16,7 +16,7 @@ module EVSS
       def perform(submission_id)
         super(submission_id)
         with_tracking('Form526 Cleanup', submission.saved_claim_id, submission.id) do
-          InProgressForm.find_by(form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: submission.user_uuid).&destroy
+          InProgressForm.find_by(form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: submission.user_uuid)&.destroy
           EVSS::IntentToFile::ResponseStrategy.delete("#{submission.user_uuid}:compensation")
         end
       end
