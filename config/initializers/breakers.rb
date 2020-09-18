@@ -67,8 +67,8 @@ services = [
   Rx::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
   Search::Configuration.instance.breakers_service,
-  VAOS::Configuration.instance.breakers_service
-  Vet360::ContactInformation::Configuration.instance.breakers_service,
+  VAOS::Configuration.instance.breakers_service,
+  Vet360::ContactInformation::Configuration.instance.breakers_service
 ]
 
 services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
