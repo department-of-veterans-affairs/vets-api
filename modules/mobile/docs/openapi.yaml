@@ -5,11 +5,11 @@ info:
   license:
     name: MIT
 servers:
-  - url: http://api.va.gov/mobile
+  - url: http://api.va.gov
 paths:
-  /:
+  /mobile:
     get:
-      summary: /
+      summary: /mobile
       description: Currently returns a welcome message. In the future given an app version it will return a map of services.
       operationId: discovery
       responses:
@@ -19,11 +19,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v0/user:
+  /mobile/v0/user:
     get:
-      summary: /v0/user
+      summary: /mobile/v0/user
       description: Returns the user profile
       operationId: get_user
+      security:
+        - Bearer: [ ]
       responses:
         '200':
           description: OK
@@ -32,19 +34,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
 components:
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+      example: "Authorization: Bearer ypXeAwQedpmAy5xFD2u5"
   schemas:
     Message:
       required:
-        - attributes
+        - message
       properties:
-        attributes:
-          type: object
-          required:
-            - message
-          properties:
-            message:
-              type: String
-              example: "Welcome to the mobile API"
+        message:
+          type: string
     User:
       required:
         - id
@@ -77,5 +79,3 @@ components:
             email:
               type: String
               example: "john.a.smith@domain.com"
-
-
