@@ -14,16 +14,68 @@ paths:
       operationId: discovery
       responses:
         '200':
-          description: The welcome message
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+  /v0/user:
+    get:
+      summary: /v0/user
+      description: Returns the user profile
+      operationId: get_user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
 components:
   schemas:
     Message:
       required:
-        - message
+        - attributes
       properties:
-        message:
+        attributes:
+          type: object
+          required:
+            - message
+          properties:
+            message:
+              type: String
+              example: "Welcome to the mobile API"
+    User:
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
           type: string
+          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+        type:
+          type: string
+          example: user
+        attributes:
+          type: object
+          required:
+            - first_name
+            - middle_name
+            - last_name
+            - email
+          properties:
+            first_name:
+              type: String
+              example: "John"
+            middle_name:
+              type: String
+              example: "A"
+            last_name:
+              type: String
+              example: "Smith"
+            email:
+              type: String
+              example: "john.a.smith@domain.com"
+
+

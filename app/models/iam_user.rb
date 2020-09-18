@@ -3,8 +3,9 @@
 require 'digest'
 require 'active_support/core_ext/digest/uuid'
 
-# Subclasses the `User` model in order to override the redis namespace and thereby partition user
-# sessions for va.gov from mobile client applications.
+# Subclasses the `User` model. Adds a unique redis namespace for IAM users.
+# Adds IAM sourced versions of ICN, EDIPI, and SEC ID and methods to use them
+# or hit MPI via the va_profile method.
 #
 class IAMUser < ::User
   redis_store REDIS_CONFIG[:iam_user][:namespace]
@@ -19,6 +20,11 @@ class IAMUser < ::User
   # MVI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
   alias mhv_icn iam_icn
 
+  # Builds an user instance from a IAMUserIdentity
+  #
+  # @param iam_identity [IAMUserIdentity] the IAM identity object.
+  # @return [IAMUser] an instance of this class
+  #
   def self.build_from_user_identity(user_identity)
     user = new(user_identity.attributes)
     user.set_expire

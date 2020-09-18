@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-# Subclasses the UserIdentity class in order to override the redis namespace and thereby partition
-# user sessions for va.gov from openid client applications.
+# Subclasses the `UserIdentity` model. Adds a unique redis namespace for IAM user identities.
+# Like the it's base model it acts as an adapter for the attributes from the IAMSSOeOAuth::Service's
+# introspect endpoint.Adds IAM sourced versions of ICN, EDIPI, and SEC ID to pass to the IAMUser model.
 #
 class IAMUserIdentity < ::UserIdentity
   redis_store REDIS_CONFIG[:iam_user_identity][:namespace]
