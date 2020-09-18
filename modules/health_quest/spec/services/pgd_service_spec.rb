@@ -8,7 +8,7 @@ require_relative '../support/health_fixture_helper'
 describe HealthQuest::PGDService do
   let(:user) { build(:user, :health_quest) }
   let(:subject) { described_class.new(user) }
-  let(:expected_data) { OpenStruct.new({ id: '333', text: 'this is the questionnaire' }) }
+  let(:expected_data) { OpenStruct.new({ id: '333', text: 'this is the questionnaire', type: :questionnaire }) }
   let(:dummy_response) { double('fake_response', body: { data: expected_data }) }
 
   before do
