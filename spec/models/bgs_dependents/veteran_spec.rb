@@ -48,7 +48,7 @@ RSpec.describe BGSDependents::Veteran do
   describe '#veteran_response' do
     it 'formats params veteran response' do
       expect(
-        vet.veteran_response({ vnp_ptcpnt_id: '149500' }, '1234', address, '134')
+        vet.veteran_response({ vnp_ptcpnt_id: '149500' }, '1234', address, '134', '310')
       ).to include(veteran_response_result_sample)
     end
   end
