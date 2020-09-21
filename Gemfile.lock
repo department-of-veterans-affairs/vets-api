@@ -60,7 +60,7 @@ GIT
   revision: 5ec83957de0f13f1458d7c34def5aeacb91e2bb3
   branch: 10-10cg-insurance-questions
   specs:
-    vets_json_schema (11.0.0)
+    vets_json_schema (12.0.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
