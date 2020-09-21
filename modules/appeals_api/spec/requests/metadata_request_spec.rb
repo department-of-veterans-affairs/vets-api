@@ -18,58 +18,28 @@ RSpec.describe 'Appeals Metadata Endpoint', type: :request do
     end
   end
 
-  context 'healthchecks' do
-    let(:health_check_stub) do
-      health_checker = instance_double(AppealsApi::HealthChecker)
-      allow(AppealsApi::HealthChecker).to receive(:new).and_return(health_checker)
-      health_checker
-    end
-
+  describe '#healtcheck' do
     context 'v0' do
-      it 'returns correct response and status when healthy' do
-        allow(health_check_stub).to receive(:services_are_healthy?).and_return(true)
-        allow(health_check_stub).to receive(:caseflow_is_healthy?).and_return(true)
-
+      it 'returns a successful health check' do
         get '/services/appeals/v0/healthcheck'
-        parsed_response = JSON.parse(response.body)
-        expect(response.status).to eq(200)
-        expect(parsed_response['data']['attributes']['healthy']).to eq(true)
-        expect(parsed_response['data']['attributes']['caseflow']['healthy']).to eq(true)
-      end
 
-      it 'returns correct status when caseflow is not healthy' do
-        allow(health_check_stub).to receive(:services_are_healthy?).and_return(false)
-        allow(health_check_stub).to receive(:caseflow_is_healthy?).and_return(false)
-
-        get '/services/appeals/v0/healthcheck'
         parsed_response = JSON.parse(response.body)
-        expect(response.status).to eq(200)
-        expect(parsed_response['data']['attributes']['healthy']).to eq(false)
-        expect(parsed_response['data']['attributes']['caseflow']['healthy']).to eq(false)
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response['description']).to eq('Appeals API health check')
+        expect(parsed_response['status']).to eq('UP')
+        expect(parsed_response['time']).not_to be_nil
       end
     end
 
     context 'v1' do
-      it 'returns correct response and status when healthy' do
-        allow(health_check_stub).to receive(:services_are_healthy?).and_return(true)
-        allow(health_check_stub).to receive(:caseflow_is_healthy?).and_return(true)
-
+      it 'returns a successful health check' do
         get '/services/appeals/v1/healthcheck'
-        parsed_response = JSON.parse(response.body)
-        expect(response.status).to eq(200)
-        expect(parsed_response['data']['attributes']['healthy']).to eq(true)
-        expect(parsed_response['data']['attributes']['caseflow']['healthy']).to eq(true)
-      end
 
-      it 'returns correct status when caseflow is not healthy' do
-        allow(health_check_stub).to receive(:services_are_healthy?).and_return(false)
-        allow(health_check_stub).to receive(:caseflow_is_healthy?).and_return(false)
-
-        get '/services/appeals/v1/healthcheck'
         parsed_response = JSON.parse(response.body)
-        expect(response.status).to eq(200)
-        expect(parsed_response['data']['attributes']['healthy']).to eq(false)
-        expect(parsed_response['data']['attributes']['caseflow']['healthy']).to eq(false)
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response['description']).to eq('Appeals API health check')
+        expect(parsed_response['status']).to eq('UP')
+        expect(parsed_response['time']).not_to be_nil
       end
     end
   end

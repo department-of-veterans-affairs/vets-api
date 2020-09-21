@@ -41,6 +41,13 @@ module AppealsApi
     end
 
     def healthcheck
+      render json: {
+        description: 'Appeals API health check',
+        status: 'UP',
+        time: Time.zone.now.to_formatted_s(:iso8601)
+      }
+    end
+
       health_checker = AppealsApi::HealthChecker.new
       render json: {
         data: {
