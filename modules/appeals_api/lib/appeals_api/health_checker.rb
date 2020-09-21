@@ -4,6 +4,8 @@ require 'caseflow/service'
 
 module AppealsApi
   class HealthChecker
+    SERVICES = %w[caseflow].freeze
+
     def initialize
       @caseflow_healthy = nil
     end

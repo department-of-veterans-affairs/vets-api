@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-AppealsApi::Engine.routes.draw do
+AppealsApi::Engine.routes.draw do # rubocop:disable Metrics/BlockLength
   match '/appeals_status/metadata', to: 'metadata#appeals_status', via: [:get]
   match '/decision_reviews/metadata', to: 'metadata#decision_reviews', via: [:get]
   match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
   match '/v1/healthcheck', to: 'metadata#healthcheck', via: [:get]
+  match '/v0/downstream_healthcheck', to: 'metadata#downstream_healthcheck', via: [:get]
+  match '/v1/downstream_healthcheck', to: 'metadata#downstream_healthcheck', via: [:get]
   match '/v0/appeals', to: 'v0/appeals#index', via: [:get]
+
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_reviews do
       namespace :higher_level_reviews do
