@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'generators/provider_state/provider_state_generator'
 
 module Pact
