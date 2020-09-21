@@ -13,18 +13,18 @@ module Okta
       okta_service = Okta::Service.new
       redis = Redis.new
       base_url = Settings.oidc.base_api_url + '/api/v1/apps?limit=200&filter=status+eq+"ACTIVE"'
-      unfiltered_apps = recursively_get_apps(okta_service, base_url)
-
       # Iterate through the returned applications, and test for pattern matching,
       # adding to our filtered apps array if pattern doesn't match
-      filtered_apps = unfiltered_apps.reject { |app| app['label'] =~ ISO_PATTERN }
+      unfiltered_apps = recursively_get_apps(okta_service, base_url) #TODO
+      filtered_apps = unfiltered_apps.reject { |app| app['label'] =~ ISO_PATTERN } #TODO
       # Create a map of authorization servers,
       # with each server containing a list of all clients and scopes of that server
       auth_server_map = make_server_map(okta_service)
+      filtered_apps = parse_scope_permissions(filtered_apps, auth_server_map)
+      apps = normalize_schema(filtered_apps)
       # Set cache
-      redis.set('okta_directory_apps', filtered_apps.to_json)
-      redis.set('okta_auth_server_map', auth_server_map.to_json)
-      filtered_apps
+      redis.set('okta_directory_apps', apps.to_json)
+      apps
     end
 
     def recursively_get_apps(okta_service, url = '', unfiltered_apps = [])
@@ -56,11 +56,19 @@ module Okta
         server_clients = okta_service.get_clients(server['id'])
         server_scopes = okta_service.get_server_scopes(server['id'])
         server_client_map[server['id']] = {
-          clients => server_clients.body,
-          scopes => server_scopes.body
+          :clients => server_clients.body,
+          :scopes => server_scopes.body
         }
       end
       server_client_map
+    end
+
+    def normalize_schema(apps_list)
+      normalized_apps = []
+      apps_list.each do |app|
+        normalized_apps << OktaApplication.new(app)
+      end
+      normalized_apps
     end
 
     def parse_scope_permissions(filtered_apps, auth_server_map)
@@ -69,11 +77,11 @@ module Okta
       filtered_apps.each do |app|
         auth_server_map.each do |auth_server|
           # if our current app.id is present in the auth server, attach it's scopes to app.permissions
-          if auth_server[0][:clients].any? { |h| h[:client_id] == app['id'] }
+          if auth_server[0]['clients']&.any? { |h| h['client_id'] == app['id'] }
             app['permissions'].concat(auth_server[0][:scopes].collect { |scope| scope[:description] })
           end
         end
-        app['permissions'] = app['permissions'].uniq # remove duplicate scopes that may be shared across auth servers
+        app['permissions'] = app['permissions']&.uniq # remove duplicate scopes that may be shared across auth servers
       end
       filtered_apps
     end
