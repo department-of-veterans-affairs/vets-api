@@ -57,7 +57,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 5ec83957de0f13f1458d7c34def5aeacb91e2bb3
+  revision: c9c3c108986f94b5c2df559141905bd3ae3d0ba1
   branch: 10-10cg-insurance-questions
   specs:
     vets_json_schema (12.0.1)
