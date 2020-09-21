@@ -43,7 +43,7 @@ module VetsAPI
     # This prevents rails from escaping html like & in links when working with JSON
     config.active_support.escape_html_entities_in_json = false
 
-    # TODO restore for this PR
+    # TODO: restore for this PR
     # include /lib in autoload path
     # paths_name = Rails.env.development? ? 'autoload' : 'eager_load'
     # config.public_send("#{paths_name}_paths") << Rails.root.join('lib')
