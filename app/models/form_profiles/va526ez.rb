@@ -228,7 +228,3 @@ class FormProfiles::VA526ez < FormProfile
     number.gsub(/.(?=.{4})/, '*')
   end
 end
-
-class FormProfiles::VA526ezbdd < FormProfiles::VA526ez
-  FORM_ID = '21-526EZ-BDD'
-end
