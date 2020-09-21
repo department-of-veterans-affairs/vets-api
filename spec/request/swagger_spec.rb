@@ -10,7 +10,6 @@ require 'support/stub_debt_letters'
 require 'support/stub_efolder_documents'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
-require 'sm/client'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
