@@ -2,9 +2,8 @@ module V0
   class EducationCareerCounselingClaimsController < ApplicationController
     def create
       claim = career_counseling_claim
-      binding.pry
       claim.add_veteran_info(current_user) if current_user
-      binding.pry
+
       unless claim.save!
         StatsD.increment("#{stats_key}.failure")
         Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
