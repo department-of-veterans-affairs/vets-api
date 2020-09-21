@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'evss/claims_service'
-require 'evss/auth_headers'
 
 describe EVSS::ErrorMiddleware do
   let(:current_user) { FactoryBot.build(:evss_user) }
