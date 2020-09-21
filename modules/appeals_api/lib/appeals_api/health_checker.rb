@@ -4,13 +4,19 @@ require 'caseflow/service'
 
 module AppealsApi
   class HealthChecker
-    def self.services_are_healthy?
+    def initialize
+      @caseflow_healthy = nil
+    end
+
+    def services_are_healthy?
       caseflow_is_healthy?
     end
 
-    def self.caseflow_is_healthy?
+    def caseflow_is_healthy?
+      return @caseflow_healthy unless @caseflow_healthy.nil?
+
       response = Caseflow::Service.new.healthcheck
-      response.body['healthy'] == true
+      @caseflow_healthy = response.body['healthy'] == true
     end
   end
 end
