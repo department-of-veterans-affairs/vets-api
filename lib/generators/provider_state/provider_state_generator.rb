@@ -13,10 +13,10 @@ class ProviderStateGenerator < Rails::Generators::NamedBase
   # :nocov:
   def generator_output
     puts "\n"
-    puts "\u{1F64C} new pact provider state generated at spec/service_consumers/provider_states_for/#{file_name}.rb \n\n"
+    puts "\u{1F64C} new pact provider state generated"
+    puts "Generated at: spec/service_consumers/provider_states_for/#{file_name}.rb \n\n"
     puts "\n"
   end
   # :nocov:
   # rubocop:enable Rails/Output
-
 end
