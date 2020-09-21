@@ -3,6 +3,7 @@
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
+    skip_before_action :verify_authenticity_token
     skip_before_action :authenticate
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
