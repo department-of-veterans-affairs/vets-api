@@ -6,7 +6,7 @@ require 'commands/pact/pact_command'
 describe Pact::Command::PactCommand do
   context 'when the new command is called' do
     it 'calls the pact generator perform method' do
-      expect(PactGenerator).to receive(:start)
+      expect(ProviderStateGenerator).to receive(:start)
       subject.perform('new', ['test'])
     end
 
