@@ -26,15 +26,18 @@
 
   <script>
     (function() {
-      var form = document.getElementById("saml-form");
       var req = new XMLHttpRequest();
-      var qs = "saml_uuid=" + encodeURIComponent("<%= saml_uuid %>") +
+      var qs = "id=" + encodeURIComponent("<%= id %>") +
                 "&authn=" + encodeURIComponent("<%= authn %>") +
                 "&type=" + encodeURIComponent("<%= type %>");
-      var url = location.origin + "/v1/sessions/tracker?" + qs;
+      var url = location.origin + "/v1/sessions/trace?" + qs;
       req.open("GET", url);
+      req.onreadystatechange = function (evt) {
+        if (req.readyState == 2) {
+          document.getElementById("saml-form").submit();
+        }
+      };
       req.send();
-      form.submit();
     })();
   </script>
 </body>
