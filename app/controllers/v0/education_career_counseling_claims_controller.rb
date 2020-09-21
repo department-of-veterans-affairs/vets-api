@@ -1,7 +1,9 @@
 module V0
   class EducationCareerCounselingClaimsController < ApplicationController
     def create
-      claim = SavedClaim::EducationCareerCounselingClaim.new(form: career_counseling_params.to_json)
+      claim = career_counseling_claim
+      binding.pry
+      claim.add_veteran_info(current_user) if current_user
       binding.pry
       unless claim.save!
         StatsD.increment("#{stats_key}.failure")
@@ -9,43 +11,12 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
       binding.pry
-      # claim.submit!
+      claim.process_attachments!
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       # clear_saved_form(claim.form_id)
       render(json: claim)
     end
-
-    # {
-    #   "status"=>"isVeteran",
-    #   "claimant_address"=>{
-    #     "country_name"=>"USA",
-    #     "address_line1"=>"9417 Princess Palm",
-    #     "city"=>"Tampa",
-    #     "state_code"=>"FL",
-    #     "zip_code"=>"33928"
-    #   },
-    #   "claimant_phone_number"=>"5555555555",
-    #   "claimant_email_address"=>"cohnjesse@gmail.xom",
-    #   "claimant_confirm_email_address"=>"cohnjesse@gmail.xom",
-    #   "format"=>"json",
-    #   "controller"=>"v0/education_career_counseling_claims",
-    #   "action"=>"create",
-    #   "education_career_counseling_claim"=>{
-    #     "status"=>"isVeteran",
-    #     "claimant_address"=>{
-    #       "country_name"=>"USA",
-    #       "address_line1"=>"9417 Princess Palm",
-    #       "city"=>"Tampa",
-    #       "state_code"=>"FL",
-    #       "zip_code"=>"33928"
-    #     },
-    #     "claimant_phone_number"=>"5555555555",
-    #     "claimant_email_address"=>"cohnjesse@gmail.xom",
-    #     "claimant_confirm_email_address"=>"cohnjesse@gmail.xom"
-    #   }
-    # }
-
 
     private
 
@@ -54,8 +25,13 @@ module V0
         :status,
         :claimant_phone_number,
         :claimant_email_address,
-        :claimant_confirm_email_address,
         claimant_address: {}
+      )
+    end
+
+    def career_counseling_claim
+      SavedClaim::EducationCareerCounselingClaim.new(
+        form: career_counseling_params.to_json
       )
     end
 
