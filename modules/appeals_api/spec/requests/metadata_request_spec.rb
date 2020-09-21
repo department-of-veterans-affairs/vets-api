@@ -18,7 +18,7 @@ RSpec.describe 'Appeals Metadata Endpoint', type: :request do
     end
   end
 
-  describe '#healtcheck' do
+  describe '#healthcheck' do
     context 'v0' do
       it 'returns a successful health check' do
         get '/services/appeals/v0/healthcheck'
