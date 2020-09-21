@@ -2,8 +2,6 @@
 
 require 'rails_helper'
 
-require 'bb/client'
-require 'rx/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
