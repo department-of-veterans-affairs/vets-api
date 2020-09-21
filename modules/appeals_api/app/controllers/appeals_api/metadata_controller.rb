@@ -41,39 +41,19 @@ module AppealsApi
     end
 
     def healthcheck
-      if AppealsApi::HealthChecker.services_are_healthy?
-        render json: healthy_service_response
-      else
-        render json: unhealthy_service_response,
-               status: :service_unavailable
-      end
-    end
-
-    private
-
-    def healthy_service_response
-      {
+      health_checker = AppealsApi::HealthChecker.new
+      render json: {
         data: {
           id: 'appeals_healthcheck',
           type: 'appeals_healthcheck',
           attributes: {
-            healthy: true,
-            date: Time.zone.now.to_formatted_s(:iso8601)
+            healthy: health_checker.services_are_healthy?,
+            date: Time.zone.now.to_formatted_s(:iso8601),
+            caseflow: {
+              healthy: health_checker.caseflow_is_healthy?
+            }
           }
         }
-      }.to_json
-    end
-
-    def unhealthy_service_response
-      {
-        errors: [
-          {
-            title: 'AppealsAPI Unavailable',
-            detail: 'AppealsAPI is currently unavailable.',
-            code: '503',
-            status: '503'
-          }
-        ]
       }.to_json
     end
   end
