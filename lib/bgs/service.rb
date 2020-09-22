@@ -168,10 +168,10 @@ module BGS
       regional_office_response = service.routing.get_regional_office_by_zip_code(
         zip_code, country, province, lob, ssn
       )
-
       regional_office_response[:regional_office][:number]
     rescue => e
-      notify_of_service_exception(e, __method__)
+      notify_of_service_exception(e, __method__, 1, :warn)
+      '347' # return default location id
     end
 
     private
