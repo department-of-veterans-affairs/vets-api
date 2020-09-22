@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c9c3c108986f94b5c2df559141905bd3ae3d0ba1
-  branch: 10-10cg-insurance-questions
+  revision: 6372fb6fc59dc42b1031b2b93517d8d68ceddf9a
+  branch: master
   specs:
-    vets_json_schema (12.0.1)
+    vets_json_schema (14.0.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -524,7 +524,7 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.13.2)
-    pact (1.51.1)
+    pact (1.54.0)
       pact-mock_service (~> 3.0, >= 3.3.1)
       pact-support (~> 1.9)
       rack-test (>= 0.6.3, < 2.0.0)

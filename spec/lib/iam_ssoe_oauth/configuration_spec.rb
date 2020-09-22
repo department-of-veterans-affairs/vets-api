@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
 require 'iam_ssoe_oauth/configuration'
 
 describe 'IAMSSOeOAuth::Configuration' do
