@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# ./modules/health_quest/spec/services/pgd_service_spec.rb
-
 require 'rails_helper'
 require_relative '../support/health_fixture_helper'
 

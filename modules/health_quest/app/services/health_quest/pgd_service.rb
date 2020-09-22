@@ -8,10 +8,9 @@ module HealthQuest
     def get_pgd_resource(type, id = nil, pagination_params = {})
       # params = {}
       res_id = id || '333'
+      fhir_data = { id: res_id.to_s, text: "this is the #{type}" }
       {
-        # rubocop:disable Layout/LineLength
-        data: deserialized_resource({ my_attr: 'none/fake', fhir_data: { id: res_id.to_s, text: "this is the #{type}" } }, type),
-        # rubocop:enable Layout/LineLength
+        data: deserialized_resource({ my_attr: 'none/fake', fhir_data: fhir_data }, type),
         meta: pagination(pagination_params)
       }
       #      with_monitoring do
