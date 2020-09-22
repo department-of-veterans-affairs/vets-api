@@ -20,20 +20,17 @@ module AppealsApi
         pdf_options,
         flatten: true
       )
-      merge_page(temp_path, output_path)
+      merge_page(temp_path, output_path, pdftk)
     end
 
-    def merge_page(temp_path, output_path)
-      new_path = if pdf_options[:additional_page]
-                   pdf = CombinePDF.new
-                   pdf << CombinePDF.load(temp_path)
-                   pdf << CombinePDF.load(add_page(pdf_options[:additional_page], temp_path))
-                   pdf.save(output_path)
-                   output_path
-                 else
-                   temp_path
-                 end
-      new_path
+    def merge_page(temp_path, output_path, pdftk)
+      if pdf_options[:additional_page]
+        additional_page = add_page(pdf_options[:additional_page], temp_path)
+        pdftk.cat temp_path, additional_page, output_path
+        output_path
+      else
+        temp_path
+      end
     end
 
     def add_page(text, temp_path)
