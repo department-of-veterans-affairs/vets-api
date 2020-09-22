@@ -11,7 +11,9 @@ module V0
     def create
       auditor.record(:submission_attempt)
 
-      @claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
+      @claim = SavedClaim::CaregiversAssistanceClaim.new(
+        form: form_submission
+      )
 
       if @claim.valid?
         submission = ::Form1010cg::Service.new(@claim).process_claim!
@@ -26,7 +28,9 @@ module V0
     # If we were unable to submit the user's claim digitally, we allow them to the download
     # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
+      claim = SavedClaim::CaregiversAssistanceClaim.new(
+        form: form_submission
+      )
 
       if claim.valid?
         # Brakeman will raise a warning if we use a claim's method or attribute in the source file name.
