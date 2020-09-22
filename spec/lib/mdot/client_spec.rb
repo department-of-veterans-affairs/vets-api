@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'mdot/client'
-require 'mdot/exceptions/service_exception'
 
 describe MDOT::Client, type: :mdot_helpers do
   subject { described_class.new(user) }

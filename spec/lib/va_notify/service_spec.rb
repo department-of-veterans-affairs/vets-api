@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'notifications/client'
+require 'va_notify/service'
 
 describe VaNotify::Service do
   before do
