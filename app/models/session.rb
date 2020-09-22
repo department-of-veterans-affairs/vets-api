@@ -41,7 +41,9 @@ class Session < Common::RedisStore
   end
 
   def authenticated_by_ssoe
-    @ssoe_transaction != nil
+    !@ssoe_transaction.nil?
+  end
+
   private
 
   def secure_random_token(length = DEFAULT_TOKEN_LENGTH)
