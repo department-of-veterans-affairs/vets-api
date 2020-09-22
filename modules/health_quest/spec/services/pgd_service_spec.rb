@@ -8,7 +8,7 @@ require_relative '../support/health_fixture_helper'
 describe HealthQuest::PGDService do
   let(:user) { build(:user, :health_quest) }
   let(:subject) { described_class.new(user) }
-  let(:expected_data) { OpenStruct.new({ id: '333', text: 'this is the questionnaire' }) }
+  let(:expected_data) { OpenStruct.new({ id: '333', text: 'this is the questionnaire', type: :questionnaire }) }
   let(:dummy_response) { double('fake_response', body: { data: expected_data }) }
 
   before do
@@ -18,15 +18,15 @@ describe HealthQuest::PGDService do
 
   describe '#get_pgd_resource' do
     it 'gets a PGD resource' do
-      expect(subject.get_pgd_resource(:questionnaire)[:data]).to eq(dummy_response.body[:data])
+      resource = subject.get_pgd_resource(:questionnaire)[:data]
+      expect(resource).to eq(dummy_response.body[:data])
     end
   end
 
   describe '#get_pgd_base_url' do
     it 'gets a url' do
-      # ubocop:disable Layout/LineLength
-      expect(subject.send(:get_pgd_base_url, 'questionnaire')).to eq("/questionnaire/v1/patients/#{user.icn}")
-      # ubocop:enable Layout/LineLength
+      url = subject.send(:get_pgd_base_url, 'questionnaire')
+      expect(url).to eq("/questionnaire/v1/patients/#{user.icn}")
     end
   end
 
