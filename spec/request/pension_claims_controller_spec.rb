@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'hca/service'
 
 RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
   let(:full_claim) do
