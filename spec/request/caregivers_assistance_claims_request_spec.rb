@@ -80,7 +80,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     let(:vcr_options) do
       {
         record: :none,
-        allow_unused_http_interactions: false,
+        allow_unused_http_interactions: true,
         match_requests_on: %i[method uri host path]
       }
     end
