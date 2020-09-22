@@ -15,15 +15,6 @@ FactoryBot.define do
           city: 'Tampa',
           state_code: 'FL',
           zip_code: '33928'
-        },
-        claimantInformation: {
-          fullName: {
-            first: 'JAIME',
-            middle: 'Lee',
-            last: 'BROOKS'
-          },
-          ssn: '796186272',
-          dateOfBirth: '1975-11-26'
         }
       }.to_json
     }

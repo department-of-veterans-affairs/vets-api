@@ -8,7 +8,6 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
   end
 
   def add_veteran_info(current_user)
-    binding.pry
     parsed_form.merge!(
       {
         'claimant_information' => {
