@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sentry/processor/filter_request_body'
 
 RSpec.describe Sentry::Processor::FilterRequestBody do
   context 'with PII in the [:request][:data] hash' do

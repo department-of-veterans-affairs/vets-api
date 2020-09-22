@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
 
 describe OktaRedis::Grants, skip_emis: true do
   subject { described_class.with_user(user) }

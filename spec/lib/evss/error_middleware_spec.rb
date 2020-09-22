@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/claims_service'
-require 'evss/auth_headers'
+require 'evss/error_middleware'
 
 describe EVSS::ErrorMiddleware do
   let(:current_user) { FactoryBot.build(:evss_user) }
