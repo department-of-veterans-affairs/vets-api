@@ -19,11 +19,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+  /v0/militaryinfo:
+    get:
+      summary: /v0/militaryinfo
+      description: Returns user military information
+      operationId: getMilitaryInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MilitaryInfo"
+
 components:
   schemas:
     Message:
       required:
-        - message
+        - attributes
       properties:
-        message:
+        attributes:
+          type: object
+          required:
+            - message
+          properties:
+            message:
+              type: string
+              example: "Welcome to the mobile API"
+    MilitaryInfo:
+      required:
+        - branchOfService
+        - beginDate
+        - endDate
+      properties:
+        branchOfService:
           type: string
+          example: "United States Marine Corps"
+        beginDate:
+          type: string
+          example: "September 17, 1997"
+        endDate:
+          type: string
+          example: "December 31, 2002"
