@@ -60,7 +60,7 @@ module SAML
     private
 
     def serializable_attributes
-      %i[authn_context authenticated_by_ssoe]
+      %i[authn_context]
     end
 
     def log_warnings_to_sentry
