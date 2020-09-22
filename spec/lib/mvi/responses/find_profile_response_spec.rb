@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'mvi/responses/find_profile_response'
-require 'support/mvi/stub_mvi'
 
 describe MVI::Responses::FindProfileResponse do
   let(:faraday_response) { instance_double('Faraday::Response') }

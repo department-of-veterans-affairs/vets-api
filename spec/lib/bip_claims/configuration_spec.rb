@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bip_claims/service'
+require 'bip_claims/configuration'
 
 describe BipClaims::Configuration do
   describe '#base_path' do
