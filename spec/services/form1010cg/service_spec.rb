@@ -69,7 +69,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  xdescribe '#icn_for' do
+  describe '#icn_for' do
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
         build(

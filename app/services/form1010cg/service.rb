@@ -147,12 +147,19 @@ module Form1010cg
       cached_icn = @cache[:icns][form_subject]
       return cached_icn unless cached_icn.nil?
 
-      if form_subject == 'veteran'
+      response = mvi_service.find_profile(build_user_identity_for(form_subject))
+
+      case response.status
+      when 'OK'
         log_mpi_search_result form_subject, true
-        return @cache[:icns][form_subject] = '1012667145V762142'
+        return @cache[:icns][form_subject] = response.profile.icn
+      when 'NOT_FOUND'
+        log_mpi_search_result form_subject, false
+        return @cache[:icns][form_subject] = NOT_FOUND
       end
 
-      log_mpi_search_result form_subject, false
+      raise response.error if response.error
+
       @cache[:icns][form_subject] = NOT_FOUND
     end
 
