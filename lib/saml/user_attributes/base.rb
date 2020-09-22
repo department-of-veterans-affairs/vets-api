@@ -3,7 +3,7 @@
 module SAML
   module UserAttributes
     class Base
-      REQUIRED_ATTRIBUTES = %i[email uuid idme_uuid sec_id loa sign_in multifactor].freeze
+      REQUIRED_ATTRIBUTES = %i[email uuid idme_uuid sec_id loa sign_in multifactor transactionid].freeze
 
       attr_reader :attributes, :authn_context, :warnings
 
@@ -58,6 +58,10 @@ module SAML
                                   .merge(account_type: account_type)
       rescue
         { service_name: 'unknown', account_type: 'N/A' }
+      end
+
+      def transactionid
+        nil
       end
 
       def to_hash
