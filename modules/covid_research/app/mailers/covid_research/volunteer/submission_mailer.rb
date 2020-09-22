@@ -3,7 +3,7 @@
 module CovidResearch
   module Volunteer
     class SubmissionMailer < ApplicationMailer
-      SIGNUP_SUBJECT = 'COVID Research Signup Confirmation'
+      SIGNUP_SUBJECT = 'VA coronavirus research volunteer list'
 
       def build(recipient)
         body = ERB.new(template).result(binding)
