@@ -19,18 +19,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v0/militaryinfo:
+  /v0/military-service-history:
     get:
-      summary: /v0/militaryinfo
-      description: Returns user military information
-      operationId: getMilitaryInfo
+      summary: /v0/military-service-history
+      description: Returns user's service history
+      operationId: getServiceHistory
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MilitaryInfo"
+                $ref: "#/components/schemas/MilitaryHistory"
 
 components:
   schemas:
@@ -46,7 +46,16 @@ components:
             message:
               type: string
               example: "Welcome to the mobile API"
-    MilitaryInfo:
+    MilitaryHistory:
+      required:
+        - serviceHistory
+      properties:
+        serviceHistory:
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/ServiceHistory"
+    ServiceHistory:
       required:
         - branchOfService
         - beginDate
