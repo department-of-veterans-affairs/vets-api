@@ -12,8 +12,9 @@ module Users
 
     attr_reader :user, :scaffold
 
-    def initialize(user)
+    def initialize(user, session)
       @user = validate!(user)
+      @session = session
       @scaffold = Users::Scaffold.new([], HTTP_OK)
     end
 
@@ -52,6 +53,7 @@ module Users
       scaffold.in_progress_forms = in_progress_forms
       scaffold.prefills_available = prefills_available
       scaffold.services = services
+      scaffold.session = session_data
     end
 
     def account
@@ -164,6 +166,13 @@ module Users
       {
         facility_id: facility_id,
         is_cerner: cerner_facility_ids.include?(facility_id)
+      }
+    end
+
+    def session_data
+      {
+        ssoe: @session[:ssoe_transaction] ? true : false,
+        transactionid: @session[:ssoe_transaction]
       }
     end
   end

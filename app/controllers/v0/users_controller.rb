@@ -3,7 +3,7 @@
 module V0
   class UsersController < ApplicationController
     def show
-      pre_serialized_profile = Users::Profile.new(current_user).pre_serialize
+      pre_serialized_profile = Users::Profile.new(current_user, @session_object).pre_serialize
 
       render(
         json: pre_serialized_profile,
