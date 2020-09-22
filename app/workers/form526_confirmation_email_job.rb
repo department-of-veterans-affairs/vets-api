@@ -9,6 +9,7 @@ class Form526ConfirmationEmailJob
   sidekiq_options expires_in: 1.day
 
   STATSD_ERROR_NAME = 'worker.form526_confirmation_email.error'
+  STATSD_SUCCESS_NAME = 'worker.form526_confirmation_email.success'
 
   def perform(personalization_parameters)
     @notify_client ||= VaNotify::Service.new
@@ -21,8 +22,10 @@ class Form526ConfirmationEmailJob
         'full_name' => personalization_parameters['full_name']
       }
     )
-  rescue => e
-    handle_errors(e)
+    StatsD.increment(STATSD_SUCCESS_NAME)
+    
+    rescue => e
+      handle_errors(e)
   end
 
   def handle_errors(ex)
