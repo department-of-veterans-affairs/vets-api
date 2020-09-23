@@ -2,9 +2,6 @@
 
 require 'rails_helper'
 
-require 'evss/request_decision'
-require 'evss/power_of_attorney_verifier'
-
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
