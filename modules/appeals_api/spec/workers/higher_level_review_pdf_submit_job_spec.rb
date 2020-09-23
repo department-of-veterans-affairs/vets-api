@@ -2,8 +2,6 @@
 
 require 'rails_helper'
 
-Sidekiq::Testing.fake!
-
 RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
   subject { described_class }
 

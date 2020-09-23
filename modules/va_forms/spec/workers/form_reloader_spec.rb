@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-Sidekiq::Testing.fake!
 
 RSpec.describe VaForms::FormReloader, type: :job do
   subject { described_class }

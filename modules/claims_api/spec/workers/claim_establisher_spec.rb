@@ -5,7 +5,6 @@ require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/service_exception'
-Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   subject { described_class }

@@ -5,8 +5,6 @@ require 'bgs'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 
-Sidekiq::Testing.fake!
-
 RSpec.describe ClaimsApi::PoaUpdater, type: :job do
   subject { described_class }
 

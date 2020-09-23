@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'evss/documents_service'
-Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::ClaimUploader, type: :job do
   subject { described_class }

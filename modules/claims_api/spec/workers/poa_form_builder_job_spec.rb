@@ -3,8 +3,6 @@
 require 'rails_helper'
 require 'claims_api/power_of_attorney_pdf_constructor'
 
-Sidekiq::Testing.fake!
-
 RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
   subject { described_class }
 

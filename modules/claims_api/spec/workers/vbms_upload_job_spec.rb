@@ -6,8 +6,6 @@ require_relative '../support/fake_vbms'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 
-Sidekiq::Testing.fake!
-
 RSpec.describe ClaimsApi::VbmsUploadJob, type: :job do
   subject { described_class }
 
