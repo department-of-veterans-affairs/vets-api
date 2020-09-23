@@ -91,7 +91,7 @@ module AuthenticationAndSSOConcerns
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
-  # Sets a cookie used by MHV for SSO
+  # Sets two cookies, used by MHV and used by ALL for SSO
   def set_sso_cookie!
     return unless Settings.sso.cookie_enabled &&
                   @session_object.present? &&
@@ -110,6 +110,16 @@ module AuthenticationAndSSOConcerns
       httponly: true,
       domain: Settings.sso.cookie_domain
     }
+
+    cookies[Settings.sso.saml_cookie_name] = {
+      value: sso_saml_cookie_content,
+      expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
+      secure: Settings.sso.cookie_secure,
+      httponly: true,
+      domain: Settings.sso.cookie_domain
+    }
+
+    return cookies
   end
 
   def set_session_expiration_header
@@ -127,6 +137,17 @@ module AuthenticationAndSSOConcerns
       'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
       'credential_used' => sso_cookie_sign_credential_used,
       'expirationTime' => @session_object.ttl_in_time.iso8601(0)
+    }
+  end
+
+  def sso_saml_cookie_content
+    return nil if @current_user.blank?
+
+    {
+      'timestamp' => Time.now.strftime('%Y-%m-%dT%H:%M:%S.%L%z'),
+      'transaction_id' => Digest::MD5.hexdigest(@current_user.id),
+      'saml_request_id' => '',
+      'saml_request_query_params' => ''
     }
   end
 
