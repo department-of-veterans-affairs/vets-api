@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'evss/documents_service'
-require 'evss/auth_headers'
 
 describe EVSS::DocumentsService do
   subject { described_class.new(auth_headers) }

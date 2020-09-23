@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions'
+require 'common/exceptions/schema_validation_errors'
 
 describe Common::Exceptions::SchemaValidationErrors do
   context 'with resource that has no errors provided' do

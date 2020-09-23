@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'notifications/client'
 
 RSpec.describe Form526ConfirmationEmailJob, type: :worker do
   before { Sidekiq::Worker.clear_all }

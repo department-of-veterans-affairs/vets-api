@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'ostruct'
+require 'mvi/responses/id_parser'
 
 describe MVI::Responses::IdParser do
   describe '#parse' do

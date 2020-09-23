@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 
 require 'feature_flipper'
-require 'common/exceptions'
-require 'common/client/errors'
 require 'saml/settings_service'
-require 'sentry_logging'
 require 'aes_256_cbc_encryptor'
 
 class ApplicationController < ActionController::API
