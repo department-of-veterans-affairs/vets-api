@@ -4,18 +4,24 @@ module ClaimsApi
   class PowerOfAttorneyPdfConstructor
     def initialize(power_of_attorney_id)
       @power_of_attorney = ClaimsApi::PowerOfAttorney.find power_of_attorney_id
+      @pdftk = PdfForms.new(Settings.binaries.pdftk)
     end
 
     def fill_pdf(pdf_path, page)
-      pdftk = PdfForms.new(Settings.binaries.pdftk)
       temp_path = Rails.root.join('tmp', "poa_#{Time.now.to_i}_page_#{page}.pdf")
-      pdftk.fill_form(
+      @pdftk.fill_form(
         pdf_path,
         temp_path,
         page == 1 ? page_1_options : page_2_options,
         flatten: true
       )
       temp_path
+    end
+
+    def combine(page1, page2)
+      output_path = "/tmp/#{@power_of_attorney.id}_final.pdf"
+      @pdftk.cat page1, page2, output_path
+      output_path
     end
 
     def data

@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'sidekiq/testing'
 require 'claims_api/power_of_attorney_pdf_constructor'
+require 'pdf_info'
 
 Sidekiq::Testing.fake!
 
@@ -73,6 +74,11 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
       expect(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:new).with(power_of_attorney.id).and_call_original
       expect_any_instance_of(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:fill_pdf).twice.and_call_original
       subject.new.perform(power_of_attorney.id)
+    end
+
+    it 'creates a PDF with the correct number of pages' do
+      subject.new.perform(power_of_attorney.id)
+      expect(PdfInfo::Metadata.read("/tmp/#{power_of_attorney.id}_final.pdf").pages).to eq(2)
     end
   end
 end
