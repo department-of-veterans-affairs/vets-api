@@ -9,7 +9,7 @@ module SAML
       include SentryLogging
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
-                                   dslogon_edipi loa sign_in multifactor transactionid].freeze
+                                   dslogon_edipi loa sign_in multifactor].freeze
       IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 

@@ -3,7 +3,7 @@
 module SAML
   module UserAttributes
     class Base
-      REQUIRED_ATTRIBUTES = %i[email uuid idme_uuid sec_id loa sign_in multifactor transactionid].freeze
+      REQUIRED_ATTRIBUTES = %i[email uuid idme_uuid sec_id loa sign_in multifactor].freeze
 
       attr_reader :attributes, :authn_context, :warnings
 
