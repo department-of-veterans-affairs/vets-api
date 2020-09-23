@@ -118,8 +118,6 @@ module AuthenticationAndSSOConcerns
       httponly: true,
       domain: Settings.sso.cookie_domain
     }
-
-    return cookies
   end
 
   def set_session_expiration_header
@@ -145,7 +143,7 @@ module AuthenticationAndSSOConcerns
 
     {
       'timestamp' => Time.now.strftime('%Y-%m-%dT%H:%M:%S.%L%z'),
-      'transaction_id' => Digest::MD5.hexdigest(@current_user.id),
+      'transaction_id' => '',
       'saml_request_id' => '',
       'saml_request_query_params' => ''
     }

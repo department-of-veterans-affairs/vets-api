@@ -312,7 +312,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                              tags: ["context:#{type}", 'version:v1'], **once)
               expect(response).to have_http_status(:ok)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
-              expect(cookies['vagov_saml_request_dev']).not_to be_nil
+              expect(cookies['vagov_saml_request_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme])
             end
           end
         end
