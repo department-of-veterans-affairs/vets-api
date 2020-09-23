@@ -21,7 +21,6 @@ class ClaimsBaseController < ApplicationController
   def create
     PensionBurial::TagSentry.tag_sentry
     claim = claim_class.new(form: filtered_params[:form])
-
     unless claim.save
       StatsD.increment("#{stats_key}.failure")
       raise Common::Exceptions::ValidationErrors, claim
