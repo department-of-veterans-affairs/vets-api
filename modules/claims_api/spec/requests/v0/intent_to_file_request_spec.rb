@@ -48,6 +48,14 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
+    it 'posts a 422 error with detail when BGS returns a 500 response' do
+      VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+        data['attributes'] = { type: 'pension' }
+        post path, params: data.to_json, headers: headers
+        expect(response.status).to eq(422)
+      end
+    end
+
     it "fails if passed a type that doesn't exist" do
       data[:data][:attributes][:type] = 'failingtesttype'
       post path, params: data.to_json, headers: headers
@@ -61,12 +69,33 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#active' do
-    it 'returns the latest itf of a type' do
+    it 'returns the latest itf of a compensation type' do
       VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
         get "#{path}/active", params: { type: 'compensation' }, headers: headers
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
       end
+    end
+
+    it 'returns the latest itf of a pension type' do
+      VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+        get "#{path}/active", params: { type: 'pension' }, headers: headers
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+      end
+    end
+
+    it 'returns the latest itf of a burial type' do
+      VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
+        get "#{path}/active", params: { type: 'burial' }, headers: headers
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+      end
+    end
+
+    it 'fails if passed wrong type' do
+      get "#{path}/active", params: { type: 'test' }, headers: headers
+      expect(response.status).to eq(422)
     end
 
     it 'fails if none is passed in' do

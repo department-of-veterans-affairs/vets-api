@@ -74,9 +74,13 @@ module MDOT
         VA_VETERAN_MIDDLE_NAME: @user.middle_name,
         VA_VETERAN_LAST_NAME: @user.last_name,
         VA_VETERAN_ID: @user.ssn.last(4),
-        VA_VETERAN_BIRTH_DATE: @user.birth_date,
+        VA_VETERAN_BIRTH_DATE: format_birthdate(@user.birth_date),
         VA_ICN: @user.icn
       }
+    end
+
+    def format_birthdate(date)
+      Date.parse(date).strftime('%Y-%m-%d')
     end
 
     def submission_headers

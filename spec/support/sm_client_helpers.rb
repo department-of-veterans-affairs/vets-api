@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sm/client'
+
 module SM
   module ClientHelpers
     TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
