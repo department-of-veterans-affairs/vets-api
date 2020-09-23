@@ -20,7 +20,6 @@
       "first": "Rosamond",
       "last": "Jerde"
     },
-    "ssnOrTin": "202901412",
     "dateOfBirth": "1978-07-03",
     "address": {
       "street": "111 2nd St S",
@@ -30,9 +29,6 @@
     },
     "primaryPhoneNumber": "1234567890",
     "vetRelationship": "Spouse",
-    "medicaidEnrolled": false,
-    "medicareEnrolled": true,
-    "champvaEnrolled": false,
-    "tricareEnrolled": false
+    "hasHealthInsurance": true
   }
 }
