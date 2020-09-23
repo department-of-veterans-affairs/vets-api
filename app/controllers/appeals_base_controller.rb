@@ -2,11 +2,12 @@
 
 require 'caseflow/service'
 require 'decision_review/service'
-require_relative 'appeals_base_controller/request_body_is_not_a_hash_error.rb'
 
 class AppealsBaseController < ApplicationController
   include ActionController::Serialization
   before_action { authorize :appeals, :access? }
+
+  REQUEST_BODY_IS_NOT_A_HASH_ERROR = DecisionReview::ServiceException.new key: 'DR_REQUEST_BODY_IS_NOT_A_HASH'
 
   private
 
@@ -24,13 +25,13 @@ class AppealsBaseController < ApplicationController
 
   def get_hash_from_request_body
     # testing string b/c NullIO class doesn't always exist
-    raise RequestBodyIsNotAHash if request.body.class.name == 'Puma::NullIO'
+    raise REQUEST_BODY_IS_NOT_A_HASH_ERROR if request.body.class.name == 'Puma::NullIO'
 
     body = JSON.parse request.body.string
-    raise RequestBodyIsNotAHash unless body.is_a?(Hash)
+    raise REQUEST_BODY_IS_NOT_A_HASH_ERROR unless body.is_a?(Hash)
 
     body
   rescue JSON::ParserError
-    raise RequestBodyIsNotAHash
+    raise REQUEST_BODY_IS_NOT_A_HASH_ERROR
   end
 end
