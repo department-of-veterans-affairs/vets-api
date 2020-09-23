@@ -48,13 +48,26 @@ components:
               example: "Welcome to the mobile API"
     MilitaryHistory:
       required:
-        - serviceHistory
+        - data
       properties:
-        serviceHistory:
+        data:
+          required:
+            - type
+            - id
+            - attributes
           type: array
           items:
             type: object
-            $ref: "#/components/schemas/ServiceHistory"
+            properties:
+              type:
+                type: string
+                example: "serviceHistory"
+              id:
+                type: string
+                example: "1"
+              attributes:
+                type: object
+                $ref: "#/components/schemas/ServiceHistory"
     ServiceHistory:
       required:
         - branchOfService
