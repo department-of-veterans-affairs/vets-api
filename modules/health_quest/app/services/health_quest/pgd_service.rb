@@ -5,7 +5,7 @@ Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middl
 
 module HealthQuest
   class PGDService < HealthQuest::SessionService
-    def get_pgd_resource(type, id = nil, pagination_params = {}) 
+    def get_pgd_resource(type, id = nil, pagination_params = {})
       res_id = id || '333'
       fhir_data = { id: res_id.to_s, text: "this is the #{type}" }
       {
@@ -29,7 +29,7 @@ module HealthQuest
         pagination: {
           current_page: pagination_params[:page] || 0,
           per_page: pagination_params[:per_page] || 0,
-          total_pages: 0, 
+          total_pages: 0,
           total_entries: 0
         }
       }
