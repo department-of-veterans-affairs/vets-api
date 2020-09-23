@@ -2,16 +2,12 @@
 
 require 'rails_helper'
 
-require 'bb/client'
-require 'common/client/errors'
-require 'rx/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
 require 'support/stub_efolder_documents'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
-require 'sm/client'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do

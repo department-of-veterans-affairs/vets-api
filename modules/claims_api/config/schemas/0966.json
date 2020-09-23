@@ -5,6 +5,17 @@
   "required": [
     "type"
   ],
+  "if": {
+    "properties": {
+      "type": { "const": "burial" }
+    },
+    "required": ["type"]
+  },
+  "then": {
+    "required": [
+      "participant_claimant_id"
+    ]
+  },
   "properties": {
     "type": {
       "type": "string",

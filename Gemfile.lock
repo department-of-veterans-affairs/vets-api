@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 97736319ba4efcc92e6b256bce3b572695abb2ab
-  branch: master
+  revision: bde3b2422f9120790938ac0ea5e031bd0101b9be
+  ref: bde3b2422f9120790938ac0ea5e031bd0101b9be
   specs:
-    vets_json_schema (12.0.1)
+    vets_json_schema (13.1.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -524,7 +524,7 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.13.2)
-    pact (1.51.1)
+    pact (1.54.0)
       pact-mock_service (~> 3.0, >= 3.3.1)
       pact-support (~> 1.9)
       rack-test (>= 0.6.3, < 2.0.0)

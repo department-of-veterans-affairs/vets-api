@@ -62,6 +62,7 @@ features:
       https://www.va.gov/profile/ show Receive Text Notifications
   profile_show_profile_2.0:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables Profile 2.0
   va_online_scheduling:
@@ -81,14 +82,17 @@ features:
       Allows veterans to submit requests for VA appointments
   va_online_scheduling_community_care:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to submit requests for Community Care appointments
   va_online_scheduling_direct:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to directly schedule VA appointments
   va_online_scheduling_past:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to see past appointments
   va_online_scheduling_vsp_appointment_list:
@@ -117,10 +121,12 @@ features:
       Enables the use of VSP for making a new VA appointment request
   va_online_scheduling_express_care:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables Express Care redirect to legacy and Express Care tab
   va_online_scheduling_express_care_new:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables Express Care request flow in VAOS
   va_online_scheduling_flat_facility_page:
