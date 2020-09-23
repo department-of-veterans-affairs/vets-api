@@ -23,9 +23,8 @@ class Form526ConfirmationEmailJob
       }
     )
     StatsD.increment(STATSD_SUCCESS_NAME)
-    
-    rescue => e
-      handle_errors(e)
+  rescue => e
+    handle_errors(e)
   end
 
   def handle_errors(ex)
