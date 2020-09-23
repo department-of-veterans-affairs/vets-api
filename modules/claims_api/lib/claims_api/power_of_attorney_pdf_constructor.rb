@@ -19,7 +19,7 @@ module ClaimsApi
     end
 
     def combine(page1, page2)
-      output_path = "/tmp/#{@power_of_attorney.id}_final.pdf"
+      output_path = Rails.root.join('tmp', "#{@power_of_attorney.id}_final.pdf")
       @pdftk.cat page1, page2, output_path
       output_path
     end

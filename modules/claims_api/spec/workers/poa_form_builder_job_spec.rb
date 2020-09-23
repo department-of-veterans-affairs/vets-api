@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'sidekiq/testing'
 require 'claims_api/power_of_attorney_pdf_constructor'
-require 'pdf_info'
 
 Sidekiq::Testing.fake!
 
@@ -76,9 +75,19 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
       subject.new.perform(power_of_attorney.id)
     end
 
-    it 'creates a PDF with the correct number of pages' do
+    it 'generates the expected pdf' do
+      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
       subject.new.perform(power_of_attorney.id)
-      expect(PdfInfo::Metadata.read("/tmp/#{power_of_attorney.id}_final.pdf").pages).to eq(2)
+
+      path = Rails.root.join('tmp', "#{power_of_attorney.id}_final.pdf")
+      expected_path = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'expected_2122.pdf')
+
+      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+
+      expect(generated_pdf_md5).to eq(expected_pdf_md5)
+      File.delete(path) if File.exist?(path)
+      Timecop.return
     end
   end
 end
