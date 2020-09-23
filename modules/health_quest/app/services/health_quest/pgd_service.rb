@@ -5,21 +5,13 @@ Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middl
 
 module HealthQuest
   class PGDService < HealthQuest::SessionService
-    def get_pgd_resource(type, id = nil, pagination_params = {})
-      # params = {}
+    def get_pgd_resource(type, id = nil, pagination_params = {}) 
       res_id = id || '333'
       fhir_data = { id: res_id.to_s, text: "this is the #{type}" }
       {
         data: deserialized_resource({ my_attr: 'none/fake', fhir_data: fhir_data }, type),
         meta: pagination(pagination_params)
       }
-      #      with_monitoring do
-      #        response = perform(:get, get_pgd_base_url(type, id), params, headers, timeout: 55)
-      #        {
-      #          data: deserialized_resource(response.body, type),
-      #          meta: pagination(pagination_params)
-      #        }
-      #      end
     end
 
     private
@@ -32,14 +24,13 @@ module HealthQuest
       result.is_a?(Array) ? result.map { |el| OpenStruct.new(el) } : OpenStruct.new(result)
     end
 
-    # TODO: need underlying APIs to support pagination consistently
     def pagination(pagination_params)
       {
         pagination: {
           current_page: pagination_params[:page] || 0,
           per_page: pagination_params[:per_page] || 0,
-          total_pages: 0, # underlying api doesn't provide this; how do you build a pagination UI without it?
-          total_entries: 0 # underlying api doesn't provide this.
+          total_pages: 0, 
+          total_entries: 0
         }
       }
     end
