@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_api/health_checker'
 
 RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
   describe '#get /metadata' do
