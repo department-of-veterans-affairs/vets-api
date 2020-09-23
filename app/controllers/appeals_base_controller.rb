@@ -1,27 +1,12 @@
 # frozen_string_literal: true
 
 require 'caseflow/service'
-require 'common/exceptions/base_error'
-require 'common/exceptions/serializable_error'
 require 'decision_review/service'
+require_relative 'appeals_base_controller/request_body_is_not_a_hash_error.rb'
 
 class AppealsBaseController < ApplicationController
   include ActionController::Serialization
   before_action { authorize :appeals, :access? }
-
-  class RequestBodyIsNotAHash < Common::Exceptions::BaseError
-    def errors
-      Array Common::Exceptions::SerializableError.new i18n_data
-    end
-
-    def i18n_data
-      I18n.t i18n_key
-    end
-
-    def i18n_key
-      'decision_review.exceptions.DR_REQUEST_BODY_IS_NOT_A_HASH'
-    end
-  end
 
   private
 
