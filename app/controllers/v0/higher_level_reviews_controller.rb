@@ -2,8 +2,6 @@
 
 module V0
   class HigherLevelReviewsController < AppealsBaseController
-    before_action :render_error_unless_request_body_is_a_hash, only: [:create]
-
     def show
       render json: decision_review_service.get_higher_level_review(params[:id]).body
     end
