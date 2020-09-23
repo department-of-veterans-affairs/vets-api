@@ -44,7 +44,6 @@ gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.g
 gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'
-gem 'combine_pdf'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master', require: 'vbms'
 gem 'date_validator'
