@@ -4,10 +4,8 @@ require 'common/models/base'
 require 'common/models/redis_store'
 require 'saml/user'
 
-# Subclasses the `User` model. Adds a unique redis namespace for IAM users.
-# Adds IAM sourced versions of ICN, EDIPI, and SEC ID and methods to use them
-# or hit MPI via the va_profile method.
-#
+# Stores attributes used to identify a user. Serves as a set of inputs to an MVI lookup. Also serves
+# as the receiver of identity attributes received from alternative sources during the SSO flow.
 class UserIdentity < Common::RedisStore
   redis_store REDIS_CONFIG[:user_identity_store][:namespace]
   redis_ttl REDIS_CONFIG[:user_identity_store][:each_ttl]
