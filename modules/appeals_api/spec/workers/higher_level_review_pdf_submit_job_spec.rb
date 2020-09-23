@@ -85,10 +85,12 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
       path = described_class.new.generate_pdf(higher_level_review.id)
       expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996.pdf')
-      generated_pdf_md5 = Digest::MD5.digest(File.read(path))
-      expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
-      File.delete(path) if File.exist?(path)
+
+      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+
       expect(generated_pdf_md5).to eq(expected_pdf_md5)
+      File.delete(path) if File.exist?(path)
       Timecop.return
     end
   end
@@ -98,10 +100,12 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
       path = described_class.new.generate_pdf(extra_higher_level_review.id)
       expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996_extra.pdf')
-      generated_pdf_md5 = Digest::MD5.digest(File.read(path))
-      expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
-      File.delete(path) if File.exist?(path)
+
+      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+
       expect(generated_pdf_md5).to eq(expected_pdf_md5)
+      File.delete(path) if File.exist?(path)
       Timecop.return
     end
   end
