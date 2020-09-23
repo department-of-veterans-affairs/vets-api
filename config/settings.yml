@@ -572,6 +572,9 @@ github_stats:
   username: github-stats-rake
   token: fake_token
 
+google_analytics:
+  url: 'https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473'
+
 # Settings for the coronavirus chatbot tokens
 coronavirus_chatbot:
   app_secret: fake_secret
