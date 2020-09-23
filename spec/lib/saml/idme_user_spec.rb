@@ -78,8 +78,7 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
           multifactor: false,
-          authn_context: LOA::IDME_LOA1_VETS,
-          authenticated_by_ssoe: false
+          authn_context: LOA::IDME_LOA1_VETS
         )
       end
 
@@ -108,8 +107,7 @@ RSpec.describe SAML::User do
             ssn: nil,
             zip: nil,
             multifactor: true,
-            authn_context: 'multifactor',
-            authenticated_by_ssoe: false
+            authn_context: 'multifactor'
           )
         end
 
@@ -143,8 +141,7 @@ RSpec.describe SAML::User do
               ssn: nil,
               zip: nil,
               multifactor: true,
-              authn_context: 'multifactor',
-              authenticated_by_ssoe: false
+              authn_context: 'multifactor'
             )
           end
         end
@@ -171,8 +168,7 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
           multifactor: false,
-          authn_context: LOA::IDME_LOA1_VETS,
-          authenticated_by_ssoe: false
+          authn_context: LOA::IDME_LOA1_VETS
         )
       end
 
@@ -200,8 +196,7 @@ RSpec.describe SAML::User do
             ssn: nil,
             zip: nil,
             multifactor: true,
-            authn_context: 'multifactor',
-            authenticated_by_ssoe: false
+            authn_context: 'multifactor'
           )
         end
 
@@ -232,8 +227,7 @@ RSpec.describe SAML::User do
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: nil,
           multifactor: true,
-          authn_context: LOA::IDME_LOA3_VETS,
-          authenticated_by_ssoe: false
+          authn_context: LOA::IDME_LOA3_VETS
         )
       end
 
