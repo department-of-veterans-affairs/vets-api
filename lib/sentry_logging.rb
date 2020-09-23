@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 module SentryLogging
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
     level = normalize_level(level)

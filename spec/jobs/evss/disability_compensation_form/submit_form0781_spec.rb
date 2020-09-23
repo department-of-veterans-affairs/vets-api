@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/disability_compensation_auth_headers'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   subject { described_class }

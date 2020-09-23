@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'support/saml/response_builder'
+require 'sentry/processor/pii_sanitizer'
 
 RSpec.describe Sentry::Processor::PIISanitizer do
   include SAML::ResponseBuilder

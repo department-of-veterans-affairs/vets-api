@@ -18,125 +18,66 @@ module Swagger
 
             response 200 do
               key :description, '200 passes the response from the upstream appeals API'
-              schema do
-                key :'$ref', :Appeals
-              end
+              schema '$ref': :Appeals
             end
 
             response 401 do
               key :description, 'User is not authenticated (logged in)'
-              schema do
-                key :'$ref', :Errors
-              end
+              schema '$ref': :Errors
             end
 
             response 403 do
               key :description, 'Forbidden: user is not authorized for appeals'
-              schema do
-                key :'$ref', :Errors
-              end
+              schema '$ref': :Errors
             end
 
             response 404 do
               key :description, 'Not found: appeals not found for user'
-              schema do
-                key :'$ref', :Errors
-              end
+              schema '$ref': :Errors
             end
 
             response 422 do
               key :description, 'Unprocessable Entity: one or more validations has failed'
-              schema do
-                key :'$ref', :Errors
-              end
+              schema '$ref': :Errors
             end
 
             response 502 do
               key :description, 'Bad Gateway: the upstream appeals app returned an invalid response (500+)'
-              schema do
-                key :'$ref', :Errors
-              end
+              schema '$ref': :Errors
             end
           end
         end
 
-        swagger_path '/v0/appeals/higher_level_reviews' do
+        swagger_path '/v0/higher_level_reviews' do
           operation :post do
             key :tags, %w[higher_level_reviews]
             key :summary, 'Creates a higher level review'
             key :operationId, 'createHigherLevelReview'
-            key :description, 'This endpoint will submit a Decision Review request of type Higher-Level Review. '\
-                              'This endpoint is analogous to submitting VA For 20-0996 via mail or fax. ### '\
-                              'Asynchronous processing The Decision Reviews API leverages a pattern recommended '\
-                              'by JSON API for asynchronous processing (more information '\
-                              '[here](https://jsonapi.org/recommendations/#asynchronous-processing)). '\
-                              'Submitting a Decision Review is an asynchronous process due to the multiple '\
-                              'systems that are involved. Because of this, when a new Decision Review is '\
-                              'submitted, the POST endpoint will return a 202 `accepted` response including an '\
-                              'Intake UUID. That Intake UUID is associated with the submission and can be used '\
-                              'as an identifier for the Intake Status endpoint. While the submission is '\
-                              'processing the Intake Status endpoint will return a 200 response. Once the '\
-                              'asynchronous process is complete and the Decision Review is submitted into '\
-                              'Caseflow, the Intake Status endpoint will return a 303 response including the '\
-                              'Decision Review ID for the submitted Decision Review, which will allow you to '\
-                              'retrieve the full details including the processing status.'
+            description = 'Creates a filled-out HLR PDF and uploads it to Central Mail.' \
+                          ' NOTE: If `informalConference` is false, the fields `informalConferenceRep`' \
+                          ' and `informalConferenceTimes` cannot be present.'
+            key :description, description
 
             parameter do
               key :name, :request
               key :in, :body
-              key :description, 'Higher level review raw request data'
               key :required, true
-
-              schema do
-                key :'$ref', :HigherLevelReviewRequest
-              end
+              schema '$ref': :hlrCreate
             end
 
-            response 202 do
-              key :description, 'Accepted'
-              schema do
-                key :'$ref', :IntakeStatus
-              end
-            end
-
-            response 400 do
-              key :description, 'Malformed request'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
-            response 403 do
-              key :description, 'Veteran not accessible'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
-            response 404 do
-              key :description, 'Veteran not found'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
-            response 409 do
-              key :description, 'Duplicate intake in progress'
-              schema do
-                key :'$ref', :Errors
-              end
+            response 200 do
+              key :description, 'Submitted'
+              schema '$ref': :hlrShowRoot
             end
 
             response 422 do
-              key :description, '422 Error'
-              schema do
-                key :'$ref', :Errors
-              end
+              key :description, 'Malformed request'
+              schema '$ref': :Errors
             end
           end
         end
 
-        swagger_path '/v0/appeals/higher_level_reviews/{uuid}' do
+        swagger_path '/v0/higher_level_reviews/{uuid}' do
           operation :get do
             key :description, 'This endpoint returns the details of a specific Higher Level Review'
             key :operationId, 'showHigherLevelReview'
@@ -153,71 +94,47 @@ module Swagger
             end
 
             response 200 do
-              key :description, 'Response is OK'
-              schema do
-                key :'$ref', :HigherLevelReview
-              end
+              key :description, 'Central Mail status and original payload for Higher-Level Review'
+              schema '$ref': :hlrShowRoot
             end
 
             response 404 do
               key :description, 'ID not found'
-              schema do
-                key :'$ref', :Errors
-              end
-            end
-
-            response 502 do
-              key :description, 'Bad Gateway: the upstream decision review API returned an invalid response (500+)'
-              schema do
-                key :'$ref', :Errors
-              end
+              schema '$ref': :Errors
             end
           end
         end
 
-        swagger_path '/v0/appeals/intake_statuses/{intake_id}' do
+        swagger_path '/v0/higher_level_reviews/contestable_issues/{benefit_type}' do
           operation :get do
-            key :tags, %w[intake_status]
-            key :operationId, 'showIntakeStatus'
-            key :description, 'After creating a Decision Review, you can use this endpoint to check its _intake '\
-                              'status_ to see whether or not a Decision Review has been processed in the Caseflow'\
-                              ' system.'
+            description = 'For the logged-in veteran,' \
+                   ' returns a list of issues that could be contested in a Higher-Level Review' \
+                   ' for the specified benefit type.'
+            key :description, description
+            key :operationId, 'getContestableIssues'
+            key :tags, %w[higher_level_reviews]
 
             parameter do
-              key :name, :intake_id
+              key :name, :benefit_type
               key :in, :path
               key :required, true
-              key :description, 'Decision Review UUID'
               key :type, :string
-              key :format, :uuid
-              key :pattern, "^[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}$"
+              key :enum, VetsJsonSchema::SCHEMAS.fetch('HLR-GET-CONTESTABLE-ISSUES-REQUEST-BENEFIT-TYPE')['enum']
             end
 
             response 200 do
-              key :description, 'Processing status'
-              schema do
-                key :'$ref', :IntakeStatus
-              end
+              key :description, 'Issues'
+              schema '$ref': :ContestableIssues
             end
 
             response 404 do
-              key :description, 'Decision Review not found'
-              schema do
-                key :type, :object
-                property :errors do
-                  key :'$ref', :Errors
-                end
-              end
+              key :description, 'Veteran not found'
+              schema '$ref': :Errors
             end
 
-            response 502 do
-              key :description, 'Bad Gateway: the upstream decision review API returned an invalid response (500+)'
-              schema do
-                key :type, :object
-                property :errors do
-                  key :'$ref', :Errors
-                end
-              end
+            response 422 do
+              key :description, 'Malformed request'
+              schema '$ref': :Errors
             end
           end
         end
