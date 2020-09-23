@@ -60,10 +60,6 @@ module SAML
         { service_name: 'unknown', account_type: 'N/A' }
       end
 
-      def transactionid
-        nil
-      end
-
       def to_hash
         serializable_attributes.index_with { |k| send(k) }
       end
