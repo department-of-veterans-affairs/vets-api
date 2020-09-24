@@ -38,7 +38,7 @@ module V0
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
       else
-        saml_request_stats(url_service.tracker)
+        saml_request_stats
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
@@ -118,7 +118,7 @@ module V0
           # back to the identity provider
           login_stats(:success, saml_response, user_session_form)
         else
-          saml_request_stats(url_service.tracker)
+          saml_request_stats
           callback_stats(:success, saml_response)
         end
       else
@@ -142,16 +142,17 @@ module V0
       end
     end
 
-    def saml_request_stats(tracker)
+    def saml_request_stats
+      t = url_service.tracker
       values = {
-        'id' => tracker&.uuid,
-        'authn' => tracker&.payload_attr(:authn_context),
-        'type' => tracker&.payload_attr(:type)
+        'id' => t&.uuid,
+        'authn' => t&.payload_attr(:authn_context),
+        'type' => t&.payload_attr(:type)
       }
       Rails.logger.info("ID.me: SAML Request => #{values}")
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
-                       tags: ["type:#{tracker&.payload_attr(:type)}",
-                              "context:#{tracker&.payload_attr(:authn_context)}",
+                       tags: ["type:#{t&.payload_attr(:type)}",
+                              "context:#{t&.payload_attr(:authn_context)}",
                               VERSION_TAG])
     end
 
