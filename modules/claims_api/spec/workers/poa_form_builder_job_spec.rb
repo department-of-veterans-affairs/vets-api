@@ -82,8 +82,8 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
       path = Rails.root.join('tmp', "#{power_of_attorney.id}_final.pdf")
       expected_path = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'expected_2122.pdf')
 
-      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
-      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | openssl md5`.strip
+      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | openssl md5`.strip
 
       expect(generated_pdf_md5).to eq(expected_pdf_md5)
       File.delete(path) if File.exist?(path)

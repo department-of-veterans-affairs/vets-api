@@ -86,8 +86,8 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       path = described_class.new.generate_pdf(higher_level_review.id)
       expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996.pdf')
 
-      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
-      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | openssl md5`.strip
+      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | openssl md5`.strip
 
       expect(generated_pdf_md5).to eq(expected_pdf_md5)
       File.delete(path) if File.exist?(path)
@@ -101,8 +101,8 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       path = described_class.new.generate_pdf(extra_higher_level_review.id)
       expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996_extra.pdf')
 
-      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
-      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | md5sum`.strip
+      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | openssl md5`.strip
+      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | openssl md5`.strip
 
       expect(generated_pdf_md5).to eq(expected_pdf_md5)
       File.delete(path) if File.exist?(path)
