@@ -32,7 +32,7 @@ http_interactions:
       - Thu, 24 Sep 2020 17:35:26 GMT
     body:
       encoding: UTF-8
-      string: "[\n  {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"10\",\n
+      string: "[\n  {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n
         \   \"personEntitled\": null,\n    \"deductionCode\": \"30\",\n    \"benefitType\":
         \"Comp & Pen\",\n    \"diaryCode\": \"914\",\n    \"diaryCodeDescription\":
         \"Paid In Full\",\n    \"amountOverpaid\": 123.34,\n    \"amountWithheld\":
