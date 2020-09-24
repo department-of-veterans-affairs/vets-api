@@ -97,7 +97,7 @@ module Swagger
             end
             property :session, type: :object do
               property :ssoe, type: :boolean
-              property :transactionid, type: :string
+              property :transactionid, type: %i[string null]
             end
           end
         end
