@@ -120,7 +120,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    - `curl -o ~/Downloads/pdftk_download.pkg https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/pdftk_server-2.02-mac_osx-10.11-setup.pkg`
    - `sudo installer -pkg ~/Downloads/pdftk_download.pkg -target /`
 
-1. continue with [Base setup](README.md#base-setup)
+1. continue with [Base setup](native.md#base-setup)
 
 ### Alternative (Ubuntu 20.04 LTS)
 
@@ -164,4 +164,4 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
    - `sudo apt install -y clamav`
 1. Install pdftk
    - `sudo apt install -y pdftk`
-1. continue with [Base setup](README.md#base-setup)
+1. continue with [Base setup](native.md#base-setup)
