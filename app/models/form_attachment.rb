@@ -4,14 +4,16 @@ class FormAttachment < ApplicationRecord
   include SetGuid
 
   attr_encrypted(:file_data, key: Settings.db_encryption_key)
+  attr_encrypted(:file_password, key: Settings.db_encryption_key)
 
   validates(:file_data, :guid, presence: true)
 
   before_destroy { |record| record.get_file.delete }
 
-  def set_file_data!(file)
+  def set_file_data!(file, file_password_arg = nil)
     attachment_uploader = get_attachment_uploader
     attachment_uploader.store!(file)
+    self.file_password = file_password_arg
     self.file_data = { filename: attachment_uploader.filename }.to_json
   end
 

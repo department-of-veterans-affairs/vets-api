@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_11_143406) do
+ActiveRecord::Schema.define(version: 2020_09_24_024730) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -291,6 +291,8 @@ ActiveRecord::Schema.define(version: 2020_09_11_143406) do
     t.string "encrypted_file_data", null: false
     t.string "encrypted_file_data_iv", null: false
     t.string "type", null: false
+    t.string "encrypted_file_password"
+    t.string "encrypted_file_password_iv"
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
   end
 
