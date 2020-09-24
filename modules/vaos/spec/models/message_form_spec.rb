@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
 
 describe VAOS::MessageForm, type: :model do
   let(:user) { build(:user, :vaos) }

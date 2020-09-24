@@ -3,7 +3,6 @@
 # frozen_string_literal true
 
 require 'rails_helper'
-require 'common/exceptions'
 
 describe VAOS::CancelForm, type: :model do
   describe 'invalid object' do
