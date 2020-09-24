@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'savon'
-require 'nokogiri'
-
 module BGS
   class DisabilityRatingService
     def get_rating(current_user)
