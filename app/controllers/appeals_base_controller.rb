@@ -7,8 +7,6 @@ class AppealsBaseController < ApplicationController
   include ActionController::Serialization
   before_action { authorize :appeals, :access? }
 
-  REQUEST_BODY_IS_NOT_A_HASH_ERROR = DecisionReview::ServiceException.new key: 'DR_REQUEST_BODY_IS_NOT_A_HASH'
-
   private
 
   def appeals_service
@@ -25,13 +23,17 @@ class AppealsBaseController < ApplicationController
 
   def get_hash_from_request_body
     # testing string b/c NullIO class doesn't always exist
-    raise REQUEST_BODY_IS_NOT_A_HASH_ERROR if request.body.class.name == 'Puma::NullIO'
+    raise request_body_is_not_a_hash_error if request.body.class.name == 'Puma::NullIO'
 
     body = JSON.parse request.body.string
-    raise REQUEST_BODY_IS_NOT_A_HASH_ERROR unless body.is_a?(Hash)
+    raise request_body_is_not_a_hash_error unless body.is_a?(Hash)
 
     body
   rescue JSON::ParserError
-    raise REQUEST_BODY_IS_NOT_A_HASH_ERROR
+    raise request_body_is_not_a_hash_error
+  end
+
+  def request_body_is_not_a_hash_error
+    DecisionReview::ServiceException.new key: 'DR_REQUEST_BODY_IS_NOT_A_HASH'
   end
 end
