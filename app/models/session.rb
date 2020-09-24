@@ -41,7 +41,7 @@ class Session < Common::RedisStore
   end
 
   def authenticated_by_ssoe
-    !@ssoe_transactionid.nil?
+    @ssoe_transactionid.present?
   end
 
   private
