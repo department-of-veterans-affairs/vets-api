@@ -169,23 +169,22 @@ module V0
                               VERSION_TAG])
     end
 
-    def login_stats_success(saml_response, tracker)
-      type = tracker.payload_attr(:type)
+    def login_stats_success(saml_response)
+      type = url_service.tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
       StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
       Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
-      StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
+      StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       callback_stats(:success, saml_response)
     end
 
     def login_stats(status, saml_response, user_session_form)
-      tracker = url_service.tracker
       case status
       when :success
-        login_stats_success(saml_response, tracker)
+        login_stats_success(saml_response)
       when :failure
-        tags = ["context:#{tracker.payload_attr(:type)}", VERSION_TAG]
+        tags = ["context:#{url_service.tracker.payload_attr(:type)}", VERSION_TAG]
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
         Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags}")
         callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
