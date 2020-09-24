@@ -372,7 +372,7 @@ http_interactions:
   recorded_at: Wed, 30 May 2018 18:18:00 GMT
 - request:
     method: post
-    uri: http://www.google-analytics.com/collect
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473/collect
     body:
       encoding: US-ASCII
       string: v=1&tid=UA-119746669-1&cid=ed64bded-52fa-43aa-9d1b-3b3b8335a261&t=event&ni=1&cn=application-failure&cm=email&ec=API+Calls&ea=GovDelivery+-+Email+HCA+Failure&el=completed
@@ -473,7 +473,7 @@ http_interactions:
   recorded_at: Wed, 30 May 2018 18:18:00 GMT
 - request:
     method: post
-    uri: http://www.google-analytics.com/collect
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473/collect
     body:
       encoding: US-ASCII
       string: v=1&tid=UA-119746669-1&cid=ed64bded-52fa-43aa-9d1b-3b3b8335a261&t=event&ni=1&cn=application-failure&cm=email&ec=API+Calls&ea=GovDelivery+-+Email+HCA+Failure&el=completed
