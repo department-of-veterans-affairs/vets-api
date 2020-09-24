@@ -82,12 +82,55 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
       path = Rails.root.join('tmp', "#{power_of_attorney.id}_final.pdf")
       expected_path = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '2122', 'expected_2122.pdf')
 
-      generated_pdf_md5 = `cat #{path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | openssl md5`.strip
-      expected_pdf_md5 = `cat #{expected_path} | grep -a -v "/CreationDate\\|/ModDate\\|/ID" | openssl md5`.strip
+      generated_md5s = pdf_to_md5s(path, power_of_attorney.id)
+      expected_md5s = pdf_to_md5s(expected_path, power_of_attorney.id)
 
-      expect(generated_pdf_md5).to eq(expected_pdf_md5)
+      expect(generated_md5s).to eq(expected_md5s)
       File.delete(path) if File.exist?(path)
       Timecop.return
     end
+  end
+
+  private
+
+  # Converts PDF at path to array of md5's, one md5 for each page of the document.
+  # Problem: Taking an md5 of the PDF itself causes a mis-match between the generated and expected PDFs due to
+  # differences in metadata.
+  #
+  # @param [String] path The path to the PDF
+  # @param [String] identifier The unique identifier of the power of attorney
+  # @return [[String]] Array of md5's
+  def pdf_to_md5s(path, identifier)
+    image_paths = pdf_to_image(path, identifier)
+
+    image_paths.map do |image_path|
+      md5 = Digest::MD5.hexdigest(File.read(image_path))
+      File.delete(image_path) if File.exist?(image_path)
+      md5
+    end
+  end
+
+  # Converts PDF at path to jpg's
+  # @param [String] path The path to the PDF
+  # @param [String] identifier The unique identifier of the power of attorney
+  # @return [[String]] Array of image_paths
+  def pdf_to_image(path, identifier)
+    pdf = MiniMagick::Image.open(path)
+    image_paths = []
+
+    pdf.pages.each_with_index do |page, index|
+      output_path = Rails.root.join('tmp', "#{identifier}_#{index}.jpg")
+      MiniMagick::Tool::Convert.new do |convert|
+        convert.background 'white'
+        convert.flatten
+        convert.density 100
+        convert.quality 50
+        convert << page.path
+        convert << output_path
+      end
+      image_paths << output_path
+    end
+
+    image_paths
   end
 end
