@@ -15,6 +15,8 @@ http_interactions:
       - Vets.gov Agent
       Va-Veteran-First-Name:
       - Greg
+      Va-Veteran-Middle-Name:
+      - A
       Va-Veteran-Last-Name:
       - Anderson
       Va-Veteran-Id:
@@ -22,7 +24,7 @@ http_interactions:
       Va-Veteran-Birth-Date:
       - '1991-04-05'
       Va-Icn:
-      - 11263043841512898
+      - '<%= icn %>'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
