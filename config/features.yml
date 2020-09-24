@@ -1,11 +1,13 @@
 ---
-# Add a new feature toggle here to ensure that it is initialized in all environments.
-# Features are defaulted to enabled in development and test environments and disabled in all others.
+# Add a new feture toggle here to ensure that it is initialized in all environments.
+#
+# Features are enabled by default in the test environment and disabled by default in other environments.
+# To default a feature to enabled in development, set the `enable_in_development` key to true.
+#
 # The description should contain any relevant information for an admin who may toggle the feature.
 #
 # The actor_type should be either `user` for features you want to be "sticky" for a logged in user (default)
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
-
 features:
   pre_entry_covid19_screener:
     actor_type: user
@@ -25,11 +27,13 @@ features:
       Allows for showing a special COVID19 alert on the My VA Dashboard
   facility_locator_show_community_cares:
     actor_type: user
+    enable_in_development: true
     description: >
       On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the "Search for" box.
       This toggle is owned by Rian
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
+    enable_in_development: true
     description: A fast and dirty way to get the operating status from lighthouse
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
@@ -40,46 +44,55 @@ features:
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
-  facility_locator_fe_use_v1:
+  facility_locator_predictive_location_search:
     actor_type: user
-    description: Have the front end use the V1 api
+    description: Use predictive location search in the Facility Locator UI
   facilities_ppms_suppress_community_care:
     actor_type: user
     description: Hide ppms community care searches
   profile_schema_forms:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
   profile_show_receive_text_notifications:
     actor_type: user
+    enable_in_development: true
     description: >
       https://www.va.gov/profile/ show Receive Text Notifications
   profile_show_profile_2.0:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables Profile 2.0
   va_online_scheduling:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to view their VA and Community Care appointments
   va_online_scheduling_cancel:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to cancel VA appointments
   va_online_scheduling_requests:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to submit requests for VA appointments
   va_online_scheduling_community_care:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to submit requests for Community Care appointments
   va_online_scheduling_direct:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to directly schedule VA appointments
   va_online_scheduling_past:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to see past appointments
   va_online_scheduling_vsp_appointment_list:
@@ -108,10 +121,12 @@ features:
       Enables the use of VSP for making a new VA appointment request
   va_online_scheduling_express_care:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables Express Care redirect to legacy and Express Care tab
   va_online_scheduling_express_care_new:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables Express Care request flow in VAOS
   va_online_scheduling_flat_facility_page:
@@ -128,6 +143,7 @@ features:
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   edu_benefits_stem_scholarship:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables STEM scholarship functionality
   form526_original_claims:
@@ -140,6 +156,7 @@ features:
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
   form526_confirmation_email:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
   va_view_dependents_access:
@@ -160,6 +177,7 @@ features:
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   stub_carma_responses:
     actor_type: user
+    enable_in_development: true
     description: >
       All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.
   gibct_eyb_bottom_sheet:
@@ -220,6 +238,7 @@ features:
       Enables inquiry form for users to submit questions, suggestions, and complaints.
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
+    enable_in_development: true
     description: >
       Enables showing the pre-appointment questionnaire feature.
   stem_sco_email:

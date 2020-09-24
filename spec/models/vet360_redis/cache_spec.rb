@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
 
 describe Vet360Redis::Cache do
   let(:user) { build :user, :loa3 }

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/request_decision'
 
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers

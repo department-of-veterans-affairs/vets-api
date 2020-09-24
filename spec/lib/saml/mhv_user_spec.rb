@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'support/saml/response_builder'
+require 'saml/user'
 
 RSpec.describe SAML::User do
   include SAML::ResponseBuilder

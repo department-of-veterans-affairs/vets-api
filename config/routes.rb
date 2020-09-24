@@ -19,7 +19,8 @@ Rails.application.routes.draw do
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
-  get '/v1/sessions/tracker', to: 'v1/sessions#tracker'
+  # don't use the word "tracker" in the url, as some ad blockers will prevent the call
+  get '/v1/sessions/trace', to: 'v1/sessions#tracker'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
@@ -127,13 +128,12 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: :index do
-      collection do
-        resources :higher_level_reviews, only: %i[show create]
-        resources :intake_statuses, only: :show
-        resources :contestable_issues, only: :index
-      end
+    resources :appeals, only: :index
+
+    namespace :higher_level_reviews do
+      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
+    resources :higher_level_reviews, only: %i[create show]
 
     scope :messaging do
       scope :health do

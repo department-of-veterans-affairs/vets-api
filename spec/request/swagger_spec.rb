@@ -2,15 +2,12 @@
 
 require 'rails_helper'
 
-require 'bb/client'
-require 'rx/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
 require 'support/stub_efolder_documents'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
-require 'sm/client'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -1646,74 +1643,90 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'higher_level_reviews' do
       context 'GET' do
         it 'documents higher_level_reviews 200' do
-          VCR.use_cassette('decision_review/200_review') do
-            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
-                                        200, headers.merge('uuid' => '4bc96bee-c6a3-470e-b222-66a47629dc20'))
+          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200') do
+            expect(subject).to validate(:get, '/v0/higher_level_reviews/{uuid}',
+                                        200, headers.merge('uuid' => '75f5735b-c41d-499c-8ae2-ab2740180254'))
           end
         end
 
         it 'documents higher_level_reviews 404' do
-          VCR.use_cassette('decision_review/404_review') do
-            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
-                                        404, headers.merge('uuid' => '1234'))
-          end
-        end
-
-        it 'documents higher_level_reviews 502' do
-          VCR.use_cassette('decision_review/502_review') do
-            expect(subject).to validate(:get, '/v0/appeals/higher_level_reviews/{uuid}',
-                                        502, headers.merge('uuid' => '1234'))
+          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404') do
+            expect(subject).to validate(:get, '/v0/higher_level_reviews/{uuid}',
+                                        404, headers.merge('uuid' => '0'))
           end
         end
       end
 
       context 'POST' do
-        it 'documents higher_level_reviews 202' do
-          VCR.use_cassette('decision_review/202_intake_status') do
-            expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
-                                        202, headers)
+        it 'documents higher_level_reviews 200' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
+            # HigherLevelReviewsController is a pass-through, and uses request.body directly (not params[]).
+            # The validate helper does not create a parsable request.body string that works with the controller.
+            allow_any_instance_of(V0::HigherLevelReviewsController).to receive(:request_body_hash).and_return(
+              VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY')
+            )
+            expect(subject).to validate(:post, '/v0/higher_level_reviews', 200, headers)
           end
         end
 
-        [400, 403, 404, 409, 422].each do |status|
-          it "documents higher_level_reviews #{status}" do
-            VCR.use_cassette("decision_review/#{status}_intake_status") do
-              expect(subject).to validate(:post, '/v0/appeals/higher_level_reviews',
-                                          status, headers)
-            end
+        it 'documents higher_level_reviews 422' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
+            expect(subject).to validate(
+              :post,
+              '/v0/higher_level_reviews',
+              422,
+              headers.merge('_data' => { '_json' => '' })
+            )
           end
-        end
-      end
-    end
-
-    describe 'intake_statuses' do
-      it 'documents intake_statuses 200' do
-        VCR.use_cassette('decision_review/200_intake_status') do
-          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
-                                      200, headers.merge('intake_id' => '1234567890'))
-        end
-      end
-
-      it 'documents intake_statuses 404' do
-        VCR.use_cassette('decision_review/404_get_intake_status') do
-          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
-                                      404, headers.merge('intake_id' => '1234'))
-        end
-      end
-
-      it 'documents intake_statuses 502' do
-        VCR.use_cassette('decision_review/502_intake_status') do
-          expect(subject).to validate(:get, '/v0/appeals/intake_statuses/{intake_id}',
-                                      502, headers.merge('intake_id' => '1234'))
         end
       end
     end
 
     describe 'contestable_issues' do
-      [200, 404, 422, 502].each do |status_code|
-        it "documents contestable_issues #{status_code}" do
-          VCR.use_cassette("decision_review/#{status_code}_contestable_issues") do
-            expect(subject).to validate(:get, '/v0/appeals/contestable_issues', status_code, headers)
+      let(:benefit_type) { 'compensation' }
+      let(:ssn) { '212222112' }
+      let(:receipt_date) { '2020-09-02' }
+      let(:status) { 200 }
+
+      it 'documents contestable_issues 200' do
+        VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
+          expect(subject).to validate(
+            :get,
+            '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
+            status,
+            headers.merge('benefit_type' => benefit_type)
+          )
+        end
+      end
+
+      context '404' do
+        let(:ssn) { '000000000' }
+        let(:status) { 404 }
+
+        it 'documents contestable_issues 404' do
+          VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
+            expect(subject).to validate(
+              :get,
+              '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
+              status,
+              headers.merge('benefit_type' => benefit_type)
+            )
+          end
+        end
+      end
+
+      context '422' do
+        let(:benefit_type) { 'apricot' }
+        let(:status) { 422 }
+
+        it 'documents contestable_issues 422' do
+          VCR.use_cassette("decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-#{status}") do
+            expect(subject).to validate(
+              :get,
+              '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
+              status,
+              headers.merge('benefit_type' => benefit_type)
+            )
           end
         end
       end

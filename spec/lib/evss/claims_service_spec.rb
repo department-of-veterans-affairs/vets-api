@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'evss/claims_service'
-require 'evss/auth_headers'
 
 describe EVSS::ClaimsService do
   subject { claims_service }

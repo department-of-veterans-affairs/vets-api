@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'securerandom'
 require 'rails_helper'
 require 'support/saml/form_validation_helpers'
 require 'saml/post_url_service'

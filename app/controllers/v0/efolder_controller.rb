@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'efolder/service'
+
 module V0
   class EfolderController < ApplicationController
     def index
