@@ -42,7 +42,7 @@ class UserSessionForm
     end
     @session = Session.new(
       uuid: @user.uuid,
-      ssoe_transaction: saml_user.user_attributes.try(:transactionid)
+      ssoe_transactionid: saml_user.user_attributes.try(:transactionid)
     )
   end
   # rubocop:enable Metrics/MethodLength

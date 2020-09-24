@@ -12,9 +12,9 @@ module Users
 
     attr_reader :user, :scaffold
 
-    def initialize(user, session)
+    def initialize(user, session = nil)
       @user = validate!(user)
-      @session = session
+      @session = session || {}
       @scaffold = Users::Scaffold.new([], HTTP_OK)
     end
 
@@ -171,8 +171,8 @@ module Users
 
     def session_data
       {
-        ssoe: @session[:ssoe_transaction] ? true : false,
-        transactionid: @session[:ssoe_transaction]
+        ssoe: @session[:ssoe_transactionid] ? true : false,
+        transactionid: @session[:ssoe_transactionid]
       }
     end
   end
