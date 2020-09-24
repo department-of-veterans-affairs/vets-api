@@ -18,7 +18,7 @@
             "type": "string"
           },
           "personEntitled": {
-            "type": "string"
+            "type": ["string", "null"]
           },
           "deductionCode": {
             "type": "string"
@@ -38,21 +38,21 @@
           "amountWithheld": {
             "type": "number"
           },
+          "originalAR": {
+            "type": "number"
+          },
+          "currentAR": {
+            "type": "number"
+          },
           "debtHistory": {
             "type": "array",
             "items": {
               "type": "object",
               "properties": {
-                "debtId": {
-                  "type": "integer"
-                },
                 "date": {
                   "type": "string"
                 },
                 "letterCode": {
-                  "type": "string"
-                },
-                "status": {
                   "type": "string"
                 },
                 "description": {
