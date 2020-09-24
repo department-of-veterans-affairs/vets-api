@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require_relative '../support/fixture_helper'
-require 'common/exceptions'
 
 describe VAOS::UserService do
   let(:user) { build(:user, :vaos, :accountable) }

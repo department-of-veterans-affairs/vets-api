@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
 
 describe VAOS::SystemsService do
   subject { VAOS::SystemsService.new(user) }
