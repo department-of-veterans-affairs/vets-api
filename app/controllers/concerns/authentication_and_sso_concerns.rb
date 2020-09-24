@@ -110,6 +110,16 @@ module AuthenticationAndSSOConcerns
       httponly: true,
       domain: Settings.sso.cookie_domain
     }
+  end
+
+  def set_sso_saml_cookie!
+    return unless Settings.sso.cookie_enabled &&
+                  @session_object.present? &&
+                  # if the user logged in via SSOe, there is no benefit from
+                  # creating a MHV SSO shared cookie
+                  !@current_user&.authenticated_by_ssoe
+
+    Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
     cookies[Settings.sso.saml_cookie_name] = {
       value: sso_saml_cookie_content,
@@ -142,7 +152,7 @@ module AuthenticationAndSSOConcerns
     return nil if @current_user.blank?
 
     {
-      'timestamp' => Time.now.strftime('%Y-%m-%dT%H:%M:%S.%L%z'),
+      'timestamp' => Time.now.iso8601,
       'transaction_id' => '',
       'saml_request_id' => '',
       'saml_request_query_params' => ''

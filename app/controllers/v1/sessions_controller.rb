@@ -155,6 +155,7 @@ module V1
                                },
                                format: :html
       render body: result, content_type: 'text/html'
+      set_sso_saml_cookie!
       saml_request_stats(helper.tracker)
     end
 
