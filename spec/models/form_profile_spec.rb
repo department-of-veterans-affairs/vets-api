@@ -563,6 +563,13 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v5655_expected) do
+    {
+      'phoneNumber' => us_phone,
+      'veteranDateOfBirth' => user.birth_date
+    }.merge(veteran_full_name).merge(veteran_address)
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,

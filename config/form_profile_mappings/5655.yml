@@ -1,0 +1,5 @@
+personalData:
+  veteranFullName: [identity_information, full_name]
+  veteranAddress: [contact_information, address]
+  phoneNumber: [contact_information, us_phone]
+  veteranDateOfBirth: [identity_information, date_of_birth]
