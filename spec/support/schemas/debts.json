@@ -26,6 +26,12 @@
           "benefitType": {
             "type": "string"
           },
+          "diaryCode": {
+            "type": "string"
+          },
+          "diaryCodeDescription": {
+            "type": "string"
+          },
           "amountOverpaid": {
             "type": "number"
           },
