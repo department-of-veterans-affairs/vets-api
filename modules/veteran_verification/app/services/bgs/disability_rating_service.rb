@@ -19,7 +19,7 @@ module BGS
       else
         service = BGS::Services.new(
           external_uid: current_user.icn,
-          external_key: current_user.email,
+          external_key: current_user.email
         )
         service.rating.find_rating_data(current_user.ssn)
       end
@@ -43,7 +43,6 @@ module BGS
       EOXML
       # }}}
 
-
       { Username: Settings.bgs.client_username, CLIENT_MACHINE: Settings.bgs.client_ip,
         STN_ID: Settings.bgs.client_station_id, applicationName: Settings.bgs.application,
         ExternalUid: current_user.icn, ExternalKey: current_user.email }.each do |k, v|
@@ -53,7 +52,7 @@ module BGS
     end
 
     # Proxy to call a method on our web service.
-    def request(method, message = nil, identifier = nil)
+    def request(method, message = nil)
       @client.call(method, message: message)
     end
   end
