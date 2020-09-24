@@ -21,13 +21,6 @@ describe HealthQuest::PGDService do
     end
   end
 
-  describe '#get_pgd_base_url' do
-    it 'gets a url' do
-      url = subject.send(:get_pgd_base_url, 'questionnaire')
-      expect(url).to eq("/questionnaire/v1/patients/#{user.icn}")
-    end
-  end
-
   describe '#page_params' do
     it 'has pagination' do
       expect(subject.send(:page_params, { per_page: 20, page: 2 })).to eq({ pageSize: 20, page: 2 })

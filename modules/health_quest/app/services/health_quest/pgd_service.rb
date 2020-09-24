@@ -35,11 +35,6 @@ module HealthQuest
       }
     end
 
-    def get_pgd_base_url(type, id = nil)
-      base = "/#{type}/v1/patients/#{user.icn}"
-      id ? "#{base}/#{id}" : base
-    end
-
     def page_params(pagination_params)
       if pagination_params[:per_page]&.positive?
         { pageSize: pagination_params[:per_page], page: pagination_params[:page] }
