@@ -1,0 +1,699 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Claims API 526 Schema",
+  "type": "object",
+  "required": [
+    "veteran",
+    "serviceInformation",
+    "disabilities",
+    "claimantCertification",
+    "standardClaim",
+    "autoCestPDFGenerationDisabled",
+    "applicationExpirationDate"
+  ],
+  "definitions": {
+    "addressLine": {
+      "type": "string",
+      "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$",
+      "maxLength": 20
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
+    },
+    "specialIssues": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["ALS", "HEPC", "POW", "PTSD/1", "PTSD/2", "PTSD/3", "PTSD/4", "MST"]
+      }
+    }
+  },
+  "properties": {
+    "veteran": {
+      "type": "object",
+      "required": [
+        "currentMailingAddress"
+      ],
+      "properties": {
+        "currentlyVAEmployee": {
+          "type": "boolean"
+        },
+        "currentMailingAddress": {
+          "type": "object",
+          "properties": {
+            "addressLine1": {
+              "$ref": "#/definitions/addressLine"
+            },
+            "addressLine2": {
+              "$ref": "#/definitions/addressLine"
+            },
+            "city": {
+              "type": "string",
+              "pattern": "^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$"
+            },
+            "country": {
+              "type": "string"
+            },
+            "zipFirstFive": {
+              "type": "string",
+              "pattern": "^\\d{5}?$"
+            },
+            "zipLastFour": {
+              "type": "string",
+              "pattern": "^\\d{4}?$"
+            },
+            "internationalPostalCode": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "default": "DOMESTIC",
+              "enum": [
+                "INTERNATIONAL",
+                "MILITARY",
+                "DOMESTIC"
+              ]
+            },
+            "state": {
+              "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "INTERNATIONAL"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "addressLine1",
+                  "city",
+                  "country",
+                  "type",
+                  "internationalPostalCode"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "DOMESTIC"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "addressLine1",
+                  "city",
+                  "country",
+                  "zipFirstFive",
+                  "type",
+                  "state"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "MILITARY"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "addressLine1",
+                  "country",
+                  "zipFirstFive",
+                  "militaryStateCode",
+                  "militaryPostOfficeTypeCode",
+                  "type"
+                ]
+              }
+            }
+          ]
+        },
+        "changeOfAddress": {
+          "type": "object",
+          "properties": {
+            "beginningDate": {
+              "type": "string"
+            },
+            "addressChangeType": {
+              "type": "string"
+            },
+            "addressLine1": {
+              "$ref": "#/definitions/addressLine"
+            },
+            "addressLine2": {
+              "$ref": "#/definitions/addressLine"
+            },
+            "city": {
+              "type": "string"
+            },
+            "country": {
+              "type": "string"
+            },
+            "zipFirstFive": {
+              "type": "string",
+              "pattern": "^\\d{5}?$"
+            },
+            "zipLastFour": {
+              "type": "string",
+              "pattern": "^\\d{4}?$"
+            },
+            "internationalPostalCode": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "default": "DOMESTIC",
+              "enum": [
+                "INTERNATIONAL",
+                "MILITARY",
+                "DOMESTIC"
+              ]
+            },
+            "militaryStateCode": {
+              "type": "string"
+            },
+            "militaryPostOfficeTypeCode": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "INTERNATIONAL"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "beginningDate",
+                  "addressChangeType",
+                  "addressLine1",
+                  "city",
+                  "country",
+                  "type",
+                  "internationalPostalCode"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "DOMESTIC"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "beginningDate",
+                  "addressChangeType",
+                  "addressLine1",
+                  "city",
+                  "country",
+                  "zipFirstFive",
+                  "type",
+                  "state"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "MILITARY"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "beginningDate",
+                  "addressChangeType",
+                  "addressLine1",
+                  "country",
+                  "zipFirstFive",
+                  "militaryStateCode",
+                  "militaryPostOfficeTypeCode",
+                  "type"
+                ]
+              }
+            }
+          ]
+        },
+        "homelessness": {
+          "type": "object",
+          "required": [
+            "pointOfContact"
+          ],
+          "properties": {
+            "pointOfContact": {
+              "type": "object",
+              "required": [
+                "pointOfContactName",
+                "primaryPhone"
+              ],
+              "properties": {
+                "pointOfContactName": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 100,
+                  "pattern": "^([-a-zA-Z0-9/']+( ?))*$"
+                },
+                "primaryPhone": {
+                  "type": "object",
+                  "required": [
+                    "areaCode",
+                    "phoneNumber"
+                  ],
+                  "properties": {
+                    "areaCode": {
+                      "type": "string"
+                    },
+                    "phoneNumber": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "currentlyHomeless": {
+              "type": "object",
+              "required": [
+                "homelessSituationType",
+                "otherLivingSituation"
+              ],
+              "properties": {
+                "homelessSituationType": {
+                  "type": "string",
+                  "default": "OTHER",
+                  "enum": ["fleeing",
+                           "shelter",
+                           "notShelter",
+                           "anotherPerson",
+                           "other"]
+                },
+                "otherLivingSituation": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              }
+            },
+            "homelessnessRisk": {
+              "type": "object",
+              "required": [
+                "homelessnessRiskSituationType",
+                "otherLivingSituation"
+              ],
+              "properties": {
+                "homelessnessRiskSituationType": {
+                  "type": "string",
+                  "default": "OTHER",
+                  "enum": ["losingHousing",
+                           "leavingShelter",
+                           "other"]
+                },
+                "otherLivingSituation": {
+                  "type": "string",
+                  "maxLength": 500
+                }
+              }
+            }
+          }
+        },
+        "isTerminallyIll": {
+          "type": "boolean"
+        }
+      }
+    },
+    "serviceInformation": {
+      "type": "object",
+      "required": [
+        "servicePeriods"
+      ],
+      "properties": {
+        "servicePeriods": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": [
+              "serviceBranch",
+              "activeDutyBeginDate",
+              "activeDutyEndDate"
+            ],
+            "properties": {
+              "serviceBranch": {
+                "type": "string",
+                "enum": [
+                  "Air Force",
+                  "Air Force Reserves",
+                  "Air National Guard",
+                  "Army",
+                  "Army National Guard",
+                  "Army Reserves",
+                  "Coast Guard",
+                  "Coast Guard Reserve",
+                  "Marine Corps",
+                  "Marine Corps Reserves",
+                  "National Oceanic &amp; Atmospheric Administration",
+                  "Navy",
+                  "Navy Reserves",
+                  "Public Health Service",
+                  "Air Force Academy",
+                  "Army Air Corps or Army Air Force",
+                  "Army Nurse Corps",
+                  "Coast Guard Academy",
+                  "Merchant Marine",
+                  "Naval Academy",
+                  "Other",
+                  "US Military Academy",
+                  "Women's Army Corps"
+                ]
+              },
+              "activeDutyBeginDate": {
+                "$ref": "#/definitions/date"
+              },
+              "activeDutyEndDate": {
+                "$ref": "#/definitions/date"
+              }
+            }
+          }
+        },
+        "confinements": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": [
+              "confinementBeginDate",
+              "confinementEndDate"
+            ],
+            "properties": {
+              "confinementBeginDate": {
+                "$ref": "#/definitions/date"
+              },
+              "confinementEndDate": {
+                "$ref": "#/definitions/date"
+              }
+            }
+          }
+        },
+        "reservesNationalGuardService": {
+          "type": "object",
+          "required": [
+            "title10Activation",
+            "obligationTermOfServiceFromDate",
+            "obligationTermOfServiceToDate",
+            "unitName",
+            "unitPhone",
+            "receivingInactiveDutyTrainingPay"
+          ],
+          "properties": {
+            "title10Activation": {
+              "type": "object",
+              "required": [
+                "anticipatedSeparationDate",
+                "title10ActivationDate"
+              ],
+              "properties": {
+                "anticipatedSeparationDate": {
+                  "$ref": "#/definitions/date"
+                },
+                "title10ActivationDate": {
+                  "$ref": "#/definitions/date"
+                }
+              }
+            },
+            "obligationTermOfServiceFromDate": {
+              "$ref": "#/definitions/date"
+            },
+            "obligationTermOfServiceToDate": {
+              "$ref": "#/definitions/date"
+            },
+            "unitName": {
+              "type": "string"
+            },
+            "unitPhone": {
+              "type": "object",
+              "required": [
+                "areaCode",
+                "phoneNumber"
+              ],
+              "properties": {
+                "areaCode": {
+                  "type": "string"
+                },
+                "phoneNumber": {
+                  "type": "string"
+                }
+              }
+            },
+            "receivingInactiveDutyTrainingPay": {
+              "type": "boolean"
+            }
+          }
+        },
+        "alternateNames": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "required": [
+              "firstName",
+              "lastName"
+            ],
+            "properties": {
+              "firstName": {
+                "type": "string",
+                "min": 1,
+                "max": 30,
+                "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
+              },
+              "middleName": {
+                "type": "string",
+                "min": 1,
+                "max": 30,
+                "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
+              },
+              "lastName": {
+                "type": "string",
+                "min": 1,
+                "max": 30,
+                "pattern": "^([-a-zA-Z0-9/']+( ?))+$"
+              }
+            }
+          }
+        }
+      }
+    },
+    "disabilities": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "disabilityActionType",
+          "name"
+        ],
+        "properties": {
+          "specialIssues": {
+            "$ref": "#/definitions/specialIssues"
+          },
+          "ratedDisabilityId": {
+            "type": "string"
+          },
+          "diagnosticCode": {
+            "type": "integer"
+          },
+          "disabilityActionType": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "secondaryDisabilities": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "disabilityActionType",
+                "serviceRelevance"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "disabilityActionType": {
+                  "type": "string"
+                },
+                "serviceRelevance": {
+                  "type": "string"
+                },
+                "specialIssues": {
+                  "$ref": "#/definitions/specialIssues"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "treatments": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": [
+          "startDate",
+          "endDate",
+          "treatedDisabilityNames",
+          "center"
+        ],
+        "properties": {
+          "startDate": {
+            "$ref": "#/definitions/date"
+          },
+          "endDate": {
+            "$ref": "#/definitions/date"
+          },
+          "treatedDisabilityNames": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 101,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "center": {
+            "type": "object",
+            "required": [
+              "name",
+              "country"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "country": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "servicePay": {
+      "type": "object",
+      "required": [
+        "waiveVABenefitsToRetainTrainingPay",
+        "waiveVABenefitsToRetainRetiredPay",
+        "militaryRetiredPay"
+      ],
+      "properties": {
+        "waiveVABenefitsToRetainTrainingPay": {
+          "type": "boolean"
+        },
+        "waiveVABenefitsToRetainRetiredPay": {
+          "type": "boolean"
+        },
+        "militaryRetiredPay": {
+          "type": "object",
+          "required": [
+            "receiving",
+            "payment"
+          ],
+          "properties": {
+            "receiving": {
+              "type": "boolean"
+            },
+            "payment": {
+              "type": "object",
+              "required": [
+                "serviceBranch"
+              ],
+              "properties": {
+                "serviceBranch": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "hasSeparationPay": {
+          "type": "boolean"
+        }
+      }
+    },
+    "directDeposit": {
+      "type": "object",
+      "required": [
+        "accountType",
+        "accountNumber",
+        "routingNumber"
+      ],
+      "properties": {
+        "accountType": {
+          "type": "string",
+          "enum": [
+            "Checking",
+            "Saving"
+          ]
+        },
+        "accountNumber": {
+          "minLength": 4,
+          "maxLength": 17,
+          "type": "string"
+        },
+        "routingNumber": {
+          "type": "string",
+          "pattern": "^\\d{9}$"
+        },
+        "bankName": {
+          "maxLength": 35,
+          "type": "string"
+        }
+      }
+    },
+    "claimantCertification": {
+      "type": "boolean"
+    },
+    "standardClaim": {
+      "type": "boolean"
+    },
+    "applicationExpirationDate": {
+      "type": "string"
+    },
+    "autoCestPDFGenerationDisabled": {
+      "type": "boolean"
+    },
+    "claimDate": {
+      "$ref": "#/definitions/date"
+    }
+  }
+}

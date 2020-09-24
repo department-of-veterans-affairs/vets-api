@@ -1,0 +1,74 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v2/MilitaryInformationService
+    body:
+      encoding: ASCII-8BIT
+      string: |2
+
+        <soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:v1="http://viers.va.gov/cdi/CDI/commonService/v2" xmlns:v12="http://viers.va.gov/cdi/eMIS/RequestResponse/v2" xmlns:v13="http://viers.va.gov/cdi/eMIS/commonService/v2" xmlns:v11="http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2">
+          <soap:Header>
+            <v1:inputHeaderInfo>
+              <v1:userId>vets.gov</v1:userId>
+              <v1:sourceSystemName>vets.gov</v1:sourceSystemName>
+              <v1:transactionId>aa5bd224-c637-4d28-90f9-06adf023b70b</v1:transactionId>
+            </v1:inputHeaderInfo>
+          </soap:Header>
+          <soap:Body>
+            <v11:eMISdeploymentRequest>
+              <v12:edipiORicn>
+                <v13:edipiORicnValue>1007697216</v13:edipiORicnValue>
+                <v13:inputType>EDIPI</v13:inputType>
+              </v12:edipiORicn>
+            </v11:eMISdeploymentRequest>
+          </soap:Body>
+        </soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - http://viers.va.gov/cdi/eMIS/getDeployment/v2
+      Date:
+      - Fri, 06 Mar 2020 19:26:24 GMT
+      Content-Length:
+      - '941'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 06 Mar 2020 19:26:26 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux)
+      Content-Length:
+      - '5323'
+      Cache-Control:
+      - max-age=0, no-store
+      Content-Type:
+      - application/soap+xml;charset=utf-8
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="utf-8"?><NS1:Envelope xmlns:NS1="http://www.w3.org/2003/05/soap-envelope"><NS1:Header><NS2:essResponseCode
+        xmlns:NS2="http://va.gov/ess/message/v1">Success</NS2:essResponseCode><NS3:inputHeaderInfo
+        xmlns:NS3="http://viers.va.gov/cdi/CDI/commonService/v2"><NS3:userId>vets.gov</NS3:userId><NS3:sourceSystemName>vets.gov</NS3:sourceSystemName><NS3:transactionId>aa5bd224-c637-4d28-90f9-06adf023b70b</NS3:transactionId></NS3:inputHeaderInfo></NS1:Header><NS1:Body><NS4:eMISdeploymentResponse
+        xmlns:NS4="http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2"><NS5:deployment
+        xmlns:NS5="http://viers.va.gov/cdi/eMIS/RequestResponse/v2"><NS6:edipi xmlns:NS6="http://viers.va.gov/cdi/eMIS/commonService/v2">1007697216</NS6:edipi><NS7:keyData
+        xmlns:NS7="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS7:personnelOrganizationCode>42</NS7:personnelOrganizationCode><NS7:personnelCategoryTypeCode>V</NS7:personnelCategoryTypeCode><NS7:personnelSegmentIdentifier>1</NS7:personnelSegmentIdentifier></NS7:keyData><NS8:deploymentData
+        xmlns:NS8="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS8:deploymentSegmentIdentifier>1</NS8:deploymentSegmentIdentifier><NS8:deploymentStartDate>2009-05-01</NS8:deploymentStartDate><NS8:deploymentEndDate>2009-05-31</NS8:deploymentEndDate><NS8:deploymentProjectCode>9GF</NS8:deploymentProjectCode><NS8:deploymentTerminationReason>C</NS8:deploymentTerminationReason><NS8:deploymentTransactionDate>2019-08-08</NS8:deploymentTransactionDate><NS8:DeploymentLocation><NS8:deploymentLocationSegmentIdentifier>1</NS8:deploymentLocationSegmentIdentifier><NS8:deploymentCountry>QA</NS8:deploymentCountry><NS8:deploymentISOAlpha3Country>QAT</NS8:deploymentISOAlpha3Country><NS8:deploymentLocationBeginDate>2009-05-01</NS8:deploymentLocationBeginDate><NS8:deploymentLocationEndDate>2009-05-31</NS8:deploymentLocationEndDate><NS8:deploymentLocationTerminationReasonCode>C</NS8:deploymentLocationTerminationReasonCode><NS8:deploymentLocationTransactionDate>2019-08-08</NS8:deploymentLocationTransactionDate></NS8:DeploymentLocation></NS8:deploymentData></NS5:deployment><NS9:deployment
+        xmlns:NS9="http://viers.va.gov/cdi/eMIS/RequestResponse/v2"><NS10:edipi xmlns:NS10="http://viers.va.gov/cdi/eMIS/commonService/v2">1007697216</NS10:edipi><NS11:keyData
+        xmlns:NS11="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS11:personnelOrganizationCode>12</NS11:personnelOrganizationCode><NS11:personnelCategoryTypeCode>A</NS11:personnelCategoryTypeCode><NS11:personnelSegmentIdentifier>1</NS11:personnelSegmentIdentifier></NS11:keyData><NS12:deploymentData
+        xmlns:NS12="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS12:deploymentSegmentIdentifier>3</NS12:deploymentSegmentIdentifier><NS12:deploymentStartDate>2008-07-25</NS12:deploymentStartDate><NS12:deploymentEndDate>2009-01-22</NS12:deploymentEndDate><NS12:deploymentProjectCode>9GF</NS12:deploymentProjectCode><NS12:deploymentTerminationReason>C</NS12:deploymentTerminationReason><NS12:deploymentTransactionDate>2019-10-02</NS12:deploymentTransactionDate><NS12:DeploymentLocation><NS12:deploymentLocationSegmentIdentifier>1</NS12:deploymentLocationSegmentIdentifier><NS12:deploymentCountry>QA</NS12:deploymentCountry><NS12:deploymentISOAlpha3Country>QAT</NS12:deploymentISOAlpha3Country><NS12:deploymentLocationBeginDate>2008-07-25</NS12:deploymentLocationBeginDate><NS12:deploymentLocationEndDate>2009-01-22</NS12:deploymentLocationEndDate><NS12:deploymentLocationTerminationReasonCode>C</NS12:deploymentLocationTerminationReasonCode><NS12:deploymentLocationTransactionDate>2019-10-02</NS12:deploymentLocationTransactionDate></NS12:DeploymentLocation></NS12:deploymentData></NS9:deployment><NS13:deployment
+        xmlns:NS13="http://viers.va.gov/cdi/eMIS/RequestResponse/v2"><NS14:edipi xmlns:NS14="http://viers.va.gov/cdi/eMIS/commonService/v2">1007697216</NS14:edipi><NS15:keyData
+        xmlns:NS15="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS15:personnelOrganizationCode>12</NS15:personnelOrganizationCode><NS15:personnelCategoryTypeCode>A</NS15:personnelCategoryTypeCode><NS15:personnelSegmentIdentifier>1</NS15:personnelSegmentIdentifier></NS15:keyData><NS16:deploymentData
+        xmlns:NS16="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS16:deploymentSegmentIdentifier>1</NS16:deploymentSegmentIdentifier><NS16:deploymentStartDate>2008-05-01</NS16:deploymentStartDate><NS16:deploymentEndDate>2008-05-31</NS16:deploymentEndDate><NS16:deploymentProjectCode>9GF</NS16:deploymentProjectCode><NS16:deploymentTerminationReason>C</NS16:deploymentTerminationReason><NS16:deploymentTransactionDate>2019-08-07</NS16:deploymentTransactionDate><NS16:DeploymentLocation><NS16:deploymentLocationSegmentIdentifier>1</NS16:deploymentLocationSegmentIdentifier><NS16:deploymentCountry>ZZ</NS16:deploymentCountry><NS16:deploymentISOAlpha3Country>AX1</NS16:deploymentISOAlpha3Country><NS16:deploymentLocationBeginDate>2008-05-01</NS16:deploymentLocationBeginDate><NS16:deploymentLocationEndDate>2008-05-31</NS16:deploymentLocationEndDate><NS16:deploymentLocationTerminationReasonCode>C</NS16:deploymentLocationTerminationReasonCode><NS16:deploymentLocationTransactionDate>2019-08-07</NS16:deploymentLocationTransactionDate></NS16:DeploymentLocation></NS16:deploymentData></NS13:deployment></NS4:eMISdeploymentResponse></NS1:Body></NS1:Envelope>
+    http_version: null
+  recorded_at: Fri, 06 Mar 2020 19:26:25 GMT
+recorded_with: VCR 5.1.0

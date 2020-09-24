@@ -1,0 +1,5 @@
+.git
+coverage/
+data/
+log/*
+tmp/

@@ -1,0 +1,13 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+#  @department-of-veterans-affairs/backend-review-group and @department-of-veterans-affairs/va-api-engineers will be requested for
+# review when someone opens a pull request.
+
+*       @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
+
+# Experiment for isolating VFS teams
+modules/vaos/                        @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
+spec/support/*/vaos/                 @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
+
+lib/bgs @department-of-veterans-affairs/vfs-ebenefits @department-of-veterans-affairs/backend-review-group
+spec/bgs @department-of-veterans-affairs/vfs-ebenefits @department-of-veterans-affairs/backend-review-group

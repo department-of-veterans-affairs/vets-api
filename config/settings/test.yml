@@ -1,0 +1,86 @@
+hostname: www.example.com # possible fallback for unsafe request.host
+virtual_hosts: ["www.example.com", "localhost", "127.0.0.1", "example.org"] # Safe host names
+vsp_environment: ~
+
+secret_key_base: be8e6b6b16993e899c2c4fd08f7c6a6e5ad5f295b369d22f126d4569d2a0e44c4f04b13c02d65ab701452ef0a24ed2db7af441214ed5ae98c6113442f5846605
+
+mvi:
+  url: http://www.example.com/
+  mock: false
+
+locators:
+  providers_enabled: true
+
+reports:
+  aws:
+    access_key_id: key
+    bucket: bucket
+    region: region
+    secret_access_key: secret
+
+saml:
+  cert_path: spec/support/certificates/ruby-saml.crt
+  key_path: spec/support/certificates/ruby-saml.key
+
+saml_ssoe:
+  cert_path: spec/support/certificates/ruby-saml.crt
+  key_path: spec/support/certificates/ruby-saml.key
+
+
+edu:
+  prefill: true
+  sftp:
+    relative_path: 'spool_files'
+
+
+pension_burial:
+  prefill: true
+  sftp:
+    relative_path: 'VETSGOV_PENSION'
+
+
+hca:
+  prefill: true
+
+shrine:
+  claims:
+    type: memory
+    path: moot
+  local:
+    type: local
+    path: testing-local
+  remotes3:
+    type: s3
+    bucket: bucketname
+    path: remote-testing
+    region: us-gov-west-1
+    access_key_id: ABCD1234
+    secret_access_key: 1234ABCD
+
+account:
+  enabled: true
+
+search:
+  access_key: TESTKEY
+  affiliate: va
+  url: https://search.usa.gov/api/v2
+
+vba_documents:
+  enable_download_endpoint: true
+
+bgs:
+  mock_response_location: /cache/bgs
+  mock_responses: false
+  application: VAgovAPI
+  client_station_id: 281
+  client_username: VAgovAPI
+  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
+
+flipper:
+  admin_user_emails:
+    - abraham.lincoln@vets.gov
+
+va_forms:
+  drupal_username: ~
+  drupal_password: ~
+  drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com

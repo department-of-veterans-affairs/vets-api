@@ -1,0 +1,8 @@
+data:
+  attributes:
+    veteran:
+      address:
+        zipCode5: [contact_information, address, zip_code]
+      phone:
+        phoneNumber: [contact_information, us_phone]
+      emailAddressText: [contact_information, email]

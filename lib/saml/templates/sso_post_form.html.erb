@@ -1,0 +1,45 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VA.gov sign-in</title>
+
+
+</head>
+
+<body>
+  <noscript>
+    <p>Your browser does not support JavaScript. 
+    Please press the Continue button once to proceed with sign-in.
+    </p>
+  </noscript>
+
+  <%= form_tag url, authenticity_token: false, method: :post, id: "saml-form" do %>
+    <% params.each do |key, value| %>
+      <%= hidden_field_tag key, value %>
+    <% end %>
+    <noscript>
+      <div>
+        <input type=\”submit\” value=\”Continue\”/>
+      </div>
+    </noscript>
+  <% end %>
+
+  <script>
+    (function() {
+      var req = new XMLHttpRequest();
+      var qs = "id=" + encodeURIComponent("<%= id %>") +
+                "&authn=" + encodeURIComponent("<%= authn %>") +
+                "&type=" + encodeURIComponent("<%= type %>");
+      var url = location.origin + "/v1/sessions/trace?" + qs;
+      req.open("GET", url);
+      req.onreadystatechange = function (evt) {
+        if (req.readyState == 2) {
+          document.getElementById("saml-form").submit();
+        }
+      };
+      req.send();
+    })();
+  </script>
+</body>
+</html>
+

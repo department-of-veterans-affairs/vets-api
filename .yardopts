@@ -1,0 +1,8 @@
+--title "Vets API"
+--protected
+--no-private
+app/**/*.rb
+lib/**/*.rb
+rakelib/**/*.rb
+CONTRIBUTING.md
+LICENSE.md

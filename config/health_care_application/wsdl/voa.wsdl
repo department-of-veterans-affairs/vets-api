@@ -1,0 +1,74 @@
+<!--
+ Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Oracle JAX-WS 2.1.5.
+-->
+<definitions
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:tns="http://va.gov/service/esr/voa/v1"
+    xmlns:ns1="http://va.gov/schema/esr/voa/v1"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="http://va.gov/service/esr/voa/v1" name="voaService">
+    <types>
+        <xsd:schema>
+            <xsd:import namespace="http://va.gov/schema/esr/voa/v1" schemaLocation="voa-voaSvc-xsd-2.xml"/>
+        </xsd:schema>
+    </types>
+    <message name="saveSubmitForm">
+        <part name="submitFormRequest" element="ns1:submitFormRequest"/>
+    </message>
+    <message name="saveSubmitFormResponse">
+        <part name="submitFormResponse" element="ns1:submitFormResponse"/>
+    </message>
+    <message name="VoaFault">
+        <part name="fault" element="ns1:VoaFaultException"/>
+    </message>
+    <message name="getFormSubmissionStatus">
+        <part name="retrieveFormSubmissionStatusRequest" element="ns1:retrieveFormSubmissionStatusRequest"/>
+    </message>
+    <message name="getFormSubmissionStatusResponse">
+        <part name="retrieveFormSubmissionStatusResponse" element="ns1:retrieveFormSubmissionStatusResponse"/>
+    </message>
+    <portType name="VoaFormServiceEndpoint">
+        <operation name="saveSubmitForm">
+            <input message="tns:saveSubmitForm"/>
+            <output message="tns:saveSubmitFormResponse"/>
+            <fault message="tns:VoaFault" name="VoaFault"/>
+        </operation>
+        <operation name="getFormSubmissionStatus">
+            <input message="tns:getFormSubmissionStatus"/>
+            <output message="tns:getFormSubmissionStatusResponse"/>
+            <fault message="tns:VoaFault" name="VoaFault"/>
+        </operation>
+    </portType>
+    <binding name="VoaFormServiceEndpointPortBinding" type="tns:VoaFormServiceEndpoint">
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <operation name="saveSubmitForm">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+            <fault name="VoaFault">
+                <soap:fault name="VoaFault" use="literal"/>
+            </fault>
+        </operation>
+        <operation name="getFormSubmissionStatus">
+            <soap:operation soapAction=""/>
+            <input>
+                <soap:body use="literal"/>
+            </input>
+            <output>
+                <soap:body use="literal"/>
+            </output>
+            <fault name="VoaFault">
+                <soap:fault name="VoaFault" use="literal"/>
+            </fault>
+        </operation>
+    </binding>
+    <service name="voaService">
+        <port name="VoaFormServiceEndpointPort" binding="tns:VoaFormServiceEndpointPortBinding">
+            <soap:address location="http://vaausesrapp803.aac.va.gov:7401/voa/voaSvc"/>
+        </port>
+    </service>
+</definitions>

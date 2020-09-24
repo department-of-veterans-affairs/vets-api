@@ -1,0 +1,12 @@
+{
+  "data": {
+    "type": "form/2122",
+    "attributes": {
+      "serviceOrganization": {
+        "poaCode": "074",
+        "firstName": "John",
+        "lastName": "Doe"
+      }
+    }
+  }
+}

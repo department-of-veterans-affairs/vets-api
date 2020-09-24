@@ -1,0 +1,54 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": ["id", "type", "attributes"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "enum": ["claims_api_claim"] },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "evss_id",
+            "date_filed",
+            "min_est_date",
+            "max_est_date",
+            "open",
+            "waiver_submitted",
+            "requested_decision",
+            "contention_list",
+            "events_timeline",
+            "va_representative",
+            "documents_needed",
+            "development_letter_sent",
+            "decision_letter_sent",
+            "status",
+            "claim_type",
+            "claim_type"
+          ],
+          "properties": {
+            "evss_id": { "type": "integer" },
+            "date_filed": { "type": "string" },
+            "contention_list": { "type": "array", "items": { "type": "string" } },
+            "events_timeline": { "type": "array", "items": { "type": "object" } },
+            "min_est_date": { "type": ["string", "null"] },
+            "max_est_date": { "type": ["string", "null"] },
+            "open": { "type": "boolean" },
+            "va_representative": { "type": "string" },
+            "waiver_submitted": { "type": "boolean" },
+            "requested_decision": { "type": "boolean" },
+            "documents_needed": { "type": "boolean" },
+            "development_letter_sent": { "type": "boolean" },
+            "decision_letter_sent": { "type": "boolean" },
+            "status": { "type": ["string", "null"] },
+            "claim_type": { "type": ["string", "null"] },
+            "supporting_documents": { "type": "array", "items": { "type": "object" } }
+          }
+        }
+      }
+    }
+  }
+}

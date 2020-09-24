@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "",
+  "type": "object",
+  "required": ["status", "order_id"],
+  "properties": {
+    "status": {
+      "type": "string"
+    },
+    "order_id": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,73 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v2/PaymentService
+    body:
+      encoding: ASCII-8BIT
+      string: |2
+
+        <soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:v1="http://viers.va.gov/cdi/CDI/commonService/v2" xmlns:v12="http://viers.va.gov/cdi/eMIS/RequestResponse/v2" xmlns:v13="http://viers.va.gov/cdi/eMIS/commonService/v2" xmlns:v11="http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2">
+          <soap:Header>
+            <v1:inputHeaderInfo>
+              <v1:userId>vets.gov</v1:userId>
+              <v1:sourceSystemName>vets.gov</v1:sourceSystemName>
+              <v1:transactionId>abc123</v1:transactionId>
+            </v1:inputHeaderInfo>
+          </soap:Header>
+          <soap:Body>
+            <v11:eMISpayGradeHistoryRequest>
+              <v12:edipiORicn>
+                <v13:edipiORicnValue>1007697216</v13:edipiORicnValue>
+                <v13:inputType>EDIPI</v13:inputType>
+              </v12:edipiORicn>
+            </v11:eMISpayGradeHistoryRequest>
+          </soap:Body>
+        </soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - http://viers.va.gov/cdi/eMIS/getPayGradeHistory/v1
+      Date:
+      - Tue, 12 Nov 2019 19:42:24 GMT
+      Content-Length:
+      - '916'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 12 Nov 2019 19:42:25 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux)
+      Content-Length:
+      - '2321'
+      Cache-Control:
+      - max-age=0, no-store
+      Content-Type:
+      - application/soap+xml;charset=utf-8
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="utf-8"?><NS1:Envelope xmlns:NS1="http://www.w3.org/2003/05/soap-envelope"><NS1:Header><NS2:essResponseCode
+        xmlns:NS2="http://va.gov/ess/message/v1">Success</NS2:essResponseCode><NS3:inputHeaderInfo
+        xmlns:NS3="http://viers.va.gov/cdi/CDI/commonService/v2"><NS3:userId>vets.gov</NS3:userId><NS3:sourceSystemName>vets.gov</NS3:sourceSystemName><NS3:transactionId>2432bc37-6809-4393-a05a-b79879d16d85</NS3:transactionId></NS3:inputHeaderInfo></NS1:Header><NS1:Body><NS4:eMISpayGradeHistoryResponse
+        xmlns:NS4="http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v2"><NS5:payGradeHistory
+        xmlns:NS5="http://viers.va.gov/cdi/eMIS/RequestResponse/v2"><NS6:edipi xmlns:NS6="http://viers.va.gov/cdi/eMIS/commonService/v2">1007697216</NS6:edipi><NS7:keyData
+        xmlns:NS7="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS7:personnelOrganizationCode>42</NS7:personnelOrganizationCode><NS7:personnelCategoryTypeCode>V</NS7:personnelCategoryTypeCode><NS7:personnelSegmentIdentifier>1</NS7:personnelSegmentIdentifier></NS7:keyData><NS8:payGradeHistoryData
+        xmlns:NS8="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS8:payPlanCode>ME</NS8:payPlanCode><NS8:PayGradeCode>04</NS8:PayGradeCode><NS8:serviceRankNameCode>SRA</NS8:serviceRankNameCode><NS8:serviceRankNameTxt>Senior
+        Airman</NS8:serviceRankNameTxt><NS8:payGradeDate>2009-04-12</NS8:payGradeDate></NS8:payGradeHistoryData></NS5:payGradeHistory><NS9:payGradeHistory
+        xmlns:NS9="http://viers.va.gov/cdi/eMIS/RequestResponse/v2"><NS10:edipi xmlns:NS10="http://viers.va.gov/cdi/eMIS/commonService/v2">1007697216</NS10:edipi><NS11:keyData
+        xmlns:NS11="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS11:personnelOrganizationCode>12</NS11:personnelOrganizationCode><NS11:personnelCategoryTypeCode>A</NS11:personnelCategoryTypeCode><NS11:personnelSegmentIdentifier>1</NS11:personnelSegmentIdentifier></NS11:keyData><NS12:payGradeHistoryData
+        xmlns:NS12="http://viers.va.gov/cdi/eMIS/commonService/v2"><NS12:payPlanCode>ME</NS12:payPlanCode><NS12:PayGradeCode>04</NS12:PayGradeCode><NS12:serviceRankNameCode>SRA</NS12:serviceRankNameCode><NS12:serviceRankNameTxt>Senior
+        Airman</NS12:serviceRankNameTxt><NS12:payGradeDate>2007-10-12</NS12:payGradeDate></NS12:payGradeHistoryData></NS9:payGradeHistory></NS4:eMISpayGradeHistoryResponse></NS1:Body></NS1:Envelope>
+    http_version: 
+  recorded_at: Tue, 12 Nov 2019 19:42:25 GMT
+recorded_with: VCR 3.0.3

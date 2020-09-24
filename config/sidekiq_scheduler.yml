@@ -1,0 +1,167 @@
+# Use `cron` or `at` option to specify that a job should run as scheduled once
+# over all workers. The `every` option will run the job once per worker instance
+# at the specified interval.
+
+ExportBreakerStatus:
+  every: '1m'
+  description: "Send breaker status to statsd"
+
+CreateDailySpoolFiles:
+  cron: "0 3 * * MON-FRI America/New_York"
+  class: EducationForm::CreateDailySpoolFiles
+  description: "Generate a daily set of spool files and transmit them over SFTP to a backend system"
+
+EducationForm::CreateDailyFiscalYearToDateReport:
+  cron: "0 4 * * * America/New_York"
+  description: "Send the daily report to VA stakeholders about Education Benefits submissions"
+
+EducationForm::CreateSpoolSubmissionsReport:
+  cron: "15 4 * * MON-FRI America/New_York"
+  description: "Send the daily report to the call center about spool file submissions"
+
+Preneeds::DeleteOldUploads:
+  cron: "15 2 * * * America/New_York"
+  description: "Clear out preneeds file uploads older than 2 months"
+
+DeleteOldPiiLogsJob:
+  cron: "20 2 * * * America/New_York"
+  description: "Clear out old personal information logs"
+
+CentralMail::DeleteOldClaims:
+  cron: "30 2 * * * America/New_York"
+  class: CentralMail::DeleteOldClaims
+  description: "Clear out central mail claims older than 2 months"
+
+DeleteOldApplications:
+  cron: "0 0 * * * America/New_York"
+  class: EducationForm::DeleteOldApplications
+  description: "Clear out processed 22-1990 applications that are older than 1 month"
+
+SidekiqStatsJob:
+  cron: "* * * * *"
+  description: "Update Sidekiq stats for export to statsd gauges"
+
+DeleteOldClaims:
+  cron: "0 2 * * * America/New_York"
+  class: EVSS::DeleteOldClaims
+  description: "Clear out EVSS disability claims that have not been updated in 24 hours"
+
+InProgressFormCleaner:
+  cron: "0 2 * * * America/New_York"
+  class: InProgressFormCleaner
+  description: "Clear out saved forms that have not been updated in a while"
+
+FailedClaimsReport:
+  cron: "30 3 * * MON America/New_York"
+  class: EVSS::FailedClaimsReport
+  description: "Notify developers about EVSS claims which could not be uploaded"
+
+FacilityDentalServiceBulkUpdate:
+  cron: "25 4 * * * America/New_York"
+  class: Facilities::DentalServiceReloadJob
+  description: "Download and cache facility access-to-care metric data"
+
+FacilityMentalHealthBulkUpdate:
+  cron: "25 4 * * * America/New_York"
+  class: Facilities::MentalHealthReloadJob
+  description: "Download and cache facility mental health phone number data"
+
+FacilityAccessBulkUpdate:
+  cron: "30 4 * * * America/New_York"
+  class: Facilities::AccessDataDownload
+  description: "Download and cache facility access-to-care metric data"
+
+FacilityLocationBulkUpdateNCA:
+  cron: "35 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['nca']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVBA:
+  cron: "40 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vba']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVC:
+  cron: "45 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vc']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVHA:
+  cron: "50 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vha']
+  description: "Download and store facility location data"
+
+FacilityLocationVHADriveTime:
+  cron: "55 4 * * * America/New_York"
+  class: Facilities::PSSGDownload
+  description: "Download and store drive time bands"
+
+GlobalDowntimeCache:
+  every: "60m"
+  class: PagerDuty::CacheGlobalDowntime
+  description: "Cache global downtimes from PagerDuty API to S3"
+
+MaintenanceWindowRefresh:
+  cron: "*/3 * * * * America/New_York"
+  class: PagerDuty::PollMaintenanceWindows
+  description: "Poll PagerDuty API for maintenance window information"
+
+VBADocuments::UploadScanner:
+  cron: "0,30 * * * * * America/New_York"
+  class: VBADocuments::UploadScanner
+  description: "Poll upload bucket for unprocessed uploads"
+
+VBADocuments::UploadRemover:
+  cron: "15,45 * * * * * America/New_York"
+  class: VBADocuments::UploadRemover
+  description: "Clean up submitted documents from S3"
+
+VBADocuments::UploadStatusBatch:
+  every: "60m"
+  class: VBADocuments::UploadStatusBatch
+  description: "Cache Statuses for VBA Documents"
+
+VBADocuments::ReportUnsuccessfulSubmissions:
+  cron: "0 0 * * MON-FRI America/New_York"
+  class: VBADocuments::ReportUnsuccessfulSubmissions
+  description: "Weekly report of unsuccessful submissions"
+
+VBADocuments::RunUnsuccessfulSubmissions:
+  cron: "0 0 23 * * America/New_York"
+  class: VBADocuments::RunUnsuccessfulSubmissions
+  description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
+
+AppealsApi::HigherLevelReviewUploadStatusBatch:
+  every: "60m"
+  class: AppealsApi::HigherLevelReviewUploadStatusBatch
+  description: "Update HigherLevelReview statuses with their Central Mail status"
+
+AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
+  every: ['24h', first_in: '45m']
+  class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
+  description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
+
+TransactionalEmailAnalyticsJob:
+  cron: "0 1 * * * America/New_York"
+  description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
+
+DeleteOldTransactionsJob:
+  cron: "0 3 * * * America/New_York" # Daily @ 3am Eastern
+  description: "Deletes old, completed AsyncTransaction records"
+
+MHV::AccountStatisticsJob:
+  cron: "0 */4 * * * America/New_York"
+  description: "Log MHV Account Statistics"
+
+ExternalServicesStatusJob:
+  every: '1m'
+  description: "Checks the current status of all external services through PagerDuty's API"
+
+VaForms::FetchLatest:
+  cron: "0 0 * * * America/New_York"
+  class: VaForms::FormReloader
+  description: "Fetches latest VA Forms"

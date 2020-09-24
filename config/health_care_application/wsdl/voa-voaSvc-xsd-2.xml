@@ -1,0 +1,285 @@
+<!--
+ Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is Oracle JAX-WS 2.1.5.
+-->
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:va="http://va.gov/schema/esr/voa/v1"
+  xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas" targetNamespace="http://va.gov/schema/esr/voa/v1" elementFormDefault="qualified">
+  <xs:import namespace="http://jaxws.webservices.esr.med.va.gov/schemas" schemaLocation="voa-voaSvc-xsd-1.xml"/>
+  <xs:element name="document">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="name" type="xs:string"/>
+        <xs:element name="format" type="va:formatType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="type" type="va:attachmentType" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="content" type="xs:base64Binary" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="form">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="va:formIdentifier" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="summary" type="eeSummary:eeSummary" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="attachments" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="va:document" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="applications" type="va:applicationCollection"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="identity">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="va:veteranIdentifier" minOccurs="0" maxOccurs="1"/>
+        <xs:element ref="va:authenticationLevel" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="status">
+    <xs:simpleType>
+      <xs:annotation>
+        <xs:documentation>
+Form submission status 100 -- Form Submitted, 101 -- Form Submission Failed, 102 -- Form Processing In Progress, 103 -- Form Processing Pending, 104 -- Form Processed Successfully,
+</xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="100"/>
+        <xs:enumeration value="101"/>
+        <xs:enumeration value="102"/>
+        <xs:enumeration value="103"/>
+        <xs:enumeration value="104"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  <xs:element name="message">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="type" minOccurs="1" maxOccurs="1">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="Form successfully received for EE processing"/>
+              <xs:enumeration value="Form missing required elements"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="detail" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="veteranIdentifier">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="type" minOccurs="1" maxOccurs="1">
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+Identity Types 1 -- ICN/VPID, 2 -- EDIPI, 3 -- USAA, 4 -- SEC ID
+</xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="1"/>
+              <xs:enumeration value="2"/>
+              <xs:enumeration value="3"/>
+              <xs:enumeration value="4"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="value" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="formIdentifier">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="type" minOccurs="1" maxOccurs="1">
+          <xs:simpleType>
+            <xs:annotation>
+              <xs:documentation>
+Assurance form of 100 -- 1010EZ, 101 -- 1010EZR, 102 -- 1010HS, 103 -- 1010SH, 104 -- 1010CG, 105 -- 21526EZ
+
+                <!--  CCR13857- new form type  -->
+              </xs:documentation>
+            </xs:annotation>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="100"/>
+              <xs:enumeration value="101"/>
+              <xs:enumeration value="102"/>
+              <xs:enumeration value="103"/>
+              <xs:enumeration value="104"/>
+              <xs:enumeration value="105"/>
+              <!--  CCR13857- new form type  -->
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="version" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="authenticationLevel">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="type" minOccurs="1" maxOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+Assurance type of 100 -- Anonymous, 101 -- Assurance Level 1, 102 -- Assurance Level 2, 103 -- Assurance Level 3, 104 -- Assurance Level 4,
+</xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="100"/>
+              <xs:enumeration value="101"/>
+              <xs:enumeration value="102"/>
+              <xs:enumeration value="103"/>
+              <xs:enumeration value="104"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="value" type="xs:string" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="identityTrait">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="firstName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="lastName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="gender" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="DOB" type="xs:date" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="SSN" minOccurs="1" maxOccurs="1">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="[0-9]{3}-[0-9]{2}-[0-9]{4}"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="timeStamp" type="xs:dateTime"/>
+  <xs:element name="retrieveFormSubmissionStatusRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="formSubmissionId" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="va:identity" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="retrieveFormSubmissionStatusResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="va:status" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="formSubmissionId" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="va:message"/>
+        <xs:element ref="va:timeStamp" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="submitFormRequest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="va:form" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="va:identity" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="submitFormResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="va:status" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="formSubmissionId" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+        <xs:element ref="va:message"/>
+        <xs:element ref="va:timeStamp" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="VoaFaultException">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="faultExceptions" minOccurs="1" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="faultException" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="code" type="xs:string"/>
+                    <xs:element name="message" type="xs:string"/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:simpleType name="formatType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="WORD"/>
+      <xs:enumeration value="PDF"/>
+      <xs:enumeration value="RTF"/>
+      <xs:enumeration value="JPG"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="benefitType">
+    <xs:annotation>
+      <xs:documentation>
+Benefit type of 1 -- Health Services, 2 -- Domiciliary, 3 -- Dental, Nursing Home, 4 -- Outpatient Medical, 5 -- Enrollment
+</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="4"/>
+      <xs:enumeration value="5"/>
+      <xs:enumeration value="6"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="appMethod">
+    <xs:annotation>
+      <xs:documentation>
+Application method: 1 -- Online, 2 -- In Person, 3 -- Phone, 4 -- Mail
+</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="4"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="attachmentType">
+    <xs:annotation>
+      <xs:documentation>
+Eligibility Document Type: 1 -- DD-214, 2 -- DD-215, 3 -- WD AGO Form, 4 -- Military Orders of Award, 5 -- Other Official Service Records, 6 -- VBA/DOD FILE, 7 -- VBA Letter,
+</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="1"/>
+      <xs:enumeration value="2"/>
+      <xs:enumeration value="3"/>
+      <xs:enumeration value="4"/>
+      <xs:enumeration value="5"/>
+      <xs:enumeration value="6"/>
+      <xs:enumeration value="7"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="applicationInfo">
+    <xs:sequence>
+      <xs:element name="benefitType" type="va:benefitType" minOccurs="0"/>
+      <xs:element name="appDate" type="xs:date" minOccurs="0"/>
+      <xs:element name="appMethod" type="va:appMethod" default="1" minOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="applicationCollection">
+    <xs:sequence>
+      <xs:element name="applicationInfo" type="va:applicationInfo" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

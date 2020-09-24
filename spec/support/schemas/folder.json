@@ -1,0 +1,45 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "oneOf":[{
+    "required": ["folder_id", "name", "count", "unread_count", "system_folder"],
+    "properties": {
+      "folder_id": { "type": "integer" },
+      "name": { "type": "string" },
+      "count": { "type": "integer" },
+      "unread_count": { "type": "integer" },
+      "system_folder": { "type": "boolean" }
+    }
+  },
+  {
+    "required": ["data"],
+    "properties": {
+      "data": {
+        "type": "object",
+        "required": ["id", "type", "attributes", "links"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["folders"] },
+          "attributes": {
+            "type": "object",
+            "required": ["folder_id", "name", "count", "unread_count", "system_folder"],
+            "properties": {
+              "folder_id": { "type": "integer" },
+              "name": { "type": "string" },
+              "count": { "type": "integer" },
+              "unread_count": { "type": "integer" },
+              "system_folder": { "type": "boolean" }
+            }
+          },
+          "links": {
+            "type": "object",
+            "required": ["self"],
+            "properties": {
+              "self": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }]
+}

@@ -1,0 +1,29 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: VA Mobile API
+  license:
+    name: MIT
+servers:
+  - url: http://api.va.gov/mobile
+paths:
+  /:
+    get:
+      summary: /
+      description: Currently returns a welcome message. In the future given an app version it will return a map of services.
+      operationId: discovery
+      responses:
+        '200':
+          description: The welcome message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+components:
+  schemas:
+    Message:
+      required:
+        - message
+      properties:
+        message:
+          type: string

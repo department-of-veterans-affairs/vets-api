@@ -1,0 +1,40 @@
+<h1>Unsuccessful Submissions <%= 'Summary' if @date_to.monday? %> </h1>
+<hr />
+<h2>From <%= @date_from %> -- <%= @date_to %> </h2>
+
+<h3> Per Consumer Status Counts </h3>
+
+<table>
+  <thead>
+    <tr>
+        <th>consumer | </th>
+        <% VBADocuments::UploadSubmission::ALL_STATUSES.each do |status| %>
+        <th><%= status %> | </th>
+        <% end %>
+        <th>totals | </th>
+        <th>errored rate | </th>
+        <th>expired rate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @consumer_totals.each do |consumer| %>
+      <tr>
+        <td><%= consumer.keys.first %></td>
+        <% VBADocuments::UploadSubmission::ALL_STATUSES.each do |status| %>
+        <td><%= consumer.values.first[status] || 0 %></td>
+        <% end %>
+        <td><%= consumer.values.first[:totals] %></td>
+        <td><%= consumer.values.first[:error_rate] %></td>
+        <td><%= consumer.values.first[:expired_rate]%></td>
+      </tr>
+    <% end if @consumer_totals %>
+  </tbody>
+</table>
+
+<h3> Stuck Submissions Count: <%= @stuck_submissions.count %></h3>
+<%= render partial: 'submission_table', locals: {submissions: @stuck_submissions} unless @stuck_submissions.count.zero? %>
+
+<hr>
+
+<h3> Unsuccessful count: <%= @unsuccessful_submissions.count %></h3>
+<%= render partial: 'submission_table', locals: {submissions: @unsuccessful_submissions } %>

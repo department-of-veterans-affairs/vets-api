@@ -1,0 +1,37 @@
+# frozen_string_literal: true
+
+module BGS
+  class PeopleService < BaseService
+    class VaFileNumberNotFound < StandardError; end
+
+    def find_person_by_participant_id
+      response = @service.people.find_person_by_ptcpnt_id(@user.participant_id)
+
+      raise VaFileNumberNotFound if response.nil?
+
+      response
+    rescue VaFileNumberNotFound => e
+      report_no_va_file_user(e)
+
+      {}
+    end
+
+    private
+
+    def report_no_va_file_user(e)
+      report_error(e)
+
+      PersonalInformationLog.create(
+        error_class: e,
+        data: {
+          user: {
+            uuid: @user.uuid,
+            edipi: @user.edipi,
+            ssn: @user.ssn,
+            participant_id: @user.participant_id
+          }
+        }
+      )
+    end
+  end
+end
