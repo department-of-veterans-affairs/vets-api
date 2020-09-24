@@ -48,6 +48,14 @@
                 null
               ]
             },
+            "session": {
+              "type": "object",
+              "required": ["ssoe", "transactionid"],
+              "properties": {
+                "ssoe": { "type": "boolean"},
+                "transactionid": { "type": [ "string", null ] }
+              }
+            },
             "services": {
               "type": [
                 "array",

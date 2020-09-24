@@ -25,6 +25,14 @@
               }
             },
             "prefills_available": { "type": [ "array", null ] },
+            "session": {
+              "type": "object",
+              "required": ["ssoe", "transactionid"],
+              "properties": {
+                "ssoe": { "type": "boolean"},
+                "transactionid": { "type": [ "string", null ] }
+              }
+            },
             "services": { "type": [ "array", null ] },
             "account": {
               "type": "object",
