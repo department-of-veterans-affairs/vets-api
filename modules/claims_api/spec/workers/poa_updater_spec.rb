@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs'
-require 'evss/disability_compensation_auth_headers'
-require 'evss/auth_headers'
 
 RSpec.describe ClaimsApi::PoaUpdater, type: :job do
   subject { described_class }
