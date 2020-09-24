@@ -15,7 +15,11 @@ module VeteranVerification
     attribute :individual_ratings, Array
 
     def self.rating_service
-      BGS::DisabilityRatingService.new
+      if Settings.bgs.mock_bgs == true
+        BGS::MockDisabilityRatingService.new
+      else
+        BGS::DisabilityRatingService.new
+      end
     end
 
     def self.for_user(user)
