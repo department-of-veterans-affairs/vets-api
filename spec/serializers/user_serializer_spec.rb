@@ -48,4 +48,8 @@ RSpec.describe UserSerializer, type: :serializer do
   it 'returns serialized #vet360_contact_information data' do
     expect(attributes.dig('vet360_contact_information')).to be_present
   end
+
+  it 'returns serialized #session data' do
+    expect(attributes.dig('session')).to be_present
+  end
 end
