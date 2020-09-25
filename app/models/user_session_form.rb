@@ -40,7 +40,10 @@ class UserSessionForm
     else
       @user.last_signed_in = Time.current.utc
     end
-    @session = Session.new(uuid: @user.uuid)
+    @session = Session.new(
+      uuid: @user.uuid,
+      ssoe_transactionid: saml_user.user_attributes.try(:transactionid)
+    )
   end
   # rubocop:enable Metrics/MethodLength
 

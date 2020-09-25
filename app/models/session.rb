@@ -16,6 +16,7 @@ class Session < Common::RedisStore
   attribute :token
   attribute :uuid
   attribute :created_at
+  attribute :ssoe_transactionid
 
   validates :token, presence: true
   validates :uuid, presence: true
@@ -37,6 +38,10 @@ class Session < Common::RedisStore
 
   def ttl_in_time
     Time.current.utc + ttl
+  end
+
+  def authenticated_by_ssoe
+    @ssoe_transactionid.present?
   end
 
   private
