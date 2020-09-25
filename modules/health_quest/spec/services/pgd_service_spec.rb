@@ -6,8 +6,9 @@ require_relative '../support/health_fixture_helper'
 describe HealthQuest::PGDService do
   let(:user) { build(:user, :health_quest) }
   let(:subject) { described_class.new(user) }
-  let(:expected_data) { OpenStruct.new({ id: '333', text: 'this is the questionnaire', type: :questionnaire }) }
-  let(:dummy_response) { double('fake_response', body: { data: expected_data }) }
+  let(:returned_data) { { id: '333', text: 'this is the questionnaire', type: :questionnaire } }
+  let(:expected_data) { OpenStruct.new(returned_data) }
+  let(:dummy_response) { double('fake_response', body: { data: returned_data }) }
 
   before do
     allow_any_instance_of(HealthQuest::UserService).to receive(:session).and_return(:dummy_session)
@@ -17,7 +18,8 @@ describe HealthQuest::PGDService do
   describe '#get_pgd_resource' do
     it 'gets a PGD resource' do
       resource = subject.get_pgd_resource(:questionnaire)[:data]
-      expect(resource).to eq(dummy_response.body[:data])
+      # expect(resource).to eq(dummy_response.body[:data])
+      expect(resource).to eq(expected_data)
     end
   end
 
