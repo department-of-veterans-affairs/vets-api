@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 require 'evss/request_decision'
-require 'evss/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
@@ -198,8 +198,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       with_okta_user(scopes) do |auth_header|
-        verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-        allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+        verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+        allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
         VCR.use_cassette('evss/claims/claims') do
           get '/services/claims/v1/claims', params: nil, headers: auth_header.merge(camel_inflection_header)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'evss/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 
 module ClaimsApi
   module PoaVerification

@@ -97,6 +97,7 @@ RSpec.describe 'Intent to file', type: :request do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'compensation' }, headers: headers.merge(auth_header)
+          puts response.body
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
         end
@@ -107,6 +108,7 @@ RSpec.describe 'Intent to file', type: :request do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
           get "#{path}/active", params: { type: 'pension' }, headers: headers.merge(auth_header)
+          puts response.body
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
         end
