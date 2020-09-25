@@ -28,6 +28,7 @@ require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
+require 'support/pdf_helpers'
 require 'super_diff/rspec-rails'
 require './spec/support/default_configuration_helper'
 
@@ -141,6 +142,7 @@ RSpec.configure do |config|
   %i[model controller request].each do |type|
     config.include PdfFillHelper, type: type
   end
+  config.include PdfHelpers
 
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request
