@@ -87,9 +87,9 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     end
 
     context 'when :stub_carma_responses is disabled' do
-      it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims'
-
-      timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
+      subject do
+        post endpoint, params: body, headers: headers
+      end
 
       let(:body) do
         form_data = build_valid_form_submission.call
@@ -97,13 +97,15 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
       end
 
-      subject do
-        post endpoint, params: body, headers: headers
-      end
+      it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims'
+
+      timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
       context 'with an invalid veteran status' do
         before do
-          expect_any_instance_of(Form1010cg::Service).to receive(:icn_for).with('veteran').and_return(Form1010cg::Service::NOT_FOUND)
+          expect_any_instance_of(
+            Form1010cg::Service
+          ).to receive(:icn_for).with('veteran').and_return(Form1010cg::Service::NOT_FOUND)
           expect(Settings).to receive(:google_analytics_tracking_id).and_return('foo')
           expect(Settings).to receive(:vsp_environment).and_return('staging')
         end

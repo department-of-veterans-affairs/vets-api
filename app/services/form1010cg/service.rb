@@ -216,7 +216,8 @@ module Form1010cg
         category: 'API Calls',
         action: 'Forms - Family Member Benefits',
         label: 'caregivers-error',
-        document_location: "https://#{get_subdomain}.va.gov/family-member-benefits/apply-for-caregiver-assistance-form-10-10cg/review-and-submit"
+        document_location: "https://#{get_subdomain}.va.gov/" \
+          'family-member-benefits/apply-for-caregiver-assistance-form-10-10cg/review-and-submit'
       )
       event.custom_metrics['cg1'] = 'Family Member Benefits'
       event.custom_metrics['cg3'] = 'Family Member Benefits'
