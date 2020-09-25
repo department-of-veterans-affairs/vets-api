@@ -72,10 +72,11 @@ RSpec.describe Form1010cg::Service do
   describe '#log_invalid_veteran_status' do
     before do
       expect(Settings).to receive(:google_analytics_tracking_id).and_return('foo')
+      expect(Settings).to receive(:vsp_environment).and_return('staging')
     end
 
     it 'sends the right event to google analytics' do
-      VCR.use_cassette('staccato/1010cg', record: :once) do
+      VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
         subject.send(:log_invalid_veteran_status)
       end
     end
