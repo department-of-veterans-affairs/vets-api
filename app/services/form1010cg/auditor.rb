@@ -58,9 +58,17 @@ module Form1010cg
       increment self.class.metrics.pdf_download
     end
 
-    def log_mpi_search_result(claim_guid:, form_subject:, was_found:)
-      result = was_found ? 'found' : 'NOT FOUND'
-      log "MPI Profile #{result} for #{form_subject.titleize}", claim_guid: claim_guid
+    def log_mpi_search_result(claim_guid:, form_subject:, result:)
+      result_label = case result
+                     when :found
+                       'found'
+                     when :not_found
+                       'NOT FOUND'
+                     when :skipped
+                       'search was skipped'
+                     end
+
+      log "MPI Profile #{result_label} for #{form_subject.titleize}", claim_guid: claim_guid
     end
 
     private
