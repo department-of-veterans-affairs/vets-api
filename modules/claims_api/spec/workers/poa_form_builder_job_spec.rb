@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-require 'claims_api/power_of_attorney_pdf_constructor'
-
-Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
   subject { described_class }

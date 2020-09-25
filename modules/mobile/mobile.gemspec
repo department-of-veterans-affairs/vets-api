@@ -1,4 +1,6 @@
-$:.push File.expand_path("lib", __dir__)
+# frozen_string_literal: true
+
+$LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
 # Maintain your gem's version:
 require 'mobile/version'
@@ -24,10 +26,9 @@ Gem::Specification.new do |spec|
   end
 
   spec.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
-
-  spec.add_dependency 'rails', '~> 6.0.3', '>= 6.0.3.2'
-
+  spec.test_files = Dir['spec/**/*']
+  
+  spec.add_development_dependency 'factory_bot_rails'
   spec.add_development_dependency 'pg'
-  spec.add_development_dependency 'activerecord-postgis-adapter', '~> 6.0.0'
   spec.add_development_dependency 'rspec-rails'
 end
