@@ -48,6 +48,14 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
+    it 'posts a 422 error with detail when BGS returns a 500 response' do
+      VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+        data['attributes'] = { type: 'pension' }
+        post path, params: data.to_json, headers: headers
+        expect(response.status).to eq(422)
+      end
+    end
+
     it "fails if passed a type that doesn't exist" do
       data[:data][:attributes][:type] = 'failingtesttype'
       post path, params: data.to_json, headers: headers

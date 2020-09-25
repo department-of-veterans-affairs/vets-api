@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
-require 'support/mvi/stub_mvi'
 
 describe Mvi, skip_mvi: true do
   let(:user) { build(:user, :loa3) }
