@@ -31,6 +31,7 @@ require 'sm/configuration'
 require 'search/configuration'
 require 'okta/configuration'
 require 'vet360/contact_information/configuration'
+require 'iam_ssoe_oauth/configuration'
 
 # Read the redis config, create a connection and a namespace for breakers
 # .to_h because hashes from config_for don't support non-symbol keys
@@ -68,7 +69,8 @@ services = [
   Vet360::ContactInformation::Configuration.instance.breakers_service,
   Search::Configuration.instance.breakers_service,
   Okta::Configuration.instance.breakers_service,
-  VAOS::Configuration.instance.breakers_service
+  VAOS::Configuration.instance.breakers_service,
+  IAMSSOeOAuth::Configuration.instance.breakers_service
 ]
 
 services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
