@@ -209,7 +209,10 @@ module Form1010cg
     end
 
     def log_invalid_veteran_status
-      event = Staccato.tracker(Settings.google_analytics_tracking_id).build_event(
+      event = Staccato.tracker(
+        Settings.google_analytics_tracking_id,
+        @claim.ga_client_id
+      ).build_event(
         category: 'API Calls',
         action: 'Forms - Family Member Benefits',
         label: 'caregivers-error',

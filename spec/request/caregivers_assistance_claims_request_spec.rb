@@ -8,6 +8,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     {
       'ACCEPT' => 'application/json',
       'CONTENT_TYPE' => 'application/json',
+      'HTTP_X_GOOGLE_CLIENT_ID' => 'google_client_id',
       'HTTP_X_KEY_INFLECTION' => 'camel'
     }
   end

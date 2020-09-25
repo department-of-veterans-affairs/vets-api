@@ -75,7 +75,9 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'sends the right event to google analytics' do
-      subject.send(:log_invalid_veteran_status)
+      VCR.use_cassette('staccato/1010cg', record: :once) do
+        subject.send(:log_invalid_veteran_status)
+      end
     end
   end
 

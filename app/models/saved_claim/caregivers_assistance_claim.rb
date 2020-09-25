@@ -3,6 +3,7 @@
 require 'pdf_fill/filler'
 
 class SavedClaim::CaregiversAssistanceClaim < SavedClaim
+  attr_accessor :ga_client_id
   FORM = '10-10CG'
 
   def process_attachments!

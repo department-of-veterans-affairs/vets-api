@@ -10,7 +10,10 @@ module V0
     def create
       auditor.record(:submission_attempt)
 
-      @claim = SavedClaim::CaregiversAssistanceClaim.new(form: form_submission)
+      @claim = SavedClaim::CaregiversAssistanceClaim.new(
+        form: form_submission,
+        ga_client_id: request.headers['x-google-client-id']
+      )
 
       if @claim.valid?
         submission = ::Form1010cg::Service.new(@claim).process_claim!

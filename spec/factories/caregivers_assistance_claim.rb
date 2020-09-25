@@ -3,5 +3,6 @@
 FactoryBot.define do
   factory :caregivers_assistance_claim, class: SavedClaim::CaregiversAssistanceClaim do
     form { VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json }
+    ga_client_id { 'google_client_id' }
   end
 end
