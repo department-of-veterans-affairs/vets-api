@@ -10,7 +10,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   let(:request_headers) do
     {
-      'X-VA-SSN' => '796043735',
+      'X-VA-SSN' => '796-04-3735',
       'X-VA-First-Name' => 'WESLEY',
       'X-VA-Last-Name' => 'FORD',
       'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
@@ -131,7 +131,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
               '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
               params: nil,
               headers: {
-                'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+                'X-VA-SSN' => '796-04-3735', 'X-VA-First-Name' => 'WESLEY',
                 'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
                 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
                 'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
@@ -155,7 +155,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
               '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
               params: nil,
               headers: {
-                'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+                'X-VA-SSN' => '796-04-3735', 'X-VA-First-Name' => 'WESLEY',
                 'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
                 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
                 'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'

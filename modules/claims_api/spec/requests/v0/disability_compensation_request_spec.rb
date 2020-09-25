@@ -8,7 +8,7 @@ require 'common/exceptions'
 
 RSpec.describe 'Disability Claims ', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796043735',
+    { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-VA-EDIPI': '1007697216',
