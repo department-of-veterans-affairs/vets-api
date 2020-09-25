@@ -2,16 +2,12 @@
 
 require 'rails_helper'
 
-require 'bb/client'
-require 'common/client/errors'
-require 'rx/client'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
 require 'support/stub_efolder_documents'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
-require 'sm/client'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -149,23 +145,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     it 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mvi/find_candidate/valid' do
         VCR.use_cassette 'emis/get_veteran_status/valid' do
-          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
-            VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
-              VCR.use_cassette 'carma/auth/token/200' do
-                VCR.use_cassette 'carma/submissions/create/201' do
-                  VCR.use_cassette 'carma/attachments/upload/201' do
-                    expect(subject).to validate(
-                      :post,
-                      '/v0/caregivers_assistance_claims',
-                      200,
-                      '_data' => {
-                        'caregivers_assistance_claim' => {
-                          'form' => build(:caregivers_assistance_claim).form
-                        }
-                      }
-                    )
-                  end
-                end
+          VCR.use_cassette 'carma/auth/token/200' do
+            VCR.use_cassette 'carma/submissions/create/201' do
+              VCR.use_cassette 'carma/attachments/upload/201' do
+                expect(subject).to validate(
+                  :post,
+                  '/v0/caregivers_assistance_claims',
+                  200,
+                  '_data' => {
+                    'caregivers_assistance_claim' => {
+                      'form' => build(:caregivers_assistance_claim).form
+                    }
+                  }
+                )
               end
             end
           end
@@ -1662,12 +1654,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'POST' do
-        [200, 422].each do |status|
-          it "documents higher_level_reviews #{status}" do
-            VCR.use_cassette("decision_review/HLR-CREATE-RESPONSE-#{status}") do
-              expect(subject).to validate(:post, '/v0/higher_level_reviews',
-                                          status, headers)
-            end
+        it 'documents higher_level_reviews 200' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
+            # HigherLevelReviewsController is a pass-through, and uses request.body directly (not params[]).
+            # The validate helper does not create a parsable request.body string that works with the controller.
+            allow_any_instance_of(V0::HigherLevelReviewsController).to receive(:request_body_hash).and_return(
+              VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY')
+            )
+            expect(subject).to validate(:post, '/v0/higher_level_reviews', 200, headers)
+          end
+        end
+
+        it 'documents higher_level_reviews 422' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
+            expect(subject).to validate(
+              :post,
+              '/v0/higher_level_reviews',
+              422,
+              headers.merge('_data' => { '_json' => '' })
+            )
           end
         end
       end

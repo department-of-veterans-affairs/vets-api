@@ -12,7 +12,6 @@ RSpec.describe Form1010cg::Service do
           'first' => Faker::Name.first_name,
           'last' => Faker::Name.last_name
         },
-        'ssnOrTin' => Faker::IDNumber.valid.remove('-'),
         'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
         'address' => {
           'street' => Faker::Address.street_address,
@@ -27,15 +26,13 @@ RSpec.describe Form1010cg::Service do
       data['vetRelationship'] = 'Daughter' if form_subject != :veteran
 
       # Required properties for :primaryCaregiver
-      if form_subject == :primaryCaregiver
-        data['medicaidEnrolled'] = true
-        data['medicareEnrolled'] = false
-        data['tricareEnrolled'] = false
-        data['champvaEnrolled'] = false
-      end
+      data['hasHealthInsurance'] = true if form_subject == :primaryCaregiver
 
       # Required property for :veteran
-      data['plannedClinic'] = '568A4' if form_subject == :veteran
+      if form_subject == :veteran
+        data['ssnOrTin'] = Faker::IDNumber.valid.remove('-')
+        data['plannedClinic'] = '568A4'
+      end
 
       mutations&.call data
 
@@ -83,6 +80,8 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#icn_for' do
+    let(:set_ssn) { ->(data) { data['ssnOrTin'] = '111111111' } }
+
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
         build(
@@ -128,7 +127,7 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq(:ICN_123)
     end
 
-    it 'sets returns "NOT_FOUND" when profile not found in MVI' do
+    it 'returns "NOT_FOUND" when profile not found in MVI' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -173,13 +172,34 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq('NOT_FOUND')
     end
 
-    it 'returns a cached responses when called more than once for a given subject' do
+    it 'returns "NOT_FOUND" when no SSN is present' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
             'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+          }.to_json
+        )
+      )
+
+      # This should skip the MPI search and not build a UserIdentity
+      expect(UserIdentity).not_to receive(:new)
+      expect_any_instance_of(MVI::Service).not_to receive(:find_profile)
+
+      result = subject.icn_for('primaryCaregiver')
+
+      expect(result).to eq('NOT_FOUND')
+    end
+
+    it 'returns a cached responses when called more than once for a given subject' do
+      subject = described_class.new(
+        build(
+          :caregivers_assistance_claim,
+          form: {
+            'veteran' => build_claim_data_for.call(:veteran),
+            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
+            'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne)
           }.to_json
         )
       )
@@ -249,6 +269,10 @@ RSpec.describe Form1010cg::Service do
       3.times do
         expect(subject.icn_for('primaryCaregiver')).to eq('NOT_FOUND')
       end
+
+      3.times do
+        expect(subject.icn_for('secondaryCaregiverOne')).to eq('NOT_FOUND')
+      end
     end
 
     context 'when email is provided' do
@@ -308,9 +332,9 @@ RSpec.describe Form1010cg::Service do
             :caregivers_assistance_claim,
             form: {
               'veteran' => build_claim_data_for.call(:veteran),
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver),
-              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne),
-              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo)
+              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
+              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne, &set_ssn),
+              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo, &set_ssn)
             }.to_json
           )
         )
@@ -325,7 +349,7 @@ RSpec.describe Form1010cg::Service do
           expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
-            was_found: true
+            result: :found
           )
 
           subject.icn_for(form_subject)
@@ -341,7 +365,33 @@ RSpec.describe Form1010cg::Service do
           expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
-            was_found: false
+            result: :not_found
+          )
+
+          subject.icn_for(form_subject)
+        end
+      end
+
+      it 'will log when a search is skipped' do
+        subject = described_class.new(
+          build(
+            :caregivers_assistance_claim,
+            form: {
+              # Form subjects with no SSNs
+              'veteran' => build_claim_data_for.call(:veteran),
+              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver),
+              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne),
+              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo)
+            }.to_json
+          )
+        )
+
+        # Only testing for caregivers, since veteran requires an SSN
+        %w[primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
+          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+            claim_guid: subject.claim.guid,
+            form_subject: form_subject,
+            result: :skipped
           )
 
           subject.icn_for(form_subject)
@@ -357,7 +407,7 @@ RSpec.describe Form1010cg::Service do
         expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
           claim_guid: subject.claim.guid,
           form_subject: 'veteran',
-          was_found: true
+          result: :found
         )
 
         5.times do

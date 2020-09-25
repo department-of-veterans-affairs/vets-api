@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sentry/processor/log_as_warning'
 
 RSpec.describe Sentry::Processor::LogAsWarning do
   let(:client) { double('client') }

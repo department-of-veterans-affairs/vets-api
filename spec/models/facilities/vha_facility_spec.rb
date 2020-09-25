@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/access_satisfaction_client'
-require 'facilities/access_wait_time_client'
 
 RSpec.describe Facilities::VHAFacility do
   before { BaseFacility.validate_on_load = false }

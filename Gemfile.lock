@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 97736319ba4efcc92e6b256bce3b572695abb2ab
+  revision: ca7240cc9a4442293584246e1107e377f6d9df08
   branch: master
   specs:
-    vets_json_schema (12.0.1)
+    vets_json_schema (14.0.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -91,7 +91,6 @@ PATH
   remote: modules/mobile
   specs:
     mobile (0.1.0)
-      rails (~> 6.0.3, >= 6.0.3.2)
 
 PATH
   remote: modules/openid_auth

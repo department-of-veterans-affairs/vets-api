@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bb/generate_report_request_form'
-require 'bb/client'
+require 'bb/client' # required to stub responses
 
 RSpec.describe 'health records', type: :request do
   include SchemaMatchers
