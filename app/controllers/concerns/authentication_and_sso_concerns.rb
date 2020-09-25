@@ -122,7 +122,7 @@ module AuthenticationAndSSOConcerns
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
     cookies[Settings.sso.saml_cookie_name] = {
-      value: sso_saml_cookie_content,
+      value: (@current_user.present? ? sso_saml_cookie_content : nil),
       expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
       secure: Settings.sso.cookie_secure,
       httponly: true,
@@ -149,8 +149,6 @@ module AuthenticationAndSSOConcerns
   end
 
   def sso_saml_cookie_content
-    return nil if @current_user.blank?
-
     {
       'timestamp' => Time.now.iso8601,
       'transaction_id' => '',
