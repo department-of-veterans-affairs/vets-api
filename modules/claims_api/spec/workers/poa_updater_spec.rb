@@ -18,7 +18,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
     headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-    headers['va_eauth_pnid'] = '796-10-4437'
+    headers['va_eauth_pnid'] = '796104437'
     headers
   end
 
