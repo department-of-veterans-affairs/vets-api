@@ -72,6 +72,16 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
+  describe '#log_invalid_veteran_status' do
+    before do
+      expect(Settings).to receive(:google_analytics_tracking_id).and_return('foo')
+    end
+
+    it 'sends the right event to google analytics' do
+      subject.send(:log_invalid_veteran_status)
+    end
+  end
+
   describe '#icn_for' do
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
