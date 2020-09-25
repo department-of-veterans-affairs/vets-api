@@ -5,8 +5,7 @@ Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middl
 
 module HealthQuest
   class PGDService < HealthQuest::SessionService
-
-     def get_pgd_resource(type, id = nil, pagination_params = {})
+    def get_pgd_resource(type, id = nil, pagination_params = {})
       with_monitoring do
         response = perform(:get, get_pgd_base_url(type, id), {}, headers, timeout: 55)
         {
