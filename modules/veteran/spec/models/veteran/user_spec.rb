@@ -8,7 +8,8 @@ describe Veteran::User do
 
     before do
       @client_stub = instance_double('BGS::Services')
-      allow(BGS::Services).to receive(:new).with({ external_uid: '', external_key: '' })
+      external_key = user.common_name || user.email
+      allow(BGS::Services).to receive(:new).with({ external_uid: user.icn, external_key: external_key })
     end
 
     it 'initializes from a user' do
