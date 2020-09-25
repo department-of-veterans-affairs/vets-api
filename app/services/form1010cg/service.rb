@@ -147,14 +147,22 @@ module Form1010cg
       cached_icn = @cache[:icns][form_subject]
       return cached_icn unless cached_icn.nil?
 
-      response = mvi_service.find_profile(build_user_identity_for(form_subject))
+      form_subject_data = claim.parsed_form[form_subject]
 
-      case response.status
-      when 'OK'
-        log_mpi_search_result form_subject, true
+      if form_subject_data['ssnOrTin'].nil?
+        log_mpi_search_result form_subject, :skipped
+        return @cache[:icns][form_subject] = NOT_FOUND
+      end
+
+      response = mvi_service.find_profile(build_user_identity_for(form_subject_data))
+
+      if response.status == 'OK'
+        log_mpi_search_result form_subject, :found
         return @cache[:icns][form_subject] = response.profile.icn
-      when 'NOT_FOUND'
-        log_mpi_search_result form_subject, false
+      end
+
+      if response.status == 'NOT_FOUND'
+        log_mpi_search_result form_subject, :not_found
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
@@ -197,38 +205,34 @@ module Form1010cg
       @emis_service ||= EMIS::VeteranStatusService.new
     end
 
-    def log_mpi_search_result(form_subject, was_found)
+    def log_mpi_search_result(form_subject, result)
       Form1010cg::Auditor.instance.log_mpi_search_result(
         claim_guid: claim.guid,
         form_subject: form_subject,
-        was_found: was_found
+        result: result
       )
     end
 
     # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
     # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
     #
-    # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
+    # @param form_subject_data [Hash] The data of a specific form subject (ex: claim.parsed_form['veteran'])
     # @return [UserIdentity] A valid UserIdentity for the given form_subject
-    def build_user_identity_for(form_subject)
-      data = claim.parsed_form[form_subject]
-
-      attributes = {
-        first_name: data['fullName']['first'],
-        middle_name: data['fullName']['middle'],
-        last_name: data['fullName']['last'],
-        birth_date: data['dateOfBirth'],
-        gender: data['gender'],
-        ssn: data['ssnOrTin'],
-        email: data['email'] || 'no-email@example.com',
+    def build_user_identity_for(form_subject_data)
+      UserIdentity.new(
+        first_name: form_subject_data['fullName']['first'],
+        middle_name: form_subject_data['fullName']['middle'],
+        last_name: form_subject_data['fullName']['last'],
+        birth_date: form_subject_data['dateOfBirth'],
+        gender: form_subject_data['gender'],
+        ssn: form_subject_data['ssnOrTin'],
+        email: form_subject_data['email'] || 'no-email@example.com',
         uuid: SecureRandom.uuid,
         loa: {
           current: LOA::THREE,
           highest: LOA::THREE
         }
-      }
-
-      UserIdentity.new attributes
+      )
     end
   end
 end
