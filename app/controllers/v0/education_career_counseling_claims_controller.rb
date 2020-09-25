@@ -3,7 +3,7 @@
 module V0
   class EducationCareerCounselingClaimsController < ApplicationController
     def create
-      claim = career_counseling_claim
+      claim = SavedClaim::EducationCareerCounselingClaim.new(form: career_counseling_params)
       claim.add_veteran_info(current_user) if current_user
 
       unless claim.save!
@@ -21,19 +21,17 @@ module V0
 
     private
 
-    def career_counseling_params
-      params.require(:education_career_counseling_claim).permit(
-        :status,
-        :claimant_phone_number,
-        :claimant_email_address,
-        claimant_address: {}
-      )
-    end
+    # def career_counseling_params
+    #   params.require(:education_career_counseling_claim).permit(
+    #     :status,
+    #     :claimant_phone_number,
+    #     :claimant_email_address,
+    #     claimant_address: {}
+    #   )
+    # end
 
-    def career_counseling_claim
-      SavedClaim::EducationCareerCounselingClaim.new(
-        form: career_counseling_params.to_json
-      )
+    def career_counseling_params
+      params.require(:education_career_counseling_claim).permit(:form)
     end
 
     def stats_key
