@@ -13,7 +13,7 @@ module SSO
 
       cookies[Settings.sso.saml_cookie_name] = {
         value: (current_user.present? ? cookie_content : nil),
-        expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
+        expires: nil,
         secure: Settings.sso.cookie_secure,
         httponly: true,
         domain: Settings.sso.cookie_domain
