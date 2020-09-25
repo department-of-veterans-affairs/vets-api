@@ -118,8 +118,8 @@ module ClaimsApi
 
     def veteran_from_headers(with_gender: false)
       vet = ClaimsApi::Veteran.new(
-        uuid: header('X-VA-SSN')&.gsub(/[^0-9,.]/, ''),
-        ssn: header('X-VA-SSN')&.gsub(/[^0-9,.]/, ''),
+        uuid: header('X-VA-SSN')&.gsub(/[^0-9]/, ''),
+        ssn: header('X-VA-SSN')&.gsub(/[^0-9]/, ''),
         first_name: header('X-VA-First-Name'),
         last_name: header('X-VA-Last-Name'),
         va_profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
