@@ -312,7 +312,7 @@ RSpec.describe Form1010cg::Service do
           expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
-            was_found: true
+            result: :found
           )
 
           subject.icn_for(form_subject)
@@ -328,7 +328,7 @@ RSpec.describe Form1010cg::Service do
           expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
-            was_found: false
+            result: :not_found
           )
 
           subject.icn_for(form_subject)
@@ -344,7 +344,7 @@ RSpec.describe Form1010cg::Service do
         expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
           claim_guid: subject.claim.guid,
           form_subject: 'veteran',
-          was_found: true
+          result: :found
         )
 
         5.times do

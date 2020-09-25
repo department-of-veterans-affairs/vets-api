@@ -151,10 +151,10 @@ module Form1010cg
 
       case response.status
       when 'OK'
-        log_mpi_search_result form_subject, true
+        log_mpi_search_result form_subject, :found
         return @cache[:icns][form_subject] = response.profile.icn
       when 'NOT_FOUND'
-        log_mpi_search_result form_subject, false
+        log_mpi_search_result form_subject, :not_found
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
@@ -197,11 +197,11 @@ module Form1010cg
       @emis_service ||= EMIS::VeteranStatusService.new
     end
 
-    def log_mpi_search_result(form_subject, was_found)
+    def log_mpi_search_result(form_subject, result)
       Form1010cg::Auditor.instance.log_mpi_search_result(
         claim_guid: claim.guid,
         form_subject: form_subject,
-        was_found: was_found
+        result: result
       )
     end
 
