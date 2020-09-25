@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'central_mail/service'
 
 RSpec.describe VBADocuments::UploadStatusBatch, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
