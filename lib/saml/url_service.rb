@@ -197,8 +197,8 @@ module SAML
     end
 
     def previous_saml_uuid(params)
-      if params[:action] == 'saml_callback' && params[:SAMLResponse]
-        resp = SAML::Responses::Login.new(params[:SAMLResponse], settings: @saml_settings)
+      if params[:action] == 'saml_callback'
+        resp = SAML::Responses::Login.new(params[:SAMLResponse] || '', settings: @saml_settings)
         resp&.in_response_to
       end
     end
