@@ -70,6 +70,8 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#icn_for' do
+    let(:set_ssn) { ->(data) { data['ssnOrTin'] = '111111111' } }
+
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
         build(
@@ -186,7 +188,7 @@ RSpec.describe Form1010cg::Service do
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver) { |d| d['ssnOrTin'] = '111111111' },
+            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
             'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne)
           }.to_json
         )
@@ -315,15 +317,14 @@ RSpec.describe Form1010cg::Service do
 
     describe 'logging' do
       let(:subject) do
-        set_ssn = ->(d) { d['ssnOrTin'] = '111111111' }
         described_class.new(
           build(
             :caregivers_assistance_claim,
             form: {
               'veteran' => build_claim_data_for.call(:veteran),
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, set_ssn),
-              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne, set_ssn),
-              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo, set_ssn)
+              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
+              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne, &set_ssn),
+              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo, &set_ssn)
             }.to_json
           )
         )
