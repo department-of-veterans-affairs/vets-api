@@ -22,7 +22,7 @@ module Veteran
       json_data = json_data.deep_transform_keys { |key| key.to_s.underscore }
       set_attributes(json_data['info'])
       if json_data['person_organization_code'].present?
-        self.power_of_attorney = PowerOfAttorney.new(json_data['person_organization_code'])
+        self.power_of_attorney = PowerOfAttorney.new(code: json_data['person_organization_code'])
       end
     end
 
