@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'claims_api/vbms_sidekiq'
+require 'claims_api/power_of_attorney_pdf_constructor'
 
 module ClaimsApi
   class PoaFormBuilderJob

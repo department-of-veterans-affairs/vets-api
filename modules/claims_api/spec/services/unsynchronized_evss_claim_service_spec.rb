@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_api/unsynchronized_evss_claims_service'
 require 'evss/vso_search/service' # required to stub before initializing Veteran
-require 'evss/auth_headers'
 
 RSpec.describe ClaimsApi::UnsynchronizedEVSSClaimService, type: :model do
   let(:user) { FactoryBot.create(:user, :loa3) }

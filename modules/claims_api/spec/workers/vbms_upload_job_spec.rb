@@ -1,13 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-require 'claims_api/vbms_uploader'
 require_relative '../support/fake_vbms'
-require 'evss/disability_compensation_auth_headers'
-require 'evss/auth_headers'
-
-Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::VbmsUploadJob, type: :job do
   subject { described_class }
