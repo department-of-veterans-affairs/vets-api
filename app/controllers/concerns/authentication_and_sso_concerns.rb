@@ -113,21 +113,7 @@ module AuthenticationAndSSOConcerns
   end
 
   def set_sso_saml_cookie!
-    return unless Settings.sso.cookie_enabled &&
-                  @session_object.present? &&
-                  # if the user logged in via SSOe, there is no benefit from
-                  # creating a MHV SSO shared cookie
-                  !@current_user&.authenticated_by_ssoe
-
-    Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
-
-    cookies[Settings.sso.saml_cookie_name] = {
-      value: (@current_user.present? ? sso_saml_cookie_content : nil),
-      expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
-      secure: Settings.sso.cookie_secure,
-      httponly: true,
-      domain: Settings.sso.cookie_domain
-    }
+    SSO::SAMLCookie.from(@session_object, @current_user, sso_logging_info, cookies)
   end
 
   def set_session_expiration_header
@@ -145,15 +131,6 @@ module AuthenticationAndSSOConcerns
       'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
       'credential_used' => sso_cookie_sign_credential_used,
       'expirationTime' => @session_object.ttl_in_time.iso8601(0)
-    }
-  end
-
-  def sso_saml_cookie_content
-    {
-      'timestamp' => Time.now.iso8601,
-      'transaction_id' => '',
-      'saml_request_id' => '',
-      'saml_request_query_params' => ''
     }
   end
 
