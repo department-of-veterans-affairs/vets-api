@@ -59,7 +59,7 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
-debts:
+dmc:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
   mock: true

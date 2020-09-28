@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Debts
-  class LetterDownloader
+module DMC
+  class DebtLetterDownloader
     DEBTS_DOCUMENT_TYPES = %w[
       193
       194
@@ -17,7 +17,7 @@ module Debts
     def initialize(user)
       @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
-      @service = debts_service
+      @service = dmc_service
       verify_no_dependent_debts
     end
 
@@ -56,8 +56,8 @@ module Debts
       )
     end
 
-    def debts_service
-      Debts::Service.new(@user)
+    def dmc_service
+      DMC::Service.new(@user)
     end
 
     def verify_no_dependent_debts

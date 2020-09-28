@@ -2,17 +2,18 @@
 
 require 'common/client/base'
 require_relative 'configuration'
-require_relative 'get_debts_response'
+require_relative 'responses/get_debts_response'
+require_relative 'responses/financial_status_report_response'
 
-module Debts
+module DMC
   class Service < Common::Client::Base
     attr_reader :file_number
 
     include Common::Client::Concerns::Monitoring
 
-    configuration Debts::Configuration
+    configuration DMC::Configuration
 
-    STATSD_KEY_PREFIX = 'api.debts'
+    STATSD_KEY_PREFIX = 'api.dmc'
 
     def initialize(user)
       @user = user
@@ -29,6 +30,12 @@ module Debts
 
     def veteran_has_dependent_debts?
       @debts.any? { |debt| debt['payeeNumber'] != '00' }
+    end
+
+    def submit_financial_status_report(form)
+      FinancialStatusReportResponse(
+        perform(:post, 'fsr', form, fileNumber: @file_number).body
+      )
     end
 
     private
@@ -88,7 +95,7 @@ module Debts
       save_error_details(error)
 
       raise_backend_exception(
-        "DEBTS#{error&.status}",
+        "DMC#{error&.status}",
         self.class,
         error
       )

@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
-module Debts
+module DMC
   class Configuration < Common::Client::Configuration::REST
     def self.base_request_headers
       super.merge(
-        'client_id' => Settings.debts.client_id,
-        'client_secret' => Settings.debts.client_secret
+        'client_id' => Settings.dmc.client_id,
+        'client_secret' => Settings.dmc.client_secret
       )
     end
 
     def service_name
-      'Debts'
+      'DMC'
     end
 
     def base_path
-      "#{Settings.debts.url}/api/v1/debtletter/"
+      "#{Settings.dmc.url}/api/v1/debtletter/"
     end
 
     def connection
