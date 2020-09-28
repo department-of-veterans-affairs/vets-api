@@ -72,23 +72,29 @@ components:
         - data
       properties:
         data:
+          type: object
           required:
             - type
             - id
             - attributes
-          type: array
-          items:
-            type: object
-            properties:
-              type:
-                type: string
-                example: "serviceHistory"
-              id:
-                type: string
-                example: "1"
-              attributes:
-                type: object
-                $ref: "#/components/schemas/ServiceHistory"
+          properties:
+            type:
+              type: string
+              example: "serviceHistory"
+            id:
+              type: string
+              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+            attributes:
+              type: object
+              required:
+                - periods
+              properties:
+                periods:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/ServiceHistory"
+
     ServiceHistory:
       required:
         - branchOfService
