@@ -164,6 +164,10 @@ module BGS
       { ssn: @user.ssn }
     end
 
+    def find_ch33_dd_eft
+      service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
+    end
+
     private
 
     def service
