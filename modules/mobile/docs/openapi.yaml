@@ -49,7 +49,7 @@ paths:
                 $ref: "#/components/schemas/User"
 components:
   securitySchemes:
-    BearerAuth:
+    Bearer:
       type: apiKey
       name: Authorization
       in: header
@@ -117,7 +117,7 @@ components:
           example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
         type:
           type: string
-          example: user
+          example: "user"
         attributes:
           type: object
           required:
