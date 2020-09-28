@@ -154,5 +154,17 @@ RSpec.describe Session, type: :model do
         expect(described_class.find(subject.token)).to be_nil
       end
     end
+
+    context 'authenticated_by_ssoe' do
+      let(:transaction_session) { described_class.new({ uuid: 'a', ssoe_transactionid: 'b' }) }
+
+      it 'is false when no transaction attribute is provided' do
+        expect(subject.authenticated_by_ssoe).to be_falsey
+      end
+
+      it 'is true when a transaction attribute is provided' do
+        expect(transaction_session.authenticated_by_ssoe).to be_truthy
+      end
+    end
   end
 end

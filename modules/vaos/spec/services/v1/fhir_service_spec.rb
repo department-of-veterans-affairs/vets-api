@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
 
 describe VAOS::V1::FHIRService do
   subject { VAOS::V1::FHIRService.new(resource_type: :Organization, user: user) }
