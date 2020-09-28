@@ -46,13 +46,37 @@ module V1
       new_stats(type)
     end
 
+    def set_sso_saml_cookie!
+      cookies[Settings.saml_ssoe.cookie_name] = {
+        value: Base64.encode64(saml_cookie_content.to_json),
+        expires: nil,
+        secure: Settings.saml_ssoe.cookie_secure,
+        httponly: true,
+        domain: Settings.saml_ssoe.cookie_domain
+      }
+    end
+
+    def saml_cookie_content
+      transaction_id = if params[:SAMLResponse] && url_service_helper.should_uplevel?
+                         JSON.parse(Base64.decode64(cookies[Settings.saml_ssoe.cookie_name]))['transaction_id']
+                       else
+                         SecureRandom.uuid
+                       end
+
+      {
+        'timestamp' => Time.now.iso8601,
+        'transaction_id' => transaction_id,
+        'saml_request_id' => originating_request_id, # ???
+        'saml_request_query_params' => '???'
+      }
+    end
+
     def ssoe_slo_callback
       redirect_to url_service.logout_redirect_url
     end
 
     def saml_callback
       set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
-      saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       saml_response_stats(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
@@ -66,6 +90,10 @@ module V1
       handle_callback_error(e, :failed_unknown, resp)
     ensure
       callback_stats(:total)
+    end
+
+    def saml_response
+      @saml_response ||= SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
     end
 
     def tracker
@@ -123,18 +151,26 @@ module V1
       end
     end
 
-    def user_login(saml_response)
-      user_session_form = UserSessionForm.new(saml_response)
-      raise_saml_error(user_session_form) unless user_session_form.valid?
+    def user_session_form
+      @user_session_form ||= begin
+        user_session_form = UserSessionForm.new(saml_response)
+        raise_saml_error(user_session_form) unless user_session_form.valid?
+        user_session_form
+      end
+    end
 
+    def url_service_helper
+      @url_service_helper ||= url_service(user_session_form.saml_uuid)
+    end
+
+    def user_login(saml_response)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
-      helper = url_service(user_session_form.saml_uuid)
-      if helper.should_uplevel?
+      if url_service_helper.should_uplevel?
         render_login('verify', user_session_form.saml_uuid)
       else
-        redirect_to helper.login_redirect_url
+        redirect_to url_service_helper.login_redirect_url
         login_stats(:success, saml_response)
       end
     end
