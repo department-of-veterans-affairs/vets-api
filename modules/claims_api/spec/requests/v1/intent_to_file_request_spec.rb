@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Intent to file', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796104437',
+    { 'X-VA-SSN': '796-10-4437',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-VA-EDIPI': '1007697216',
