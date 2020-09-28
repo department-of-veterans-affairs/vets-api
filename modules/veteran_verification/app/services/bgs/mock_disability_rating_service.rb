@@ -7,9 +7,9 @@ module BGS
   class MockDisabilityRatingService
     def get_rating(current_user)
       options = {
-        wsdl: "#{Settings.bgs.url}/RatingServiceBean/RatingService/ratingRecord.wsdl",
+        wsdl: "#{Settings.vet_verification.url}/RatingServiceBean/RatingService/ratingRecord.wsdl",
         soap_header: header(current_user),
-        endpoint: "#{Settings.bgs.url}/RatingServiceBean/RatingService"
+        endpoint: "#{Settings.vet_verification.url}/RatingServiceBean/RatingService"
       }
       @client ||= Savon.client(options)
       response = request(:find_rating_data, 'fileNumber': current_user.ssn)

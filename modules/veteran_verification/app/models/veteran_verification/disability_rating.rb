@@ -15,7 +15,7 @@ module VeteranVerification
     attribute :individual_ratings, Array
 
     def self.rating_service
-      if Settings.bgs.mock_bgs == true
+      if Settings.vet_verification.mock_bgs == true
         BGS::MockDisabilityRatingService.new
       else
         BGS::DisabilityRatingService.new
