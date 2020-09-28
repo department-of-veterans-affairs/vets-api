@@ -79,7 +79,7 @@ components:
           example: "United States Marine Corps"
         beginDate:
           type: string
-          example: "September 17, 1997"
+          example: "1997-09-10"
         endDate:
           type: string
-          example: "December 31, 2002"
+          example: "2002-12-22"
