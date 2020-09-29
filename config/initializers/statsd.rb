@@ -15,7 +15,6 @@ require 'search/service'
 require 'vet360/exceptions/parser'
 require 'vet360/service'
 require 'va_notify/service'
-require 'workers/form526_confirmation_email_job'
 
 host = Settings.statsd.host
 port = Settings.statsd.port
