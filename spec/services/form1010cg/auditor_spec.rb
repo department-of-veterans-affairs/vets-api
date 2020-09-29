@@ -21,6 +21,10 @@ RSpec.describe Form1010cg::Auditor do
     StatsD.backend = @_statsd_logger
   end
 
+  let(:record_submission_failure_client_qualification_args) do
+    { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' }, ga_client_id: 'google_client_id' }
+  end
+
   it 'is a singleton' do
     expect(described_class.ancestors).to include(Singleton)
   end
@@ -153,23 +157,26 @@ RSpec.describe Form1010cg::Auditor do
       end
     end
 
-    context 'increments' do
-      it 'api.form1010cg.submission.failure.client.data' do
-        expected_context = { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' } }
-
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
-        subject.record_submission_failure_client_qualification(**expected_context)
+    context 'with all parameters' do
+      before do
+        expect(subject).to receive(:log_invalid_veteran_status).with('google_client_id')
       end
-    end
 
-    context 'logs' do
-      it '[Form 10-10CG] Submission Failed: qualifications not met' do
-        expected_message = '[Form 10-10CG] Submission Failed: qualifications not met'
-        expected_context = { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' } }
+      context 'increments' do
+        it 'api.form1010cg.submission.failure.client.data' do
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
+          subject.record_submission_failure_client_qualification(**record_submission_failure_client_qualification_args)
+        end
+      end
 
-        expect(Rails.logger).to receive(:info).with(expected_message, **expected_context)
+      context 'logs' do
+        it '[Form 10-10CG] Submission Failed: qualifications not met' do
+          expected_message = '[Form 10-10CG] Submission Failed: qualifications not met'
 
-        subject.record_submission_failure_client_qualification(**expected_context)
+          expect(Rails.logger).to receive(:info).with(expected_message, **record_submission_failure_client_qualification_args.except(:ga_client_id))
+
+          subject.record_submission_failure_client_qualification(**record_submission_failure_client_qualification_args)
+        end
       end
     end
   end
@@ -282,10 +289,8 @@ RSpec.describe Form1010cg::Auditor do
 
       context 'for :submission_failure_client_qualification' do
         it 'calls :record submission_failure_client_qualification' do
-          context = { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' } }
-
-          expect(subject).to receive(:record_submission_failure_client_qualification).with(context)
-          subject.record(:submission_failure_client_qualification, context)
+          expect(subject).to receive(:record_submission_failure_client_qualification).with(record_submission_failure_client_qualification_args)
+          subject.record(:submission_failure_client_qualification, record_submission_failure_client_qualification_args)
         end
       end
 
