@@ -19,67 +19,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /discovery:
-    get:
-      summary: /discovery
-      description: \[Not implemented\] Returns the available services and endpoints to use for the version of the app
-      operationId: discovery
-      parameters:
-        - in: query
-          name: version
-          schema:
-            type: string
-            example: "1.0.0"
-          required: true
-          description: The version of the app calling the endpoint
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  data:
-                    type: array
-                    items:
-                      required:
-                        - id
-                        - type
-                        - attributes
-                      properties:
-                        id:
-                          type: string
-                          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
-                        type:
-                          type: string
-                          example: service
-                        attributes:
-                          type: object
-                          required:
-                            - name
-                            - endpoints
-                          properties:
-                            name:
-                              type: string
-                              example: "directDepositBenefits"
-                            endpoints:
-                              type: object
-                              required:
-                                - method
-                                - path
-                              properties:
-                                method:
-                                  type: string
-                                  enum: ["GET", "POST", "PUT", "DELETE"]
-                                path:
-                                  type: string
-                              example:
-                                read:
-                                  method: "GET"
-                                  path: "/v0/direct-deposit/benefits"
-                                update:
-                                  method: "PUT"
-                                  path: "/v0/direct-deposit/benefits"
+
 
   /v0/user:
     get:
@@ -97,6 +37,17 @@ paths:
                 properties:
                   data:
                     $ref: "#/components/schemas/User"
+                  meta:
+                    properties:
+                      availableServices:
+                        type: array
+                        example:
+                          - appeals
+                          - appointments
+                          - claims
+                          - directDepositBenefits
+                          - letters
+                          - militaryServiceHistory
 
   /v0/user/address:
     put:
@@ -131,7 +82,82 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: "#/components/schemas/User"
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "asyncTransactionVet360AddressTransactions"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          transactionId:
+                            type: string
+                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                          transactionStatus:
+                            type: string
+                            example: "RECEIVED"
+                          type:
+                            type: string
+                            example: "AsyncTransaction::Vet360::AddressTransaction"
+
+  /v0/user/transaction-status:
+    get:
+      summary: /v0/user/transaction-status/:transactionId
+      description: \[Not implemented\] Returns the status of a user profile update (e.g. address update)
+      operationId: user.updateAddress
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: transactionId
+          schema:
+            type: string
+            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+          required: true
+          description: The id of the transaction being looked up
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "asyncTransactionVet360AddressTransactions"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          transactionId:
+                            type: string
+                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                          transactionStatus:
+                            type: string
+                            example: "COMPLETED_SUCCESS"
+                          type:
+                            type: string
+                            example: "AsyncTransaction::Vet360::AddressTransaction"
 
 components:
   securitySchemes:
