@@ -45,4 +45,3 @@ RSpec.describe 'Disability Rating Mock API endpoint', type: :request do
     end
   end
 end
-
