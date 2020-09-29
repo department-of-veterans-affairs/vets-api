@@ -46,31 +46,6 @@ module V1
       new_stats(type)
     end
 
-    def set_sso_saml_cookie!
-      cookies[Settings.saml_ssoe.cookie_name] = {
-        value: Base64.encode64(saml_cookie_content.to_json),
-        expires: nil,
-        secure: Settings.saml_ssoe.cookie_secure,
-        httponly: true,
-        domain: Settings.saml_ssoe.cookie_domain
-      }
-    end
-
-    def saml_cookie_content
-      transaction_id = if params[:SAMLResponse] && url_service_helper.should_uplevel?
-                         JSON.parse(Base64.decode64(cookies[Settings.saml_ssoe.cookie_name]))['transaction_id']
-                       else
-                         SecureRandom.uuid
-                       end
-
-      {
-        'timestamp' => Time.now.iso8601,
-        'transaction_id' => transaction_id,
-        'saml_request_id' => originating_request_id, # ???
-        'saml_request_query_params' => '???'
-      }
-    end
-
     def ssoe_slo_callback
       redirect_to url_service.logout_redirect_url
     end
@@ -178,13 +153,13 @@ module V1
     def render_login(type, previous_saml_uuid = nil)
       force = (type != 'custom')
       helper = url_service(previous_saml_uuid, force)
-      login_url, post_params = login_params(type, helper)
+      login_url, @post_params = login_params(type, helper)
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
                                locals: {
                                  url: login_url,
-                                 params: post_params,
+                                 params: @post_params,
                                  id: helper.tracker.uuid,
                                  authn: helper.tracker.payload_attr(:authn_context),
                                  type: helper.tracker.payload_attr(:type)
@@ -193,6 +168,31 @@ module V1
       render body: result, content_type: 'text/html'
       set_sso_saml_cookie!
       saml_request_stats(helper.tracker)
+    end
+
+    def set_sso_saml_cookie!
+      cookies[Settings.saml_ssoe.cookie_name] = {
+        value: Base64.encode64(saml_cookie_content.to_json),
+        expires: nil,
+        secure: Settings.saml_ssoe.cookie_secure,
+        httponly: true,
+        domain: Settings.saml_ssoe.cookie_domain
+      }
+    end
+
+    def saml_cookie_content
+      transaction_id = if params[:SAMLResponse] && url_service_helper.should_uplevel?
+                         JSON.parse(Base64.decode64(cookies[Settings.saml_ssoe.cookie_name]))['transaction_id']
+                       else
+                         SecureRandom.uuid
+                       end
+
+      {
+        'timestamp' => Time.now.iso8601,
+        'transaction_id' => transaction_id,
+        'saml_request_id' => JSON.parse(@post_params['RelayState'])['originating_request_id'], # originating_request_id, # ???
+        'saml_request_query_params' => '???'
+      }
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
