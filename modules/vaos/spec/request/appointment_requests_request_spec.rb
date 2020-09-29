@@ -122,7 +122,9 @@ RSpec.describe 'vaos appointment requests', type: :request do
           expect(Rails.logger).to have_received(:info).once.with('VAOS AppointmentRequest',
                                                                  action: 'create',
                                                                  type: 'CC',
-                                                                 id: '8a4886686f54d9c6016f7ca0f62f000e')
+                                                                 id: '8a4886686f54d9c6016f7ca0f62f000e',
+                                                                 type_of_care_id: 'CCAUDHEAR')
+
           expect(response).to have_http_status(:created)
           expect(response.body).to be_a(String)
           expect(json_body_for(response)).to match_schema('vaos/appointment_request')
@@ -164,7 +166,9 @@ RSpec.describe 'vaos appointment requests', type: :request do
         expect(Rails.logger).to have_received(:info).with('VAOS AppointmentRequest',
                                                           action: 'update',
                                                           type: nil,
-                                                          id: '8a4886886e4c8e22016e92be77cb00f9')
+                                                          id: '8a4886886e4c8e22016e92be77cb00f9',
+                                                          type_of_care_id: '323')
+
         expect(json_body_for(response)).to match_schema('vaos/appointment_request')
       end
     end

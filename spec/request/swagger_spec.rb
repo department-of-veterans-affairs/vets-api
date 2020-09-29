@@ -1658,12 +1658,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'POST' do
-        [200, 422].each do |status|
-          it "documents higher_level_reviews #{status}" do
-            VCR.use_cassette("decision_review/HLR-CREATE-RESPONSE-#{status}") do
-              expect(subject).to validate(:post, '/v0/higher_level_reviews',
-                                          status, headers)
-            end
+        it 'documents higher_level_reviews 200' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
+            # HigherLevelReviewsController is a pass-through, and uses request.body directly (not params[]).
+            # The validate helper does not create a parsable request.body string that works with the controller.
+            allow_any_instance_of(V0::HigherLevelReviewsController).to receive(:request_body_hash).and_return(
+              VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY')
+            )
+            expect(subject).to validate(:post, '/v0/higher_level_reviews', 200, headers)
+          end
+        end
+
+        it 'documents higher_level_reviews 422' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
+            expect(subject).to validate(
+              :post,
+              '/v0/higher_level_reviews',
+              422,
+              headers.merge('_data' => { '_json' => '' })
+            )
           end
         end
       end

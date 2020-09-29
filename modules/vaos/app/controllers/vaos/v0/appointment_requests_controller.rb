@@ -57,7 +57,8 @@ module VAOS
           'VAOS AppointmentRequest',
           action: params[:action],
           type: params[:type].is_a?(String) ? params[:type].upcase : params[:type],
-          id: response[:data].try(:unique_id)
+          id: response[:data].try(:unique_id),
+          type_of_care_id: response[:data].try(:type_of_care_id)
         )
       end
 

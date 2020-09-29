@@ -12,7 +12,6 @@ RSpec.describe Form1010cg::Service do
           'first' => Faker::Name.first_name,
           'last' => Faker::Name.last_name
         },
-        'ssnOrTin' => Faker::IDNumber.valid.remove('-'),
         'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
         'address' => {
           'street' => Faker::Address.street_address,
@@ -27,15 +26,13 @@ RSpec.describe Form1010cg::Service do
       data['vetRelationship'] = 'Daughter' if form_subject != :veteran
 
       # Required properties for :primaryCaregiver
-      if form_subject == :primaryCaregiver
-        data['medicaidEnrolled'] = true
-        data['medicareEnrolled'] = false
-        data['tricareEnrolled'] = false
-        data['champvaEnrolled'] = false
-      end
+      data['hasHealthInsurance'] = true if form_subject == :primaryCaregiver
 
       # Required property for :veteran
-      data['plannedClinic'] = '568A4' if form_subject == :veteran
+      if form_subject == :veteran
+        data['ssnOrTin'] = Faker::IDNumber.valid.remove('-')
+        data['plannedClinic'] = '568A4'
+      end
 
       mutations&.call data
 
