@@ -59,7 +59,7 @@ RSpec.describe 'military_information', type: :request do
       end
 
       context 'with multiple military service episodes' do
-        it 'matches the service history schema' do
+        it 'matches the mobile service history schema' do
           VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
             get '/mobile/v0/military-service-history', headers: {'Authorization' => "Bearer #{access_token}"}
             expect(response).to have_http_status(:ok)
@@ -70,7 +70,7 @@ RSpec.describe 'military_information', type: :request do
       end
 
       context 'with one military service episode' do
-        it 'matches the service history schema' do
+        it 'matches the mobile service history schema' do
           VCR.use_cassette('emis/get_military_service_episodes/valid') do
             get '/mobile/v0/military-service-history', headers: {'Authorization' => "Bearer #{access_token}"}
             expect(response).to have_http_status(:ok)
@@ -78,6 +78,16 @@ RSpec.describe 'military_information', type: :request do
             expect(response).to match_response_schema('mobile_service_history_response')
           end
         end
+      end
+
+      it 'returns unauthorized when requested without Bearer token' do
+        get '/mobile/v0/military-service-history'
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'returns not found when requesting non-existent path' do
+        get '/mobile/v0/military-service-history/doesnt-exist'
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
