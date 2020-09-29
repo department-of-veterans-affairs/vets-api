@@ -33,6 +33,48 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MilitaryHistory"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   /mobile/v0/user:
     get:
       summary: /mobile/v0/user
@@ -55,6 +97,54 @@ components:
       in: header
       example: "Authorization: Bearer ypXeAwQedpmAy5xFD2u5"
   schemas:
+    Errors:
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Error"
+    Error:
+      required:
+        - title
+        - detail
+        - code
+        - status
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
+        code:
+          type: string
+        status:
+          type: string
+    EVSSAuthError:
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            required:
+              - title
+              - detail
+              - code
+              - status
+            properties:
+              title:
+                type: string
+                example: Not Found
+              detail:
+                type: string
+                example: "The requested resource could not be found but may be available again in the future."
+              code:
+                type: string
+                example: '404'
+              status:
+                type: string
+                example: '404'
     Message:
       required:
         - attributes
