@@ -17,8 +17,7 @@ class FormProfiles::VA686c674 < FormProfile
 
   attribute :form_address
 
-  def prefill(user)
-    @user = user
+  def prefill
     prefill_form_address
 
     super
