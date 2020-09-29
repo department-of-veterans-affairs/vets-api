@@ -6,6 +6,9 @@ RSpec.describe Form1010cg::Auditor do
   let(:subject) do
     described_class.instance
   end
+  let(:record_submission_failure_client_qualification_args) do
+    { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' }, ga_client_id: 'google_client_id' }
+  end
 
   before(:all) do
     # StatsD is configured to use Rails.logger in order to output the stats that are being incremented in our app.
@@ -19,10 +22,6 @@ RSpec.describe Form1010cg::Auditor do
 
   after(:all) do
     StatsD.backend = @_statsd_logger
-  end
-
-  let(:record_submission_failure_client_qualification_args) do
-    { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' }, ga_client_id: 'google_client_id' }
   end
 
   it 'is a singleton' do
@@ -173,7 +172,10 @@ RSpec.describe Form1010cg::Auditor do
         it '[Form 10-10CG] Submission Failed: qualifications not met' do
           expected_message = '[Form 10-10CG] Submission Failed: qualifications not met'
 
-          expect(Rails.logger).to receive(:info).with(expected_message, **record_submission_failure_client_qualification_args.except(:ga_client_id))
+          expect(Rails.logger).to receive(:info).with(
+            expected_message,
+            **record_submission_failure_client_qualification_args.except(:ga_client_id)
+          )
 
           subject.record_submission_failure_client_qualification(**record_submission_failure_client_qualification_args)
         end
@@ -289,7 +291,9 @@ RSpec.describe Form1010cg::Auditor do
 
       context 'for :submission_failure_client_qualification' do
         it 'calls :record submission_failure_client_qualification' do
-          expect(subject).to receive(:record_submission_failure_client_qualification).with(record_submission_failure_client_qualification_args)
+          expect(subject).to receive(
+            :record_submission_failure_client_qualification
+          ).with(record_submission_failure_client_qualification_args)
           subject.record(:submission_failure_client_qualification, record_submission_failure_client_qualification_args)
         end
       end
