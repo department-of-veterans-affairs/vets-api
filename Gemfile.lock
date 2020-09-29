@@ -983,7 +983,7 @@ DEPENDENCIES
   virtus
   web-console
   webmock
-  webrick
+  webrick (>= 1.6.1)
   websocket-extensions (>= 0.1.5)
   will_paginate
   yard
