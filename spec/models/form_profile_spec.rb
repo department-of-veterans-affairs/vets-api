@@ -810,6 +810,12 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
+    context 'with a user that can prefill financial status report' do
+      it 'returns a prefilled 5655 form' do
+        expect_prefilled('5655')
+      end
+    end
+
     context 'when emis is down', skip_emis: true do
       it 'logs the error to sentry' do
         can_prefill_emis(true)
