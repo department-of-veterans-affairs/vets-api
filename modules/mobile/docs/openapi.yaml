@@ -80,16 +80,16 @@ components:
           properties:
             type:
               type: string
-              example: "serviceHistory"
+              example: "militaryInformation"
             id:
               type: string
               example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
             attributes:
               type: object
               required:
-                - periods
+                - serviceHistory
               properties:
-                periods:
+                serviceHistory:
                   type: array
                   items:
                     type: object
@@ -100,22 +100,20 @@ components:
         - branchOfService
         - beginDate
         - endDate
+        - personnelCategoryTypeCode
       properties:
         branchOfService:
           type: string
           example: "United States Marine Corps"
-        startDate:
+        beginDate:
           type: string
           example: "1997-09-17"
         endDate:
           type: string
           example: "2002-12-31"
-        formattedStartDate:
+        personnelCategoryTypeCode:
           type: string
-          example: "September 17, 1997"
-        formattedEndDate:
-          type: string
-          example: "December 31, 2002"
+          example: "V"
     User:
       required:
         - id
