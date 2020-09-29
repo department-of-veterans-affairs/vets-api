@@ -2,7 +2,8 @@
 
 require 'common/client/concerns/monitoring'
 require 'common/client/errors'
-require 'evss/disability_compensation_auth_headers.rb'
+require 'evss/service'
+require 'evss/disability_compensation_auth_headers'
 require_relative 'configuration'
 require_relative 'rated_disabilities_response'
 require_relative 'form_submit_response'

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/gi_bill_status/service'
+
 module VA10203
   FORM_ID = '22-10203'
 

@@ -8,6 +8,10 @@ FactoryBot.define do
     city { 'Washington' }
     country_name { 'USA' }
     country_code_iso3 { 'USA' }
+    geocode_date { '2018-04-13T17:01:18Z' }
+    geocode_precision { '100' }
+    latitude { '38.901' }
+    longitude { '-77.0347' }
     state_code { 'DC' }
     zip_code { '20011' }
     sequence(:transaction_id, 100) { |n| "c2fab2b5-6af0-45e1-a9e2-394347af9#{n}" }

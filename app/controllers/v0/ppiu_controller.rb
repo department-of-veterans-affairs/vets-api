@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/ppiu/service'
+
 module V0
   class PPIUController < ApplicationController
     before_action { authorize :evss, :access? }

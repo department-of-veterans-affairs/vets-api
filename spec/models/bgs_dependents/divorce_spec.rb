@@ -6,6 +6,8 @@ RSpec.describe BGSDependents::Divorce do
   let(:divorce_info) do
     {
       'date' => '2020-01-01',
+      'ssn' => '848525794',
+      'birth_date' => '1990-03-03',
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' },
       'location' => { 'state' => 'FL', 'city' => 'Tampa' },
       'reason_marriage_ended' => 'Divorce'
@@ -15,6 +17,8 @@ RSpec.describe BGSDependents::Divorce do
     {
       'divorce_state' => 'FL',
       'divorce_city' => 'Tampa',
+      'ssn' => '848525794',
+      'birth_date' => '1990-03-03',
       'divorce_country' => nil,
       'marriage_termination_type_code' => 'Divorce',
       'end_date' => Date.parse(divorce_info['date']).to_time.iso8601,

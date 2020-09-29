@@ -73,5 +73,15 @@ RSpec.describe 'covid research volunteer submissions', type: :request do
         post '/covid-research/volunteer/create', params: valid
       end
     end
+
+    context 'email confirmation' do
+      let(:confirmation_job) { CovidResearch::Volunteer::ConfirmationMailerJob }
+
+      it 'schedules delivery via Sidekiq' do
+        expect(confirmation_job).to receive(:perform_async).with(JSON.parse(valid)['email'])
+
+        post '/covid-research/volunteer/create', params: valid
+      end
+    end
   end
 end

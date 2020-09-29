@@ -52,7 +52,6 @@ RSpec/ContextMethod:
     - 'spec/jobs/education_form/forms/va0993_spec.rb'
     - 'spec/jobs/education_form/forms/va1990_spec.rb'
     - 'spec/jobs/education_form/forms/va1995_spec.rb'
-    - 'spec/jobs/education_form/forms/va1995s_spec.rb'
     - 'spec/lib/common/client/configuration/base_spec.rb'
     - 'spec/lib/pension_burial/processing_office_spec.rb'
     - 'spec/models/mhv_account_spec.rb'

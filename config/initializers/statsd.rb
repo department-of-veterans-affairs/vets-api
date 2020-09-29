@@ -3,7 +3,9 @@
 require 'caseflow/service'
 require 'central_mail/service'
 require 'emis/service'
+require 'evss/service'
 require 'gibft/service'
+require 'iam_ssoe_oauth/session_manager'
 require 'mvi/service'
 require 'saml/errors'
 require 'saml/responses/base'
@@ -130,11 +132,11 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
 
 # init Form1010cg
-StatsD.increment(Form1010cg::Service.metrics.submission.attempt, 0)
-StatsD.increment(Form1010cg::Service.metrics.submission.success, 0)
-StatsD.increment(Form1010cg::Service.metrics.submission.failure.client.data, 0)
-StatsD.increment(Form1010cg::Service.metrics.submission.failure.client.qualification, 0)
-StatsD.increment(Form1010cg::Service.metrics.pdf_download, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.attempt, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.success, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.data, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
+StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 
 # init form 526
 %w[try success non_retryable_error retryable_error exhausted].each do |str|
@@ -183,3 +185,13 @@ ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') 
 
   StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
 end
+
+# IAM SSOe session metrics
+IAMSSOeOAuth::SessionManager.extend StatsD::Instrument
+IAMSSOeOAuth::SessionManager.statsd_count_success :create_user_session,
+                                                  'iam_ssoe_oauth.create_user_session'
+IAMSSOeOAuth::SessionManager.statsd_measure :create_user_session,
+                                            'iam_ssoe_oauth.create_user_session.measure'
+StatsD.increment('iam_ssoe_oauth.create_user_session.success', 0)
+StatsD.increment('iam_ssoe_oauth.create_user_session.failure', 0)
+StatsD.increment('iam_ssoe_oauth.inactive_session', 0)

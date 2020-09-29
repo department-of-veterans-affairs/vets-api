@@ -8,7 +8,9 @@ module DecisionReview
   class ServiceException < Common::Exceptions::BackendServiceException
     include SentryLogging
 
-    def initialize(key = 'unmapped_service_exception', response_values = {}, original_status = nil, original_body = nil)
+    UNMAPPED_KEY = 'unmapped_service_exception'
+
+    def initialize(key: UNMAPPED_KEY, response_values: {}, original_status: nil, original_body: nil)
       super(key, response_values, original_status, original_body)
     end
 
@@ -18,7 +20,7 @@ module DecisionReview
       if @key.present? && I18n.exists?("decision_review.exceptions.#{@key}")
         @key
       else
-        'unmapped_service_exception'
+        UNMAPPED_KEY
       end
     end
 

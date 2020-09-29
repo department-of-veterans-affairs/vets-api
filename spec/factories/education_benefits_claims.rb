@@ -19,18 +19,6 @@ FactoryBot.define do
     end
   end
 
-  factory :education_benefits_claim_1995s, class: 'EducationBenefitsClaim' do
-    after(:build) do |education_benefits_claim|
-      education_benefits_claim.saved_claim ||= build(:va1995s)
-    end
-  end
-
-  factory :education_benefits_claim_1995stem, class: 'EducationBenefitsClaim' do
-    after(:build) do |education_benefits_claim|
-      education_benefits_claim.saved_claim ||= build(:va1995_with_stem)
-    end
-  end
-
   factory :education_benefits_claim_10203, class: 'EducationBenefitsClaim' do
     after(:build) do |education_benefits_claim|
       education_benefits_claim.saved_claim ||= build(:va10203)

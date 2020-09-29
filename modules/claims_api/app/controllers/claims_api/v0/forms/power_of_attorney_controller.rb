@@ -13,7 +13,7 @@ module ClaimsApi
         FORM_NUMBER = '2122'
 
         skip_before_action(:authenticate)
-        before_action :validate_json_schema, only: %i[submit_form_2122]
+        before_action :validate_json_schema, only: %i[submit_form_2122 validate]
         before_action :validate_documents_content_type, only: %i[upload]
         before_action :validate_documents_page_size, only: %i[upload]
 
@@ -62,6 +62,10 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        def validate
+          render json: validation_success
+        end
+
         private
 
         def header_md5
@@ -76,6 +80,17 @@ module ClaimsApi
             name: request.headers['X-Consumer-Username'],
             icn: Settings.bgs.external_uid,
             email: Settings.bgs.external_key
+          }
+        end
+
+        def validation_success
+          {
+            data: {
+              type: 'powerOfAttorneyValidation',
+              attributes: {
+                status: 'valid'
+              }
+            }
           }
         end
       end

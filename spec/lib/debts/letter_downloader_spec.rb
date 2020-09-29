@@ -10,12 +10,17 @@ RSpec.describe Debts::LetterDownloader do
   let(:file_number) { '796043735' }
   let(:user) { build(:user, :loa3, ssn: file_number) }
   let(:vbms_client) { FakeVbms.new }
+  let(:good_document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
+  let(:bad_document_id) { '{abc}' }
 
   def stub_vbms_client_request(request_name, args, return_val)
     request_double = double
-    expect("VBMS::Requests::#{request_name}".constantize).to receive(:new).with(args).and_return(request_double)
+    return_val.map { |letter| letter.upload_date = Date.parse(letter.upload_date) }
+    expect(
+      "VBMS::Requests::#{request_name}".constantize
+    ).to receive(:new).at_most(:twice).with(args).and_return(request_double)
 
-    expect(vbms_client).to receive(:send_request).with(
+    expect(vbms_client).to receive(:send_request).at_most(:twice).with(
       request_double
     ).and_return(
       return_val
@@ -46,15 +51,14 @@ RSpec.describe Debts::LetterDownloader do
 
   describe '#get_letter' do
     context 'with a document in the users folder' do
-      let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
       let(:content) { File.read('spec/fixtures/pdf_fill/extras.pdf') }
 
       before do
         stub_vbms_client_request(
           'GetDocumentContent',
-          document_id,
+          good_document_id,
           OpenStruct.new(
-            document_id: document_id,
+            document_id: good_document_id,
             content: content
           )
         )
@@ -62,17 +66,15 @@ RSpec.describe Debts::LetterDownloader do
 
       it 'downloads a debt letter' do
         use_person_and_letter_cassettes do
-          expect(subject.get_letter(document_id)).to eq(content)
+          expect(subject.get_letter(good_document_id)).to eq(content)
         end
       end
     end
 
     context 'with a document not in the users folder' do
-      let(:document_id) { '{abc}' }
-
       it 'raises an unauthorized error' do
         use_person_and_letter_cassettes do
-          expect { subject.get_letter(document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+          expect { subject.get_letter(bad_document_id) }.to raise_error(Common::Exceptions::Unauthorized)
         end
       end
     end
@@ -84,6 +86,26 @@ RSpec.describe Debts::LetterDownloader do
         expect(subject.list_letters.to_json).to eq(
           get_fixture('vbms/list_letters').to_json
         )
+      end
+    end
+  end
+
+  describe '#file_name' do
+    context 'with a proper document id' do
+      it 'returns a filename' do
+        use_person_and_letter_cassettes do
+          expect(subject.file_name(good_document_id)).to eq(
+            'DMC - Debt Increase Letter June 03, 2020'
+          )
+        end
+      end
+    end
+
+    context 'without a proper document id' do
+      it 'raises an unauthorized error' do
+        use_person_and_letter_cassettes do
+          expect { subject.file_name(bad_document_id) }.to raise_error(Common::Exceptions::Unauthorized)
+        end
       end
     end
   end

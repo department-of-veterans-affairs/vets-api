@@ -34,7 +34,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 64537e01a2eef2299bf851d1fb0051eb285bea3c
+  revision: f8e5d69ed0cb1791bc41e5b6e55b22134c39fad4
   specs:
     bgs_ext (0.14.6)
       httpclient
@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 8e9e21b298749262367afa3fe20cc21572801f97
+  revision: ee3032d3a84393233fb328c1f83558be9bbd84b1
   branch: master
   specs:
-    vets_json_schema (10.0.0)
+    vets_json_schema (14.1.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -91,7 +91,6 @@ PATH
   remote: modules/mobile
   specs:
     mobile (0.1.0)
-      rails (~> 6.0.3, >= 6.0.3.2)
 
 PATH
   remote: modules/openid_auth
@@ -524,7 +523,7 @@ GEM
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
     ox (2.13.2)
-    pact (1.51.1)
+    pact (1.54.0)
       pact-mock_service (~> 3.0, >= 3.3.1)
       pact-support (~> 1.9)
       rack-test (>= 0.6.3, < 2.0.0)

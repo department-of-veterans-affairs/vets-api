@@ -7,7 +7,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   subject { described_class.new(user, form_content, false) }
 
   let(:form_content) { { 'form526' => {} } }
-  let(:evss_json) { File.read 'spec/support/disability_compensation_form/all_claims_evss_submission.json' }
+
   let(:user) { build(:disabilities_compensation_user) }
 
   before do
@@ -15,19 +15,44 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   end
 
   describe '#translate' do
-    before do
-      create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
+    context 'all claims' do
+      before do
+        create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
+      end
+
+      let(:form_content) do
+        JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
+      end
+      let(:evss_json) { File.read 'spec/support/disability_compensation_form/all_claims_evss_submission.json' }
+
+      it 'returns correctly formatted json to send to EVSS' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/intent_to_file/active_compensation') do
+            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+              expect(subject.translate).to eq JSON.parse(evss_json)
+            end
+          end
+        end
+      end
     end
 
-    let(:form_content) do
-      JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
-    end
+    context 'kitchen sink BDD' do
+      before do
+        create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
+      end
 
-    it 'returns correctly formatted json to send to EVSS' do
-      VCR.use_cassette('evss/ppiu/payment_information') do
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-            expect(subject.translate).to eq JSON.parse(evss_json)
+      let(:form_content) do
+        JSON.parse(File.read('spec/support/disability_compensation_form/bdd_large_fe_submission.json'))
+      end
+
+      let(:evss_json) { File.read 'spec/support/disability_compensation_form/bdd_evss_submission.json' }
+
+      it 'returns correctly formatted json to send to EVSS' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/intent_to_file/active_compensation') do
+            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+              expect(subject.translate).to eq JSON.parse(evss_json)
+            end
           end
         end
       end

@@ -32,54 +32,76 @@
             POSTGRES_PASSWORD: ""
         - image: circleci/redis:3.2-alpine # 3.2.4 engine on AWS Elasticache
 
+  defaults: &defaults
+    working_directory: ~/vets-api
+    executor: vets_api_docker_executor
+
   jobs:
     verify_pacts:
-      working_directory: ~/vets-api
-      executor: vets_api_docker_executor
+      <<: *defaults
       steps:
         - checkout_and_install
         - setup_test_db
         - verify_stable_pacts
-        - store_test_results:
-            path: ./rspec
     bundle_audit:
-      working_directory: ~/vets-api
-      executor: vets_api_docker_executor
+      <<: *defaults
       steps:
         - checkout_and_install
         - bundle_audit
-        - store_test_results:
-            path: ./rspec
-        - store_artifacts:
-            path: ./ci
     security_audit:
-      working_directory: ~/vets-api
-      executor: vets_api_docker_executor
+      <<: *defaults
       steps:
         - checkout_and_install
         - security_check
         - store_artifacts:
             path: ./ci
     lint:
-      working_directory: ~/vets-api
-      executor: vets_api_docker_executor
+      <<: *defaults
       steps:
         - checkout_and_install
         - linting
         - store_artifacts:
             path: ./ci
     specs:
-      working_directory: ~/vets-api
-      executor: vets_api_docker_executor
+      <<: *defaults
       parallelism: 4
       steps:
         - checkout_and_install
         - setup_test_db
         - specs
         - store_test_results:
-            path: ./rspec
+            path: /tmp/rspec
         - store_artifacts:
-            path: ./ci
+            path: ./coverage
+        - run:
+            name: Stash coverage Results
+            command: |
+                mkdir coverage_results
+                cp -R coverage/.resultset.json coverage_results/.resultset-${CIRCLE_NODE_INDEX}.json
+        - persist_to_workspace:
+            root: .
+            paths:
+              - coverage_results
+    coverage:
+      <<: *defaults
+      steps:
+        - attach_workspace:
+            at: .
+        - restore_cache:
+            key: v2-repo-{{ .Environment.CIRCLE_SHA1 }}
+        - restore_cache:
+            keys:
+              - gem-cache-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+              - gem-cache-{{ arch }}-{{ .Branch }}
+              - gem-cache
+        - run: bundle install --path vendor/bundle
+        - install_dependencies
+        - run:
+            name: Merge and Check Coverage
+            command: RUN_COVERAGE=true bundle exec rake simplecov:report_coverage
+        - store_artifacts:
+            path: ~/vets-api/coverage
+            destination: coverage
   workflows:
     test_and_build:
       unless: << pipeline.parameters.verify_stable_pacts >>
@@ -89,6 +111,9 @@
         - security_audit
         - lint
         - specs
+        - coverage:
+            requires:
+              - specs
     pact_verification:
       when: << pipeline.parameters.verify_stable_pacts >>
       jobs:
@@ -150,4 +175,4 @@
                 command: circleci tests glob "spec/**/*_spec.rb" + glob "modules/*/spec/**/*_spec.rb" | circleci tests split --split-by=timings > /tmp/tests-to-run
             - run:
                 name: Run all RSpec specs
-                command: bundle exec rspec --pattern $(cat /tmp/tests-to-run) --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
+                command: bundle exec rspec --pattern $(cat /tmp/tests-to-run) --format progress --format RspecJunitFormatter -o /tmp/rspec/rspec.xml --format html --out /tmp/ci/rspec.html

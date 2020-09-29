@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'efolder/service'
+
 def stub_efolder_documents(method)
   let!(:efolder_service) do
     efolder_service = double

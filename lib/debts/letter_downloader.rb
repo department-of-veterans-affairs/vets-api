@@ -29,10 +29,15 @@ module Debts
       ).content
     end
 
+    def file_name(document_id)
+      verify_letter_in_folder(document_id)
+
+      document = vbms_documents.detect { |doc| doc.document_id == document_id }
+      "#{document.type_description} #{document.upload_date.to_formatted_s(:long)}"
+    end
+
     def list_letters
-      debts_records = @client.send_request(
-        VBMS::Requests::FindDocumentVersionReference.new(@service.file_number)
-      ).find_all do |record|
+      debts_records = vbms_documents.find_all do |record|
         DEBTS_DOCUMENT_TYPES.include?(record.doc_type)
       end
 
@@ -44,6 +49,12 @@ module Debts
     end
 
     private
+
+    def vbms_documents
+      @client.send_request(
+        VBMS::Requests::FindDocumentVersionReference.new(@service.file_number)
+      )
+    end
 
     def debts_service
       Debts::Service.new(@user)
