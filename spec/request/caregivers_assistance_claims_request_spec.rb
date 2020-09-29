@@ -106,7 +106,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
           expect_any_instance_of(
             Form1010cg::Service
           ).to receive(:icn_for).with('veteran').and_return(Form1010cg::Service::NOT_FOUND)
-          expect(Settings).to receive(:google_analytics_tracking_id).and_return('foo')
+          expect(Settings.google_analytics).to receive(:tracking_id).and_return('foo')
           expect(Settings).to receive(:vsp_environment).and_return('staging')
         end
 

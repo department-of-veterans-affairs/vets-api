@@ -54,7 +54,7 @@ module Form1010cg
       increment self.class.metrics.submission.failure.client.qualification
       log 'Submission Failed: qualifications not met', claim_guid: claim_guid, veteran_name: veteran_name
 
-      log_invalid_veteran_status(ga_client_id)
+      notify_ga_invalid_veteran_status(ga_client_id)
     end
 
     def record_pdf_download
@@ -87,9 +87,9 @@ module Form1010cg
       end
     end
 
-    def log_invalid_veteran_status(ga_client_id)
+    def notify_ga_invalid_veteran_status(ga_client_id)
       event = Staccato.tracker(
-        Settings.google_analytics_tracking_id,
+        Settings.google_analytics.tracking_id,
         ga_client_id
       ).build_event(
         category: 'API Calls',

@@ -48,15 +48,15 @@ RSpec.describe Form1010cg::Auditor do
     end
   end
 
-  describe '#log_invalid_veteran_status' do
+  describe '#notify_ga_invalid_veteran_status' do
     before do
-      expect(Settings).to receive(:google_analytics_tracking_id).and_return('foo')
+      expect(Settings.google_analytics).to receive(:tracking_id).and_return('foo')
       expect(Settings).to receive(:vsp_environment).and_return('staging')
     end
 
     it 'sends the right event to google analytics' do
       VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
-        subject.send(:log_invalid_veteran_status, 'google_client_id')
+        subject.send(:notify_ga_invalid_veteran_status, 'google_client_id')
       end
     end
   end
@@ -158,7 +158,7 @@ RSpec.describe Form1010cg::Auditor do
 
     context 'with all parameters' do
       before do
-        expect(subject).to receive(:log_invalid_veteran_status).with('google_client_id')
+        expect(subject).to receive(:notify_ga_invalid_veteran_status).with('google_client_id')
       end
 
       context 'increments' do
