@@ -45,6 +45,19 @@ RSpec.describe Form1010cg::Auditor do
     end
   end
 
+  describe '#log_invalid_veteran_status' do
+    before do
+      expect(Settings).to receive(:google_analytics_tracking_id).and_return('foo')
+      expect(Settings).to receive(:vsp_environment).and_return('staging')
+    end
+
+    it 'sends the right event to google analytics' do
+      VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
+        subject.send(:log_invalid_veteran_status, 'google_client_id')
+      end
+    end
+  end
+
   describe '#record_submission_attempt' do
     context 'increments' do
       it 'api.form1010cg.submission.attempt' do

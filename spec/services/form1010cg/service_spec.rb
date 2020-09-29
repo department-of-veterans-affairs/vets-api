@@ -42,7 +42,6 @@ RSpec.describe Form1010cg::Service do
 
   def expect_veteran_not_found
     expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-    expect(subject).to receive(:log_invalid_veteran_status)
   end
 
   describe '::new' do
@@ -71,19 +70,6 @@ RSpec.describe Form1010cg::Service do
       service = described_class.new claim
 
       expect(service.claim).to eq(claim)
-    end
-  end
-
-  describe '#log_invalid_veteran_status' do
-    before do
-      expect(Settings).to receive(:google_analytics_tracking_id).and_return('foo')
-      expect(Settings).to receive(:vsp_environment).and_return('staging')
-    end
-
-    it 'sends the right event to google analytics' do
-      VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
-        subject.send(:log_invalid_veteran_status)
-      end
     end
   end
 

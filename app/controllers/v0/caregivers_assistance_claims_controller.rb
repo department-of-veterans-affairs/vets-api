@@ -11,8 +11,7 @@ module V0
       auditor.record(:submission_attempt)
 
       @claim = SavedClaim::CaregiversAssistanceClaim.new(
-        form: form_submission,
-        ga_client_id: request.headers['x-google-client-id']
+        form: form_submission
       )
 
       if @claim.valid?
@@ -69,7 +68,8 @@ module V0
       auditor.record(
         :submission_failure_client_qualification,
         claim_guid: @claim.guid,
-        veteran_name: @claim.veteran_data['fullName']
+        veteran_name: @claim.veteran_data['fullName'],
+        ga_client_id: request.headers['x-google-client-id']
       )
 
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')

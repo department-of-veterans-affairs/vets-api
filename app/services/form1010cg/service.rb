@@ -16,7 +16,6 @@ module Form1010cg
                   :submission # Form1010cg::Submission
 
     NOT_FOUND = 'NOT_FOUND'
-    INVALID_VET_STATUS_CODE = '100_INVALID_VETERAN_STATUS'
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -109,10 +108,7 @@ module Form1010cg
     #
     # @return [nil]
     def assert_veteran_status
-      if icn_for('veteran') == NOT_FOUND
-        log_invalid_veteran_status
-        raise InvalidVeteranStatus
-      end
+      raise InvalidVeteranStatus if icn_for('veteran') == NOT_FOUND
     end
 
     # Returns a metadata hash:
@@ -196,35 +192,6 @@ module Form1010cg
     end
 
     private
-
-    def get_subdomain
-      case Settings.vsp_environment
-      when 'production'
-        'www'
-      when 'staging'
-        'staging'
-      else
-        'dev'
-      end
-    end
-
-    def log_invalid_veteran_status
-      event = Staccato.tracker(
-        Settings.google_analytics_tracking_id,
-        @claim.ga_client_id
-      ).build_event(
-        category: 'API Calls',
-        action: 'Forms - Family Member Benefits',
-        label: 'caregivers-error',
-        document_location: "https://#{get_subdomain}.va.gov/" \
-          'family-member-benefits/apply-for-caregiver-assistance-form-10-10cg/review-and-submit'
-      )
-      event.custom_metrics['cg1'] = 'Family Member Benefits'
-      event.custom_metrics['cg3'] = 'Family Member Benefits'
-      event.add_custom_dimension('30', 'Modernized')
-      event.add_custom_dimension('57', INVALID_VET_STATUS_CODE)
-      event.track!
-    end
 
     def mvi_service
       @mvi_service ||= MVI::Service.new
