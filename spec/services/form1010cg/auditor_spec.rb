@@ -146,9 +146,9 @@ RSpec.describe Form1010cg::Auditor do
 
   describe '#record_submission_failure_client_qualification' do
     context 'requires' do
-      it 'claim_guid:, veteran_name:' do
+      it 'claim_guid:, veteran_name:, ga_client_id:' do
         expect { subject.record_submission_failure_client_qualification }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq('missing keywords: claim_guid, veteran_name')
+          expect(e.message).to eq('missing keywords: claim_guid, veteran_name, ga_client_id')
         end
       end
     end
