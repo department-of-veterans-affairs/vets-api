@@ -11,12 +11,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     expect(described_class.ancestors).to include(ActionController::API)
   end
 
-  def stub_new_claim(form_data, claim, with_client_id)
-    params = { form: form_data }
-    params.merge!(ga_client_id: 'google_client_id') if with_client_id
-
+  def stub_new_claim(form_data, claim)
     expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-      params
+      { form: form_data }
     ).and_return(
       claim
     )
@@ -79,7 +76,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     end
 
     it 'builds a claim and raises its errors' do
-      stub_new_claim(form_data, claim, controller_action == :create)
+      stub_new_claim(form_data, claim)
 
       expect(Form1010cg::Service).not_to receive(:new).with(claim)
 
@@ -152,7 +149,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         metadata: :metadata_submitted
       )
 
-      stub_new_claim(form_data, claim, true)
+      stub_new_claim(form_data, claim)
 
       expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
       expect(service).to receive(:process_claim!).and_return(submission)
@@ -186,7 +183,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         params        = { caregivers_assistance_claim: { form: form_data } }
         service       = double
 
-        stub_new_claim(form_data, claim, true)
+        stub_new_claim(form_data, claim)
 
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
@@ -195,7 +192,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
           claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          veteran_name: claim.veteran_data['fullName'],
+          ga_client_id: 'google_client_id'
         )
 
         post :create, params: params
@@ -225,7 +223,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
         ## Backend Client Error Scenario
 
-        stub_new_claim(form_data, claim, true)
+        stub_new_claim(form_data, claim)
 
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
@@ -234,7 +232,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
         ## Invalid Veteran Status Scenario
 
-        stub_new_claim(form_data, claim, true)
+        stub_new_claim(form_data, claim)
 
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
@@ -243,7 +241,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
           claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          veteran_name: claim.veteran_data['fullName'],
+          ga_client_id: 'google_client_id'
         )
 
         invalid_veteran_status_response = post :create, params: params
@@ -276,7 +275,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       params    = { caregivers_assistance_claim: { form: form_data } }
       claim     = build(:caregivers_assistance_claim, form: form_data)
 
-      stub_new_claim(form_data, claim, false)
+      stub_new_claim(form_data, claim)
 
       expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
       expect(Form1010cg::Auditor.instance).to receive(:record).with(:pdf_download)
