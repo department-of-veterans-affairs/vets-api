@@ -424,5 +424,19 @@ RSpec.describe Users::Profile do
         expect(subject.services).to include 'facilities', 'hca', 'edu-benefits'
       end
     end
+
+    context '#session_data' do
+      let(:scaffold_with_ssoe) { Users::Profile.new(user, { ssoe_transactionid: 'a' }).pre_serialize }
+
+      it 'no session object indicates no SSOe authentication' do
+        expect(subject.session)
+          .to eq({ ssoe: false, transactionid: nil })
+      end
+
+      it 'with a transaction in the Session shows a SSOe authentication' do
+        expect(scaffold_with_ssoe.session)
+          .to eq({ ssoe: true, transactionid: 'a' })
+      end
+    end
   end
 end

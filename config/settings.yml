@@ -455,8 +455,6 @@ betamocks:
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
-google_analytics_tracking_id: ~
-
 # Settings for search
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
@@ -575,6 +573,7 @@ github_stats:
 
 google_analytics:
   url: 'https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473'
+  tracking_id: ~
 
 # Settings for the coronavirus chatbot tokens
 coronavirus_chatbot:
