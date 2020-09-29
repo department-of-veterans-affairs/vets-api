@@ -3,10 +3,10 @@
   <meta charset="utf-8">
   <title>VA.gov sign-in</title>
   <script
-    src="https://browser.sentry-cdn.com/5.24.2/bundle.min.js"
-    integrity="sha384-8x1Z8KjWCA4KJ7mh5cTEtm1Jngg4yEZDYTAU3A4HfHdtaiCYba4cCuJDHQ3zc2Qe"
+    src="https://browser.sentry-cdn.com/5.24.2/bundle.tracing.min.js"
+    integrity="sha384-Epltozh7S1cJM2hcIRDJBbqiiVpZsNlFCciHxKIAfKN8mSTa+gMivtz7glp/30Mz"
     crossorigin="anonymous"
-  ></script>
+    ></script>
 </head>
 
 <body>
@@ -34,6 +34,8 @@
           dsn: "<%= sentrydsn %>",
           integrations: [new Sentry.Integrations.BrowserTracing()],
         });
+        /* extra tag so we can easily search for any errors in Sentry */
+        Sentry.setTag("page", "SSOe-Post-Binding-Form");
       }
       var req = new XMLHttpRequest();
       var qs = "id=" + encodeURIComponent("<%= id %>") +
