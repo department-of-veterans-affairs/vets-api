@@ -48,26 +48,26 @@ module AppealsApi
       }
     end
 
-    def downstream_healthcheck
+    def upstream_healthcheck
       health_checker = AppealsApi::HealthChecker.new
       time = Time.zone.now.to_formatted_s(:iso8601)
 
       render json: {
-        description: 'Appeals API downstream health check',
+        description: 'Appeals API upstream health check',
         status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
         time: time,
         details: {
-          name: 'All downstream services',
-          downstreamServices: AppealsApi::HealthChecker::SERVICES.map do |service|
-                                downstream_service_details(service, health_checker, time)
-                              end
+          name: 'All upstream services',
+          upstreamServices: AppealsApi::HealthChecker::SERVICES.map do |service|
+                              upstream_service_details(service, health_checker, time)
+                            end
         }
       }, status: health_checker.services_are_healthy? ? 200 : 503
     end
 
     private
 
-    def downstream_service_details(service_name, health_checker, time)
+    def upstream_service_details(service_name, health_checker, time)
       healthy = health_checker.send("#{service_name.snakecase}_is_healthy?")
 
       {
