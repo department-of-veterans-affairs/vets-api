@@ -28,7 +28,7 @@ paths:
       summary: /v0/user
       description: >
         \[Partially implemented\] Returns the user profile, including the user's addresses and the services
-        the user has the requisite ids to acccess. Meta data for this endpoint returns all the services available in the API.
+        the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
       operationId: user.getProfile
       security:
         - Bearer: []
