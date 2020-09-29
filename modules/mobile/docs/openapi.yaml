@@ -100,7 +100,8 @@ components:
         - branchOfService
         - beginDate
         - endDate
-        - personnelCategoryTypeCode
+        - formattedBeginDate
+        - formattedEndDate
       properties:
         branchOfService:
           type: string
@@ -111,9 +112,12 @@ components:
         endDate:
           type: string
           example: "2002-12-31"
-        personnelCategoryTypeCode:
+        formattedBeginDate:
           type: string
-          example: "V"
+          example: "September 17, 1997"
+        formattedEndDate:
+          type: string
+          example: "December 31, 2002"
     User:
       required:
         - id
