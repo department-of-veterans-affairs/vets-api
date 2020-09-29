@@ -18,7 +18,6 @@ describe HealthQuest::PGDService do
   describe '#get_pgd_resource' do
     it 'gets a PGD resource' do
       resource = subject.get_pgd_resource(:questionnaire)[:data]
-      # expect(resource).to eq(dummy_response.body[:data])
       expect(resource).to eq(expected_data)
     end
   end
