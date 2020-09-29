@@ -31,7 +31,7 @@ class Form526ConfirmationEmailJob
     log_exception_to_sentry(ex)
     StatsD.increment(STATSD_ERROR_NAME)
 
-    raise ex if !ex.class.method_defined? 'status_code'
+    raise ex unless ex.class.method_defined? 'status_code'
     raise ex if ex.status_code.between?(500, 599)
   end
 end
