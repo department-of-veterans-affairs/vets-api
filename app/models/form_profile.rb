@@ -252,16 +252,7 @@ class FormProfile
     opt = {}
     opt.merge!(initialize_vets360_contact_info) if Settings.vet360.prefill && user.vet360_id.present?
 
-    if opt[:address].nil? && user.va_profile&.address
-      opt[:address] = {
-        street: user.va_profile.address.street,
-        street2: nil,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        country: user.va_profile.address.country,
-        postal_code: user.va_profile.address.postal_code
-      }
-    end
+    opt[:address] ||= va_profile_address_hash
 
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
@@ -273,6 +264,18 @@ class FormProfile
     format_for_schema_compatibility(opt)
 
     FormContactInformation.new(opt)
+  end
+
+  def va_profile_address_hash
+    user.va_profile&.address &&
+      {
+        street: user.va_profile.address.street,
+        street2: nil,
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        country: user.va_profile.address.country,
+        postal_code: user.va_profile.address.postal_code
+      }
   end
 
   def format_for_schema_compatibility(opt)

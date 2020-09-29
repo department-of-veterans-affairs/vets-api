@@ -951,7 +951,9 @@ RSpec.describe FormProfile, type: :model do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
                 VCR.use_cassette('gi_client/gets_the_institution_details') do
-                  prefilled_data = Oj.load(described_class.for(form_id: '22-10203', user: user).prefill.to_json)['form_data']
+                  prefilled_data = Oj.load(
+                    described_class.for(form_id: '22-10203', user: user).prefill.to_json
+                  )['form_data']
                   expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
                 end
               end
