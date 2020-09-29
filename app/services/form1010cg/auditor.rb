@@ -54,7 +54,7 @@ module Form1010cg
       increment self.class.metrics.submission.failure.client.qualification
       log 'Submission Failed: qualifications not met', claim_guid: claim_guid, veteran_name: veteran_name
 
-      notify_ga_invalid_veteran_status(ga_client_id)
+      notify_ga_invalid_veteran_status(ga_client_id) if ga_client_id.present?
     end
 
     def record_pdf_download

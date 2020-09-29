@@ -156,6 +156,16 @@ RSpec.describe Form1010cg::Auditor do
       end
     end
 
+    context 'with nil ga_client_id' do
+      it 'doesnt send a ga event' do
+        expect(subject).not_to receive(:notify_ga_invalid_veteran_status)
+
+        subject.record_submission_failure_client_qualification(
+          **record_submission_failure_client_qualification_args.merge(ga_client_id: nil)
+        )
+      end
+    end
+
     context 'with all parameters' do
       before do
         expect(subject).to receive(:notify_ga_invalid_veteran_status).with('google_client_id')
