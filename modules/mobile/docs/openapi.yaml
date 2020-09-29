@@ -30,6 +30,13 @@ paths:
       operationId: user.getProfile
       security:
         - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
       responses:
         '200':
           description: OK
@@ -101,6 +108,13 @@ paths:
       operationId: user.updateAddress
       security:
         - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
       requestBody:
         description: A domestic, internation, or military address
         required: true
@@ -204,6 +218,12 @@ paths:
       security:
         - Bearer: []
       parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
         - in: query
           name: transactionId
           schema:
