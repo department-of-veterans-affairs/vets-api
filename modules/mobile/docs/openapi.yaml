@@ -109,16 +109,16 @@ paths:
             schema:
               $ref: '#/components/schemas/AddressUpdate'
             example:
-              validation_key: 0,
-              address_line1: "1493 Martin Luther King Rd"
-              address_line2: "string"
-              address_line3: "string"
-              address_pou: "RESIDENCE/CHOICE"
-              address_type: "DOMESTIC"
+              validationKey: 0,
+              addressLine1: "1493 Martin Luther King Rd"
+              addressLine2: "string"
+              addressLine3: "string"
+              addressPou: "RESIDENCE/CHOICE"
+              addressType: "DOMESTIC"
               city: "Fulton"
-              country_name: "United States"
-              state_code: "MS"
-              zip_code: "38843"
+              countryName: "United States"
+              stateCode: "MS"
+              zipCode: "38843"
       responses:
         '200':
           description: OK
@@ -159,14 +159,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-        '404':
-          description: The requested resource could not be found.
+        '408':
+          description: The response from this API timed out.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
           content:
             application/json:
               schema:
@@ -461,14 +461,14 @@ components:
 
     AddressUpdate:
       required:
-        - validation_key
+        - validationKey
         - addressLine1
         - addressPou
         - addressType
         - city
         - countryCode
       properties:
-        validation_key:
+        validationKey:
           type: integer
           example: 0
         addressLine1:
