@@ -19,6 +19,16 @@ module ClaimsApi
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
           render json: bgs_response,
                  serializer: ClaimsApi::IntentToFileSerializer
+        rescue Savon::SOAPFault => e
+          error = {
+            errors: [
+              {
+                status: 422,
+                details: e.message&.split('>')&.last
+              }
+            ]
+          }
+          render json: error, status: :unprocessable_entity
         end
 
         def active

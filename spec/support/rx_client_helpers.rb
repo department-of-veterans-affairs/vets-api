@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rx/client'
+
 module Rx
   module ClientHelpers
     HOST = Settings.mhv.rx.host

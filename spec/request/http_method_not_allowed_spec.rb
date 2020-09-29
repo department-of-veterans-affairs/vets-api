@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'http_method_not_allowed'
 
 class MockRackApp
   def initialize

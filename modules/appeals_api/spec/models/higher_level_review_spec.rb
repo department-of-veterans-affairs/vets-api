@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'central_mail/service'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::HigherLevelReview, type: :model do
