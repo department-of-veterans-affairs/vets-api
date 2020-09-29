@@ -6,7 +6,7 @@ RSpec.describe 'health_quest questionnaire responses', type: :request do
   let(:returned_data) { { id: '333', text: 'this is the questionnaire_response', type: :questionnaire } }
   let(:expected_data) { OpenStruct.new(returned_data) }
   let(:dummy_response) { double('fake_response', body: { data: returned_data }) }
-  let(:dummy_headers) { { } }
+  let(:dummy_headers) { {} }
 
   before do
     sign_in_as(current_user)
