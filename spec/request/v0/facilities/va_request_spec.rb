@@ -6,7 +6,7 @@ vcr_options = {
   cassette_name: '/lighthouse/facilities',
   match_requests_on: %i[path query],
   allow_playback_repeats: true,
-  record: :none
+  record: :new_episodes
 }
 
 RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilities, vcr: vcr_options do
