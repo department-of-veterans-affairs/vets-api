@@ -5,7 +5,7 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
   include SchemaMatchers
 
   before do
-    Flipper.enable('va_online_scheduling')
+    Flipper.enable('show_healthcare_experience_questionnaire')
     sign_in_as(current_user)
     allow_any_instance_of(HealthQuest::UserService).to receive(:session).and_return('stubbed_token')
   end
