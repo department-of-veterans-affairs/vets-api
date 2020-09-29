@@ -4,8 +4,10 @@ info:
   title: VA Mobile API
   license:
     name: MIT
+  description: >
+    The Department of Veterans Affairs mobile API. All paths are relative to https://api.va.gov/mobile.
 servers:
-  - url: http://api.va.gov/mobile
+  - url: https://api.va.gov/mobile
 paths:
   /:
     get:
@@ -314,6 +316,7 @@ components:
       type: apiKey
       name: Authorization
       in: header
+      description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
     Errors:
