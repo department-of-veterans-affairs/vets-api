@@ -195,6 +195,7 @@ RSpec.describe 'Appeals Status', type: :request do
           VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
             post hlr_endpoint
             expect(response).to have_http_status(:unprocessable_entity)
+            expect(JSON.parse(response.body)['errors'][0]['detail']).to eq "The request body isn't a JSON object"
           end
         end
       end

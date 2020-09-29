@@ -179,9 +179,9 @@ RSpec.describe Form1010cg::Auditor do
 
   describe '#log_mpi_search_result' do
     context 'requires' do
-      it 'claim_guid:, form_subject:, was_found:' do
+      it 'claim_guid:, form_subject:, result:' do
         expect { subject.log_mpi_search_result }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq('missing keywords: claim_guid, form_subject, was_found')
+          expect(e.message).to eq('missing keywords: claim_guid, form_subject, result')
         end
       end
     end
@@ -189,7 +189,7 @@ RSpec.describe Form1010cg::Auditor do
     context 'increments' do
       it 'nothing' do
         expect(StatsD).not_to receive(:increment)
-        subject.log_mpi_search_result(claim_guid: 'uuid-123', form_subject: 'veteran', was_found: true)
+        subject.log_mpi_search_result(claim_guid: 'uuid-123', form_subject: 'veteran', result: :found)
       end
     end
 
@@ -197,28 +197,40 @@ RSpec.describe Form1010cg::Auditor do
       it 'The search result with the form_subject titleized' do
         [
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'veteran', was_found: true },
+            input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :found },
             expectation: '[Form 10-10CG] MPI Profile found for Veteran'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'veteran', was_found: false },
+            input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :not_found },
             expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Veteran'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', was_found: true },
+            input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :skipped },
+            expectation: '[Form 10-10CG] MPI Profile search was skipped for Veteran'
+          },
+          {
+            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :found },
             expectation: '[Form 10-10CG] MPI Profile found for Primary Caregiver'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', was_found: false },
+            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :not_found },
             expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Primary Caregiver'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', was_found: true },
+            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :skipped },
+            expectation: '[Form 10-10CG] MPI Profile search was skipped for Primary Caregiver'
+          },
+          {
+            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :found },
             expectation: '[Form 10-10CG] MPI Profile found for Secondary Caregiver One'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', was_found: false },
+            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :not_found },
             expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Secondary Caregiver One'
+          },
+          {
+            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :skipped },
+            expectation: '[Form 10-10CG] MPI Profile search was skipped for Secondary Caregiver One'
           }
         ].each do |input:, expectation:|
           expect(Rails.logger).to receive(:info).with(expectation, claim_guid: input[:claim_guid])

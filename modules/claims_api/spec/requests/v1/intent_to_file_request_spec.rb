@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Intent to file', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796104437',
+    { 'X-VA-SSN': '796-10-4437',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-VA-EDIPI': '1007697216',
@@ -55,6 +55,16 @@ RSpec.describe 'Intent to file', type: :request do
           post path, params: data.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
+        end
+      end
+    end
+
+    it 'posts a 422 error with detail when BGS returns a 500 response' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+          data['attributes'] = { type: 'pension' }
+          post path, params: data.to_json, headers: headers.merge(auth_header)
+          expect(response.status).to eq(422)
         end
       end
     end

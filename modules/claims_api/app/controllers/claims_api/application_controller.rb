@@ -2,7 +2,6 @@
 
 require_dependency 'claims_api/concerns/mvi_verification'
 require_dependency 'claims_api/concerns/header_validation'
-require_dependency 'claims_api/unsynchronized_evss_claims_service'
 require_dependency 'claims_api/concerns/json_format_validation'
 require 'evss/error_middleware'
 require 'evss/power_of_attorney_verifier'
@@ -118,8 +117,8 @@ module ClaimsApi
 
     def veteran_from_headers(with_gender: false)
       vet = ClaimsApi::Veteran.new(
-        uuid: header('X-VA-SSN'),
-        ssn: header('X-VA-SSN'),
+        uuid: header('X-VA-SSN')&.gsub(/[^0-9]/, ''),
+        ssn: header('X-VA-SSN')&.gsub(/[^0-9]/, ''),
         first_name: header('X-VA-First-Name'),
         last_name: header('X-VA-Last-Name'),
         va_profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
