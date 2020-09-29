@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Disability Rating API endpoint', type: :request do
+RSpec.describe 'Disability Rating Mock API endpoint', type: :request do
   include SchemaMatchers
   let(:token) { 'token' }
   let(:jwt) do
@@ -32,7 +32,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request do
     Settings.vet_verification.url = 'https://blue.qa.lighthouse.va.gov/v0'
   end
 
-  context 'with valid bgs responses' do
+  context 'with valid mock bgs responses' do
     it 'returns all the current user disability ratings and overall service connected combined degree' do
       with_okta_configured do
         VCR.use_cassette('bgs/rating_web_service/mock_rating_data') do
