@@ -144,7 +144,7 @@ group :test do
   gem 'simplecov', '< 0.18', require: false
   gem 'super_diff'
   gem 'vcr'
-  gem 'webrick', ">= 1.6.1"
+  gem 'webrick', '>= 1.6.1'
 end
 
 # rubocop:disable Metrics/BlockLength
