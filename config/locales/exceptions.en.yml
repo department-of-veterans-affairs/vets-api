@@ -1787,12 +1787,15 @@ en:
         code: DR_401
         detail: Invalid api_key for the upstream server
         status: 502
-      DR_422:
+      DR_422: &DR_422
         <<: *defaults
         title: Malformed Request
         detail: The request was malformed and could not be processed
         code: DR_malformed_request
         status: 422
+      DR_REQUEST_BODY_IS_NOT_A_HASH:
+        <<: *DR_422
+        detail: The request body isn't a JSON object
       DR_404:
         <<: *defaults
         title: Not Found
