@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'facilities/ppms/client'
+require 'lighthouse/facilities/client'
+
 class PPMS::ProviderFacility < Common::Base
   attribute :facilities, Array
   attribute :id, String
