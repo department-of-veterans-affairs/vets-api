@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/cache_aside'
+require 'pagerduty/external_services/service'
 
 module ExternalServicesRedis
   # Facade for the PagerDuty::ExternalServices::Service class.

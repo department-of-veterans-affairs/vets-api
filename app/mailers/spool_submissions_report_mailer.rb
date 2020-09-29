@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'reports/uploader'
+
 class SpoolSubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Spool submissions report'
   RECIPIENTS = %w[

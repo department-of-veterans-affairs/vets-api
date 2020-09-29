@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'flipper/admin_user_constraint'
+
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
@@ -17,6 +19,8 @@ Rails.application.routes.draw do
       to: 'v1/sessions#new',
       constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
   get '/v1/sessions/ssoe_logout', to: 'v1/sessions#ssoe_slo_callback'
+  # don't use the word "tracker" in the url, as some ad blockers will prevent the call
+  get '/v1/sessions/trace', to: 'v1/sessions#tracker'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
@@ -87,6 +91,8 @@ Rails.application.routes.draw do
       resources :burial_claims, only: %i[create show]
     end
 
+    resources :efolder, only: %i[index show]
+
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
@@ -122,13 +128,12 @@ Rails.application.routes.draw do
       get :show, controller: 'health_record_contents', on: :collection
     end
 
-    resources :appeals, only: :index do
-      collection do
-        resources :higher_level_reviews, only: %i[show create]
-        resources :intake_statuses, only: :show
-        resources :contestable_issues, only: :index
-      end
+    resources :appeals, only: :index
+
+    namespace :higher_level_reviews do
+      get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
+    resources :higher_level_reviews, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -224,6 +229,7 @@ Rails.application.routes.draw do
       resource :service_history, only: :show
       resources :connected_applications, only: %i[index destroy]
       resource :valid_va_file_number, only: %i[show]
+      resources :payment_history, only: %i[index]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -325,8 +331,10 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
+  mount Mobile::Engine, at: '/mobile'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

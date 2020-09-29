@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/validation_errors'
+require 'evss/pciu/service'
+
 module V0
   module Profile
     class EmailsController < ApplicationController

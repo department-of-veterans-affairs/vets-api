@@ -41,16 +41,18 @@ FLIPPER_ACTOR_STRING = 'cookie_id'
 
 Flipper::UI.configuration.feature_creation_enabled = false
 # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
-FLIPPER_FEATURE_CONFIG['features'].each_key do |feature|
-  unless Flipper.exist?(feature)
-    Flipper.add(feature)
-    # default features to enabled for development and test only
-    Flipper.enable(feature) if Rails.env.development? || Rails.env.test?
+begin
+  FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
+    unless Flipper.exist?(feature)
+      Flipper.add(feature)
+
+      # default features to enabled for test and those explicitly set for development
+      Flipper.enable(feature) if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
+    end
   end
-  # TODO
-  # The following line disables SSOe login for `development` environtments, including review instances.
-  # Line is to be removed after SSOe is working locally and in review instances.
-  Flipper.disable(feature) if (Rails.env.development? || Rails.env.test?) && feature.match?(/ssoe/)
+  # remove features from UI that have been removed from code
+  removed_features = (Flipper.features.collect(&:name) - FLIPPER_FEATURE_CONFIG['features'].keys)
+  removed_features.each { |feature_name| Flipper.remove(feature_name) }
 rescue
   # make sure we can still run rake tasks before table has been created
   nil

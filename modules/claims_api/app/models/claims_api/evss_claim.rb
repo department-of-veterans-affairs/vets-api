@@ -14,7 +14,7 @@ module ClaimsApi
     EVIDENCE_GATHERING = 'Evidence gathering, review, and decision'
 
     PHASE_TO_STATUS = {
-      1 => 'Claim recieved',
+      1 => 'Claim received',
       2 => 'Initial review',
       3 => EVIDENCE_GATHERING,
       4 => EVIDENCE_GATHERING,

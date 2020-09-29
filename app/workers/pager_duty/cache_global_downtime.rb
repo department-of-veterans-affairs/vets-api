@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pagerduty/maintenance_client'
+require 'pagerduty/maintenance_windows_uploader'
 
 module PagerDuty
   class CacheGlobalDowntime

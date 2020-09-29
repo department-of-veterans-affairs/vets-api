@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 module VAOS
   class MessagesService < VAOS::SessionService
     def get_messages(request_id)

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'central_mail/datestamp_pdf'
+
 module AppealsApi
   class HigherLevelReviewPdfConstructor
     PDF_TEMPLATE = Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')

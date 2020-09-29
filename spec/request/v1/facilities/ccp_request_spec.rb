@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 vcr_options = {
-  cassette_name: ['facilities/va/ppms'],
+  cassette_name: 'facilities/ppms/ppms',
   match_requests_on: %i[path query],
   allow_playback_repeats: true,
   record: :new_episodes
@@ -15,6 +15,58 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
   end
 
   describe '#index' do
+    context 'Missing Provider', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_missing_provider') do
+      let(:params) do
+        {
+          address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
+          bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+          type: 'provider',
+          specialties: ['213E00000X']
+        }
+      end
+
+      it 'gracefully handles ppms provider lookup failures' do
+        get '/v1/facilities/ccp', params: params
+
+        bod = JSON.parse(response.body)
+
+        expect(bod).to include(
+          'data' => [
+            {
+              'id' => '1407842941',
+              'type' => 'provider',
+              'attributes' => {
+                'acc_new_patients' => 'true',
+                'address' => {
+                  'street' => '3195 S Price Rd Ste 148',
+                  'city' => 'Chandler',
+                  'state' => 'AZ',
+                  'zip' => '85248'
+                },
+                'caresite_phone' => '4807057300',
+                'email' => nil,
+                'fax' => nil,
+                'gender' => 'Male',
+                'lat' => 33.258135,
+                'long' => -111.887927,
+                'name' => 'Freed, Lewis',
+                'phone' => nil,
+                'pos_codes' => nil,
+                'pref_contact' => nil,
+                'unique_id' => '1407842941'
+              },
+              'relationships' => {
+                'specialties' => {
+                  'data' => []
+                }
+              }
+            }
+          ],
+          'included' => []
+        )
+      end
+    end
+
     context 'type=provider' do
       let(:params) do
         {

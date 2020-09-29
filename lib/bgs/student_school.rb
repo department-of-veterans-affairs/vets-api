@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'service'
+
 module BGS
   class StudentSchool
     def initialize(proc_id:, vnp_participant_id:, payload:, user:)

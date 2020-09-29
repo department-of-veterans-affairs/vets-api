@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/models/base'
+
 module Caseflow
   module Responses
     ##

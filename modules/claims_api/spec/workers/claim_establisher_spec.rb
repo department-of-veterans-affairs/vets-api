@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   subject { described_class }
@@ -43,16 +41,27 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
   end
 
-  it 'sets the status of the claim to an error if it raises an error on EVSS' do
+  it 'sets the status of the claim to an error if it raises an EVSS::DisabilityCompensationForm::Service error' do
     body = { 'messages' => [{ 'key' => 'serviceError', 'severity' => 'FATAL', 'text' => 'Not established.' }] }
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceException.new(body))
     )
-    expect { subject.new.perform(claim.id) }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
-
+    subject.new.perform(claim.id)
     claim.reload
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body['messages'])
+    expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+  end
+
+  it 'sets the status of the claim to an error if it raises an Common::Exceptions::BackendServiceException error' do
+    body = [{ 'key' => 400, 'severity' => 'FATAL', 'text' => nil }]
+    allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
+      receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException.new)
+    )
+    subject.new.perform(claim.id)
+    claim.reload
+    expect(claim.evss_id).to be_nil
+    expect(claim.evss_response).to eq(body)
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
   end
 end

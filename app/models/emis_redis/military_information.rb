@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'emis/military_information_service'
+require 'emis/responses/get_military_service_episodes_response'
+
 module EMISRedis
   # EMIS military information redis cached model
   class MilitaryInformation < Model

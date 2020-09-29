@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'evss/documents_service'
 
 module ClaimsApi
   class ClaimUploader

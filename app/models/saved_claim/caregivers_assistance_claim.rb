@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/filler'
+
 class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   FORM = '10-10CG'
 
@@ -8,10 +10,10 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     raise NotImplementedError, 'Not Implemented for Form 10-10CG'
   end
 
-  def to_pdf(file_path = nil)
+  def to_pdf(filename = nil, **fill_options)
     # We never save the claim, so we don't have an id to provide for the filename.
     # Instead we'll create a filename with this format "10-10cg_{uuid}"
-    super(file_path || guid)
+    PdfFill::Filler.fill_form(self, filename || guid, fill_options)
   end
 
   # SavedClaims require regional_office to be defined, CaregiversAssistanceClaim has no purpose for it.

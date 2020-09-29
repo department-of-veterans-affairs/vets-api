@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sidekiq/testing'
-require 'bgs'
-
-Sidekiq::Testing.fake!
 
 RSpec.describe ClaimsApi::PoaUpdater, type: :job do
   subject { described_class }

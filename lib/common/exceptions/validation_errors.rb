@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/base_error'
+require 'common/exceptions/serializable_error'
+
 module Common
   module Exceptions
     # Validation Error - an ActiveModel having validation errors, can be sent to this exception

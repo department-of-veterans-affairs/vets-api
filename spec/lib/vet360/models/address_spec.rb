@@ -1,9 +1,19 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'vet360/models/address'
 
 describe Vet360::Models::Address do
   let(:address) { build(:vet360_address) }
+
+  describe 'geolocation' do
+    it 'returns gelocation information' do
+      expect(address.latitude).to eq(38.901)
+      expect(address.longitude).to eq(-77.0347)
+      expect(address.geocode_precision).to eq(100.0)
+      expect(address.geocode_date).to eq(Time.zone.parse('2018-04-13 17:01:18 UTC'))
+    end
+  end
 
   describe '#zip_plus_four' do
     context 'with no zipcode' do
@@ -27,45 +37,45 @@ describe Vet360::Models::Address do
     end
   end
 
-  describe 'validation' do
+  describe 'validation', :aggregate_failures do
     context 'for any type of address' do
-      it 'address_pou is requred', :aggregate_failures do
+      it 'address_pou is requred' do
         expect(address.valid?).to eq(true)
         address.address_pou = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'address_line1 is requred', :aggregate_failures do
+      it 'address_line1 is requred' do
         expect(address.valid?).to eq(true)
         address.address_line1 = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'city is requred', :aggregate_failures do
+      it 'city is requred' do
         expect(address.valid?).to eq(true)
         address.city = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'country_code_iso3 is requred', :aggregate_failures do
+      it 'country_code_iso3 is requred' do
         expect(address.valid?).to eq(true)
         address.country_code_iso3 = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'country_name must be alphabetic', :aggregate_failures do
+      it 'country_name must be alphabetic' do
         expect(address.valid?).to eq(true)
         address.country_name = '42'
         expect(address.valid?).to eq(false)
       end
 
-      it 'address_line1 < 35', :aggregate_failures do
+      it 'address_line1 < 35' do
         expect(address.valid?).to eq(true)
         address.address_line1 = 'a' * 36
         expect(address.valid?).to eq(false)
       end
 
-      it 'zip_code_suffix must be numeric', :aggregate_failures do
+      it 'zip_code_suffix must be numeric' do
         expect(address.valid?).to eq(true)
         address.zip_code_suffix = 'Hello'
         expect(address.valid?).to eq(false)
@@ -75,19 +85,19 @@ describe Vet360::Models::Address do
     context 'when address_type is domestic' do
       let(:address) { build(:vet360_address, :domestic) }
 
-      it 'state_code is required', :aggregate_failures do
+      it 'state_code is required' do
         expect(address.valid?).to eq(true)
         address.state_code = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'zip_code is required', :aggregate_failures do
+      it 'zip_code is required' do
         expect(address.valid?).to eq(true)
         address.zip_code = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'province is disallowed', :aggregate_failures do
+      it 'province is disallowed' do
         expect(address.valid?).to eq(true)
         address.province = 'Quebec'
         expect(address.valid?).to eq(false)
@@ -97,43 +107,43 @@ describe Vet360::Models::Address do
     context 'when address_type is international' do
       let(:address) { build(:vet360_address, :international) }
 
-      it 'state_code is disallowed', :aggregate_failures do
+      it 'state_code is disallowed' do
         expect(address.valid?).to eq(true)
         address.state_code = 'PA'
         expect(address.valid?).to eq(false)
       end
 
-      it 'zip_code is disallowed', :aggregate_failures do
+      it 'zip_code is disallowed' do
         expect(address.valid?).to eq(true)
         address.zip_code = '19390'
         expect(address.valid?).to eq(false)
       end
 
-      it 'zip_code_suffix is disallowed', :aggregate_failures do
+      it 'zip_code_suffix is disallowed' do
         expect(address.valid?).to eq(true)
         address.zip_code_suffix = '9214'
         expect(address.valid?).to eq(false)
       end
 
-      it 'county_name is disallowed', :aggregate_failures do
+      it 'county_name is disallowed' do
         expect(address.valid?).to eq(true)
         address.county_name = 'foo'
         expect(address.valid?).to eq(false)
       end
 
-      it 'county_code is disallowed', :aggregate_failures do
+      it 'county_code is disallowed' do
         expect(address.valid?).to eq(true)
         address.county_code = 'bar'
         expect(address.valid?).to eq(false)
       end
 
-      it 'international_postal_code is required', :aggregate_failures do
+      it 'international_postal_code is required' do
         expect(address.valid?).to eq(true)
         address.international_postal_code = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'ensures international_postal_code is < 35 characters', :aggregate_failures do
+      it 'ensures international_postal_code is < 35 characters' do
         expect(address.valid?).to eq(true)
         address.international_postal_code = '123456789123456789123567891234567891234'
         expect(address.valid?).to eq(false)
@@ -143,25 +153,25 @@ describe Vet360::Models::Address do
     context 'when address_type is military' do
       let(:address) { build(:vet360_address, :military_overseas) }
 
-      it 'state_code is required', :aggregate_failures do
+      it 'state_code is required' do
         expect(address.valid?).to eq(true)
         address.state_code = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'zip_code is required', :aggregate_failures do
+      it 'zip_code is required' do
         expect(address.valid?).to eq(true)
         address.zip_code = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'province is disallowed', :aggregate_failures do
+      it 'province is disallowed' do
         expect(address.valid?).to eq(true)
         address.province = 'Quebec'
         expect(address.valid?).to eq(false)
       end
 
-      it 'province_code is disallowed', :aggregate_failures do
+      it 'province_code is disallowed' do
         expect(address.valid?).to eq(true)
         address.province = 'PQ'
         expect(address.valid?).to eq(false)

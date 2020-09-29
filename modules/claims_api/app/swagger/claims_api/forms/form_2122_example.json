@@ -1,59 +1,8 @@
-{ 
-  "data": {
-    "type": "form/21-22",
-    "attributes": {
-      "serviceOrganization": {
-        "poaCode": "1AQ",
-        "firstName": "VSOFirst",
-        "lastName": "VSOLast",
-        "organizationName": "I Help Vets LLC",
-        "address": {
-          "numberAndStreet": "123 NotReal Pkwy",
-          "city": "sometown",
-          "state": "WI",
-          "country": "US",
-          "zipFirstFive": "54703"
-        }
-      },
-      "claimant": {
-        "fsrstName": "myFirst",
-        "middleInitial":  "A",
-        "lastName": "myLast",
-        "email": "claimant@claimant.com",
-        "phone": {
-          "areaCode": "555",
-          "phoneNumber": "55513337"
-        },
-        "relationship": "Spouse",
-        "address" : {
-          "numberAndStreet": "2688 S Camino Real",
-          "city": "Palm Springs",
-          "state": "CA",
-          "country": "US",
-          "zipFirstFive": "92264"
-        }
-      },
-      "veteran" : {
-        "address": {
-          "numberAndStreet": "2719 Hyperion Ave",
-          "city": "Los Angeles",
-          "state": "CA",
-          "country": "US",
-          "zipFirstFive": "90027"
-        },
-        "phone": {
-          "areaCode": "555",
-          "phoneNumber": "55513337"
-        },
-        "email": "example@veteran.com",
-        "serviceBranch": "ARMY"
-      },
-      "recordConcent": true,
-      "consentAddressChange": true,
-      "consentLimits": [
-        "DRUG ABUSE",
-        "SICKLE CELL"
-      ]
+{
+  "type": "form/21-22",
+  "attributes": {
+    "serviceOrganization": {
+      "poaCode": "1AQ"
     }
   }
 }

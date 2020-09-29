@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pdf_fill/forms/form_helper'
 
 describe PdfFill::Forms::FormHelper do
   let(:including_class) { Class.new { include PdfFill::Forms::FormHelper } }

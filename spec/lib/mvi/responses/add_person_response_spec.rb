@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'mvi/responses/add_person_response'
-require 'support/mvi/stub_mvi'
 
 describe MVI::Responses::AddPersonResponse do
   let(:faraday_response) { instance_double('Faraday::Response') }

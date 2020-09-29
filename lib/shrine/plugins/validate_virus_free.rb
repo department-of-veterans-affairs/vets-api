@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/virus_scan'
+
 class Shrine
   module Plugins
     module ValidateVirusFree

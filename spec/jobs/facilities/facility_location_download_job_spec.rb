@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/bulk_json_client'
+# these requires are used to set up wait time data tests
+require 'facilities/access_satisfaction_client'
+require 'facilities/access_wait_time_client'
+require 'facilities/access_data_download'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
   before { BaseFacility.validate_on_load = false }

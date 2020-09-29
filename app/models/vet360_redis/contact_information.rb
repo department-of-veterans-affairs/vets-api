@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require 'vet360/contact_information/person_response'
+require 'vet360/contact_information/service'
+require 'vet360/models/address'
+require 'vet360/models/telephone'
+require 'vet360/models/permission'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 

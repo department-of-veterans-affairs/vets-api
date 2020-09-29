@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/letters/download_service'
+require 'evss/letters/letter' # included in test to access LETTER_TYPES
 
 describe EVSS::Letters::DownloadService do
   describe '.find_by_user' do
@@ -32,7 +34,7 @@ describe EVSS::Letters::DownloadService do
 
           it 'logs increment download fail' do
             expect(StatsD).to receive(:increment).once.with(
-              'api.evss.download_letter.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+              'api.evss.download_letter.fail', tags: ['error:CommonExceptionsGatewayTimeout']
             )
             expect(StatsD).to receive(:increment).once.with('api.evss.download_letter.total')
             expect do

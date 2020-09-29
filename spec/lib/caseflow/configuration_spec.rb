@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/service'
+require 'caseflow/configuration'
 
 describe Caseflow::Configuration do
   describe '#app_token' do

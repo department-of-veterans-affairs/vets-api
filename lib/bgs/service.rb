@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'exceptions/bgs_errors'
+
 module BGS
   class Service
     include BGS::Exceptions::BGSErrors

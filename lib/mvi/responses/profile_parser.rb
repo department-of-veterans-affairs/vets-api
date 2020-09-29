@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require_relative 'id_parser'
+require_relative 'historical_icn_parser'
 
 module MVI
   module Responses

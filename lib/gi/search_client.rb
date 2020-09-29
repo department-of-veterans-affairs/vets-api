@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative 'client'
+require_relative 'search_configuration'
+
 module GI
   # Core class responsible for api interface search operations
   class SearchClient < GI::Client

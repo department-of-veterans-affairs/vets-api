@@ -318,6 +318,7 @@ RSpec/SubjectStub:
     - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
     - 'spec/jobs/education_form/forms/va1990_spec.rb'
     - 'spec/jobs/transactional_email_analytics_job_spec.rb'
+    - 'spec/jobs/form526_confirmation_email_job_spec.rb'
     - 'spec/lib/bb/generate_report_request_form_spec.rb'
     - 'spec/lib/common/models/redis_store_spec.rb'
     - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
@@ -333,6 +334,7 @@ RSpec/SubjectStub:
     - 'spec/uploaders/evss_claim_document_uploader_spec.rb'
     - 'spec/lib/carma/client/client_spec.rb'
     - 'spec/services/form1010cg/service_spec.rb'
+    - 'spec/services/form1010cg/auditor_spec.rb'
 
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:

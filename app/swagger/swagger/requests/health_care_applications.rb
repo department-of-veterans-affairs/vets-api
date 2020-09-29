@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'hca/enrollment_eligibility/status_matcher'
+
 module Swagger
   module Requests
     class HealthCareApplications

@@ -23,7 +23,8 @@ module Common
         end
 
         def increment_failure(caller, error)
-          tags = ["error:#{error.class}"]
+          clean_error_class = error.class.to_s.gsub(':', '')
+          tags = ["error:#{clean_error_class}"]
           tags << "status:#{error.status}" if error.try(:status)
 
           increment("#{self.class::STATSD_KEY_PREFIX}.#{caller}.fail", tags)

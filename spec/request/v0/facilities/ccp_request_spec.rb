@@ -8,11 +8,19 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
   end
 
   around do |example|
-    VCR.insert_cassette('facilities/va/ppms', match_requests_on: %i[path query], allow_playback_repeats: true)
-    VCR.insert_cassette('facilities/va/ppms_new_query', match_requests_on: %i[path query], allow_playback_repeats: true)
+    VCR.insert_cassette(
+      'facilities/ppms/ppms',
+      match_requests_on: %i[path query],
+      allow_playback_repeats: true
+    )
+    VCR.insert_cassette(
+      'facilities/ppms/ppms_new_query',
+      match_requests_on: %i[path query],
+      allow_playback_repeats: true
+    )
     example.run
-    VCR.eject_cassette('facilities/va/ppms_new_query')
-    VCR.eject_cassette('facilities/va/ppms')
+    VCR.eject_cassette('facilities/ppms/ppms_new_query')
+    VCR.eject_cassette('facilities/ppms/ppms')
   end
 
   describe '#index' do

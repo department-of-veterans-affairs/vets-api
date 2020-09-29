@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'address'
+require_relative 'base'
+require_relative 'email'
+require_relative 'telephone'
+require_relative 'permission'
+require 'common/models/attribute_types/iso8601_time'
+
 module Vet360
   module Models
     class Person < Base

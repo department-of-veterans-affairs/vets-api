@@ -7,7 +7,7 @@
     },
     "ssnOrTin": "789787893",
     "dateOfBirth": "1990-07-03",
-    "gender": "F",
+    "gender": "M",
     "address": {
       "street": " DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD",
       "street2": " DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD DDDDDDDDDD",
@@ -15,8 +15,8 @@
       "state": "WA",
       "postalCode": "98101-1234"
     },
-    "primaryPhoneNumber": "8887775544",
-    "alternativePhoneNumber": "8887775544",
+    "primaryPhoneNumber": "8887775541",
+    "alternativePhoneNumber": "8887775542",
     "email": "FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-FFFFFFFFF-F@FFFF.FFF",
     "plannedClinic": "740",
     "lastTreatmentFacility": {
@@ -44,11 +44,7 @@
     "alternativePhoneNumber": "9990239330",
     "email": "MMMMMMMMM-MMMMMMMMM-MMMMMMMMM-MMMMMMMMM@MM.MMM",
     "vetRelationship": "Spouse",
-    "medicaidEnrolled": true,
-    "medicareEnrolled": false,
-    "champvaEnrolled": true,
-    "tricareEnrolled": false,
-    "otherHealthInsuranceName": " NNNNNNNNN NNNNNNNNN NNNNNNNNN NNNNNNNNN NNNNNNNNN"
+    "hasHealthInsurance": true
   },
   "secondaryCaregiverOne": {
     "fullName": {
@@ -79,7 +75,7 @@
     },
     "ssnOrTin": "091449494",
     "dateOfBirth": "1980-09-06",
-    "gender": "U",
+    "gender": "F",
     "address": {
       "street": " XXXXXXXXX XXXXXXXXX XXXXXXXXX XXXXXXXXX",
       "street2": " XXXXXXXXX XXXXXXXXX XXXXXXXXX XXXXXXXXX",

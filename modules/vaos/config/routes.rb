@@ -23,6 +23,7 @@ VAOS::Engine.routes.draw do
       get 'visits/:schedule_type', to: 'visits#index'
     end
     resource :preferences, only: %i[show update]
+    resources :direct_booking_eligibility_criteria, only: :index
     resources :request_eligibility_criteria, only: :index
     get 'apidocs', to: 'apidocs#index'
   end

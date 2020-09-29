@@ -1,0 +1,81 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: VA Mobile API
+  license:
+    name: MIT
+servers:
+  - url: http://api.va.gov
+paths:
+  /mobile:
+    get:
+      summary: /mobile
+      description: Currently returns a welcome message. In the future given an app version it will return a map of services.
+      operationId: discovery
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /mobile/v0/user:
+    get:
+      summary: /mobile/v0/user
+      description: Returns the user profile
+      operationId: get_user
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      name: Authorization
+      in: header
+      example: "Authorization: Bearer ypXeAwQedpmAy5xFD2u5"
+  schemas:
+    Message:
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    User:
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+        type:
+          type: string
+          example: user
+        attributes:
+          type: object
+          required:
+            - first_name
+            - middle_name
+            - last_name
+            - email
+          properties:
+            first_name:
+              type: String
+              example: "John"
+            middle_name:
+              type: String
+              example: "A"
+            last_name:
+              type: String
+              example: "Smith"
+            email:
+              type: String
+              example: "john.a.smith@domain.com"

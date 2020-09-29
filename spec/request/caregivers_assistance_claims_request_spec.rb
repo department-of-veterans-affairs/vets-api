@@ -98,14 +98,10 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false).twice
 
         VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
-            VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
-              VCR.use_cassette 'carma/auth/token/200', vcr_options do
-                VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-                  VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
-                    post endpoint, params: body, headers: headers
-                  end
-                end
+          VCR.use_cassette 'carma/auth/token/200', vcr_options do
+            VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+              VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
+                post endpoint, params: body, headers: headers
               end
             end
           end
@@ -135,11 +131,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true).twice
 
         VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
-            VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
-              post endpoint, params: body, headers: headers
-            end
-          end
+          post endpoint, params: body, headers: headers
         end
 
         expect(response.code).to eq('200')
@@ -157,7 +149,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   describe 'POST /v0/caregivers_assistance_claims/download_pdf' do
     let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
     let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
-    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'simple.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
     after do
       File.delete(response_pdf) if File.exist?(response_pdf)

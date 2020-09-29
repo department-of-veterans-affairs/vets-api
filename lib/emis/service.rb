@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'common/client/concerns/log_as_warning_helpers'
+require 'common/client/middleware/request/soap_headers'
+require 'common/client/middleware/response/soap_parser'
 require 'emis/configuration'
 require 'emis/messages/edipi_or_icn_message'
 require 'emis/responses'
-require 'common/client/middleware/request/soap_headers'
-require 'common/client/middleware/response/soap_parser'
 
 module EMIS
   # HTTP Client for EMIS requests.

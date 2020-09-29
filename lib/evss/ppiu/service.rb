@@ -2,6 +2,10 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require 'evss/service'
+require 'evss/ppiu/configuration'
+require 'evss/ppiu/payment_information_response'
+require 'evss/ppiu/service_exception'
 
 module EVSS
   module PPIU

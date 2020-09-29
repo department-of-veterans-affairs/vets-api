@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/pciu_address/service'
 
 describe EVSS::PCIUAddress::Service do
   subject { described_class.new(user) }

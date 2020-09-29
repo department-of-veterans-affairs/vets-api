@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+require 'vet360/contact_information/service'
+require 'vet360/exceptions/builder'
+require 'vet360/models/email'
+require 'vet360/models/telephone'
+require 'vet360/person/service'
+
 namespace :vet360 do
   ###########
   ## TASKS ##

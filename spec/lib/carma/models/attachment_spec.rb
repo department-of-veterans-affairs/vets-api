@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'carma/models/attachment'
 
 RSpec.describe CARMA::Models::Attachment, type: :model do
   describe '::DOCUMENT_TYPES' do

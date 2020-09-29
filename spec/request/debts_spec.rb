@@ -11,7 +11,7 @@ RSpec.describe 'Debts API Endpoint', type: :request do
       last_name: 'Anderson',
       middle_name: 'A',
       birth_date: '1991-04-05',
-      ssn: '000000009'
+      ssn: '796043735'
     }
   end
 
@@ -24,10 +24,12 @@ RSpec.describe 'Debts API Endpoint', type: :request do
   describe 'GET /v0/debts' do
     context 'with a veteran who has debts' do
       it 'returns a 200 with the array of debts' do
-        VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
-          get '/v0/debts'
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('debts')
+        VCR.use_cassette('bgs/people_service/person_data') do
+          VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
+            get '/v0/debts'
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('debts')
+          end
         end
       end
     end

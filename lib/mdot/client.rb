@@ -3,10 +3,11 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/exceptions/gateway_timeout'
-require 'mdot/configuration'
-require 'mdot/response'
-require 'mdot/exceptions/key'
-require 'mdot/exceptions/service_exception'
+require_relative 'configuration'
+require_relative 'response'
+require_relative 'token'
+require_relative 'exceptions/key'
+require_relative 'exceptions/service_exception'
 
 module MDOT
   ##
@@ -73,9 +74,13 @@ module MDOT
         VA_VETERAN_MIDDLE_NAME: @user.middle_name,
         VA_VETERAN_LAST_NAME: @user.last_name,
         VA_VETERAN_ID: @user.ssn.last(4),
-        VA_VETERAN_BIRTH_DATE: @user.birth_date,
+        VA_VETERAN_BIRTH_DATE: format_birthdate(@user.birth_date),
         VA_ICN: @user.icn
       }
+    end
+
+    def format_birthdate(date)
+      Date.parse(date).strftime('%Y-%m-%d')
     end
 
     def submission_headers

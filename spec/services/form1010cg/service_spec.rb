@@ -12,9 +12,7 @@ RSpec.describe Form1010cg::Service do
           'first' => Faker::Name.first_name,
           'last' => Faker::Name.last_name
         },
-        'ssnOrTin' => Faker::IDNumber.valid.remove('-'),
         'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
-        'gender' => %w[M F].sample,
         'address' => {
           'street' => Faker::Address.street_address,
           'city' => Faker::Address.city,
@@ -24,17 +22,17 @@ RSpec.describe Form1010cg::Service do
         'primaryPhoneNumber' => Faker::Number.number(digits: 10).to_s
       }
 
+      # Required properties for all caregivers
+      data['vetRelationship'] = 'Daughter' if form_subject != :veteran
+
       # Required properties for :primaryCaregiver
-      if form_subject == :primaryCaregiver
-        data['vetRelationship'] = 'Daughter'
-        data['medicaidEnrolled'] = true
-        data['medicareEnrolled'] = false
-        data['tricareEnrolled'] = false
-        data['champvaEnrolled'] = false
-      end
+      data['hasHealthInsurance'] = true if form_subject == :primaryCaregiver
 
       # Required property for :veteran
-      data['plannedClinic'] = '568A4' if form_subject == :veteran
+      if form_subject == :veteran
+        data['ssnOrTin'] = Faker::IDNumber.valid.remove('-')
+        data['plannedClinic'] = '568A4'
+      end
 
       mutations&.call data
 
@@ -72,6 +70,8 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#icn_for' do
+    let(:set_ssn) { ->(data) { data['ssnOrTin'] = '111111111' } }
+
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
         build(
@@ -117,7 +117,7 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq(:ICN_123)
     end
 
-    it 'sets returns "NOT_FOUND" when profile not found in MVI' do
+    it 'returns "NOT_FOUND" when profile not found in MVI' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -162,13 +162,34 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq('NOT_FOUND')
     end
 
-    it 'returns a cached responses when called more than once for a given subject' do
+    it 'returns "NOT_FOUND" when no SSN is present' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
             'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+          }.to_json
+        )
+      )
+
+      # This should skip the MPI search and not build a UserIdentity
+      expect(UserIdentity).not_to receive(:new)
+      expect_any_instance_of(MVI::Service).not_to receive(:find_profile)
+
+      result = subject.icn_for('primaryCaregiver')
+
+      expect(result).to eq('NOT_FOUND')
+    end
+
+    it 'returns a cached responses when called more than once for a given subject' do
+      subject = described_class.new(
+        build(
+          :caregivers_assistance_claim,
+          form: {
+            'veteran' => build_claim_data_for.call(:veteran),
+            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
+            'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne)
           }.to_json
         )
       )
@@ -238,54 +259,9 @@ RSpec.describe Form1010cg::Service do
       3.times do
         expect(subject.icn_for('primaryCaregiver')).to eq('NOT_FOUND')
       end
-    end
 
-    context 'when gender is "U"' do
-      it 'will search MVI with gender: nil' do
-        veteran_data = build_claim_data_for.call(:veteran) do |data|
-          data['gender'] = 'U'
-        end
-
-        subject = described_class.new(
-          build(
-            :caregivers_assistance_claim,
-            form: {
-              'veteran' => veteran_data,
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
-            }.to_json
-          )
-        )
-
-        expected_mvi_search_params = {
-          first_name: veteran_data['fullName']['first'],
-          middle_name: veteran_data['fullName']['middle'],
-          last_name: veteran_data['fullName']['last'],
-          birth_date: veteran_data['dateOfBirth'],
-          gender: nil,
-          ssn: veteran_data['ssnOrTin'],
-          email: default_email_on_mvi_search,
-          uuid: be_an_instance_of(String),
-          loa: {
-            current: LOA::THREE,
-            highest: LOA::THREE
-          }
-        }
-
-        expect(UserIdentity).to receive(:new).with(
-          expected_mvi_search_params
-        ).and_return(
-          :user_identity
-        )
-
-        expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
-          :user_identity
-        ).and_return(
-          double(status: 'OK', profile: double(icn: :ICN_123))
-        )
-
-        result = subject.icn_for('veteran')
-
-        expect(result).to eq(:ICN_123)
+      3.times do
+        expect(subject.icn_for('secondaryCaregiverOne')).to eq('NOT_FOUND')
       end
     end
 
@@ -336,6 +312,97 @@ RSpec.describe Form1010cg::Service do
         result = subject.icn_for('veteran')
 
         expect(result).to eq(:ICN_123)
+      end
+    end
+
+    describe 'logging' do
+      let(:subject) do
+        described_class.new(
+          build(
+            :caregivers_assistance_claim,
+            form: {
+              'veteran' => build_claim_data_for.call(:veteran),
+              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
+              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne, &set_ssn),
+              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo, &set_ssn)
+            }.to_json
+          )
+        )
+      end
+
+      it 'will log the result of a successful search' do
+        %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
+          expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+            double(status: 'OK', profile: double(icn: :ICN_123))
+          )
+
+          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+            claim_guid: subject.claim.guid,
+            form_subject: form_subject,
+            result: :found
+          )
+
+          subject.icn_for(form_subject)
+        end
+      end
+
+      it 'will log the result of a unsuccessful search' do
+        %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
+          expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+            double(status: 'NOT_FOUND', error: double)
+          )
+
+          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+            claim_guid: subject.claim.guid,
+            form_subject: form_subject,
+            result: :not_found
+          )
+
+          subject.icn_for(form_subject)
+        end
+      end
+
+      it 'will log when a search is skipped' do
+        subject = described_class.new(
+          build(
+            :caregivers_assistance_claim,
+            form: {
+              # Form subjects with no SSNs
+              'veteran' => build_claim_data_for.call(:veteran),
+              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver),
+              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne),
+              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo)
+            }.to_json
+          )
+        )
+
+        # Only testing for caregivers, since veteran requires an SSN
+        %w[primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
+          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+            claim_guid: subject.claim.guid,
+            form_subject: form_subject,
+            result: :skipped
+          )
+
+          subject.icn_for(form_subject)
+        end
+      end
+
+      it 'will not log the search result when reading from cache' do
+        expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+          double(status: 'OK', profile: double(icn: :ICN_123))
+        )
+
+        # Exception would be raised if this is called more (or less than) than one time
+        expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+          claim_guid: subject.claim.guid,
+          form_subject: 'veteran',
+          result: :found
+        )
+
+        5.times do
+          subject.icn_for('veteran')
+        end
       end
     end
   end
@@ -579,7 +646,8 @@ RSpec.describe Form1010cg::Service do
       expected = {
         results: {
           carma_case_id: 'aB935000000A9GoCAK',
-          submitted_at: DateTime.new
+          submitted_at: DateTime.new,
+          metadata: :REQUEST_METADATA
         }
       }
 
@@ -591,6 +659,7 @@ RSpec.describe Form1010cg::Service do
         expect(carma_submission).to receive(:submit!) {
           expect(carma_submission).to receive(:carma_case_id).and_return(expected[:results][:carma_case_id])
           expect(carma_submission).to receive(:submitted_at).and_return(expected[:results][:submitted_at])
+          expect(carma_submission).to receive(:request_body).and_return({ 'metadata' => expected[:results][:metadata] })
 
           carma_submission
         }
@@ -605,6 +674,7 @@ RSpec.describe Form1010cg::Service do
       expect(result).to be_a(Form1010cg::Submission)
       expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
       expect(result.submitted_at).to eq(expected[:results][:submitted_at])
+      expect(result.metadata).to eq(:REQUEST_METADATA)
     end
   end
 
@@ -636,7 +706,7 @@ RSpec.describe Form1010cg::Service do
 
       subject = described_class.new(claim, submission)
 
-      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
+      expect(subject.claim).to receive(:to_pdf).with(sign: true).and_return(file_path)
 
       expect(CARMA::Models::Attachments).to receive(:new).with(
         submission.carma_case_id,

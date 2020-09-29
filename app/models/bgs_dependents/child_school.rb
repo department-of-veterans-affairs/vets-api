@@ -19,8 +19,8 @@ module BGSDependents
       {
         vnp_proc_id: @proc_id,
         vnp_ptcpnt_id: @vnp_participant_id,
-        last_term_start_dt: format_date_no_time(last_term_school_information&.dig('term_begin')),
-        last_term_end_dt: format_date_no_time(last_term_school_information&.dig('date_term_ended')),
+        last_term_start_dt: format_date(last_term_school_information&.dig('term_begin')),
+        last_term_end_dt: format_date(last_term_school_information&.dig('date_term_ended')),
         prev_hours_per_wk_num: last_term_school_information&.dig('hours_per_week'),
         prev_sessns_per_wk_num: last_term_school_information&.dig('classes_per_week'),
         prev_school_nm: last_term_school_information&.dig('name'),
@@ -43,8 +43,8 @@ module BGSDependents
         curnt_sessns_per_wk_num: program_information&.dig('classes_per_week'),
         curnt_hours_per_wk_num: program_information&.dig('hours_per_week'),
         school_actual_expctd_start_dt: current_term_dates&.dig('official_school_start_date'),
-        school_term_start_dt: format_date_no_time(current_term_dates&.dig('expected_student_start_date')),
-        gradtn_dt: format_date_no_time(current_term_dates&.dig('expected_graduation_date'))
+        school_term_start_dt: format_date(current_term_dates&.dig('expected_student_start_date')),
+        gradtn_dt: format_date(current_term_dates&.dig('expected_graduation_date'))
       }
     end
 
