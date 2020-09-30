@@ -5,6 +5,7 @@ require 'central_mail/service'
 require 'emis/service'
 require 'evss/service'
 require 'gibft/service'
+require 'iam_ssoe_oauth/session_manager'
 require 'mvi/service'
 require 'saml/errors'
 require 'saml/responses/base'
@@ -184,3 +185,13 @@ ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') 
 
   StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
 end
+
+# IAM SSOe session metrics
+IAMSSOeOAuth::SessionManager.extend StatsD::Instrument
+IAMSSOeOAuth::SessionManager.statsd_count_success :create_user_session,
+                                                  'iam_ssoe_oauth.create_user_session'
+IAMSSOeOAuth::SessionManager.statsd_measure :create_user_session,
+                                            'iam_ssoe_oauth.create_user_session.measure'
+StatsD.increment('iam_ssoe_oauth.create_user_session.success', 0)
+StatsD.increment('iam_ssoe_oauth.create_user_session.failure', 0)
+StatsD.increment('iam_ssoe_oauth.inactive_session', 0)
