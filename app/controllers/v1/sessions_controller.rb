@@ -167,7 +167,7 @@ module V1
     end
 
     def saml_cookie_content
-      transaction_id = if params[:SAMLResponse] && url_service.should_uplevel?
+      transaction_id = if current_user && url_service.should_uplevel?
                          JSON.parse(Base64.decode64(cookies[Settings.ssoe_eauth_cookie.name]))['transaction_id']
                        else
                          SecureRandom.uuid
