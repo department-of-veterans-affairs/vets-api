@@ -22,7 +22,7 @@ RSpec.describe 'health_quest questionnaire responses', type: :request do
         get '/health_quest/v0/pgd_ques_responses/32'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
-          .to eq('You do not have access to online scheduling')
+          .to eq('You do not have access to the health quest service')
       end
     end
   end

@@ -22,7 +22,7 @@ RSpec.describe 'health_quest questionnaires', type: :request, skip_mvi: true do
         get '/health_quest/v0/pgd_questionnaires/32'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
-          .to eq('You do not have access to online scheduling')
+          .to eq('You do not have access to the health quest service')
       end
     end
   end
@@ -34,6 +34,8 @@ RSpec.describe 'health_quest questionnaires', type: :request, skip_mvi: true do
       it 'has access to questionnaires have access' do
         get '/health_quest/v0/pgd_questionnaires/32'
         expect(response).to have_http_status(:ok)
+        result = JSON.parse(response.body)
+        expect(result['data']['attributes']['text']).to eq('this is the questionnaire')
       end
     end
   end

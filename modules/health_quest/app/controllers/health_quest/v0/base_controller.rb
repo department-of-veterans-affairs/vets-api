@@ -13,7 +13,7 @@ module HealthQuest
       end
 
       def raise_access_denied
-        raise Common::Exceptions::Forbidden, detail: 'You do not have access to online scheduling'
+        raise Common::Exceptions::Forbidden, detail: 'You do not have access to the health quest service'
       end
 
       def raise_access_denied_no_icn

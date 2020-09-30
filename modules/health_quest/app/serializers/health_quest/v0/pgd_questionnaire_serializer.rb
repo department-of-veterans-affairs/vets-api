@@ -5,10 +5,6 @@ module HealthQuest
     class PGDQuestionnaireSerializer
       include FastJsonapi::ObjectSerializer
 
-      set_id do |object|
-        object[:id]
-      end
-
       set_type :questionnaire
 
       attributes :text
