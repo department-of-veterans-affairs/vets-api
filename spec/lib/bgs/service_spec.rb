@@ -9,6 +9,18 @@ RSpec.describe BGS::Service do
   let(:proc_id) { '3829671' }
   let(:participant_id) { '149456' }
 
+  context 'direct deposit methods' do
+    before do
+      allow(user_object).to receive(:ssn).and_return('796104437')
+    end
+
+    it 'retrieves a users dd eft info' do
+      VCR.use_cassette('bgs/service/find_ch33_dd_eft', record: :once) do
+        response = bgs_service.find_ch33_dd_eft
+      end
+    end
+  end
+
   describe '#create_proc' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc') do
