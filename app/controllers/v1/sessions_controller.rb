@@ -158,7 +158,7 @@ module V1
 
     def set_sso_saml_cookie!
       cookies[Settings.ssoe_eauth_cookie.name] = {
-        value: Base64.encode64(saml_cookie_content.to_json),
+        value: saml_cookie_content.to_json,
         expires: nil,
         secure: Settings.ssoe_eauth_cookie.secure,
         httponly: true,
@@ -168,7 +168,7 @@ module V1
 
     def saml_cookie_content
       transaction_id = if current_user && url_service.should_uplevel?
-                         JSON.parse(Base64.decode64(cookies[Settings.ssoe_eauth_cookie.name]))['transaction_id']
+                         JSON.parse(cookies[Settings.ssoe_eauth_cookie.name])['transaction_id']
                        else
                          SecureRandom.uuid
                        end
@@ -176,8 +176,8 @@ module V1
       {
         'timestamp' => Time.now.iso8601,
         'transaction_id' => transaction_id,
-        'saml_request_id' => JSON.parse(@post_params['RelayState'])['originating_request_id'], # originating_request_id, # ???
-        'saml_request_query_params' => '???'
+        'saml_request_id' => url_service.tracker&.uuid,
+        'saml_request_query_params' => @query_params # which ones should we exclude/include? (:RelayState ?)
       }
     end
 
