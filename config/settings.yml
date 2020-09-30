@@ -33,6 +33,11 @@ saml_ssoe:
   response_signing: false
   response_encryption: false
 
+ssoe_eauth_cookie:
+  name: vagov_saml_request_localhost
+  domain: localhost
+  secure: false
+
 session_cookie:
   secure: false
 

@@ -157,18 +157,18 @@ module V1
     end
 
     def set_sso_saml_cookie!
-      cookies[Settings.saml_ssoe.cookie_name] = {
+      cookies[Settings.ssoe_eauth_cookie.name] = {
         value: Base64.encode64(saml_cookie_content.to_json),
         expires: nil,
-        secure: Settings.saml_ssoe.cookie_secure,
+        secure: Settings.ssoe_eauth_cookie.secure,
         httponly: true,
-        domain: Settings.saml_ssoe.cookie_domain
+        domain: Settings.ssoe_eauth_cookie.domain
       }
     end
 
     def saml_cookie_content
       transaction_id = if params[:SAMLResponse] && url_service.should_uplevel?
-                         JSON.parse(Base64.decode64(cookies[Settings.saml_ssoe.cookie_name]))['transaction_id']
+                         JSON.parse(Base64.decode64(cookies[Settings.ssoe_eauth_cookie.name]))['transaction_id']
                        else
                          SecureRandom.uuid
                        end
