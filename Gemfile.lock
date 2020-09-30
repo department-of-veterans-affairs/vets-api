@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: ca7240cc9a4442293584246e1107e377f6d9df08
+  revision: ee3032d3a84393233fb328c1f83558be9bbd84b1
   branch: master
   specs:
-    vets_json_schema (14.0.1)
+    vets_json_schema (14.1.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -815,7 +815,7 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.6.0)
+    webrick (1.6.1)
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -983,7 +983,7 @@ DEPENDENCIES
   virtus
   web-console
   webmock
-  webrick
+  webrick (>= 1.6.1)
   websocket-extensions (>= 0.1.5)
   will_paginate
   yard
