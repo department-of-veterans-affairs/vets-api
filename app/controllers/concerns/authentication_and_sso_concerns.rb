@@ -112,10 +112,6 @@ module AuthenticationAndSSOConcerns
     }
   end
 
-  def set_sso_saml_cookie!
-    SSO::SAMLCookie.from(@session_object, @current_user, sso_logging_info, cookies)
-  end
-
   def set_session_expiration_header
     headers['X-Session-Expiration'] = @session_object.ttl_in_time.httpdate if @session_object.present?
   end
