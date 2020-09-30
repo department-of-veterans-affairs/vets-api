@@ -72,11 +72,11 @@ class FormProfiles::VA526ez < FormProfile
   attribute :veteran_contact_information, VA526ez::FormContactInformation
   attribute :payment_information, VA526ez::FormPaymentAccountInformation
 
-  def prefill(user)
-    @rated_disabilities_information = initialize_rated_disabilities_information(user)
-    @veteran_contact_information = initialize_veteran_contact_information(user)
-    @payment_information = initialize_payment_information(user)
-    super(user)
+  def prefill
+    @rated_disabilities_information = initialize_rated_disabilities_information
+    @veteran_contact_information = initialize_veteran_contact_information
+    @payment_information = initialize_payment_information
+    super
   end
 
   def metadata
@@ -89,7 +89,7 @@ class FormProfiles::VA526ez < FormProfile
 
   private
 
-  def initialize_vets360_contact_info(user)
+  def initialize_vets360_contact_info
     return {} unless Settings.vet360.prefill && user.vet360_id.present?
 
     vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
@@ -103,15 +103,15 @@ class FormProfiles::VA526ez < FormProfile
     }.compact
   end
 
-  def initialize_veteran_contact_information(user)
+  def initialize_veteran_contact_information
     return {} unless user.authorize :evss, :access?
 
     # fill in blank values with PCIU data
-    return_val = initialize_vets360_contact_info(user).merge(
-      mailing_address: get_common_address(user),
-      email_address: extract_pciu_data(user, :pciu_email),
+    return_val = initialize_vets360_contact_info.merge(
+      mailing_address: get_common_address,
+      email_address: extract_pciu_data(:pciu_email),
       primary_phone: get_us_phone(
-        extract_pciu_data(user, :pciu_primary_phone)
+        extract_pciu_data(:pciu_primary_phone)
       )
     ) { |_, old_val, new_val| old_val.presence || new_val }
 
@@ -122,7 +122,7 @@ class FormProfiles::VA526ez < FormProfile
     )
   end
 
-  def initialize_rated_disabilities_information(user)
+  def initialize_rated_disabilities_information
     return {} unless user.authorize :evss, :access?
 
     service = EVSS::DisabilityCompensationForm::Service.new(
@@ -151,7 +151,7 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   # Convert PCIU address to a Common address type
-  def get_common_address(user)
+  def get_common_address
     service = EVSS::PCIUAddress::Service.new(user)
     response = service.get_address
     case response.address
@@ -202,7 +202,7 @@ class FormProfiles::VA526ez < FormProfile
     }.compact
   end
 
-  def initialize_payment_information(user)
+  def initialize_payment_information
     return {} unless user.authorize :evss, :access?
 
     service = EVSS::PPIU::Service.new(user)
