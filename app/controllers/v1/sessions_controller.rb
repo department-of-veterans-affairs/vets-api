@@ -177,7 +177,7 @@ module V1
         'timestamp' => Time.now.iso8601,
         'transaction_id' => transaction_id,
         'saml_request_id' => url_service.tracker&.uuid,
-        'saml_request_query_params' => @query_params # which ones should we exclude/include? (:RelayState ?)
+        'saml_request_query_params' => url_service.query_params
       }
     end
 
