@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/facilities/v1/direct-booking-eligibility-criteria?site-codes=534
+    uri: https://veteran.apps.va.gov/facilities/v1/direct-booking-eligibility-criteria?site-codes=534
     body:
       encoding: US-ASCII
       string: ''
