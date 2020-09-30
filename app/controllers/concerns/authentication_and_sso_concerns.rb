@@ -70,7 +70,7 @@ module AuthenticationAndSSOConcerns
     # TODO: This logic needs updating to let us log out either/or
     # SSOe session or MHV-SSO session but for  now  the next line lets
     # us avoid terminating  the session due to not setting it  previously
-    return false if @current_user&.authenticated_by_ssoe
+    return false if @session_object&.authenticated_by_ssoe
     return false unless Settings.sso.cookie_enabled && Settings.sso.cookie_signout_enabled
 
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
@@ -97,7 +97,7 @@ module AuthenticationAndSSOConcerns
                   @session_object.present? &&
                   # if the user logged in via SSOe, there is no benefit from
                   # creating a MHV SSO shared cookie
-                  !@current_user&.authenticated_by_ssoe
+                  !@session_object&.authenticated_by_ssoe
 
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 

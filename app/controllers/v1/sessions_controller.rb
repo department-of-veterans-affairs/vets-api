@@ -148,7 +148,8 @@ module V1
                                  params: post_params,
                                  id: tracker.uuid,
                                  authn: tracker.payload_attr(:authn_context),
-                                 type: tracker.payload_attr(:type)
+                                 type: tracker.payload_attr(:type),
+                                 sentrydsn: Settings.sentry.dsn
                                },
                                format: :html
       render body: result, content_type: 'text/html'

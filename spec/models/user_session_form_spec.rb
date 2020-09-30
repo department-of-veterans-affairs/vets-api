@@ -30,6 +30,12 @@ RSpec.describe UserSessionForm, type: :model do
     it 'instantiates cleanly' do
       UserSessionForm.new(saml_response)
     end
+
+    it 'instantiates with a Session SSOe transactionid' do
+      form = UserSessionForm.new(saml_response)
+      expect(form.session[:ssoe_transactionid])
+        .to eq(saml_attributes['va_eauth_transactionid'])
+    end
   end
 
   context 'with ID.me UUID not present in SAML' do
