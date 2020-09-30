@@ -182,16 +182,16 @@ module V1
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def saml_request_stats
-      t = url_service.tracker
+      tracker = url_service.tracker
       values = {
-        'id' => t&.uuid,
-        'authn' => t&.payload_attr(:authn_context),
-        'type' => t&.payload_attr(:type)
+        'id' => tracker&.uuid,
+        'authn' => tracker&.payload_attr(:authn_context),
+        'type' => tracker&.payload_attr(:type)
       }
       Rails.logger.info("SSOe: SAML Request => #{values}")
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
-                       tags: ["type:#{t&.payload_attr(:type)}",
-                              "context:#{t&.payload_attr(:authn_context)}",
+                       tags: ["type:#{tracker&.payload_attr(:type)}",
+                              "context:#{tracker&.payload_attr(:authn_context)}",
                               VERSION_TAG])
     end
 
