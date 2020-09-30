@@ -5,7 +5,6 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-
       claim = SavedClaim::EducationBenefits.form_class(form_type).new(education_benefits_claim_params)
 
       unless claim.save
