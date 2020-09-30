@@ -377,14 +377,12 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    it 'does not set error status for retriable timeout error' do
+    it 'checks for updated status for timeout error' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:upload)
         .and_raise(Faraday::TimeoutError.new)
-      expect { described_class.new.perform(upload.guid) }.to raise_error(Faraday::TimeoutError)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('uploaded')
+      expect { described_class.new.perform(upload.guid) }.not_to raise_error(Faraday::TimeoutError)
     end
   end
 end
