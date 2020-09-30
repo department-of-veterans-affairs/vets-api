@@ -16,9 +16,9 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - stubbed_token
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6IlN0cmVpY2giLCJzdWIiOiIxMjExNzc3NDE4MTQxNTk0MiIsImF1dGhlbnRpY2F0ZWQiOnRydWUsImF1dGhlbnRpY2F0aW9uQXV0aG9yaXR5IjoiZ292LnZhLnZhb3MiLCJpZFR5cGUiOiJJQ04iLCJnZW5kZXIiOiJGRU1BTEUiLCJpc3MiOiJnb3YudmEudmFtZi51c2Vyc2VydmljZS52MSIsImRhdGVPZkJpcnRoIjoiMTk4NTEwMjUiLCJ2ZXJzaW9uIjoyLjEsImVkaXBpZCI6Ijk4MDYwNTI5MDMiLCJzc24iOiI3ODE2OTM4MzUiLCJmaXJzdE5hbWUiOiJTY2FybGV0dCIsIm5iZiI6MTYwMTQ5MTgzMiwic3N0IjoxNjAxNDkyMDEyLCJkb2IiOiIxOTg1MTAyNSIsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiU2NhcmxldHQiLCJsYXN0TmFtZSI6IlN0cmVpY2giLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMjExNzc3NDE4MTQxNTk0MiIsImRvYiI6IjE5ODUtMTAtMjUiLCJkYXRlT2ZCaXJ0aCI6IjE5ODUtMTAtMjUiLCJzc24iOiI3ODE2OTM4MzUifSwidmFtZi5hdXRoLnJvbGVzIjpbInZldGVyYW4iXSwiZXhwIjoxNjAxNDkyOTEyLCJqdGkiOiI3ZTk1YzIwNy0zZjRiLTQyNGEtYmE2NC0yNDdlODlkZTE1NjMiLCJsb2EiOjJ9.WP9MpyEfGr9OxszLEV-Jw45aoNLy5u5XwobETS7Xj8216tftAiFN7YAdw4C04yDiyLqP5AkYKNjwZEetinC6zrufRJJncZOXDRDYWulOfA0zc10FMGkvsMHmP2lDN8RzWNhh4ZpFDy4BN9gU2zATF3lpyeY01Pcb9u_JBCxul96Y1rGU-HsVoDTffLReeZjZJJeJdqGhkWr2kVbnsHmGA3fSbGTtyQfQzitU-TD5OOd2b-VLBoD867b-0_T1Arj3oVd-iEJ2nZhqWjASlkoHaSlTWcyvf8WZDIRs3FCQbSq7KcL5mOseaZQ3ljydJYB_OqXkJaBX98xpgitQRwsFSw
       X-Request-Id:
-      - 07103ec8-2c0e-460c-b292-48753e4fbac3
+      - fd9d6754-31a6-4f5f-a88d-fed655fbb7c3
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 30 Sep 2020 01:08:14 GMT
+      - Wed, 30 Sep 2020 18:53:33 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -37,7 +37,7 @@ http_interactions:
       X-Vamf-Version:
       - 1.9.0
       B3:
-      - 97610e93242a5b1d-bfc2cb3e86d9f81b-0
+      - bbf91099a9aefb4d-e650dbc0e5a1463b-0
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
@@ -229,8 +229,8 @@ http_interactions:
           } ]
         }, {
           "id" : "534",
-          "createdDate" : "2020-09-30T01:08:14Z",
-          "lastModifiedDate" : "2020-09-30T01:08:14Z",
+          "createdDate" : "2020-09-30T18:53:33Z",
+          "lastModifiedDate" : "2020-09-30T18:53:33Z",
           "coreSettings" : [ {
             "id" : "123",
             "typeOfCare" : "Food and Nutrition",
@@ -394,5 +394,5 @@ http_interactions:
             "enterpriseSubmittedRequestLimit" : 2
           } ]
         } ]
-  recorded_at: Wed, 30 Sep 2020 01:08:14 GMT
+  recorded_at: Wed, 30 Sep 2020 18:53:33 GMT
 recorded_with: VCR 6.0.0

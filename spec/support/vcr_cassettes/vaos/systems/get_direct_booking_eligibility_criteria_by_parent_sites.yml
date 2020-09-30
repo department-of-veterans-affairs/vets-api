@@ -16,9 +16,9 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - stubbed_token
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6IkdvcmN6YW55Iiwic3ViIjoiMjkzMDg1NjQ4MTI2MDExNTciLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiTUFMRSIsImlzcyI6Imdvdi52YS52YW1mLnVzZXJzZXJ2aWNlLnYxIiwiZGF0ZU9mQmlydGgiOiIxOTgyMTIyNiIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiNTk4MDYxNjc3NSIsInNzbiI6IjI0MzAyODM3NCIsImZpcnN0TmFtZSI6IlN1ZWFubiIsIm5iZiI6MTYwMTQ5MTgzMSwic3N0IjoxNjAxNDkyMDExLCJkb2IiOiIxOTgyMTIyNiIsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiU3VlYW5uIiwibGFzdE5hbWUiOiJHb3JjemFueSIsImdlbmRlciI6Ik1BTEUiLCJpY24iOiIyOTMwODU2NDgxMjYwMTE1NyIsImRvYiI6IjE5ODItMTItMjYiLCJkYXRlT2ZCaXJ0aCI6IjE5ODItMTItMjYiLCJzc24iOiIyNDMwMjgzNzQifSwidmFtZi5hdXRoLnJvbGVzIjpbInZldGVyYW4iXSwiZXhwIjoxNjAxNDkyOTExLCJqdGkiOiJhOTQwMzA1Yy02OTEwLTQyYTYtYTIyOC01NTQ1MTVlOGE4NDQiLCJsb2EiOjJ9.Bo6VpA1gb47sKxstRSNE4qQhrp5kxvKCRnf6uBJRScPZq1I8jyFXf5H_CGBxBP8LfdhDauSjN43rMSW92UErv3Z3y7v8pqQQaLO-z8sLCen3QOtGFBUY5m4JPcYf11d2Gpb-QbUU_KKIfMg76KlFLsY34ns2jlCSAKIXbxjvmHncZY5cSEu3EMfdcbyap2I3UijR_JyG5g23uJQQO8hqUjOUz9w0BfP7IpYp3FRWvv9117Hn9YA5wkpXK1uNV--4h4Zl4eNojt2Zo5arhHQ2rayBObkJIcRStcVg3OqiyLIahfRoLeM8Iw3Rd3H73yzzs9JlMZO30ppTHTbncFL_wA
       X-Request-Id:
-      - 70d3c71f-2bc6-4452-91fb-76bd822a17a3
+      - 340eedb4-803c-4fcc-a9f8-972229519a2b
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 30 Sep 2020 01:08:13 GMT
+      - Wed, 30 Sep 2020 18:53:32 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -37,7 +37,7 @@ http_interactions:
       X-Vamf-Version:
       - 1.9.0
       B3:
-      - c4ce62195e884a88-a2b9d22fd0be922f-0
+      - 91803f253ce515fc-beb048157d285cf5-1
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
@@ -62,7 +62,7 @@ http_interactions:
             "objectType" : "AtomLink"
           } ],
           "id" : "983",
-          "createdDate" : "2020-09-28T22:23:12Z",
+          "createdDate" : "2020-09-30T16:45:08Z",
           "lastModifiedDate" : "2020-06-16T18:17:23Z",
           "createdBy" : "NADEAU, MARCY",
           "coreSettings" : [ {
@@ -123,7 +123,6 @@ http_interactions:
           }, {
             "id" : "323",
             "typeOfCare" : "Primary Care",
-            "patientHistoryRequired" : "No",
             "stopCodes" : [ {
               "primary" : "322"
             }, {
@@ -237,7 +236,7 @@ http_interactions:
             "objectType" : "AtomLink"
           } ],
           "id" : "983GB",
-          "createdDate" : "2020-09-28T21:19:06Z",
+          "createdDate" : "2020-09-30T16:45:54Z",
           "lastModifiedDate" : "2020-08-19T16:03:21Z",
           "createdBy" : "NADEAU, MARCY",
           "coreSettings" : [ {
@@ -288,6 +287,7 @@ http_interactions:
           }, {
             "id" : "211",
             "typeOfCare" : "Amputation Services",
+            "patientHistoryRequired" : "No",
             "patientHistoryDuration" : 0,
             "stopCodes" : [ {
               "primary" : "211"
@@ -346,6 +346,7 @@ http_interactions:
           }, {
             "id" : "502",
             "typeOfCare" : "Outpatient Mental Health",
+            "patientHistoryRequired" : "No",
             "patientHistoryDuration" : 0,
             "stopCodes" : [ {
               "primary" : "502",
@@ -412,7 +413,7 @@ http_interactions:
             "objectType" : "AtomLink"
           } ],
           "id" : "983GC",
-          "createdDate" : "2020-09-28T21:45:43Z",
+          "createdDate" : "2020-09-30T16:45:24Z",
           "lastModifiedDate" : "2020-06-16T18:32:48Z",
           "createdBy" : "NADEAU, MARCY",
           "coreSettings" : [ {
@@ -477,7 +478,6 @@ http_interactions:
           }, {
             "id" : "323",
             "typeOfCare" : "Primary Care",
-            "patientHistoryRequired" : "No",
             "stopCodes" : [ {
               "primary" : "322"
             }, {
@@ -594,7 +594,7 @@ http_interactions:
             "objectType" : "AtomLink"
           } ],
           "id" : "983GD",
-          "createdDate" : "2020-09-28T21:46:00Z",
+          "createdDate" : "2020-09-30T16:45:38Z",
           "lastModifiedDate" : "2020-08-19T16:04:25Z",
           "createdBy" : "NADEAU, MARCY",
           "coreSettings" : [ {
@@ -648,7 +648,6 @@ http_interactions:
           }, {
             "id" : "211",
             "typeOfCare" : "Amputation Services",
-            "patientHistoryRequired" : "No",
             "patientHistoryDuration" : 0,
             "stopCodes" : [ {
               "primary" : "211"
@@ -659,7 +658,6 @@ http_interactions:
           }, {
             "id" : "323",
             "typeOfCare" : "Primary Care",
-            "patientHistoryRequired" : "No",
             "stopCodes" : [ {
               "primary" : "322"
             }, {
@@ -706,6 +704,7 @@ http_interactions:
           }, {
             "id" : "502",
             "typeOfCare" : "Outpatient Mental Health",
+            "patientHistoryRequired" : "No",
             "patientHistoryDuration" : 0,
             "stopCodes" : [ {
               "primary" : "502",
@@ -946,9 +945,9 @@ http_interactions:
             "objectType" : "AtomLink"
           } ],
           "id" : "984",
-          "createdDate" : "2020-09-28T17:54:34Z",
+          "createdDate" : "2020-09-30T16:43:32Z",
           "lastModifiedDate" : "2020-06-16T18:47:33Z",
-          "createdBy" : "Balboni, Jeffrey",
+          "createdBy" : "NADEAU, MARCY",
           "coreSettings" : [ {
             "id" : "123",
             "typeOfCare" : "Food and Nutrition",
@@ -986,6 +985,7 @@ http_interactions:
           }, {
             "id" : "203",
             "typeOfCare" : "Audiology",
+            "patientHistoryRequired" : "No",
             "patientHistoryDuration" : 0,
             "stopCodes" : [ {
               "primary" : "203"
@@ -996,6 +996,7 @@ http_interactions:
           }, {
             "id" : "211",
             "typeOfCare" : "Amputation Services",
+            "patientHistoryRequired" : "No",
             "patientHistoryDuration" : 0,
             "stopCodes" : [ {
               "primary" : "211"
@@ -1052,6 +1053,7 @@ http_interactions:
           }, {
             "id" : "502",
             "typeOfCare" : "Outpatient Mental Health",
+            "patientHistoryRequired" : "No",
             "patientHistoryDuration" : 0,
             "stopCodes" : [ {
               "primary" : "502",
@@ -1797,8 +1799,8 @@ http_interactions:
           } ]
         }, {
           "id" : "983QE",
-          "createdDate" : "2020-09-30T01:08:13Z",
-          "lastModifiedDate" : "2020-09-30T01:08:13Z",
+          "createdDate" : "2020-09-30T18:53:32Z",
+          "lastModifiedDate" : "2020-09-30T18:53:32Z",
           "coreSettings" : [ {
             "id" : "123",
             "typeOfCare" : "Food and Nutrition",
@@ -1963,8 +1965,8 @@ http_interactions:
           } ]
         }, {
           "id" : "984GF",
-          "createdDate" : "2020-09-30T01:08:13Z",
-          "lastModifiedDate" : "2020-09-30T01:08:13Z",
+          "createdDate" : "2020-09-30T18:53:32Z",
+          "lastModifiedDate" : "2020-09-30T18:53:32Z",
           "coreSettings" : [ {
             "id" : "123",
             "typeOfCare" : "Food and Nutrition",
@@ -2128,5 +2130,5 @@ http_interactions:
             "enterpriseSubmittedRequestLimit" : 2
           } ]
         } ]
-  recorded_at: Wed, 30 Sep 2020 01:08:13 GMT
+  recorded_at: Wed, 30 Sep 2020 18:53:32 GMT
 recorded_with: VCR 6.0.0
