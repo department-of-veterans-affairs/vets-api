@@ -91,7 +91,7 @@ module AuthenticationAndSSOConcerns
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
-  # Sets two cookies, used by MHV and used by ALL for SSO
+  # Sets a cookie used by MHV for SSO
   def set_sso_cookie!
     return unless Settings.sso.cookie_enabled &&
                   @session_object.present? &&
