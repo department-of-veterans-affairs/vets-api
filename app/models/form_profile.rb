@@ -266,6 +266,21 @@ class FormProfile
     FormContactInformation.new(opt)
   end
 
+  # doing this (below) instead of `@vet360_contact_info ||= Settings...` to cache nil too
+  def vet360_contact_info
+    return @vet360_contact_info if @vet360_contact_info_retrieved
+
+    @vet360_contact_info_retrieved = true
+    @vet360_contact_info = Settings.vet360.prefill &&
+                           user.vet360_id.present? &&
+                           Vet360Redis::ContactInformation.for_user(user) ||
+                           nil
+  end
+
+  def vet360_mailing_address
+    vet360_contact_info&.mailing_address
+  end
+
   def va_profile_address_hash
     user.va_profile&.address &&
       {
@@ -297,11 +312,16 @@ class FormProfile
     ''
   end
 
-  def get_us_phone(home_phone)
-    return '' if home_phone.blank?
-    return home_phone if home_phone.size == 10
+  def pciu_primary_phone
+    @pciu_primary_phone ||= extract_pciu_data(:pciu_primary_phone)
+  end
 
-    return home_phone[1..-1] if home_phone.size == 11 && home_phone[0] == '1'
+
+  def pciu_us_phone
+    return '' if pciu_primary_phone.blank?
+    return pciu_primary_phone if pciu_primary_phone.size == 10
+
+    return pciu_primary_phone[1..-1] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
 
     ''
   end
