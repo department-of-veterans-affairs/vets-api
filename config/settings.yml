@@ -22,9 +22,6 @@ saml_ssoe:
   idp_metadata_file: config/ssoe_idp_int_metadata_isam.xml
   cert_path: ~
   cert_new_path: ~
-  cookie_name: vagov_saml_request_dev
-  cookie_domain: localhost
-  cookie_secure: false
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
