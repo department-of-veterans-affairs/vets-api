@@ -384,7 +384,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         .and_raise(Common::Exceptions::GatewayTimeout.new)
       expect { described_class.new.perform(upload.guid) }.not_to raise_error(Common::Exceptions::GatewayTimeout)
       upload.reload
-      expect(upload.status).to eq('recieved')
+      expect(upload.status).to eq('uploaded')
     end
 
     it 'checks for updated status for Faraday timeout error' do
@@ -394,7 +394,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         .and_raise(Faraday::TimeoutError.new)
       expect { described_class.new.perform(upload.guid) }.not_to raise_error(Faraday::TimeoutError)
       upload.reload
-      expect(upload.status).to eq('recieved')
+      expect(upload.status).to eq('uploaded')
     end
   end
 end
