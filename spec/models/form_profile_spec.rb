@@ -20,12 +20,7 @@ RSpec.describe FormProfile, type: :model do
     described_class.new(form_id: 'foo', user: user)
   end
 
-  let(:us_phone) do
-    form_profile.send(
-      :get_us_phone,
-      user.pciu_primary_phone
-    )
-  end
+  let(:us_phone) { form_profile.send :pciu_us_phone }
 
   let(:full_name) do
     {
@@ -715,27 +710,28 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  describe '#get_us_phone' do
-    def self.test_get_us_phone(phone, expected)
+  describe '#pciu_us_phone' do
+    def self.test_pciu_us_phone(primary, expected)
       it "returns #{expected}" do
-        expect(form_profile.send(:get_us_phone, phone)).to eq(expected)
+        allow_any_instance_of(FormProfile).to receive(:pciu_primary_phone).and_return(primary)
+        expect(form_profile.send(:pciu_us_phone)).to eq(expected)
       end
     end
 
     context 'with nil' do
-      test_get_us_phone(nil, '')
+      test_pciu_us_phone(nil, '')
     end
 
     context 'with an intl phone number' do
-      test_get_us_phone('442079460976', '')
+      test_pciu_us_phone('442079460976', '')
     end
 
     context 'with a us phone number' do
-      test_get_us_phone('5557940976', '5557940976')
+      test_pciu_us_phone('5557940976', '5557940976')
     end
 
     context 'with a us phone number' do
-      test_get_us_phone('15557940976', '5557940976')
+      test_pciu_us_phone('15557940976', '5557940976')
     end
   end
 
@@ -1060,6 +1056,9 @@ RSpec.describe FormProfile, type: :model do
         schema = VetsJsonSchema::SCHEMAS[schema_name]
         full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
 
+        allow_any_instance_of(BGS::PeopleService).to(
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        )
         prefill_data = Oj.load(described_class.for(form_id: schema_name, user: user).prefill.to_json)['form_data']
 
         test_data = full_example.deep_merge prefill_data
