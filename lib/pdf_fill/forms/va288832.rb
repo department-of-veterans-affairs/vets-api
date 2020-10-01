@@ -286,17 +286,17 @@ module PdfFill
 
         expand_veteran_ssn
 
-        expand_signature(@form_data['claimant_information']['full_name'])
+        expand_signature(@form_data['claimantInformation']['fullName'])
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
 
         @form_data
       end
 
       def merge_claimant_helpers
-        claimant_information = @form_data['claimant_information']
+        claimant_information = @form_data['claimantInformation']
 
         # extract middle initial
-        claimant_information['full_name'] = extract_middle_i(claimant_information, 'full_name')
+        claimant_information['fullName'] = extract_middle_i(claimant_information, 'fullName')
 
         # extract ssn
         ssn = claimant_information['ssn']
@@ -312,17 +312,17 @@ module PdfFill
         expand_phone_number
 
         # extract postal code and country
-        claimant_address = @form_data['claimant_address']
-        claimant_address['zip_code'] = split_postal_code(claimant_address)
-        claimant_address['country_name'] = extract_country(claimant_address)
+        claimant_address = @form_data['claimantAddress']
+        claimant_address['zipCode'] = split_postal_code(claimant_address)
+        claimant_address['countryName'] = extract_country(claimant_address)
       end
 
       def merge_veteran_helpers
-        veteran_information = @form_data['veteran_information']
+        veteran_information = @form_data['veteranInformation']
         return if veteran_information.blank?
 
         # extract middle initial
-        veteran_information['full_name'] = extract_middle_i(veteran_information, 'full_name')
+        veteran_information['fullName'] = extract_middle_i(veteran_information, 'fullName')
 
         # extract ssn
         ssn = veteran_information['ssn']
@@ -342,7 +342,7 @@ module PdfFill
       end
 
       def expand_phone_number
-        phone_number = @form_data['phone_number']
+        phone_number = @form_data['claimantPhoneNumber']
         if phone_number.present?
           phone_number = phone_number.delete('^0-9')
           @form_data['phone_number'] = {
@@ -355,12 +355,12 @@ module PdfFill
 
       def expand_veteran_ssn
         # veteran ssn is at the top of page 2
-        veteran_information = @form_data['veteran_information']
+        veteran_information = @form_data['veteranInformation']
         veteran_ssn =
           if veteran_information.blank?
-            @form_data['claimant_information']['ssn']
+            @form_data['claimantInformation']['ssn']
           else
-            @form_data['veteran_information']['ssn']
+            @form_data['veteranInformation']['ssn']
           end
         @form_data['veteran_ssn'] = veteran_ssn
       end
