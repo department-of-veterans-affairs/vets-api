@@ -140,7 +140,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
-          expect(response).to match_response  _schema('vaos/va_appointments', { strict: false })
+          expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
         end
       end
 
