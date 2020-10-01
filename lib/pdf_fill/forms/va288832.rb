@@ -286,24 +286,24 @@ module PdfFill
 
         expand_veteran_ssn
 
-        expand_signature(@form_data['claimantInformation']['fullName'])
+        expand_signature(@form_data['veteranFullName'])
         @form_data['signature_date'] = split_date(@form_data['signatureDate'])
 
         @form_data
       end
 
       def merge_claimant_helpers
-        claimant_information = @form_data['claimantInformation']
+        claimant_information = {}
 
         # extract middle initial
-        claimant_information['fullName'] = extract_middle_i(claimant_information, 'fullName')
+        claimant_information['fullName'] = extract_middle_i(@form_data, 'veteranFullName')
 
         # extract ssn
-        ssn = claimant_information['ssn']
+        ssn = @form_data['ssn']
         claimant_information['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
 
         # extract birth date
-        claimant_information['date_of_birth'] = split_date(claimant_information['date_of_birth'])
+        claimant_information['date_of_birth'] = split_date(@form_data['dateOfBirth'])
 
         # extract relationship
         expand_relationship
@@ -315,6 +315,7 @@ module PdfFill
         claimant_address = @form_data['claimantAddress']
         claimant_address['zipCode'] = split_postal_code(claimant_address)
         claimant_address['countryName'] = extract_country(claimant_address)
+
       end
 
       def merge_veteran_helpers
@@ -355,14 +356,8 @@ module PdfFill
 
       def expand_veteran_ssn
         # veteran ssn is at the top of page 2
-        veteran_information = @form_data['veteranInformation']
-        veteran_ssn =
-          if veteran_information.blank?
-            @form_data['claimantInformation']['ssn']
-          else
-            @form_data['veteranInformation']['ssn']
-          end
-        @form_data['veteran_ssn'] = veteran_ssn
+        # Not sure what the purpose of this is
+        @form_data['veteran_ssn'] = @form_data['ssn']
       end
     end
   end

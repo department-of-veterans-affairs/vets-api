@@ -86,7 +86,7 @@ module CentralMail
       form = @claim.parsed_form
       form_pdf_metadata = get_hash_and_pages(@pdf_path)
       number_attachments = @attachment_paths.size
-      veteran_full_name = form['veteranFullName'] || form.dig('claimantInformation', 'fullName')
+      veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
       receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
