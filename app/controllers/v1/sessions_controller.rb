@@ -138,14 +138,14 @@ module V1
     end
 
     def render_login(type)
-      login_url, @post_params = login_params(type)
+      login_url, post_params = login_params(type)
       tracker = url_service.tracker
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
                                locals: {
                                  url: login_url,
-                                 params: @post_params,
+                                 params: post_params,
                                  id: tracker.uuid,
                                  authn: tracker.payload_attr(:authn_context),
                                  type: tracker.payload_attr(:type)
