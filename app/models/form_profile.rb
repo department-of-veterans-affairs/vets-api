@@ -94,7 +94,7 @@ class FormProfile
   ALL_FORMS = {
     edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-5490
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203],
-    evss: %w[21-526EZ 21-526EZ-BDD],
+    evss: ['21-526EZ'],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
     dependents: ['686C-674'],
@@ -107,7 +107,6 @@ class FormProfile
     '1010EZ' => ::FormProfiles::VA1010ez,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
-    '21-526EZ-BDD' => ::FormProfiles::VA526ezbdd,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
@@ -129,7 +128,7 @@ class FormProfile
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
 
-  attr_accessor :form_id
+  attr_reader :form_id, :user
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
@@ -141,13 +140,15 @@ class FormProfile
     forms
   end
 
-  def self.for(form)
-    form = form.upcase
-    FORM_ID_TO_CLASS.fetch(form, self).new(form)
+  # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
+  def self.for(form_id:, user:)
+    form_id = form_id.upcase
+    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id: form_id, user: user)
   end
 
-  def initialize(form)
-    @form_id = form
+  def initialize(form_id:, user:)
+    @form_id = form_id
+    @user = user
   end
 
   def metadata
@@ -160,11 +161,7 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    if form_id == '1010EZ' # our first form. lessons learned.
-      form_id = form_id.downcase
-    elsif form_id == '21-526EZ-BDD'
-      form_id = '21-526EZ' # the front end treats the forms differently, but the back end doesn't
-    end
+    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
@@ -178,10 +175,10 @@ class FormProfile
   # * MVI
   # * TODO(AJD): MIS (military history)
   #
-  def prefill(user)
-    @identity_information = initialize_identity_information(user)
-    @contact_information = initialize_contact_information(user)
-    @military_information = initialize_military_information(user)
+  def prefill
+    @identity_information = initialize_identity_information
+    @contact_information = initialize_contact_information
+    @military_information = initialize_military_information
     mappings = self.class.mappings_for_form(form_id)
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
@@ -192,7 +189,7 @@ class FormProfile
 
   private
 
-  def initialize_military_information(user)
+  def initialize_military_information
     return {} unless user.authorize :emis, :access?
 
     military_information = user.military_information
@@ -216,7 +213,7 @@ class FormProfile
     FormMilitaryInformation.new(military_information_data)
   end
 
-  def initialize_identity_information(user)
+  def initialize_identity_information
     FormIdentityInformation.new(
       full_name: user.full_name_normalized,
       date_of_birth: user.birth_date,
@@ -237,7 +234,7 @@ class FormProfile
     }.compact
   end
 
-  def initialize_vets360_contact_info(user)
+  def initialize_vets360_contact_info
     return_val = {}
     contact_information = Vet360Redis::ContactInformation.for_user(user)
     return_val[:email] = contact_information.email&.email_address
@@ -253,24 +250,15 @@ class FormProfile
     return_val
   end
 
-  def initialize_contact_information(user)
+  def initialize_contact_information
     opt = {}
-    opt.merge!(initialize_vets360_contact_info(user)) if Settings.vet360.prefill && user.vet360_id.present?
+    opt.merge!(initialize_vets360_contact_info) if Settings.vet360.prefill && user.vet360_id.present?
 
-    if opt[:address].nil? && user.va_profile&.address
-      opt[:address] = {
-        street: user.va_profile.address.street,
-        street2: nil,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        country: user.va_profile.address.country,
-        postal_code: user.va_profile.address.postal_code
-      }
-    end
+    opt[:address] ||= va_profile_address_hash
 
-    opt[:email] ||= extract_pciu_data(user, :pciu_email)
+    opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
-      pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
+      pciu_primary_phone = extract_pciu_data(:pciu_primary_phone)
       opt[:home_phone] = pciu_primary_phone
       opt[:us_phone] = get_us_phone(pciu_primary_phone)
     end
@@ -278,6 +266,18 @@ class FormProfile
     format_for_schema_compatibility(opt)
 
     FormContactInformation.new(opt)
+  end
+
+  def va_profile_address_hash
+    user.va_profile&.address &&
+      {
+        street: user.va_profile.address.street,
+        street2: nil,
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        country: user.va_profile.address.country,
+        postal_code: user.va_profile.address.postal_code
+      }
   end
 
   def format_for_schema_compatibility(opt)
@@ -293,7 +293,7 @@ class FormProfile
     opt[:address][:postal_code] = opt[:address][:postal_code][0..4] if opt.dig(:address, :postal_code)
   end
 
-  def extract_pciu_data(user, method)
+  def extract_pciu_data(method)
     user&.send(method)
   rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
     ''

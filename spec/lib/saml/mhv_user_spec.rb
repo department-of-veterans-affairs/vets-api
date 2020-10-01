@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'support/saml/response_builder'
+require 'saml/user'
 
 RSpec.describe SAML::User do
   include SAML::ResponseBuilder
@@ -39,8 +40,7 @@ RSpec.describe SAML::User do
           mhv_icn: '',
           multifactor: false,
           sec_id: nil,
-          authn_context: 'myhealthevet',
-          authenticated_by_ssoe: false
+          authn_context: 'myhealthevet'
         )
       end
 
@@ -67,8 +67,7 @@ RSpec.describe SAML::User do
             mhv_account_type: 'Basic',
             mhv_correlation_id: '12345748',
             mhv_icn: '',
-            sign_in: { service_name: 'myhealthevet', account_type: 'Basic' },
-            authenticated_by_ssoe: false
+            sign_in: { service_name: 'myhealthevet', account_type: 'Basic' }
           )
         end
 
@@ -101,8 +100,7 @@ RSpec.describe SAML::User do
             loa: { current: 3, highest: 3 },
             sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
             multifactor: true,
-            authn_context: 'myhealthevet_loa3',
-            authenticated_by_ssoe: false
+            authn_context: 'myhealthevet_loa3'
           )
         end
 
@@ -127,8 +125,7 @@ RSpec.describe SAML::User do
           mhv_correlation_id: '12345748',
           mhv_icn: '1012853550V207686',
           multifactor: false,
-          authn_context: 'myhealthevet',
-          authenticated_by_ssoe: false
+          authn_context: 'myhealthevet'
         )
       end
 
@@ -157,8 +154,7 @@ RSpec.describe SAML::User do
             sec_id: nil,
             mhv_account_type: 'Premium',
             mhv_correlation_id: '12345748',
-            mhv_icn: '1012853550V207686',
-            authenticated_by_ssoe: false
+            mhv_icn: '1012853550V207686'
           )
         end
 

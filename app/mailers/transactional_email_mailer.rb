@@ -3,7 +3,7 @@
 class TransactionalEmailMailer < ApplicationMailer
   def build(email, google_analytics_client_id, opt = {})
     @google_analytics_client_id = google_analytics_client_id
-    @google_analytics_tracking_id = Settings.google_analytics_tracking_id
+    @google_analytics_tracking_id = Settings.google_analytics.tracking_id
 
     template = File.read("app/mailers/views/#{self.class::TEMPLATE}.html.erb")
 

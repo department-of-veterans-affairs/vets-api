@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/disability_compensation_auth_headers'
-require 'evss/disability_compensation_form/configuration'
-require 'evss/disability_compensation_form/service'
-require 'common/exceptions'
 
 RSpec.describe 'Disability Claims ', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796043735',
+    { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-VA-EDIPI': '1007697216',
@@ -143,6 +139,33 @@ RSpec.describe 'Disability Claims ', type: :request do
           post path, params: params.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
           expect(JSON.parse(response.body)['errors'].size).to eq(2)
+        end
+      end
+
+      describe 'disabilities specialIssues' do
+        context 'when an incorrect type is passed for specialIssues' do
+          it 'returns errors explaining the failure' do
+            with_okta_user(scopes) do |auth_header|
+              params = json_data
+              params['data']['attributes']['disabilities'][0]['specialIssues'] = ['invalidType']
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(422)
+              expect(JSON.parse(response.body)['errors'].size).to eq(1)
+            end
+          end
+        end
+
+        context 'when correct types are passed for specialIssues' do
+          it 'returns a successful status' do
+            VCR.use_cassette('evss/claims/claims') do
+              with_okta_user(scopes) do |auth_header|
+                params = json_data
+                params['data']['attributes']['disabilities'][0]['specialIssues'] = %w[ALS HEPC]
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
         end
       end
 

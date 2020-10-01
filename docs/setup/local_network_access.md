@@ -17,7 +17,7 @@ These changes will work for accessing a local deploy on another device on the sa
 1. In `settings.local.yml` 
     1. Add `http://192.168.x.x:3000` and `http://192.168.x.x:3001` to `web_origin`
     1. Add `"192.168.x.x"` to `virtual_hosts`
-    1. Set `virual_host_localhost` to `192.168.x.x`
+    1. Set `virtual_host_localhost` to `192.168.x.x`
     
    ```
    # For CORS requests; separate multiple origins with a comma

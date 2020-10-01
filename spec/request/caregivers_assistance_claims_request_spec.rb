@@ -98,14 +98,10 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false).twice
 
         VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
-            VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
-              VCR.use_cassette 'carma/auth/token/200', vcr_options do
-                VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-                  VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
-                    post endpoint, params: body, headers: headers
-                  end
-                end
+          VCR.use_cassette 'carma/auth/token/200', vcr_options do
+            VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+              VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
+                post endpoint, params: body, headers: headers
               end
             end
           end
@@ -135,11 +131,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true).twice
 
         VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only', vcr_options do
-            VCR.use_cassette 'mvi/find_candidate/valid_no_gender', vcr_options do
-              post endpoint, params: body, headers: headers
-            end
-          end
+          post endpoint, params: body, headers: headers
         end
 
         expect(response.code).to eq('200')
@@ -166,7 +158,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims/download_pdf'
 
     it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
-      form_data = get_fixture('pdf_fill/10-10CG/unsigned/simple').to_json
+      form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
       claim     = build(:caregivers_assistance_claim, form: form_data)
       body      = { caregivers_assistance_claim: { form: form_data } }.to_json
 
