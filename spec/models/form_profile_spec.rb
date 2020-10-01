@@ -667,24 +667,6 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v20_0996_expected) do
-    {
-      'data' => {
-        'attributes' => {
-          'veteran' => {
-            'address' => {
-              'zipCode5' => user.va_profile[:address][:zip_code]
-            },
-            'phone' => {
-              'phoneNumber' => us_phone
-            },
-            'emailAddressText' => user.pciu_email
-          }
-        }
-      }
-    }
-  end
-
   let(:vfeedback_tool_expected) do
     {
       'address' => {
