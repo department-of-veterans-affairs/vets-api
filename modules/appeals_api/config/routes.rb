@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-AppealsApi::Engine.routes.draw do # rubocop:disable Metrics/BlockLength
+AppealsApi::Engine.routes.draw do
   match '/appeals_status/metadata', to: 'metadata#appeals_status', via: [:get]
   match '/decision_reviews/metadata', to: 'metadata#decision_reviews', via: [:get]
   match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
