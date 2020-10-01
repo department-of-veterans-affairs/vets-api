@@ -68,7 +68,7 @@ module AppealsApi
     private
 
     def upstream_service_details(service_name, health_checker, time)
-      healthy = health_checker.send("#{service_name.snakecase}_is_healthy?")
+      healthy = health_checker.healthy_service?(service_name.snakecase)
 
       {
         description: service_name.capitalize,

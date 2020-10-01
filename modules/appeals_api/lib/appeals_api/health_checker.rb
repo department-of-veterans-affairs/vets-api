@@ -14,6 +14,17 @@ module AppealsApi
       caseflow_is_healthy?
     end
 
+    def healthy_service?(service)
+      case service
+      when /caseflow/i
+        caseflow_is_healthy?
+      else
+        raise "AppealsApi::HealthChecker doesn't recognize #{service}"
+      end
+    end
+
+    private
+
     def caseflow_is_healthy?
       return @caseflow_healthy unless @caseflow_healthy.nil?
 

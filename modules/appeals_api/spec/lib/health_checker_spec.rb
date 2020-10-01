@@ -34,22 +34,35 @@ describe AppealsApi::HealthChecker do
     end
   end
 
-  describe '#caseflow_is_healthy?' do
-    context 'when healthy' do
-      it 'returns true' do
-        allow(faraday_response).to receive(:body).and_return({ 'healthy' => true })
-        allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
+  describe '#healthy_service?' do
+    context 'when service is recognized' do
+      context 'when healthy' do
+        it 'returns true' do
+          allow(faraday_response).to receive(:body).and_return({ 'healthy' => true })
+          allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
 
-        expect(subject).to be_caseflow_is_healthy
+          expect(subject.healthy_service?('caseflow')).to eq(true)
+        end
+      end
+
+      context 'when not healthy' do
+        it 'returns false' do
+          allow(faraday_response).to receive(:body).and_return({ 'healthy' => false })
+          allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
+
+          expect(subject.healthy_service?('caseflow')).to eq(false)
+        end
       end
     end
 
-    context 'when not healthy' do
-      it 'returns false' do
-        allow(faraday_response).to receive(:body).and_return({ 'healthy' => false })
-        allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
+    context 'when service is not recognized' do
+      let(:service_name) { 'unknown_service' }
 
-        expect(subject).not_to be_caseflow_is_healthy
+      it 'raises an exception' do
+        expect { subject.healthy_service?(service_name) }.to raise_error do |error|
+          expect(error).to be_a(StandardError)
+          expect(error.message).to eq("AppealsApi::HealthChecker doesn't recognize #{service_name}")
+        end
       end
     end
   end
