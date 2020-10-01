@@ -15,7 +15,7 @@ module EVSS
     #   @return [String] The letter type (must be one of LETTER_TYPES)
     #
     class Letter < Common::Base
-      # if you update LETTER_TYPES, update vets-website src/applications/letters/utils/constants.js
+      # if you update LETTER_TYPES, update LETTER_TYPES in vets-website src/applications/letters/utils/constants.js
       LETTER_TYPES = %w[
         benefit_summary
         benefit_summary_dependent
