@@ -200,10 +200,6 @@ features:
     actor_type: user
     description: >
       Enables debt letters
-  debt_letters_show_letters_v2:
-    actor_type: user
-    description: >
-      Enables debt letters
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: >
