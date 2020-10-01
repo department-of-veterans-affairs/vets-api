@@ -722,7 +722,7 @@ RSpec.describe FormProfile, type: :model do
         'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
-        'country' => 'US',
+        'country' => 'USA',
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
       }
     }
