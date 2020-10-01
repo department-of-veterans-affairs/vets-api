@@ -39,7 +39,8 @@ FactoryBot.define do
           edipi: '1005079124',
           birls_id: '796121200',
           participant_id: '796121200',
-          birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s
+          birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
+          vet360_id: '1'
         )
       )
     end

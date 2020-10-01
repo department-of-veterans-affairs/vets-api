@@ -21,7 +21,7 @@ module Mobile
         zip_code
         zip_code_suffix
       ].freeze
-      
+
       SERVICE_DICTIONARY = {
         appeals: :appeals,
         appointments: :vaos,
@@ -30,10 +30,10 @@ module Mobile
         lettersAndDocuments: :evss,
         militaryServiceHistory: :emis,
         userProfileUpdate: :vet360
-      }
+      }.freeze
 
       def self.filter_address(address)
-        address.to_h.slice(*ADDRESS_KEYS) if address
+        address&.to_h&.slice(*ADDRESS_KEYS)
       end
 
       attribute :profile do |user|
@@ -46,7 +46,7 @@ module Mobile
           mailing_address: filter_address(user.vet360_contact_info&.mailing_address)
         }
       end
-      
+
       attribute :authorized_services do |user|
         SERVICE_DICTIONARY.filter { |_k, v| user.authorize v, :access? }.keys
       end

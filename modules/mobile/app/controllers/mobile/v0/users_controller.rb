@@ -14,13 +14,13 @@ module Mobile
         militaryServiceHistory
         userProfileUpdate
       ].freeze
-      
+
       def show
         render json: Mobile::V0::UserSerializer.new(@current_user, options)
       end
-      
+
       private
-      
+
       def options
         {
           meta: {
