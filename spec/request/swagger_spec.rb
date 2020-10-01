@@ -2716,7 +2716,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           '/v0/education_career_counseling_claims',
           200,
           headers.merge(
-            '_data' => {'education_career_counseling_claim' => {form: build(:education_career_counseling_claim).form }}
+            '_data' => {
+              'education_career_counseling_claim' => {
+                form: build(:education_career_counseling_claim).form
+              }
+            }
           )
         )
 
