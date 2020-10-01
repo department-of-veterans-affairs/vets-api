@@ -16,14 +16,15 @@ module EVSS
     #
     class Letter < Common::Base
       LETTER_TYPES = %w[
+        benefit_summary
+        benefit_summary_dependent
+        benefit_verification
+        civil_service
         commissary
         proof_of_service
+        service_verification
         medicare_partd
         minimum_essential_coverage
-        service_verification
-        civil_service
-        benefit_summary
-        benefit_verification
         certificate_of_eligibility
       ].freeze
 
