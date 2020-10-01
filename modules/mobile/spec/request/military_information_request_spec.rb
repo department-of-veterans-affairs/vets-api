@@ -9,7 +9,6 @@ RSpec.describe 'military_information', type: :request do
   describe 'GET /mobile/v0/military-service-history' do
     context 'with a user who has a cached iam session' do
       before { iam_sign_in }
-      let(:inflection_header) { {'X-Key-Inflection' => 'camel'} }
       let(:expected_body_multi) do
         {
             'data' => {
@@ -62,7 +61,7 @@ RSpec.describe 'military_information', type: :request do
       context 'with multiple military service episodes' do
         it 'matches the mobile service history schema' do
           VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
-            get '/mobile/v0/military-service-history', headers: {'Authorization' => "Bearer #{access_token}"}
+            get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_multi)
             expect(response).to match_response_schema('mobile_service_history_response')
@@ -73,7 +72,7 @@ RSpec.describe 'military_information', type: :request do
       context 'with one military service episode' do
         it 'matches the mobile service history schema' do
           VCR.use_cassette('emis/get_military_service_episodes/valid') do
-            get '/mobile/v0/military-service-history', headers: {'Authorization' => "Bearer #{access_token}"}
+            get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_single)
             expect(response).to match_response_schema('mobile_service_history_response')
