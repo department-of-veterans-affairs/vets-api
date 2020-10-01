@@ -168,8 +168,9 @@ module V1
     end
 
     def saml_cookie_content
-      transaction_id = if current_user && url_service.should_uplevel?
-                         JSON.parse(cookies[Settings.ssoe_eauth_cookie.name])['transaction_id']
+      ssoe_cookie =  cookies[Settings.ssoe_eauth_cookie.name]
+      transaction_id = if current_user && url_service.should_uplevel? && ssoe_cookie
+                         JSON.parse(ssoe_cookie)['transaction_id']
                        else
                          SecureRandom.uuid
                        end
