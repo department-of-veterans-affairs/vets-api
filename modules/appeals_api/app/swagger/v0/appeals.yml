@@ -74,7 +74,7 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/Appeal"
+                    $ref: "#/components/schemas/Appeals"
         '400':
           description: Missing SSN header
         '401':
@@ -92,6 +92,10 @@ components:
       name: apikey
       in: query
   schemas:
+    Appeals:
+      type: array
+      items:
+        $ref: '#components/schemas/Appeal'
     Appeal:
       type: object
       properties:
