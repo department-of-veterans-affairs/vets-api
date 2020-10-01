@@ -6,16 +6,15 @@ module V0
       before_action { authorize :bgs, :access? }
 
       def show
-        render json: {
-    "data": {
-        "id": "",
-        "type": "valid_va_file_number",
-        "attributes": {
-            "valid_va_file_number": true
-        }
-    }
-}.to_json
+        service = BGS::PeopleService.new(current_user)
+        response = service.find_person_by_participant_id
+
+        render(
+          json: valid_va_file_number_data(response),
+          serializer: ValidVaFileNumberSerializer
+        )
       end
+
 
       private
 
