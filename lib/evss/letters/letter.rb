@@ -15,16 +15,18 @@ module EVSS
     #   @return [String] The letter type (must be one of LETTER_TYPES)
     #
     class Letter < Common::Base
+      # if you update LETTER_TYPES, update LETTER_TYPES in vets-website src/applications/letters/utils/constants.js
       LETTER_TYPES = %w[
-        commissary
-        proof_of_service
-        medicare_partd
-        minimum_essential_coverage
-        service_verification
-        civil_service
         benefit_summary
+        benefit_summary_dependent
         benefit_verification
         certificate_of_eligibility
+        civil_service
+        commissary
+        medicare_partd
+        minimum_essential_coverage
+        proof_of_service
+        service_verification
       ].freeze
 
       attribute :name, String
