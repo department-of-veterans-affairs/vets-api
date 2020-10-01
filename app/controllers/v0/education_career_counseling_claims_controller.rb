@@ -5,8 +5,7 @@ module V0
     skip_before_action :verify_authenticity_token
 
     def create
-      claim = SavedClaim::EducationCareerCounselingClaim.new(form: career_counseling_params[:form])
-
+      claim = SavedClaim::EducationCareerCounselingClaim.new(form: filtered_params[:form])
       claim.add_veteran_info(current_user) if current_user
 
       unless claim.save
@@ -18,27 +17,14 @@ module V0
       claim.process_attachments!
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      # clear_saved_form(claim.form_id)
+      clear_saved_form(claim.form_id)
       render(json: claim)
     end
 
     private
 
-    # def career_counseling_params
-    #   params.require(:education_career_counseling_claim).permit(
-    #     :status,
-    #     :claimant_phone_number,
-    #     :claimant_email_address,
-    #     claimant_address: {}
-    #   )
-    # end
-
-    def career_counseling_params
-      params.permit(:form)
-    end
-
-    def stats_key
-      'api.education_career_counseling'
+    def short_name
+      'education_career_counseling_claim'
     end
   end
 end
