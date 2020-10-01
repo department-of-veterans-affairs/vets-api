@@ -153,7 +153,34 @@ module V1
                                },
                                format: :html
       render body: result, content_type: 'text/html'
+      set_sso_saml_cookie!
       saml_request_stats
+    end
+
+    def set_sso_saml_cookie!
+      cookies[Settings.ssoe_eauth_cookie.name] = {
+        value: saml_cookie_content.to_json,
+        expires: nil,
+        secure: Settings.ssoe_eauth_cookie.secure,
+        httponly: true,
+        domain: Settings.ssoe_eauth_cookie.domain
+      }
+    end
+
+    def saml_cookie_content
+      ssoe_cookie =  cookies[Settings.ssoe_eauth_cookie.name]
+      transaction_id = if current_user && url_service.should_uplevel? && ssoe_cookie
+                         JSON.parse(ssoe_cookie)['transaction_id']
+                       else
+                         SecureRandom.uuid
+                       end
+
+      {
+        'timestamp' => Time.now.iso8601,
+        'transaction_id' => transaction_id,
+        'saml_request_id' => url_service.tracker&.uuid,
+        'saml_request_query_params' => url_service.query_params
+      }
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
