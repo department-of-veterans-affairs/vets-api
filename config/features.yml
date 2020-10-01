@@ -290,3 +290,7 @@ features:
     description: >
       Add text message opt-in question to 10203 Personal Information chapter and layout changes     
 
+  show_authenticated_homepage:
+  acto_type: user
+    description: >
+      This will show the authenticated homepage for logged-in users
