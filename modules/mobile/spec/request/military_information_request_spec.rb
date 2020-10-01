@@ -2,9 +2,10 @@
 
 require 'rails_helper'
 require_relative '../support/iam_session_helper'
+require_relative '../matchers/mobile_schema_matchers'
 
 RSpec.describe 'military_information', type: :request do
-  include SchemaMatchers
+  include MobileSchemaMatchers
   describe 'GET /mobile/v0/military-service-history' do
     context 'with a user who has a cached iam session' do
       before { iam_sign_in }
