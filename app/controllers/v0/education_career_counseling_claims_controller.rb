@@ -2,8 +2,6 @@
 
 module V0
   class EducationCareerCounselingClaimsController < ClaimsBaseController
-    skip_before_action :verify_authenticity_token
-
     def create
       claim = SavedClaim::EducationCareerCounselingClaim.new(form: filtered_params[:form])
       claim.add_veteran_info(current_user) if current_user
