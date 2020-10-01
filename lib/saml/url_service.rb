@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'responses/login'
+
 module SAML
   # This class is responsible for providing the URLs for the various SSO and SLO endpoints
   class URLService

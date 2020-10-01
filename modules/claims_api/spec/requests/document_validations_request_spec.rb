@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Document Validations Requests', type: :request do
   describe 'an upload request' do
     let(:headers) do
-      { 'X-VA-SSN': '796043735',
+      { 'X-VA-SSN': '796-04-3735',
         'X-VA-First-Name': 'WESLEY',
         'X-VA-Last-Name': 'FORD',
         'X-VA-EDIPI': '1007697216',

@@ -264,7 +264,7 @@ http_interactions:
       - '591'
     body:
       encoding: UTF-8
-      string: '{"data":{"id":"","type":"users","attributes":{"services":["facilities","hca","edu-benefits","user-profile","form-save-in-progress","form-prefill"],"profile":{"email":"vets.gov.user+0@gmail.com","first_name":"HECTOR","middle_name":null,"last_name":"ALLEN","birth_date":null,"gender":null,"zip":null,"last_signed_in":"2017-08-29T03:32:30.000Z","loa":{"current":1,"highest":3}},"va_profile":{"status":"NOT_AUTHORIZED"},"veteran_status":{"status":"SERVER_ERROR"},"in_progress_forms":[],"prefills_available":["1010ez","21P-527EZ","21P-530"]}}}'
+      string: '{"data":{"id":"","type":"users","attributes":{"services":["facilities","hca","edu-benefits","user-profile","form-save-in-progress","form-prefill"],"profile":{"email":"vets.gov.user+0@gmail.com","first_name":"HECTOR","middle_name":null,"last_name":"ALLEN","birth_date":null,"gender":null,"zip":null,"last_signed_in":"2017-08-29T03:32:30.000Z","loa":{"current":1,"highest":3}},"va_profile":{"status":"NOT_AUTHORIZED"},"veteran_status":{"status":"SERVER_ERROR"},"in_progress_forms":[],"prefills_available":["1010ez","21P-527EZ","21P-530"],"session":{"ssoe":false,"transactionid":null}}}}'
     http_version:
   recorded_at: Tue, 29 Aug 2017 03:32:30 GMT
 - request:
