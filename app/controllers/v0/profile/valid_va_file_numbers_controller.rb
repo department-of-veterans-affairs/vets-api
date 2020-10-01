@@ -15,7 +15,6 @@ module V0
         )
       end
 
-
       private
 
       def valid_va_file_number_data(service_response)
