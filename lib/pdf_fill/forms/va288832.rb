@@ -315,7 +315,6 @@ module PdfFill
         claimant_address = @form_data['claimantAddress']
         claimant_address['zipCode'] = split_postal_code(claimant_address)
         claimant_address['countryName'] = extract_country(claimant_address)
-
       end
 
       def merge_veteran_helpers
