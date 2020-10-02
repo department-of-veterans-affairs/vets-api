@@ -1057,7 +1057,7 @@ RSpec.describe FormProfile, type: :model do
         expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String)
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
