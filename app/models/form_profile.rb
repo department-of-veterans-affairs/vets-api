@@ -310,6 +310,15 @@ class FormProfile
     ''
   end
 
+  def pciu_us_phone
+    return '' if pciu_primary_phone.blank?
+    return pciu_primary_phone if pciu_primary_phone.size == 10
+
+    return pciu_primary_phone[1..-1] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
+
+    ''
+  end
+
   # returns the veteran's phone number as an object
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
@@ -324,15 +333,6 @@ class FormProfile
     return phone_struct.new(pciu_us_phone.first(3), pciu_us_phone.last(7)) if pciu_us_phone&.length == 10
 
     phone_struct.new
-  end
-
-  def pciu_us_phone
-    return '' if pciu_primary_phone.blank?
-    return pciu_primary_phone if pciu_primary_phone.size == 10
-
-    return pciu_primary_phone[1..-1] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
-
-    ''
   end
 
   def pciu_primary_phone
