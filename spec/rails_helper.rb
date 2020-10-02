@@ -69,6 +69,12 @@ end
 
 VCR.configure(&:configure_rspec_metadata!)
 
+VCR.configure do |c|
+  c.before_record(:force_utf8) do |interaction|
+    interaction.response.body.force_encoding('UTF-8')
+  end
+end
+
 ActiveRecord::Migration.maintain_test_schema!
 
 require 'sidekiq/testing'

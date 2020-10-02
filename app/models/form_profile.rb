@@ -126,7 +126,7 @@ class FormProfile
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
 
-  attr_accessor :form_id
+  attr_reader :form_id, :user
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
@@ -138,13 +138,15 @@ class FormProfile
     forms
   end
 
-  def self.for(form)
-    form = form.upcase
-    FORM_ID_TO_CLASS.fetch(form, self).new(form)
+  # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
+  def self.for(form_id:, user:)
+    form_id = form_id.upcase
+    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id: form_id, user: user)
   end
 
-  def initialize(form)
-    @form_id = form
+  def initialize(form_id:, user:)
+    @form_id = form_id
+    @user = user
   end
 
   def metadata
@@ -171,10 +173,10 @@ class FormProfile
   # * MVI
   # * TODO(AJD): MIS (military history)
   #
-  def prefill(user)
-    @identity_information = initialize_identity_information(user)
-    @contact_information = initialize_contact_information(user)
-    @military_information = initialize_military_information(user)
+  def prefill
+    @identity_information = initialize_identity_information
+    @contact_information = initialize_contact_information
+    @military_information = initialize_military_information
     mappings = self.class.mappings_for_form(form_id)
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
@@ -185,7 +187,7 @@ class FormProfile
 
   private
 
-  def initialize_military_information(user)
+  def initialize_military_information
     return {} unless user.authorize :emis, :access?
 
     military_information = user.military_information
@@ -209,7 +211,7 @@ class FormProfile
     FormMilitaryInformation.new(military_information_data)
   end
 
-  def initialize_identity_information(user)
+  def initialize_identity_information
     FormIdentityInformation.new(
       full_name: user.full_name_normalized,
       date_of_birth: user.birth_date,
@@ -230,7 +232,7 @@ class FormProfile
     }.compact
   end
 
-  def initialize_vets360_contact_info(user)
+  def initialize_vets360_contact_info
     return_val = {}
     contact_information = Vet360Redis::ContactInformation.for_user(user)
     return_val[:email] = contact_information.email&.email_address
@@ -246,24 +248,15 @@ class FormProfile
     return_val
   end
 
-  def initialize_contact_information(user)
+  def initialize_contact_information
     opt = {}
-    opt.merge!(initialize_vets360_contact_info(user)) if Settings.vet360.prefill && user.vet360_id.present?
+    opt.merge!(initialize_vets360_contact_info) if Settings.vet360.prefill && user.vet360_id.present?
 
-    if opt[:address].nil? && user.va_profile&.address
-      opt[:address] = {
-        street: user.va_profile.address.street,
-        street2: nil,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        country: user.va_profile.address.country,
-        postal_code: user.va_profile.address.postal_code
-      }
-    end
+    opt[:address] ||= va_profile_address_hash
 
-    opt[:email] ||= extract_pciu_data(user, :pciu_email)
+    opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
-      pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
+      pciu_primary_phone = extract_pciu_data(:pciu_primary_phone)
       opt[:home_phone] = pciu_primary_phone
       opt[:us_phone] = get_us_phone(pciu_primary_phone)
     end
@@ -271,6 +264,18 @@ class FormProfile
     format_for_schema_compatibility(opt)
 
     FormContactInformation.new(opt)
+  end
+
+  def va_profile_address_hash
+    user.va_profile&.address &&
+      {
+        street: user.va_profile.address.street,
+        street2: nil,
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        country: user.va_profile.address.country,
+        postal_code: user.va_profile.address.postal_code
+      }
   end
 
   def format_for_schema_compatibility(opt)
@@ -286,7 +291,7 @@ class FormProfile
     opt[:address][:postal_code] = opt[:address][:postal_code][0..4] if opt.dig(:address, :postal_code)
   end
 
-  def extract_pciu_data(user, method)
+  def extract_pciu_data(method)
     user&.send(method)
   rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
     ''
