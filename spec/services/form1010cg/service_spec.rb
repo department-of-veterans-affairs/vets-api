@@ -40,7 +40,7 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
-  def expect_veteran_not_found
+  def expect_icn_for_veteran_to_return_not_found
     expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
   end
 
@@ -628,7 +628,7 @@ RSpec.describe Form1010cg::Service do
 
   describe '#assert_veteran_status' do
     it 'will raise error if veteran\'s icn can not be found' do
-      expect_veteran_not_found
+      expect_icn_for_veteran_to_return_not_found
 
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
@@ -643,7 +643,7 @@ RSpec.describe Form1010cg::Service do
 
   describe '#process_claim!' do
     it 'raises error when ICN not found for veteran' do
-      expect_veteran_not_found
+      expect_icn_for_veteran_to_return_not_found
       expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
