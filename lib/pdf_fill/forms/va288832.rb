@@ -93,82 +93,82 @@ module PdfFill
             question_text: 'APPLICANT\'S E-MAIL ADDRESS'
           },
           'phoneNumber' => {
-          'phone_area_code' => {
-            key: 'F[0].Page_1[0].TelephoneNumber_AreaCode[0]',
-            limit: 3,
-            question_num: 3,
-            question_suffix: 'A',
-            question_text: 'TELEPHONE NUMBER'
-          },
-          'phone_first_three_numbers' => {
-            key: 'F[0].Page_1[0].TelephoneNumber_FirstThreeNumbers[0]',
-            limit: 3,
-            question_num: 3,
-            question_suffix: 'B',
-            question_text: 'TELEPHONE NUMBER'
-          },
-          'phone_last_four_numbers' => {
-            key: 'F[0].Page_1[0].TelephoneNumber_LastFourNumbers[0]',
-            limit: 4,
-            question_num: 3,
-            question_suffix: 'C',
-            question_text: 'TELEPHONE NUMBER'
-          }
-        }
-        }, # end claimantInformation
-        'claimantAddress' => {
-            'addressLine1' => {
-              key: 'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]',
-              limit: 30,
+            'phone_area_code' => {
+              key: 'F[0].Page_1[0].TelephoneNumber_AreaCode[0]',
+              limit: 3,
               question_num: 3,
               question_suffix: 'A',
-              question_text: 'MAILING ADDRESS'
+              question_text: 'TELEPHONE NUMBER'
             },
-            'addressLine2' => {
-              key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
-              limit: 5,
+            'phone_first_three_numbers' => {
+              key: 'F[0].Page_1[0].TelephoneNumber_FirstThreeNumbers[0]',
+              limit: 3,
               question_num: 3,
               question_suffix: 'B',
-              question_text: 'MAILING ADDRESS'
+              question_text: 'TELEPHONE NUMBER'
             },
-            'city' => {
-              key: 'F[0].Page_1[0].CurrentMailingAddress_City[0]',
-              limit: 18,
+            'phone_last_four_numbers' => {
+              key: 'F[0].Page_1[0].TelephoneNumber_LastFourNumbers[0]',
+              limit: 4,
               question_num: 3,
               question_suffix: 'C',
-              question_text: 'MAILING ADDRESS'
-            },
-            'stateCode' => {
-              key: 'F[0].Page_1[0].CurrentMailingAddress_StateOrProvince[0]',
-              limit: 2,
+              question_text: 'TELEPHONE NUMBER'
+            }
+          }
+        }, # end claimantInformation
+        'claimantAddress' => {
+          'addressLine1' => {
+            key: 'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]',
+            limit: 30,
+            question_num: 3,
+            question_suffix: 'A',
+            question_text: 'MAILING ADDRESS'
+          },
+          'addressLine2' => {
+            key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+            limit: 5,
+            question_num: 3,
+            question_suffix: 'B',
+            question_text: 'MAILING ADDRESS'
+          },
+          'city' => {
+            key: 'F[0].Page_1[0].CurrentMailingAddress_City[0]',
+            limit: 18,
+            question_num: 3,
+            question_suffix: 'C',
+            question_text: 'MAILING ADDRESS'
+          },
+          'stateCode' => {
+            key: 'F[0].Page_1[0].CurrentMailingAddress_StateOrProvince[0]',
+            limit: 2,
+            question_num: 3,
+            question_suffix: 'D',
+            question_text: 'MAILING ADDRESS'
+          },
+          'country' => {
+            key: 'F[0].Page_1[0].CurrentMailingAddress_Country[0]',
+            limit: 2,
+            question_num: 3,
+            question_suffix: 'E',
+            question_text: 'MAILING ADDRESS'
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
+              limit: 5,
               question_num: 3,
-              question_suffix: 'D',
+              question_suffix: 'F',
               question_text: 'MAILING ADDRESS'
             },
-            'country' => {
-              key: 'F[0].Page_1[0].CurrentMailingAddress_Country[0]',
-              limit: 2,
+            'lastFour' => {
+              key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
+              limit: 4,
               question_num: 3,
-              question_suffix: 'E',
+              question_suffix: 'G',
               question_text: 'MAILING ADDRESS'
-            },
-            'postalCode' => {
-              'firstFive' => {
-                key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
-                limit: 5,
-                question_num: 3,
-                question_suffix: 'F',
-                question_text: 'MAILING ADDRESS'
-              },
-              'lastFour' => {
-                key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
-                limit: 4,
-                question_num: 3,
-                question_suffix: 'G',
-                question_text: 'MAILING ADDRESS'
-              }
-            } # end zip_code
-          }, # end dependent_address
+            }
+          } # end zip_code
+        }, # end dependent_address
         'relationship' => {
           key: 'F[0].Page_1[0].RadioButtonList[1]'
         }, # end relationship
@@ -257,9 +257,9 @@ module PdfFill
           question_text: 'SERVICE NUMBER'
         },
         'veteranSsn' => {
-          'first' => {key: 'F[0].Page_2[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'},
-          'second' => {key: 'F[0].Page_2[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]'},
-          'third' => {key: 'F[0].Page_2[0].VeteransSocialSecurityNumber_LastFourNumbers[0]'}
+          'first' => { key: 'F[0].Page_2[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]' },
+          'second' => { key: 'F[0].Page_2[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]' },
+          'third' => { key: 'F[0].Page_2[0].VeteransSocialSecurityNumber_LastFourNumbers[0]' }
         },
         'signature' => {
           key: 'signature'
