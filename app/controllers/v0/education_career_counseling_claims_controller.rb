@@ -4,7 +4,7 @@ module V0
   class EducationCareerCounselingClaimsController < ClaimsBaseController
     def create
       claim = SavedClaim::EducationCareerCounselingClaim.new(form: filtered_params[:form])
-      claim.add_veteran_info(current_user) if current_user
+      claim.add_claimant_info(current_user) if current_user
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
