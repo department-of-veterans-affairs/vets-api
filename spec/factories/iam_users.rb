@@ -50,7 +50,7 @@ FactoryBot.define do
         user_identity = create(:iam_user_identity, iam_edipi: nil)
         user.instance_variable_set(:@identity, user_identity)
       end
-      
+
       after(:build) do
         stub_mvi(
           build(
