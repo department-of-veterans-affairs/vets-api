@@ -5,6 +5,7 @@ require_relative 'exceptions/bgs_errors'
 module BGS
   class Service
     include BGS::Exceptions::BGSErrors
+    include SentryLogging
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
     # (I = Input, U = Update, D = Delete)
