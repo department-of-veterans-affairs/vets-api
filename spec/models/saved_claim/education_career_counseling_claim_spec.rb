@@ -11,15 +11,13 @@ RSpec.describe SavedClaim::EducationCareerCounselingClaim do
       claim.add_veteran_info(user_object)
 
       expect(claim.parsed_form).to include(
-        'claimant_information' => {
-          'full_name' => {
+          'fullName' => {
             'first' => 'WESLEY',
-            'middle' => nil,
+            'middle' => '',
             'last' => 'FORD'
           },
           'ssn' => '796043735',
-          'date_of_birth' => '1809-02-12'
-        }
+          'dateOfBirth' => '1809-02-12'
       )
     end
   end
