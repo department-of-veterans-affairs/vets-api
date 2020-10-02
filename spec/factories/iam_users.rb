@@ -44,5 +44,25 @@ FactoryBot.define do
         )
       )
     end
+
+    trait :no_edipi_id do
+      callback(:after_build, :after_stub, :after_create) do |user, _t|
+        user_identity = create(:iam_user_identity, iam_edipi: nil)
+        user.instance_variable_set(:@identity, user_identity)
+      end
+      
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            edipi: nil,
+            birls_id: '796121200',
+            participant_id: '796121200',
+            birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
+            vet360_id: '1'
+          )
+        )
+      end
+    end
   end
 end

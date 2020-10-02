@@ -72,6 +72,51 @@ RSpec.describe 'user', type: :request do
           }
         )
       end
+
+      it 'includes the service the user has access to' do
+        expect(attributes['authorizedServices']).to eq(
+          %w[
+            appeals
+            appointments
+            claims
+            directDepositBenefits
+            lettersAndDocuments
+            militaryServiceHistory
+            userProfileUpdate
+          ]
+        )
+      end
+
+      it 'includes a complete list of mobile api services (even if the user does not have access to them)' do
+        expect(JSON.parse(response.body).dig('meta', 'availableServices')).to eq(
+          %w[
+            appeals
+            appointments
+            claims
+            directDepositBenefits
+            lettersAndDocuments
+            militaryServiceHistory
+            userProfileUpdate
+          ]
+        )
+      end
+
+      context 'with a user who does not have access to evss' do
+        before do
+          iam_sign_in(FactoryBot.build(:iam_user, :no_edipi_id))
+          get '/mobile/v0/user', headers: iam_headers
+        end
+
+        it 'does not include edipi services (claims, direct deposit, letters, military history)' do
+          expect(attributes['authorizedServices']).to eq(
+            %w[
+              appeals
+              appointments
+              userProfileUpdate
+            ]
+          )
+        end
+      end
     end
 
     context 'when the upstream va profile service returns an error' do
@@ -81,7 +126,7 @@ RSpec.describe 'user', type: :request do
         )
       end
 
-      it 'returns an service unavailable error' do
+      it 'returns a service unavailable error' do
         get '/mobile/v0/user', headers: iam_headers
 
         expect(response).to have_http_status(:bad_gateway)
@@ -96,7 +141,7 @@ RSpec.describe 'user', type: :request do
         )
       end
 
-      it 'returns an service unavailable error' do
+      it 'returns an internal service error' do
         get '/mobile/v0/user', headers: iam_headers
 
         expect(response).to have_http_status(:internal_server_error)
