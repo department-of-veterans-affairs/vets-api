@@ -211,7 +211,7 @@ RSpec.describe Form526Submission do
       end
     end
 
-    context 'with multiple successful jobs and email' do
+    context 'with multiple successful jobs and email and submitted time in PM' do
       subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
 
       before { Timecop.freeze(Time.zone.parse('2012-07-20 14:15:00 UTC')) }
@@ -225,7 +225,32 @@ RSpec.describe Form526Submission do
           expect(args[0]['full_name']).to eql('some name')
           expect(args[0]['submitted_claim_id']).to be(123_654_879)
           expect(args[0]['email']).to eql('test@email.com')
-          expect(args[0]['date_submitted']).to eql('July 20, 2012')
+          expect(args[0]['date_submitted']).to eql('July 20, 2012 02:15 p.m. UTC')
+        end
+
+        options = {
+          'submission_id' => subject.id,
+          'full_name' => 'some name'
+        }
+        subject.workflow_complete_handler(nil, options)
+      end
+    end
+
+    context 'with multiple successful jobs and email and submitted time in morning' do
+      subject { create(:form526_submission, :with_multiple_succesful_jobs, submitted_claim_id: 123_654_879) }
+
+      before { Timecop.freeze(Time.zone.parse('2012-07-20 8:07:00 UTC')) }
+
+      after { Timecop.return }
+
+      it 'calls confirmation email job with correct personalization' do
+        Flipper.enable(:form526_confirmation_email)
+
+        allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
+          expect(args[0]['full_name']).to eql('some name')
+          expect(args[0]['submitted_claim_id']).to be(123_654_879)
+          expect(args[0]['email']).to eql('test@email.com')
+          expect(args[0]['date_submitted']).to eql('July 20, 2012 08:07 a.m. UTC')
         end
 
         options = {
