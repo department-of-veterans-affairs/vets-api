@@ -24,6 +24,16 @@ RSpec.describe BGS::Service do
         expect(response.body[:find_ch33_dd_eft_response][:return][:dposit_acnt_nbr]).to eq('123')
       end
     end
+
+    it 'updates a users dd eft info' do
+      VCR.use_cassette('bgs/service/update_ch33_dd_eft', record: :once) do
+        response = bgs_service.update_ch33_dd_eft(
+          '122239982',
+          '444',
+          true
+        )
+      end
+    end
   end
 
   describe '#create_proc' do
