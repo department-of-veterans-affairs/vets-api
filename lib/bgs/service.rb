@@ -168,6 +168,20 @@ module BGS
       service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
     end
 
+    def update_ch33_dd_eft(routing_number, acct_number, checking_acct)
+      service.claims.send(
+        :request,
+        :update_ch33_dd_eft,
+        ch33DdEftInput: {
+          dpositAcntNbr: acct_number,
+          dpositAcntTypeNm: checking_acct ? 'C' : 'S',
+          fileNumber: @user.ssn,
+          routngTrnsitNbr: routing_number,
+          tranCode: '2'
+        }
+      )
+    end
+
     private
 
     def service
