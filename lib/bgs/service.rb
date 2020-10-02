@@ -30,7 +30,7 @@ module BGS
 
     def create_proc_form(vnp_proc_id)
       # Temporary log proc_id to sentry
-      log_message_to_sentry(vnp_proc_id, :warn, '' ,{ team: 'vfs-ebenefits' })
+      log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
           { vnp_proc_id: vnp_proc_id, form_type_cd: '21-686c' }.merge(bgs_auth)
