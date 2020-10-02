@@ -139,6 +139,7 @@ features:
       Enables global downtime notification- do not use in production
   ssoe:
     actor_type: cookie_id
+    enable_in_development: true
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   edu_benefits_stem_scholarship:
@@ -169,6 +170,7 @@ features:
       Enable eBenefits links to be proxied through eauth.va.gov, this allows users with SSOe sessions to stay logged in.
   ssoe_inbound:
     actor_type: cookie_id
+    enable_in_development: true
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
   allow_online_10_10cg_submissions:
@@ -289,4 +291,8 @@ features:
     actor_type: user
     description: >
       Add text message opt-in question to 10203 Personal Information chapter and layout changes     
-
+  form_1995_edu_updates:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Form updates to bring EDU forms in compliance with latest DEPO patterns and practices

@@ -31,18 +31,23 @@ saml_ssoe:
   response_signing: false
   response_encryption: false
 
+ssoe_eauth_cookie:
+  name: vagov_saml_request_localhost
+  domain: localhost
+  secure: false
+
 session_cookie:
   secure: false
 
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
 sso:
-  cookie_enabled: true
-  cookie_signout_enabled: true
-  cookie_name: vagov_session_dev
-  cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
-  cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
-  cookie_secure: false
   cookie_domain: localhost
+  cookie_enabled: true
+  cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
+  cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
+  cookie_name: vagov_session_dev
+  cookie_secure: false
+  cookie_signout_enabled: true
 
 binaries:
   # you can specify a full path in settings.local.yml if necessary
@@ -489,6 +494,7 @@ flipper:
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
+    - jlinn@governmentcio.com
     - lauren.alexanderson@va.gov
     - lindsey.hattamer@oddball.io
     - ltran@thoughtworks.com
