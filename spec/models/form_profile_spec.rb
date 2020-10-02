@@ -17,7 +17,7 @@ RSpec.describe FormProfile, type: :model do
   let(:street_check) { build(:street_check) }
 
   let(:form_profile) do
-    described_class.new('foo')
+    described_class.new(form_id: 'foo', user: user)
   end
 
   let(:us_phone) do
@@ -743,7 +743,7 @@ RSpec.describe FormProfile, type: :model do
     it 'rescues EVSS::ErrorMiddleware::EVSSError errors' do
       expect(user).to receive(:pciu_primary_phone).and_raise(EVSS::ErrorMiddleware::EVSSError)
 
-      expect(form_profile.send(:extract_pciu_data, user, :pciu_primary_phone)).to eq('')
+      expect(form_profile.send(:extract_pciu_data, :pciu_primary_phone)).to eq('')
     end
   end
 
@@ -765,7 +765,7 @@ RSpec.describe FormProfile, type: :model do
     end
 
     def expect_prefilled(form_id)
-      prefilled_data = Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']
+      prefilled_data = Oj.load(described_class.for(form_id: form_id, user: user).prefill.to_json)['form_data']
 
       if form_id == '1010ez'
         '10-10EZ'
@@ -809,16 +809,16 @@ RSpec.describe FormProfile, type: :model do
         error = RuntimeError.new('foo')
         expect(Rails.env).to receive(:production?).and_return(true)
         expect(user.military_information).to receive(:hca_last_service_branch).and_return('air force').and_raise(error)
-        form_profile = described_class.for('1010ez')
+        form_profile = described_class.for(form_id: '1010ez', user: user)
         expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, external_service: :emis)
-        form_profile.prefill(user)
+        form_profile.prefill
       end
     end
 
     context 'user without an address' do
       it 'prefills properly' do
         expect(user.va_profile).to receive(:address).and_return(nil)
-        described_class.for('22-1990e').prefill(user)
+        described_class.for(form_id: '22-1990e', user: user).prefill
       end
     end
 
@@ -951,7 +951,9 @@ RSpec.describe FormProfile, type: :model do
             VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
               VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
                 VCR.use_cassette('gi_client/gets_the_institution_details') do
-                  prefilled_data = Oj.load(described_class.for('22-10203').prefill(user).to_json)['form_data']
+                  prefilled_data = Oj.load(
+                    described_class.for(form_id: '22-10203', user: user).prefill.to_json
+                  )['form_data']
                   expect(prefilled_data).to eq(form_profile.send(:clean!, v22_10203_expected))
                 end
               end
@@ -972,7 +974,7 @@ RSpec.describe FormProfile, type: :model do
           end
 
           it 'omits address fields in 686c-674 form' do
-            prefilled_data = described_class.for('686C-674').prefill(user)[:form_data]
+            prefilled_data = described_class.for(form_id: '686C-674', user: user).prefill[:form_data]
             v686_c_674_expected['veteranContactInformation'].delete('veteranAddress')
             expect(prefilled_data).to eq(v686_c_674_expected)
           end
@@ -1058,7 +1060,7 @@ RSpec.describe FormProfile, type: :model do
         schema = VetsJsonSchema::SCHEMAS[schema_name]
         full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
 
-        prefill_data = Oj.load(described_class.for(schema_name).prefill(user).to_json)['form_data']
+        prefill_data = Oj.load(described_class.for(form_id: schema_name, user: user).prefill.to_json)['form_data']
 
         test_data = full_example.deep_merge prefill_data
 
@@ -1079,15 +1081,15 @@ RSpec.describe FormProfile, type: :model do
 
     context 'when the form mapping can not be found' do
       it 'raises an IOError' do
-        expect { described_class.new('foo').prefill(user) }.to raise_error(IOError)
+        expect { described_class.new(form_id: 'foo', user: user).prefill }.to raise_error(IOError)
       end
     end
   end
 
   describe '.mappings_for_form' do
     context 'with multiple form profile instances' do
-      let(:instance1) { FormProfile.new('1010ez') }
-      let(:instance2) { FormProfile.new('1010ez') }
+      let(:instance1) { FormProfile.new(form_id: '1010ez', user: user) }
+      let(:instance2) { FormProfile.new(form_id: '1010ez', user: user) }
 
       it 'loads the yaml file only once' do
         expect(YAML).to receive(:load_file).once.and_return(
@@ -1097,8 +1099,8 @@ RSpec.describe FormProfile, type: :model do
           'veteran_address' => %w[contact_information address],
           'home_phone' => %w[contact_information home_phone]
         )
-        instance1.prefill(user)
-        instance2.prefill(user)
+        instance1.prefill
+        instance2.prefill
       end
     end
   end

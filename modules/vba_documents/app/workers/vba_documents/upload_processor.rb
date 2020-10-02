@@ -36,6 +36,8 @@ module VBADocuments
         response = submit(metadata, parts)
         process_response(response)
         log_submission(@upload, metadata)
+      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError
+        VBADocuments::UploadSubmission.refresh_statuses!([@upload])
       rescue VBADocuments::UploadError => e
         retry_errors(e, @upload)
       ensure
