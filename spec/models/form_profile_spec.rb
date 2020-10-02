@@ -1042,9 +1042,13 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(BGS::PeopleService).to(
           receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
         )
-        allow_any_instance_of(FormProfiles::VA0996).to(
-          receive(:street3).and_return('suite 500')
+        allow_any_instance_of(Vet360::Models::Address).to(
+          receive(:address_line3).and_return('suite 500')
         )
+      end
+
+      it 'street3 returns Vet360 address_line3' do
+        expect(form_profile.send(:vet360_mailing_address)&.address_line3).to eq form_profile.send :street3
       end
 
       it 'prefills' do
