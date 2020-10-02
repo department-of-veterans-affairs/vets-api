@@ -8,26 +8,26 @@ FactoryBot.define do
       {
         claimantInformation: {
           fullName: {
-            first: "Dardan",
-            middle: "Adam",
-            last: "Testy",
-            suffix: "Jr.",
-            ssn: "333224444",
+            first: 'Dardan',
+            middle: 'Adam',
+            last: 'Testy',
+            suffix: 'Jr.',
+            ssn: '333224444'
           },
-          dateOfBirth: "1964-12-26",
-          vaFileNumber: "22334455",
-          emailAddress: "vet123@test.com",
-          phoneNumber: "8888675309"
+          dateOfBirth: '1964-12-26',
+          vaFileNumber: '22334455',
+          emailAddress: 'vet123@test.com',
+          phoneNumber: '8888675309'
         },
         claimantAddress: {
-          country: "USA",
-          addressLine1: "123 Sunshine Blvd",
-          addressLine2: "Apt 1",
-          city: "Miami",
-          stateCode: "FL",
-          postalCode: "33928-0808"
+          country: 'USA',
+          addressLine1: '123 Sunshine Blvd',
+          addressLine2: 'Apt 1',
+          city: 'Miami',
+          stateCode: 'FL',
+          postalCode: '33928-0808'
         },
-        status: "isVeteran"
+        status: 'isVeteran'
       }.to_json
     }
   end
