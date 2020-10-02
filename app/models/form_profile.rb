@@ -304,6 +304,12 @@ class FormProfile
     opt[:address][:postal_code] = opt[:address][:postal_code][0..4] if opt.dig(:address, :postal_code)
   end
 
+  def extract_pciu_data(method)
+    user&.send(method)
+  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
+    ''
+  end
+
   # returns the veteran's phone number as an object
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
@@ -320,10 +326,6 @@ class FormProfile
     phone_struct.new
   end
 
-  def pciu_primary_phone
-    @pciu_primary_phone ||= extract_pciu_data(:pciu_primary_phone)
-  end
-
   def pciu_us_phone
     return '' if pciu_primary_phone.blank?
     return pciu_primary_phone if pciu_primary_phone.size == 10
@@ -333,10 +335,8 @@ class FormProfile
     ''
   end
 
-  def extract_pciu_data(method)
-    user&.send(method)
-  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
-    ''
+  def pciu_primary_phone
+    @pciu_primary_phone ||= extract_pciu_data(:pciu_primary_phone)
   end
 
   def convert_mapping(hash)
