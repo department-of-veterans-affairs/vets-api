@@ -4,8 +4,8 @@ data:
       address:
         zipCode5: [contact_information, address, postal_code]
       phone:
-        areaCode: [phone_object area_code]
-        phoneNumber: [phone_object phone_number]
+        areaCode: [phone_object, area_code]
+        phoneNumber: [phone_object, phone_number]
       emailAddressText: [contact_information, email]
 nonPrefill:
   veteranAddress:
@@ -15,6 +15,6 @@ nonPrefill:
     city: [contact_information, address, city]
     state: [contact_information, address, state]
     country: [contact_information, address, country]
-    postal_code: [contact_information, address, postal_code]
+    postalCode: [contact_information, address, postal_code]
   veteranSsnLastFour: [identity_information, ssn_last_four]
   veteranVaFileNumberLastFour: [va_file_number_last_four]

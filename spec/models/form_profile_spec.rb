@@ -1033,18 +1033,38 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with a higher level review form' do
-      it 'returns the va profile mapped to the higher level review form' do
-        schema_name = '20-0996'
-        schema = VetsJsonSchema::SCHEMAS[schema_name]
-        full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
+      let(:schema_name) { '20-0996' }
+      let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
+      let(:form_profile) { described_class.for(form_id: schema_name, user: user) }
+      let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
 
+      before do
         allow_any_instance_of(BGS::PeopleService).to(
           receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
         )
-        prefill_data = Oj.load(described_class.for(form_id: schema_name, user: user).prefill.to_json)['form_data']
+        allow_any_instance_of(FormProfiles::VA0996).to(
+          receive(:street3).and_return('suite 500')
+        )
+      end
 
-        test_data = full_example.deep_merge prefill_data
+      it 'prefills' do
+        expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
+        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
+        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String)
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
+      end
 
+      it 'prefills an object that passes the schema' do
+        full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
+        test_data = full_example.deep_merge prefill
         errors = JSON::Validator.fully_validate(
           schema,
           test_data,
