@@ -29,7 +29,7 @@ gem 'rails', '~> 6.0.2'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
-gem 'carrierwave', '~> 0.11' # TODO: explanation
+gem 'carrierwave', '~> 1.0' # TODO: explanation
 gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
 gem 'aasm'
