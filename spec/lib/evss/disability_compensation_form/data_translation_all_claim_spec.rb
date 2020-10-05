@@ -39,7 +39,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     context 'kitchen sink BDD' do
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
+        Timecop.freeze(Date.new(2020, 8, 1))
       end
+
+      after { Timecop.return }
 
       let(:form_content) do
         JSON.parse(File.read('spec/support/disability_compensation_form/bdd_large_fe_submission.json'))
