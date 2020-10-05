@@ -26,12 +26,13 @@ RSpec.describe BGS::Service do
     end
 
     it 'updates a users dd eft info' do
-      VCR.use_cassette('bgs/service/update_ch33_dd_eft', record: :once) do
+      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
         response = bgs_service.update_ch33_dd_eft(
           '122239982',
           '444',
           true
         )
+        expect(response.body[:update_ch33_dd_eft_response][:return][:return_message]).to eq('SUCCESS')
       end
     end
   end
