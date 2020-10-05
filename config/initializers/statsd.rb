@@ -14,6 +14,7 @@ require 'stats_d_metric'
 require 'search/service'
 require 'vet360/exceptions/parser'
 require 'vet360/service'
+require 'va_notify/service'
 
 host = Settings.statsd.host
 port = Settings.statsd.port
@@ -146,6 +147,12 @@ StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
   StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm8940::STATSD_KEY_PREFIX}.#{str}", 0)
   StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526Cleanup::STATSD_KEY_PREFIX}.#{str}", 0)
 end
+StatsD.increment(Form526ConfirmationEmailJob::STATSD_ERROR_NAME, 0)
+StatsD.increment(Form526ConfirmationEmailJob::STATSD_SUCCESS_NAME, 0)
+
+# init VaNotify
+StatsD.increment("#{VaNotify::Service::STATSD_KEY_PREFIX}.send_email.total", 0)
+StatsD.increment("#{VaNotify::Service::STATSD_KEY_PREFIX}.send_email.fail", 0)
 
 ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
   tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
