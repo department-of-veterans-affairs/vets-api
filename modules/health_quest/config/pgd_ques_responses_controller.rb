@@ -5,15 +5,10 @@ module HealthQuest
     class PgdQuesResponsesController < HealthQuest::V0::BaseController
       def show
         qresponse = ques_response_by_id
-        res = serializer.new(qresponse[:data], meta: qresponse[:meta])
-        render json: res
+        render json: HealthQuest::V0::PGDQuesResponseSerializer.new(qresponse[:data], meta: qresponse[:meta])
       end
 
       private
-
-      def serializer
-        HealthQuest::V0::PGDQuesResponseSerializer
-      end
 
       def ques_response_by_id
         pgd_service.get_pgd_resource(:questionnaire_response, params[:id])

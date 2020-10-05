@@ -5,8 +5,7 @@ module HealthQuest
     class PgdQuestionnairesController < HealthQuest::V0::BaseController
       def show
         ques = questionnaire_by_id
-        res = serializer.new(ques[:data], meta: ques[:meta])
-        render json: res
+        render json: HealthQuest::V0::PGDQuestionnaireSerializer.new(ques[:data], meta: ques[:meta])
       end
 
       private
@@ -17,10 +16,6 @@ module HealthQuest
 
       def pgd_service
         HealthQuest::PGDService.new(current_user)
-      end
-
-      def serializer
-        HealthQuest::V0::PGDQuestionnaireSerializer
       end
     end
   end
