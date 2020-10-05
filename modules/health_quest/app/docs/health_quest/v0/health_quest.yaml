@@ -31,7 +31,7 @@ paths:
     get:
       tags:
         - appointments
-      summary: Returns alist of online scheduling appointments
+      summary: Returns a list of online scheduling appointments
       operationId: getAppointments
       security:
         - bearerAuth: []
