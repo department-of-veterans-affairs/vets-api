@@ -93,18 +93,6 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
           )
         end
       end
-
-      context 'new location query' do
-        before do
-          Flipper.enable(:facility_locator_ppms_location_query, true)
-        end
-
-        let(:api_client) { Facilities::PPMS::V0::Client.new }
-
-        it 'uses lat/long for an address' do
-          expect(provider_locator_params[:address]).to eql('33.28,-111.79')
-        end
-      end
     end
   end
 

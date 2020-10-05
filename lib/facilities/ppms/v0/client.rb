@@ -190,14 +190,6 @@ module Facilities
         end
 
         def provider_locator_params(params)
-          if Flipper.enabled?(:facility_locator_ppms_location_query)
-            provider_locator_location_params(params)
-          else
-            provider_locator_address_params(params)
-          end
-        end
-
-        def provider_locator_address_params(params)
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
 
@@ -207,31 +199,6 @@ module Facilities
           {
             address: "'#{params[:address]}'",
             radius: radius(params[:bbox]),
-            driveTime: 10_000,
-            specialtycode1: specialty,
-            specialtycode2: 'null',
-            specialtycode3: 'null',
-            specialtycode4: 'null',
-            network: 0,
-            gender: 0,
-            primarycare: 0,
-            acceptingnewpatients: 0,
-            maxResults: per_page * page + 1
-          }
-        end
-
-        def provider_locator_location_params(params)
-          page = Integer(params[:page] || 1)
-          per_page = Integer(params[:per_page] || BaseFacility.per_page)
-
-          specialty_code = params.slice(:services, :specialties).values.first
-          specialty = "'#{specialty_code ? specialty_code[0] : 'null'}'"
-
-          cnr = center_and_radius(params[:bbox])
-
-          {
-            address: [cnr[:latitude], cnr[:longitude]].join(','),
-            radius: cnr[:radius],
             driveTime: 10_000,
             specialtycode1: specialty,
             specialtycode2: 'null',
