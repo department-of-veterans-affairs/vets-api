@@ -15,7 +15,7 @@ module V0
       if form
         render json: form.data_and_metadata
       else
-        render json: FormProfile.for(form_id).prefill(@current_user)
+        render json: FormProfile.for(form_id: form_id, user: @current_user).prefill
       end
     end
 
