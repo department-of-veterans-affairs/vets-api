@@ -54,6 +54,20 @@ RSpec.describe Form1010cg::Auditor do
       expect(Settings).to receive(:vsp_environment).and_return('staging')
     end
 
+    context 'when there is an error sending the ga event in production' do
+      before do
+        allow(Rails.env).to receive(:production?).and_return(true)
+      end
+
+      it 'logs an exception and returns false' do
+        expect(subject).to receive(:log_exception_to_sentry)
+
+        expect(
+          subject.send(:notify_ga_invalid_veteran_status, 'google_client_id')
+        ).to eq(false)
+      end
+    end
+
     it 'sends the right event to google analytics' do
       VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
         subject.send(:notify_ga_invalid_veteran_status, 'google_client_id')

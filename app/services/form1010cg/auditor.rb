@@ -3,6 +3,7 @@
 module Form1010cg
   class Auditor
     include Singleton
+    include SentryLogging
 
     STATSD_KEY_PREFIX = 'api.form1010cg'
     LOGGER_PREFIX     = 'Form 10-10CG'
@@ -102,7 +103,18 @@ module Form1010cg
       event.custom_metrics['cg3'] = 'Family Member Benefits'
       event.add_custom_dimension('30', 'Modernized')
       event.add_custom_dimension('57', INVALID_VET_STATUS_CODE)
-      event.track!
+
+      begin
+        event.track!
+        true
+      rescue => e
+        if Rails.env.production?
+          log_exception_to_sentry(e)
+          false
+        else
+          raise e
+        end
+      end
     end
 
     def increment(stat)
