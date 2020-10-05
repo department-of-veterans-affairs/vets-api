@@ -177,15 +177,33 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     end
 
     context 'when Form1010cg::Service raises InvalidVeteranStatus' do
-      it 'renders backend service outage' do
-        claim         = build(:caregivers_assistance_claim)
-        form_data     = claim.form
-        params        = { caregivers_assistance_claim: { form: form_data } }
-        service       = double
+      let(:claim) { build(:caregivers_assistance_claim) }
+      let(:form_data) { claim.form }
+      let(:params) do
+        { caregivers_assistance_claim: { form: form_data } }
+      end
+      let(:service) { double }
 
+      before do
         stub_new_claim(form_data, claim)
-
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+      end
+
+      context 'with a null x-google-client-id header' do
+        before do
+          request.headers['x-google-client-id'] = nil
+        end
+
+        it 'doesnt send a ga event' do
+          expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+
+          expect(Form1010cg::Auditor.instance).not_to receive(:notify_ga_invalid_veteran_status)
+
+          post :create, params: params
+        end
+      end
+
+      it 'renders backend service outage' do
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
 
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
@@ -216,16 +234,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       end
 
       it 'matches the response of a Common::Client::Errors::ClientError' do
-        claim = build(:caregivers_assistance_claim)
-        form_data = claim.form
-        params = { caregivers_assistance_claim: { form: form_data } }
-        service = double
-
         ## Backend Client Error Scenario
-
-        stub_new_claim(form_data, claim)
-
-        expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
 
         backend_client_error_response = post :create, params: params
