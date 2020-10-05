@@ -5,7 +5,7 @@ info:
   description: |
     ## The API for the Healthcare Clipboard 
 
-    These endpoints include the Healthcare Experience Questionaire 
+    These endpoints include the Healthcare Experience Questionnaire
     Responses and clipboard related endpoints into the MAP PGD and scehduled appointments
 
   contact:
