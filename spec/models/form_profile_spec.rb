@@ -706,9 +706,6 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  describe '#get_us_phone' do
-    def self.test_get_us_phone(phone, expected)
-
   describe '#pciu_us_phone' do
     def self.test_pciu_us_phone(primary, expected)
 
