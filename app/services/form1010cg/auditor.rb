@@ -88,7 +88,7 @@ module Form1010cg
       end
     end
 
-    def notify_ga_invalid_veteran_status(ga_client_id)
+    def create_ga_event(ga_client_id)
       event = Staccato.tracker(
         Settings.google_analytics.tracking_id,
         ga_client_id
@@ -103,6 +103,12 @@ module Form1010cg
       event.custom_metrics['cg3'] = 'Family Member Benefits'
       event.add_custom_dimension('30', 'Modernized')
       event.add_custom_dimension('57', INVALID_VET_STATUS_CODE)
+
+      event
+    end
+
+    def notify_ga_invalid_veteran_status(ga_client_id)
+      event = create_ga_event(ga_client_id)
 
       begin
         event.track!
