@@ -271,6 +271,10 @@ features:
     actor_type: user
     description: >
       Comparison Tool Search Results Benefit UI Enhancements to improve usability
+  gibct_school_ratings:
+    actor_type: user
+    description: >
+      Show/Hide the school ratings section of the Comparison Tool School Profile Page.
   mobile_api:
     actor_type: user
     description: >
