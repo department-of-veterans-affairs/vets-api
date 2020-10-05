@@ -241,6 +241,7 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+      resources :ch33_bank_accounts, only: %i[index update]
     end
 
     resources :search, only: :index

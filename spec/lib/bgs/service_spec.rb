@@ -10,13 +10,7 @@ RSpec.describe BGS::Service do
   let(:participant_id) { '149456' }
 
   context 'direct deposit methods' do
-    before do
-      allow(user_object).to receive(:ssn).and_return('796104437')
-      allow(user_object).to receive(:icn).and_return('82836359962678900')
-
-      allow(BGS.configuration).to receive(:env).and_return('prepbepbenefits')
-      allow(BGS.configuration).to receive(:client_ip).and_return('10.247.35.119')
-    end
+    let(:user_object) { build(:ch33_dd_user) }
 
     it 'retrieves a users dd eft info' do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
