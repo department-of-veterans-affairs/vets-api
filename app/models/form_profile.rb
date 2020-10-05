@@ -222,7 +222,8 @@ class FormProfile
     )
   end
 
-  def convert_vets360_address(address)
+  def vet360_mailing_address_hash
+    address = vet360_mailing_address
     {
       street: address.address_line1,
       street2: address.address_line2,
@@ -234,38 +235,50 @@ class FormProfile
     }.compact
   end
 
-  def initialize_vets360_contact_info
+  def vets360_contact_info_hash
     return_val = {}
-    contact_information = Vet360Redis::ContactInformation.for_user(user)
-    return_val[:email] = contact_information.email&.email_address
+    return_val[:email] = vet360_contact_info&.email&.email_address
 
-    if contact_information.mailing_address.present?
-      return_val[:address] = convert_vets360_address(contact_information.mailing_address)
-    end
-    phone = contact_information.home_phone&.formatted_phone
+    return_val[:address] = vet360_mailing_address_hash if vet360_mailing_address.present?
+
+    phone = vet360_contact_info&.home_phone&.formatted_phone
     return_val[:us_phone] = phone
     return_val[:home_phone] = phone
-    return_val[:mobile_phone] = contact_information.mobile_phone&.formatted_phone
+    return_val[:mobile_phone] = vet360_contact_info&.mobile_phone&.formatted_phone
 
     return_val
   end
 
   def initialize_contact_information
     opt = {}
-    opt.merge!(initialize_vets360_contact_info) if Settings.vet360.prefill && user.vet360_id.present?
+    opt.merge!(vets360_contact_info_hash) if vet360_contact_info
 
     opt[:address] ||= va_profile_address_hash
 
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
-      pciu_primary_phone = extract_pciu_data(:pciu_primary_phone)
       opt[:home_phone] = pciu_primary_phone
-      opt[:us_phone] = get_us_phone(pciu_primary_phone)
+      opt[:us_phone] = pciu_us_phone
     end
 
     format_for_schema_compatibility(opt)
 
     FormContactInformation.new(opt)
+  end
+
+  # doing this (below) instead of `@vet360_contact_info ||= Settings...` to cache nil too
+  def vet360_contact_info
+    return @vet360_contact_info if @vet360_contact_info_retrieved
+
+    @vet360_contact_info_retrieved = true
+    if Settings.vet360.prefill && user.vet360_id.present?
+      @vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
+    end
+    @vet360_contact_info
+  end
+
+  def vet360_mailing_address
+    vet360_contact_info&.mailing_address
   end
 
   def va_profile_address_hash
@@ -299,13 +312,33 @@ class FormProfile
     ''
   end
 
-  def get_us_phone(home_phone)
-    return '' if home_phone.blank?
-    return home_phone if home_phone.size == 10
+  def pciu_us_phone
+    return '' if pciu_primary_phone.blank?
+    return pciu_primary_phone if pciu_primary_phone.size == 10
 
-    return home_phone[1..-1] if home_phone.size == 11 && home_phone[0] == '1'
+    return pciu_primary_phone[1..-1] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
 
     ''
+  end
+
+  # returns the veteran's phone number as an object
+  # preference: vet360 mobile -> vet360 home -> pciu
+  def phone_object
+    mobile = vet360_contact_info&.mobile_phone
+    return mobile if mobile&.area_code && mobile&.phone_number
+
+    home = vet360_contact_info&.home_phone
+    return home if home&.area_code && home&.phone_number
+
+    phone_struct = Struct.new(:area_code, :phone_number)
+
+    return phone_struct.new(pciu_us_phone.first(3), pciu_us_phone.last(7)) if pciu_us_phone&.length == 10
+
+    phone_struct.new
+  end
+
+  def pciu_primary_phone
+    @pciu_primary_phone ||= extract_pciu_data(:pciu_primary_phone)
   end
 
   def convert_mapping(hash)
