@@ -692,7 +692,6 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-
   let(:v28_8832_expected) do
     {
       'claimantAddress' => {
@@ -708,7 +707,6 @@ RSpec.describe FormProfile, type: :model do
 
   describe '#pciu_us_phone' do
     def self.test_pciu_us_phone(primary, expected)
-
       it "returns #{expected}" do
         allow_any_instance_of(FormProfile).to receive(:pciu_primary_phone).and_return(primary)
         expect(form_profile.send(:pciu_us_phone)).to eq(expected)
