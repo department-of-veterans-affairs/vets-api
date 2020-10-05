@@ -1,0 +1,2 @@
+class DirectoryApplication < ApplicationRecord
+end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_11_143406) do
+ActiveRecord::Schema.define(version: 2020_10_05_135415) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -151,6 +151,21 @@ ActiveRecord::Schema.define(version: 2020_09_11_143406) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "auto_established_claim_id"
+  end
+
+  create_table "directory_applications", force: :cascade do |t|
+    t.string "name"
+    t.string "logo_url"
+    t.text "permissions", default: [], array: true
+    t.string "app_type"
+    t.text "service_categories", default: [], array: true
+    t.text "platforms", default: [], array: true
+    t.string "app_url"
+    t.text "description"
+    t.string "privacy_url"
+    t.string "tos_url"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|

@@ -7,6 +7,7 @@ AppsApi::Engine.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :directory, only: %i[index]
+    resources :directory_applications
   end
   namespace :docs do
     namespace :v0 do
