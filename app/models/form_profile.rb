@@ -269,10 +269,10 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    @vet360_contact_info = Settings.vet360.prefill &&
-                           user.vet360_id.present? &&
-                           Vet360Redis::ContactInformation.for_user(user) ||
-                           nil
+    if Settings.vet360.prefill && user.vet360_id.present?
+      @vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
+    end
+    @vet360_contact_info
   end
 
   def vet360_mailing_address
