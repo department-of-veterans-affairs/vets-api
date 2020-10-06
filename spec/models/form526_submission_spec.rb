@@ -225,7 +225,7 @@ RSpec.describe Form526Submission do
           expect(args[0]['full_name']).to eql('some name')
           expect(args[0]['submitted_claim_id']).to be(123_654_879)
           expect(args[0]['email']).to eql('test@email.com')
-          expect(args[0]['date_submitted']).to eql('July 20, 2012 02:15 p.m. UTC')
+          expect(args[0]['date_submitted']).to eql('July 20, 2012  2:15 p.m. UTC')
         end
 
         options = {
@@ -250,7 +250,7 @@ RSpec.describe Form526Submission do
           expect(args[0]['full_name']).to eql('some name')
           expect(args[0]['submitted_claim_id']).to be(123_654_879)
           expect(args[0]['email']).to eql('test@email.com')
-          expect(args[0]['date_submitted']).to eql('July 20, 2012 08:07 a.m. UTC')
+          expect(args[0]['date_submitted']).to eql('July 20, 2012  8:07 a.m. UTC')
         end
 
         options = {
