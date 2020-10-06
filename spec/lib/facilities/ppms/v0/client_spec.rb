@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/ppms/client'
+require 'facilities/ppms/v0/client'
 
-RSpec.describe Facilities::PPMS::Client, team: :facilities do
+RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
   let(:params) do
     {
       address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
@@ -12,14 +12,14 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
   end
 
   it 'is an PPMS::Client object' do
-    expect(described_class.new).to be_an(Facilities::PPMS::Client)
+    expect(described_class.new).to be_an(Facilities::PPMS::V0::Client)
   end
 
   context 'with an http timeout' do
     it 'logs an error and raise GatewayTimeout' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
       expect do
-        Facilities::PPMS::Client.new.provider_locator(params)
+        Facilities::PPMS::V0::Client.new.provider_locator(params)
       end.to raise_error(Common::Exceptions::GatewayTimeout)
     end
   end
@@ -27,7 +27,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
   context 'with an unknown error from PPMS' do
     it 'raises BackendUnhandledException when errors happen' do
       VCR.use_cassette('facilities/ppms/ppms_500', match_requests_on: %i[path]) do
-        expect { Facilities::PPMS::Client.new.provider_locator(params) }
+        expect { Facilities::PPMS::V0::Client.new.provider_locator(params) }
           .to raise_error(Common::Exceptions::BackendServiceException) do |e|
             expect(e.message).to match(/PPMS_502/)
           end
@@ -39,7 +39,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
     it 'returns a list of providers' do
       Flipper.enable(:facility_locator_ppms_location_query, false)
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::Client.new.provider_locator(params.merge(services: ['213E00000X']))
+        r = Facilities::PPMS::V0::Client.new.provider_locator(params.merge(services: ['213E00000X']))
         name = 'Freed, Lewis'
         expect(r.length).to be 5
         expect(r[0]).to have_attributes(
@@ -67,7 +67,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
 
     describe '#provider_locator_params' do
       subject(:provider_locator_params) do
-        Facilities::PPMS::Client.new.send(
+        Facilities::PPMS::V0::Client.new.send(
           :provider_locator_params,
           params.merge(services: ['213E00000X'])
         )
@@ -93,25 +93,13 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
           )
         end
       end
-
-      context 'new location query' do
-        before do
-          Flipper.enable(:facility_locator_ppms_location_query, true)
-        end
-
-        let(:api_client) { Facilities::PPMS::Client.new }
-
-        it 'uses lat/long for an address' do
-          expect(provider_locator_params[:address]).to eql('33.28,-111.79')
-        end
-      end
     end
   end
 
   describe '#pos_locator' do
     it 'finds places of service' do
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::Client.new.pos_locator(params)
+        r = Facilities::PPMS::V0::Client.new.pos_locator(params)
         expect(r.length).to be 10
         expect(r[0]).to have_attributes(
           ProviderIdentifier: '1629245311',
@@ -141,7 +129,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
   describe '#provider_info' do
     it 'gets additional attributes for the provider' do
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::Client.new.provider_info(1_407_842_941)
+        r = Facilities::PPMS::V0::Client.new.provider_info(1_407_842_941)
         expect(r).to have_attributes(
           AddressCity: nil,
           AddressPostalCode: nil,
@@ -171,7 +159,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
   describe '#provider_services' do
     it 'returns Services' do
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::Client.new.provider_services(1_407_842_941)
+        r = Facilities::PPMS::V0::Client.new.provider_services(1_407_842_941)
 
         name_hash = { 'Freed, Lewis - Podiatrist' => 41 }
 
@@ -211,7 +199,7 @@ RSpec.describe Facilities::PPMS::Client, team: :facilities do
   describe '#specialties' do
     it 'returns some Specialties' do
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::Client.new.specialties
+        r = Facilities::PPMS::V0::Client.new.specialties
         expect(r.each_with_object(Hash.new(0)) do |specialty, count|
           count[specialty['SpecialtyCode']] += 1
         end).to match(
