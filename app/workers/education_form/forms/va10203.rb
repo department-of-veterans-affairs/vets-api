@@ -23,6 +23,7 @@ module EducationForm::Forms
     def receive_text_message
       return nil unless Flipper.enabled?(:stem_text_message_question)
 
+      return false if @applicant.receiveTexts.nil?
       @applicant.receiveTexts
     end
   end
