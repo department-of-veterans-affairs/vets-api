@@ -642,7 +642,7 @@ components:
           properties:
             type:
               type: string
-              example: "evss_letters_beneficiary_responses"
+              example: "evssLettersBeneficiaryResponses"
             id:
               type: string
               example: ""
