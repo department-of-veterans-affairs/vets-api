@@ -15,9 +15,9 @@ describe HealthQuest::PGDService do
     allow_any_instance_of(HealthQuest::SessionService).to receive(:perform).and_return(dummy_response)
   end
 
-  describe '#get_pgd_resource' do
+  describe '#get' do
     it 'gets a PGD resource' do
-      resource = subject.get_pgd_resource(:questionnaire)[:data]
+      resource = subject.get(:questionnaire)[:data]
       expect(resource).to eq(expected_data)
     end
   end

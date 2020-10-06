@@ -11,7 +11,7 @@ module HealthQuest
       private
 
       def ques_response_by_id
-        pgd_service.get_pgd_resource(:questionnaire_response, params[:id])
+        pgd_service.get(:questionnaire_response, params[:id])
       end
 
       def pgd_service
