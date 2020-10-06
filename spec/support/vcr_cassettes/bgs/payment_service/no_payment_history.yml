@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 06 Oct 2020 03:40:52 GMT
+      - Tue, 06 Oct 2020 19:24:42 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -275,7 +275,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Tue, 06 Oct 2020 03:40:52 GMT
+  recorded_at: Tue, 06 Oct 2020 19:24:43 GMT
 - request:
     method: post
     uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/vrm-ws/PaymentInformationService
@@ -290,7 +290,7 @@ http_interactions:
             <vaws:CLIENT_MACHINE>192.168.0.95</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>58131302518826783</vaws:ExternalUid>
+            <vaws:ExternalUid>99820494285711419</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
@@ -316,7 +316,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 06 Oct 2020 03:40:53 GMT
+      - Tue, 06 Oct 2020 19:24:43 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -331,5 +331,5 @@ http_interactions:
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><S:Body><ns0:retrievePaymentSummaryWithBDNResponse
         xmlns:ns0="http://ws.vrm.benefits.vba.va.gov/"><PaymentSummaryResponse><payments/><response><responseCode>1</responseCode><responseText>No
         Data Found</responseText></response></PaymentSummaryResponse></ns0:retrievePaymentSummaryWithBDNResponse></S:Body></S:Envelope>
-  recorded_at: Tue, 06 Oct 2020 03:40:53 GMT
+  recorded_at: Tue, 06 Oct 2020 19:24:43 GMT
 recorded_with: VCR 6.0.0
