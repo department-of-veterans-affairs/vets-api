@@ -130,41 +130,6 @@ module Facilities
           response
         end
 
-        EARTH_RADIUS = 3_958.8
-
-        def rgeo_factory
-          RGeo::Geographic.spherical_factory
-        end
-
-        # Distance spanned by one degree of latitude in the given units.
-        def latitude_degree_distance
-          2 * Math::PI * EARTH_RADIUS / 360
-        end
-
-        # Distance spanned by one degree of longitude at the given latitude.
-        # This ranges from around 69 miles at the equator to zero at the poles.
-        def longitude_degree_distance(latitude)
-          (latitude_degree_distance * Math.cos(latitude * (Math::PI / 180))).abs
-        end
-
-        def center_and_radius(bbox)
-          bbox_num = bbox.map { |x| Float(x) }
-          x_min, y_min, x_max, y_max = bbox_num.values_at(1, 0, 3, 2)
-
-          projection = RGeo::Geographic::ProjectedWindow.new(rgeo_factory, x_min, y_min, x_max, y_max)
-          lat, lon = projection.center_xy
-          rad = [
-            (projection.height * latitude_degree_distance).round(2),
-            (projection.width * longitude_degree_distance(lat)).round(2)
-          ].max
-
-          {
-            latitude: lat,
-            longitude: lon,
-            radius: rad.round
-          }
-        end
-
         def radius(bbox)
           # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines
           bbox_num = bbox.map { |x| Float(x) }
