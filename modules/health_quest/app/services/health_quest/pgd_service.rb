@@ -7,7 +7,7 @@ module HealthQuest
   class PGDService < HealthQuest::SessionService
     def get(type, id = nil, pagination_params = {})
       with_monitoring do
-        response = perform(:get, get_pgd_base_url(type, id), {}, headers, timeout: 55)
+        response = perform(:get, base_url(type, id), {}, headers, timeout: 55)
         {
           data: deserialized_resource(response.body, type),
           meta: pagination(pagination_params)
@@ -36,7 +36,7 @@ module HealthQuest
       }
     end
 
-    def get_pgd_base_url(type, id = nil)
+    def base_url(type, id = nil)
       base = "/#{type}/v1/patients/#{user.icn}"
       id ? "#{base}/#{id}" : base
     end
