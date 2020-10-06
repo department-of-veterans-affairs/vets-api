@@ -695,12 +695,12 @@ RSpec.describe FormProfile, type: :model do
   let(:v28_8832_expected) do
     {
       'claimantAddress' => {
-        'street' => street_check[:street],
-        'street2' => street_check[:street2],
+        'addressLine1' => street_check[:street],
+        'addressLine2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
-        'state' => user.va_profile[:address][:state],
-        'country' => 'USA',
-        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+        'stateCode' => user.va_profile[:address][:state],
+        'countryName' => 'USA',
+        'zipCode' => user.va_profile[:address][:postal_code][0..4]
       }
     }
   end
