@@ -8,8 +8,9 @@ module HealthQuest
     def get(type, id = nil, pagination_params = {})
       with_monitoring do
         response = perform(:get, base_url(type, id), {}, headers, timeout: 55)
+
         {
-          data: deserialized_resource(response.body, type),
+          data: deserialize(response.body, type),
           meta: pagination(pagination_params)
         }
       end
@@ -17,7 +18,7 @@ module HealthQuest
 
     private
 
-    def deserialized_resource(json_hash, type = nil)
+    def deserialize(json_hash, type = nil)
       result = json_hash[:data]
       result[:type] = type if type
       return [] unless result
