@@ -38,7 +38,8 @@ RSpec.describe BGS::PaymentService do
 
         person_hash[:file_nbr] = '000000000'
         person_hash[:ptcpnt_id] = '000000000'
-        expect_any_instance_of(BGS::PaymentInformationService).to receive(:retrieve_payment_summary_with_bdn).and_raise(StandardError)
+        expect_any_instance_of(BGS::PaymentInformationService)
+          .to receive(:retrieve_payment_summary_with_bdn).and_raise(StandardError)
         expect(response).to receive(:log_exception_to_sentry)
 
         response.payment_history(person_hash)
