@@ -10,6 +10,9 @@ describe VAOS::Middleware::VaosLogging do
 
       conn.adapter :test do |stub|
         stub.get(all_other_uris) { [status, { 'Content-Type' => 'text/plain', 'X-Vamf-Jwt' => sample_jwt }, '{}'] }
+        stub.get(
+          user_service_refresh_uri
+        ) { [status, { 'Content-Type' => 'text/plain', 'X-VAMF-JWT' => sample_jwt }, '{}'] }
         stub.post(user_service_uri) { [status, { 'Content-Type' => 'text/plain' }, sample_jwt] }
       end
     end
@@ -17,6 +20,7 @@ describe VAOS::Middleware::VaosLogging do
 
   let(:sample_jwt) { read_fixture_file('sample_jwt.response') }
   let(:all_other_uris) { 'https://veteran.apps.va.gov/whatever' }
+  let(:user_service_refresh_uri) { 'https://veteran.apps.va.gov/user_service_refresh_uri' }
   let(:user_service_uri) { 'https://veteran.apps.va.gov/users/v2/session?processRules=true' }
 
   before do
@@ -38,13 +42,22 @@ describe VAOS::Middleware::VaosLogging do
       client.post(user_service_uri)
     end
 
-    it 'other requests logs a success' do
+    it 'other requests with X-Vamf-Jwt log a success' do
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
                                                   duration: 0.0,
                                                   url: '(GET) https://veteran.apps.va.gov/whatever').and_call_original
-      client.get(all_other_uris)
+      client.get(all_other_uris, nil, { 'X-Vamf-Jwt' => sample_jwt })
+    end
+
+    it 'other requests with X-VAMF-JWT log a success' do
+      expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
+                                                  jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
+                                                  status: 200,
+                                                  duration: 0.0,
+                                                  url: '(GET) https://veteran.apps.va.gov/user_service_refresh_uri').and_call_original
+      client.get(user_service_refresh_uri, nil, { 'X-VAMF-JWT' => sample_jwt })
     end
   end
 
@@ -61,13 +74,22 @@ describe VAOS::Middleware::VaosLogging do
       client.post(user_service_uri)
     end
 
-    it 'other requests logs a failure' do
+    it 'other requests with X-Vamf-Jwt log a failure' do
       expect(Rails.logger).to receive(:warn).with('VAOS service call failed!',
                                                   jti: 'unknown jti',
                                                   status: 500,
                                                   duration: 0.0,
                                                   url: '(GET) https://veteran.apps.va.gov/whatever').and_call_original
-      client.get(all_other_uris)
+      client.get(all_other_uris, nil, { 'X-Vamf-Jwt' => sample_jwt })
+    end
+
+    it 'other requests with X-VAMF-JWT log a failure' do
+      expect(Rails.logger).to receive(:warn).with('VAOS service call failed!',
+                                                  jti: 'unknown jti',
+                                                  status: 500,
+                                                  duration: 0.0,
+                                                  url: '(GET) https://veteran.apps.va.gov/user_service_refresh_uri').and_call_original
+      client.get(user_service_refresh_uri, nil, { 'X-VAMF-JWT' => sample_jwt })
     end
   end
 end
