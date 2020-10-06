@@ -48,35 +48,6 @@ RSpec.describe Form1010cg::Auditor do
     end
   end
 
-  describe '#notify_ga_invalid_veteran_status' do
-    before do
-      expect(Settings.google_analytics).to receive(:tracking_id).and_return('foo')
-      expect(Settings).to receive(:vsp_environment).and_return('staging')
-    end
-
-    context 'when there is an error sending the ga event in production' do
-      before do
-        allow(Rails.env).to receive(:production?).and_return(true)
-      end
-
-      it 'logs an exception and returns false' do
-        expect(subject).to receive(:log_exception_to_sentry)
-
-        expect(
-          subject.send(:notify_ga_invalid_veteran_status, 'google_client_id')
-        ).to eq(false)
-      end
-    end
-
-    it 'sends the right event to google analytics' do
-      VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
-        expect(
-          subject.send(:notify_ga_invalid_veteran_status, 'google_client_id')
-        ).to eq(true)
-      end
-    end
-  end
-
   describe '#record_submission_attempt' do
     context 'increments' do
       it 'api.form1010cg.submission.attempt' do
@@ -173,24 +144,22 @@ RSpec.describe Form1010cg::Auditor do
     end
 
     context 'with nil ga_client_id' do
-      it 'doesnt send a ga event' do
-        expect(subject).not_to receive(:notify_ga_invalid_veteran_status)
-
+      def call_record_submission_failure_client_qualification
         subject.record_submission_failure_client_qualification(
           **record_submission_failure_client_qualification_args.merge(ga_client_id: nil)
         )
       end
-    end
 
-    context 'with all parameters' do
-      before do
-        expect(subject).to receive(:notify_ga_invalid_veteran_status).with('google_client_id')
+      it 'doesnt send a ga event' do
+        expect(subject).not_to receive(:notify_ga_invalid_veteran_status)
+
+        call_record_submission_failure_client_qualification
       end
 
       context 'increments' do
         it 'api.form1010cg.submission.failure.client.data' do
           expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
-          subject.record_submission_failure_client_qualification(**record_submission_failure_client_qualification_args)
+          call_record_submission_failure_client_qualification
         end
       end
 
@@ -203,7 +172,38 @@ RSpec.describe Form1010cg::Auditor do
             **record_submission_failure_client_qualification_args.except(:ga_client_id)
           )
 
-          subject.record_submission_failure_client_qualification(**record_submission_failure_client_qualification_args)
+          call_record_submission_failure_client_qualification
+        end
+      end
+    end
+
+    context 'with all parameters' do
+      before do
+        expect(Settings.google_analytics).to receive(:tracking_id).and_return('foo')
+        expect(Settings).to receive(:vsp_environment).and_return('staging')
+      end
+
+      def call_record_submission_failure_client_qualification
+        subject.record_submission_failure_client_qualification(
+          **record_submission_failure_client_qualification_args
+        )
+      end
+
+      context 'when there is an error sending the ga event' do
+        it 'logs an exception and returns false' do
+          expect(subject).to receive(:log_exception_to_sentry)
+
+          expect(
+            call_record_submission_failure_client_qualification
+          ).to eq(false)
+        end
+      end
+
+      it 'sends the right event to google analytics' do
+        VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
+          expect(
+            call_record_submission_failure_client_qualification
+          ).to eq(true)
         end
       end
     end
