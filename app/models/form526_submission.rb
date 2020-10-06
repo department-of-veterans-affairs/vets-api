@@ -143,7 +143,7 @@ class Form526Submission < ApplicationRecord
     personalization_parameters = {
       'email' => email_address,
       'submitted_claim_id' => submitted_claim_id,
-      'date_submitted' => created_at.strftime('%B %-d, %Y %I:%M %P %Z').sub(/([ap])m/, '\1.m.'),
+      'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
       'full_name' => full_name
     }
     Form526ConfirmationEmailJob.perform_async(personalization_parameters)
