@@ -23,7 +23,7 @@ Telephone Numbers:     Home:    <%= @applicant.homePhone %>
 
 Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
-I would like to receive text message from VA about my GI Bill benefits: <%= receive_text_message %>
+I would like to receive text message from VA about my GI Bill benefits: <%= yesno(receive_text_message) %>
 
 Direct Deposit:
 Type of Account: <%= @applicant.bankAccount&.accountType %>
