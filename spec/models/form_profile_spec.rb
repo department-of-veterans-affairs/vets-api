@@ -701,7 +701,9 @@ RSpec.describe FormProfile, type: :model do
         'state' => user.va_profile[:address][:state],
         'country' => 'USA',
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
-      }
+      },
+      'claimantPhoneNumber' => '555-555-5555',
+      'claimantEmailAddress' => 'derp@derp.com'
     }
   end
 
