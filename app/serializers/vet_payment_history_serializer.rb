@@ -14,7 +14,7 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
     @formatted_payments = []
     @returned_payments = []
 
-    process_payments(object[:payments][:payment]) if object[:payments].present?
+    process_all_payments(object[:payments][:payment]) if object[:payments].present?
     super
   end
 
@@ -28,24 +28,28 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
 
   private
 
-  def process_payments(all_payments)
+  def process_all_payments(all_payments)
     all_payments.each do |payment|
       if payment.dig(:return_payment, :check_trace_number).present?
-        process_return_payments(payment)
+        process_return_payment(payment)
       else
-        @formatted_payments << {
-          pay_check_dt: payment[:payment_date],
-          pay_check_amount: ActiveSupport::NumberHelper.number_to_currency(payment[:payment_amount]),
-          pay_check_type: payment[:payment_type],
-          payment_method: get_payment_method(payment),
-          bank_name: payment.dig(:address_eft, :bank_name),
-          account_number: mask_account_number(payment[:address_eft])
-        }
+        process_payment(payment)
       end
     end
   end
 
-  def process_return_payments(payment)
+  def process_payment(payment)
+    @formatted_payments << {
+      pay_check_dt: payment[:payment_date],
+      pay_check_amount: ActiveSupport::NumberHelper.number_to_currency(payment[:payment_amount]),
+      pay_check_type: payment[:payment_type],
+      payment_method: get_payment_method(payment),
+      bank_name: payment.dig(:address_eft, :bank_name),
+      account_number: mask_account_number(payment[:address_eft])
+    }
+  end
+
+  def process_return_payment(payment)
     @returned_payments << {
       'returned_check_issue_dt': payment[:payment_date],
       'returned_check_cancel_dt': payment[:return_payment][:return_date],
