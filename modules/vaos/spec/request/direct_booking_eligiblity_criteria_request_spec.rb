@@ -27,52 +27,70 @@ RSpec.describe 'direct booking eligibility criteria', type: :request do
   context 'with a loa3 user' do
     let(:user) { build(:user, :vaos) }
     let(:size) { JSON.parse(response.body)['data'].size }
+    let(:cassette) { 'vaos/systems/get_direct_booking_eligibility_criteria_by_id' }
+
+    around do |example|
+      VCR.use_cassette(cassette, match_requests_on: %i[method uri], tag: :force_utf8) do
+        example.run
+      end
+    end
 
     context 'with one id' do
       it 'returns a 200 with the correct schema' do
-        VCR.use_cassette('vaos/systems/get_direct_booking_eligibility_criteria_by_id',
-                         match_requests_on: %i[method uri]) do
-          get '/vaos/v0/direct_booking_eligibility_criteria', params: { site_codes: '688' }
-          expect(response).to have_http_status(:ok)
-          expect(size).to eq(1)
-          expect(response).to match_response_schema('vaos/direct_booking_eligibility_criteria', { strict: false })
-        end
+        get '/vaos/v0/direct_booking_eligibility_criteria', params: { site_codes: '688' }
+        expect(response).to have_http_status(:ok)
+        expect(size).to eq(1)
+        expect(response).to match_response_schema('vaos/direct_booking_eligibility_criteria', { strict: false })
       end
 
       it 'returns a 200 with the correct camel-inflected schema' do
-        VCR.use_cassette('vaos/systems/get_direct_booking_eligibility_criteria_by_id',
-                         match_requests_on: %i[method uri]) do
-          get '/vaos/v0/direct_booking_eligibility_criteria', params: { site_codes: '688' }, headers: inflection_header
-          expect(response).to have_http_status(:ok)
-          expect(size).to eq(1)
-          expect(response).to match_camelized_response_schema('vaos/direct_booking_eligibility_criteria',
-                                                              { strict: false })
-        end
+        get '/vaos/v0/direct_booking_eligibility_criteria', params: { site_codes: '688' }, headers: inflection_header
+        expect(response).to have_http_status(:ok)
+        expect(size).to eq(1)
+        expect(response).to match_camelized_response_schema('vaos/direct_booking_eligibility_criteria',
+                                                            { strict: false })
       end
     end
 
     context 'with multiple site_codes' do
+      let(:cassette) { 'vaos/systems/get_direct_booking_eligibility_criteria_by_site_codes' }
+
       it 'returns a 200 with the correct schema' do
-        VCR.use_cassette('vaos/systems/get_direct_booking_eligibility_criteria_by_site_codes',
-                         match_requests_on: %i[method uri]) do
-          get '/vaos/v0/direct_booking_eligibility_criteria', params: { site_codes: %w[442 534] }
-          expect(response).to have_http_status(:ok)
-          expect(size).to eq(2)
-          expect(response).to match_response_schema('vaos/direct_booking_eligibility_criteria',
-                                                    { strict: false })
-        end
+        get '/vaos/v0/direct_booking_eligibility_criteria', params: { site_codes: %w[442 534] }
+        expect(response).to have_http_status(:ok)
+        expect(size).to eq(2)
+        expect(response).to match_response_schema('vaos/direct_booking_eligibility_criteria',
+                                                  { strict: false })
       end
 
       it 'returns a 200 with the correct camel-inflected schema' do
-        VCR.use_cassette('vaos/systems/get_direct_booking_eligibility_criteria_by_site_codes',
-                         match_requests_on: %i[method uri]) do
-          get '/vaos/v0/direct_booking_eligibility_criteria', params: { site_codes: %w[442 534] },
-                                                              headers: inflection_header
-          expect(response).to have_http_status(:ok)
-          expect(size).to eq(2)
-          expect(response).to match_camelized_response_schema('vaos/direct_booking_eligibility_criteria',
-                                                              { strict: false })
-        end
+        get '/vaos/v0/direct_booking_eligibility_criteria', params: { site_codes: %w[442 534] },
+                                                            headers: inflection_header
+        expect(response).to have_http_status(:ok)
+        expect(size).to eq(2)
+        expect(response).to match_camelized_response_schema('vaos/direct_booking_eligibility_criteria',
+                                                            { strict: false })
+      end
+    end
+
+    context 'with multiple parent_sites' do
+      let(:cassette) { 'vaos/systems/get_direct_booking_eligibility_criteria_by_parent_sites' }
+
+      it 'returns a 200 with the correct schema' do
+        get '/vaos/v0/direct_booking_eligibility_criteria', params: { parent_sites: %w[983 984] }
+        expect(response).to have_http_status(:ok)
+        expect(size).to eq(12)
+        expect(response).to match_response_schema('vaos/direct_booking_eligibility_criteria',
+                                                  { strict: false })
+      end
+
+      it 'returns a 200 with the correct camel-inflected schema' do
+        get '/vaos/v0/direct_booking_eligibility_criteria', params: { parent_sites: %w[983 984] },
+                                                            headers: inflection_header
+        expect(response).to have_http_status(:ok)
+        expect(size).to eq(12)
+        expect(response).to match_camelized_response_schema('vaos/direct_booking_eligibility_criteria',
+                                                            { strict: false })
       end
     end
   end
