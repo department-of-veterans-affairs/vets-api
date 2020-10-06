@@ -7,6 +7,13 @@ module IAMSessionHelper
     DEFAULT_ACCESS_TOKEN
   end
 
+  def iam_headers
+    {
+      'Authorization' => "Bearer #{access_token}",
+      'X-Key-Inflection' => 'camel'
+    }
+  end
+
   def stub_iam_certs
     allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_cert)
       .and_return(instance_double('OpenSSL::X509::Certificate'))
