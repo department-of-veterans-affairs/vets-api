@@ -114,12 +114,8 @@ module Form1010cg
         event.track!
         true
       rescue => e
-        if Rails.env.production?
-          log_exception_to_sentry(e)
-          false
-        else
-          raise e
-        end
+        log_exception_to_sentry(e)
+        false
       end
     end
 

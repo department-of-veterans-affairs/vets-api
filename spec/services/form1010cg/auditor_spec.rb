@@ -70,7 +70,9 @@ RSpec.describe Form1010cg::Auditor do
 
     it 'sends the right event to google analytics' do
       VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
-        subject.send(:notify_ga_invalid_veteran_status, 'google_client_id')
+        expect(
+          subject.send(:notify_ga_invalid_veteran_status, 'google_client_id')
+        ).to eq(true)
       end
     end
   end
