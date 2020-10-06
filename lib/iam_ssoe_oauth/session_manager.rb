@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'iam_ssoe_oauth/service'
 
 module IAMSSOeOAuth
   class SessionManager

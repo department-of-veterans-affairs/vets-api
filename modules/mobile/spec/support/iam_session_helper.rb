@@ -7,11 +7,11 @@ module IAMSessionHelper
     DEFAULT_ACCESS_TOKEN
   end
 
-  def iam_headers
+  def iam_headers(additional_headers)
     {
       'Authorization' => "Bearer #{access_token}",
       'X-Key-Inflection' => 'camel'
-    }
+    }.merge(additional_headers)
   end
 
   def stub_iam_certs
