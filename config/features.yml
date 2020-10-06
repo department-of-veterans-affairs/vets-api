@@ -289,6 +289,7 @@ features:
       Set 10203 spool file document type
   stem_text_message_question:
     actor_type: user
+    enable_in_development: true
     description: >
       Add text message opt-in question to 10203 Personal Information chapter and layout changes     
   form_1995_edu_updates:

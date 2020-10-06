@@ -19,5 +19,11 @@ module EducationForm::Forms
     def any_remaining_benefit
       yesno(%w[moreThanSixMonths sixMonthsOrLess].include?(@applicant.benefitLeft))
     end
+
+    def receive_text_message
+      return 'N/A' unless Flipper.enabled?(:stem_text_message_question)
+
+      @applicant.receiveTexts
+    end
   end
 end
