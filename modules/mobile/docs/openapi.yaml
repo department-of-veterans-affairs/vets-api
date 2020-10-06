@@ -57,7 +57,7 @@ paths:
                           - appointments
                           - claims
                           - directDepositBenefits
-                          - letters
+                          - lettersAndDocuments
                           - militaryServiceHistory
                           - userProfileUpdate
         '401':
