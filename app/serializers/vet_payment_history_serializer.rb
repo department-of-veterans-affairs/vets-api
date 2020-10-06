@@ -13,6 +13,7 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
   def initialize(object, options = nil)
     @formatted_payments = []
     @returned_payments = []
+
     process_payments(object[:payments][:payment]) if object[:payments].present?
     super
   end
@@ -27,18 +28,10 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
 
   private
 
-  # rubocop:disable Metrics/MethodLength
   def process_payments(all_payments)
     all_payments.each do |payment|
       if payment.dig(:return_payment, :check_trace_number).present?
-        @returned_payments << {
-          'returned_check_issue_dt': payment[:payment_date],
-          'returned_check_cancel_dt': payment[:return_payment][:return_date],
-          'returned_check_amount': ActiveSupport::NumberHelper.number_to_currency(payment[:payment_amount]),
-          'returned_check_number': payment[:return_payment][:check_trace_number],
-          'returned_check_type': payment[:payment_type],
-          'return_reason': payment[:return_payment][:return_reason]
-        }
+        process_return_payments(payment)
       else
         @formatted_payments << {
           pay_check_dt: payment[:payment_date],
@@ -51,7 +44,17 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
       end
     end
   end
-  # rubocop:enable Metrics/MethodLength
+
+  def process_return_payments(payment)
+    @returned_payments << {
+      'returned_check_issue_dt': payment[:payment_date],
+      'returned_check_cancel_dt': payment[:return_payment][:return_date],
+      'returned_check_amount': ActiveSupport::NumberHelper.number_to_currency(payment[:payment_amount]),
+      'returned_check_number': payment[:return_payment][:check_trace_number],
+      'returned_check_type': payment[:payment_type],
+      'return_reason': payment[:return_payment][:return_reason]
+    }
+  end
 
   def mask_account_number(address_eft, all_but = 4, char = '*')
     return if address_eft.blank?

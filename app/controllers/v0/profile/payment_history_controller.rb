@@ -7,8 +7,7 @@ module V0
 
       def index
         person = BGS::PeopleService.new(current_user).find_person_by_participant_id
-        service = BGS::PaymentService.new(current_user)
-        response = service.payment_history(person)
+        response = BGS::PaymentService.new(current_user).payment_history(person)
 
         render(
           json: response,
