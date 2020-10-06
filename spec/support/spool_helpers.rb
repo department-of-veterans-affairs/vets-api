@@ -4,7 +4,7 @@ module SpoolHelpers
   extend ActiveSupport::Concern
 
   module ClassMethods
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def test_spool_file(form_type, test_name)
       describe "#{form_type} #{test_name} spool test" do
         subject do
@@ -35,6 +35,6 @@ module SpoolHelpers
         end
       end
     end
-    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
   end
 end
