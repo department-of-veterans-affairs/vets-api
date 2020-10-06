@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/vrm-ws/PaymentInformationService?WSDL
+    uri: https://https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/vrm-ws/PaymentInformationService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 05 Oct 2020 22:24:30 GMT
+      - Tue, 06 Oct 2020 03:40:52 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -42,47 +42,17 @@ http_interactions:
         <xsd:import namespace="http://gov.va.vba.benefits.ws/data" schemaLocation="http://linktestbepbenefits.vba.va.gov:80/vrm-ws/PaymentInformationService?xsd=2"/>
         </xsd:schema>
         </types>
-        <message name="retrieveReturnedPaymentSummaryFilter">
-        <part name="parameters" element="tns:retrieveReturnedPaymentSummaryFilter"/>
+        <message name="retrievePaymentSummaryWithBDN">
+        <part name="parameters" element="tns:retrievePaymentSummaryWithBDN"/>
         </message>
-        <message name="retrieveReturnedPaymentSummaryFilterResponse">
-        <part name="parameters" element="tns:retrieveReturnedPaymentSummaryFilterResponse"/>
+        <message name="retrievePaymentSummaryWithBDNResponse">
+        <part name="parameters" element="tns:retrievePaymentSummaryWithBDNResponse"/>
         </message>
         <message name="BenefitsException">
         <part name="fault" element="tns:BenefitsException"/>
         </message>
         <message name="DataValidationException">
         <part name="fault" element="tns:DataValidationFault"/>
-        </message>
-        <message name="retrievePaymentSummaryFilter">
-        <part name="parameters" element="tns:retrievePaymentSummaryFilter"/>
-        </message>
-        <message name="retrievePaymentSummaryFilterResponse">
-        <part name="parameters" element="tns:retrievePaymentSummaryFilterResponse"/>
-        </message>
-        <message name="retrieveCH35PaymentSummaryFromBDN">
-        <part name="parameters" element="tns:retrieveCH35PaymentSummaryFromBDN"/>
-        </message>
-        <message name="retrieveCH35PaymentSummaryFromBDNResponse">
-        <part name="parameters" element="tns:retrieveCH35PaymentSummaryFromBDNResponse"/>
-        </message>
-        <message name="retrieveCH35ReturnedPaymentSummaryFromBDNFilter">
-        <part name="parameters" element="tns:retrieveCH35ReturnedPaymentSummaryFromBDNFilter"/>
-        </message>
-        <message name="retrieveCH35ReturnedPaymentSummaryFromBDNFilterResponse">
-        <part name="parameters" element="tns:retrieveCH35ReturnedPaymentSummaryFromBDNFilterResponse"/>
-        </message>
-        <message name="retrieveCH35PaymentSummaryFromBDNFilter">
-        <part name="parameters" element="tns:retrieveCH35PaymentSummaryFromBDNFilter"/>
-        </message>
-        <message name="retrieveCH35PaymentSummaryFromBDNFilterResponse">
-        <part name="parameters" element="tns:retrieveCH35PaymentSummaryFromBDNFilterResponse"/>
-        </message>
-        <message name="retrievePaymentSummaryWithBDN">
-        <part name="parameters" element="tns:retrievePaymentSummaryWithBDN"/>
-        </message>
-        <message name="retrievePaymentSummaryWithBDNResponse">
-        <part name="parameters" element="tns:retrievePaymentSummaryWithBDNResponse"/>
         </message>
         <message name="retrievePaymentSummary">
         <part name="parameters" element="tns:retrievePaymentSummary"/>
@@ -96,37 +66,37 @@ http_interactions:
         <message name="retrievePaymentDetailResponse">
         <part name="parameters" element="tns:retrievePaymentDetailResponse"/>
         </message>
+        <message name="retrievePaymentSummaryFilter">
+        <part name="parameters" element="tns:retrievePaymentSummaryFilter"/>
+        </message>
+        <message name="retrievePaymentSummaryFilterResponse">
+        <part name="parameters" element="tns:retrievePaymentSummaryFilterResponse"/>
+        </message>
+        <message name="retrieveCH35PaymentSummaryFromBDN">
+        <part name="parameters" element="tns:retrieveCH35PaymentSummaryFromBDN"/>
+        </message>
+        <message name="retrieveCH35PaymentSummaryFromBDNResponse">
+        <part name="parameters" element="tns:retrieveCH35PaymentSummaryFromBDNResponse"/>
+        </message>
+        <message name="retrieveCH35PaymentSummaryFromBDNFilter">
+        <part name="parameters" element="tns:retrieveCH35PaymentSummaryFromBDNFilter"/>
+        </message>
+        <message name="retrieveCH35PaymentSummaryFromBDNFilterResponse">
+        <part name="parameters" element="tns:retrieveCH35PaymentSummaryFromBDNFilterResponse"/>
+        </message>
+        <message name="retrieveCH35ReturnedPaymentSummaryFromBDNFilter">
+        <part name="parameters" element="tns:retrieveCH35ReturnedPaymentSummaryFromBDNFilter"/>
+        </message>
+        <message name="retrieveCH35ReturnedPaymentSummaryFromBDNFilterResponse">
+        <part name="parameters" element="tns:retrieveCH35ReturnedPaymentSummaryFromBDNFilterResponse"/>
+        </message>
+        <message name="retrieveReturnedPaymentSummaryFilter">
+        <part name="parameters" element="tns:retrieveReturnedPaymentSummaryFilter"/>
+        </message>
+        <message name="retrieveReturnedPaymentSummaryFilterResponse">
+        <part name="parameters" element="tns:retrieveReturnedPaymentSummaryFilterResponse"/>
+        </message>
         <portType name="PaymentInformation">
-        <operation name="retrieveReturnedPaymentSummaryFilter">
-        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveReturnedPaymentSummaryFilterRequest" message="tns:retrieveReturnedPaymentSummaryFilter"/>
-        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveReturnedPaymentSummaryFilterResponse" message="tns:retrieveReturnedPaymentSummaryFilterResponse"/>
-        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveReturnedPaymentSummaryFilter/Fault/BenefitsException"/>
-        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveReturnedPaymentSummaryFilter/Fault/DataValidationException"/>
-        </operation>
-        <operation name="retrievePaymentSummaryFilter">
-        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryFilterRequest" message="tns:retrievePaymentSummaryFilter"/>
-        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryFilterResponse" message="tns:retrievePaymentSummaryFilterResponse"/>
-        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryFilter/Fault/BenefitsException"/>
-        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryFilter/Fault/DataValidationException"/>
-        </operation>
-        <operation name="retrieveCH35PaymentSummaryFromBDN">
-        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNRequest" message="tns:retrieveCH35PaymentSummaryFromBDN"/>
-        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNResponse" message="tns:retrieveCH35PaymentSummaryFromBDNResponse"/>
-        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDN/Fault/BenefitsException"/>
-        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDN/Fault/DataValidationException"/>
-        </operation>
-        <operation name="retrieveCH35ReturnedPaymentSummaryFromBDNFilter">
-        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35ReturnedPaymentSummaryFromBDNFilterRequest" message="tns:retrieveCH35ReturnedPaymentSummaryFromBDNFilter"/>
-        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35ReturnedPaymentSummaryFromBDNFilterResponse" message="tns:retrieveCH35ReturnedPaymentSummaryFromBDNFilterResponse"/>
-        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35ReturnedPaymentSummaryFromBDNFilter/Fault/BenefitsException"/>
-        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35ReturnedPaymentSummaryFromBDNFilter/Fault/DataValidationException"/>
-        </operation>
-        <operation name="retrieveCH35PaymentSummaryFromBDNFilter">
-        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNFilterRequest" message="tns:retrieveCH35PaymentSummaryFromBDNFilter"/>
-        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNFilterResponse" message="tns:retrieveCH35PaymentSummaryFromBDNFilterResponse"/>
-        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNFilter/Fault/BenefitsException"/>
-        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNFilter/Fault/DataValidationException"/>
-        </operation>
         <operation name="retrievePaymentSummaryWithBDN">
         <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryWithBDNRequest" message="tns:retrievePaymentSummaryWithBDN"/>
         <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryWithBDNResponse" message="tns:retrievePaymentSummaryWithBDNResponse"/>
@@ -145,10 +115,70 @@ http_interactions:
         <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentDetail/Fault/BenefitsException"/>
         <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentDetail/Fault/DataValidationException"/>
         </operation>
+        <operation name="retrievePaymentSummaryFilter">
+        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryFilterRequest" message="tns:retrievePaymentSummaryFilter"/>
+        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryFilterResponse" message="tns:retrievePaymentSummaryFilterResponse"/>
+        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryFilter/Fault/BenefitsException"/>
+        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrievePaymentSummaryFilter/Fault/DataValidationException"/>
+        </operation>
+        <operation name="retrieveCH35PaymentSummaryFromBDN">
+        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNRequest" message="tns:retrieveCH35PaymentSummaryFromBDN"/>
+        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNResponse" message="tns:retrieveCH35PaymentSummaryFromBDNResponse"/>
+        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDN/Fault/BenefitsException"/>
+        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDN/Fault/DataValidationException"/>
+        </operation>
+        <operation name="retrieveCH35PaymentSummaryFromBDNFilter">
+        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNFilterRequest" message="tns:retrieveCH35PaymentSummaryFromBDNFilter"/>
+        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNFilterResponse" message="tns:retrieveCH35PaymentSummaryFromBDNFilterResponse"/>
+        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNFilter/Fault/BenefitsException"/>
+        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35PaymentSummaryFromBDNFilter/Fault/DataValidationException"/>
+        </operation>
+        <operation name="retrieveCH35ReturnedPaymentSummaryFromBDNFilter">
+        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35ReturnedPaymentSummaryFromBDNFilterRequest" message="tns:retrieveCH35ReturnedPaymentSummaryFromBDNFilter"/>
+        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35ReturnedPaymentSummaryFromBDNFilterResponse" message="tns:retrieveCH35ReturnedPaymentSummaryFromBDNFilterResponse"/>
+        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35ReturnedPaymentSummaryFromBDNFilter/Fault/BenefitsException"/>
+        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveCH35ReturnedPaymentSummaryFromBDNFilter/Fault/DataValidationException"/>
+        </operation>
+        <operation name="retrieveReturnedPaymentSummaryFilter">
+        <input wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveReturnedPaymentSummaryFilterRequest" message="tns:retrieveReturnedPaymentSummaryFilter"/>
+        <output wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveReturnedPaymentSummaryFilterResponse" message="tns:retrieveReturnedPaymentSummaryFilterResponse"/>
+        <fault message="tns:BenefitsException" name="BenefitsException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveReturnedPaymentSummaryFilter/Fault/BenefitsException"/>
+        <fault message="tns:DataValidationException" name="DataValidationException" wsam:Action="http://ws.vrm.benefits.vba.va.gov/PaymentInformation/retrieveReturnedPaymentSummaryFilter/Fault/DataValidationException"/>
+        </operation>
         </portType>
         <binding name="PaymentInformationPortBinding" type="tns:PaymentInformation">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <operation name="retrieveReturnedPaymentSummaryFilter">
+        <operation name="retrievePaymentSummaryWithBDN">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="BenefitsException">
+        <soap:fault name="BenefitsException" use="literal"/>
+        </fault>
+        <fault name="DataValidationException">
+        <soap:fault name="DataValidationException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="retrievePaymentSummary">
+        <soap:operation soapAction=""/>
+        <input>
+        <soap:body use="literal"/>
+        </input>
+        <output>
+        <soap:body use="literal"/>
+        </output>
+        <fault name="BenefitsException">
+        <soap:fault name="BenefitsException" use="literal"/>
+        </fault>
+        <fault name="DataValidationException">
+        <soap:fault name="DataValidationException" use="literal"/>
+        </fault>
+        </operation>
+        <operation name="retrievePaymentDetail">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -193,21 +223,6 @@ http_interactions:
         <soap:fault name="DataValidationException" use="literal"/>
         </fault>
         </operation>
-        <operation name="retrieveCH35ReturnedPaymentSummaryFromBDNFilter">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="BenefitsException">
-        <soap:fault name="BenefitsException" use="literal"/>
-        </fault>
-        <fault name="DataValidationException">
-        <soap:fault name="DataValidationException" use="literal"/>
-        </fault>
-        </operation>
         <operation name="retrieveCH35PaymentSummaryFromBDNFilter">
         <soap:operation soapAction=""/>
         <input>
@@ -223,7 +238,7 @@ http_interactions:
         <soap:fault name="DataValidationException" use="literal"/>
         </fault>
         </operation>
-        <operation name="retrievePaymentSummaryWithBDN">
+        <operation name="retrieveCH35ReturnedPaymentSummaryFromBDNFilter">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -238,22 +253,7 @@ http_interactions:
         <soap:fault name="DataValidationException" use="literal"/>
         </fault>
         </operation>
-        <operation name="retrievePaymentSummary">
-        <soap:operation soapAction=""/>
-        <input>
-        <soap:body use="literal"/>
-        </input>
-        <output>
-        <soap:body use="literal"/>
-        </output>
-        <fault name="BenefitsException">
-        <soap:fault name="BenefitsException" use="literal"/>
-        </fault>
-        <fault name="DataValidationException">
-        <soap:fault name="DataValidationException" use="literal"/>
-        </fault>
-        </operation>
-        <operation name="retrievePaymentDetail">
+        <operation name="retrieveReturnedPaymentSummaryFilter">
         <soap:operation soapAction=""/>
         <input>
         <soap:body use="literal"/>
@@ -275,10 +275,10 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Mon, 05 Oct 2020 22:24:30 GMT
+  recorded_at: Tue, 06 Oct 2020 03:40:52 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/vrm-ws/PaymentInformationService
+    uri: https://https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/vrm-ws/PaymentInformationService
     body:
       encoding: UTF-8
       string: |-
@@ -290,7 +290,7 @@ http_interactions:
             <vaws:CLIENT_MACHINE>192.168.0.95</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>20345064226776742</vaws:ExternalUid>
+            <vaws:ExternalUid>58131302518826783</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
@@ -316,7 +316,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 05 Oct 2020 22:24:30 GMT
+      - Tue, 06 Oct 2020 03:40:53 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -331,5 +331,5 @@ http_interactions:
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header/><S:Body><ns0:retrievePaymentSummaryWithBDNResponse
         xmlns:ns0="http://ws.vrm.benefits.vba.va.gov/"><PaymentSummaryResponse><payments/><response><responseCode>1</responseCode><responseText>No
         Data Found</responseText></response></PaymentSummaryResponse></ns0:retrievePaymentSummaryWithBDNResponse></S:Body></S:Envelope>
-  recorded_at: Mon, 05 Oct 2020 22:24:31 GMT
+  recorded_at: Tue, 06 Oct 2020 03:40:53 GMT
 recorded_with: VCR 6.0.0

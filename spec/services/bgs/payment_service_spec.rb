@@ -28,7 +28,7 @@ RSpec.describe BGS::PaymentService do
         person_hash[:ptcpnt_id] = '000000000'
 
         response = BGS::PaymentService.new(user).payment_history(person_hash)
-        expect(response).to include({payments: nil, response: { response_code: '1', response_text: 'No Data Found'}})
+        expect(response).to include({ payments: [], return_payments: [] })
       end
     end
 
