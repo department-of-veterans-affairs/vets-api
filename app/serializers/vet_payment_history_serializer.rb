@@ -13,7 +13,7 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
   def initialize(object, options = nil)
     @formatted_payments = []
     @returned_payments = []
-    process_payments(object[:payments][:payment]) unless object[:payments].blank?
+    process_payments(object[:payments][:payment]) if object[:payments].present?
     super
   end
 
