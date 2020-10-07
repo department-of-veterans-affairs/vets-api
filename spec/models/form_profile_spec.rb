@@ -702,8 +702,8 @@ RSpec.describe FormProfile, type: :model do
         'countryName' => user.va_profile[:address][:country],
         'zipCode' => user.va_profile[:address][:postal_code][0..4]
       },
-      'claimantPhoneNumber' => user.va_profile[:address][:state],
-      'claimantEmailAddress' => us_phone
+      'claimantPhoneNumber' => us_phone,
+      'claimantEmailAddress' => user.pciu_email
     }
   end
 
