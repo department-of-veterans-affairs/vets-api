@@ -35,7 +35,8 @@ class InProgressForm < ApplicationRecord
     last_accessed = updated_at || Time.current
     data.merge(
       'expires_at' => expires_at.to_i || (last_accessed + expires_after).to_i,
-      'last_updated' => updated_at.to_i
+      'last_updated' => updated_at.to_i,
+      'in_progress_form_id' => id
     )
   end
 

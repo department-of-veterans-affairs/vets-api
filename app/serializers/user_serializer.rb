@@ -7,7 +7,8 @@ class UserSerializer < ActiveModel::Serializer
   include Common::Client::Concerns::ServiceStatus
 
   attributes :services, :account, :profile, :va_profile, :veteran_status,
-             :in_progress_forms, :prefills_available, :vet360_contact_information
+             :in_progress_forms, :prefills_available, :vet360_contact_information,
+             :session
 
   def id
     nil
@@ -21,4 +22,5 @@ class UserSerializer < ActiveModel::Serializer
   delegate :in_progress_forms, to: :object
   delegate :prefills_available, to: :object
   delegate :services, to: :object
+  delegate :session, to: :object
 end

@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'vba_documents/multipart_parser'
-require 'vba_documents/upload_error'
 require_relative '../support/vba_document_fixtures'
 
 RSpec.describe VBADocuments::MultipartParser do

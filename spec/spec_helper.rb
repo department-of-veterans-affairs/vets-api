@@ -56,6 +56,7 @@ unless ENV['NOCOVERAGE']
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'VAOS', 'modules/vaos/'
     add_group 'HealthQuest', 'modules/health_quest/'
+    add_group 'Mobile', 'modules/mobile/'
 
     SimpleCov.minimum_coverage_by_file 90 unless ENV['CIRCLE_JOB']
     SimpleCov.refuse_coverage_drop unless ENV['CIRCLE_JOB']

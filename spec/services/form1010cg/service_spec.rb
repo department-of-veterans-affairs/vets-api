@@ -12,7 +12,6 @@ RSpec.describe Form1010cg::Service do
           'first' => Faker::Name.first_name,
           'last' => Faker::Name.last_name
         },
-        'ssnOrTin' => Faker::IDNumber.valid.remove('-'),
         'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
         'address' => {
           'street' => Faker::Address.street_address,
@@ -27,20 +26,22 @@ RSpec.describe Form1010cg::Service do
       data['vetRelationship'] = 'Daughter' if form_subject != :veteran
 
       # Required properties for :primaryCaregiver
-      if form_subject == :primaryCaregiver
-        data['medicaidEnrolled'] = true
-        data['medicareEnrolled'] = false
-        data['tricareEnrolled'] = false
-        data['champvaEnrolled'] = false
-      end
+      data['hasHealthInsurance'] = true if form_subject == :primaryCaregiver
 
       # Required property for :veteran
-      data['plannedClinic'] = '568A4' if form_subject == :veteran
+      if form_subject == :veteran
+        data['ssnOrTin'] = Faker::IDNumber.valid.remove('-')
+        data['plannedClinic'] = '568A4'
+      end
 
       mutations&.call data
 
       data
     end
+  end
+
+  def expect_icn_for_veteran_to_return_not_found
+    expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
   end
 
   describe '::new' do
@@ -73,6 +74,8 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#icn_for' do
+    let(:set_ssn) { ->(data) { data['ssnOrTin'] = '111111111' } }
+
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
         build(
@@ -118,7 +121,7 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq(:ICN_123)
     end
 
-    it 'sets returns "NOT_FOUND" when profile not found in MVI' do
+    it 'returns "NOT_FOUND" when profile not found in MVI' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
@@ -163,13 +166,34 @@ RSpec.describe Form1010cg::Service do
       expect(result).to eq('NOT_FOUND')
     end
 
-    it 'returns a cached responses when called more than once for a given subject' do
+    it 'returns "NOT_FOUND" when no SSN is present' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
           form: {
             'veteran' => build_claim_data_for.call(:veteran),
             'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+          }.to_json
+        )
+      )
+
+      # This should skip the MPI search and not build a UserIdentity
+      expect(UserIdentity).not_to receive(:new)
+      expect_any_instance_of(MVI::Service).not_to receive(:find_profile)
+
+      result = subject.icn_for('primaryCaregiver')
+
+      expect(result).to eq('NOT_FOUND')
+    end
+
+    it 'returns a cached responses when called more than once for a given subject' do
+      subject = described_class.new(
+        build(
+          :caregivers_assistance_claim,
+          form: {
+            'veteran' => build_claim_data_for.call(:veteran),
+            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
+            'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne)
           }.to_json
         )
       )
@@ -239,6 +263,10 @@ RSpec.describe Form1010cg::Service do
       3.times do
         expect(subject.icn_for('primaryCaregiver')).to eq('NOT_FOUND')
       end
+
+      3.times do
+        expect(subject.icn_for('secondaryCaregiverOne')).to eq('NOT_FOUND')
+      end
     end
 
     context 'when email is provided' do
@@ -298,9 +326,9 @@ RSpec.describe Form1010cg::Service do
             :caregivers_assistance_claim,
             form: {
               'veteran' => build_claim_data_for.call(:veteran),
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver),
-              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne),
-              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo)
+              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
+              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne, &set_ssn),
+              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo, &set_ssn)
             }.to_json
           )
         )
@@ -315,7 +343,7 @@ RSpec.describe Form1010cg::Service do
           expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
-            was_found: true
+            result: :found
           )
 
           subject.icn_for(form_subject)
@@ -331,7 +359,33 @@ RSpec.describe Form1010cg::Service do
           expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
-            was_found: false
+            result: :not_found
+          )
+
+          subject.icn_for(form_subject)
+        end
+      end
+
+      it 'will log when a search is skipped' do
+        subject = described_class.new(
+          build(
+            :caregivers_assistance_claim,
+            form: {
+              # Form subjects with no SSNs
+              'veteran' => build_claim_data_for.call(:veteran),
+              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver),
+              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne),
+              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo)
+            }.to_json
+          )
+        )
+
+        # Only testing for caregivers, since veteran requires an SSN
+        %w[primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
+          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+            claim_guid: subject.claim.guid,
+            form_subject: form_subject,
+            result: :skipped
           )
 
           subject.icn_for(form_subject)
@@ -347,7 +401,7 @@ RSpec.describe Form1010cg::Service do
         expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
           claim_guid: subject.claim.guid,
           form_subject: 'veteran',
-          was_found: true
+          result: :found
         )
 
         5.times do
@@ -574,7 +628,8 @@ RSpec.describe Form1010cg::Service do
 
   describe '#assert_veteran_status' do
     it 'will raise error if veteran\'s icn can not be found' do
-      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+      expect_icn_for_veteran_to_return_not_found
+
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
@@ -588,7 +643,7 @@ RSpec.describe Form1010cg::Service do
 
   describe '#process_claim!' do
     it 'raises error when ICN not found for veteran' do
-      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+      expect_icn_for_veteran_to_return_not_found
       expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
@@ -671,6 +726,7 @@ RSpec.describe Form1010cg::Service do
       expect(carma_attachment).to receive(:to_hash).and_return(:attachments_as_hash)
       expect(submission).to receive(:attachments=).with(:attachments_as_hash)
 
+      expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
 
       expect(subject.submit_attachment).to eq(true)
@@ -707,6 +763,7 @@ RSpec.describe Form1010cg::Service do
 
       expect(CARMA::Models::Attachments).to receive(:new).and_raise('failure')
 
+      expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
 
       expect(subject.submit_attachment).to eq(false)
@@ -737,12 +794,13 @@ RSpec.describe Form1010cg::Service do
 
       expect(carma_attachment).to receive(:add).with(document_type, file_path).and_raise('failure')
 
+      expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
 
       expect(subject.submit_attachment).to eq(false)
     end
 
-    it 'returns false submission fails' do
+    it 'returns false when submission fails' do
       document_type     = '10-10CG'
       file_path         = 'tmp/my_file.pdf'
       carma_attachment  = double
@@ -768,7 +826,40 @@ RSpec.describe Form1010cg::Service do
       expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
       expect(carma_attachment).to receive(:submit!).and_raise('bad request')
 
+      expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
+
+      expect(subject.submit_attachment).to eq(false)
+    end
+
+    it 'returns false when file is deleted from another source' do
+      document_type     = '10-10CG'
+      file_path         = 'tmp/my_file.pdf'
+      carma_attachment  = double
+      claim             = build(:caregivers_assistance_claim)
+
+      submission = Form1010cg::Submission.new(
+        carma_case_id: 'aB9350000000TjICAU',
+        submitted_at: '2020-06-26 13:30:59'
+      )
+
+      subject = described_class.new(claim, submission)
+
+      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
+
+      expect(CARMA::Models::Attachments).to receive(:new).with(
+        submission.carma_case_id,
+        claim.veteran_data['fullName']['first'],
+        claim.veteran_data['fullName']['last']
+      ).and_return(
+        carma_attachment
+      )
+
+      expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
+      expect(carma_attachment).to receive(:submit!).and_raise('bad request')
+
+      expect(File).to receive(:exist?).with(file_path).and_return(false)
+      expect(File).not_to receive(:delete).with(file_path)
 
       expect(subject.submit_attachment).to eq(false)
     end

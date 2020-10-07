@@ -212,7 +212,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
 
-      with_settings(Settings.edu.sftp, host: 'localhost', pass: 'test') do
+      key_path = "#{::Rails.root}/spec/fixtures/files/idme_cert.crt" # any readable file will work for this spec
+      with_settings(Settings.edu.sftp, host: 'localhost', key_path: key_path) do
         sftp_session_mock = instance_double('Net::SSH::Connection::Session')
         sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
 

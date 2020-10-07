@@ -5,7 +5,10 @@ AppealsApi::Engine.routes.draw do
   match '/decision_reviews/metadata', to: 'metadata#decision_reviews', via: [:get]
   match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
   match '/v1/healthcheck', to: 'metadata#healthcheck', via: [:get]
+  match '/v0/upstream_healthcheck', to: 'metadata#upstream_healthcheck', via: [:get]
+  match '/v1/upstream_healthcheck', to: 'metadata#upstream_healthcheck', via: [:get]
   match '/v0/appeals', to: 'v0/appeals#index', via: [:get]
+
   namespace :v1, defaults: { format: 'json' } do
     namespace :decision_reviews do
       namespace :higher_level_reviews do

@@ -3,8 +3,20 @@
 require 'rails_helper'
 
 RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
+  before do
+    request.headers['x-google-client-id'] = 'google_client_id'
+  end
+
   it 'inherits from ActionController::API' do
     expect(described_class.ancestors).to include(ActionController::API)
+  end
+
+  def stub_new_claim(form_data, claim)
+    expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+      { form: form_data }
+    ).and_return(
+      claim
+    )
   end
 
   shared_examples '10-10CG request with missing param: caregivers_assistance_claim' do |controller_action|
@@ -64,11 +76,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     end
 
     it 'builds a claim and raises its errors' do
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
+      stub_new_claim(form_data, claim)
 
       expect(Form1010cg::Service).not_to receive(:new).with(claim)
 
@@ -141,11 +149,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         metadata: :metadata_submitted
       )
 
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
+      stub_new_claim(form_data, claim)
 
       expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
       expect(service).to receive(:process_claim!).and_return(submission)
@@ -173,26 +177,41 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     end
 
     context 'when Form1010cg::Service raises InvalidVeteranStatus' do
-      it 'renders backend service outage' do
-        claim         = build(:caregivers_assistance_claim)
-        form_data     = claim.form
-        params        = { caregivers_assistance_claim: { form: form_data } }
-        service       = double
+      let(:claim) { build(:caregivers_assistance_claim) }
+      let(:form_data) { claim.form }
+      let(:params) do
+        { caregivers_assistance_claim: { form: form_data } }
+      end
+      let(:service) { double }
 
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(
-          claim
-        )
-
+      before do
+        stub_new_claim(form_data, claim)
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
+      end
+
+      context 'with a null x-google-client-id header' do
+        before do
+          request.headers['x-google-client-id'] = nil
+        end
+
+        it 'doesnt send a ga event' do
+          expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
+
+          expect(Form1010cg::Auditor.instance).not_to receive(:notify_ga_invalid_veteran_status)
+
+          post :create, params: params
+        end
+      end
+
+      it 'renders backend service outage' do
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
 
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
           claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          veteran_name: claim.veteran_data['fullName'],
+          ga_client_id: 'google_client_id'
         )
 
         post :create, params: params
@@ -215,31 +234,14 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       end
 
       it 'matches the response of a Common::Client::Errors::ClientError' do
-        claim = build(:caregivers_assistance_claim)
-        form_data = claim.form
-        params = { caregivers_assistance_claim: { form: form_data } }
-        service = double
-
         ## Backend Client Error Scenario
-
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(
-          claim
-        )
-
-        expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
 
         backend_client_error_response = post :create, params: params
 
         ## Invalid Veteran Status Scenario
 
-        expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-          form: form_data
-        ).and_return(
-          claim
-        )
+        stub_new_claim(form_data, claim)
 
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
@@ -248,7 +250,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
           claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          veteran_name: claim.veteran_data['fullName'],
+          ga_client_id: 'google_client_id'
         )
 
         invalid_veteran_status_response = post :create, params: params
@@ -277,15 +280,11 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     it_behaves_like '10-10CG request with invalid form data', :download_pdf
 
     it 'generates a filled out 10-10CG and sends file as response', run_at: '2017-07-25 00:00:00 -0400' do
-      form_data = get_fixture('pdf_fill/10-10CG/unsigned/simple').to_json
+      form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
       params    = { caregivers_assistance_claim: { form: form_data } }
       claim     = build(:caregivers_assistance_claim, form: form_data)
 
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
+      stub_new_claim(form_data, claim)
 
       expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
       expect(Form1010cg::Auditor.instance).to receive(:record).with(:pdf_download)

@@ -13,6 +13,14 @@ else
 	FOREMAN_ARG := all=1,clamd=0,freshclam=0
 endif
 
+ifdef PACT_URI
+	PACT := "RAILS_ENV=test bundle exec rake pact:verify:at[$(PACT_URI)]"
+else
+    PACT := "RAILS_ENV=test bundle exec rake pact:verify"
+endif
+
+
+
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
@@ -23,7 +31,6 @@ DB           := "bin/rails db:setup db:migrate"
 LINT         := "bin/rails lint"
 DOWN         := down
 SECURITY     := "bin/rails security"
-PACT         := "RAILS_ENV=test bundle exec rake pact:verify"
 .DEFAULT_GOAL := ci
 
 
