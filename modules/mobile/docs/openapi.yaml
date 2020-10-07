@@ -26,6 +26,11 @@ paths:
       summary: /v0/letters
       description: Returns the list of letter names and types for the given user
       operationId: getLetters
+  /v0/military-service-history:
+    get:
+      summary: /v0/military-service-history
+      description: Returns user's service history
+      operationId: getServiceHistory
       security:
         - Bearer: [ ]
       responses:
@@ -167,6 +172,7 @@ paths:
               schema:
                 type: string
                 format: binary
+                $ref: "#/components/schemas/MilitaryHistory"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
