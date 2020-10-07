@@ -2,16 +2,26 @@
 
 module BGS
   class PaymentService < BaseService
-    def payment_history
-      # rubocop:disable Rails/DynamicFindBy
-      response = @service.payment_history.find_by_ssn(@user.ssn)
-      # rubocop:enable Rails/DynamicFindBy
+    def payment_history(person)
+      response = @service.payment_information.retrieve_payment_summary_with_bdn(
+        person[:ptcpnt_id],
+        person[:file_nbr],
+        '00', # payee code
+        person[:ssn_nbr]
+      )
 
-      response[:payment_record]
+      return empty_response if response[:payments].nil?
+
+      response
     rescue => e
-      return { payment_address: [], payments: [], return_payments: [] } if e.message.include?('No payment record found')
-
       report_error(e)
+      empty_response if e.message.include?('No Data Found')
+    end
+
+    private
+
+    def empty_response
+      { payments: [], return_payments: [] }
     end
   end
 end
