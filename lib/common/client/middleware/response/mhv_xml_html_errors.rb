@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 module Common
   module Client
     module Middleware

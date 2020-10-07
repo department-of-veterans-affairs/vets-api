@@ -1,23 +1,19 @@
 # frozen_string_literal: true
 
-require 'securerandom'
 require 'rails_helper'
-require 'saml/url_service'
-require 'support/url_service_helpers'
 require 'support/saml/form_validation_helpers'
+require 'saml/post_url_service'
 
 RSpec.describe SAML::PostURLService do
   include SAML::ValidationHelpers
 
   context 'using loa/3/vets context' do
     subject do
-      described_class.new(saml_settings, session: session, user: user,
-                                         params: params, previous_saml_uuid: previous_saml_uuid)
+      described_class.new(saml_settings, session: session, user: user, params: params)
     end
 
     let(:user) { build(:user) }
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
-    let(:previous_saml_uuid) { nil }
 
     around do |example|
       User.create(user)
@@ -219,20 +215,6 @@ RSpec.describe SAML::PostURLService do
             it 'has a logout redirect url' do
               expect(subject.logout_redirect_url)
                 .to eq(values[:base_redirect] + SAML::URLService::LOGOUT_REDIRECT_PARTIAL)
-            end
-          end
-
-          context 'for a user with a custom redirect parameter' do
-            let(:user) { build(:user, :loa3) }
-            let(:previous_saml_uuid) do
-              SAMLRequestTracker.create(
-                uuid: SecureRandom.uuid,
-                payload: { redirect: 'https://custom.com/' }
-              ).uuid
-            end
-
-            it 'has a custom redirect url' do
-              expect(subject.login_redirect_url).to eq('https://custom.com/')
             end
           end
 

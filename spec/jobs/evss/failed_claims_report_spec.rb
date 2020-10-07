@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/api'
 
 RSpec.describe EVSS::FailedClaimsReport, type: :job do
   describe '#extract_info' do

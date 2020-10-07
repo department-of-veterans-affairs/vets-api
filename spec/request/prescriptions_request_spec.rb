@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'rx/client'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
 

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Disability Claims ', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796043735',
+    { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-VA-EDIPI': '1007697216',
@@ -142,6 +142,33 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
+      describe 'disabilities specialIssues' do
+        context 'when an incorrect type is passed for specialIssues' do
+          it 'returns errors explaining the failure' do
+            with_okta_user(scopes) do |auth_header|
+              params = json_data
+              params['data']['attributes']['disabilities'][0]['specialIssues'] = ['invalidType']
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(422)
+              expect(JSON.parse(response.body)['errors'].size).to eq(1)
+            end
+          end
+        end
+
+        context 'when correct types are passed for specialIssues' do
+          it 'returns a successful status' do
+            VCR.use_cassette('evss/claims/claims') do
+              with_okta_user(scopes) do |auth_header|
+                params = json_data
+                params['data']['attributes']['disabilities'][0]['specialIssues'] = %w[ALS HEPC]
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+      end
+
       it 'requires international postal code when address type is international' do
         with_okta_user(scopes) do |auth_header|
           params = json_data
@@ -170,6 +197,45 @@ RSpec.describe 'Disability Claims ', type: :request do
             post path, params: data, headers: headers.merge(auth_header)
             expect(response.status).to eq 422
             expect(JSON.parse(response.body)['errors']).to be_an Array
+          end
+        end
+      end
+
+      context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+        before do
+          fake_io_object = OpenStruct.new string: json
+          allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+        end
+
+        context 'request.body is a JSON string' do
+          let(:json) { '"Hello!"' }
+
+          it 'responds with a properly formed error object' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                body = JSON.parse(response.body)
+                expect(response.status).to eq 422
+                expect(body['errors']).to be_an Array
+                expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+              end
+            end
+          end
+        end
+
+        context 'request.body is a JSON integer' do
+          let(:json) { '66' }
+
+          it 'responds with a properly formed error object' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                post path, params: data, headers: headers.merge(auth_header)
+                body = JSON.parse(response.body)
+                expect(response.status).to eq 422
+                expect(body['errors']).to be_an Array
+                expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+              end
+            end
           end
         end
       end

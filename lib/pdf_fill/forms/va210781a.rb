@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/common_ptsd'
+require 'pdf_fill/forms/form_base'
+
 module PdfFill
   module Forms
     class Va210781a < FormBase
@@ -213,7 +217,7 @@ module PdfFill
         }
       }.freeze
 
-      def merge_fields
+      def merge_fields(_options = {})
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)

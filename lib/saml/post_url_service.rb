@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/routing_error'
+require_relative 'url_service'
+
 module SAML
   # This class is responsible for providing the requests for the various SSO and SLO endpoints.
   # It provides a similar interface to {SAML::URLService}, but for most endpoints it returns an SSO URL and
@@ -8,9 +11,7 @@ module SAML
   # @see SAML::URLService
   #
   class PostURLService < URLService
-    # rubocop:disable Metrics/ParameterLists
-    def initialize(saml_settings, session: nil, user: nil, params: {},
-                   loa3_context: LOA::IDME_LOA3_VETS, previous_saml_uuid: nil)
+    def initialize(saml_settings, session: nil, user: nil, params: {}, loa3_context: LOA::IDME_LOA3_VETS)
       unless %w[new saml_callback saml_logout_callback ssoe_slo_callback].include?(params[:action])
         raise Common::Exceptions::RoutingError, params[:path]
       end
@@ -28,12 +29,11 @@ module SAML
         @type = JSON.parse(params[:RelayState])['type']
       end
       @query_params = {}
-      @tracker = initialize_tracker(params, previous_saml_uuid: previous_saml_uuid)
+      @tracker = initialize_tracker(params)
 
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def should_uplevel?
       user.loa[:current] < user.loa[:highest]

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'string_helpers'
+require 'sentry_logging'
+
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model
@@ -89,26 +92,25 @@ class FormProfile
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
-    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-1995S 22-5490
+    edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-5490
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203],
-    evss: %w[21-526EZ 21-526EZ-BDD],
+    evss: ['21-526EZ'],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
     dependents: ['686C-674'],
     decision_review: ['20-0996'],
-    mdot: ['MDOT']
+    mdot: ['MDOT'],
+    vre_counseling: ['28-8832']
   }.freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ' => ::FormProfiles::VA1010ez,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
-    '21-526EZ-BDD' => ::FormProfiles::VA526ezbdd,
     '22-1990' => ::FormProfiles::VA1990,
     '22-1990N' => ::FormProfiles::VA1990n,
     '22-1990E' => ::FormProfiles::VA1990e,
     '22-1995' => ::FormProfiles::VA1995,
-    '22-1995S' => ::FormProfiles::VA1995s,
     '22-5490' => ::FormProfiles::VA5490,
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530' => ::FormProfiles::VA21p530,
@@ -120,12 +122,13 @@ class FormProfile
     '22-0994' => ::FormProfiles::VA0994,
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'MDOT' => ::FormProfiles::MDOT,
-    '22-10203' => ::FormProfiles::VA10203
+    '22-10203' => ::FormProfiles::VA10203,
+    '28-8832' => ::FormProfiles::VA288832
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
 
-  attr_accessor :form_id
+  attr_reader :form_id, :user
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
@@ -137,13 +140,15 @@ class FormProfile
     forms
   end
 
-  def self.for(form)
-    form = form.upcase
-    FORM_ID_TO_CLASS.fetch(form, self).new(form)
+  # lookup FormProfile subclass by form_id and initialize (or use FormProfile if lookup fails)
+  def self.for(form_id:, user:)
+    form_id = form_id.upcase
+    FORM_ID_TO_CLASS.fetch(form_id, self).new(form_id: form_id, user: user)
   end
 
-  def initialize(form)
-    @form_id = form
+  def initialize(form_id:, user:)
+    @form_id = form_id
+    @user = user
   end
 
   def metadata
@@ -156,11 +161,7 @@ class FormProfile
   end
 
   def self.load_form_mapping(form_id)
-    if form_id == '1010EZ' # our first form. lessons learned.
-      form_id = form_id.downcase
-    elsif form_id == '21-526EZ-BDD'
-      form_id = '21-526EZ' # the front end treats the forms differently, but the back end doesn't
-    end
+    form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
     file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
 
@@ -174,10 +175,10 @@ class FormProfile
   # * MVI
   # * TODO(AJD): MIS (military history)
   #
-  def prefill(user)
-    @identity_information = initialize_identity_information(user)
-    @contact_information = initialize_contact_information(user)
-    @military_information = initialize_military_information(user)
+  def prefill
+    @identity_information = initialize_identity_information
+    @contact_information = initialize_contact_information
+    @military_information = initialize_military_information
     mappings = self.class.mappings_for_form(form_id)
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
@@ -188,7 +189,7 @@ class FormProfile
 
   private
 
-  def initialize_military_information(user)
+  def initialize_military_information
     return {} unless user.authorize :emis, :access?
 
     military_information = user.military_information
@@ -212,7 +213,7 @@ class FormProfile
     FormMilitaryInformation.new(military_information_data)
   end
 
-  def initialize_identity_information(user)
+  def initialize_identity_information
     FormIdentityInformation.new(
       full_name: user.full_name_normalized,
       date_of_birth: user.birth_date,
@@ -221,39 +222,68 @@ class FormProfile
     )
   end
 
-  def convert_vets360_address(address)
+  def vet360_mailing_address_hash
+    address = vet360_mailing_address
     {
       street: address.address_line1,
       street2: address.address_line2,
       city: address.city,
       state: address.state_code || address.province,
       country: address.country_code_iso3,
-      postal_code: address.zip_plus_four || address.international_postal_code
+      postal_code: address.zip_plus_four || address.international_postal_code,
+      zip_code: address.zip_code
     }.compact
   end
 
-  def initialize_vets360_contact_info(user)
+  def vets360_contact_info_hash
     return_val = {}
-    contact_information = Vet360Redis::ContactInformation.for_user(user)
-    return_val[:email] = contact_information.email&.email_address
+    return_val[:email] = vet360_contact_info&.email&.email_address
 
-    if contact_information.mailing_address.present?
-      return_val[:address] = convert_vets360_address(contact_information.mailing_address)
-    end
-    phone = contact_information.home_phone&.formatted_phone
+    return_val[:address] = vet360_mailing_address_hash if vet360_mailing_address.present?
+
+    phone = vet360_contact_info&.home_phone&.formatted_phone
     return_val[:us_phone] = phone
     return_val[:home_phone] = phone
-    return_val[:mobile_phone] = contact_information.mobile_phone&.formatted_phone
+    return_val[:mobile_phone] = vet360_contact_info&.mobile_phone&.formatted_phone
 
     return_val
   end
 
-  def initialize_contact_information(user)
+  def initialize_contact_information
     opt = {}
-    opt.merge!(initialize_vets360_contact_info(user)) if Settings.vet360.prefill && user.vet360_id.present?
+    opt.merge!(vets360_contact_info_hash) if vet360_contact_info
 
-    if opt[:address].nil? && user.va_profile&.address
-      opt[:address] = {
+    opt[:address] ||= va_profile_address_hash
+
+    opt[:email] ||= extract_pciu_data(:pciu_email)
+    if opt[:home_phone].nil?
+      opt[:home_phone] = pciu_primary_phone
+      opt[:us_phone] = pciu_us_phone
+    end
+
+    format_for_schema_compatibility(opt)
+
+    FormContactInformation.new(opt)
+  end
+
+  # doing this (below) instead of `@vet360_contact_info ||= Settings...` to cache nil too
+  def vet360_contact_info
+    return @vet360_contact_info if @vet360_contact_info_retrieved
+
+    @vet360_contact_info_retrieved = true
+    if Settings.vet360.prefill && user.vet360_id.present?
+      @vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
+    end
+    @vet360_contact_info
+  end
+
+  def vet360_mailing_address
+    vet360_contact_info&.mailing_address
+  end
+
+  def va_profile_address_hash
+    user.va_profile&.address &&
+      {
         street: user.va_profile.address.street,
         street2: nil,
         city: user.va_profile.address.city,
@@ -261,18 +291,6 @@ class FormProfile
         country: user.va_profile.address.country,
         postal_code: user.va_profile.address.postal_code
       }
-    end
-
-    opt[:email] ||= extract_pciu_data(user, :pciu_email)
-    if opt[:home_phone].nil?
-      pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
-      opt[:home_phone] = pciu_primary_phone
-      opt[:us_phone] = get_us_phone(pciu_primary_phone)
-    end
-
-    format_for_schema_compatibility(opt)
-
-    FormContactInformation.new(opt)
   end
 
   def format_for_schema_compatibility(opt)
@@ -288,19 +306,39 @@ class FormProfile
     opt[:address][:postal_code] = opt[:address][:postal_code][0..4] if opt.dig(:address, :postal_code)
   end
 
-  def extract_pciu_data(user, method)
+  def extract_pciu_data(method)
     user&.send(method)
   rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
     ''
   end
 
-  def get_us_phone(home_phone)
-    return '' if home_phone.blank?
-    return home_phone if home_phone.size == 10
+  def pciu_us_phone
+    return '' if pciu_primary_phone.blank?
+    return pciu_primary_phone if pciu_primary_phone.size == 10
 
-    return home_phone[1..-1] if home_phone.size == 11 && home_phone[0] == '1'
+    return pciu_primary_phone[1..-1] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
 
     ''
+  end
+
+  # returns the veteran's phone number as an object
+  # preference: vet360 mobile -> vet360 home -> pciu
+  def phone_object
+    mobile = vet360_contact_info&.mobile_phone
+    return mobile if mobile&.area_code && mobile&.phone_number
+
+    home = vet360_contact_info&.home_phone
+    return home if home&.area_code && home&.phone_number
+
+    phone_struct = Struct.new(:area_code, :phone_number)
+
+    return phone_struct.new(pciu_us_phone.first(3), pciu_us_phone.last(7)) if pciu_us_phone&.length == 10
+
+    phone_struct.new
+  end
+
+  def pciu_primary_phone
+    @pciu_primary_phone ||= extract_pciu_data(:pciu_primary_phone)
   end
 
   def convert_mapping(hash)

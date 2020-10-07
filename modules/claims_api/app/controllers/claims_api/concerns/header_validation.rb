@@ -2,6 +2,7 @@
 
 require_dependency 'common/exceptions/parameters_missing'
 require_dependency 'common/exceptions/unauthorized'
+require 'common/exceptions'
 
 module ClaimsApi
   module HeaderValidation

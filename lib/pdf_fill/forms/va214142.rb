@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'pdf_fill/hash_converter'
+require 'pdf_fill/forms/form_base'
+require 'pdf_fill/forms/form_helper'
+
 module PdfFill
   module Forms
     class Va214142 < FormBase
@@ -343,7 +347,7 @@ module PdfFill
         expand_provider_date_range(providers)
       end
 
-      def merge_fields
+      def merge_fields(_options = {})
         expand_va_file_number
 
         expand_ssn

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pension_burial/tag_sentry'
+
 module V0
   class BurialClaimsController < ClaimsBaseController
     def create

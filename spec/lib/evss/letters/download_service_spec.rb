@@ -1,18 +1,25 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/letters/download_service'
+require 'evss/letters/letter' # included in test to access LETTER_TYPES
 
 describe EVSS::Letters::DownloadService do
   describe '.find_by_user' do
     subject { described_class.new(user) }
 
     let(:user) { build(:user, :loa3) }
+    let(:letter_type) { 'commissary' }
 
     describe '#download_by_type' do
+      it 'letter type is valid' do
+        expect(EVSS::Letters::Letter::LETTER_TYPES).to include letter_type
+      end
+
       context 'without options' do
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download') do
-            response = subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
+            response = subject.download_letter(letter_type)
             expect(response).to include('%PDF-1.4')
           end
         end
@@ -20,7 +27,7 @@ describe EVSS::Letters::DownloadService do
         it 'increments downloads total' do
           VCR.use_cassette('evss/letters/download') do
             expect do
-              subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
+              subject.download_letter(letter_type)
             end.to trigger_statsd_increment('api.evss.download_letter.total')
           end
         end
@@ -32,11 +39,11 @@ describe EVSS::Letters::DownloadService do
 
           it 'logs increment download fail' do
             expect(StatsD).to receive(:increment).once.with(
-              'api.evss.download_letter.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+              'api.evss.download_letter.fail', tags: ['error:CommonExceptionsGatewayTimeout']
             )
             expect(StatsD).to receive(:increment).once.with('api.evss.download_letter.total')
             expect do
-              subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
+              subject.download_letter(letter_type)
             end.to raise_error(Common::Exceptions::GatewayTimeout)
           end
         end
@@ -47,7 +54,7 @@ describe EVSS::Letters::DownloadService do
               receive(:download_letter).and_raise(Common::Exceptions::BackendServiceException)
             )
             expect do
-              subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
+              subject.download_letter(letter_type)
             end.to raise_error(Common::Exceptions::BackendServiceException)
           end
         end
@@ -73,7 +80,7 @@ describe EVSS::Letters::DownloadService do
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download_options') do
             response = subject.download_letter(
-              EVSS::Letters::Letter::LETTER_TYPES.first,
+              letter_type,
               options
             )
             expect(response).to include('%PDF-1.4')
@@ -84,7 +91,7 @@ describe EVSS::Letters::DownloadService do
           VCR.use_cassette('evss/letters/download_options') do
             expect do
               subject.download_letter(
-                EVSS::Letters::Letter::LETTER_TYPES.first,
+                letter_type,
                 options
               )
             end.to trigger_statsd_increment('api.evss.download_letter.total')

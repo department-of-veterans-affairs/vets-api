@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
+require 'evss/pciu_address/address'
+require 'evss/pciu_address/military_address'
+require 'evss/pciu_address/international_address'
+require 'evss/pciu_address/domestic_address'
+
 FactoryBot.define do
-  factory :pciu_address, class: 'EVSS::PCIUAddress::Address' do
+  factory :pciu_address, class: 'EVSS::PCIUAddress' do
     type { '' }
     address_effective_date { '2017-08-07T19:43:59.383Z' }
     address_one { '' }

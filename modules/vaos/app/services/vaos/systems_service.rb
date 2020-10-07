@@ -133,6 +133,21 @@ module VAOS
       end
     end
 
+    def get_direct_booking_elig_crit(site_codes: nil, parent_sites: nil)
+      with_monitoring do
+        url = '/facilities/v1/direct-booking-eligibility-criteria'
+        url_params = nil
+        if site_codes || parent_sites
+          url_params = {}
+          url_params['site-codes'] = site_codes if site_codes
+          url_params['parent-sites'] = parent_sites if parent_sites
+        end
+        options = { params_encoder: Faraday::FlatParamsEncoder }
+        response = perform(:get, url, url_params, headers, options)
+        response.body.map { |rec| OpenStruct.new(rec) }
+      end
+    end
+
     private
 
     def available_appointments_url(facility_id)

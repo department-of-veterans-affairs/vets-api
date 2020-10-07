@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'gi/client' # required for stubbing, isn't loaded normally until GIDSRedis is loaded
 
 RSpec.describe EducationForm::SendSCOEmail, type: :model, form: :education_benefits do
   subject { described_class.new }

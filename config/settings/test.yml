@@ -1,5 +1,6 @@
 hostname: www.example.com # possible fallback for unsafe request.host
 virtual_hosts: ["www.example.com", "localhost", "127.0.0.1", "example.org"] # Safe host names
+vsp_environment: ~
 
 secret_key_base: be8e6b6b16993e899c2c4fd08f7c6a6e5ad5f295b369d22f126d4569d2a0e44c4f04b13c02d65ab701452ef0a24ed2db7af441214ed5ae98c6113442f5846605
 

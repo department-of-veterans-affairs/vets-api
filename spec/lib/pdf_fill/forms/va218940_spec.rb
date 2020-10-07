@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pdf_fill/forms/va218940'
 
 def basic_class
   PdfFill::Forms::Va218940.new({})

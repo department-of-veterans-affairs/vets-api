@@ -2,6 +2,7 @@
 
 require_dependency 'vba_documents/application_controller'
 require_dependency 'vba_documents/object_store'
+require 'common/exceptions'
 
 module VBADocuments
   module Internal

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
+require 'facilities/ppms/v0/client'
 
 class V0::Facilities::VaController < FacilitiesController
   TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
@@ -39,7 +40,7 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def provider_locator
-    ppms = Facilities::PPMS::Client.new
+    ppms = Facilities::PPMS::V0::Client.new
     providers = ppms.provider_locator(params)
     page = 1
     page = Integer(params[:page]) if params[:page]

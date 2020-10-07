@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'pdf_fill/forms/common_ptsd'
 
 describe PdfFill::Forms::CommonPtsd do
   let(:including_class) { Class.new { include PdfFill::Forms::CommonPtsd } }

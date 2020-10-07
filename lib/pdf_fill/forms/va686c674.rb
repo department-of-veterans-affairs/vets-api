@@ -1486,7 +1486,7 @@ module PdfFill
         } # end signature_date
       }.freeze
 
-      def merge_fields
+      def merge_fields(_options = {})
         merge_veteran_helpers
         merge_spouse_helpers
 

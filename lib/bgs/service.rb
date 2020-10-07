@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'exceptions/bgs_errors'
+
 module BGS
   class Service
     include BGS::Exceptions::BGSErrors
+    include SentryLogging
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
     # (I = Input, U = Update, D = Delete)
@@ -27,6 +30,8 @@ module BGS
     end
 
     def create_proc_form(vnp_proc_id)
+      # Temporary log proc_id to sentry
+      log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
           { vnp_proc_id: vnp_proc_id, form_type_cd: '21-686c' }.merge(bgs_auth)
@@ -39,6 +44,7 @@ module BGS
         service.vnp_proc_v2.vnp_proc_update(
           {
             vnp_proc_id: proc_id,
+            vnp_proc_type_cd: 'DEPCHG',
             vnp_proc_state_type_cd: 'Ready',
             creatd_dt: Time.current.iso8601,
             last_modifd_dt: Time.current.iso8601,
@@ -134,7 +140,7 @@ module BGS
 
     def update_manual_proc(proc_id)
       service.vnp_proc_v2.vnp_proc_update(
-        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual' }.merge(bgs_auth)
+        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual', vnp_proc_type_cd: 'DEPCHG' }.merge(bgs_auth)
       )
     rescue => e
       notify_of_service_exception(e, __method__)
@@ -160,6 +166,16 @@ module BGS
 
     def user_ssn
       { ssn: @user.ssn }
+    end
+
+    def get_regional_office_by_zip_code(zip_code, country, province, lob, ssn)
+      regional_office_response = service.routing.get_regional_office_by_zip_code(
+        zip_code, country, province, lob, ssn
+      )
+      regional_office_response[:regional_office][:number]
+    rescue => e
+      notify_of_service_exception(e, __method__, 1, :warn)
+      '347' # return default location id
     end
 
     private

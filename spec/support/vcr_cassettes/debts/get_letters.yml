@@ -5,7 +5,7 @@ http_interactions:
     uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/debtletter/letterdetails/get
     body:
       encoding: UTF-8
-      string: '{"fileNumber":"000000009"}'
+      string: '{"fileNumber":"796043735"}'
     headers:
       Accept:
       - application/json
@@ -16,7 +16,7 @@ http_interactions:
       Client-Id:
       - 0be3d60e3983438199f192b6e723a6f0
       Client-Secret:
-      - <DEBTS_TOKEN>
+      - "<DEBTS_TOKEN>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -26,143 +26,70 @@ http_interactions:
     headers:
       Content-Type:
       - application/json; charset=UTF-8
-      Content-Length:
-      - '4437'
+      Transfer-Encoding:
+      - chunked
       Date:
-      - Thu, 21 May 2020 17:52:07 GMT
+      - Thu, 24 Sep 2020 17:35:26 GMT
     body:
       encoding: UTF-8
-      string: |-
-        [
-          {
-            "fileNumber": "000000009",
-            "payeeNumber": "00",
-            "personEntitled": "STUB_M",
-            "deductionCode": "21",
-            "benefitType": "Loan Guaranty (Principal + Interest)",
-            "amountOverpaid": 0.00,
-            "amountWithheld": 0.00,
-            "debtHistory": [
-              {
-                "debtId": 9,
-                "date": "09/11/1997",
-                "letterCode": "914",
-                "status": "Paid In Full",
-                "description": "Account balance cleared via offset, not including TOP."
-              }
-            ]
-          },
-          {
-            "fileNumber": "000000009",
-            "payeeNumber": "00",
-            "personEntitled": "STUB_M",
-            "deductionCode": "30",
-            "benefitType": "Comp & Pen",
-            "amountOverpaid": 0.00,
-            "amountWithheld": 0.00,
-            "debtHistory": [
-              {
-                "debtId": 85,
-                "date": "12/03/2008",
-                "letterCode": "488",
-                "status": "Death Status - Pending Action",
-                "description": "Pending review for reclamation or next action."
-              },
-              {
-                "debtId": 85,
-                "date": "02/07/2009",
-                "letterCode": "905",
-                "status": "Administrative Write Off",
-                "description": "Full debt amount cleared by return of funds to DMC from outside entities (reclamations, insurance companies, etc.)"
-              },
-              {
-                "debtId": 85,
-                "date": "02/25/2009",
-                "letterCode": "914",
-                "status": "Paid In Full",
-                "description": "Account balance cleared via offset, not including TOP."
-              }
-            ]
-          },
-          {
-            "fileNumber": "000000009",
-            "payeeNumber": "00",
-            "personEntitled": "STUB_M",
-            "deductionCode": "30",
-            "benefitType": "Comp & Pen",
-            "amountOverpaid": 0.00,
-            "amountWithheld": 0.00,
-            "debtHistory": [
-              {
-                "debtId": 4378,
-                "date": "03/05/2004",
-                "letterCode": "914",
-                "status": "Paid In Full",
-                "description": "Account balance cleared via offset, not including TOP."
-              }
-            ]
-          },
-          {
-            "fileNumber": "000000009",
-            "payeeNumber": "00",
-            "personEntitled": "STUB_M",
-            "deductionCode": "44",
-            "benefitType": "CH35 EDU",
-            "amountOverpaid": 16000.00,
-            "amountWithheld": 0.00,
-            "debtHistory": [
-              {
-                "debtId": 7418,
-                "date": "09/18/2012",
-                "letterCode": "100",
-                "status": "First Demand Letter - Inactive Benefits",
-                "description": "First due process letter sent when debtor is not actively receiving any benefits."
-              },
-              {
-                "debtId": 7418,
-                "date": "09/28/2012",
-                "letterCode": "117",
-                "status": "Second Demand Letter",
-                "description": "Second demand letter where debtor has no active benefits to offset so debtor is informed that debt may be referred to CRA (60 timer), TOP, CAIVRS or Cross Servicing.  CRA is only one with timer.\r\n117A - Second collections letter sent to schools"
-              },
-              {
-                "debtId": 7418,
-                "date": "10/17/2012",
-                "letterCode": "212",
-                "status": "Bad Address - Locator Request Sent",
-                "description": "Originates from mail room Beep File (file of bad addresses to be sent to LexisNexis).  Remains in this status until LexisNexis comes back with updated address information."
-              },
-              {
-                "debtId": 7418,
-                "date": "11/14/2012",
-                "letterCode": "117",
-                "status": "Second Demand Letter",
-                "description": "Second demand letter where debtor has no active benefits to offset so debtor is informed that debt may be referred to CRA (60 timer), TOP, CAIVRS or Cross Servicing.  CRA is only one with timer.\r\n117A - Second collections letter sent to schools"
-              },
-              {
-                "debtId": 7418,
-                "date": "12/11/2012",
-                "letterCode": "510",
-                "status": "Mailing Status Inactive/Invalid - Forced to TOP/Cross Servicing",
-                "description": "Demand letters returned.  Unable to verify address with third party.  Account forced to TOP and/or CS."
-              },
-              {
-                "debtId": 7418,
-                "date": "04/11/2013",
-                "letterCode": "080",
-                "status": "Referred To Cross Servicing",
-                "description": "Debt referred to Treasury for Cross servicing"
-              },
-              {
-                "debtId": 7418,
-                "date": "12/19/2014",
-                "letterCode": "681",
-                "status": "Returned From Cross Servicing - At TOP",
-                "description": "Account returned from Treasury Cross Servicing. Account is at TOP.  TOP offsets will be applied to account as Federal funds become available."
-              }
-            ]
-          }
-        ]
-    http_version: null
-  recorded_at: Thu, 21 May 2020 17:52:07 GMT
-recorded_with: VCR 5.1.0
+      string: "[\n  {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n
+        \   \"personEntitled\": null,\n    \"deductionCode\": \"30\",\n    \"benefitType\":
+        \"Comp & Pen\",\n    \"diaryCode\": \"914\",\n    \"diaryCodeDescription\":
+        \"Paid In Full\",\n    \"amountOverpaid\": 123.34,\n    \"amountWithheld\":
+        50.00,\n    \"originalAR\": 1177.00,\n    \"currentAR\": 123.34,\n    \"debtHistory\":
+        [\n      {\n        \"date\": \"09/12/1998\",\n        \"letterCode\": \"123\",\n
+        \       \"description\": \"Third Demand Letter - Potential Treasury Referral\"\n
+        \     },\n      {\n        \"date\": \"09/13/1997\",\n        \"letterCode\":
+        \"123\",\n        \"description\": \"Third Demand Letter - Potential Treasury
+        Referral\"\n      },\n      {\n        \"date\": \"04/01/1997\",\n        \"letterCode\":
+        \"122\",\n        \"description\": \"Referall To Credit Reporting Agencies
+        (CRA)\"\n      },\n      {\n        \"date\": \"09/14/1996\",\n        \"letterCode\":
+        \"123\",\n        \"description\": \"Third Demand Letter - Potential Treasury
+        Referral\"\n      },\n      {\n        \"date\": \"09/16/1995\",\n        \"letterCode\":
+        \"123\",\n        \"description\": \"Third Demand Letter - Potential Treasury
+        Referral\"\n      },\n      {\n        \"date\": \"04/04/1995\",\n        \"letterCode\":
+        \"145\",\n        \"description\": \"Referall To Credit Alert Interactive
+        Verification Reporting System (CAIVRS) In 30 Days\"\n      },\n      {\n        \"date\":
+        \"02/14/1995\",\n        \"letterCode\": \"117\",\n        \"description\":
+        \"Second Demand Letter - Potential Negative Referral\"\n      },\n      {\n
+        \       \"date\": \"11/15/1994\",\n        \"letterCode\": \"603\",\n        \"description\":
+        \"Late Or Missed Payment Notification\"\n      },\n      {\n        \"date\":
+        \"09/10/1994\",\n        \"letterCode\": \"123\",\n        \"description\":
+        \"Third Demand Letter - Potential Treasury Referral\"\n      }\n    ]\n  },\n
+        \ {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n    \"personEntitled\":
+        null,\n    \"deductionCode\": \"30\",\n    \"benefitType\": \"Comp & Pen\",\n
+        \   \"diaryCode\": \"914\",\n    \"diaryCodeDescription\": \"Paid In Full\",\n
+        \   \"amountOverpaid\": 123.34,\n    \"amountWithheld\": 0.00,\n    \"originalAR\":
+        136.24,\n    \"currentAR\": 123.34,\n    \"debtHistory\": [\n      {\n        \"date\":
+        \"02/12/2009\",\n        \"letterCode\": \"487\",\n        \"description\":
+        \"Death Case Pending Action\"\n      }\n    ]\n  },\n  {\n    \"fileNumber\":
+        \"796043735\",\n    \"payeeNumber\": \"00\",\n    \"personEntitled\": null,\n
+        \   \"deductionCode\": \"71\",\n    \"benefitType\": \"CH33 Books, Supplies/MISC
+        EDU\",\n    \"diaryCode\": \"914\",\n    \"diaryCodeDescription\": \"Paid
+        In Full\",\n    \"amountOverpaid\": 0.00,\n    \"amountWithheld\": 0.00,\n
+        \   \"originalAR\": 166.67,\n    \"currentAR\": 0.00,\n    \"debtHistory\":
+        [\n      \n    ]\n  },\n  {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\":
+        \"00\",\n    \"personEntitled\": null,\n    \"deductionCode\": \"74\",\n    \"benefitType\":
+        \"CH33 Student Tuition EDU\",\n    \"diaryCode\": \"914\",\n    \"diaryCodeDescription\":
+        \"Paid In Full\",\n    \"amountOverpaid\": 123.34,\n    \"amountWithheld\":
+        475.00,\n    \"originalAR\": 2210.90,\n    \"currentAR\": 123.34,\n    \"debtHistory\":
+        [\n      {\n        \"date\": \"04/01/2017\",\n        \"letterCode\": \"608\",\n
+        \       \"description\": \"Full C&P Benefit Offset Notification\"\n      },\n
+        \     {\n        \"date\": \"11/18/2015\",\n        \"letterCode\": \"130\",\n
+        \       \"description\": \"Debt Increase - Due Process\"\n      },\n      {\n
+        \       \"date\": \"04/08/2015\",\n        \"letterCode\": \"608\",\n        \"description\":
+        \"Full C&P Benefit Offset Notification\"\n      },\n      {\n        \"date\":
+        \"03/26/2015\",\n        \"letterCode\": \"100\",\n        \"description\":
+        \"First Demand Letter - Inactive Benefits - Due Process\"\n      }\n    ]\n
+        \ },\n  {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n
+        \   \"personEntitled\": null,\n    \"deductionCode\": \"72\",\n    \"benefitType\":
+        \"CH33 Housing EDU\",\n    \"diaryCode\": \"914\",\n    \"diaryCodeDescription\":
+        \"Paid In Full\",\n    \"amountOverpaid\": 123.34,\n    \"amountWithheld\":
+        321.76,\n    \"originalAR\": 321.76,\n    \"currentAR\": 123.34,\n    \"debtHistory\":
+        [\n      {\n        \"date\": \"08/08/2018\",\n        \"letterCode\": \"608\",\n
+        \       \"description\": \"Full C&P Benefit Offset Notification\"\n      },\n
+        \     {\n        \"date\": \"07/19/2018\",\n        \"letterCode\": \"100\",\n
+        \       \"description\": \"First Demand Letter - Inactive Benefits - Due Process\"\n
+        \     }\n    ]\n  }\n]"
+  recorded_at: Thu, 24 Sep 2020 17:35:26 GMT
+recorded_with: VCR 6.0.0

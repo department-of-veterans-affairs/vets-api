@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bb/client'
+
 module BB
   module ClientHelpers
     TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='

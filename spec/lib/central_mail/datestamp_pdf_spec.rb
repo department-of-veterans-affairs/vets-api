@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'central_mail/datestamp_pdf'
 
 RSpec.describe CentralMail::DatestampPdf do
   describe '#run' do

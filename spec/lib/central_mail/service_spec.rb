@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'central_mail/service'
 
 RSpec.describe CentralMail::Service do
   let(:service) { described_class.new }

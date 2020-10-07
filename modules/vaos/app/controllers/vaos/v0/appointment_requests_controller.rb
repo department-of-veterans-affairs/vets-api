@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 module VAOS
   module V0
     class AppointmentRequestsController < VAOS::V0::BaseController
@@ -34,11 +36,13 @@ module VAOS
 
       def create
         response = appointment_requests_service.post_request(params_for_create)
+        log_appointment_request(response)
         render json: VAOS::V0::AppointmentRequestsSerializer.new(response[:data]), status: :created
       end
 
       def update
         response = appointment_requests_service.put_request(id, params_for_update)
+        log_appointment_request(response)
         render json: VAOS::V0::AppointmentRequestsSerializer.new(response[:data])
       end
 
@@ -46,6 +50,16 @@ module VAOS
 
       def id
         params.require(:id)
+      end
+
+      def log_appointment_request(response)
+        Rails.logger.info(
+          'VAOS AppointmentRequest',
+          action: params[:action],
+          type: params[:type].is_a?(String) ? params[:type].upcase : params[:type],
+          id: response[:data].try(:unique_id),
+          type_of_care_id: response[:data].try(:type_of_care_id)
+        )
       end
 
       def params_for_update

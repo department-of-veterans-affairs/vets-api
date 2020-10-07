@@ -534,3 +534,14 @@
       :cache_multiple_responses:
         :uid_location: query
         :uid_locator:  resultOffset
+
+#VANotify
+- :name: 'VANotify'
+  :base_uri: <%= "#{URI(Settings.vanotify.client_url).host}:#{URI(Settings.vanotify.client_url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/v2/notifications/email"
+      :file_path: "va_notify/email"
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'email_address":"(.*?)"'

@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 # This service manages the interactions between CaregiversAssistanceClaim, CARMA, and Form1010cg::Submission.
+
+require 'carma/models/submission'
+require 'carma/models/attachments'
+require 'mvi/service'
+require 'emis/service'
+
 module Form1010cg
   class Service
     class InvalidVeteranStatus < StandardError
@@ -9,25 +15,7 @@ module Form1010cg
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
-    STATSD_KEY_PREFIX = 'api.form1010cg'
-    NOT_FOUND         = 'NOT_FOUND'
-
-    def self.metrics
-      submission_prefix = STATSD_KEY_PREFIX + '.submission'
-      OpenStruct.new(
-        submission: OpenStruct.new(
-          attempt: submission_prefix + '.attempt',
-          success: submission_prefix + '.success',
-          failure: OpenStruct.new(
-            client: OpenStruct.new(
-              data: submission_prefix + '.failure.client.data',
-              qualification: submission_prefix + '.failure.client.qualification'
-            )
-          )
-        ),
-        pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
-      )
-    end
+    NOT_FOUND = 'NOT_FOUND'
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -36,6 +24,7 @@ module Form1010cg
 
       # The CaregiversAssistanceClaim we are processing with this service
       @claim        = claim
+      # The Form1010cg::Submission
       @submission   = submission
 
       # Store for the search results we will run on MVI and eMIS
@@ -63,7 +52,8 @@ module Form1010cg
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
-        submitted_at: carma_submission.submitted_at
+        submitted_at: carma_submission.submitted_at,
+        metadata: carma_submission.request_body['metadata']
       )
 
       submit_attachment
@@ -74,12 +64,12 @@ module Form1010cg
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
     # @return [Boolean]
-    def submit_attachment # rubocop:disable Metrics/MethodLength
+    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity
       raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
       raise 'submission already has attachments'  if  submission.attachments.any?
 
       file_path = begin
-                    claim.to_pdf
+                    claim.to_pdf(sign: true)
                   rescue
                     return false
                   end
@@ -102,15 +92,17 @@ module Form1010cg
         #
         # Regardless of the reason, we shouldn't raise an error when sending attachments fails.
         # It's non-critical and we don't want the error to bubble up to the response,
-        # misleading the user to think thier claim was not submitted.
+        # misleading the user to think their claim was not submitted.
         #
         # If we made it this far, there is a submission that exists in CARMA.
         # So the user should get a sucessful response, whether attachments reach CARMA or not.
-        File.delete(file_path)
+        File.delete(file_path) if File.exist?(file_path)
         return false
       end
 
-      File.delete(file_path)
+      # In some cases the file will not exist here even though it's generated above.
+      # Check to see the file exists before attempting to delete it, in order to avoid raising an error.
+      File.delete(file_path) if File.exist?(file_path)
       true
     end
 
@@ -157,12 +149,22 @@ module Form1010cg
       cached_icn = @cache[:icns][form_subject]
       return cached_icn unless cached_icn.nil?
 
-      response = mvi_service.find_profile(build_user_identity_for(form_subject))
+      form_subject_data = claim.parsed_form[form_subject]
 
-      case response.status
-      when 'OK'
+      if form_subject_data['ssnOrTin'].nil?
+        log_mpi_search_result form_subject, :skipped
+        return @cache[:icns][form_subject] = NOT_FOUND
+      end
+
+      response = mvi_service.find_profile(build_user_identity_for(form_subject_data))
+
+      if response.status == 'OK'
+        log_mpi_search_result form_subject, :found
         return @cache[:icns][form_subject] = response.profile.icn
-      when 'NOT_FOUND'
+      end
+
+      if response.status == 'NOT_FOUND'
+        log_mpi_search_result form_subject, :not_found
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
@@ -205,30 +207,34 @@ module Form1010cg
       @emis_service ||= EMIS::VeteranStatusService.new
     end
 
+    def log_mpi_search_result(form_subject, result)
+      Form1010cg::Auditor.instance.log_mpi_search_result(
+        claim_guid: claim.guid,
+        form_subject: form_subject,
+        result: result
+      )
+    end
+
     # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
     # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
     #
-    # @param form_subject [String] The key in the claim's data that contains this person's info (ex: "veteran")
+    # @param form_subject_data [Hash] The data of a specific form subject (ex: claim.parsed_form['veteran'])
     # @return [UserIdentity] A valid UserIdentity for the given form_subject
-    def build_user_identity_for(form_subject)
-      data = claim.parsed_form[form_subject]
-
-      attributes = {
-        first_name: data['fullName']['first'],
-        middle_name: data['fullName']['middle'],
-        last_name: data['fullName']['last'],
-        birth_date: data['dateOfBirth'],
-        gender: data['gender'] == 'U' ? nil : data['gender'],
-        ssn: data['ssnOrTin'],
-        email: data['email'] || 'no-email@example.com',
+    def build_user_identity_for(form_subject_data)
+      UserIdentity.new(
+        first_name: form_subject_data['fullName']['first'],
+        middle_name: form_subject_data['fullName']['middle'],
+        last_name: form_subject_data['fullName']['last'],
+        birth_date: form_subject_data['dateOfBirth'],
+        gender: form_subject_data['gender'],
+        ssn: form_subject_data['ssnOrTin'],
+        email: form_subject_data['email'] || 'no-email@example.com',
         uuid: SecureRandom.uuid,
         loa: {
           current: LOA::THREE,
           highest: LOA::THREE
         }
-      }
-
-      UserIdentity.new attributes
+      )
     end
   end
 end

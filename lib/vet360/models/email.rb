@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'base'
+require 'common/models/attribute_types/iso8601_time'
+require 'evss/pciu/email_address'
+require 'vet360/concerns/defaultable'
+
 module Vet360
   module Models
     class Email < Base

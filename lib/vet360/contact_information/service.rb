@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
-require 'vet360/contact_information/transaction_response'
+require 'common/client/concerns/monitoring'
+require 'common/client/errors'
+require 'vet360/service'
+require 'vet360/stats'
+require_relative 'configuration'
+require_relative 'transaction_response'
 
 module Vet360
   module ContactInformation

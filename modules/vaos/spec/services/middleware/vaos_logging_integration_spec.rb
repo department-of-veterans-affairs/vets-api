@@ -51,7 +51,7 @@ describe VAOS::Middleware::VaosLogging do
           expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.get_appointments.total:1')
           expect(Rails.logger).to receive(:info).with(
             '[StatsD] increment api.vaos.get_appointments.fail:1 '\
-              '#error:VAOS::ServiceException'
+              '#error:VAOSServiceException'
           )
           expect(Rails.logger).to receive(:warn).with('VAOS service call failed!',
                                                       duration: 0.0,

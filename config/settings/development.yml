@@ -18,3 +18,5 @@ account:
 
 locators:
   mock_gis: true
+
+web_origin_regex: \Ahttps?:\/\/.*\z

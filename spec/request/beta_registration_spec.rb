@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'beta_switch' # required to use beta_enabled? method
 
 RSpec.describe 'Beta Registration Endpoint', type: :request do
   let(:user) { build(:user, :loa3) }

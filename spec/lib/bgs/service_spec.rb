@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs/service'
 
 RSpec.describe BGS::Service do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
@@ -123,6 +124,16 @@ RSpec.describe BGS::Service do
         response = bgs_service.create_phone(proc_id, participant_id, payload)
 
         expect(response).to have_key(:vnp_ptcpnt_phone_id)
+      end
+    end
+  end
+
+  describe '#get_regional_office_by_zip_code' do
+    it 'returns a valid regional office response' do
+      VCR.use_cassette('bgs/service/get_regional_office_by_zip_code') do
+        response = bgs_service.get_regional_office_by_zip_code('19018', 'USA', '', 'CP', '123')
+
+        expect(response).to eq('310')
       end
     end
   end

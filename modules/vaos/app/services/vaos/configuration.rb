@@ -2,6 +2,7 @@
 
 require_relative './middleware/response/errors'
 require_relative './middleware/vaos_logging'
+require 'common/client/configuration/rest'
 
 module VAOS
   class Configuration < Common::Client::Configuration::REST

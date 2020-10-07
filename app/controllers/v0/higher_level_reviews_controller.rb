@@ -3,13 +3,13 @@
 module V0
   class HigherLevelReviewsController < AppealsBaseController
     def show
-      review = decision_review_service.get_higher_level_reviews(params[:id])
-      render json: review.body
+      render json: decision_review_service.get_higher_level_review(params[:id]).body
     end
 
     def create
-      review = decision_review_service.post_higher_level_reviews(request.raw_post)
-      render status: review.status, json: review.body
+      render json: decision_review_service
+        .create_higher_level_review(request_body: request_body_hash, user: current_user)
+        .body
     end
   end
 end

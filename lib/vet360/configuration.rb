@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require_relative 'models/base'
 
 module Vet360
   class Configuration < Common::Client::Configuration::REST

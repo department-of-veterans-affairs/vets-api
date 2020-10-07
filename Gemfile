@@ -12,6 +12,8 @@ gem 'websocket-extensions', '>= 0.1.5'
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'covid_research', path: 'modules/covid_research'
+gem 'health_quest', path: 'modules/health_quest'
+gem 'mobile', path: 'modules/mobile'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_forms', path: 'modules/va_forms'
 gem 'vaos', path: 'modules/vaos'
@@ -142,7 +144,7 @@ group :test do
   gem 'simplecov', '< 0.18', require: false
   gem 'super_diff'
   gem 'vcr'
-  gem 'webrick'
+  gem 'webrick', '>= 1.6.1'
 end
 
 # rubocop:disable Metrics/BlockLength

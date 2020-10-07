@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/disability_compensation_form/service'
+
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526AllClaim < EVSS::DisabilityCompensationForm::SubmitForm526

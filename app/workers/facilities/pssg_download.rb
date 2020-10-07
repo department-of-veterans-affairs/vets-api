@@ -2,6 +2,7 @@
 
 require 'rgeo/geo_json'
 require 'sentry_logging'
+require 'facilities/drivetime_bands/client'
 
 module Facilities
   class PSSGDownload

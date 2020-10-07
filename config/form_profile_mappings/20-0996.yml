@@ -1,12 +1,20 @@
 data:
   attributes:
     veteran:
-      addressLine1: [contact_information, address, street]
-      addressLine2: [contact_information, address, street2]
-      city: [contact_information, address, city]
-      stateOrProvinceCode: [contact_information, address, state]
-      zipPostalCode: [contact_information, address, postal_code]
-      countryCode: [contact_information, address, countryCode]
-      phoneNumber: [contact_information, us_phone]
-      emailAddress: [contact_information, email]
-      ssnLastFour: [identity_information, ssn_last_four]
+      address:
+        zipCode5: [contact_information, address, postal_code]
+      phone:
+        areaCode: [phone_object, area_code]
+        phoneNumber: [phone_object, phone_number]
+      emailAddressText: [contact_information, email]
+nonPrefill:
+  veteranAddress:
+    street: [contact_information, address, street]
+    street2: [contact_information, address, street2]
+    street3: [street3]
+    city: [contact_information, address, city]
+    state: [contact_information, address, state]
+    country: [contact_information, address, country]
+    postalCode: [contact_information, address, postal_code]
+  veteranSsnLastFour: [identity_information, ssn_last_four]
+  veteranVaFileNumberLastFour: [va_file_number_last_four]

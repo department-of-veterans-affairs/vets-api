@@ -22,38 +22,23 @@ module ClaimsApi
         tag do
           key :name, 'Claims'
           key :description, 'Benefits Claims'
-          externalDocs do
-            key :description, 'Find more info here'
-            key :url, 'https://developer.va.gov'
-          end
         end
 
         tag do
           key :name, 'Disability'
           key :description, '526 Claim Submissions'
-          externalDocs do
-            key :description, 'Find more info here'
-            key :url, 'https://developer.va.gov'
-          end
         end
 
         tag do
           key :name, 'Intent to File'
           key :description, '0966 Submissions'
-          externalDocs do
-            key :description, 'Find more info here'
-            key :url, 'https://developer.va.gov'
-          end
         end
 
-        tag do
-          key :name, 'Power of Attorney'
-          key :description, '2122 Submissions'
-          externalDocs do
-            key :description, 'Find more info here'
-            key :url, 'https://developer.va.gov'
-          end
-        end
+        # TODO: include in v0 docs when this endpoint is functional and meant to be consumed
+        # tag do
+        #   key :name, 'Power of Attorney'
+        #   key :description, '2122 Submissions'
+        # end
 
         server do
           key :url, 'https://sandbox-api.va.gov/services/claims/{version}'

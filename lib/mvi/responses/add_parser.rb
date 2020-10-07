@@ -1,23 +1,17 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require_relative 'parser_base'
 
 module MVI
   module Responses
     # Parses a MVI response and returns a MviProfile
-    class AddParser
+    class AddParser < ParserBase
       include SentryLogging
 
       ACKNOWLEDGEMENT_DETAIL_CODE_XPATH = 'acknowledgement/acknowledgementDetail/code'
       BODY_XPATH = 'env:Envelope/env:Body/idm:MCCI_IN000002UV01'
       CODE_XPATH = 'acknowledgement/typeCode/@code'
-
-      # MVI response code options.
-      EXTERNAL_RESPONSE_CODES = {
-        success: 'AA',
-        failure: 'AR',
-        invalid_request: 'AE'
-      }.freeze
 
       # Creates a new parser instance.
       #
@@ -26,27 +20,15 @@ module MVI
       def initialize(response)
         @original_body = locate_element(response.body, BODY_XPATH)
         @code = locate_element(@original_body, CODE_XPATH)
-      end
 
-      # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
-      #
-      # @return [Boolean] has failed or invalid code?
-      def failed_or_invalid?
-        invalid_request? || failed_request?
-      end
-
-      # MVI returns failed if MVI throws an internal error.
-      #
-      # @return [Boolean] has failed
-      def failed_request?
-        EXTERNAL_RESPONSE_CODES[:failure] == @code
-      end
-
-      # MVI returns invalid request if request is malformed.
-      #
-      # @return [Boolean] has invalid request
-      def invalid_request?
-        EXTERNAL_RESPONSE_CODES[:invalid_request] == @code
+        if failed_or_invalid?
+          PersonalInformationLog.create(
+            error_class: 'MVI::Errors',
+            data: {
+              payload: response.body
+            }
+          )
+        end
       end
 
       # Parse the response.
@@ -67,31 +49,15 @@ module MVI
         attributes.each do |attribute|
           case attribute[:code]
           when /BRLS/
-            codes[:birls_id] = sanitize_ids(attribute[:code])
+            codes[:birls_id] = sanitize_birls_id(attribute[:code])
           when /CORP/
-            codes[:participant_id] = sanitize_ids(attribute[:code])
+            codes[:participant_id] = sanitize_participant_id(attribute[:code])
           else
             codes[:other].append(attribute)
           end
         end
         codes.delete(:other) if codes[:other].empty?
         codes
-      end
-
-      def sanitize_ids(raw_id)
-        return if raw_id.nil?
-
-        raw_id.match(/^\d+/)&.to_s
-      end
-
-      def locate_element(el, path)
-        locate_elements(el, path)&.first
-      end
-
-      def locate_elements(el, path)
-        return nil unless el
-
-        el.locate(path)
       end
     end
   end

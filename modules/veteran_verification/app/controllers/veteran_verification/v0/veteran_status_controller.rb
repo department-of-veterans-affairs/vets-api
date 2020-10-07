@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'veteran_verification/application_controller'
+require 'common/exceptions'
 
 module VeteranVerification
   module V0

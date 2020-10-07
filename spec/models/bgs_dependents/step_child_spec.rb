@@ -6,7 +6,9 @@ RSpec.describe BGSDependents::StepChild do
   let(:stepchild_info) do
     {
       'supporting_stepchild' => true,
-      'living_expenses_paid' => '.5',
+      'living_expenses_paid' => 'Half',
+      'ssn' => '213685794',
+      'birth_date' => '2010-03-03',
       'who_does_the_stepchild_live_with' => { 'first' => 'Adam', 'middle' => 'Steven', 'last' => 'Huberws' },
       'address' => {
         'country_name' => 'USA',
@@ -25,6 +27,8 @@ RSpec.describe BGSDependents::StepChild do
       'first' => 'Billy',
       'middle' => 'Yohan',
       'last' => 'Johnson',
+      'ssn' => '213685794',
+      'birth_date' => '2010-03-03',
       'suffix' => 'Sr.'
     }
   end

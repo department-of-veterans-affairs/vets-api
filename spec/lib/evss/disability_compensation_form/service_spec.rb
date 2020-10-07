@@ -38,7 +38,7 @@ describe EVSS::DisabilityCompensationForm::Service do
 
       it 'logs an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.get_rated_disabilities.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.get_rated_disabilities.fail', tags: ['error:CommonExceptionsGatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.get_rated_disabilities.total')
         expect { subject.get_rated_disabilities }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -85,7 +85,7 @@ describe EVSS::DisabilityCompensationForm::Service do
 
       it 'logs an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.submit_form526.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.submit_form526.fail', tags: ['error:CommonExceptionsGatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.submit_form526.total')
         expect { subject.submit_form526(valid_form_content) }.to raise_error(Common::Exceptions::GatewayTimeout)
@@ -104,7 +104,7 @@ describe EVSS::DisabilityCompensationForm::Service do
           ).and trigger_statsd_increment('api.evss.submit_form526.fail',
                                          times: 1,
                                          value: 1,
-                                         tags: ['error:Breakers::OutageException'])
+                                         tags: ['error:BreakersOutageException'])
         EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
       end
     end

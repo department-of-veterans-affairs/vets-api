@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/ppiu/service'
+
 module VA0994
   FORM_ID = '22-0994'
 
@@ -16,9 +18,9 @@ end
 class FormProfiles::VA0994 < FormProfile
   attribute :payment_information, VA0994::FormPaymentAccountInformation
 
-  def prefill(user)
-    @payment_information = initialize_payment_information(user)
-    super(user)
+  def prefill
+    @payment_information = initialize_payment_information
+    super
   end
 
   def metadata
@@ -31,7 +33,7 @@ class FormProfiles::VA0994 < FormProfile
 
   private
 
-  def initialize_payment_information(user)
+  def initialize_payment_information
     return {} unless user.authorize :evss, :access?
 
     service = EVSS::PPIU::Service.new(user)

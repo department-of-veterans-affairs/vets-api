@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require 'mdot/address'
+require 'mdot/client'
+require 'mdot/eligibility'
+require 'mdot/supply'
+
 module MDOT
   class FormContactInformation
     include Virtus.model
@@ -27,11 +32,11 @@ class FormProfiles::MDOT < FormProfile
     }
   end
 
-  def prefill(user)
+  def prefill
     @response = MDOT::Client.new(user).get_supplies
     @mdot_contact_information = initialize_mdot_contact_information(@response)
     @mdot_supplies = initialize_mdot_supplies(@response)
-    super(user)
+    super
   end
 
   private

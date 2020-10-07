@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/validation_errors'
+require 'evss/pciu/service'
+require 'evss/pciu/phone_number'
+
 module V0
   module Profile
     class AlternatePhonesController < ApplicationController

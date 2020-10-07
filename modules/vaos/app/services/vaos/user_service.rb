@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions'
+
 module VAOS
   class UserService < VAOS::BaseService
     def session(user)

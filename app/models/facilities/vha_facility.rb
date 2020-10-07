@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'facilities/gis/metadata_client'
+require 'facilities/gis/client'
+require 'facilities/website_url_service'
+
 module Facilities
   class VHAFacility < BaseFacility
     has_many :drivetime_bands, dependent: :destroy

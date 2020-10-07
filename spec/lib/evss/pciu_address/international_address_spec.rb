@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'evss/pciu_address/international_address'
 
 describe EVSS::PCIUAddress::InternationalAddress do
   it 'has valid factory' do

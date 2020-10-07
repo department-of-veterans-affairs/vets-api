@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'okta/service'
 
 RSpec.describe OpenidUserIdentity, type: :model do
   let(:some_ttl) { 86_400 }

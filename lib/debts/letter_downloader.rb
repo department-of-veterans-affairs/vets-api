@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'debts/service'
+
 module Debts
   class LetterDownloader
     DEBTS_DOCUMENT_TYPES = %w[
@@ -14,9 +16,11 @@ module Debts
       1334
     ].freeze
 
-    def initialize(file_number)
-      @file_number = file_number
+    def initialize(user)
+      @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
+      @service = debts_service
+      verify_no_dependent_debts
     end
 
     def get_letter(document_id)
@@ -27,10 +31,15 @@ module Debts
       ).content
     end
 
+    def file_name(document_id)
+      verify_letter_in_folder(document_id)
+
+      document = vbms_documents.detect { |doc| doc.document_id == document_id }
+      "#{document.type_description} #{document.upload_date.to_formatted_s(:long)}"
+    end
+
     def list_letters
-      debts_records = @client.send_request(
-        VBMS::Requests::FindDocumentVersionReference.new(@file_number)
-      ).find_all do |record|
+      debts_records = vbms_documents.find_all do |record|
         DEBTS_DOCUMENT_TYPES.include?(record.doc_type)
       end
 
@@ -42,6 +51,20 @@ module Debts
     end
 
     private
+
+    def vbms_documents
+      @client.send_request(
+        VBMS::Requests::FindDocumentVersionReference.new(@service.file_number)
+      )
+    end
+
+    def debts_service
+      Debts::Service.new(@user)
+    end
+
+    def verify_no_dependent_debts
+      raise Common::Exceptions::Unauthorized if @service.veteran_has_dependent_debts?
+    end
 
     def verify_letter_in_folder(document_id)
       raise Common::Exceptions::Unauthorized unless list_letters.any? do |letter|

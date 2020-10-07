@@ -148,7 +148,7 @@ module ClaimsApi
             property :attributes do
               key :type, :object
               key :description, 'Required by JSON API standard'
-              key :required, %i[poa_code poa_first_name poa_last_name]
+              key :required, %i[serviceOrganization poaCode]
 
               property :serviceOrganization do
                 key :type, :object

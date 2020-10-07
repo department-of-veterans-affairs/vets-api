@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/facilities/client'
 
 RSpec.describe Lighthouse::Facilities::Client do
+  vcr_options = {
+    match_requests_on: %i[path query],
+    allow_playback_repeats: true,
+    record: :new_episodes
+  }
+
   let(:facilities_client) { Lighthouse::Facilities::Client.new }
 
   let(:params) do
@@ -19,8 +26,8 @@ RSpec.describe Lighthouse::Facilities::Client do
       facility_type: 'va_health_facility',
       classification: 'Other Outpatient Services (OOS)',
       website: nil,
-      lat: 14.544080000000065,
-      long: 120.99139000000002,
+      lat: 14.54408,
+      long: 120.99139,
       address: {
         'mailing' => {},
         'physical' => {
@@ -33,7 +40,7 @@ RSpec.describe Lighthouse::Facilities::Client do
         }
       },
       phone: {
-        'after_hours' => '000-000-0000',
+        'after_hours' => nil,
         'enrollment_coordinator' => '632-550-3888 x3780',
         'fax' => '632-310-5962',
         'main' => '632-550-3888',
@@ -49,25 +56,22 @@ RSpec.describe Lighthouse::Facilities::Client do
         'tuesday' => '730AM-430PM',
         'wednesday' => '730AM-430PM'
       },
-      services: { 'health' => %w[Audiology Cardiology Dermatology EmergencyCare Gastroenterology
-                                 MentalHealthCare Ophthalmology Orthopedics PrimaryCare SpecialtyCare],
-                  'last_updated' => '2020-04-06', 'other' => [] },
+      services: { 'health' => %w[Audiology Cardiology Dermatology Ophthalmology
+                                 PrimaryCare SpecialtyCare],
+                  'last_updated' => '2020-09-14', 'other' => [] },
       feedback: {
-        'effective_date' => '2019-06-20',
-        'health' => { 'specialty_care_routine' => 0.9100000262260437 }
+        'effective_date' => nil,
+        'health' => {}
       },
       access: {
-        'effective_date' => '2020-04-06',
+        'effective_date' => '2020-09-14',
         'health' => [
-          { 'established' => 14.352941, 'new' => 158.0, 'service' => 'Audiology' },
-          { 'established' => 34.034482, 'new' => 66.75, 'service' => 'Cardiology' },
-          { 'established' => 3.4, 'new' => 123.5, 'service' => 'Dermatology' },
-          { 'established' => nil, 'new' => 208.0, 'service' => 'Gastroenterology' },
-          { 'established' => 24.228571, 'new' => 134.222222, 'service' => 'MentalHealthCare' },
-          { 'established' => 10.111111, 'new' => 154.6, 'service' => 'Ophthalmology' },
-          { 'established' => 25.17647, 'new' => 122.0, 'service' => 'Orthopedics' },
-          { 'established' => 18.927083, 'new' => 28.8125, 'service' => 'PrimaryCare' },
-          { 'established' => 19.22807, 'new' => 75.317073, 'service' => 'SpecialtyCare' }
+          { 'established' => 29.705882, 'new' => 68.857142, 'service' => 'Audiology' },
+          { 'established' => 29.108695, 'new' => 2.2,       'service' => 'Cardiology' },
+          { 'established' => 7.153846,  'new' => 81.714285, 'service' => 'Dermatology' },
+          { 'established' => 28.462962, 'new' => 98.222222, 'service' => 'Ophthalmology' },
+          { 'established' => 15.333333, 'new' => 7.0,       'service' => 'PrimaryCare' },
+          { 'established' => 26.449197, 'new' => 61.53125,  'service' => 'SpecialtyCare' }
         ]
       },
       mobile: false,
@@ -88,68 +92,56 @@ RSpec.describe Lighthouse::Facilities::Client do
     end
   end
 
-  context 'with a bad API key' do
+  context 'with a bad API key', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities_401') do
     it 'returns a 401 error' do
-      VCR.use_cassette('/lighthouse/facilities_401', match_requests_on: %i[path query]) do
-        expect { facilities_client.get_by_id('vha_358') }
-          .to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(401)
-          expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
-          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
-        end
+      expect { facilities_client.get_by_id('vha_358') }
+        .to raise_error do |e|
+        expect(e).to be_a(Common::Exceptions::BackendServiceException)
+        expect(e.status_code).to eq(401)
+        expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
+        expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
       end
     end
   end
 
-  describe '#get_by_id' do
+  describe '#get_by_id', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities') do
     it 'returns a facility' do
-      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        r = facilities_client.get_by_id('vha_358')
-        expect(r).to have_attributes(vha_358_attributes)
-      end
+      r = facilities_client.get_by_id('vha_358')
+      expect(r).to have_attributes(vha_358_attributes)
     end
 
     it 'returns a 404 error' do
-      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        expect { facilities_client.get_by_id('bha_358') }
-          .to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(404)
-          expect(e.errors.first[:detail]).to eq('Record not found')
-          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES404')
-        end
+      expect { facilities_client.get_by_id('bha_358') }
+        .to raise_error do |e|
+        expect(e).to be_a(Common::Exceptions::BackendServiceException)
+        expect(e.status_code).to eq(404)
+        expect(e.errors.first[:detail]).to eq('Record not found')
+        expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES404')
       end
     end
   end
 
-  describe '#get_facilities' do
+  describe '#get_facilities', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities') do
     it 'returns matching facilities for bbox request' do
-      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        r = facilities_client.get_facilities(params)
-        expect(r.length).to be 8
-        expect(r[0]).to have_attributes(vha_358_attributes)
-      end
+      r = facilities_client.get_facilities(params)
+      expect(r.length).to be 8
+      expect(r[0]).to have_attributes(vha_358_attributes)
     end
 
     it 'returns matching facilities for lat and long request with distance' do
-      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        r = facilities_client.get_facilities(lat: 13.54, long: 121.00)
-        expect(r.length).to be 10
-        expect(r[0]).to have_attributes(vha_358_attributes)
-        expect(r[0].distance).to eq(69.38)
-      end
+      r = facilities_client.get_facilities(lat: 13.54, long: 121.00)
+      expect(r.length).to be 10
+      expect(r[0]).to have_attributes(vha_358_attributes)
+      expect(r[0].distance).to eq(69.38)
     end
 
     it 'returns an error message for a bad param' do
-      VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-        expect { facilities_client.get_facilities({ taco: true }) }
-          .to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-          expect(e.errors.first[:detail]).to eq('Bad Request')
-          expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES400')
-        end
+      expect { facilities_client.get_facilities({ taco: true }) }
+        .to raise_error do |e|
+        expect(e).to be_a(Common::Exceptions::BackendServiceException)
+        expect(e.status_code).to eq(400)
+        expect(e.errors.first[:detail]).to eq('Bad Request')
+        expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES400')
       end
     end
   end

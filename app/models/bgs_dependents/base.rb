@@ -51,6 +51,7 @@ module BGSDependents
         marriage_termination_type_code: optional_fields[:marriage_termination_type_code],
         living_expenses_paid_amount: optional_fields[:living_expenses_paid],
         child_prevly_married_ind: optional_fields[:child_prevly_married_ind],
+        guardian_particpant_id: optional_fields[:guardian_particpant_id],
         type: optional_fields[:type]
       }
     end
@@ -69,7 +70,7 @@ module BGSDependents
         birth_city_nm: payload['place_of_birth_city'],
         file_nbr: payload['va_file_number'],
         ssn_nbr: payload['ssn'],
-        death_dt: format_date_no_time(payload['death_date']),
+        death_dt: format_date(payload['death_date']),
         ever_maried_ind: payload['ever_married_ind'],
         vet_ind: payload['vet_ind'],
         martl_status_type_cd: payload['martl_status_type_cd']
@@ -84,12 +85,6 @@ module BGSDependents
       return nil if date.nil?
 
       Date.parse(date).to_time.iso8601
-    end
-
-    def format_date_no_time(date)
-      return nil if date.nil?
-
-      Date.parse(date).iso8601
     end
 
     def generate_address(address)

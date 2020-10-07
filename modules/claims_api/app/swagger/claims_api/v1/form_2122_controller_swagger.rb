@@ -131,7 +131,11 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
@@ -238,7 +242,11 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
@@ -324,7 +332,11 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
@@ -432,13 +444,133 @@ module ClaimsApi
             key :description, '2122 response'
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Output
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :'$ref', :Form2122Output
+                end
               end
             end
           end
 
           response :default do
             key :description, 'unexpected error'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :ErrorModel
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      swagger_path '/forms/2122/validate' do
+        operation :post do
+          key :summary, ' 2122 Power of Attorney form submission dry run'
+          key :description, 'Accepts JSON payload.'
+          key :operationId, 'validate2122poa'
+          key :tags, [
+            'Power of Attorney'
+          ]
+
+          security do
+            key :bearer_token, []
+          end
+
+          parameter do
+            key :name, 'X-VA-SSN'
+            key :in, :header
+            key :description, 'SSN of Veteran to fetch'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-First-Name'
+            key :in, :header
+            key :description, 'First Name of Veteran to fetch'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Last-Name'
+            key :in, :header
+            key :description, 'Last Name of Veteran to fetch'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Birth-Date'
+            key :in, :header
+            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-EDIPI'
+            key :in, :header
+            key :description, 'EDIPI Number of Veteran to fetch'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-User'
+            key :in, :header
+            key :description, 'VA username of the person making the request'
+            key :required, false
+            key :type, :string
+          end
+
+          request_body do
+            key :description, 'JSON API Payload of Veteran requesting POA change'
+            key :required, true
+            content 'application/json' do
+              schema do
+                key :'$ref', :Form2122Input
+              end
+            end
+          end
+
+          response 200 do
+            key :description, 'Valid'
+            content 'application/json' do
+              key(
+                :examples,
+                {
+                  default: {
+                    value: {
+                      data: { type: 'powerOfAttorneyValidation', attributes: { status: 'valid' } }
+                    }
+                  }
+                }
+              )
+              schema do
+                key :type, :object
+                property :data do
+                  key :type, :object
+                  property :type, type: :string
+                  property :attributes do
+                    key :type, :object
+                    property :status, type: :string
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Invalid Payload'
             content 'application/json' do
               schema do
                 key :type, :object

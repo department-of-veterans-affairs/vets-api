@@ -15,8 +15,8 @@
         "state": "WA",
         "postalCode": "98101"
       },
-      "primaryPhoneNumber": "8887775544",
-      "alternativePhoneNumber": "8887775544",
+      "primaryPhoneNumber": "8887775541",
+      "alternativePhoneNumber": "8887775542",
       "email": "veteranEmail@email.com",
       "plannedClinic": "740",
       "lastTreatmentFacility": {
@@ -32,10 +32,10 @@
     },
     "ssnOrTin": "202901412",
     "dateOfBirth": "1978-07-03",
-    "gender": "M",
+    "gender": "F",
     "address": {
       "street": "111 2nd St S",
-      "street2": "#501",
+      "street2": "#502",
       "city": "Seattle",
       "state": "WA",
       "postalCode": "98101"
@@ -44,11 +44,7 @@
     "alternativePhoneNumber": "9990239330",
     "email": "primaryCaregiverEmail@email.com",
     "vetRelationship": "Spouse",
-    "medicaidEnrolled": false,
-    "medicareEnrolled": true,
-    "champvaEnrolled": false,
-    "tricareEnrolled": true,
-    "otherHealthInsuranceName": "MyHealth Global"
+    "hasHealthInsurance": true
   },
   "secondaryCaregiverOne": {
     "fullName": {
@@ -79,7 +75,7 @@
     },
     "ssnOrTin": "091449494",
     "dateOfBirth": "1980-09-06",
-    "gender": "U",
+    "gender": "F",
     "address": {
       "street": "1946 Bahringer Way",
       "street2": "A",
