@@ -100,7 +100,7 @@ class FormProfile
     dependents: ['686C-674'],
     decision_review: ['20-0996'],
     mdot: ['MDOT'],
-    fsr: ['5655']
+    fsr: ['5655'],
     vre_counseling: ['28-8832']
   }.freeze
 
@@ -124,7 +124,7 @@ class FormProfile
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'MDOT' => ::FormProfiles::MDOT,
     '22-10203' => ::FormProfiles::VA10203,
-    '5655' => ::FormProfiles::VA5655
+    '5655' => ::FormProfiles::VA5655,
     '28-8832' => ::FormProfiles::VA288832
   }.freeze
 
