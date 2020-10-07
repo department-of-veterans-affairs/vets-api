@@ -40,6 +40,10 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
+  def expect_icn_for_veteran_to_return_not_found
+    expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+  end
+
   describe '::new' do
     it 'requires a claim' do
       expect { described_class.new }.to raise_error do |e|
@@ -624,7 +628,8 @@ RSpec.describe Form1010cg::Service do
 
   describe '#assert_veteran_status' do
     it 'will raise error if veteran\'s icn can not be found' do
-      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+      expect_icn_for_veteran_to_return_not_found
+
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
@@ -638,7 +643,7 @@ RSpec.describe Form1010cg::Service do
 
   describe '#process_claim!' do
     it 'raises error when ICN not found for veteran' do
-      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
+      expect_icn_for_veteran_to_return_not_found
       expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
@@ -721,6 +726,7 @@ RSpec.describe Form1010cg::Service do
       expect(carma_attachment).to receive(:to_hash).and_return(:attachments_as_hash)
       expect(submission).to receive(:attachments=).with(:attachments_as_hash)
 
+      expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
 
       expect(subject.submit_attachment).to eq(true)
@@ -757,6 +763,7 @@ RSpec.describe Form1010cg::Service do
 
       expect(CARMA::Models::Attachments).to receive(:new).and_raise('failure')
 
+      expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
 
       expect(subject.submit_attachment).to eq(false)
@@ -787,12 +794,13 @@ RSpec.describe Form1010cg::Service do
 
       expect(carma_attachment).to receive(:add).with(document_type, file_path).and_raise('failure')
 
+      expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
 
       expect(subject.submit_attachment).to eq(false)
     end
 
-    it 'returns false submission fails' do
+    it 'returns false when submission fails' do
       document_type     = '10-10CG'
       file_path         = 'tmp/my_file.pdf'
       carma_attachment  = double
@@ -818,7 +826,40 @@ RSpec.describe Form1010cg::Service do
       expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
       expect(carma_attachment).to receive(:submit!).and_raise('bad request')
 
+      expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
+
+      expect(subject.submit_attachment).to eq(false)
+    end
+
+    it 'returns false when file is deleted from another source' do
+      document_type     = '10-10CG'
+      file_path         = 'tmp/my_file.pdf'
+      carma_attachment  = double
+      claim             = build(:caregivers_assistance_claim)
+
+      submission = Form1010cg::Submission.new(
+        carma_case_id: 'aB9350000000TjICAU',
+        submitted_at: '2020-06-26 13:30:59'
+      )
+
+      subject = described_class.new(claim, submission)
+
+      expect(subject.claim).to receive(:to_pdf).and_return(file_path)
+
+      expect(CARMA::Models::Attachments).to receive(:new).with(
+        submission.carma_case_id,
+        claim.veteran_data['fullName']['first'],
+        claim.veteran_data['fullName']['last']
+      ).and_return(
+        carma_attachment
+      )
+
+      expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
+      expect(carma_attachment).to receive(:submit!).and_raise('bad request')
+
+      expect(File).to receive(:exist?).with(file_path).and_return(false)
+      expect(File).not_to receive(:delete).with(file_path)
 
       expect(subject.submit_attachment).to eq(false)
     end

@@ -12,3 +12,4 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - spec/**/*.rb
+    - config/**/*.rb
