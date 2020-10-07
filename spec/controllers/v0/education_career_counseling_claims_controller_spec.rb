@@ -18,7 +18,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
     context 'logged in user' do
       it 'validates successfully' do
         sign_in_as(user)
-        form_params = {education_career_counseling_claim: {form: test_form_no_vet_info.form}}
+        form_params = { education_career_counseling_claim: { form: test_form_no_vet_info.form } }
 
         post(:create, params: form_params)
         expect(response.code).to eq('200')
@@ -27,11 +27,30 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
 
     context 'visitor' do
       it 'validates successfully' do
-        sign_in_as(user)
-        form_params = {education_career_counseling_claim: {form: test_form.form}}
+        form_params = { education_career_counseling_claim: { form: test_form.form } }
 
         post(:create, params: form_params)
         expect(response.code).to eq('200')
+      end
+    end
+
+    context 'with invalid params' do
+      let(:cool_params) do
+        {
+          education_career_counseling_claim: {}
+        }
+      end
+
+      it 'shows the validation errors' do
+        post(:create, params: { education_career_counseling_claim: { form: { not_valid: 'not valid' } } })
+
+        expect(response.code).to eq('422')
+
+        expect(
+          JSON.parse(response.body)['errors'][0]['detail'].include?(
+            'form - can\'t be blank'
+          )
+        ).to eq(true)
       end
     end
   end
