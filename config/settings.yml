@@ -70,6 +70,9 @@ debts:
   mock: true
   url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
 
+fsr:
+  prefill: true
+
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
