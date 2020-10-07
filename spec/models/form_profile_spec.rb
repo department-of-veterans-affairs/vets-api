@@ -698,9 +698,9 @@ RSpec.describe FormProfile, type: :model do
         'addressLine1' => street_check[:street],
         'addressLine2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
-        'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+        'stateCode' => user.va_profile[:address][:state],
+        'countryName' => user.va_profile[:address][:country],
+        'zipCode' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhoneNumber' => user.va_profile[:address][:state],
       'claimantEmailAddress' => us_phone
