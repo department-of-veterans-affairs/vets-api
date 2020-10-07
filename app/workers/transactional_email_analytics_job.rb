@@ -12,13 +12,13 @@ class TransactionalEmailAnalyticsJob
         detail: 'It should be configured in settings.yml'
       )
     end
-    if Settings.google_analytics_tracking_id.blank?
+    if Settings.google_analytics.tracking_id.blank?
       raise Common::Exceptions::ParameterMissing.new(
         'Google Analytics tracking ID',
         detail: 'It should be configured in settings.yml'
       )
     end
-    @tracker = Staccato.tracker(Settings.google_analytics_tracking_id)
+    @tracker = Staccato.tracker(Settings.google_analytics.tracking_id)
     @time_range_start = 1445.minutes.ago
     @time_range_end = 5.minutes.ago
   end

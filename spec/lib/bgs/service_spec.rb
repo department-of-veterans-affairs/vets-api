@@ -127,4 +127,14 @@ RSpec.describe BGS::Service do
       end
     end
   end
+
+  describe '#get_regional_office_by_zip_code' do
+    it 'returns a valid regional office response' do
+      VCR.use_cassette('bgs/service/get_regional_office_by_zip_code') do
+        response = bgs_service.get_regional_office_by_zip_code('19018', 'USA', '', 'CP', '123')
+
+        expect(response).to eq('310')
+      end
+    end
+  end
 end
