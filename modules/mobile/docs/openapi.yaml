@@ -21,16 +21,67 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v0/letters:
-    get:
-      summary: /v0/letters
-      description: Returns the list of letter names and types for the given user
-      operationId: getLetters
   /v0/military-service-history:
     get:
       summary: /v0/military-service-history
       description: Returns user's service history
       operationId: getServiceHistory
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MilitaryHistory"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/letters:
+    get:
+      summary: /v0/letters
+      description: Returns the list of letter names and types for the given user
+      operationId: getLetters
       security:
         - Bearer: [ ]
       responses:
@@ -172,7 +223,6 @@ paths:
               schema:
                 type: string
                 format: binary
-                $ref: "#/components/schemas/MilitaryHistory"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -511,6 +561,56 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    MilitaryHistory:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "militaryInformation"
+            id:
+              type: string
+              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+            attributes:
+              type: object
+              required:
+                - serviceHistory
+              properties:
+                serviceHistory:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/ServiceHistory"
+    ServiceHistory:
+      required:
+        - branchOfService
+        - beginDate
+        - endDate
+        - formattedBeginDate
+        - formattedEndDate
+      properties:
+        branchOfService:
+          type: string
+          example: "United States Marine Corps"
+        beginDate:
+          type: string
+          example: "1997-09-17"
+        endDate:
+          type: string
+          example: "2002-12-31"
+        formattedBeginDate:
+          type: string
+          example: "September 17, 1997"
+        formattedEndDate:
+          type: string
+          example: "December 31, 2002"
     Errors:
       required:
         - errors
@@ -814,7 +914,6 @@ components:
                 - appeals
                 - directDepositBenefits
                 - militaryServiceHistory
-
     Address:
       required:
         - addressLine1
@@ -866,7 +965,6 @@ components:
         zipCodeSuffix:
           type: string, null
           example: "1234"
-
     AddressUpdate:
       required:
         - validationKey
