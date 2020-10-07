@@ -1,0 +1,7 @@
+claimantAddress:
+  countryName: [contact_information, address, country]
+  addressLine1: [contact_information, address, street]
+  addressLine2: [contact_information, address, street2]
+  city: [contact_information, address, city]
+  stateCode: [contact_information, address, state]
+  zipCode: [contact_information, address, postal_code]

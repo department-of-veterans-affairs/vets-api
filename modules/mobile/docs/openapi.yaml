@@ -1,17 +1,19 @@
 openapi: "3.0.0"
 info:
-  version: 1.0.0
+  version: 0.0.0
   title: VA Mobile API
   license:
     name: MIT
+  description: >
+    The Department of Veterans Affairs mobile API. All paths are relative to https://api.va.gov/mobile.
 servers:
-  - url: http://api.va.gov
+  - url: https://api.va.gov/mobile
 paths:
-  /mobile:
+  /:
     get:
-      summary: /mobile
-      description: Currently returns a welcome message. In the future given an app version it will return a map of services.
-      operationId: discovery
+      summary: /
+      description: Returns a welcome message.
+      operationId: welcome
       responses:
         '200':
           description: OK
@@ -19,34 +21,361 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /mobile/v0/user:
+
+
+  /v0/user:
     get:
-      summary: /mobile/v0/user
-      description: Returns the user profile
-      operationId: get_user
+      summary: /v0/user
+      description: >
+        \[Partially implemented\] Returns the user profile, including the user's addresses and the services
+        the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
+      operationId: user.getProfile
       security:
-        - Bearer: [ ]
+        - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                properties:
+                  data:
+                    $ref: "#/components/schemas/User"
+                  meta:
+                    properties:
+                      availableServices:
+                        type: array
+                        example:
+                          - appeals
+                          - appointments
+                          - claims
+                          - directDepositBenefits
+                          - lettersAndDocuments
+                          - militaryServiceHistory
+                          - userProfileUpdate
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/address:
+    put:
+      summary: /v0/user/address
+      description: \[Not implemented\] Returns the user profile
+      operationId: user.updateAddress
+      security:
+        - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: A domestic, internation, or military address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressUpdate'
+            example:
+              validationKey: 0,
+              addressLine1: "1493 Martin Luther King Rd"
+              addressLine2: "string"
+              addressLine3: "string"
+              addressPou: "RESIDENCE/CHOICE"
+              addressType: "DOMESTIC"
+              city: "Fulton"
+              countryName: "United States"
+              stateCode: "MS"
+              zipCode: "38843"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "asyncTransactionVet360AddressTransactions"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          transactionId:
+                            type: string
+                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                          transactionStatus:
+                            type: string
+                            example: "RECEIVED"
+                          type:
+                            type: string
+                            example: "AsyncTransaction::Vet360::AddressTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/transaction-status:
+    get:
+      summary: /v0/user/transaction-status/:transactionId
+      description: \[Not implemented\] Returns the status of a user profile update (e.g. address update)
+      operationId: user.updateAddress
+      security:
+        - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+        - in: query
+          name: transactionId
+          schema:
+            type: string
+            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+          required: true
+          description: The id of the transaction being looked up
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "asyncTransactionVet360AddressTransactions"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          transactionId:
+                            type: string
+                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                          transactionStatus:
+                            type: string
+                            example: "COMPLETED_SUCCESS"
+                          type:
+                            type: string
+                            example: "AsyncTransaction::Vet360::AddressTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
 components:
   securitySchemes:
-    BearerAuth:
+    Bearer:
       type: apiKey
       name: Authorization
       in: header
-      example: "Authorization: Bearer ypXeAwQedpmAy5xFD2u5"
+      description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
+
   schemas:
+    Errors:
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Error"
+    Error:
+      required:
+        - title
+        - detail
+        - code
+        - status
+      properties:
+        title:
+          type: string
+        detail:
+          type: string
+        code:
+          type: string
+        status:
+          type: string
+    EVSSAuthError:
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            required:
+              - title
+              - detail
+              - code
+              - status
+            properties:
+              title:
+                type: string
+                example: Not Found
+              detail:
+                type: string
+                example: "The requested resource could not be found but may be available again in the future."
+              code:
+                type: string
+                example: '404'
+              status:
+                type: string
+                example: '404'
+
     Message:
       required:
         - message
       properties:
         message:
           type: string
+          example: "Welcome to the VA mobile API"
+
     User:
       required:
         - id
@@ -62,20 +391,144 @@ components:
         attributes:
           type: object
           required:
-            - first_name
-            - middle_name
-            - last_name
-            - email
+            - profile
+            - authorizedServices
           properties:
-            first_name:
-              type: String
-              example: "John"
-            middle_name:
-              type: String
-              example: "A"
-            last_name:
-              type: String
-              example: "Smith"
-            email:
-              type: String
-              example: "john.a.smith@domain.com"
+            profile:
+              type: object
+              required:
+                - firstName
+                - middleName
+                - lastName
+                - email
+                - birthDate
+                - gender
+                - addresses
+              properties:
+                firstName:
+                  type: string
+                  example: "John"
+                middleName:
+                  type: string
+                  example: "A"
+                lastName:
+                  type: string
+                  example: "Smith"
+                email:
+                  type: string
+                  example: "john.a.smith@domain.com"
+                residential_address:
+                  $ref: "#/components/schemas/Address"
+                mailing_address:
+                  $ref: "#/components/schemas/Address"
+            authorizedServices:
+              type: array
+              items:
+                type: string
+              example:
+                - appeals
+                - directDepositBenefits
+                - militaryServiceHistory
+
+    Address:
+      required:
+        - addressLine1
+        - addressLine2
+        - addressLine3
+        - addressPou
+        - addressType
+        - city
+        - countryCode
+        - internationalPostalCode
+        - province
+        - stateCode
+        - zipCode
+        - zipCodeSuffix
+      properties:
+        addressLine1:
+          type: string
+          example: "1493 Martin Luther King Rd"
+        addressLine2:
+          type: string, null
+        addressLine3:
+          type: string, null
+        addressPou:
+          type: string
+          enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
+          example: "RESIDENCE/CHOICE"
+        addressType:
+          type: string
+          enum: ["DOMESTIC", "INTERNATIONAL"]
+          example: "DOMESTIC"
+        city:
+          type: string
+          example: "Fulton"
+        countryCode:
+          type: string
+          example: "US"
+        internationalPostalCode:
+          type: string, null
+          example: null
+        province:
+          type: string, null
+          example: null
+        stateCode:
+          type: string
+          example: "NY"
+        zipCode:
+          type: string
+          example: "97062"
+        zipCodeSuffix:
+          type: string, null
+          example: "1234"
+
+    AddressUpdate:
+      required:
+        - validationKey
+        - addressLine1
+        - addressPou
+        - addressType
+        - city
+        - countryCode
+      properties:
+        validationKey:
+          type: integer
+          example: 0
+        addressLine1:
+          type: string
+          example: "1493 Martin Luther King Rd"
+        addressLine2:
+          type: string, null
+        addressLine3:
+          type: string, null
+        addressPou:
+          type: string
+          enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
+          example: "RESIDENCE/CHOICE"
+        addressType:
+          type: string
+          enum: [ "DOMESTIC", "INTERNATIONAL" ]
+          example: "DOMESTIC"
+        city:
+          type: string
+          example: "Fulton"
+        countryCode:
+          type: string
+          example: "US"
+        internationalPostalCode:
+          type: string, null
+          example: null
+        province:
+          type: string, null
+          example: null
+        stateCode:
+          type: string
+          example: "NY"
+        zipCode:
+          type: string
+          example: "97062"
+        zipCodeSuffix:
+          type: string, null
+          example: "1234"
+
+
