@@ -6,21 +6,18 @@ describe Veteran::User do
   context 'initialization' do
     let(:user) { FactoryBot.create(:user, :loa3) }
 
-    before do
-      external_key = user.common_name || user.email
-      allow(BGS::Services).to receive(:new).with({ external_uid: user.icn, external_key: external_key })
-    end
-
     it 'initializes from a user' do
-      allow(Veteran::User).to receive(:new) { OpenStruct.new(power_of_attorney: PowerOfAttorney.new(code: 'A1Q')) }
-      veteran = Veteran::User.new(user)
-      expect(veteran.power_of_attorney.code).to eq('A1Q')
+      VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
+        veteran = Veteran::User.new(user)
+        expect(veteran.power_of_attorney.code).to eq('044')
+      end
     end
 
     it 'does not bomb out if poa is missing' do
-      allow(Veteran::User).to receive(:new) { OpenStruct.new(power_of_attorney: nil) }
-      veteran = Veteran::User.new(user)
-      expect(veteran.power_of_attorney).to eq(nil)
+      VCR.use_cassette('bgs/claimant_web_service/not_find_poa_by_participant_id') do
+        veteran = Veteran::User.new(user)
+        expect(veteran.power_of_attorney).to eq(nil)
+      end
     end
   end
 end
