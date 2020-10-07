@@ -10,7 +10,7 @@ RSpec.describe SFTPWriter::Factory, type: :model, form: :education_benefits do
     expect(Rails.env).to receive('development?').once.and_return(false)
 
     with_settings(Settings.edu.sftp, host: 'localhost', pass: nil) do
-      expect { subject.get_writer(Settings.edu.sftp) }.to raise_error(Exception, /SFTP password not set/)
+      expect { subject.get_writer(Settings.edu.sftp) }.to raise_error(Exception, /SFTP cert not present/)
     end
   end
 
@@ -22,7 +22,8 @@ RSpec.describe SFTPWriter::Factory, type: :model, form: :education_benefits do
   it 'writes to production when possible' do
     expect(Rails.env).to receive('development?').once.and_return(false)
 
-    with_settings(Settings.edu.sftp, host: 'localhost', pass: 'test') do
+    key_path = "#{::Rails.root}/spec/fixtures/files/idme_cert.crt" # any readable file will work for this spec
+    with_settings(Settings.edu.sftp, host: 'localhost', key_path: key_path) do
       expect(subject.get_writer(Settings.edu.sftp)).to be(SFTPWriter::Remote)
     end
   end
