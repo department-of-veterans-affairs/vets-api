@@ -7,20 +7,18 @@ describe Veteran::User do
     let(:user) { FactoryBot.create(:user, :loa3) }
 
     before do
-      @client_stub = instance_double('BGS::Services')
-      allow(BGS::Services).to receive(:new).with({ external_uid: '', external_key: '' })
+      external_key = user.common_name || user.email
+      allow(BGS::Services).to receive(:new).with({ external_uid: user.icn, external_key: external_key })
     end
 
     it 'initializes from a user' do
-      allow(@client_stub).to receive(:claimant).and_return(nil)
-      allow(@client_stub.claimant).to receive(:find_poa_by_participant_id) { get_fixture('json/bgs_with_poa') }
+      allow(Veteran::User).to receive(:new) { OpenStruct.new(power_of_attorney: PowerOfAttorney.new(code: 'A1Q')) }
       veteran = Veteran::User.new(user)
       expect(veteran.power_of_attorney.code).to eq('A1Q')
     end
 
     it 'does not bomb out if poa is missing' do
-      allow(@client_stub).to receive(:claimant).and_return(nil)
-      allow(@client_stub.claimant).to receive(:find_poa_by_participant_id) { get_fixture('json/bgs_without_poa') }
+      allow(Veteran::User).to receive(:new) { OpenStruct.new(power_of_attorney: nil) }
       veteran = Veteran::User.new(user)
       expect(veteran.power_of_attorney).to eq(nil)
     end
