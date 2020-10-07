@@ -699,11 +699,11 @@ RSpec.describe FormProfile, type: :model do
         'addressLine2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
-        'country' => 'USA',
+        'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
-      'claimantPhoneNumber' => '555-555-5555',
-      'claimantEmailAddress' => 'derp@derp.com'
+      'claimantPhoneNumber' => user.va_profile[:address][:state],
+      'claimantEmailAddress' => us_phone
     }
   end
 
