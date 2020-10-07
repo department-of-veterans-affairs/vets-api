@@ -34,9 +34,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: f8e5d69ed0cb1791bc41e5b6e55b22134c39fad4
+  revision: ebbb1c13b7b2e00a37cd69030016a87fded3cb97
   specs:
-    bgs_ext (0.14.6)
+    bgs_ext (0.14.8)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -983,7 +983,7 @@ DEPENDENCIES
   virtus
   web-console
   webmock
-  webrick
+  webrick (>= 1.6.1)
   websocket-extensions (>= 0.1.5)
   will_paginate
   yard

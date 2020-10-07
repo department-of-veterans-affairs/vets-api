@@ -60,7 +60,7 @@ module VaForms
             property :valid_pdf do
               key :description, I18n.t('va_forms.field_descriptions.valid_pdf')
               key :type, :boolean
-              key :example, 3
+              key :example, true
             end
 
             property :sha256 do
