@@ -558,6 +558,16 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v5655_expected) do
+    {
+      'personalData' => {
+        'fullName' => full_name,
+        'address' => address,
+        'dateOfBirth' => user.birth_date
+      }
+    }
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,
@@ -692,6 +702,19 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v28_8832_expected) do
+    {
+      'claimantAddress' => {
+        'addressLine1' => street_check[:street],
+        'addressLine2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'stateCode' => user.va_profile[:address][:state],
+        'countryName' => 'USA',
+        'zipCode' => user.va_profile[:address][:postal_code][0..4]
+      }
+    }
+  end
+
   describe '#pciu_us_phone' do
     def self.test_pciu_us_phone(primary, expected)
       it "returns #{expected}" do
@@ -778,6 +801,12 @@ RSpec.describe FormProfile, type: :model do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
         end
+      end
+    end
+
+    context 'with a user that can prefill financial status report' do
+      it 'returns a prefilled 5655 form' do
+        expect_prefilled('5655')
       end
     end
 
@@ -970,6 +999,7 @@ RSpec.describe FormProfile, type: :model do
           22-0993
           FEEDBACK-TOOL
           686C-674
+          28-8832
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
