@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
+require 'facilities/ppms/v0/client'
+
 class V1::Facilities::CcpController < FacilitiesController
   # Provider supports the following query parameters:
   # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
@@ -39,7 +41,7 @@ class V1::Facilities::CcpController < FacilitiesController
   private
 
   def api
-    @api ||= Facilities::PPMS::Client.new
+    @api ||= Facilities::PPMS::V0::Client.new
   end
 
   def ppms_params
