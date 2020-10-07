@@ -23,7 +23,7 @@
             "type": "string"
           },
           "source": {
-            "type": "string"
+            "type": ["string", null]
           },
           "status": {
             "type": "string"

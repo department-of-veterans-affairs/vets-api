@@ -6,10 +6,10 @@ module Mobile
   module V0
     class AddressController < ApplicationController
       include Vet360::Writeable
-  
+
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache
-      
+
       def update
         write_to_vet360_and_render_transaction!(
           'address',
@@ -17,7 +17,7 @@ module Mobile
           http_verb: 'put'
         )
       end
-      
+
       private
 
       # rubocop:disable Metrics/MethodLength
