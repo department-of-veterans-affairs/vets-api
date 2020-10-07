@@ -12,7 +12,7 @@ Pact.provider_states_for 'Facility Locator' do
     end
 
     tear_down do
-       VCR.eject_cassette('facilities/ppms/ppms')
+      VCR.eject_cassette('facilities/ppms/ppms')
     end
   end
 
@@ -27,7 +27,7 @@ Pact.provider_states_for 'Facility Locator' do
     end
 
     tear_down do
-       VCR.eject_cassette('facilities/va/ppms_and_lighthouse')
+      VCR.eject_cassette('facilities/va/ppms_and_lighthouse')
     end
   end
 
@@ -42,7 +42,7 @@ Pact.provider_states_for 'Facility Locator' do
     end
 
     tear_down do
-       VCR.eject_cassette('/lighthouse/facilities')
+      VCR.eject_cassette('/lighthouse/facilities')
     end
   end
 
@@ -57,8 +57,7 @@ Pact.provider_states_for 'Facility Locator' do
     end
 
     tear_down do
-       VCR.eject_cassette('facilities/ppms/ppms')
+      VCR.eject_cassette('facilities/ppms/ppms')
     end
   end
-
 end
