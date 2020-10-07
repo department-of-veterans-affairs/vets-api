@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'facilities/ppms/client'
+require 'facilities/ppms/v0/client'
 
 class V0::Facilities::CcpController < FacilitiesController
   before_action :validate_id, only: [:show]
@@ -75,7 +75,7 @@ class V0::Facilities::CcpController < FacilitiesController
   end
 
   def api
-    @api ||= Facilities::PPMS::Client.new
+    @api ||= Facilities::PPMS::V0::Client.new
   end
 
   def per_page

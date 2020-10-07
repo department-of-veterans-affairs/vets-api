@@ -271,6 +271,10 @@ features:
     actor_type: user
     description: >
       Comparison Tool Search Results Benefit UI Enhancements to improve usability
+  gibct_school_ratings:
+    actor_type: user
+    description: >
+      Show/Hide the school ratings section of the Comparison Tool School Profile Page.
   mobile_api:
     actor_type: user
     description: >
@@ -281,10 +285,12 @@ features:
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
   stem_document_type:
     actor_type: user
+    enable_in_development: true
     description: >
       Set 10203 spool file document type
   stem_text_message_question:
     actor_type: user
+    enable_in_development: true
     description: >
       Add text message opt-in question to 10203 Personal Information chapter and layout changes     
   form_1995_edu_updates:
