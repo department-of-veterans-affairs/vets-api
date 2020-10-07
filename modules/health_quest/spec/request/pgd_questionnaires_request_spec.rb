@@ -28,7 +28,7 @@ RSpec.describe 'health_quest questionnaires', type: :request, skip_mvi: true do
 
     context 'health quest user' do
       let(:current_user) { build(:user, :health_quest) }
-  
+
       it 'has success status' do
         get '/health_quest/v0/pgd_questionnaires/32'
 
