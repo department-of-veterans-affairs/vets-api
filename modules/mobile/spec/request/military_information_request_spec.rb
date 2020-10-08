@@ -9,52 +9,53 @@ RSpec.describe 'military_information', type: :request do
   describe 'GET /mobile/v0/military-service-history' do
     context 'with a user who has a cached iam session' do
       before { iam_sign_in }
+
       let(:expected_body_multi) do
         {
-            'data' => {
-                'id' => '69ad43ea-6882-5673-8552-377624da64a5',
-                'type' => 'militaryInformation',
-                'attributes' => {
-                    'serviceHistory' =>
-                        [
-                            {
-                                'branchOfService' => 'United States Air Force',
-                                'beginDate' => '2007-04-01',
-                                'endDate' => '2016-06-01',
-                                'formattedBeginDate' => 'April 01, 2007',
-                                'formattedEndDate' => 'June 01, 2016'
-                            },
-                            {
-                                'branchOfService' => 'United States Air Force',
-                                'beginDate' => '2000-02-01',
-                                'endDate' => '2004-06-14',
-                                'formattedBeginDate' => 'February 01, 2000',
-                                'formattedEndDate' => 'June 14, 2004'
-                            }
-                        ]
-                }
+          'data' => {
+            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'type' => 'militaryInformation',
+            'attributes' => {
+              'serviceHistory' =>
+                    [
+                      {
+                        'branchOfService' => 'United States Air Force',
+                        'beginDate' => '2007-04-01',
+                        'endDate' => '2016-06-01',
+                        'formattedBeginDate' => 'April 01, 2007',
+                        'formattedEndDate' => 'June 01, 2016'
+                      },
+                      {
+                        'branchOfService' => 'United States Air Force',
+                        'beginDate' => '2000-02-01',
+                        'endDate' => '2004-06-14',
+                        'formattedBeginDate' => 'February 01, 2000',
+                        'formattedEndDate' => 'June 14, 2004'
+                      }
+                    ]
             }
+          }
         }
       end
 
       let(:expected_body_single) do
         {
-            'data' => {
-                'id' => '69ad43ea-6882-5673-8552-377624da64a5',
-                'type' => 'militaryInformation',
-                'attributes' => {
-                    'serviceHistory' =>
-                        [
-                            {
-                                'branchOfService' => 'United States Air Force',
-                                'beginDate' => '2007-04-01',
-                                'endDate' => '2016-06-01',
-                                'formattedBeginDate' => 'April 01, 2007',
-                                'formattedEndDate' => 'June 01, 2016'
-                            }
-                        ]
-                }
+          'data' => {
+            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'type' => 'militaryInformation',
+            'attributes' => {
+              'serviceHistory' =>
+                    [
+                      {
+                        'branchOfService' => 'United States Air Force',
+                        'beginDate' => '2007-04-01',
+                        'endDate' => '2016-06-01',
+                        'formattedBeginDate' => 'April 01, 2007',
+                        'formattedEndDate' => 'June 01, 2016'
+                      }
+                    ]
             }
+          }
         }
       end
 

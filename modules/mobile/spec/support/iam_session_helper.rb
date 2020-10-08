@@ -26,13 +26,6 @@ module IAMSessionHelper
     IAMUser.create(iam_user)
     IAMSession.create(token: token, uuid: iam_user.identity.uuid)
   end
-
-  def iam_headers
-    {
-        'Authorization' => "Bearer #{access_token}",
-        'X-Key-Inflection' => 'camel'
-    }
-  end
 end
 
 RSpec.configure do |config|

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rspec/expectations'
 
 module MobileSchemaMatchers
@@ -6,7 +7,7 @@ module MobileSchemaMatchers
 
   def valid_against_schema?(json, schema_name, opts = {})
     schema_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'schemas', "#{schema_name}.json")
-    JSON::Validator.validate!(schema_path.to_s, json, {strict: false}.merge(opts))
+    JSON::Validator.validate!(schema_path.to_s, json, { strict: false }.merge(opts))
   end
 
   matcher :match_schema do |schema_name, opts = {}|
