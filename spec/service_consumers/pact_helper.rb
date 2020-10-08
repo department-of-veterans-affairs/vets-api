@@ -47,6 +47,10 @@ RSpec.configure do |config|
   end
 end
 
+FactoryBot::SyntaxRunner.class_eval do
+  include RSpec::Mocks::ExampleMethods
+end
+
 Pact.service_provider 'VA.gov API' do
   # This example points to a local file, however, on a real project with a continuous
   # integration box, you would use a [Pact Broker](https://github.com/pact-foundation/pact_broker)

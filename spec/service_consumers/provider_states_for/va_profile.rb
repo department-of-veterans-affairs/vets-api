@@ -28,4 +28,13 @@ Pact.provider_states_for 'VA Profile' do
       VCR.eject_cassette
     end
   end
+
+  provider_state 'not a Veteran' do
+    set_up do
+      build_user_and_stub_session(FactoryBot.build(:unauthorized_evss_user))
+    end
+
+    tear_down do
+    end
+  end
 end
