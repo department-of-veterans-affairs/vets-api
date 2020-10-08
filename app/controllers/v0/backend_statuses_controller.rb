@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/gi_bill_status/service'
+
 module V0
   class BackendStatusesController < ApplicationController
     skip_before_action :authenticate

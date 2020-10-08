@@ -56,7 +56,8 @@ describe PdfFill::Filler, type: :model do
       {
         form_id: '10-10CG',
         factory: :caregivers_assistance_claim,
-        fixture_path: 'pdf_fill/10-10CG/unsigned',
+        input_data_fixture_dir: 'pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
         fill_options: {
           sign: false
         }
@@ -64,7 +65,8 @@ describe PdfFill::Filler, type: :model do
       {
         form_id: '10-10CG',
         factory: :caregivers_assistance_claim,
-        fixture_path: 'pdf_fill/10-10CG/signed',
+        input_data_fixture_dir: 'pdf_fill/10-10CG',
+        output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
         fill_options: {
           sign: true
         }
@@ -77,17 +79,10 @@ describe PdfFill::Filler, type: :model do
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
-            let(:fixture_path) do
-              options[:fixture_path] || "pdf_fill/#{form_id}"
-            end
-
-            let(:form_data) do
-              get_fixture("#{fixture_path}/#{type}")
-            end
-
-            let(:saved_claim) do
-              create(factory, form: form_data.to_json)
-            end
+            let(:input_data_fixture_dir) { options[:input_data_fixture_dir] || "pdf_fill/#{form_id}" }
+            let(:output_pdf_fixture_dir) { options[:output_pdf_fixture_dir] || "pdf_fill/#{form_id}" }
+            let(:form_data) { get_fixture("#{input_data_fixture_dir}/#{type}") }
+            let(:saved_claim) { create(factory, form: form_data.to_json) }
 
             it 'fills the form correctly' do
               if type == 'overflow'
@@ -111,14 +106,14 @@ describe PdfFill::Filler, type: :model do
                 extras_path = the_extras_generator.generate
 
                 expect(
-                  FileUtils.compare_file(extras_path, "spec/fixtures/#{fixture_path}/overflow_extras.pdf")
+                  FileUtils.compare_file(extras_path, "spec/fixtures/#{output_pdf_fixture_dir}/overflow_extras.pdf")
                 ).to eq(true)
 
                 File.delete(extras_path)
               end
 
               expect(
-                pdfs_fields_match?(file_path, "spec/fixtures/#{fixture_path}/#{type}.pdf")
+                pdfs_fields_match?(file_path, "spec/fixtures/#{output_pdf_fixture_dir}/#{type}.pdf")
               ).to eq(true)
 
               File.delete(file_path)

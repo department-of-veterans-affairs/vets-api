@@ -3,10 +3,11 @@
 require 'beta_switch'
 require 'common/models/base'
 require 'common/models/redis_store'
+require 'evss/auth_headers'
+require 'evss/common_service'
+require 'evss/pciu/service'
 require 'mvi/messages/find_profile_message'
 require 'mvi/service'
-require 'evss/common_service'
-require 'evss/auth_headers'
 require 'saml/user'
 
 class User < Common::RedisStore
@@ -125,7 +126,6 @@ class User < Common::RedisStore
   delegate :mhv_icn, to: :identity, allow_nil: true
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
-  delegate :authenticated_by_ssoe, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
 
   # mvi attributes

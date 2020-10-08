@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'gibft/service'
+
 class GIBillFeedbackSubmissionJob
   include Sidekiq::Worker
 

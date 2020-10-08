@@ -15,6 +15,7 @@ def stub_debt_letters(method)
 
     before do
       expect(letter_downloader).to receive(:get_letter).with(document_id).and_return(content)
+      expect(letter_downloader).to receive(:file_name).with(document_id).and_return('filename.pdf')
     end
   else
     let(:list_letters_res) { get_fixture('vbms/list_letters') }

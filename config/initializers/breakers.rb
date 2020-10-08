@@ -5,6 +5,7 @@ require 'breakers/statsd_plugin'
 require 'caseflow/configuration'
 require 'central_mail/configuration'
 require 'debts/configuration'
+require 'decision_review/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
@@ -18,7 +19,7 @@ require 'evss/gi_bill_status/service'
 require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
 require 'facilities/bulk_configuration'
-require 'facilities/ppms/configuration'
+require 'facilities/ppms/v0/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
@@ -30,6 +31,7 @@ require 'sm/configuration'
 require 'search/configuration'
 require 'okta/configuration'
 require 'vet360/contact_information/configuration'
+require 'iam_ssoe_oauth/configuration'
 
 # Read the redis config, create a connection and a namespace for breakers
 # .to_h because hashes from config_for don't support non-symbol keys
@@ -39,6 +41,7 @@ redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_option
 services = [
   Debts::Configuration.instance.breakers_service,
   Caseflow::Configuration.instance.breakers_service,
+  DecisionReview::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
   BB::Configuration.instance.breakers_service,
   EMIS::MilitaryInformationConfiguration.instance.breakers_service,
@@ -56,7 +59,7 @@ services = [
   Gibft::Configuration.instance.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
-  Facilities::PPMS::Configuration.instance.breakers_service,
+  Facilities::PPMS::V0::Configuration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,
@@ -66,7 +69,8 @@ services = [
   Vet360::ContactInformation::Configuration.instance.breakers_service,
   Search::Configuration.instance.breakers_service,
   Okta::Configuration.instance.breakers_service,
-  VAOS::Configuration.instance.breakers_service
+  VAOS::Configuration.instance.breakers_service,
+  IAMSSOeOAuth::Configuration.instance.breakers_service
 ]
 
 services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

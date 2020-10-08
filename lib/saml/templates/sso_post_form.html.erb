@@ -2,8 +2,11 @@
 <head>
   <meta charset="utf-8">
   <title>VA.gov sign-in</title>
-
-
+  <script
+    src="https://browser.sentry-cdn.com/5.24.2/bundle.tracing.min.js"
+    integrity="sha384-Epltozh7S1cJM2hcIRDJBbqiiVpZsNlFCciHxKIAfKN8mSTa+gMivtz7glp/30Mz"
+    crossorigin="anonymous"
+    ></script>
 </head>
 
 <body>
@@ -26,15 +29,26 @@
 
   <script>
     (function() {
-      var form = document.getElementById("saml-form");
+      if (typeof(Sentry) != 'undefined' && "<%= sentrydsn %>") {
+        Sentry.init({
+          dsn: "<%= sentrydsn %>",
+          integrations: [new Sentry.Integrations.BrowserTracing()],
+        });
+        /* extra tag so we can easily search for any errors in Sentry */
+        Sentry.setTag("page", "SSOe-Post-Binding-Form");
+      }
       var req = new XMLHttpRequest();
-      var qs = "saml_uuid=" + encodeURIComponent("<%= saml_uuid %>") +
+      var qs = "id=" + encodeURIComponent("<%= id %>") +
                 "&authn=" + encodeURIComponent("<%= authn %>") +
                 "&type=" + encodeURIComponent("<%= type %>");
-      var url = location.origin + "/v1/sessions/tracker?" + qs;
+      var url = location.origin + "/v1/sessions/trace?" + qs;
       req.open("GET", url);
+      req.onreadystatechange = function (evt) {
+        if (req.readyState == 2) {
+          document.getElementById("saml-form").submit();
+        }
+      };
       req.send();
-      form.submit();
     })();
   </script>
 </body>

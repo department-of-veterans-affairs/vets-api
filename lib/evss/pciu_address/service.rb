@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
-require_relative 'configuration'
 require_relative 'address_response'
+require_relative 'configuration'
+require_relative 'countries_response'
+require_relative 'states_response'
+require 'evss/service'
 require 'evss/pciu/request_body'
 
 module EVSS

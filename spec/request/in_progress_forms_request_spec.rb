@@ -178,7 +178,8 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             'version' => 1,
             'return_url' => 'foo.com',
             'expires_at' => 1_488_412_800,
-            'last_updated' => 1_483_228_800
+            'last_updated' => 1_483_228_800,
+            'in_progress_form_id' => in_progress_form.id
           )
         end
 

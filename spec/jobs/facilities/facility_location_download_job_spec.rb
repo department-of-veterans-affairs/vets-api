@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+# these requires are used to set up wait time data tests
 require 'facilities/access_satisfaction_client'
 require 'facilities/access_wait_time_client'
 require 'facilities/access_data_download'

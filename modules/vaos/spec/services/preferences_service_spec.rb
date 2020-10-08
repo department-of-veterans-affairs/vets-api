@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
 
 describe VAOS::PreferencesService do
   subject { described_class.new(user) }

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'service'
+
 module BGS
   class Children
     def initialize(proc_id:, payload:, user:)
