@@ -14,7 +14,7 @@ Pact.provider_states_for 'VA Profile' do
 
   provider_state 'there are no service history records' do
     set_up do
-      user = build_user_and_stub_session
+      build_user_and_stub_session
       stub_mvi(
         FactoryBot.build(
           :mvi_profile,
