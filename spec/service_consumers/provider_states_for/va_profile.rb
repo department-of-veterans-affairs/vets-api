@@ -14,8 +14,14 @@ Pact.provider_states_for 'VA Profile' do
 
   provider_state 'there are no service history records' do
     set_up do
-      build_user_and_stub_session(FactoryBot.build(:user, :loa3))
-      VCR.insert_cassette('emis/get_military_service_episodes/valid')
+      user = build_user_and_stub_session
+      stub_mvi(
+        FactoryBot.build(
+          :mvi_profile,
+          edipi: '1005079124'
+        )
+      )
+      VCR.insert_cassette('emis/get_military_service_episodes/empty')
     end
 
     tear_down do
