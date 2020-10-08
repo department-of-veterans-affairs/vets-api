@@ -3,7 +3,7 @@
 Pact.provider_states_for 'VA Profile' do
   provider_state 'at least one entry in the service history exists' do
     set_up do
-      build_user_and_stub_session(FactoryBot.build(:user, :loa3))
+      build_user_and_stub_session
       VCR.insert_cassette('emis/get_military_service_episodes/valid')
     end
 
