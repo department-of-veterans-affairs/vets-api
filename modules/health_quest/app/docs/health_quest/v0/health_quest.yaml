@@ -3,7 +3,7 @@ info:
   version: 0.0.1
   title: Health Quest
   description: |
-    ## The API for the Healthcare Clipboard 
+    ## The API for the Healthcare Clipboard
 
     These endpoints include the Healthcare Experience Questionnaire
     Responses and clipboard related endpoints into the MAP PGD and scheduled appointments
@@ -37,7 +37,7 @@ paths:
         - bearerAuth: []
       responses:
         '200':
-          description: Systems retrieved successfully
+          description: Appointments retrieved successfully
           content:
             application/json:
               schema:
@@ -75,7 +75,7 @@ paths:
           schema:
             type: integer
           required: true
-          description: the id for the appointment  
+          description: the id for the appointment
       responses:
         '200':
           description: Systems retrieved successfully
@@ -101,7 +101,7 @@ paths:
                       items:
                         $ref: "#/components/schemas/VAAppointment"
                       meta:
-                        $ref: "#/components/schemas/Pagination"                        
+                        $ref: "#/components/schemas/Pagination"
 components:
   securitySchemes:
     bearerAuth:
