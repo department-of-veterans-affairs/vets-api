@@ -8,6 +8,11 @@ module ValidateFileSize
   end
 
   def validate_file_size(file)
-    raise CarrierWave::UploadError, 'File size larger than allowed' if file.size > self.class::MAX_FILE_SIZE
+    if file.size > self.class::MAX_FILE_SIZE
+      raise Common::Exceptions::PayloadTooLarge.new(
+        detail: 'File size larger than allowed',
+        source: 'ValidateFileSize'
+      )
+    end
   end
 end

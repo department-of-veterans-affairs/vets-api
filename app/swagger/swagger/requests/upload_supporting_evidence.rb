@@ -7,6 +7,10 @@ module Swagger
 
       swagger_path '/v0/upload_supporting_evidence' do
         operation :post do
+          extend Swagger::Responses::UnprocessableEntityError
+          extend Swagger::Responses::PayloadTooLargeError
+          extend Swagger::Responses::BadRequestError
+
           key :description, 'Upload a pdf or image file containing supporting evidence for form 526'
           key :operationId, 'uploadSupportingEvidence'
           key :tags, %w[form_526]
@@ -19,6 +23,7 @@ module Swagger
 
             schema do
               property :file_data, type: :string, example: 'filename.pdf'
+              property :password, type: :string, example: 'my_password'
             end
           end
 
@@ -26,13 +31,6 @@ module Swagger
             key :description, 'Response is ok'
             schema do
               key :'$ref', :UploadSupportingEvidence
-            end
-          end
-
-          response 400 do
-            key :description, 'Bad Gateway: incorrect parameters'
-            schema do
-              key :'$ref', :Errors
             end
           end
         end

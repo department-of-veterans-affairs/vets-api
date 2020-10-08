@@ -124,6 +124,12 @@ en:
         detail: "The resource could not be returned in the requested format"
         code: 406
         status: 406
+      payload_too_large:
+        <<: *defaults
+        title: Payload Too Large
+        detail: "The file uploaded was too large"
+        code: 418
+        status: 418
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity
@@ -575,13 +581,13 @@ en:
         title: Not Found
         code: 'HEALTH_QUEST_404'
         detail: 'The resource could not be found'
-        status: 404      
+        status: 404
       HEALTH_QUEST_502:
         <<: *external_defaults
         title: Bad Gateway
         code: 'HEALTH_QUEST_502'
         detail: 'Received an an invalid response from the upstream server'
-        status: 502  
+        status: 502
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
