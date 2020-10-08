@@ -15,7 +15,7 @@ FactoryBot.define do
             ssn: '333224444'
           },
           dateOfBirth: '1964-12-26',
-          vaFileNumber: '22334455',
+          VAFileNumber: '22334455',
           emailAddress: 'vet123@test.com',
           phoneNumber: '8888675309'
         },

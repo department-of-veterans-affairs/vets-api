@@ -35,12 +35,6 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
     end
 
     context 'with invalid params' do
-      let(:cool_params) do
-        {
-          education_career_counseling_claim: {}
-        }
-      end
-
       it 'shows the validation errors' do
         post(:create, params: { education_career_counseling_claim: { form: { not_valid: 'not valid' } } })
 
