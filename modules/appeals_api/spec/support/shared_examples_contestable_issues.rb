@@ -3,7 +3,7 @@
 RSpec.shared_examples 'contestable issues index requests' do |options|
   let(:get_issues) do
     get(
-      "/services/appeals/v1/decision_reviews/#{options[:appeal_type]}/contestable_issues/compensation",
+      "/services/appeals/v1/decision_reviews/#{options[:appeal_type]}/contestable_issues/#{options[:benefit_type]}",
       headers: {
         'X-VA-SSN' => '872958715',
         'X-VA-Receipt-Date' => '2019-12-01'

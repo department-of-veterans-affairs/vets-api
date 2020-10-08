@@ -43,7 +43,7 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   end
 
   def benefit_type
-    params[:benefit_type]
+    params[:benefit_type] || '' # Notice of Disagreements does not use benefit type
   end
 
   ##

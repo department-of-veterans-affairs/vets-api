@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com/api/v3/decision_reviews/appeals/contestable_issues/compensation
+    uri: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com/api/v3/decision_reviews/appeals/contestable_issues/
     body:
       encoding: US-ASCII
       string: ''

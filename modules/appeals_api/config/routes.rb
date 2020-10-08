@@ -21,7 +21,7 @@ AppealsApi::Engine.routes.draw do
         end
       end
       namespace :notice_of_disagreements do
-        get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
+        get 'contestable_issues', to: 'contestable_issues#index'
       end
     end
   end
