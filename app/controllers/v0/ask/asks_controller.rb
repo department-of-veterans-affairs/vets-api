@@ -15,7 +15,7 @@ module V0
 
         render json: {
           'confirmationNumber': '0000-0000-0000',
-          'dateSubmitted': Time.now.strftime('%m-%d-%Y')
+          'dateSubmitted': DateTime.now.utc.strftime('%m-%d-%Y')
         }
       end
 
