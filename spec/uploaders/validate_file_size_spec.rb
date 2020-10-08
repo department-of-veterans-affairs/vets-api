@@ -6,7 +6,7 @@ describe ValidateFileSize do
   class ValidateFileSizeTest < CarrierWave::Uploader::Base
     include ValidateFileSize
 
-    MAX_FILE_SIZE = 10
+    MAX_FILE_SIZE = 100
 
     attr_reader :file
 
@@ -22,7 +22,12 @@ describe ValidateFileSize do
   end
 
   it 'raises an error when the file is larger than MAX_FILE_SIZE megabytes' do
-    subject = ValidateFileSizeTest.new(ValidateFileSizeTest::MAX_FILE_SIZE.megabytes + 1)
+    subject = ValidateFileSizeTest.new(ValidateFileSizeTest::MAX_FILE_SIZE + 1)
     expect { subject.store!('blah') }.to raise_error(CarrierWave::UploadError, 'File size larger than allowed')
+  end
+
+  it 'does not raise an error when the file is smaller than MAX_FILE_SIZE megabytes' do
+    subject = ValidateFileSizeTest.new(ValidateFileSizeTest::MAX_FILE_SIZE - 1.megabyte)
+    expect { subject.store!('blah') }.to_not raise_error(CarrierWave::UploadError, 'File size larger than allowed')
   end
 end
