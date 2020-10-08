@@ -3,7 +3,7 @@
 module HealthQuest
   module V0
     class ApidocsController < ApplicationController
-      YAML_FILE_PATH = 'app/docs/health_quest/v0/health_quest.yaml'.freeze
+      YAML_FILE_PATH = 'app/docs/health_quest/v0/health_quest.yaml'
 
       skip_before_action(:authenticate)
 

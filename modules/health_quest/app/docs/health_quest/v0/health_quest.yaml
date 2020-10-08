@@ -13,8 +13,6 @@ info:
 tags:
   - name: appointments
     description: Appointments
-  - name: systems
-    description: Systems
 servers:
   - url: https://veteran.mobile.va.gov/smart-pgd-fhir/v1/
     description: MAP API sandbox environment
@@ -78,7 +76,7 @@ paths:
           description: the id for the appointment
       responses:
         '200':
-          description: Systems retrieved successfully
+          description: Appointment with given ID retrieved successfully
           content:
             application/json:
               schema:
