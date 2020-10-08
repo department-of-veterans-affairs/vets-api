@@ -28,6 +28,6 @@ describe ValidateFileSize do
 
   it 'does not raise an error when the file is smaller than MAX_FILE_SIZE megabytes' do
     subject = ValidateFileSizeTest.new(ValidateFileSizeTest::MAX_FILE_SIZE - 1.megabyte)
-    expect { subject.store!('blah') }.to_not raise_error(CarrierWave::UploadError, 'File size larger than allowed')
+    expect { subject.store!('blah') }.not_to raise_error(CarrierWave::UploadError, 'File size larger than allowed')
   end
 end
