@@ -13,7 +13,7 @@ RSpec.describe 'email', type: :request do
     let(:user) { FactoryBot.build(:iam_user) }
     let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
-    context 'with a valid address' do
+    context 'with a valid email' do
       before do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
           put '/mobile/v0/user/emails',
@@ -36,7 +36,7 @@ RSpec.describe 'email', type: :request do
       end
     end
 
-    context 'with missing address params' do
+    context 'with email missing from params' do
       before do
         put('/mobile/v0/user/emails', params: { email_address: '' }.to_json, headers: iam_headers(json_body_headers))
       end
