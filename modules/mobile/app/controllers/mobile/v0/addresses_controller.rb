@@ -4,7 +4,7 @@ require_dependency 'mobile/application_controller'
 
 module Mobile
   module V0
-    class AddressController < ApplicationController
+    class AddressesController < ApplicationController
       include Vet360::Writeable
 
       before_action { authorize :vet360, :access? }
