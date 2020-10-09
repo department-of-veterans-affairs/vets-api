@@ -451,6 +451,37 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
+      it 'returns 413 if the attachment is too large' do
+        HCAAttachmentUploader.should_receive(:max_file_size).and_return 1.byte
+        expect(subject).to validate(
+          :post,
+          '/v0/hca_attachments',
+          200,
+          '_data' => {
+            'hca_attachment' => {
+              file_data: Rack::Test::UploadedFile.new(
+                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
+              )
+            }
+          }
+        )
+      end
+
+      it 'returns 422 if the attachment malformed' do
+        expect(subject).to validate(
+          :post,
+          '/v0/hca_attachments',
+          200,
+          '_data' => {
+            'hca_attachment' => {
+              file_data: Rack::Test::UploadedFile.new(
+                Rails.root.join('spec', 'fixtures', 'files', 'malformed-pdf.pdf'), 'application/pdf'
+              )
+            }
+          }
+        )
+      end
+
       it 'supports getting a health care application state' do
         expect(subject).to validate(
           :get,
