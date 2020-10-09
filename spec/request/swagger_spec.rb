@@ -2720,7 +2720,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     it "supports returning the vet's payment_history" do
       expect(subject).to validate(:get, '/v0/profile/payment_history', 401)
-      VCR.use_cassette('bgs/payment_history/find_by_ssn') do
+      VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
         expect(subject).to validate(:get, '/v0/profile/payment_history', 200, headers)
       end
     end
