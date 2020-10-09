@@ -8,7 +8,7 @@ module ValidateFileSize
   end
 
   def validate_file_size(file)
-    if file.size > self.class::MAX_FILE_SIZE
+    if file.size > self.class.max_file_size
       raise Common::Exceptions::PayloadTooLarge.new(
         detail: 'File size larger than allowed',
         source: 'ValidateFileSize'

@@ -23,7 +23,6 @@ module Swagger
 
             schema do
               property :file_data, type: :string, example: 'filename.pdf'
-              property :password, type: :string, example: 'my_password'
             end
           end
 

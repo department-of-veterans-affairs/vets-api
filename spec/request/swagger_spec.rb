@@ -778,7 +778,39 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          400,
+          ''
+        )
+      end
+
+      it 'returns a 413 if a file is too large' do
+        SupportingEvidenceAttachmentUploader.should_receive(:max_file_size).and_return 1.byte
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          413,
+          '_data' => {
+            'supporting_evidence_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/va.gif')
+            }
+          }
+        )
+      end
+
+      it 'returns a 422 if a file is corrupted or invalid' do
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          422,
+          '_data' => {
+            'supporting_evidence_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+            }
+          }
+        )
       end
     end
 

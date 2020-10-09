@@ -128,8 +128,8 @@ en:
         <<: *defaults
         title: Payload Too Large
         detail: "The file uploaded was too large"
-        code: 418
-        status: 418
+        code: 413
+        status: 413
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity

@@ -7,7 +7,9 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   include AsyncProcessing
   include LogMetrics
 
-  MAX_FILE_SIZE = 10.megabytes
+  def self.max_file_size
+    10.megabytes
+  end
 
   def initialize(guid)
     super

@@ -6,7 +6,9 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 
-  MAX_FILE_SIZE = 25.megabytes
+  def self.max_file_size
+    25.megabytes
+  end
 
   process(convert: 'pdf', if: :not_pdf?)
 

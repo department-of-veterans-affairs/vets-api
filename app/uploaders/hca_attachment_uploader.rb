@@ -6,7 +6,9 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 
-  MAX_FILE_SIZE = 10.megabytes
+  def self.max_file_size
+    10.megabytes
+  end
 
   process(convert: 'jpg', if: :png?)
 

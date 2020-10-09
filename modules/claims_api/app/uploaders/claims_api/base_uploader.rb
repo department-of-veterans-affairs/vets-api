@@ -6,7 +6,9 @@ module ClaimsApi
     include ValidateFileSize
     include ValidatePdf
 
-    MAX_FILE_SIZE = 25.megabytes
+    def self.max_file_size
+      25.megabytes
+    end
 
     def initialize(guid)
       super

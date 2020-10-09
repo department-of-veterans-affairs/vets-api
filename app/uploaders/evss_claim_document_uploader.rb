@@ -6,7 +6,9 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
 
-  MAX_FILE_SIZE = 50.megabytes
+  def self.max_file_size
+    50.megabytes
+  end
 
   version :converted, if: :tiff? do
     process(convert: :jpg)
