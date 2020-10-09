@@ -54,7 +54,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     store_dir
   end
 
-  def extension_white_list
+  def extension_whitelist
     %w[pdf gif tiff tif jpeg jpg bmp txt]
   end
 
