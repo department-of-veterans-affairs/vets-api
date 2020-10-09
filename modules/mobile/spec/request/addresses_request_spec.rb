@@ -7,7 +7,7 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'address', type: :request do
   include JsonSchemaMatchers
 
-  describe 'PUT /mobile/v0/addresses' do
+  describe 'PUT /mobile/v0/user/addresses' do
     before { iam_sign_in(user) }
 
     let(:user) { FactoryBot.build(:iam_user) }
@@ -17,7 +17,7 @@ RSpec.describe 'address', type: :request do
     context 'with a valid address' do
       before do
         VCR.use_cassette('vet360/contact_information/put_address_success') do
-          put '/mobile/v0/user/address', params: address.to_json, headers: iam_headers(json_body_headers)
+          put '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
         end
       end
 
@@ -39,7 +39,7 @@ RSpec.describe 'address', type: :request do
       before do
         address.address_line1 = ''
 
-        put('/mobile/v0/user/address', params: address.to_json, headers: iam_headers(json_body_headers))
+        put('/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers))
       end
 
       it 'returns a 422' do
