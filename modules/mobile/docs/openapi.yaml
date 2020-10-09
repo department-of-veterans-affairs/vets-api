@@ -281,7 +281,7 @@ paths:
             description: Allows the API to return camelCase keys rather than snake_case.
             example: 'camel'
       requestBody:
-        description: A domestic, internation, or military address
+        description: The new email address
         required: true
         content:
           application/json:
