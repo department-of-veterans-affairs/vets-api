@@ -2,17 +2,17 @@
 
 require 'rails_helper'
 
-RSpec.describe SupportingEvidenceAttachmentUploader do
+RSpec.describe SupportingDocumentationAttachmentUploader do
   subject { described_class.new(guid) }
 
   let(:guid) { '1234' }
 
-  it 'whitelists image, pdf, and text files' do
-    expect(subject.extension_whitelist).to match_array %w[pdf png gif tiff tif jpeg jpg bmp txt]
+  it 'whitelists image and pdf files' do
+    expect(subject.extension_whitelist).to match_array %w[pdf png gif tiff tif jpeg jpg]
   end
 
   it 'returns a store directory containing guid' do
-    expect(subject.store_dir).to eq "disability_compensation_supporting_form/#{guid}"
+    expect(subject.store_dir).to eq "supporting_documentation_attachments/#{guid}"
   end
 
   it 'throws an error if no guid is given' do
