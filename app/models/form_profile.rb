@@ -97,6 +97,7 @@ class FormProfile
     evss: ['21-526EZ'],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
+    ask: ['0873'],
     dependents: ['686C-674'],
     decision_review: ['20-0996'],
     mdot: ['MDOT'],
@@ -105,6 +106,7 @@ class FormProfile
   }.freeze
 
   FORM_ID_TO_CLASS = {
+    '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,

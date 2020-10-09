@@ -1065,6 +1065,12 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
+    context 'with a ask a question form' do
+      it 'returns the va profile mapped to the ask a question form' do
+        expect_prefilled('0873')
+      end
+    end
+
     context 'with a higher level review form' do
       let(:schema_name) { '20-0996' }
       let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
