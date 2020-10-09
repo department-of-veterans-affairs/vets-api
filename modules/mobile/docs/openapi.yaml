@@ -81,7 +81,7 @@ paths:
     get:
       summary: /v0/user
       description: >
-        \[Partially implemented\] Returns the user profile, including the user's addresses and the services
+        Returns the user profile, including the user's addresses and the services
         the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
       operationId: user.getProfile
       security:
@@ -157,10 +157,10 @@ paths:
               schema:
                 $ref: "#/components/schemas/Errors"
 
-  /v0/user/address:
+  /v0/user/addresses:
     put:
-      summary: /v0/user/address
-      description: \[Not implemented\] Returns the user profile
+      summary: /v0/user/addresses
+      description: Updates a user's residential or mailing address
       operationId: user.updateAddress
       security:
         - Bearer: []
@@ -189,6 +189,107 @@ paths:
               countryName: "United States"
               stateCode: "MS"
               zipCode: "38843"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "asyncTransactionVet360AddressTransactions"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          transactionId:
+                            type: string
+                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                          transactionStatus:
+                            type: string
+                            example: "RECEIVED"
+                          type:
+                            type: string
+                            example: "AsyncTransaction::Vet360::AddressTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/emails:
+    put:
+      summary: /v0/user/emails
+      description: Updates a user's email address
+      operationId: user.updateEmailAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: A domestic, internation, or military address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailUpdate'
+            example:
+              id: 42,
+              emailAddress: "person42@example.com"
       responses:
         '200':
           description: OK
@@ -639,4 +740,14 @@ components:
           type: string, null
           example: "1234"
 
-
+    EmailUpdate:
+      required:
+        - id
+        - emailAddress
+      properties:
+        id:
+          type: integer
+          example: 42
+        emailAddress:
+          type: string
+          example: "person42@example.com"
