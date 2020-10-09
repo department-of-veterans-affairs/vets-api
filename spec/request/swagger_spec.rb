@@ -358,14 +358,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      xit 'returns a 422 if a file is corrupted or invalid' do
+      it 'returns 422 if the attachment is not an allowed type' do
         expect(subject).to validate(
           :post,
           '/v0/preneeds/preneed_attachments',
           422,
           '_data' => {
             'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+              'file_data' => fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
             }
           }
         )
@@ -494,9 +494,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           200,
           '_data' => {
             'hca_attachment' => {
-              file_data: Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
-              )
+              file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
             }
           }
         )
@@ -507,27 +505,23 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(
           :post,
           '/v0/hca_attachments',
-          200,
+          413,
           '_data' => {
             'hca_attachment' => {
-              file_data: Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
-              )
+              file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
             }
           }
         )
       end
 
-      it 'returns 422 if the attachment malformed' do
+      it 'returns 422 if the attachment is not an allowed type' do
         expect(subject).to validate(
           :post,
           '/v0/hca_attachments',
-          200,
+          422,
           '_data' => {
             'hca_attachment' => {
-              file_data: Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'files', 'malformed-pdf.pdf'), 'application/pdf'
-              )
+              file_data: fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
             }
           }
         )

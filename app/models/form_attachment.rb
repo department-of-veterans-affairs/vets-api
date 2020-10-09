@@ -13,6 +13,9 @@ class FormAttachment < ApplicationRecord
     attachment_uploader = get_attachment_uploader
     attachment_uploader.store!(file)
     self.file_data = { filename: attachment_uploader.filename }.to_json
+  rescue CarrierWave::IntegrityError => e
+    raise Common::Exceptions::UnprocessableEntity.new(detail: e.message,
+                                                      source: 'FormAttachment')
   end
 
   def parsed_file_data

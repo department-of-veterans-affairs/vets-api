@@ -158,7 +158,7 @@ module Swagger
         operation :post do
           extend Swagger::Responses::BadRequestError
           extend Swagger::Responses::PayloadTooLargeError
-          # extend Swagger::Responses::UnprocessableEntityError
+          extend Swagger::Responses::UnprocessableEntityError
 
           key :description, 'Upload a pdf or image file'
           key :operationId, 'addPreneedsAttachments'
