@@ -35,5 +35,6 @@
   },
   "preferredContactMethod": "mail",
   "privacyAgreementAccepted": true,
-  "scoEmailSent": true
+  "scoEmailSent": true,
+  "receiveTexts": true
 }

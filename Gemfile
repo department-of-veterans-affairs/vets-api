@@ -138,7 +138,6 @@ group :test do
   gem 'rspec-retry'
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
-  gem 'shrine-memory'
   # < 0.18 required due to bug with reporting to CodeClimate
   # https://github.com/codeclimate/test-reporter/issues/418
   gem 'simplecov', '< 0.18', require: false
