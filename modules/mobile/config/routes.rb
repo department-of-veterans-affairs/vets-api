@@ -5,5 +5,7 @@ Mobile::Engine.routes.draw do
 
   namespace :v0 do
     get '/user', to: 'users#show'
+    put '/user/addresses', to: 'addresses#update'
+    put '/user/emails', to: 'emails#update'
   end
 end
