@@ -97,7 +97,6 @@ class FormProfile
     evss: ['21-526EZ'],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
-    ask: ['0873'],
     dependents: ['686C-674'],
     decision_review: ['20-0996'],
     mdot: ['MDOT'],

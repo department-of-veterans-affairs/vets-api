@@ -68,6 +68,12 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v0873_expected) do
+    {
+      'fullName' => 'Jane Doe'
+    }
+  end
+
   let(:v686_c_674_expected) do
     {
       'veteranContactInformation' => {
@@ -718,6 +724,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+
   describe '#pciu_us_phone' do
     def self.test_pciu_us_phone(primary, expected)
       it "returns #{expected}" do
@@ -1003,6 +1010,7 @@ RSpec.describe FormProfile, type: :model do
           FEEDBACK-TOOL
           686C-674
           28-8832
+          0873
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
@@ -1065,9 +1073,11 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'with a ask a question form' do
-      it 'returns the va profile mapped to the ask a question form' do
-        expect_prefilled('0873')
+    context 'with the ask a question form' do
+      context 'for full name of the veteran' do
+        it 'returns the va profile mapped to contact infromation' do
+          expect_prefilled('0873')
+        end
       end
     end
 
