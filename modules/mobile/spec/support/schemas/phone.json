@@ -5,7 +5,12 @@
     "id",
     "areaCode",
     "countryCode",
-    "extension"
+    "extension",
+    "isInternational",
+    "isTextable",
+    "isTextPermitted",
+    "phoneNumber",
+    "phoneType"
   ],
   "properties": {
     "id": {
@@ -19,6 +24,22 @@
     },
     "extension": {
       "type": ["string", "null"]
+    },
+    "isInternational": {
+      "type": "boolean"
+    },
+    "isTextable": {
+      "type": "boolean"
+    },
+    "isTextPermitted": {
+      "type": "boolean"
+    },
+    "phoneNumber": {
+      "type": "string"
+    },
+    "phoneType": {
+      "type": "string",
+      "enum": ["HOME", "MOBILE", "WORK"]
     }
   }
 }

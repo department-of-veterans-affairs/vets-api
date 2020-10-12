@@ -27,7 +27,11 @@ module Mobile
         area_code
         country_code
         extension
-        isInternational
+        is_international
+        is_textable
+        is_text_permitted
+        phone_number
+        phone_type
       ].freeze
 
       SERVICE_DICTIONARY = {
