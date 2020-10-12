@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 require_relative '../support/iam_session_helper'
-require_relative '../matchers/mobile_schema_matchers'
+require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'military_information', type: :request do
-  include MobileSchemaMatchers
+  include JsonSchemaMatchers
   describe 'GET /mobile/v0/military-service-history' do
     context 'with a user who has a cached iam session' do
       before { iam_sign_in }
@@ -65,7 +65,7 @@ RSpec.describe 'military_information', type: :request do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_multi)
-            expect(response).to match_response_schema('mobile_service_history_response')
+            expect(response.body).to match_json_schema('mobile_service_history_response')
           end
         end
       end
@@ -76,7 +76,7 @@ RSpec.describe 'military_information', type: :request do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_single)
-            expect(response).to match_response_schema('mobile_service_history_response')
+            expect(response.body).to match_json_schema('mobile_service_history_response')
           end
         end
       end
