@@ -20,4 +20,31 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       end
     end
   end
+
+  describe '#get /services/apps/v0/directory/scopes/:category' do
+    it 'returns a populated list of health scopes' do
+      VCR.use_cassette('okta/health-scopes') do
+        get '/services/apps/v0/directory/scopes/Health'
+        body = JSON.parse(response.body)
+        expect(response).to have_http_status(:success)
+        expect(body).not_to be_empty
+      end
+    end
+    it 'returns a populated list of benefits scopes' do
+      VCR.use_cassette('okta/benefits-scopes') do
+        get '/services/apps/v0/directory/scopes/Benefits'
+        body = JSON.parse(response.body)
+        expect(response).to have_http_status(:success)
+        expect(body).not_to be_empty
+      end
+    end
+    it 'returns a populated list of verification scopes' do
+      VCR.use_cassette('okta/verification-scopes') do
+        get '/services/apps/v0/directory/scopes/Verification'
+        body = JSON.parse(response.body)
+        expect(response).to have_http_status(:success)
+        expect(body).not_to be_empty
+      end
+    end
+  end
 end

@@ -16,8 +16,8 @@ module AppsApi
       end
 
       def scopes
-        service = Okta::DirectoryService.new
-        parsed_scopes = service.scopes(params[:category])
+        directory_service = Okta::DirectoryService.new
+        parsed_scopes = directory_service.scopes(params[:category])
         render json: {
           data: parsed_scopes
         }
