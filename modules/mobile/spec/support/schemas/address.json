@@ -19,10 +19,10 @@
       "type": "string"
     },
     "addressLine2": {
-      "type": "null"
+      "type": ["string", "null"]
     },
     "addressLine3": {
-      "type": "null"
+      "type": ["string", "null"]
     },
     "addressPou": {
       "type": "string"
@@ -34,10 +34,10 @@
       "type": "string"
     },
     "internationalPostalCode": {
-      "type": "null"
+      "type": ["string", "null"]
     },
     "province": {
-      "type": "null"
+      "type": ["string", "null"]
     },
     "stateCode": {
       "type": "string"
@@ -46,7 +46,7 @@
       "type": "string"
     },
     "zipCodeSuffix": {
-      "type": "null"
+      "type": ["string", "null"]
     }
   }
 }

@@ -74,7 +74,7 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'includes a home phone number' do
-        expect(attributes['profile']).to include(
+        expect(attributes['profile']['homePhone']).to include(
           {
             'id' => 789,
             'areaCode' => '303',
