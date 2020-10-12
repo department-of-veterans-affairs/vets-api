@@ -5,6 +5,10 @@ require 'rails_helper'
 describe VeteranVerification::DisabilityRating do
   let(:user) { build(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3, ssn: '796126777')) }
 
+  before do
+    Settings.vet_verification.mock_bgs = false
+  end
+
   describe '#formatted_ratings' do
     it 'returns combined rating and list of individual_ratings' do
       VCR.use_cassette('bgs/rating_web_service/rating_data') do

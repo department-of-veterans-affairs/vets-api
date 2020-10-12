@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'facilities/ppms/v0/client'
+require 'lighthouse/facilities/client'
+
 class PPMS::ProviderFacility < Common::Base
   attribute :facilities, Array
   attribute :id, String
@@ -27,7 +30,7 @@ class PPMS::ProviderFacility < Common::Base
   private
 
   def ppms_api_results
-    Facilities::PPMS::Client.new.pos_locator(ppms_params.with_indifferent_access).collect do |result|
+    Facilities::PPMS::V0::Client.new.pos_locator(ppms_params.with_indifferent_access).collect do |result|
       PPMS::Provider.new(
         result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym }
       )

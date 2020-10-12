@@ -13,12 +13,18 @@
           "type": "string"
         },
         "personEntitled": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "deductionCode": {
           "type": "string"
         },
         "benefitType": {
+          "type": "string"
+        },
+        "diaryCode": {
+          "type": "string"
+        },
+        "diaryCodeDescription": {
           "type": "string"
         },
         "amountOverpaid": {
