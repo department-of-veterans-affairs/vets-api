@@ -10,11 +10,11 @@ module Mobile
       before_action { authorize :evss, :access? }
 
       def letters
-        response = EVSS::Letters::Service.new(@current_user).get_letters
+        service_response = EVSS::Letters::Service.new(@current_user).get_letters
         response_template = OpenStruct.new
         response_template.id = @current_user.uuid
-        response_template.letters = response.letters
-        response_template.full_name = response.full_name
+        response_template.letters = service_response.letters
+        response_template.full_name = service_response.full_name
         render json: Mobile::V0::LettersSerializer.new(response_template)
       end
     end
