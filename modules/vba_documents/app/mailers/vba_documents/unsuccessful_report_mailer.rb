@@ -3,17 +3,16 @@
 module VBADocuments
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
-      andrew.fichter@va.gov
       michael.bastos@oddball.io
-      charley.stran@oddball.io
       ryan.link@oddball.io
-      kelly@adhocteam.us
-      emily@oddball.io
+      christopher.stone@libertyits.com
       valerie.hase@va.gov
       mark.greenburg@adhocteam.us
       premal.shah@va.gov
-      dan.hinze@adhocteam.us
-      emily.goodrich@oddball.io
+      lydia.vian@thunderyard.com
+      joshua.jennings@libertyits.com
+      cristopher.shupp@libertyits.com
+      gregory.bowman@libertyits.com
     ].freeze
 
     def build(consumer_totals, stuck_submissions, unsuccessful_submissions, date_from, date_to)
