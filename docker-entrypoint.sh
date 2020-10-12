@@ -5,3 +5,4 @@
 bundle check || bundle install --binstubs="${BUNDLE_APP_CONFIG}/bin"
 
 exec "$@"
+#rails server --binding=0.0.0.0

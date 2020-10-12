@@ -7,10 +7,10 @@
 ###
 FROM ruby:2.6.6-slim-stretch AS base
 
-ARG userid=993
+ENV userid=993
 SHELL ["/bin/bash", "-c"]
-RUN groupadd -g $userid -r vets-api && \
-    useradd -u $userid -r -m -d /srv/vets-api -g vets-api vets-api
+RUN groupadd -g ${userid} -r vets-api && \
+    useradd -u ${userid} -r -m -d /srv/vets-api -g vets-api vets-api
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     dumb-init clamav clamdscan clamav-daemon imagemagick pdftk curl poppler-utils libpq5 vim
 # The pki work below is for parity with the non-docker BRD deploys to mount certs into
@@ -48,7 +48,7 @@ RUN curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloa
 COPY --chown=vets-api:vets-api config/freshclam.conf docker-entrypoint.sh ./
 USER vets-api
 # XXX: this is tacky
-RUN freshclam --config-file freshclam.conf
+#RUN freshclam --config-file freshclam.conf
 ENTRYPOINT ["/usr/bin/dumb-init", "--", "./docker-entrypoint.sh"]
 
 ###
