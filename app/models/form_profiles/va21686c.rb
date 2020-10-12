@@ -107,16 +107,16 @@ class FormProfiles::VA21686c < FormProfile
     }
   end
 
-  def prefill(user)
+  def prefill
     return {} unless user.authorize :evss, :access?
 
-    @veteran_information = initialize_veteran_information(user)
-    super(user)
+    @veteran_information = initialize_veteran_information
+    super
   end
 
   private
 
-  def initialize_veteran_information(user)
+  def initialize_veteran_information
     res = EVSS::Dependents::RetrievedInfo.for_user(user)
     veteran = res.body['submitProcess']['veteran']
     spouse = veteran['spouse']

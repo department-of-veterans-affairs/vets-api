@@ -33,13 +33,12 @@ module V0
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}", VERSION_TAG])
       Rails.logger.info("SSO_NEW_KEY, tags: #{["context:#{type}", VERSION_TAG]}")
-      helper = url_service
-      url = helper.send("#{type}_url")
+      url = url_service.send("#{type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
       else
-        saml_request_stats(helper.tracker)
+        saml_request_stats
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
       # extensions with their browser.
@@ -112,15 +111,14 @@ module V0
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
-        helper = url_service(user_session_form.saml_uuid)
-        redirect_to helper.login_redirect_url
-        if location.start_with?(helper.base_redirect_url)
+        redirect_to url_service.login_redirect_url
+        if location.start_with?(url_service.base_redirect_url)
           # only record login stats if the user is being redirect to the site
           # some users will need to be up-leveled and this will be redirected
           # back to the identity provider
           login_stats(:success, saml_response, user_session_form)
         else
-          saml_request_stats(helper.tracker)
+          saml_request_stats
           callback_stats(:success, saml_response)
         end
       else
@@ -144,7 +142,8 @@ module V0
       end
     end
 
-    def saml_request_stats(tracker)
+    def saml_request_stats
+      tracker = url_service.tracker
       values = {
         'id' => tracker&.uuid,
         'authn' => tracker&.payload_attr(:authn_context),
@@ -171,23 +170,22 @@ module V0
                               VERSION_TAG])
     end
 
-    def login_stats_success(saml_response, tracker)
-      type = tracker.payload_attr(:type)
+    def login_stats_success(saml_response)
+      type = url_service.tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
       StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
       Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
-      StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
+      StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       callback_stats(:success, saml_response)
     end
 
     def login_stats(status, saml_response, user_session_form)
-      tracker = url_service(user_session_form&.saml_uuid).tracker
       case status
       when :success
-        login_stats_success(saml_response, tracker)
+        login_stats_success(saml_response)
       when :failure
-        tags = ["context:#{tracker.payload_attr(:type)}", VERSION_TAG]
+        tags = ["context:#{url_service.tracker.payload_attr(:type)}", VERSION_TAG]
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags)
         Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags}")
         callback_stats(:failure, saml_response, user_session_form.error_instrumentation_code)
@@ -245,12 +243,11 @@ module V0
       'UNKNOWN'
     end
 
-    def url_service(previous_saml_uuid = nil)
-      SAML::URLService.new(saml_settings,
-                           session: @session_object,
-                           user: current_user,
-                           params: params,
-                           previous_saml_uuid: previous_saml_uuid)
+    def url_service
+      @url_service ||= SAML::URLService.new(saml_settings,
+                                            session: @session_object,
+                                            user: current_user,
+                                            params: params)
     end
   end
 end

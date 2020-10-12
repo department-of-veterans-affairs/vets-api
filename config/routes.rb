@@ -30,8 +30,6 @@ Rails.application.routes.draw do
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
 
-    resource :form526_opt_in, only: :create
-
     resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
@@ -299,6 +297,8 @@ Rails.application.routes.draw do
   end
 
   namespace :v1, defaults: { format: 'json' } do
+    resources :apidocs, only: [:index]
+
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'

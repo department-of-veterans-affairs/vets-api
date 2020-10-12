@@ -145,23 +145,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     it 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mvi/find_candidate/valid' do
         VCR.use_cassette 'emis/get_veteran_status/valid' do
-          VCR.use_cassette 'mvi/find_candidate/valid_icn_ni_only' do
-            VCR.use_cassette 'mvi/find_candidate/valid_no_gender' do
-              VCR.use_cassette 'carma/auth/token/200' do
-                VCR.use_cassette 'carma/submissions/create/201' do
-                  VCR.use_cassette 'carma/attachments/upload/201' do
-                    expect(subject).to validate(
-                      :post,
-                      '/v0/caregivers_assistance_claims',
-                      200,
-                      '_data' => {
-                        'caregivers_assistance_claim' => {
-                          'form' => build(:caregivers_assistance_claim).form
-                        }
-                      }
-                    )
-                  end
-                end
+          VCR.use_cassette 'carma/auth/token/200' do
+            VCR.use_cassette 'carma/submissions/create/201' do
+              VCR.use_cassette 'carma/attachments/upload/201' do
+                expect(subject).to validate(
+                  :post,
+                  '/v0/caregivers_assistance_claims',
+                  200,
+                  '_data' => {
+                    'caregivers_assistance_claim' => {
+                      'form' => build(:caregivers_assistance_claim).form
+                    }
+                  }
+                )
               end
             end
           end
@@ -1577,9 +1573,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting a provider by id' do
-          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
+          expect_any_instance_of(Facilities::PPMS::V0::Client).to receive(:provider_info)
             .with('1407842941').and_return(provider)
-          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
+          expect_any_instance_of(Facilities::PPMS::V0::Client).to receive(:provider_services)
             .with('1407842941').and_return([provider_services_response])
           expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_1407842941')
         end
@@ -1658,12 +1654,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       context 'POST' do
-        [200, 422].each do |status|
-          it "documents higher_level_reviews #{status}" do
-            VCR.use_cassette("decision_review/HLR-CREATE-RESPONSE-#{status}") do
-              expect(subject).to validate(:post, '/v0/higher_level_reviews',
-                                          status, headers)
-            end
+        it 'documents higher_level_reviews 200' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
+            # HigherLevelReviewsController is a pass-through, and uses request.body directly (not params[]).
+            # The validate helper does not create a parsable request.body string that works with the controller.
+            allow_any_instance_of(V0::HigherLevelReviewsController).to receive(:request_body_hash).and_return(
+              VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY')
+            )
+            expect(subject).to validate(:post, '/v0/higher_level_reviews', 200, headers)
+          end
+        end
+
+        it 'documents higher_level_reviews 422' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
+            expect(subject).to validate(
+              :post,
+              '/v0/higher_level_reviews',
+              422,
+              headers.merge('_data' => { '_json' => '' })
+            )
           end
         end
       end
@@ -2711,7 +2720,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     it "supports returning the vet's payment_history" do
       expect(subject).to validate(:get, '/v0/profile/payment_history', 401)
-      VCR.use_cassette('bgs/payment_history/find_by_ssn') do
+      VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
         expect(subject).to validate(:get, '/v0/profile/payment_history', 200, headers)
       end
     end

@@ -3,9 +3,11 @@
 module Form1010cg
   class Auditor
     include Singleton
+    include SentryLogging
 
     STATSD_KEY_PREFIX = 'api.form1010cg'
     LOGGER_PREFIX     = 'Form 10-10CG'
+    INVALID_VET_STATUS_CODE = '100_INVALID_VETERAN_STATUS'
 
     def self.metrics
       submission_prefix = STATSD_KEY_PREFIX + '.submission'
@@ -49,21 +51,73 @@ module Form1010cg
       log 'Submission Failed: invalid data provided by client', claim_guid: claim_guid, errors: errors
     end
 
-    def record_submission_failure_client_qualification(claim_guid:, veteran_name:)
+    def record_submission_failure_client_qualification(claim_guid:, veteran_name:, ga_client_id:)
       increment self.class.metrics.submission.failure.client.qualification
       log 'Submission Failed: qualifications not met', claim_guid: claim_guid, veteran_name: veteran_name
+
+      notify_ga_invalid_veteran_status(ga_client_id) if ga_client_id.present?
     end
 
     def record_pdf_download
       increment self.class.metrics.pdf_download
     end
 
-    def log_mpi_search_result(claim_guid:, form_subject:, was_found:)
-      result = was_found ? 'found' : 'NOT FOUND'
-      log "MPI Profile #{result} for #{form_subject.titleize}", claim_guid: claim_guid
+    def log_mpi_search_result(claim_guid:, form_subject:, result:)
+      result_label = case result
+                     when :found
+                       'found'
+                     when :not_found
+                       'NOT FOUND'
+                     when :skipped
+                       'search was skipped'
+                     end
+
+      log "MPI Profile #{result_label} for #{form_subject.titleize}", claim_guid: claim_guid
     end
 
     private
+
+    def get_subdomain
+      case Settings.vsp_environment
+      when 'production'
+        'www'
+      when 'staging'
+        'staging'
+      else
+        'dev'
+      end
+    end
+
+    def create_ga_event(ga_client_id)
+      event = Staccato.tracker(
+        Settings.google_analytics.tracking_id,
+        ga_client_id
+      ).build_event(
+        category: 'API Calls',
+        action: 'Forms - Family Member Benefits',
+        label: 'caregivers-error',
+        document_location: "https://#{get_subdomain}.va.gov/" \
+          'family-member-benefits/apply-for-caregiver-assistance-form-10-10cg/review-and-submit'
+      )
+      event.custom_metrics['cg1'] = 'Family Member Benefits'
+      event.custom_metrics['cg3'] = 'Family Member Benefits'
+      event.add_custom_dimension('30', 'Modernized')
+      event.add_custom_dimension('57', INVALID_VET_STATUS_CODE)
+
+      event
+    end
+
+    def notify_ga_invalid_veteran_status(ga_client_id)
+      event = create_ga_event(ga_client_id)
+
+      begin
+        event.track!
+        true
+      rescue => e
+        log_exception_to_sentry(e)
+        false
+      end
+    end
 
     def increment(stat)
       StatsD.increment stat

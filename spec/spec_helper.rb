@@ -5,7 +5,6 @@ require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
 require 'support/fixture_helpers'
-require 'support/spec_temp_files'
 require 'support/silence_stream'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/sidekiq/batch'
@@ -56,6 +55,7 @@ unless ENV['NOCOVERAGE']
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'VAOS', 'modules/vaos/'
     add_group 'HealthQuest', 'modules/health_quest/'
+    add_group 'Mobile', 'modules/mobile/'
 
     SimpleCov.minimum_coverage_by_file 90 unless ENV['CIRCLE_JOB']
     SimpleCov.refuse_coverage_drop unless ENV['CIRCLE_JOB']

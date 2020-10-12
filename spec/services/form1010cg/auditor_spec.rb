@@ -6,6 +6,9 @@ RSpec.describe Form1010cg::Auditor do
   let(:subject) do
     described_class.instance
   end
+  let(:record_submission_failure_client_qualification_args) do
+    { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' }, ga_client_id: 'google_client_id' }
+  end
 
   before(:all) do
     # StatsD is configured to use Rails.logger in order to output the stats that are being incremented in our app.
@@ -133,30 +136,75 @@ RSpec.describe Form1010cg::Auditor do
 
   describe '#record_submission_failure_client_qualification' do
     context 'requires' do
-      it 'claim_guid:, veteran_name:' do
+      it 'claim_guid:, veteran_name:, ga_client_id:' do
         expect { subject.record_submission_failure_client_qualification }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq('missing keywords: claim_guid, veteran_name')
+          expect(e.message).to eq('missing keywords: claim_guid, veteran_name, ga_client_id')
         end
       end
     end
 
-    context 'increments' do
-      it 'api.form1010cg.submission.failure.client.data' do
-        expected_context = { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' } }
+    context 'with nil ga_client_id' do
+      def call_record_submission_failure_client_qualification
+        subject.record_submission_failure_client_qualification(
+          **record_submission_failure_client_qualification_args.merge(ga_client_id: nil)
+        )
+      end
 
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
-        subject.record_submission_failure_client_qualification(**expected_context)
+      it 'doesnt send a ga event' do
+        expect(subject).not_to receive(:notify_ga_invalid_veteran_status)
+
+        call_record_submission_failure_client_qualification
+      end
+
+      context 'increments' do
+        it 'api.form1010cg.submission.failure.client.data' do
+          expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
+          call_record_submission_failure_client_qualification
+        end
+      end
+
+      context 'logs' do
+        it '[Form 10-10CG] Submission Failed: qualifications not met' do
+          expected_message = '[Form 10-10CG] Submission Failed: qualifications not met'
+
+          expect(Rails.logger).to receive(:info).with(
+            expected_message,
+            **record_submission_failure_client_qualification_args.except(:ga_client_id)
+          )
+
+          call_record_submission_failure_client_qualification
+        end
       end
     end
 
-    context 'logs' do
-      it '[Form 10-10CG] Submission Failed: qualifications not met' do
-        expected_message = '[Form 10-10CG] Submission Failed: qualifications not met'
-        expected_context = { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' } }
+    context 'with all parameters' do
+      before do
+        expect(Settings.google_analytics).to receive(:tracking_id).and_return('foo')
+        expect(Settings).to receive(:vsp_environment).and_return('staging')
+      end
 
-        expect(Rails.logger).to receive(:info).with(expected_message, **expected_context)
+      def call_record_submission_failure_client_qualification
+        subject.record_submission_failure_client_qualification(
+          **record_submission_failure_client_qualification_args
+        )
+      end
 
-        subject.record_submission_failure_client_qualification(**expected_context)
+      context 'when there is an error sending the ga event' do
+        it 'logs an exception and returns false' do
+          expect(subject).to receive(:log_exception_to_sentry)
+
+          expect(
+            call_record_submission_failure_client_qualification
+          ).to eq(false)
+        end
+      end
+
+      it 'sends the right event to google analytics' do
+        VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
+          expect(
+            call_record_submission_failure_client_qualification
+          ).to eq(true)
+        end
       end
     end
   end
@@ -179,9 +227,9 @@ RSpec.describe Form1010cg::Auditor do
 
   describe '#log_mpi_search_result' do
     context 'requires' do
-      it 'claim_guid:, form_subject:, was_found:' do
+      it 'claim_guid:, form_subject:, result:' do
         expect { subject.log_mpi_search_result }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq('missing keywords: claim_guid, form_subject, was_found')
+          expect(e.message).to eq('missing keywords: claim_guid, form_subject, result')
         end
       end
     end
@@ -189,7 +237,7 @@ RSpec.describe Form1010cg::Auditor do
     context 'increments' do
       it 'nothing' do
         expect(StatsD).not_to receive(:increment)
-        subject.log_mpi_search_result(claim_guid: 'uuid-123', form_subject: 'veteran', was_found: true)
+        subject.log_mpi_search_result(claim_guid: 'uuid-123', form_subject: 'veteran', result: :found)
       end
     end
 
@@ -197,28 +245,40 @@ RSpec.describe Form1010cg::Auditor do
       it 'The search result with the form_subject titleized' do
         [
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'veteran', was_found: true },
+            input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :found },
             expectation: '[Form 10-10CG] MPI Profile found for Veteran'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'veteran', was_found: false },
+            input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :not_found },
             expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Veteran'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', was_found: true },
+            input: { claim_guid: 'uuid-123', form_subject: 'veteran', result: :skipped },
+            expectation: '[Form 10-10CG] MPI Profile search was skipped for Veteran'
+          },
+          {
+            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :found },
             expectation: '[Form 10-10CG] MPI Profile found for Primary Caregiver'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', was_found: false },
+            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :not_found },
             expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Primary Caregiver'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', was_found: true },
+            input: { claim_guid: 'uuid-123', form_subject: 'primaryCaregiver', result: :skipped },
+            expectation: '[Form 10-10CG] MPI Profile search was skipped for Primary Caregiver'
+          },
+          {
+            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :found },
             expectation: '[Form 10-10CG] MPI Profile found for Secondary Caregiver One'
           },
           {
-            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', was_found: false },
+            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :not_found },
             expectation: '[Form 10-10CG] MPI Profile NOT FOUND for Secondary Caregiver One'
+          },
+          {
+            input: { claim_guid: 'uuid-123', form_subject: 'secondaryCaregiverOne', result: :skipped },
+            expectation: '[Form 10-10CG] MPI Profile search was skipped for Secondary Caregiver One'
           }
         ].each do |input:, expectation:|
           expect(Rails.logger).to receive(:info).with(expectation, claim_guid: input[:claim_guid])
@@ -257,10 +317,10 @@ RSpec.describe Form1010cg::Auditor do
 
       context 'for :submission_failure_client_qualification' do
         it 'calls :record submission_failure_client_qualification' do
-          context = { claim_guid: 'uuid-123', veteran_name: { 'first' => 'Jane', 'last' => 'Doe' } }
-
-          expect(subject).to receive(:record_submission_failure_client_qualification).with(context)
-          subject.record(:submission_failure_client_qualification, context)
+          expect(subject).to receive(
+            :record_submission_failure_client_qualification
+          ).with(record_submission_failure_client_qualification_args)
+          subject.record(:submission_failure_client_qualification, record_submission_failure_client_qualification_args)
         end
       end
 

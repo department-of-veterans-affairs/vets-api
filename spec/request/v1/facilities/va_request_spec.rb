@@ -115,7 +115,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                     },
                     %w[
                       vba_348e vha_648GI vba_348 vba_348a vc_0617V
-                      vba_348d vha_648 vba_348h vha_648A4 nca_907
+                      vba_348d vha_648 vba_348h vha_648A4 nca_954
                     ]
 
     it_behaves_like 'paginated request from params with expected IDs',
@@ -179,15 +179,15 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
             attributes: {
               access: {
                 health: [
-                  { service: 'Audiology',        new: 5.5,       established: nil },
-                  { service: 'Dermatology',      new: 4.25,      established: 10.0 },
-                  { service: 'MentalHealthCare', new: 13.714285, established: 2.497297 },
-                  { service: 'Ophthalmology',    new: nil,       established: 0.764705 },
-                  { service: 'Optometry',        new: 0.8,       established: 1.347826 },
-                  { service: 'PrimaryCare',      new: 5.12,      established: 1.289215 },
-                  { service: 'SpecialtyCare',    new: 4.76,      established: 3.416666 }
+                  { service: 'Audiology',        new: 55.40625,  established: 54.988095 },
+                  { service: 'Dermatology',      new: 41.826086, established: 14.304347 },
+                  { service: 'MentalHealthCare', new: 14.888888, established: 0.865256 },
+                  { service: 'Ophthalmology',    new: 35.0,      established: 5.923076 },
+                  { service: 'Optometry',        new: 15.615384, established: 9.194656 },
+                  { service: 'PrimaryCare',      new: 10.383928, established: 7.072874 },
+                  { service: 'SpecialtyCare',    new: 22.0,      established: 14.042572 }
                 ],
-                effective_date: '2020-04-13'
+                effective_date: '2020-09-14'
               },
               active_status: 'A',
               address: {
@@ -205,14 +205,14 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
               facility_type: 'va_health_facility',
               feedback: {
                 health: {
-                  primary_care_urgent: 0.8500000238418579,
-                  primary_care_routine: 0.8899999856948853
+                  primary_care_urgent: 0.8100000023841858,
+                  primary_care_routine: 0.9200000166893005
                 },
-                effective_date: '2019-06-20'
+                effective_date: '2020-04-16'
               },
               hours: {
                 monday: '730AM-430PM',
-                tuesday: '730AM-630PM',
+                tuesday: '730AM-430PM',
                 wednesday: '730AM-430PM',
                 thursday: '730AM-430PM',
                 friday: '730AM-430PM',
@@ -220,8 +220,8 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                 sunday: 'Closed'
               },
               id: 'vha_648A4',
-              lat: 45.63942553000004,
-              long: -122.65533567999995,
+              lat: 45.63938186,
+              long: -122.65538544,
               mobile: false,
               name: 'Portland VA Medical Center-Vancouver',
               operating_status: {
@@ -242,7 +242,6 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   Audiology
                   DentalServices
                   Dermatology
-                  EmergencyCare
                   MentalHealthCare
                   Nutrition
                   Ophthalmology
@@ -251,7 +250,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   PrimaryCare
                   SpecialtyCare
                 ],
-                last_updated: '2020-04-13'
+                last_updated: '2020-09-14'
               },
               unique_id: '648A4',
               visn: '20',

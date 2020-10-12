@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'central_mail/service'
 
 RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
   describe '#create /v0/uploads/report' do

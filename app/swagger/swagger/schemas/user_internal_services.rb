@@ -95,6 +95,10 @@ module Swagger
                 key :type, :string
               end
             end
+            property :session, type: :object do
+              property :ssoe, type: :boolean
+              property :transactionid, type: %i[string null]
+            end
           end
         end
       end
