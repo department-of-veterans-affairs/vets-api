@@ -77,6 +77,194 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  /v0/letters:
+    get:
+      summary: /v0/letters
+      description: Returns the list of letter names and types for the given user
+      operationId: getLetters
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Letters"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/letters/beneficiary:
+    get:
+      summary: /v0/letters/beneficiary
+      description: Returns benefit info and options for the given user with or without a dependent
+      operationId: getLettersBeneficiaryInfo
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LettersBenficiaryInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/letters/{id}:
+    post:
+      summary: /v0/letters/{id}
+      description: Returns requested letter for download
+      operationId: downloadLetterWithOptions
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: letter type
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/letterOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   /v0/user:
     get:
       summary: /v0/user
@@ -474,6 +662,56 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    MilitaryHistory:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "militaryInformation"
+            id:
+              type: string
+              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+            attributes:
+              type: object
+              required:
+                - serviceHistory
+              properties:
+                serviceHistory:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/ServiceHistory"
+    ServiceHistory:
+      required:
+        - branchOfService
+        - beginDate
+        - endDate
+        - formattedBeginDate
+        - formattedEndDate
+      properties:
+        branchOfService:
+          type: string
+          example: "United States Marine Corps"
+        beginDate:
+          type: string
+          example: "1997-09-17"
+        endDate:
+          type: string
+          example: "2002-12-31"
+        formattedBeginDate:
+          type: string
+          example: "September 17, 1997"
+        formattedEndDate:
+          type: string
+          example: "December 31, 2002"
     Errors:
       required:
         - errors
@@ -497,6 +735,28 @@ components:
           type: string
         status:
           type: string
+        source:
+          type: string
+        meta:
+          type: object
+          required:
+            - messages
+          properties:
+            messages:
+              type: array
+              items:
+                type: object
+                required:
+                  - key
+                  - severity
+                  - text
+                properties:
+                  key:
+                    type: string
+                  severity:
+                    type: string
+                  text:
+                    type: string
     EVSSAuthError:
       required:
         - errors
@@ -534,7 +794,50 @@ components:
             message:
               type: string
               example: "Welcome to the mobile API"
-    MilitaryHistory:
+    Letters:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - fullName
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "letters"
+            id:
+              type: string
+              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+            attributes:
+              type: object
+              required:
+                - letters
+                - fullName
+              properties:
+                fullName:
+                  type: string
+                  example: "MARK WEBB"
+                letters:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/LettersInfo"
+    LettersInfo:
+      required:
+        - name
+        - letterType
+      properties:
+        name:
+          type: string
+          example: "Commissary Letter"
+        letterType:
+          type: string
+          example: "commissary"
+    LettersBenficiaryInfo:
       required:
         - data
       properties:
@@ -547,44 +850,119 @@ components:
           properties:
             type:
               type: string
-              example: "militaryInformation"
+              example: "evssLettersBeneficiaryResponses"
             id:
               type: string
-              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+              example: ""
             attributes:
               type: object
               required:
-                - serviceHistory
+                - letters
+                - benefitInformation
               properties:
-                serviceHistory:
+                benefitInformation:
+                  type: object
+                  required:
+                    - awardEffectiveDate
+                    - hasChapter35Eligibility
+                    - monthlyAwardAmount
+                    - serviceConnectedPercentage
+                  properties:
+                    awardEffectiveDate:
+                      type: string
+                      example: "2013-06-06T04:00:00.000+00:00"
+                    hasChapter35Eligibility:
+                      type: boolean
+                      example: true
+                    monthlyAwardAmount:
+                      type: number
+                      example: 123
+                    serviceConnectedPercentage:
+                      type: number
+                      example: 2
+                    hasDeathResultOfDisability:
+                      type: boolean
+                      example: false
+                    hasSurvivorsIndemnityCompensationAward:
+                      type: boolean
+                      example: true
+                    hasSurvivorsPensionAward:
+                      type: boolean
+                      example: false
+                    hasAdaptedHousing:
+                      type: boolean
+                      example: true
+                    hasIndividualUnemployabilityGranted:
+                      type: boolean
+                      example: false
+                    hasNonServiceConnectedPension:
+                      type: boolean
+                      example: true
+                    hasServiceConnectedDisabilities:
+                      type: boolean
+                      example: false
+                    hasSpecialMonthlyCompensation:
+                      type: boolean
+                      example: true
+                militaryService:
                   type: array
                   items:
                     type: object
-                    $ref: "#/components/schemas/ServiceHistory"
-
-    ServiceHistory:
+                    required:
+                      - branch
+                      - characterOfService
+                      - enteredDate
+                      - releasedDate
+                    properties:
+                      branch:
+                        type: string
+                        example: "Army"
+                      characterOfService:
+                        type: string
+                        example: "UNCHARACTERIZED_ENTRY_LEVEL"
+                      enteredDate:
+                        type: string
+                        example: "1973-01-01T05:00:00.000+00:00"
+                      releasedDate:
+                        type: string
+                        example: "1977-10-01T04:00:00.000+00:00"
+    letterOptions:
+      type: object
       required:
-        - branchOfService
-        - beginDate
-        - endDate
-        - formattedBeginDate
-        - formattedEndDate
+        - militaryService
+        - serviceConnectedDisabilities
+        - serviceConnectedEvaluation
+        - nonServiceConnectedPension
+        - monthlyAward
+        - unemployable
+        - specialMonthlyCompensation
+        - adaptedHousing
+        - chapter35Eligibility
+        - deathResultOfDisability
+        - survivorsAward
       properties:
-        branchOfService:
-          type: string
-          example: "United States Marine Corps"
-        beginDate:
-          type: string
-          example: "1997-09-17"
-        endDate:
-          type: string
-          example: "2002-12-31"
-        formattedBeginDate:
-          type: string
-          example: "September 17, 1997"
-        formattedEndDate:
-          type: string
-          example: "December 31, 2002"
+        militaryService:
+          type: boolean
+        serviceConnectedDisabilities:
+          type: boolean
+        serviceConnectedEvaluation:
+          type: boolean
+        nonServiceConnectedPension:
+          type: boolean
+        monthlyAward:
+          type: boolean
+        unemployable:
+          type: boolean
+        specialMonthlyCompensation:
+          type: boolean
+        adaptedHousing:
+          type: boolean
+        chapter35Eligibility:
+          type: boolean
+        deathResultOfDisability:
+          type: boolean
+        survivorsAward:
+          type: boolean
     User:
       required:
         - id
@@ -638,7 +1016,6 @@ components:
                 - appeals
                 - directDepositBenefits
                 - militaryServiceHistory
-
     Address:
       required:
         - addressLine1
@@ -690,7 +1067,6 @@ components:
         zipCodeSuffix:
           type: string, null
           example: "1234"
-
     AddressUpdate:
       required:
         - validationKey
