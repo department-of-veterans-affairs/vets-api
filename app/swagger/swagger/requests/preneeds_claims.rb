@@ -157,7 +157,6 @@ module Swagger
       swagger_path '/v0/preneeds/preneed_attachments' do
         operation :post do
           extend Swagger::Responses::BadRequestError
-          extend Swagger::Responses::PayloadTooLargeError
           extend Swagger::Responses::UnprocessableEntityError
 
           key :description, 'Upload a pdf or image file'

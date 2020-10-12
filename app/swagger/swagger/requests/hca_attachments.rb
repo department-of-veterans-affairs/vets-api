@@ -8,7 +8,6 @@ module Swagger
       swagger_path '/v0/hca_attachments' do
         operation :post do
           extend Swagger::Responses::BadRequestError
-          extend Swagger::Responses::PayloadTooLargeError
           extend Swagger::Responses::UnprocessableEntityError
 
           key :description, 'Submit a health care application attachment'

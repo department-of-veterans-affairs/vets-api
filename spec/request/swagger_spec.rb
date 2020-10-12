@@ -344,20 +344,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
-      it 'returns a 413 if a file is too large' do
-        PreneedAttachmentUploader.should_receive(:max_file_size).and_return 1.byte
-        expect(subject).to validate(
-          :post,
-          '/v0/preneeds/preneed_attachments',
-          413,
-          '_data' => {
-            'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
-            }
-          }
-        )
-      end
-
       it 'returns 422 if the attachment is not an allowed type' do
         expect(subject).to validate(
           :post,
@@ -492,20 +478,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/hca_attachments',
           200,
-          '_data' => {
-            'hca_attachment' => {
-              file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
-            }
-          }
-        )
-      end
-
-      it 'returns 413 if the attachment is too large' do
-        HCAAttachmentUploader.should_receive(:max_file_size).and_return 1.byte
-        expect(subject).to validate(
-          :post,
-          '/v0/hca_attachments',
-          413,
           '_data' => {
             'hca_attachment' => {
               file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
@@ -859,20 +831,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           '/v0/upload_supporting_evidence',
           400,
           ''
-        )
-      end
-
-      it 'returns a 413 if a file is too large' do
-        SupportingEvidenceAttachmentUploader.should_receive(:max_file_size).and_return 1.byte
-        expect(subject).to validate(
-          :post,
-          '/v0/upload_supporting_evidence',
-          413,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/va.gif')
-            }
-          }
         )
       end
 

@@ -124,12 +124,6 @@ en:
         detail: "The resource could not be returned in the requested format"
         code: 406
         status: 406
-      payload_too_large:
-        <<: *defaults
-        title: Payload Too Large
-        detail: "The file uploaded was too large"
-        code: 413
-        status: 413
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity

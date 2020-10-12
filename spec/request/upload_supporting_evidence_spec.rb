@@ -34,6 +34,18 @@ RSpec.describe 'Upload supporting evidence', type: :request do
           'You are not allowed to upload "crt" files, allowed types: pdf, png, gif, tiff, tif, jpeg, jpg, bmp, txt'
         )
       end
+
+      it 'returns a 422  for a file that is too small' do
+        post '/v0/upload_supporting_evidence',
+             params: { supporting_evidence_attachment:
+                       { file_data: fixture_file_upload('spec/fixtures/files/empty_file.txt') } }
+        expect(response).to have_http_status(:unprocessable_entity)
+        err = JSON.parse(response.body)['errors'][0]
+        expect(err['title']).to eq 'Unprocessable Entity'
+        expect(err['detail']).to eq(
+          'File size should be greater than 1 Byte'
+        )
+      end
     end
 
     context 'with invalid parameters' do

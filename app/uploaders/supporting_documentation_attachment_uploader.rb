@@ -2,13 +2,12 @@
 
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   PROCESSING_CLASS = VIC::ProcessingUploader
-  include ValidateFileSize
   include SetAwsConfig
   include AsyncProcessing
   include LogMetrics
 
-  def self.max_file_size
-    25.megabytes
+  def size_range
+    1...25.megabytes
   end
 
   def initialize(guid)

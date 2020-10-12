@@ -8,7 +8,6 @@ module Swagger
       swagger_path '/v0/upload_supporting_evidence' do
         operation :post do
           extend Swagger::Responses::BadRequestError
-          extend Swagger::Responses::PayloadTooLargeError
           extend Swagger::Responses::UnprocessableEntityError
 
           key :description, 'Upload a pdf or image file containing supporting evidence for form 526'
