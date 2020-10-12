@@ -3,10 +3,7 @@
 require 'rails_helper'
 RSpec.describe 'Claim Document Attachment', type: :request do
   let(:file) do
-    fixture_file_upload(
-      "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf",
-      'application/pdf'
-    )
+    fixture_file_upload('files/doctors-note.pdf')
   end
 
   it 'uploads a file' do

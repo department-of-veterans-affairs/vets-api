@@ -575,13 +575,13 @@ en:
         title: Not Found
         code: 'HEALTH_QUEST_404'
         detail: 'The resource could not be found'
-        status: 404      
+        status: 404
       HEALTH_QUEST_502:
         <<: *external_defaults
         title: Bad Gateway
         code: 'HEALTH_QUEST_502'
         detail: 'Received an an invalid response from the upstream server'
-        status: 502  
+        status: 502
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
