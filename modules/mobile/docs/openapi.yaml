@@ -819,7 +819,11 @@ components:
               type: object
               required:
                 - letters
+                - fullName
               properties:
+                fullName:
+                  type: string
+                  example: "MARK WEBB"
                 letters:
                   type: array
                   items:
