@@ -28,6 +28,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:success)
         expect(body).not_to be_empty
+        expect(body['data'][0]['name']).to eq('launch/patient')
       end
     end
     it 'returns a populated list of benefits scopes' do
@@ -36,6 +37,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:success)
         expect(body).not_to be_empty
+        expect(body['data'][0]['name']).to eq('claim.read')
       end
     end
     it 'returns a populated list of verification scopes' do
@@ -44,6 +46,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:success)
         expect(body).not_to be_empty
+        expect(body['data'][0]['name']).to eq('disability_rating.read')
       end
     end
   end
