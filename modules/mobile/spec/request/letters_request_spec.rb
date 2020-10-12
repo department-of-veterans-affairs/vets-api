@@ -10,48 +10,48 @@ RSpec.describe 'letters', type: :request do
 
   let(:expected_body) do
     {
-        'data' => {
-            'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
-            'type' => 'letters',
-            'attributes' => {
-                'fullName' => 'MARK WEBB',
-                'letters' =>
-                    [
-                        {
-                            'name' => 'Commissary Letter',
-                            'letterType' => 'commissary'
-                        },
-                        {
-                            'name' => 'Proof of Service Letter',
-                            'letterType' => 'proof_of_service'
-                        },
-                        {
-                            'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
-                            'letterType' => 'medicare_partd'
-                        },
-                        {
-                            'name' => 'Proof of Minimum Essential Coverage Letter',
-                            'letterType' => 'minimum_essential_coverage'
-                        },
-                        {
-                            'name' => 'Service Verification Letter',
-                            'letterType' => 'service_verification'
-                        },
-                        {
-                            'name' => 'Civil Service Preference Letter',
-                            'letterType' => 'civil_service'
-                        },
-                        {
-                            'name' => 'Benefit Summary Letter',
-                            'letterType' => 'benefit_summary'
-                        },
-                        {
-                            'name' => 'Benefit Verification Letter',
-                            'letterType' => 'benefit_verification'
-                        }
-                    ]
-            }
+      'data' => {
+        'id' => '3097e489-ad75-5746-ab1a-e0aabc1b426a',
+        'type' => 'letters',
+        'attributes' => {
+          'fullName' => 'MARK WEBB',
+          'letters' =>
+                  [
+                    {
+                      'name' => 'Commissary Letter',
+                      'letterType' => 'commissary'
+                    },
+                    {
+                      'name' => 'Proof of Service Letter',
+                      'letterType' => 'proof_of_service'
+                    },
+                    {
+                      'name' => 'Proof of Creditable Prescription Drug Coverage Letter',
+                      'letterType' => 'medicare_partd'
+                    },
+                    {
+                      'name' => 'Proof of Minimum Essential Coverage Letter',
+                      'letterType' => 'minimum_essential_coverage'
+                    },
+                    {
+                      'name' => 'Service Verification Letter',
+                      'letterType' => 'service_verification'
+                    },
+                    {
+                      'name' => 'Civil Service Preference Letter',
+                      'letterType' => 'civil_service'
+                    },
+                    {
+                      'name' => 'Benefit Summary Letter',
+                      'letterType' => 'benefit_summary'
+                    },
+                    {
+                      'name' => 'Benefit Verification Letter',
+                      'letterType' => 'benefit_verification'
+                    }
+                  ]
         }
+      }
     }
   end
 
