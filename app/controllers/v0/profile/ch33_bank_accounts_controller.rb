@@ -11,7 +11,25 @@ module V0
         )
       end
 
+      def update
+        render(
+          json: service.update_ch33_dd_eft(
+            params[:financial_institution_routing_number],
+            params[:account_number],
+            params[:account_type] == 'Checking'
+          )
+        )
+      end
+
       private
+
+      def allowed_params
+        params.permit(
+          :account_type,
+          :account_number,
+          :financial_institution_routing_number
+        )
+      end
 
       def service
         BGS::Service.new(current_user)

@@ -28,4 +28,24 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
       )
     end
   end
+
+  describe '#update' do
+    it 'sends the update req' do
+      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+        put(
+          :update,
+          params: {
+            account_type: 'Checking',
+            account_number: '444',
+            financial_institution_routing_number: '122239982'
+          }
+        )
+
+        expect(
+          JSON.parse(response.body)['update_ch33_dd_eft_response']['return']['return_message']).to eq(
+          'SUCCESS'
+        )
+      end
+    end
+  end
 end
