@@ -26,7 +26,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def extension_white_list
+  def extension_whitelist
     # accepted by enrollment system: PDF,WORD,JPG,RTF
     %w[pdf doc docx jpg jpeg rtf png]
   end
