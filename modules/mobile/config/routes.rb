@@ -7,5 +7,6 @@ Mobile::Engine.routes.draw do
     get '/user', to: 'users#show'
     put '/user/addresses', to: 'addresses#update'
     put '/user/emails', to: 'emails#update'
+    put '/user/phones', to: 'phones#update'
   end
 end
