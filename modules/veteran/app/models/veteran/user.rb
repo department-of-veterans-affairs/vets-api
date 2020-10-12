@@ -10,13 +10,17 @@ module Veteran
 
     def initialize(user)
       @user = user
-      json_data = bgs_service.claimant.find_poa_by_participant_id(user.participant_id)
-      if json_data['person_organization_code'].present?
-        self.power_of_attorney = PowerOfAttorney.new(code: json_data['person_organization_code'])
+      if json_data && json_data[:person_org_name].present?
+        code = json_data[:person_org_name]&.split&.first
+        self.power_of_attorney = PowerOfAttorney.new(code: code)
       end
     end
 
     private
+
+    def json_data
+      @json_data ||= bgs_service.claimant.find_poa_by_participant_id(@user.participant_id)
+    end
 
     def bgs_service
       external_key = @user.common_name || @user.email
