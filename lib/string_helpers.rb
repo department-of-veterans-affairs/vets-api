@@ -10,7 +10,7 @@ module StringHelpers
   end
 
   def mask_sensitive(string)
-    string.gsub(/.(?=.{4})/, '*')
+    string&.gsub(/.(?=.{4})/, '*')
   end
 
   def hyphenated_ssn(ssn)

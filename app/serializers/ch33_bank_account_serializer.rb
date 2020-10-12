@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'string_helpers'
 
 class Ch33BankAccountSerializer < ActiveModel::Serializer
   attributes :account_type, :account_number, :financial_institution_routing_number
@@ -14,11 +15,11 @@ class Ch33BankAccountSerializer < ActiveModel::Serializer
   end
 
   def account_number
-    find_ch33_dd_eft_response[:dposit_acnt_nbr]
+    StringHelpers.mask_sensitive(find_ch33_dd_eft_response[:dposit_acnt_nbr])
   end
 
   def financial_institution_routing_number
-    find_ch33_dd_eft_response[:routng_trnsit_nbr]
+    StringHelpers.mask_sensitive(find_ch33_dd_eft_response[:routng_trnsit_nbr])
   end
 
   def id
