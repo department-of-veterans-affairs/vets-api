@@ -10,12 +10,16 @@ module Okta
       okta_service = Okta::Service.new
       servers = okta_service.get_auth_servers
       server = servers.body.select { |auth_server| auth_server['name'].include?(category.downcase) }
-      scopes = okta_service.get_server_scopes(server[0]['id'])
-      parsed_scopes = scopes.body.each do |item|
-        item.select! { |k, _v| %w[name displayName description].include?(k) }
+      unless server.empty?
+        scopes = okta_service.get_server_scopes(server[0]['id'])
+        parsed_scopes = scopes.body.each do |item|
+          item.select! { |k, _v| %w[name displayName description].include?(k) }
+        end
+        parsed_scopes.delete_if { |scope| DEFAULT_OKTA_SCOPES.include? scope['name'] }
+        parsed_scopes
+      else
+        server
       end
-      parsed_scopes.delete_if { |scope| DEFAULT_OKTA_SCOPES.include? scope['name'] }
-      parsed_scopes
     end
   end
 end
