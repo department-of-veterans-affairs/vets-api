@@ -28,11 +28,14 @@ describe ValidatePdf, uploader_helpers: true do
   end
 
   context 'with an encrypted PDF' do
-    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/locked-pdf.pdf', 'application/pdf') }
+    let(:file) do
+      Rack::Test::UploadedFile.new('spec/fixtures/files/locked_pdf_password_is_test.pdf',
+                                   'application/pdf')
+    end
 
     it 'raises an error' do
       expect { store_image }
-        .to raise_error(CarrierWave::UploadError, 'The uploaded PDF file is encrypted and cannot be read')
+        .to raise_error(Common::Exceptions::UnprocessableEntity)
     end
   end
 
@@ -41,7 +44,7 @@ describe ValidatePdf, uploader_helpers: true do
 
     it 'raises an error' do
       expect { store_image }
-        .to raise_error(CarrierWave::UploadError, 'The uploaded PDF file is invalid and cannot be read')
+        .to raise_error(Common::Exceptions::UnprocessableEntity)
     end
   end
 end
