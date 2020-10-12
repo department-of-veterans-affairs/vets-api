@@ -9,6 +9,32 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     sign_in_as(user)
   end
 
+  context 'unauthorized user' do
+    def self.expect_unauthorized
+      it 'returns unauthorized' do
+        get(:index)
+        expect(response.status).to eq(403)
+        put(:update)
+        expect(response.status).to eq(403)
+      end
+    end
+
+    context 'with a loa1 user' do
+      let(:user) { build(:user, :loa1) }
+
+      expect_unauthorized
+    end
+
+    context 'with a flipper disabled user' do
+      before do
+        allow(User).to receive(:find).with(user.uuid).and_return(user)
+        expect(Flipper).to receive(:enabled?).with(:ch33_dd, user).and_return(false).twice
+      end
+
+      expect_unauthorized
+    end
+  end
+
   describe '#index' do
     it 'returns the right data' do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do

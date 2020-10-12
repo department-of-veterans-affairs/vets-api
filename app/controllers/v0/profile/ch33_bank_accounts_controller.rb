@@ -4,6 +4,8 @@ require 'bgs/service'
 module V0
   module Profile
     class Ch33BankAccountsController < ApplicationController
+      before_action { authorize :ch33_dd, :access? }
+
       def index
         render(
           json: service.find_ch33_dd_eft,
