@@ -5,7 +5,6 @@ require 'evss/vso_search/service' # required to stub before initializing Veteran
 
 RSpec.describe ClaimsApi::UnsynchronizedEVSSClaimService, type: :model do
   let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
   before do
     external_key = user.common_name || user.email
