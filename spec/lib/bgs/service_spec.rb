@@ -12,6 +12,19 @@ RSpec.describe BGS::Service do
   context 'direct deposit methods' do
     let(:user_object) { build(:ch33_dd_user) }
 
+    context 'with a user that has no icn' do
+      before do
+        allow(user_object).to receive(:icn).and_return(nil)
+      end
+
+      it 'retrieves a users dd eft info' do
+        VCR.use_cassette('bgs/service/find_ch33_dd_eft_no_icn', record: :once) do
+          response = bgs_service.find_ch33_dd_eft
+          expect(response.body[:find_ch33_dd_eft_response][:return][:dposit_acnt_nbr]).to eq('123')
+        end
+      end
+    end
+
     it 'retrieves a users dd eft info' do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
         response = bgs_service.find_ch33_dd_eft
