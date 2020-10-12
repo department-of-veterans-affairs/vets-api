@@ -20,32 +20,25 @@ module Mobile
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def address_params
         params.permit(
+          :id,
           :address_line1,
           :address_line2,
           :address_line3,
-          :address_pou,
           :address_type,
           :city,
           :country_code_iso3,
           :county_code,
           :county_name,
-          :effective_start_date,
           :validation_key,
-          :id,
           :international_postal_code,
           :province,
-          :source_date,
           :state_code,
-          :transaction_id,
-          :vet360_id,
           :zip_code,
-          :zip_code_suffix
+          :address_pou
         )
       end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end

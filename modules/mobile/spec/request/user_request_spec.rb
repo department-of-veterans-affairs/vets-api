@@ -80,9 +80,6 @@ RSpec.describe 'user', type: :request do
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
-            'isInternational' => false,
-            'isTextable' => false,
-            'isTextPermitted' => false,
             'phoneNumber' => '5551234',
             'phoneType' => 'HOME'
           }
@@ -96,9 +93,6 @@ RSpec.describe 'user', type: :request do
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
-            'isInternational' => false,
-            'isTextable' => false,
-            'isTextPermitted' => false,
             'phoneNumber' => '5551234',
             'phoneType' => 'WORK'
           }
@@ -112,9 +106,6 @@ RSpec.describe 'user', type: :request do
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
-            'isInternational' => false,
-            'isTextable' => false,
-            'isTextPermitted' => false,
             'phoneNumber' => '5551234',
             'phoneType' => 'MOBILE'
           }

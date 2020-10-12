@@ -23,21 +23,12 @@ module Mobile
 
       def phone_params
         params.permit(
+          :id,
           :area_code,
           :country_code,
           :extension,
-          :effective_start_date,
-          :id,
-          :is_international,
-          :is_textable,
-          :is_text_permitted,
-          :is_tty,
-          :is_voicemailable,
           :phone_number,
-          :phone_type,
-          :source_date,
-          :transaction_id,
-          :vet360_id
+          :phone_type
         )
       end
     end

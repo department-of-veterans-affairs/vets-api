@@ -6,9 +6,6 @@
     "areaCode",
     "countryCode",
     "extension",
-    "isInternational",
-    "isTextable",
-    "isTextPermitted",
     "phoneNumber",
     "phoneType"
   ],
@@ -24,15 +21,6 @@
     },
     "extension": {
       "type": ["string", "null"]
-    },
-    "isInternational": {
-      "type": "boolean"
-    },
-    "isTextable": {
-      "type": "boolean"
-    },
-    "isTextPermitted": {
-      "type": "boolean"
     },
     "phoneNumber": {
       "type": "string"
