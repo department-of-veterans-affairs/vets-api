@@ -126,6 +126,8 @@ group :development do
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', platforms: :ruby
+  gem 'debase'
+  gem 'ruby-debug-ide', git: 'https://github.com/corgibytes/ruby-debug-ide', branch: 'feature-add-fixed-port-range'
 end
 
 group :test do
