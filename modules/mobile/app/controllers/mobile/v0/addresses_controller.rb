@@ -22,21 +22,19 @@ module Mobile
 
       def address_params
         params.permit(
-          :id,
           :address_line1,
           :address_line2,
           :address_line3,
+          :address_pou,
           :address_type,
           :city,
           :country_code_iso3,
-          :county_code,
-          :county_name,
-          :validation_key,
+          :id,
           :international_postal_code,
           :province,
           :state_code,
-          :zip_code,
-          :address_pou
+          :validation_key,
+          :zip_code
         )
       end
     end
