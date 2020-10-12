@@ -6,7 +6,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include SetAwsConfig
 
   def size_range
-    1...50.megabytes
+    1.byte...50.megabytes
   end
 
   version :converted, if: :tiff? do

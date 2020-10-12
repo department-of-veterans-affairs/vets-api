@@ -7,7 +7,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   include LogMetrics
 
   def size_range
-    1...10.megabytes
+    1.byte...10.megabytes
   end
 
   def initialize(guid)

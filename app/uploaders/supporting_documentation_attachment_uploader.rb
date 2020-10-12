@@ -7,7 +7,7 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   include LogMetrics
 
   def size_range
-    1...25.megabytes
+    1.byte...25.megabytes
   end
 
   def initialize(guid)
