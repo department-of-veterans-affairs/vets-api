@@ -2,6 +2,7 @@
 
 class FormAttachment < ApplicationRecord
   include SetGuid
+  include SentryLogging
 
   attr_encrypted(:file_data, key: Settings.db_encryption_key)
   attr_encrypted(:file_password, key: Settings.db_encryption_key)
@@ -15,6 +16,10 @@ class FormAttachment < ApplicationRecord
     attachment_uploader.store!(file)
     self.file_password = file_password_arg
     self.file_data = { filename: attachment_uploader.filename }.to_json
+  rescue CarrierWave::IntegrityError => e
+    log_exception_to_sentry(e, nil, nil, 'warn')
+    raise Common::Exceptions::UnprocessableEntity.new(detail: e.message,
+                                                      source: 'FormAttachment')
   end
 
   def parsed_file_data
