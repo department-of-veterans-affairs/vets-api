@@ -6,7 +6,7 @@ require 'common/exceptions'
 class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < AppealsApi::ApplicationController
   skip_before_action(:authenticate)
 
-  EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date].freeze
+  EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date X-VA-File-Number].freeze
 
   UNUSABLE_RESPONSE_ERROR = {
     errors: [
@@ -58,7 +58,7 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   def headers
     EXPECTED_HEADERS.reduce({}) do |hash, key|
       hash.merge(key => request.headers[key])
-    end
+    end.compact
   end
 
   def caseflow_response_has_a_body_and_a_status?
