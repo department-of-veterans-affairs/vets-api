@@ -3,12 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Documents management', type: :request do
-  let(:file) do
-    fixture_file_upload(
-      "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf",
-      'application/pdf'
-    )
-  end
+  let(:file) { fixture_file_upload('/files/doctors-note.pdf', 'application/pdf') }
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
   let!(:claim) do
@@ -45,13 +40,19 @@ RSpec.describe 'Documents management', type: :request do
     expect(args['tracked_item_id']).to be_nil
   end
 
-  context 'with locked PDF' do
-    let(:locked_file) do
-      fixture_file_upload(
-        "#{::Rails.root}/spec/fixtures/files/locked-pdf.pdf",
-        'application/pdf'
-      )
+  context 'with unaccepted file_type' do
+    let(:file) { fixture_file_upload('files/invalid_idme_cert.crt', 'application/pdf') }
+
+    it 'rejects files with invalid document_types' do
+      params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
+      post '/v0/evss_claims/189625/documents', params: params
+      expect(response.status).to eq(422)
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq('Unprocessable Entity')
     end
+  end
+
+  context 'with locked PDF' do
+    let(:locked_file) { fixture_file_upload('files/locked-pdf.pdf', 'application/pdf') }
 
     it 'rejects locked PDFs' do
       params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
