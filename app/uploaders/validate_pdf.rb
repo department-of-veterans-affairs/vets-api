@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'pdf_info'
+require 'origami'
 
 module ValidatePdf
   extend ActiveSupport::Concern
@@ -17,12 +17,12 @@ module ValidatePdf
   end
 
   def validate(temp_file)
-    metadata = PdfInfo::Metadata.read(temp_file)
-    if metadata.encrypted?
+    pdf = Origami::PDF.read temp_file, decrypt: false
+    if pdf.encrypted?
       raise Common::Exceptions::UnprocessableEntity.new(detail: 'The uploaded PDF file is encrypted and cannot be read',
                                                         source: 'ValidatePdf')
     end
-  rescue PdfInfo::MetadataReadError
+  rescue Origami::InvalidPDFError
     raise Common::Exceptions::UnprocessableEntity.new(detail: 'The uploaded PDF file is invalid and cannot be read',
                                                       source: 'ValidatePdf')
   end
