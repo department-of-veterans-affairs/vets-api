@@ -52,7 +52,7 @@ RSpec.describe 'Upload supporting evidence', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'
-        expect(err['detail']).to eq 'The uploaded PDF file is invalid and cannot be read'
+        expect(err['detail']).to eq I18n.t('errors.messages.uploads.pdf.invalid')
       end
 
       it 'returns a 422  for an unallowed file type' do
@@ -63,7 +63,9 @@ RSpec.describe 'Upload supporting evidence', type: :request do
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'
         expect(err['detail']).to eq(
-          'You are not allowed to upload "crt" files, allowed types: pdf, png, gif, tiff, tif, jpeg, jpg, bmp, txt'
+          I18n.t('errors.messages.extension_whitelist_error',
+                 extension: '"crt"',
+                 allowed_types: SupportingEvidenceAttachmentUploader.new('a').extension_whitelist.join(', '))
         )
       end
 
@@ -74,9 +76,7 @@ RSpec.describe 'Upload supporting evidence', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'
-        expect(err['detail']).to eq(
-          'File size should be greater than 1 Byte'
-        )
+        expect(err['detail']).to eq(I18n.t('errors.messages.min_size_error', min_size: '1 Byte'))
       end
     end
 

@@ -45,7 +45,7 @@ describe Shrine::Plugins::ValidateUnlockedPdf do
 
       it 'adds an error' do
         expect { instance.validate_unlocked_pdf }.to change { instance.errors.count }.from(0).to(1)
-        expect(instance.errors.first).to eq I18n.t('uploads.pdf.locked')
+        expect(instance.errors.first).to eq I18n.t('errors.messages.uploads.pdf.locked')
       end
     end
 
@@ -54,7 +54,7 @@ describe Shrine::Plugins::ValidateUnlockedPdf do
 
       it 'adds an error' do
         expect { instance.validate_unlocked_pdf }.to change { instance.errors.count }.from(0).to(1)
-        expect(instance.errors.first).to eq I18n.t('uploads.pdf.invalid')
+        expect(instance.errors.first).to eq I18n.t('errors.messages.uploads.pdf.invalid')
       end
     end
   end
