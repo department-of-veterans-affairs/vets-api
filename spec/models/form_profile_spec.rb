@@ -70,7 +70,8 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v0873_expected) do
     {
-      'fullName' => 'Jane Doe'
+      'fullName' => full_name,
+      'address' => address
     }
   end
 
@@ -1010,7 +1011,6 @@ RSpec.describe FormProfile, type: :model do
           FEEDBACK-TOOL
           686C-674
           28-8832
-          0873
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)

@@ -1,2 +1,2 @@
-data:
-  fullName: [identity_information, full_name]
+fullName: [identity_information, full_name]
+address: [contact_information, address]
