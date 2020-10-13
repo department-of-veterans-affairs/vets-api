@@ -563,6 +563,7 @@ RSpec.describe FormProfile, type: :model do
       'personalData' => {
         'fullName' => full_name,
         'address' => address,
+        'phone' => us_phone,
         'dateOfBirth' => user.birth_date
       }
     }
