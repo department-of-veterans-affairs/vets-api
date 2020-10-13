@@ -14,7 +14,6 @@ RSpec.describe 'letters', type: :request do
         'id' => '69ad43ea-6882-5673-8552-377624da64a5',
         'type' => 'letters',
         'attributes' => {
-          'fullName' => 'MARK WEBB',
           'letters' =>
                   [
                     {

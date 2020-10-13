@@ -13,15 +13,11 @@
                 "$ref": "letter_base.json"
               },
               "type": "array"
-            },
-            "fullName": {
-              "type": "string"
             }
           },
           "type": "object",
           "required": [
-            "letters",
-            "fullName"
+            "letters"
           ]
         },
         "id": {

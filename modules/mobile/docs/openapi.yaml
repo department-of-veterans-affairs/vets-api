@@ -907,7 +907,6 @@ components:
           required:
             - type
             - id
-            - fullName
             - attributes
           properties:
             type:
@@ -916,18 +915,11 @@ components:
             id:
               type: string
               example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
-            fullName:
-              type: string
-              example: "MARK WEBB"
             attributes:
               type: object
               required:
                 - letters
-                - fullName
               properties:
-                fullName:
-                  type: string
-                  example: "MARK WEBB"
                 letters:
                   type: array
                   items:
