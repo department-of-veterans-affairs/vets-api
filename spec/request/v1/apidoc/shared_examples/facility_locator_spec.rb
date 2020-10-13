@@ -54,11 +54,11 @@ RSpec.shared_examples 'V1 Facility Locator' do
       Flipper.enable(:facility_locator_ppms_location_query, false)
     end
 
-    it { is_expected.to validate(:get, '/v1/facilities/ccp/{id}', 200, 'id' => '1407842941') }
+    it { is_expected.to validate(:get, '/v1/facilities/ccp/{id}', 200, 'id' => '1154383230') }
   end
 
   describe 'facilities/ccp/specialties', team: :facilities,
-                                         vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms') do
+                                         vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_specialties') do
     it { is_expected.to validate(:get, '/v1/facilities/ccp/specialties', 200) }
   end
 end
