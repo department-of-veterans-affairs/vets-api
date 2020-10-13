@@ -29,7 +29,6 @@ gem 'rails', '~> 6.0.2'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
-gem 'carrierwave', '~> 0.11' # TODO: explanation
 gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
 gem 'aasm'
@@ -42,6 +41,7 @@ gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
 gem 'breakers'
+gem 'carrierwave'
 gem 'carrierwave-aws'
 gem 'clam_scan'
 gem 'combine_pdf'
