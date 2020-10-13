@@ -41,7 +41,7 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   context 'with unaccepted file_type' do
-    let(:file) { fixture_file_upload('files/invalid_idme_cert.crt', 'application/pdf') }
+    let(:file) { fixture_file_upload('files/invalid_idme_cert.crt', 'application/x-x509-ca-cert') }
 
     it 'rejects files with invalid document_types' do
       params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
