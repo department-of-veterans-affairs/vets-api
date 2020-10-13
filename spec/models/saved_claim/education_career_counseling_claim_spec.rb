@@ -17,7 +17,7 @@ RSpec.describe SavedClaim::EducationCareerCounselingClaim do
             'middle' => '',
             'last' => 'FORD'
           },
-          'ssn' => '796043735',
+          'veteranSocialSecurityNumber' => '796043735',
           'dateOfBirth' => '1809-02-12'
         }
       )
