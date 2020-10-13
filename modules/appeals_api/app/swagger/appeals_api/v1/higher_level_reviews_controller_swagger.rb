@@ -135,6 +135,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     end
   end
 
+  # rubocop:disable Metrics/BlockLength
   swagger_path '/higher_level_reviews/contestable_issues/{benefit_type}' do
     operation :get, tags: HLR_TAG do
       key :operationId, 'getContestableIssues'
@@ -165,4 +166,5 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       end
     end
   end
+  # rubocop:enable Metrics/BlockLength
 end
