@@ -53,8 +53,8 @@ module Swagger
         end
         property :document_type do
           key :type, :string
-          # key :example, 'L023',
-          # key :enum, EVSSClaimDocument::DOCUMENT_TYPES.keys
+          key :example, 'L023'
+          key :enum, EVSSClaimDocument::DOCUMENT_TYPES.keys
         end
       end
     end
