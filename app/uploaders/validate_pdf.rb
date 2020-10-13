@@ -12,12 +12,12 @@ module ValidatePdf
   def validate(temp_file)
     metadata = PdfInfo::Metadata.read(temp_file)
     if metadata.encrypted?
-      raise Common::Exceptions::UnprocessableEntity.new(detail: 'The uploaded PDF file is encrypted and cannot be read',
+      raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('errors.messages.uploads.pdf.locked'),
                                                         source: 'ValidatePdf')
     end
     temp_file.rewind
   rescue PdfInfo::MetadataReadError
-    raise Common::Exceptions::UnprocessableEntity.new(detail: 'The uploaded PDF file is invalid and cannot be read',
+    raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('errors.messages.uploads.pdf.locked'),
                                                       source: 'ValidatePdf')
   end
 
