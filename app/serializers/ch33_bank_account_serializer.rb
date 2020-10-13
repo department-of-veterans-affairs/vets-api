@@ -8,8 +8,6 @@ class Ch33BankAccountSerializer < ActiveModel::Serializer
 
     if dposit_acnt_type_nm.present?
       dposit_acnt_type_nm == 'C' ? 'Checking' : 'Savings'
-    else
-      nil
     end
   end
 

@@ -30,7 +30,7 @@ module Swagger
 
             schema do
               key :type, :object
-              key :required, [:account_type, :account_number, :financial_institution_routing_number]
+              key :required, %i[account_type account_number financial_institution_routing_number]
 
               property :account_type, type: :string, enum: %w[Checking Savings]
               property :account_number, type: :string

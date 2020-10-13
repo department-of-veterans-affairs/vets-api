@@ -68,7 +68,8 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
         )
 
         expect(
-          JSON.parse(response.body)['update_ch33_dd_eft_response']['return']['return_message']).to eq(
+          JSON.parse(response.body)['update_ch33_dd_eft_response']['return']['return_message']
+        ).to eq(
           'SUCCESS'
         )
       end
