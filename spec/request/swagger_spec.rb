@@ -1659,8 +1659,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting the services list' do
-          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_1407842941')
+          VCR.use_cassette('facilities/ppms/ppms_specialties', match_requests_on: %i[path query]) do
+            expect(subject).to validate(:get, '/v0/facilities/services', 200)
           end
         end
       end
