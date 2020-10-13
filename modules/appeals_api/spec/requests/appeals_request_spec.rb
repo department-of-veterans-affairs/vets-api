@@ -22,12 +22,6 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       }
     end
 
-    before do
-      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
-      allow(@verifier_stub).to receive(:verify)
-    end
-
     it 'returns a successful response' do
       VCR.use_cassette('caseflow/appeals') do
         get appeals_endpoint, params: nil, headers: user_headers
@@ -63,12 +57,6 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
         'X-Consumer-Username' => 'TestConsumer',
         'X-VA-User' => 'adhoc.test.user'
       }
-    end
-
-    before do
-      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
-      allow(@verifier_stub).to receive(:verify)
     end
 
     it 'returns a successful response' do

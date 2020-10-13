@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/unauthorized'
-require_relative 'auth_headers'
-
-module EVSS
+module BGS
   class PowerOfAttorneyVerifier
     def initialize(user)
       @user = user
@@ -29,10 +26,6 @@ module EVSS
 
     def matches(veteran_poa_code, representative)
       representative.poa_codes.include?(veteran_poa_code)
-    end
-
-    def auth_headers
-      @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
     end
   end
 end
