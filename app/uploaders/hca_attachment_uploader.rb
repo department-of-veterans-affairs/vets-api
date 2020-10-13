@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class HCAAttachmentUploader < CarrierWave::Uploader::Base
-  include ValidateFileSize
   include SetAwsConfig
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 
-  MAX_FILE_SIZE = 10.megabytes
+  def size_range
+    1.byte...10.megabytes
+  end
 
   process(convert: 'jpg', if: :png?)
 
@@ -24,7 +25,7 @@ class HCAAttachmentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def extension_white_list
+  def extension_whitelist
     # accepted by enrollment system: PDF,WORD,JPG,RTF
     %w[pdf doc docx jpg jpeg rtf png]
   end

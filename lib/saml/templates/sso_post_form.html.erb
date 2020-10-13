@@ -29,7 +29,7 @@
 
   <script>
     (function() {
-      if ("<%= sentrydsn %>") {
+      if (typeof(Sentry) != 'undefined' && "<%= sentrydsn %>") {
         Sentry.init({
           dsn: "<%= sentrydsn %>",
           integrations: [new Sentry.Integrations.BrowserTracing()],

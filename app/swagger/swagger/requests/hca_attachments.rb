@@ -7,6 +7,9 @@ module Swagger
 
       swagger_path '/v0/hca_attachments' do
         operation :post do
+          extend Swagger::Responses::BadRequestError
+          extend Swagger::Responses::UnprocessableEntityError
+
           key :description, 'Submit a health care application attachment'
           key :operationId, 'postHealthCareApplicationAttachment'
           key :tags, %w[benefits_forms]
@@ -38,13 +41,6 @@ module Swagger
                   property :guid, type: :string
                 end
               end
-            end
-          end
-
-          response 400 do
-            key :description, 'Bad Gateway: incorrect parameters'
-            schema do
-              key :'$ref', :Errors
             end
           end
         end

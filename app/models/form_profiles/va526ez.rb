@@ -90,15 +90,14 @@ class FormProfiles::VA526ez < FormProfile
   private
 
   def initialize_vets360_contact_info
-    return {} unless Settings.vet360.prefill && user.vet360_id.present?
+    return {} unless vet360_contact_info
 
-    vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
     {
-      mailing_address: convert_vets360_address(vet360_contact_info.mailing_address),
-      email_address: vet360_contact_info.email&.email_address,
+      mailing_address: convert_vets360_address(vet360_mailing_address),
+      email_address: vet360_contact_info&.email&.email_address,
       primary_phone: [
-        vet360_contact_info.home_phone&.area_code,
-        vet360_contact_info.home_phone&.phone_number
+        vet360_contact_info&.home_phone&.area_code,
+        vet360_contact_info&.home_phone&.phone_number
       ].join('')
     }.compact
   end
@@ -110,9 +109,7 @@ class FormProfiles::VA526ez < FormProfile
     return_val = initialize_vets360_contact_info.merge(
       mailing_address: get_common_address,
       email_address: extract_pciu_data(:pciu_email),
-      primary_phone: get_us_phone(
-        extract_pciu_data(:pciu_primary_phone)
-      )
+      primary_phone: pciu_us_phone
     ) { |_, old_val, new_val| old_val.presence || new_val }
 
     contact_info = VA526ez::FormContactInformation.new(return_val)

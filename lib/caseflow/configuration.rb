@@ -10,6 +10,7 @@ module Caseflow
   # sets the base path, a default timeout, and a service name for breakers and metrics.
   #
   class Configuration < Common::Client::Configuration::REST
+    self.read_timeout = Settings.caseflow.timeout || 20
     ##
     # @return [String] The auth token for the caseflow service.
     #
