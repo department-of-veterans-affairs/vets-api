@@ -368,15 +368,15 @@ paths:
               $ref: '#/components/schemas/AddressUpdate'
             example:
               validationKey: 0,
+              id: 181513
               addressLine1: "1493 Martin Luther King Rd"
-              addressLine2: "string"
-              addressLine3: "string"
-              addressPou: "RESIDENCE/CHOICE"
-              addressType: "DOMESTIC"
               city: "Fulton"
               countryName: "United States"
+              countryCodeIso3: "USA"
               stateCode: "MS"
               zipCode: "38843"
+              addressType: "DOMESTIC"
+              addressPou: "RESIDENCE/CHOICE"
       responses:
         '200':
           description: OK
@@ -478,6 +478,110 @@ paths:
             example:
               id: 42,
               emailAddress: "person42@example.com"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "asyncTransactionVet360AddressTransactions"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          transactionId:
+                            type: string
+                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                          transactionStatus:
+                            type: string
+                            example: "RECEIVED"
+                          type:
+                            type: string
+                            example: "AsyncTransaction::Vet360::AddressTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/phones:
+    put:
+      summary: /v0/user/phones
+      description: Updates a user's phone number
+      operationId: user.updatePhoneNumber
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new phone number
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Phone'
+            example:
+              id: 157032
+              areaCode: "704"
+              countryCode: "1"
+              phoneNumber: "7749069"
+              phoneType: "HOME"
       responses:
         '200':
           description: OK
@@ -1023,10 +1127,16 @@ components:
                 email:
                   type: string
                   example: "john.a.smith@domain.com"
-                residential_address:
+                residentialAddress:
                   $ref: "#/components/schemas/Address"
-                mailing_address:
+                mailingAddress:
                   $ref: "#/components/schemas/Address"
+                homePhone:
+                  $ref: "#/components/schemas/Phone"
+                mobilePhone:
+                  $ref: "#/components/schemas/Phone"
+                workPhone:
+                  $ref: "#/components/schemas/Phone"
             authorizedServices:
               type: array
               items:
@@ -1086,6 +1196,7 @@ components:
         zipCodeSuffix:
           type: string, null
           example: "1234"
+
     AddressUpdate:
       required:
         - validationKey
@@ -1146,3 +1257,28 @@ components:
         emailAddress:
           type: string
           example: "person42@example.com"
+
+    Phone:
+      required:
+        - id
+        - areaCode
+        - countryCode
+        - phoneNumber
+        - phoneType
+      properties:
+        id:
+          type: integer
+          example: 157032
+        areaCode:
+          type: string
+          example: "704"
+        countryCode:
+          type: string
+          example: "1"
+        phoneNumber:
+          type: string
+          example: "7749069"
+        phoneType:
+          type: string
+          enum: [ "HOME", "MOBILE", "WORK" ]
+          example: "HOME"
