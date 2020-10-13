@@ -8,7 +8,10 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
   end
 
   def add_claimant_info(current_user)
+    return if form.blank?
+
     updated_form = parsed_form
+
     updated_form['claimantInformation'] = {
       'fullName' => {
         'first' => current_user.first_name,
@@ -16,7 +19,7 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
         'last' => current_user.last_name
       },
       'veteranSocialSecurityNumber' => current_user.ssn,
-      'dateOfBirth' => current_user.birth_date
+      'dateOfBirth' => current_user.birth_date.strftime('%Y-%m-%d')
     }
 
     updated_form['veteranFullName'] = {
