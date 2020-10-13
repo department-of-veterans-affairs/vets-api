@@ -20,7 +20,7 @@ RSpec.describe 'Upload supporting evidence', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'
-        expect(err['detail']).to eq I18n.t('uploads.pdf.invalid')
+        expect(err['detail']).to eq I18n.t('errors.messages.uploads.pdf.invalid')
       end
 
       it 'returns a 422  for an unallowed file type' do

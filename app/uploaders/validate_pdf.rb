@@ -19,10 +19,12 @@ module ValidatePdf
   def validate(temp_file)
     pdf = Origami::PDF.read temp_file, decrypt: false
     if pdf.encrypted?
-      raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('uploads.pdf.locked'), source: 'ValidatePdf')
+      raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('errors.messages.uploads.pdf.locked'),
+                                                        source: 'ValidatePdf')
     end
   rescue Origami::InvalidPDFError
-    raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('uploads.pdf.invalid'), source: 'ValidatePdf')
+    raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('errors.messages.uploads.pdf.invalid'),
+                                                      source: 'ValidatePdf')
   end
 
   def validate_pdf(file)
