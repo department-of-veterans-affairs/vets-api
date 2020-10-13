@@ -78,6 +78,19 @@ RSpec.describe 'Documents management', type: :request do
     end
   end
 
+  context 'with no body' do
+    let(:file) { fixture_file_upload('/files/empty_file.txt', 'text/plain') }
+
+    it 'rejects a text file with no body' do
+      params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
+      post '/v0/evss_claims/189625/documents', params: params
+      expect(response.status).to eq(422)
+      expect(JSON.parse(response.body)['errors'].first['detail']).to eq(
+        I18n.t('errors.messages.min_size_error', min_size: '1 Byte')
+      )
+    end
+  end
+
   context 'with an emoji in text' do
     let(:tempfile) do
       f = Tempfile.new(['test', '.txt'])
