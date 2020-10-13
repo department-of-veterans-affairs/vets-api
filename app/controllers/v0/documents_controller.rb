@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# Upload documents associated with a claim in the Claim Status Tool, to be sent to EVSS in a Job
 module V0
   class DocumentsController < ApplicationController
     before_action { authorize :evss, :access? }

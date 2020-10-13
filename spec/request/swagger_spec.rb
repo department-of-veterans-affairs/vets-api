@@ -2790,6 +2790,35 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:get, '/v0/profile/payment_history', 200, headers)
       end
     end
+
+    describe 'claim status tool' do
+      let!(:claim) do
+        FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
+                                       user_uuid: mhv_user.uuid, data: {})
+      end
+
+      it 'uploads a document to support a claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/evss_claims/{evss_claim_id}/documents',
+          202,
+          headers.merge('_data' => { file: fixture_file_upload('/files/doctors-note.pdf', 'application/pdf'),
+                                     tracked_item_id: 33,
+                                     document_type: 'L023' }, 'evss_claim_id' => 189_625)
+        )
+      end
+      it 'rejects a malformed document' do
+        expect(subject).to validate(
+          :post,
+          '/v0/evss_claims/{evss_claim_id}/documents',
+          422,
+          headers.merge('_data' => { file: fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf',
+                                                               'application/pdf'),
+                                     tracked_item_id: 33,
+                                     document_type: 'L023' }, 'evss_claim_id' => 189_625)
+        )
+      end
+    end
   end
 
   context 'and' do
