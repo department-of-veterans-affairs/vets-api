@@ -13,11 +13,12 @@ class EVSSClaimDocument < Common::Base
   attribute :file_name, String
   attribute :uuid, String
   attribute :file_obj, ActionDispatch::Http::UploadedFile
+  attribute :password, String
 
   validates(:file_name, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
-  before_validation :normalize_text
+  before_validation :normalize_text, :decrypt_pdf
 
   # rubocop:disable Layout/LineLength
   DOCUMENT_TYPES = {
@@ -79,6 +80,24 @@ class EVSSClaimDocument < Common::Base
 
   def known_document_type?
     errors.add(:base, I18n.t('errors.messages.uploads.document_type_unknown')) unless description
+  end
+
+  def decrypt_pdf
+    return unless file_name.match?(/\.pdf$/i)
+
+    pdftk = PdfForms.new(Settings.binaries.pdftk)
+    tmpf = Tempfile.new('decrypted')
+
+    error_messages = pdftk.call_pdftk(file_obj.tempfile.path, 'input_pw', password, 'output', tmpf.path)
+    if error_messages.present?
+      log_message_to_sentry(error_messages, 'warn')
+      raise Common::Exceptions::UnprocessableEntity.new(
+        detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
+        source: 'FormAttachment.unlock_pdf'
+      )
+    end
+    file_obj.tempfile.unlink
+    file_obj.tempfile = tmpf
   end
 
   def unencrypted_pdf?

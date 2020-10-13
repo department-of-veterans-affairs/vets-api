@@ -6,7 +6,7 @@ require 'shrine/plugins/validate_unlocked_pdf'
 describe Shrine::Plugins::ValidateUnlockedPdf do
   describe '#validate_unlocked_pdf' do
     let(:good_pdf) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-    let(:locked_pdf) { Rails.root.join('spec', 'fixtures', 'files', 'locked-pdf.pdf') }
+    let(:locked_pdf) { Rails.root.join('spec', 'fixtures', 'files', 'locked_pdf_password_is_test.pdf') }
     let(:malformed_pdf) { Rails.root.join('spec', 'fixtures', 'files', 'malformed-pdf.pdf') }
 
     let(:klass) do
