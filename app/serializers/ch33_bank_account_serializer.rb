@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'string_helpers'
 
 class Ch33BankAccountSerializer < ActiveModel::Serializer
   attributes :account_type, :account_number, :financial_institution_routing_number

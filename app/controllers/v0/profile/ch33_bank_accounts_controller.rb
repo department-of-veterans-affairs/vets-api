@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'bgs/service'
 
 module V0
   module Profile

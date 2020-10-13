@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'string_helpers'
 
 class PPIUSerializer < ActiveModel::Serializer
   attribute :responses
