@@ -2,7 +2,6 @@ FactoryBot.define do
   factory :directory_application do
     name { "MyString" }
     logo_url { "MyString" }
-    permissions { "MyText" }
     type { "" }
     service_cattegories { "MyText" }
     platforms { "MyText" }

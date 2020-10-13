@@ -48,11 +48,6 @@ module AppsApi
             key :type, :string
             key :example, 'https://www.example.com'
           end
-          property :permissions do
-            key :description, I18n.t('apps_api.field_descriptions.permissions')
-            key :type, :array
-            key :example, ['Read Perscription History', 'Read Personal Medical History', 'Read Family Medical History']
-          end
           property :privacy_url do
             key :description, I18n.t('apps_api.field_descriptions.privacy_url')
             key :type, :string

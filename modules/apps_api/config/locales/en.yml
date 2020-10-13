@@ -11,6 +11,5 @@ en:
       icon_url: 'The URL of the logo for the given application.'
       service_categories: 'The category this application belongs to.'
       app_url: 'The URL of the application.'
-      permissions: 'Which consent permissions this application could require in order to connect to your va.gov account.'
       privacy_url: 'The URL where the applications privacy policy can be reached.'
       tos_url: 'The URL where the applications terms of service can be reached.'

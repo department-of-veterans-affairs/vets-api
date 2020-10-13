@@ -106,15 +106,6 @@ components:
           type: string
           description: The URL of the application.
           example: 'https://www.example.com'
-        permissions:
-          type: array
-          items:
-            type: string
-            description: An array of all consent scopes the application could request in order to access the application.
-          example:
-            - Read Perscription History
-            - Read Personal Medical History
-            - Read Family Medical History
         privacy_url:
           type: string
           description: The Applications Privacy Policy

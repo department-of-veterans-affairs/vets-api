@@ -44,12 +44,6 @@ module Okta
       end
     end
 
-    def get_clients(server_id)
-      with_monitoring do
-        get_url_with_token("#{AUTH_SERVER_API_BASE_PATH}/#{server_id}/clients")
-      end
-    end
-
     def get_server_scopes(server_id)
       with_monitoring do
         get_url_with_token("#{AUTH_SERVER_API_BASE_PATH}/#{server_id}/scopes")
