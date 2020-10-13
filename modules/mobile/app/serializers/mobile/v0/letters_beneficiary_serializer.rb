@@ -11,7 +11,7 @@ module Mobile
 
       def initialize(id, resource, options = {})
         resource = LettersBeneficiaryStruct.new(id, resource.benefit_information, resource.military_service)
-        super(resource, options = {})
+        super(resource, options)
       end
     end
 

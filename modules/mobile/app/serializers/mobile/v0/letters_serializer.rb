@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Mobile
   module V0
     class LettersSerializer
@@ -8,7 +10,7 @@ module Mobile
 
       def initialize(id, letters, options = {})
         resource = LettersStruct.new(id, letters)
-        super(resource, options = {})
+        super(resource, options)
       end
     end
 
