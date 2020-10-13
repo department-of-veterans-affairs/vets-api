@@ -32,12 +32,6 @@ module Okta
       end
     end
 
-    def get_apps(url)
-      with_monitoring do
-        get_url_with_token(url)
-      end
-    end
-
     def get_auth_servers
       with_monitoring do
         get_url_with_token(AUTH_SERVER_API_BASE_PATH)
