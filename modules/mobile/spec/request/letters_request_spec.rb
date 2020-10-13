@@ -139,11 +139,11 @@ RSpec.describe 'letters', type: :request do
     end
   end
 
-  describe 'POST /mobile/v0/letters/:id' do
+  describe 'POST /mobile/v0/letters/:type/download' do
     context 'with no options' do
       it 'downloads a PDF' do
         VCR.use_cassette('evss/letters/download') do
-          post '/mobile/v0/letters/commissary', headers: iam_headers
+          post '/mobile/v0/letters/commissary/download', headers: iam_headers
           expect(response).to have_http_status(:ok)
         end
       end
@@ -168,7 +168,7 @@ RSpec.describe 'letters', type: :request do
 
       it 'downloads a PDF' do
         VCR.use_cassette('evss/letters/download_options') do
-          post '/mobile/v0/letters/commissary', params: options, headers: iam_headers
+          post '/mobile/v0/letters/commissary/download', params: options, headers: iam_headers
           expect(response).to have_http_status(:ok)
         end
       end
@@ -177,7 +177,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 404 evss response' do
       it 'returns a 404' do
         VCR.use_cassette('evss/letters/download_404') do
-          post '/mobile/v0/letters/commissary', headers: iam_headers
+          post '/mobile/v0/letters/commissary/download', headers: iam_headers
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -186,7 +186,7 @@ RSpec.describe 'letters', type: :request do
     context 'when evss returns lettergenerator.notEligible' do
       it 'raises a 502' do
         VCR.use_cassette('evss/letters/download_not_eligible') do
-          post '/mobile/v0/letters/civil_service', headers: iam_headers
+          post '/mobile/v0/letters/civil_service/download', headers: iam_headers
           expect(response).to have_http_status(:bad_gateway)
         end
       end
@@ -211,7 +211,7 @@ RSpec.describe 'letters', type: :request do
 
       it 'returns a 502' do
         VCR.use_cassette('evss/letters/download_unexpected') do
-          post '/mobile/v0/letters/benefit_summary', params: options, headers: iam_headers
+          post '/mobile/v0/letters/benefit_summary/download', params: options, headers: iam_headers
           expect(response).to have_http_status(:bad_gateway)
         end
       end

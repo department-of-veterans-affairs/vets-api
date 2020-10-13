@@ -9,7 +9,7 @@ module Mobile
     class LettersController < ApplicationController
       before_action { authorize :evss, :access? }
 
-      def letters
+      def index
         service_response = EVSS::Letters::Service.new(@current_user).get_letters
         response_template = OpenStruct.new
         response_template.id = @current_user.id
@@ -28,14 +28,14 @@ module Mobile
       end
 
       def download
-        unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:id]
+        unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:type]
           Raven.tags_context(team: 'va-mobile-app') # tag sentry logs with team name
-          raise Common::Exceptions::ParameterMissing, 'letter_type', "#{params[:id]} is not a valid letter type"
+          raise Common::Exceptions::ParameterMissing, 'letter_type', "#{params[:type]} is not a valid letter type"
         end
 
-        response = EVSS::Letters::DownloadService.new(@current_user).download_letter(params[:id], request.body.string)
+        response = EVSS::Letters::DownloadService.new(@current_user).download_letter(params[:type], request.body.string)
         send_data response,
-                  filename: "#{params[:id]}.pdf",
+                  filename: "#{params[:type]}.pdf",
                   type: 'application/pdf',
                   disposition: 'attachment'
       end

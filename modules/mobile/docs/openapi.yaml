@@ -195,7 +195,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-  /v0/letters/{id}:
+  /v0/letters/{type}/download:
     post:
       summary: /v0/letters/{id}
       description: Returns requested letter for download
@@ -204,7 +204,7 @@ paths:
         - Bearer: [ ]
       parameters:
         - in: path
-          name: id
+          name: type
           required: true
           schema:
             type: string
