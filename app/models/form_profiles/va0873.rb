@@ -8,16 +8,14 @@ class FormProfiles::VA0873 < FormProfile
   end
 
   def prefill
-
     super
   end
 
   def metadata
     {
-        version: 0,
-        prefill: true,
-        returnUrl: '/contact-information'
+      version: 0,
+      prefill: true,
+      returnUrl: '/contact-information'
     }
   end
-
 end
