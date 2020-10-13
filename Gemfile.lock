@@ -246,7 +246,7 @@ GEM
     benchmark-ips (2.8.2)
     bindex (0.8.1)
     brakeman (4.9.0)
-    breakers (0.3.0)
+    breakers (0.4.0)
       faraday (>= 0.7.4, < 0.18)
       multi_json (~> 1.0)
     builder (3.2.4)
