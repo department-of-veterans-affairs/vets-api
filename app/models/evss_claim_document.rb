@@ -78,17 +78,17 @@ class EVSSClaimDocument < Common::Base
   private
 
   def known_document_type?
-    errors.add(:base, 'Must use a known document type') unless description
+    errors.add(:base, I18n.t('errors.messages.uploads.document_type_unknown')) unless description
   end
 
   def unencrypted_pdf?
     return unless file_name.match?(/\.pdf$/i)
 
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
-    errors.add(:base, 'PDF must not be encrypted') if metadata.encrypted?
+    errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
     file_obj.tempfile.rewind
   rescue PdfInfo::MetadataReadError
-    errors.add(:base, 'PDF is malformed')
+    errors.add(:base, I18n.t('errors.messages.uploads.malformed_pdf'))
   end
 
   def normalize_text
@@ -100,6 +100,6 @@ class EVSSClaimDocument < Common::Base
     file_obj.tempfile.write text
     file_obj.tempfile.rewind
   rescue Encoding::UndefinedConversionError
-    errors.add(:base, 'Cannot read file encoding. Text files must be ASCII encoded.')
+    errors.add(:base, I18n.t('errors.messages.uploads.ascii_encoded'))
   end
 end
