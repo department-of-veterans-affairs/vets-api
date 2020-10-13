@@ -18,8 +18,6 @@ module ClaimsApi
       ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
       render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-    rescue
-      render json: unprocessable_response, status: :unprocessable_entity
     end
 
     # rubocop:disable Metrics/MethodLength
