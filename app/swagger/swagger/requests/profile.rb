@@ -22,6 +22,22 @@ module Swagger
           key :produces, ['application/json']
           key :consumes, ['application/json']
 
+          parameter do
+            key :name, :bank_account
+            key :in, :body
+            key :description, 'Bank account details'
+            key :required, true
+
+            schema do
+              key :type, :object
+              key :required, [:account_type, :account_number, :financial_institution_routing_number]
+
+              property :account_type, type: :string, enum: %w[Checking Savings]
+              property :account_number, type: :string
+              property :financial_institution_routing_number, type: :string
+            end
+          end
+
           response 200 do
             key :description, 'Response is OK'
             schema do
