@@ -21,35 +21,82 @@ https://www.cylindric.net/git/force-lf
 
 The main readme describes setting up (touching) your certs. Make sure you do that.
 
+Create a setting.local.yml file. Here is a sample. Yours must include the redis changes at a minimum.
+
+```
+# betamocks:
+  # For NATIVE installation
+  # The relative path to department-of-veterans-affairs/vets-api-mockdata
+  # cache_dir: ../vets-api-mockdata
+
+binaries:
+  # you can specify a full path in settings.local.yml if necessary
+  pdfinfo: pdfinfo
+  pdftk: pdftk
+  clamdscan: ./bin/fake_clamdscan
+saml:
+  authn_requests_signed: false
+redis:
+  host: localhost
+  port: 6379
+  app_data:
+    url: redis://redis:6379
+    # secondary_url: redis://localhost:6378
+  sidekiq:
+    url: redis://redis:6379
+```
 The main docker file has the following line:
 ```
 RUN freshclam --config-file freshclam.conf
 ```
 Commenting out this line can save you a lot of time in the initial build if you are using fake clamscan.
 
-In the file 'docker-entrypoint.sh at the end add this line:
-rails server --binding=0.0.0.0
-
- docker-compose run vets-api rails server --binding=0.0.0.0
-
-do a:
+Now it is time to do your initial build. You need to do this before configuring RubyMine because the image must be built in order for RubyMine to be able to scan it for gems.
+Run following from Rails root (this will cause the PUMA server to come up as well):
+```
+touch startserver
+```
+Now build the Docker image and bring up Puma via:
+```
 docker-compose up
-This will start a full build which takes quite a while.  Eventually puma will come up and you can hit:
+```
+This will be time-consuming the first time that you do this. When you see the following you are up and running:
+```
+vets-api_1  | * Listening on tcp://0.0.0.0:3000
+```
+
+Eventually Puma will come up and you can hit an endpoint in a browser at:
 http://localhost:3000/v0/status
 
-do a 
+Verify that it returns:
+```
+{"git_revision":"MISSING_GIT_REVISION","db_url":null}
+```
+Now we need to configure RubyMine for remote debugging so bring the Docker containers down:
+```
 docker-compose down
-b4 configuring rubymine and remove the 
-rails server --binding=0.0.0.0 from the previous file.
+```
 
-In Ruby mine:
-File -> settings -> languages and framework -> Ruby sdk and Gems
-Select '+' -> 'new remote'
-Choose the 'Docker Compose' radio button
-Choose 'vets-api' for the service
-Select OK.
+Open Ruby mine and open the settings page (File -> Settings -> Ruby SDK and Gems).
+
+![GitHub Logo](./images/RubyMine-settings.png)
+
+Select '+' -> 'new remote'. Choose the 'Docker Compose' radio button and 'vets-api' for the service.
+
+![GitHub Logo](./images/RubyMine-configure-remote-docker.png)
+
+Now we are ready to set a breakpoint and debug in RubyMine via the Docker container.
 
 Run -> debug... -> edit configurations 
-Select '+' and add a new rails configuration
-Accept defaults
+Select '+' to add a new rails configuration. Name the debug configuration (VetsApi Docker) and accept the defaults.
+
+![GitHub Logo](./images/RubyMine-debug-config.png)
+
+Set a breakpoint in the AdminController.
+
+![GitHub Logo](./images/RubyMine-AdminController-breakpoint.png)
+
+Now, run the following endpoint and ensure that the breakpoint is hit:
+
+http://localhost:3000/v0/status
 
