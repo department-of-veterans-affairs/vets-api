@@ -254,13 +254,7 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
     expect(response).to have_http_status(:bad_request)
   end
 
-  context 'Community Care (PPMS)' do
-    around do |example|
-      VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query], allow_playback_repeats: true) do
-        example.run
-      end
-    end
-
+  context 'Community Care (PPMS)', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms') do
     let(:params) do
       {
         address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
@@ -269,21 +263,15 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
     end
 
     it 'responds to GET #index with bbox, address, and ccp type' do
-      VCR.use_cassette(
-        'facilities/ppms/ppms_new_query',
-        match_requests_on: %i[path query],
-        allow_playback_repeats: true
-      ) do
-        get '/v0/facilities/va', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
-        expect(response).to be_successful
-        expect(response.body).to be_a(String)
-        json = JSON.parse(response.body)
-        expect(json['data'].length).to eq(1)
-        provider = json['data'][0]
-        expect(provider['attributes']['address']['city']).to eq('Chandler')
-        expect(provider['attributes']['phone']).to eq('4809241552')
-        expect(provider['attributes']['caresite_phone']).to eq('4807057300')
-      end
+      get '/v0/facilities/va', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(6)
+      provider = json['data'][0]
+      expect(provider['attributes']['address']['city']).to eq('Chandler')
+      expect(provider['attributes']['phone']).to be_nil
+      expect(provider['attributes']['caresite_phone']).to eq('4809172300')
     end
 
     it 'responds to GET #index with success even if no providers are found' do
