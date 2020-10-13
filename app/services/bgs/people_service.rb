@@ -5,7 +5,7 @@ module BGS
     class VaFileNumberNotFound < StandardError; end
 
     def find_person_by_participant_id
-      response = @service.people.find_person_by_ptcpnt_id(@user.participant_id)
+      response = @service.people.find_person_by_ptcpnt_id(@user.participant_id, @user.ssn)
 
       raise VaFileNumberNotFound if response.nil?
 
