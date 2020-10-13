@@ -42,8 +42,10 @@ class FormAttachment < ApplicationRecord
     error_messages = pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
     if error_messages.present?
       log_message_to_sentry(error_messages, 'warn')
-      raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('uploads.pdf.incorrect_password'),
-                                                        source: 'FormAttachment.unlock_pdf')
+      raise Common::Exceptions::UnprocessableEntity.new(
+        detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
+        source: 'FormAttachment.unlock_pdf'
+      )
     end
     file.tempfile.unlink
     file.tempfile = tmpf

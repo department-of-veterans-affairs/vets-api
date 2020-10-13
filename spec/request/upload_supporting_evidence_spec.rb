@@ -26,14 +26,14 @@ RSpec.describe 'Upload supporting evidence', type: :request do
     context 'with valid encrypted parameters' do
       it 'returns a 200 and an upload guid' do
         post '/v0/upload_supporting_evidence',
-             params: { supporting_evidence_attachment: { file_data: encrypted_pdf_file, file_password: 'test' } }
+             params: { supporting_evidence_attachment: { file_data: encrypted_pdf_file, password: 'test' } }
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq SupportingEvidenceAttachment.last.guid
       end
 
       it 'returns a 422 for a pdf with an incorrect password' do
         post '/v0/upload_supporting_evidence',
-             params: { supporting_evidence_attachment: { file_data: encrypted_pdf_file, file_password: 'bad pwd' } }
+             params: { supporting_evidence_attachment: { file_data: encrypted_pdf_file, password: 'bad pwd' } }
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'
@@ -41,7 +41,7 @@ RSpec.describe 'Upload supporting evidence', type: :request do
 
       it 'returns a 200 for a pdf with a password that was not encrypted' do
         post '/v0/upload_supporting_evidence',
-             params: { supporting_evidence_attachment: { file_data: pdf_file, file_password: 'unnecessary' } }
+             params: { supporting_evidence_attachment: { file_data: pdf_file, password: 'unnecessary' } }
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq SupportingEvidenceAttachment.last.guid
       end
