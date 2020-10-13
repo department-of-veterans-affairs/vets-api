@@ -5,7 +5,6 @@ require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
 require 'support/fixture_helpers'
-require 'support/spec_temp_files'
 require 'support/silence_stream'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
 require 'support/sidekiq/batch'

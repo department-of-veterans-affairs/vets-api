@@ -321,6 +321,43 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    describe 'preneed attachments upload' do
+      it 'supports uploading a file' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          200,
+          '_data' => {
+            'preneed_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+            }
+          }
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          400,
+          ''
+        )
+      end
+
+      it 'returns 422 if the attachment is not an allowed type' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          422,
+          '_data' => {
+            'preneed_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
+            }
+          }
+        )
+      end
+    end
+
     context 'debts tests' do
       let(:user) { build(:user, :loa3) }
       let(:headers) do
@@ -443,9 +480,20 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           200,
           '_data' => {
             'hca_attachment' => {
-              file_data: Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
-              )
+              file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+            }
+          }
+        )
+      end
+
+      it 'returns 422 if the attachment is not an allowed type' do
+        expect(subject).to validate(
+          :post,
+          '/v0/hca_attachments',
+          422,
+          '_data' => {
+            'hca_attachment' => {
+              file_data: fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
             }
           }
         )
@@ -778,7 +826,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          400,
+          ''
+        )
+      end
+
+      it 'returns a 422 if a file is corrupted or invalid' do
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          422,
+          '_data' => {
+            'supporting_evidence_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+            }
+          }
+        )
       end
     end
 

@@ -30,8 +30,6 @@ Rails.application.routes.draw do
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
 
-    resource :form526_opt_in, only: :create
-
     resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
