@@ -5,4 +5,9 @@
 bundle check || bundle install --binstubs="${BUNDLE_APP_CONFIG}/bin"
 
 exec "$@"
-#rails server --binding=0.0.0.0
+
+if [ -e  "./startserver" ] ; then
+  echo Starting the rails server!
+  rails server --binding=0.0.0.0
+fi
+
