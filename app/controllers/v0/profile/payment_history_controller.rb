@@ -6,8 +6,8 @@ module V0
       before_action { authorize :bgs, :access? }
 
       def index
-        service = BGS::PaymentService.new(current_user)
-        response = service.payment_history
+        person = BGS::PeopleService.new(current_user).find_person_by_participant_id
+        response = BGS::PaymentService.new(current_user).payment_history(person)
 
         render(
           json: response,

@@ -312,6 +312,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                              tags: ["context:#{type}", 'version:v1'], **once)
               expect(response).to have_http_status(:ok)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+              expect(cookies['vagov_saml_request_localhost']).not_to be_nil
             end
           end
         end
@@ -546,7 +547,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'redirects to identity proof URL', :aggregate_failures do
           Timecop.freeze(Time.current)
-          expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).and_return(true)
+          expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).twice.and_return(true)
           expect_any_instance_of(SAML::PostURLService).to receive(:verify_url).and_return(['http://uplevel', {}])
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 

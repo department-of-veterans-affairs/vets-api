@@ -321,6 +321,43 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    describe 'preneed attachments upload' do
+      it 'supports uploading a file' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          200,
+          '_data' => {
+            'preneed_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+            }
+          }
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          400,
+          ''
+        )
+      end
+
+      it 'returns 422 if the attachment is not an allowed type' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          422,
+          '_data' => {
+            'preneed_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
+            }
+          }
+        )
+      end
+    end
+
     context 'debts tests' do
       let(:user) { build(:user, :loa3) }
       let(:headers) do
@@ -443,9 +480,20 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           200,
           '_data' => {
             'hca_attachment' => {
-              file_data: Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
-              )
+              file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+            }
+          }
+        )
+      end
+
+      it 'returns 422 if the attachment is not an allowed type' do
+        expect(subject).to validate(
+          :post,
+          '/v0/hca_attachments',
+          422,
+          '_data' => {
+            'hca_attachment' => {
+              file_data: fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
             }
           }
         )
@@ -778,7 +826,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          400,
+          ''
+        )
+      end
+
+      it 'returns a 422 if a file is corrupted or invalid' do
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          422,
+          '_data' => {
+            'supporting_evidence_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+            }
+          }
+        )
       end
     end
 
@@ -1573,9 +1639,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting a provider by id' do
-          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_info)
+          expect_any_instance_of(Facilities::PPMS::V0::Client).to receive(:provider_info)
             .with('1407842941').and_return(provider)
-          expect_any_instance_of(Facilities::PPMS::Client).to receive(:provider_services)
+          expect_any_instance_of(Facilities::PPMS::V0::Client).to receive(:provider_services)
             .with('1407842941').and_return([provider_services_response])
           expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_1407842941')
         end
@@ -2750,8 +2816,37 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     it "supports returning the vet's payment_history" do
       expect(subject).to validate(:get, '/v0/profile/payment_history', 401)
-      VCR.use_cassette('bgs/payment_history/find_by_ssn') do
+      VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
         expect(subject).to validate(:get, '/v0/profile/payment_history', 200, headers)
+      end
+    end
+
+    describe 'claim status tool' do
+      let!(:claim) do
+        FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
+                                       user_uuid: mhv_user.uuid, data: {})
+      end
+
+      it 'uploads a document to support a claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/evss_claims/{evss_claim_id}/documents',
+          202,
+          headers.merge('_data' => { file: fixture_file_upload('/files/doctors-note.pdf', 'application/pdf'),
+                                     tracked_item_id: 33,
+                                     document_type: 'L023' }, 'evss_claim_id' => 189_625)
+        )
+      end
+      it 'rejects a malformed document' do
+        expect(subject).to validate(
+          :post,
+          '/v0/evss_claims/{evss_claim_id}/documents',
+          422,
+          headers.merge('_data' => { file: fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf',
+                                                               'application/pdf'),
+                                     tracked_item_id: 33,
+                                     document_type: 'L023' }, 'evss_claim_id' => 189_625)
+        )
       end
     end
   end

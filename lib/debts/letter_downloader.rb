@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'debts/service'
+
 module Debts
   class LetterDownloader
     DEBTS_DOCUMENT_TYPES = %w[

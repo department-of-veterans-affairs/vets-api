@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "addressLine1",
+    "addressLine2",
+    "addressLine3",
+    "addressPou",
+    "addressType",
+    "city",
+    "internationalPostalCode",
+    "province",
+    "stateCode",
+    "zipCode",
+    "zipCodeSuffix"
+  ],
+  "properties": {
+    "addressLine1": {
+      "type": "string"
+    },
+    "addressLine2": {
+      "type": ["string", "null"]
+    },
+    "addressLine3": {
+      "type": ["string", "null"]
+    },
+    "addressPou": {
+      "type": "string"
+    },
+    "addressType": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "internationalPostalCode": {
+      "type": ["string", "null"]
+    },
+    "province": {
+      "type": ["string", "null"]
+    },
+    "stateCode": {
+      "type": "string"
+    },
+    "zipCode": {
+      "type": "string"
+    },
+    "zipCodeSuffix": {
+      "type": ["string", "null"]
+    }
+  }
+}

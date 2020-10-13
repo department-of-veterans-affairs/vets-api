@@ -406,12 +406,12 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities do
         [3, 1]
       ].each do |(page, per_page)|
         it 'paginates ppms responses' do
-          mock_client = double('Facilities::PPMS::Client')
+          mock_client = double('Facilities::PPMS::V0::Client')
           params_with_pagination = params.merge(
             page: page.to_s,
             per_page: per_page.to_s
           )
-          expect(Facilities::PPMS::Client).to receive(:new).and_return(mock_client)
+          expect(Facilities::PPMS::V0::Client).to receive(:new).and_return(mock_client)
           expect(mock_client).to receive(:provider_locator).with(
             ActionController::Parameters.new(params_with_pagination).permit!
           ).and_return(
