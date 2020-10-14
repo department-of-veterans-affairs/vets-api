@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 module Facilities
   module PPMS
-
     # ppms has strange behavior for certain url-encoded characters, no url-encoding works best
     class DoNotEncoder
       def self.encode(params)
@@ -11,6 +12,5 @@ module Facilities
         buffer.chop
       end
     end
-
   end
 end

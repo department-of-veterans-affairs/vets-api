@@ -139,8 +139,8 @@ module Facilities
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
 
-          specialty_codes = params[:specialties].first(4).map.with_index.with_object(Hash.new) do |(code, index), hsh|
-            hsh["specialtycode#{index+1}".to_sym] = code
+          specialty_codes = params[:specialties].first(4).map.with_index.with_object({}) do |(code, index), hsh|
+            hsh["specialtycode#{index + 1}".to_sym] = code
           end
 
           cnr = center_and_radius(params[:bbox])
