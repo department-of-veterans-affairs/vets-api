@@ -172,7 +172,6 @@
             - run:
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
-
     bundle_audit:
         steps:
             - run:
