@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 12 Oct 2020 21:05:09 GMT
+      - Wed, 14 Oct 2020 14:05:25 GMT
       Content-Type:
       - application/json;charset=UTF-8
       Transfer-Encoding:
@@ -39,7 +39,7 @@ http_interactions:
       Vary:
       - Accept-Encoding
       X-Okta-Request-Id:
-      - X4TFBYwEEft1hYClmKZwwgAACW4
+      - X4cFpcUzOMoWg9XpdM-DXgAABz0
       X-Xss-Protection:
       - '0'
       P3p:
@@ -47,9 +47,9 @@ http_interactions:
       X-Rate-Limit-Limit:
       - '600'
       X-Rate-Limit-Remaining:
-      - '595'
+      - '597'
       X-Rate-Limit-Reset:
-      - '1602536768'
+      - '1602684384'
       Cache-Control:
       - no-cache, no-store
       Pragma:
@@ -79,7 +79,7 @@ http_interactions:
       Strict-Transport-Security:
       - max-age=315360000; includeSubDomains
       Set-Cookie:
-      - JSESSIONID=0D39BB309D663CD58F60C8887E01ABA3; Path=/; Secure; HttpOnly
+      - JSESSIONID=5DB18451B531B73799A62A364E808E9A; Path=/; Secure; HttpOnly
       - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
     body:
       encoding: ASCII-8BIT
@@ -89,7 +89,7 @@ http_interactions:
         - benefits-apis","description":"Benefits APIs","audiences":["https://sandbox-api.va.gov/services/claims"],"issuer":"https://deptva-eval.okta.com/oauth2/aus7y0lyttrObgW622p7","issuerMode":"ORG_URL","status":"ACTIVE","created":"2020-08-04T17:12:07.000Z","lastUpdated":"2020-10-01T19:45:52.000Z","credentials":{"signing":{"rotationMode":"AUTO","lastRotated":"2020-08-04T17:12:07.000Z","nextRotation":"2020-11-02T17:12:07.000Z","kid":"wnEFSoK7A6ig_dxtLWSGj0o6wneR_Ts_LTaLRJHpSxY"}},"_links":{"rotateKey":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/credentials/lifecycle/keyRotate","hints":{"allow":["POST"]}},"metadata":[{"name":"oauth-authorization-server","href":"https://deptva-eval.okta.com/oauth2/aus7y0lyttrObgW622p7/.well-known/oauth-authorization-server","hints":{"allow":["GET"]}},{"name":"openid-configuration","href":"https://deptva-eval.okta.com/oauth2/aus7y0lyttrObgW622p7/.well-known/openid-configuration","hints":{"allow":["GET"]}}],"keys":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/credentials/keys","hints":{"allow":["GET"]}},"claims":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/claims","hints":{"allow":["GET","POST"]}},"policies":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/policies","hints":{"allow":["GET","POST"]}},"self":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7","hints":{"allow":["GET","DELETE","PUT"]}},"scopes":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/scopes","hints":{"allow":["GET","POST"]}},"deactivate":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/lifecycle/deactivate","hints":{"allow":["POST"]}}}},{"id":"aus7y0sefudDrg2HI2p7","name":"sandbox
         - veteran-verification-apis","description":"Veteran Verification API","audiences":["https://sandbox-api.va.gov/services/veteran_verification"],"issuer":"https://deptva-eval.okta.com/oauth2/aus7y0sefudDrg2HI2p7","issuerMode":"ORG_URL","status":"ACTIVE","created":"2020-08-04T17:25:51.000Z","lastUpdated":"2020-10-01T19:46:05.000Z","credentials":{"signing":{"rotationMode":"AUTO","lastRotated":"2020-08-04T17:25:51.000Z","nextRotation":"2020-11-02T17:25:51.000Z","kid":"HuHnZaumZxln4-0TjPPRiwsPd-ke2igM8tUEj2-47Jg"}},"_links":{"rotateKey":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0sefudDrg2HI2p7/credentials/lifecycle/keyRotate","hints":{"allow":["POST"]}},"metadata":[{"name":"oauth-authorization-server","href":"https://deptva-eval.okta.com/oauth2/aus7y0sefudDrg2HI2p7/.well-known/oauth-authorization-server","hints":{"allow":["GET"]}},{"name":"openid-configuration","href":"https://deptva-eval.okta.com/oauth2/aus7y0sefudDrg2HI2p7/.well-known/openid-configuration","hints":{"allow":["GET"]}}],"keys":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0sefudDrg2HI2p7/credentials/keys","hints":{"allow":["GET"]}},"claims":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0sefudDrg2HI2p7/claims","hints":{"allow":["GET","POST"]}},"policies":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0sefudDrg2HI2p7/policies","hints":{"allow":["GET","POST"]}},"self":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0sefudDrg2HI2p7","hints":{"allow":["GET","DELETE","PUT"]}},"scopes":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0sefudDrg2HI2p7/scopes","hints":{"allow":["GET","POST"]}},"deactivate":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0sefudDrg2HI2p7/lifecycle/deactivate","hints":{"allow":["POST"]}}}},{"id":"aus89xnh1xznM13SK2p7","name":"sandbox
         - community-care-apis","description":"Community Care APIs","audiences":["https://sandbox-api.va.gov/services/community-care"],"issuer":"https://deptva-eval.okta.com/oauth2/aus89xnh1xznM13SK2p7","issuerMode":"ORG_URL","status":"ACTIVE","created":"2020-09-10T17:22:38.000Z","lastUpdated":"2020-10-01T19:47:16.000Z","credentials":{"signing":{"rotationMode":"AUTO","lastRotated":"2020-09-10T17:22:39.000Z","nextRotation":"2020-12-09T17:22:39.000Z","kid":"67Ka1wdHNI1TuDy_WrlrQSfmA2-cNr-KzCCsNhZ2EDQ"}},"_links":{"rotateKey":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus89xnh1xznM13SK2p7/credentials/lifecycle/keyRotate","hints":{"allow":["POST"]}},"metadata":[{"name":"oauth-authorization-server","href":"https://deptva-eval.okta.com/oauth2/aus89xnh1xznM13SK2p7/.well-known/oauth-authorization-server","hints":{"allow":["GET"]}},{"name":"openid-configuration","href":"https://deptva-eval.okta.com/oauth2/aus89xnh1xznM13SK2p7/.well-known/openid-configuration","hints":{"allow":["GET"]}}],"keys":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus89xnh1xznM13SK2p7/credentials/keys","hints":{"allow":["GET"]}},"claims":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus89xnh1xznM13SK2p7/claims","hints":{"allow":["GET","POST"]}},"policies":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus89xnh1xznM13SK2p7/policies","hints":{"allow":["GET","POST"]}},"self":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus89xnh1xznM13SK2p7","hints":{"allow":["GET","DELETE","PUT"]}},"scopes":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus89xnh1xznM13SK2p7/scopes","hints":{"allow":["GET","POST"]}},"deactivate":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus89xnh1xznM13SK2p7/lifecycle/deactivate","hints":{"allow":["POST"]}}}},{"id":"aus8ja15zzb3p3mnY2p7","name":"api-000-client-credentials-testing","description":"api-000-client-credentials-testing","audiences":["https://sandbox-api.va.gov/services/cc"],"issuer":"https://deptva-eval.okta.com/oauth2/aus8ja15zzb3p3mnY2p7","issuerMode":"ORG_URL","status":"ACTIVE","created":"2020-10-08T13:11:52.000Z","lastUpdated":"2020-10-08T13:11:52.000Z","credentials":{"signing":{"rotationMode":"AUTO","lastRotated":"2020-10-08T13:11:52.000Z","nextRotation":"2021-01-06T13:11:52.000Z","kid":"3fBBWKksb_cffDkXmYRncutcmjaE0AcyWduaYsSUkz8"}},"_links":{"rotateKey":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus8ja15zzb3p3mnY2p7/credentials/lifecycle/keyRotate","hints":{"allow":["POST"]}},"metadata":[{"name":"oauth-authorization-server","href":"https://deptva-eval.okta.com/oauth2/aus8ja15zzb3p3mnY2p7/.well-known/oauth-authorization-server","hints":{"allow":["GET"]}},{"name":"openid-configuration","href":"https://deptva-eval.okta.com/oauth2/aus8ja15zzb3p3mnY2p7/.well-known/openid-configuration","hints":{"allow":["GET"]}}],"keys":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus8ja15zzb3p3mnY2p7/credentials/keys","hints":{"allow":["GET"]}},"claims":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus8ja15zzb3p3mnY2p7/claims","hints":{"allow":["GET","POST"]}},"policies":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus8ja15zzb3p3mnY2p7/policies","hints":{"allow":["GET","POST"]}},"self":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus8ja15zzb3p3mnY2p7","hints":{"allow":["GET","DELETE","PUT"]}},"scopes":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus8ja15zzb3p3mnY2p7/scopes","hints":{"allow":["GET","POST"]}},"deactivate":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus8ja15zzb3p3mnY2p7/lifecycle/deactivate","hints":{"allow":["POST"]}}}}]'
-  recorded_at: Mon, 12 Oct 2020 21:05:09 GMT
+  recorded_at: Wed, 14 Oct 2020 14:05:25 GMT
 - request:
     method: get
     uri: https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/scopes
@@ -113,7 +113,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 12 Oct 2020 21:05:09 GMT
+      - Wed, 14 Oct 2020 14:05:25 GMT
       Content-Type:
       - application/json;charset=UTF-8
       Transfer-Encoding:
@@ -129,7 +129,7 @@ http_interactions:
       Vary:
       - Accept-Encoding
       X-Okta-Request-Id:
-      - X4TFBYoGUaako0TvlM9rqAAAEwc
+      - X4cFpZP3XYrh-w9ye5nDnwAABZs
       X-Xss-Protection:
       - '0'
       P3p:
@@ -137,9 +137,9 @@ http_interactions:
       X-Rate-Limit-Limit:
       - '600'
       X-Rate-Limit-Remaining:
-      - '594'
+      - '596'
       X-Rate-Limit-Reset:
-      - '1602536768'
+      - '1602684384'
       Cache-Control:
       - no-cache, no-store
       Pragma:
@@ -165,7 +165,7 @@ http_interactions:
       Strict-Transport-Security:
       - max-age=315360000; includeSubDomains
       Set-Cookie:
-      - JSESSIONID=FB10BAA1C6677AD5A47C2649E2B4F501; Path=/; Secure; HttpOnly
+      - JSESSIONID=8A5BB4E869524228489BD4B73D0FAB16; Path=/; Secure; HttpOnly
       - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
     body:
       encoding: ASCII-8BIT
@@ -184,5 +184,5 @@ http_interactions:
         number.","system":true,"metadataPublish":"ALL_CLIENTS","consent":"IMPLICIT","default":false,"_links":{"self":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/scopes/scp7y0lyty9uK7z4E2p7","hints":{"allow":["GET","PUT","DELETE"]}}}},{"id":"scp7y0lytz5YAyMKr2p7","name":"offline_access","displayName":"Offline
         access","description":"Offline access allows this app to read your information
         when you are not online, which makes your data stay as up-to-date as possible.","system":true,"metadataPublish":"ALL_CLIENTS","consent":"IMPLICIT","default":false,"_links":{"self":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/scopes/scp7y0lytz5YAyMKr2p7","hints":{"allow":["GET","PUT","DELETE"]}}}}]'
-  recorded_at: Mon, 12 Oct 2020 21:05:09 GMT
+  recorded_at: Wed, 14 Oct 2020 14:05:25 GMT
 recorded_with: VCR 6.0.0
