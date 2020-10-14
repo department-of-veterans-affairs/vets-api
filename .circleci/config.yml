@@ -162,6 +162,9 @@
             - run:
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
+            - when:
+                condition: << pipeline.parameters.verify_stable_pacts >>
+                steps: echo << pipeline.parameters.consumer_version_tags >>
     bundle_audit:
         steps:
             - run:
