@@ -19,7 +19,7 @@ class EVSSClaimDocument < Common::Base
   validates(:file_name, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
-  before_validation :normalize_text, :remove_password
+  before_validation :normalize_text, :convert_to_unlocked_pdf
 
   # rubocop:disable Layout/LineLength
   DOCUMENT_TYPES = {
@@ -83,13 +83,15 @@ class EVSSClaimDocument < Common::Base
     errors.add(:base, I18n.t('errors.messages.uploads.document_type_unknown')) unless description
   end
 
-  def remove_password
+  def convert_to_unlocked_pdf
     return unless file_name.match?(/\.pdf$/i) && password.present?
 
     pdftk = PdfForms.new(Settings.binaries.pdftk)
-    tmpf = Tempfile.new('remove_password')
+    tempfile_without_pass = Tempfile.new('no_password_here')
 
-    error_messages = pdftk.call_pdftk(file_obj.tempfile.path, 'input_pw', password, 'output', tmpf.path)
+    error_messages = pdftk.call_pdftk(file_obj.tempfile.path,
+                                      'input_pw', password,
+                                      'output', tempfile_without_pass.path)
     if error_messages.present?
       log_message_to_sentry(error_messages, 'warn')
       errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
@@ -98,7 +100,7 @@ class EVSSClaimDocument < Common::Base
     @password = nil
 
     file_obj.tempfile.unlink
-    file_obj.tempfile = tmpf
+    file_obj.tempfile = tempfile_without_pass
   end
 
   def unencrypted_pdf?
