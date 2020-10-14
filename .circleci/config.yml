@@ -48,7 +48,6 @@
   jobs:
     verify_pacts:
       <<: *defaults
-      working_directory: /pact
       steps:
         - checkout_and_install
         - setup_test_db
