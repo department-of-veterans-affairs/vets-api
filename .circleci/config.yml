@@ -54,7 +54,6 @@
         - verify_stable_pacts
         - store_artifacts:
             path: /tmp/pact
-            destination: webhook-info
     bundle_audit:
       <<: *defaults
       steps:
