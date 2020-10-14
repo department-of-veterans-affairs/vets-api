@@ -5,3 +5,5 @@ claimantAddress:
   city: [contact_information, address, city]
   stateCode: [contact_information, address, state]
   zipCode: [contact_information, address, postal_code]
+claimantPhoneNumber: [contact_information, us_phone]
+claimantEmailAddress: [contact_information, email]

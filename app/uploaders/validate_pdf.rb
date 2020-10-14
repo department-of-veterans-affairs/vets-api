@@ -18,9 +18,13 @@ module ValidatePdf
 
   def validate(temp_file)
     pdf = Origami::PDF.read temp_file, decrypt: false
-    raise CarrierWave::UploadError, 'The uploaded PDF file is encrypted and cannot be read' if pdf.encrypted?
+    if pdf.encrypted?
+      raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('errors.messages.uploads.pdf.locked'),
+                                                        source: 'ValidatePdf')
+    end
   rescue Origami::InvalidPDFError
-    raise CarrierWave::UploadError, 'The uploaded PDF file is invalid and cannot be read'
+    raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('errors.messages.uploads.pdf.invalid'),
+                                                      source: 'ValidatePdf')
   end
 
   def validate_pdf(file)

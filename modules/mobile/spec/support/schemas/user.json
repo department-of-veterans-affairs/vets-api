@@ -55,6 +55,15 @@
                 },
                 "mailingAddress": {
                   "$ref": "address.json"
+                },
+                "homePhone": {
+                  "$ref": "phone.json"
+                },
+                "mobilePhone": {
+                  "$ref": "phone.json"
+                },
+                "workPhone": {
+                  "$ref": "phone.json"
                 }
               }
             },

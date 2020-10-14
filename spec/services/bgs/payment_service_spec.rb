@@ -4,23 +4,31 @@ require 'rails_helper'
 
 RSpec.describe BGS::PaymentService do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:person_hash) do
+    {
+      file_nbr: '796043735',
+      ssn_nbr: '796043735',
+      ptcpnt_id: '600061742'
+    }
+  end
 
   describe '#payment_history' do
-    it 'returns a user\'s payment history given the user\'s ssn' do
+    it 'returns a user\'s payment history given the user\'s participant id and file number' do
       VCR.use_cassette('bgs/payment_service/payment_history') do
         service = BGS::PaymentService.new(user)
-        response = service.payment_history
+        response = service.payment_history(person_hash)
 
-        expect(response).to include(:file_number, :payment_address, :payments, :return_payments, :full_name)
+        expect(response).to include(:payments)
       end
     end
 
     it 'returns an empty result if there are no results for the user' do
       VCR.use_cassette('bgs/payment_service/no_payment_history') do
-        expect(user).to receive(:ssn).and_return('000000000')
+        person_hash[:file_nbr] = '000000000'
+        person_hash[:ptcpnt_id] = '000000000'
 
-        response = BGS::PaymentService.new(user).payment_history
-        expect(response).to include({ payment_address: [], payments: [], return_payments: [] })
+        response = BGS::PaymentService.new(user).payment_history(person_hash)
+        expect(response).to include({ payments: [], return_payments: [] })
       end
     end
 
@@ -28,10 +36,13 @@ RSpec.describe BGS::PaymentService do
       it 'logs an error' do
         response = BGS::PaymentService.new(user)
 
-        expect_any_instance_of(BGS::PaymentHistoryWebService).to receive(:find_by_ssn).and_raise(StandardError)
+        person_hash[:file_nbr] = '000000000'
+        person_hash[:ptcpnt_id] = '000000000'
+        expect_any_instance_of(BGS::PaymentInformationService)
+          .to receive(:retrieve_payment_summary_with_bdn).and_raise(StandardError)
         expect(response).to receive(:log_exception_to_sentry)
 
-        response.payment_history
+        response.payment_history(person_hash)
       end
     end
   end
