@@ -52,6 +52,8 @@
         - checkout_and_install
         - setup_test_db
         - verify_stable_pacts
+        - store_artifacts:
+            path: ./pact
     bundle_audit:
       <<: *defaults
       steps:
@@ -159,8 +161,7 @@
                 command: bundle exec rake db:create db:schema:load
     verify_stable_pacts:
         steps:
-            - run: echo "TESTING"
-            - run: echo << pipeline.parameters.consumer_name >>
+            - run: << pipeline.parameters.consumer_name >> > ./pact/webhook_info
             - run:
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
