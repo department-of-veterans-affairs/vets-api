@@ -140,7 +140,7 @@ RSpec.configure do |config|
   # in those modules have explicitly skipped the CSRF protection functionality
   lighthouse_dirs = %r{
     modules/
-    (appeals_api|claims_api|openid_auth|va_forms|vba_documents|
+    (appeals_api|apps_api|claims_api|openid_auth|va_forms|vba_documents|
       veteran|veteran_confirmation|veteran_verification)/
   }x
   config.define_derived_metadata(file_path: lighthouse_dirs) do |metadata|
