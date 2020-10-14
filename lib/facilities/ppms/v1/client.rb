@@ -121,7 +121,7 @@ module Facilities
           }
         end
 
-        def pos_locator_params(params, pos_code)
+        def base_params(params)
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
 
@@ -130,28 +130,20 @@ module Facilities
           {
             address: [cnr[:latitude], cnr[:longitude]].join(','),
             radius: cnr[:radius],
-            posCodes: pos_code,
             maxResults: per_page * page + 1
           }
         end
 
-        def provider_locator_params(params)
-          page = Integer(params[:page] || 1)
-          per_page = Integer(params[:per_page] || BaseFacility.per_page)
+        def pos_locator_params(params, pos_code)
+          base_params(params).merge(posCodes: pos_code)
+        end
 
+        def provider_locator_params(params)
           specialty_codes = params[:specialties].first(4).map.with_index.with_object({}) do |(code, index), hsh|
             hsh["specialtycode#{index + 1}".to_sym] = code
           end
 
-          cnr = center_and_radius(params[:bbox])
-
-          specialty_codes.merge(
-            {
-              address: [cnr[:latitude], cnr[:longitude]].join(','),
-              radius: cnr[:radius],
-              maxResults: per_page * page + 1
-            }
-          )
+          specialty_codes.merge(base_params(params))
         end
       end
     end
