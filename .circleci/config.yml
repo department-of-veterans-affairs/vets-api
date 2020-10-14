@@ -166,7 +166,7 @@
                 name: Create artifact for webhook info
                 command: |
                   mkdir -p /tmp/pact
-                  echo  << pipeline.parameters.consumer_name >> > /tmp/pact;
+                  echo  << pipeline.parameters.consumer_name >> > /tmp/pact/info;
             - run:
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
