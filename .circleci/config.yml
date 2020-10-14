@@ -52,8 +52,6 @@
         - checkout_and_install
         - setup_test_db
         - verify_stable_pacts
-        - store_artifacts:
-            path: /tmp/pact
     bundle_audit:
       <<: *defaults
       steps:
@@ -164,11 +162,13 @@
             - run:
                 name: Create artifact for webhook info
                 command: |
-                  mkdir -p /tmp/pact
-                  echo  << pipeline.parameters.consumer_name >> > /tmp/pact/info;
+                  echo  << pipeline.parameters.consumer_name >> > /tmp/pact-broker-webhook-info;
             - run:
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
+            - store_artifacts:
+                path: /tmp/pact-broker-webhook-info
+                destination: artifact-file
     bundle_audit:
         steps:
             - run:
