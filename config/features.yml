@@ -288,9 +288,14 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-      Add text message opt-in question to 10203 Personal Information chapter and layout changes     
+      Add text message opt-in question to 10203 Personal Information chapter and layout changes
   form_1995_edu_updates:
     actor_type: user
     enable_in_development: true
     description: >
       Form updates to bring EDU forms in compliance with latest DEPO patterns and practices
+  request_locked_pdf_password:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Ask for a password when an encrypted PDF is detected before uploading
