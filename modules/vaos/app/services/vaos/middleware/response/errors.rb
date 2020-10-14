@@ -25,6 +25,8 @@ module VAOS
         end
 
         def error_500(body)
+          # NOTE: This is a temporary patch more on that here:
+          # https://github.com/department-of-veterans-affairs/vets-api/pull/5082
           if /APTCRGT/.match?(body)
             error_400(body)
           else
