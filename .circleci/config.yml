@@ -159,13 +159,19 @@
                 command: bundle exec rake db:create db:schema:load
     verify_stable_pacts:
         steps:
-            - run: echo << pipeline.parameters.consumer_name >>
-            - run: echo << pipeline.parameters.consumer_version_tags >>
-            - run: echo << pipeline.parameters.consumer_version_number >>
             - run:
                 name: Create artifact for webhook info
                 command: |
+                  echo "Pact Broker Consumer Tagging Info:" > /tmp/pact-broker-webhook-info;
+
+                  echo "Consumer Name:" > /tmp/pact-broker-webhook-info;
                   echo  << pipeline.parameters.consumer_name >> > /tmp/pact-broker-webhook-info;
+
+                  echo "Consumer Version Tags:" > /tmp/pact-broker-webhook-info;
+                  echo << pipeline.parameters.consumer_version_tags >> > /tmp/pact-broker-webhook-info;
+
+                  echo "Consumer Version Number:" > /tmp/pact-broker-webhook-info;
+                  echo  << pipeline.parameters.consumer_version_number >> > /tmp/pact-broker-webhook-info;
             - run:
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
