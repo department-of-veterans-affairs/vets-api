@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://deptva-eval.okta.com/api/v1/authorizationServers
+    uri: https://example.com/api/v1/authorizationServers
     body:
       encoding: US-ASCII
       string: ''
@@ -92,7 +92,7 @@ http_interactions:
   recorded_at: Wed, 14 Oct 2020 15:49:31 GMT
 - request:
     method: get
-    uri: https://deptva-eval.okta.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/scopes
+    uri: https://example.com/api/v1/authorizationServers/aus7y0lyttrObgW622p7/scopes
     body:
       encoding: US-ASCII
       string: ''
