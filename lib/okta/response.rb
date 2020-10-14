@@ -2,10 +2,9 @@
 
 module Okta
   class Response
-    attr_accessor :headers, :status, :body
+    attr_accessor :status, :body
 
     def initialize(resp)
-      @headers = resp.headers
       @status = resp.status
       @body = resp.body
     end
