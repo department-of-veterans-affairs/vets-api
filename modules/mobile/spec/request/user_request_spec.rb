@@ -73,6 +73,45 @@ RSpec.describe 'user', type: :request do
         )
       end
 
+      it 'includes a home phone number' do
+        expect(attributes['profile']['homePhone']).to include(
+          {
+            'id' => 789,
+            'areaCode' => '303',
+            'countryCode' => '1',
+            'extension' => nil,
+            'phoneNumber' => '5551234',
+            'phoneType' => 'HOME'
+          }
+        )
+      end
+
+      it 'includes a mobile phone number' do
+        expect(attributes['profile']['mobilePhone']).to include(
+          {
+            'id' => 791,
+            'areaCode' => '303',
+            'countryCode' => '1',
+            'extension' => nil,
+            'phoneNumber' => '5551234',
+            'phoneType' => 'WORK'
+          }
+        )
+      end
+
+      it 'includes a work phone number' do
+        expect(attributes['profile']['workPhone']).to include(
+          {
+            'id' => 790,
+            'areaCode' => '303',
+            'countryCode' => '1',
+            'extension' => nil,
+            'phoneNumber' => '5551234',
+            'phoneType' => 'MOBILE'
+          }
+        )
+      end
+
       it 'includes the service the user has access to' do
         expect(attributes['authorizedServices']).to eq(
           %w[

@@ -558,6 +558,17 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v5655_expected) do
+    {
+      'personalData' => {
+        'fullName' => full_name,
+        'address' => address,
+        'phone' => us_phone,
+        'dateOfBirth' => user.birth_date
+      }
+    }
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,
@@ -699,9 +710,11 @@ RSpec.describe FormProfile, type: :model do
         'addressLine2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'stateCode' => user.va_profile[:address][:state],
-        'countryName' => 'USA',
+        'countryName' => user.va_profile[:address][:country],
         'zipCode' => user.va_profile[:address][:postal_code][0..4]
-      }
+      },
+      'claimantPhoneNumber' => us_phone,
+      'claimantEmailAddress' => user.pciu_email
     }
   end
 
@@ -791,6 +804,12 @@ RSpec.describe FormProfile, type: :model do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
         end
+      end
+    end
+
+    context 'with a user that can prefill financial status report' do
+      it 'returns a prefilled 5655 form' do
+        expect_prefilled('5655')
       end
     end
 
