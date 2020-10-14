@@ -6,6 +6,7 @@ require 'pdf_info'
 class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations
   include ActiveModel::Validations::Callbacks
+  include SentryLogging
 
   attribute :evss_claim_id, Integer
   attribute :tracked_item_id, Integer
@@ -18,7 +19,7 @@ class EVSSClaimDocument < Common::Base
   validates(:file_name, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
-  before_validation :normalize_text, :decrypt_pdf
+  before_validation :normalize_text, :remove_password
 
   # rubocop:disable Layout/LineLength
   DOCUMENT_TYPES = {
@@ -82,20 +83,20 @@ class EVSSClaimDocument < Common::Base
     errors.add(:base, I18n.t('errors.messages.uploads.document_type_unknown')) unless description
   end
 
-  def decrypt_pdf
-    return unless file_name.match?(/\.pdf$/i)
+  def remove_password
+    return unless file_name.match?(/\.pdf$/i) && password.present?
 
     pdftk = PdfForms.new(Settings.binaries.pdftk)
-    tmpf = Tempfile.new('decrypted')
+    tmpf = Tempfile.new('remove_password')
 
     error_messages = pdftk.call_pdftk(file_obj.tempfile.path, 'input_pw', password, 'output', tmpf.path)
     if error_messages.present?
       log_message_to_sentry(error_messages, 'warn')
-      raise Common::Exceptions::UnprocessableEntity.new(
-        detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
-        source: 'FormAttachment.unlock_pdf'
-      )
+      errors.add(:base, I18n.t('errors.messages.uploads.pdf.incorrect_password'))
     end
+
+    @password = nil
+
     file_obj.tempfile.unlink
     file_obj.tempfile = tmpf
   end
@@ -106,8 +107,13 @@ class EVSSClaimDocument < Common::Base
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
     file_obj.tempfile.rewind
-  rescue PdfInfo::MetadataReadError
-    errors.add(:base, I18n.t('errors.messages.uploads.malformed_pdf'))
+  rescue PdfInfo::MetadataReadError => e
+    log_exception_to_sentry(e, nil, nil, 'warn')
+    if e.message.include?('Incorrect password')
+      errors.add(:base, I18n.t('errors.messages.uploads.locked'))
+    else
+      errors.add(:base, I18n.t('errors.messages.uploads.malformed_pdf'))
+    end
   end
 
   def normalize_text

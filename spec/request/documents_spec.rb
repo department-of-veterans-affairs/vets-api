@@ -60,7 +60,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.encrypted'))
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.locked'))
     end
 
     it 'accepts locked PDFs with the correct password' do
@@ -74,7 +74,9 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type, password: 'bad' }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.encrypted'))
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(
+        I18n.t('errors.messages.uploads.pdf.incorrect_password')
+      )
     end
   end
 

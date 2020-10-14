@@ -17,7 +17,7 @@ module ValidatePdf
     end
     temp_file.rewind
   rescue PdfInfo::MetadataReadError
-    raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('errors.messages.uploads.pdf.locked'),
+    raise Common::Exceptions::UnprocessableEntity.new(detail: I18n.t('errors.messages.uploads.pdf.malformed_pdf'),
                                                       source: 'ValidatePdf')
   end
 
