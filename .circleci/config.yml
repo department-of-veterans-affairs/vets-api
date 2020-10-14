@@ -165,7 +165,8 @@
             - when:
                 condition: << pipeline.parameters.verify_stable_pacts >>
                 steps:
-                 - run: echo << pipeline.parameters.consumer_version_tags >>
+                 - run: echo "TESTING"
+                 - run: echo << pipeline.parameters.consumer_name >>
     bundle_audit:
         steps:
             - run:
