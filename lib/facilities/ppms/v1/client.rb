@@ -13,7 +13,7 @@ module Facilities
       # Dev swagger site for testing endpoints
       # https://dev.dws.ppms.va.gov/swagger
       class Client < Common::Client::Base
-        configuration Facilities::PPMS::V0::Configuration
+        configuration Facilities::PPMS::V1::Configuration
 
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
         def provider_locator(params)
