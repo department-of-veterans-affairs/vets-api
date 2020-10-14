@@ -58,3 +58,21 @@ attachments.add('POA', 'tmp/pdfs/POA-claim-guid.pdf')
 
 attachments.submit!(carma_client)
 ```
+
+## Data Contract
+### Submission Request Body
+```
+{
+  data: ref([10-10CG Data Schema](https://github.com/department-of-veterans-affairs/vets-json-schema/blob/master/dist/10-10CG-schema.json)) as json,
+  metadata: {
+    claimGuid: string;
+    claimId: number | null;
+    veteran: { icn: string | null; isVeteran?: true | false; },
+    primaryCaregiver: { icn: string | null; isVeteran?: true | false; },
+    secondaryCaregiverOne?: { icn: string | null; isVeteran?: true | false; },
+    secondaryCaregiverTwo?: { icn: string | null; isVeteran?: true | false; },
+  }
+}
+```
+#### Additional Constraints
+- If Veteran's status cannot be confirmed as true, icn must be sent as null.

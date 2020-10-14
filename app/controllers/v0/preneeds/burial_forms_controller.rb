@@ -19,6 +19,7 @@ module V0
           return_code: resource.return_code
         )
 
+        clear_saved_form(FORM)
         render json: resource, serializer: ReceiveApplicationSerializer
       end
 

@@ -1,19 +1,18 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/power_of_attorney_verifier.rb'
+require 'bgs/power_of_attorney_verifier.rb'
 
-describe EVSS::PowerOfAttorneyVerifier do
+describe BGS::PowerOfAttorneyVerifier do
   let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
   let(:identity) { FactoryBot.create(:user_identity) }
 
   before do
-    @client_stub = instance_double('EVSS::VSOSearch::Service')
-    allow(EVSS::VSOSearch::Service).to receive(:new).with(user) { @client_stub }
-    allow(@client_stub).to receive(:get_current_info) { get_fixture('json/veteran_with_poa') }
+    external_key = user.common_name || user.email
+    allow(BGS::Services).to receive(:new).with({ external_uid: user.icn, external_key: external_key })
+    allow(Veteran::User).to receive(:new) { OpenStruct.new(power_of_attorney: PowerOfAttorney.new(code: 'A1Q')) }
     @veteran = Veteran::User.new(user)
-    @veteran.power_of_attorney = PowerOfAttorney.new(ssn: '123456789')
+    @veteran.power_of_attorney = PowerOfAttorney.new(code: 'A1Q')
   end
 
   it 'does not raise an exception if poa matches' do
@@ -24,7 +23,7 @@ describe EVSS::PowerOfAttorneyVerifier do
       last_name: identity.last_name
     )
     expect do
-      EVSS::PowerOfAttorneyVerifier.new(user).verify(identity)
+      BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
     end.not_to raise_error
   end
 
@@ -36,13 +35,13 @@ describe EVSS::PowerOfAttorneyVerifier do
       last_name: identity.last_name
     )
     expect do
-      EVSS::PowerOfAttorneyVerifier.new(user).verify(identity)
+      BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
     end.to raise_error(Common::Exceptions::Unauthorized)
   end
 
   it 'raises an exception if representative not found' do
     expect do
-      EVSS::PowerOfAttorneyVerifier.new(user).verify(identity)
+      BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
     end.to raise_error(Common::Exceptions::Unauthorized)
   end
 end
