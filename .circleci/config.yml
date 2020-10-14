@@ -10,6 +10,15 @@
     verify_stable_pacts:
       type: boolean
       default: false
+    consumer_name:
+      type: string
+      default: ""
+    consumer_version_tags:
+      type: string
+      default: ""
+    consumer_version_number:
+      type: string
+      default: ""
 
   executors:
     vets_api_docker_executor:
