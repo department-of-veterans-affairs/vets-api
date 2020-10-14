@@ -160,6 +160,8 @@
     verify_stable_pacts:
         steps:
             - run: echo << pipeline.parameters.consumer_name >>
+            - run: echo << pipeline.parameters.consumer_version_tags >>
+            - run: echo << pipeline.parameters.consumer_version_number >>
             - run:
                 name: Create artifact for webhook info
                 command: |
