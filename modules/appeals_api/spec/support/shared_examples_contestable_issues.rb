@@ -3,7 +3,8 @@
 RSpec.shared_examples 'contestable issues index requests' do |options|
   let(:get_issues) do
     get(
-      "/services/appeals/v1/decision_reviews/#{options[:appeal_type]}/contestable_issues/#{options[:benefit_type]}",
+      "/services/appeals/v1/decision_reviews/#{options[:decision_review_type]}/" \
+      "contestable_issues/#{options[:benefit_type]}",
       headers: {
         'X-VA-SSN' => '872958715',
         'X-VA-Receipt-Date' => '2019-12-01'
@@ -13,7 +14,7 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
 
   describe '#index' do
     it 'GETs contestable_issues from Caseflow successfully' do
-      VCR.use_cassette("caseflow/#{options[:appeal_type]}/contestable_issues") do
+      VCR.use_cassette("caseflow/#{options[:decision_review_type]}/contestable_issues") do
         get_issues
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)

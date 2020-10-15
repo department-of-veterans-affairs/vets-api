@@ -5,6 +5,6 @@ require_relative AppealsApi::Engine.root.join('spec', 'support', 'shared_example
 
 describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::ContestableIssuesController, type: :request do
   include_examples 'contestable issues index requests',
-                   appeal_type: 'notice_of_disagreements',
+                   decision_review_type: 'notice_of_disagreements',
                    benefit_type: ''
 end

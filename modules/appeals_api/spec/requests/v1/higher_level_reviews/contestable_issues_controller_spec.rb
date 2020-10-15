@@ -5,6 +5,6 @@ require_relative AppealsApi::Engine.root.join('spec', 'support', 'shared_example
 
 describe AppealsApi::V1::DecisionReviews::HigherLevelReviews::ContestableIssuesController, type: :request do
   include_examples 'contestable issues index requests',
-                   appeal_type: 'higher_level_reviews',
+                   decision_review_type: 'higher_level_reviews',
                    benefit_type: 'compensation'
 end
