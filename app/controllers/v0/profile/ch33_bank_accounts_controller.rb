@@ -24,14 +24,6 @@ module V0
 
       private
 
-      def allowed_params
-        params.permit(
-          :account_type,
-          :account_number,
-          :financial_institution_routing_number
-        )
-      end
-
       def service
         BGS::Service.new(current_user)
       end
