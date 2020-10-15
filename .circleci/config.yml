@@ -54,6 +54,7 @@
         - run: echo << pipeline.parameters.verify_stable_pacts >>
         - when:
           condition: << pipeline.parameters.verify_stable_pacts >>
+          steps:
             - add_pact_broker_artifact
         - verify_stable_pacts
     bundle_audit:
