@@ -23,9 +23,9 @@ RSpec.describe BGSDependents::VnpBenefitClaim do
       vnp_proc_id: '3828033',
       vnp_bnft_claim_id: '425718',
       bnft_claim_type_cd: '130DPNEBNADJ',
-      end_prdct_type_cd: "032312395",
+      end_prdct_type_cd: '032312395',
       bnft_claim_id: '600196508',
-      vnp_ptcpnt_vet_id:"146189",
+      vnp_ptcpnt_vet_id: '146189',
       ptcpnt_clmant_id: '146189',
       status_type_cd: 'PEND'
     }
