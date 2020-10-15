@@ -9,7 +9,7 @@ module VAOS
         def on_complete(env)
           return if env.success?
 
-          Raven.extra_context(message: env.body, url: env.url)
+          Raven.extra_context(vamf_status: env.status, vamf_body: env.body, vamf_url: env.url)
           case env.status
           when 400, 409
             error_400(env.body)
@@ -18,9 +18,19 @@ module VAOS
           when 404
             raise Common::Exceptions::BackendServiceException.new('VAOS_404', source: self.class)
           when 500..510
-            raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class)
+            error_500(env.body)
           else
             raise Common::Exceptions::BackendServiceException.new('VA900', source: self.class)
+          end
+        end
+
+        def error_500(body)
+          # NOTE: This is a temporary patch more on that here:
+          # https://github.com/department-of-veterans-affairs/vets-api/pull/5082
+          if /APTCRGT/.match?(body)
+            error_400(body)
+          else
+            raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class)
           end
         end
 
