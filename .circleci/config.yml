@@ -10,6 +10,15 @@
     verify_stable_pacts:
       type: boolean
       default: false
+    consumer_name:
+      type: string
+      default: ""
+    consumer_version_tags:
+      type: string
+      default: ""
+    consumer_version_number:
+      type: string
+      default: ""
 
   executors:
     vets_api_docker_executor:
@@ -43,6 +52,10 @@
         - checkout_and_install
         - setup_test_db
         - verify_stable_pacts
+    pact_broker_artifact:
+      <<: *defaults
+      steps:
+        - add_pact_broker_artifact
     bundle_audit:
       <<: *defaults
       steps:
@@ -118,6 +131,7 @@
       when: << pipeline.parameters.verify_stable_pacts >>
       jobs:
         - verify_pacts
+        - pact_broker_artifact
 
   commands:
     checkout_and_install:
@@ -153,6 +167,21 @@
             - run:
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
+    add_pact_broker_artifact:
+        steps:
+            - run:
+               name: Create artifact for webhook info
+               command: |
+                 echo "Pact Broker Consumer Tagging Info:" >> /tmp/pact-broker-webhook-info;
+
+                 echo "Consumer Name:" << pipeline.parameters.consumer_name >> >> /tmp/pact-broker-webhook-info;
+
+                 echo "Consumer Version Tags:" << pipeline.parameters.consumer_version_tags >> >> /tmp/pact-broker-webhook-info;
+
+                 echo "Consumer Version Number:" << pipeline.parameters.consumer_version_number >> >> /tmp/pact-broker-webhook-info;
+            - store_artifacts:
+                 path: /tmp/pact-broker-webhook-info
+                 destination: pact-broker-webhook-info
     bundle_audit:
         steps:
             - run:

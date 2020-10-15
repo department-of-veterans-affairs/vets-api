@@ -35,6 +35,13 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_camelized_response_schema('preneeds/receive_applications')
     end
+
+    it 'clears the saved form' do
+      expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('40-10007').once
+      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+        post_burial_forms
+      end
+    end
   end
 
   context 'with invalid input' do
@@ -47,6 +54,13 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
       expect(error['status']).to eq('422')
       expect(error['title']).to match(/validation error/i)
       expect(error['detail']).to match(/militaryStatus/)
+    end
+
+    it 'does not clear the saved form' do
+      expect_any_instance_of(ApplicationController).not_to receive(:clear_saved_form).with('40-10007')
+
+      params[:application][:veteran].delete(:military_status)
+      post_burial_forms
     end
   end
 
@@ -75,6 +89,15 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
       expect(error['status']).to eq('400')
       expect(error['title']).to match(/operation failed/i)
       expect(error['detail']).to match(/Tracking number '19' already exists/i)
+    end
+
+    it 'does not clear the saved form' do
+      expect_any_instance_of(ApplicationController).not_to receive(:clear_saved_form).with('40-10007')
+
+      VCR.use_cassette('preneeds/burial_forms/burial_form_with_duplicate_tracking_number') do
+        allow_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('19')
+        post_burial_forms
+      end
     end
   end
 

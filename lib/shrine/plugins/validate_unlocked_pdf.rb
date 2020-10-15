@@ -11,9 +11,9 @@ class Shrine
 
           cached_path = get.download
           metadata = PdfInfo::Metadata.read(cached_path)
-          errors << I18n.t('uploads.pdf.locked') if metadata.encrypted?
+          errors << I18n.t('errors.messages.uploads.pdf.locked') if metadata.encrypted?
         rescue PdfInfo::MetadataReadError
-          errors << I18n.t('uploads.pdf.invalid')
+          errors << I18n.t('errors.messages.uploads.pdf.invalid')
         end
       end
     end

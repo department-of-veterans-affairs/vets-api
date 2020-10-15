@@ -35,7 +35,7 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   def get_contestable_issues_from_caseflow
     @caseflow_response = Caseflow::Service.new.get_contestable_issues headers: headers,
                                                                       benefit_type: benefit_type,
-                                                                      appeal_type: appeal_type
+                                                                      decision_review_type: decision_review_type
   rescue Common::Exceptions::BackendServiceException => @backend_service_exception # rubocop:disable Naming/RescuedExceptionsVariableName
     raise unless caseflow_returned_a_4xx?
 
@@ -51,8 +51,8 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   #
   # @return [String] The appeal type (appeals (nod), higher_level_reviews, etc)
   #
-  def appeal_type
-    raise NotImplementedError, 'Subclass of ContestableIssuesBaseController must implement appeal_type method'
+  def decision_review_type
+    raise NotImplementedError, 'Subclass of BaseContestableIssuesController must implement decision_review_type method'
   end
 
   def headers
