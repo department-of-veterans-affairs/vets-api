@@ -904,7 +904,7 @@ components:
       properties:
         accountNumber:
           type: string
-          example: "12345678"
+          example: "12345678901"
         accountType:
           type: string
           example: "Savings"
@@ -932,7 +932,39 @@ components:
         attributes:
           required:
             - paymentAccount
+            - accountControl
           properties:
+            accountControl:
+              type: object
+              required:
+                - canUpdateAddress
+                - corpAvailIndicator
+                - corpRecFoundIndicator
+                - hasNoBdnPaymentsIndicator
+                - identityIndicator
+                - indexIndicator
+                - isCompetentIndicator
+                - noFiduciaryAssignedIndicator
+                - notDeceasedIndicator
+              properties:
+                canUpdateAddress:
+                  type: boolean
+                corpAvailIndicator:
+                  type: boolean
+                corpRecFoundIndicator:
+                  type: boolean
+                hasNoBdnPaymentsIndicator:
+                  type: boolean
+                identityIndicator:
+                  type: boolean
+                indexIndicator:
+                  type: boolean
+                isCompetentIndicator:
+                  type: boolean
+                noFiduciaryAssignedIndicator:
+                  type: boolean
+                notDeceasedIndicator:
+                  type: boolean
             paymentAccount:
               type: object
               required:
@@ -955,7 +987,7 @@ components:
                   example: "PACIFIC PREMIER BANK"
                 financialInstitutionRoutingNumber:
                   type: string
-                  example: "*****9982"
+                  example: "948529982"
     MilitaryHistory:
       required:
         - data
