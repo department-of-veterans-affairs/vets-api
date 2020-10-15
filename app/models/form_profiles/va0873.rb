@@ -15,7 +15,7 @@ class FormProfiles::VA0873 < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/contact-information'
+      returnUrl: '/topic'
     }
   end
 end

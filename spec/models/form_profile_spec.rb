@@ -71,6 +71,8 @@ RSpec.describe FormProfile, type: :model do
   let(:v0873_expected) do
     {
       'fullName' => full_name,
+      'email' => user.pciu_email,
+      'phone' => us_phone,
       'address' => address
     }
   end
