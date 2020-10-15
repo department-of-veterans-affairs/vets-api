@@ -135,9 +135,6 @@
           "unparsable date": {
             "value": {
               "errors": [{ "status": 422, "code": "invalid_receipt_date", "title": "Invalid Receipt Date", "detail": "\"Widdershins\" is not a valid date." }]}},
-          "invalid benefit_type": {
-            "value": {
-              "errors": [{ "status": 422, "code": "invalid_benefit_type", "title": "Invalid Benefit Type", "detail": "Benefit type nil is invalid. Must be one of: [\"compensation\", \"pension\", \"fiduciary\", \"insurance\", \"education\", \"voc_rehab\", \"loan_guaranty\", \"vha\", \"nca\"]" }]}},
           "invalid veteran ssn": {
             "value": {
               "errors": [{ "status": 422, "code": "invalid_veteran_ssn", "title": "Invalid Veteran SSN", "detail": "SSN regex: /^\\d{9}$/)." }]}}}}}},
