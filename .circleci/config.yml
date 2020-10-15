@@ -164,19 +164,17 @@
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
     add_pact_broker_artifact:
-        - when:
-            condition: << pipeline.parameters.verify_stable_pacts >>
-            steps:
-                - run:
-                   name: Create artifact for webhook info
-                   command: |
-                     echo "Pact Broker Consumer Tagging Info:" >> /tmp/pact-broker-webhook-info;
+        steps:
+            - run:
+               name: Create artifact for webhook info
+               command: |
+                 echo "Pact Broker Consumer Tagging Info:" >> /tmp/pact-broker-webhook-info;
 
-                     echo "Consumer Name:" << pipeline.parameters.consumer_name >> >> /tmp/pact-broker-webhook-info;
+                 echo "Consumer Name:" << pipeline.parameters.consumer_name >> >> /tmp/pact-broker-webhook-info;
 
-                     echo "Consumer Version Tags:" << pipeline.parameters.consumer_version_tags >> >> /tmp/pact-broker-webhook-info;
+                 echo "Consumer Version Tags:" << pipeline.parameters.consumer_version_tags >> >> /tmp/pact-broker-webhook-info;
 
-                     echo "Consumer Version Number:" << pipeline.parameters.consumer_version_number >> >> /tmp/pact-broker-webhook-info;
+                 echo "Consumer Version Number:" << pipeline.parameters.consumer_version_number >> >> /tmp/pact-broker-webhook-info;
         - store_artifacts:
             path: /tmp/pact-broker-webhook-info
     bundle_audit:
