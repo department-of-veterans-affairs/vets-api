@@ -122,4 +122,21 @@ Allows you to interact with the application from the shell like:
 For more details see:
 [native instructions](docs/setup/running_natively.md)
 
+######Viewing swagger docs
+
+```
+git clone https://github.com/department-of-veterans-affairs/developer-portal
+```
+
+Create a .env.local file in developer-portal root:
+```
+PORT=3001
+REACT_APP_VETSGOV_SWAGGER_API=http://localhost:3000
+REACT_APP_DEVELOPER_PORTAL_SELF_SERVICE_URL=http://localhost:3000
+REACT_APP_SALESFORCE_ENV=VICDEV
+```
+Run:
+- npm install
+- npm start
+
 
