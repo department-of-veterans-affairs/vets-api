@@ -162,7 +162,7 @@
             - run:
                 name: Create artifact for webhook info
                 command: |
-                  echo "Pact Broker Consumer Tagging Info:" >> /tmp/pact-broker-webhook-info.txt;
+                  echo "Pact Broker Consumer Tagging Info:" >> /tmp/pact-broker-webhook-info;
 
                   echo "Consumer Name:" << pipeline.parameters.consumer_name >> >> /tmp/pact-broker-webhook-info;
 
