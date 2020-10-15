@@ -22,6 +22,8 @@ module ClaimsApi
       ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
       render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+    rescue => e
+      render json: unprocessable_response(e), status: :unprocessable_entity
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -78,9 +80,11 @@ module ClaimsApi
       end
     end
 
-    def unprocessable_response
+    def unprocessable_response(e)
+      log_message_to_sentry('Upload error in 526', :error, body: e.message)
+
       {
-        errors: [{ detail: 'An unknown error occurred. Please retry the request' }]
+        errors: [{ detail: e.message }]
       }.to_json
     end
   end
