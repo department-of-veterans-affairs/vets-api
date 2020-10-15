@@ -756,7 +756,136 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-
+  /v0/payment_information:
+    get:
+      summary: /v0/payment_information
+      description: Returns direct deposit payment info
+      operationId: index
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      summary: /v0/payment_information
+      description: Returns updated direct deposit payment info
+      operationId: update
+      security:
+        - Bearer: [ ]
+      requestBody:
+        description: New direct deposit info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePaymentInfoRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
 components:
   securitySchemes:
     Bearer:
@@ -766,6 +895,67 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    UpdatePaymentInfoRequest:
+      required:
+        - accountNumber
+        - accountType
+        - financialInstitutionName
+        - financialInstitutionRoutingNumber
+      properties:
+        accountNumber:
+          type: string
+          example: "12345678"
+        accountType:
+          type: string
+          example: "Savings"
+          enum:
+            - Savings
+            - Checking
+        financialInstitutionName:
+          type: string
+          example: "PACIFIC PREMIER BANK"
+        financialInstitutionRoutingNumber:
+          type: string
+          example: "021000021"
+    PaymentInfo:
+      required:
+        - id
+        - type
+        - attibutes
+      properties:
+        type:
+          type: string
+          example: "paymentInformation"
+        id:
+          type: string
+          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+        attributes:
+          required:
+            - paymentAccount
+          properties:
+            paymentAccount:
+              type: object
+              required:
+                - accountNumber
+                - accountType
+                - financialInstitutionName
+                - financialInstitutionRoutingNumber
+              properties:
+                accountNumber:
+                  type: string
+                  example: "************6464"
+                accountType:
+                  type: string
+                  example: "Savings account"
+                  enum:
+                    - Savings account
+                    - Checking account
+                financialInstitutionName:
+                  type: string
+                  example: "PACIFIC PREMIER BANK"
+                financialInstitutionRoutingNumber:
+                  type: string
+                  example: "*****9982"
     MilitaryHistory:
       required:
         - data
