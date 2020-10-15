@@ -161,7 +161,8 @@
         steps:
             - when:
                 condition: << pipeline.parameters.verify_stable_pacts >>
-                  - run:
+                  steps:
+                    - run:
                       name: Create artifact for webhook info
                       command: |
                       echo "Pact Broker Consumer Tagging Info:" >> /tmp/pact-broker-webhook-info;
