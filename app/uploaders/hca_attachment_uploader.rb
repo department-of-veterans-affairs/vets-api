@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class HCAAttachmentUploader < CarrierWave::Uploader::Base
-  include ValidateFileSize
   include SetAwsConfig
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 
-  MAX_FILE_SIZE = 10.megabytes
+  def size_range
+    1.byte...10.megabytes
+  end
 
   process(convert: 'jpg', if: :png?)
 

@@ -95,7 +95,7 @@ components:
     Appeals:
       type: array
       items:
-        $ref: '#components/schemas/Appeal'
+        $ref: '#/components/schemas/Appeal'
     Appeal:
       type: object
       properties:
@@ -116,12 +116,13 @@ components:
           type: object
           properties:
             appealIds:
-              format: array
+              type: array
               description: An array of the individual IDs that are combined into this appeal
               items:
                 type: string
                 example: '1234567'
             updated:
+              type: string
               format: date-time
               example: '2018-01-03T09:30:15-05:00'
               description: The timestamp for the last refresh of the data
@@ -184,7 +185,7 @@ components:
               - bva
             status:
               type: object
-              description: Where in the appeals process this appeal currently is
+              description: This appeal's position in the appeal process
               properties:
                 type:
                   type: string
@@ -226,7 +227,54 @@ components:
                   - statutory_opt_in
                 details:
                   type: object
-                  description: Further information about the process step the appeal is in
+                  description: Further information about appeal's timeline
+                  properties:
+                    lastSocDate:
+                      type: string
+                      example: "2018-05-15"
+                      description: the date of the last SOC (statement of case) or SSOC (supplemental statement of case)
+                    certificationTimeliness:
+                      type: array
+                      example: [ 2,12 ]
+                      items:
+                        type: integer
+                      description: the range of months it typically takes to certify an appeal
+                    ssocTimeliness:
+                      type: array
+                      example: [ 7,20 ]
+                      items:
+                        type: integer
+                      description: the range of months it typically takes to create an SSOC (supplemental statement of case)
+                    decisionTimeliness:
+                      type: array
+                      example: [ 1,2 ]
+                      items:
+                        type: integer
+                      description: the range of months it typically takes to mail a decision after the appeal has been first assigned to an attorney
+                    remandTimeliness:
+                      type: array
+                      example: [ 16,29 ]
+                      items:
+                        type: integer
+                      description: the range of months it typically takes to either create an SSOC (supplemental statement of case), field grant, or return to the Board a remand
+                    socTimeliness:
+                      type: array
+                      items:
+                        type: integer
+                        example: [ 10,16 ]
+                      description: the range of months it typically takes to create an SOC (statement of case) or field grant
+                    remandSsocTimeliness:
+                      type: array
+                      example: [ 3, 11 ]
+                      items:
+                        type: integer
+                      description: the range of months it typically takes to create a second SSOC (supplemental statement of case) on a remand
+                    returnTimeliness:
+                      type: array
+                      example: [ 1,2 ]
+                      items:
+                        type: integer
+                      description: the range of months it typically takes to return a remand to the Board after creating an SSOC (supplemental statement of case)
             docket:
               type: object
               description: Represents the appeals' position in line for a decision and the expected timing of the decision
@@ -238,6 +286,7 @@ components:
                   - directReview
                   - evidenceSubmission
                   - hearingRequest
+                  - legacy
                   example: hearingRequest
                 month:
                   type: string
@@ -251,16 +300,16 @@ components:
                   type: boolean
                   example: false
                 total:
-                  type: number
+                  type: integer
                   example: 206900
                 totalAllDockets:
-                  type: number
+                  type: integer
                   example: 420012
                 ahead:
-                  type: number
+                  type: integer
                   example: 109203
                 ready:
-                  type: number
+                  type: integer
                   example: 22109
                 eta:
                   $ref: '#/components/schemas/Eta'

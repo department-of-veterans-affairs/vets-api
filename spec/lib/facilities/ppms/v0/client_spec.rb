@@ -37,61 +37,29 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
 
   describe '#provider_locator' do
     it 'returns a list of providers' do
-      Flipper.enable(:facility_locator_ppms_location_query, false)
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
         r = Facilities::PPMS::V0::Client.new.provider_locator(params.merge(services: ['213E00000X']))
-        name = 'Freed, Lewis'
-        expect(r.length).to be 5
+        expect(r.length).to be 10
         expect(r[0]).to have_attributes(
           AddressCity: 'Chandler',
-          AddressPostalCode: '85248',
+          AddressPostalCode: '85286',
           AddressStateProvince: 'AZ',
-          AddressStreet: '3195 S Price Rd Ste 148',
-          CareSite: 'Lewis H Freed DPM PC',
-          CareSitePhoneNumber: '4807057300',
+          AddressStreet: '1831 E Queen Creek Rd Ste 119',
+          CareSite: 'Foot & Ankle Clinics of Arizona',
+          CareSitePhoneNumber: '4809172300',
           ContactMethod: nil,
           Email: nil,
           IsAcceptingNewPatients: 'true',
-          Latitude: 33.258135,
-          Longitude: -111.887927,
+          Latitude: 33.262403,
+          Longitude: -111.808538,
           MainPhone: nil,
-          Miles: 2.302,
+          Miles: 1.679,
           OrganizationFax: nil,
           ProviderGender: 'Male',
-          ProviderIdentifier: '1407842941',
-          ProviderName: name,
+          ProviderIdentifier: '1386050060',
+          ProviderName: 'OBryant, Steven',
           ProviderSpecialties: []
         )
-      end
-    end
-
-    describe '#provider_locator_params' do
-      subject(:provider_locator_params) do
-        Facilities::PPMS::V0::Client.new.send(
-          :provider_locator_params,
-          params.merge(services: ['213E00000X'])
-        )
-      end
-
-      let(:location_hash) do
-        {
-          address: '33.28,-111.79',
-          radius: 103.64,
-          specialtycode1: "'213E00000X'",
-          maxResults: 11
-        }
-      end
-
-      context 'old address query' do
-        before do
-          Flipper.enable(:facility_locator_ppms_location_query, false)
-        end
-
-        it 'uses lat/long for an address' do
-          expect(provider_locator_params[:address]).to eql(
-            "'South Gilbert Road, Chandler, Arizona 85286, United States'"
-          )
-        end
       end
     end
   end
@@ -102,25 +70,25 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
         r = Facilities::PPMS::V0::Client.new.pos_locator(params)
         expect(r.length).to be 10
         expect(r[0]).to have_attributes(
-          ProviderIdentifier: '1629245311',
-          ProviderHexdigest: '485b3868e513c698740c68ebd32b9ea58184c09a01eecc40182a18f6c1dedfb5',
-          CareSite: 'MinuteClinic LLC',
-          AddressStreet: '2010 S Dobson Rd',
+          ProviderIdentifier: '1609229764',
+          ProviderHexdigest: '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
+          CareSite: 'Banner Urgent Care Services LLC',
+          AddressStreet: '3200 S Gilbert Rd',
           AddressCity: 'Chandler',
           AddressStateProvince: 'AZ',
           AddressPostalCode: '85286',
           Email: nil,
           MainPhone: nil,
-          CareSitePhoneNumber: '8663892727',
+          CareSitePhoneNumber: '4808275700',
           OrganizationFax: nil,
           ContactMethod: nil,
-          IsAcceptingNewPatients: 'false',
+          IsAcceptingNewPatients: 'true',
           ProviderGender: 'NotSpecified',
           ProviderSpecialties: [],
-          Latitude: 33.275526,
-          Longitude: -111.877057,
-          Miles: 0.79,
-          posCodes: '17'
+          Latitude: 33.259952,
+          Longitude: -111.790163,
+          Miles: 0.744,
+          posCodes: '20'
         )
       end
     end
@@ -129,24 +97,24 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
   describe '#provider_info' do
     it 'gets additional attributes for the provider' do
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::V0::Client.new.provider_info(1_407_842_941)
+        r = Facilities::PPMS::V0::Client.new.provider_info(1_154_383_230)
         expect(r).to have_attributes(
-          AddressCity: nil,
+          AddressCity: 'ASBURY PARK',
           AddressPostalCode: nil,
-          AddressStateProvince: nil,
-          AddressStreet: nil,
+          AddressStateProvince: 'NJ',
+          AddressStreet: '1301 MAIN ST',
           CareSite: nil,
           CareSitePhoneNumber: nil,
           ContactMethod: nil,
-          Email: 'evfa1@hotmail.com',
+          Email: nil,
           IsAcceptingNewPatients: 'true',
           Latitude: nil,
           Longitude: nil,
-          MainPhone: '4809241552',
+          MainPhone: nil,
           Miles: nil,
-          OrganizationFax: '4809241553',
-          ProviderGender: 'Male',
-          ProviderIdentifier: '1407842941',
+          OrganizationFax: nil,
+          ProviderGender: 'Female',
+          ProviderIdentifier: '1154383230',
           ProviderName: nil
         )
         expect(r['ProviderSpecialties'].each_with_object(Hash.new(0)) do |specialty, count|
@@ -159,9 +127,9 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
   describe '#provider_services' do
     it 'returns Services' do
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-        r = Facilities::PPMS::V0::Client.new.provider_services(1_407_842_941)
+        r = Facilities::PPMS::V0::Client.new.provider_services(1_154_383_230)
 
-        name_hash = { 'Freed, Lewis - Podiatrist' => 41 }
+        name_hash = { 'GESUALDI, AMY - Podiatrist' => 4 }
 
         expect(r.each_with_object(Hash.new { |h, k| h[k] = Hash.new(0) }) do |service, count|
           %w[Name AffiliationName RelationshipName CareSiteName CareSiteAddressZipCode].each do |key|
@@ -170,26 +138,20 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
         end).to match(
           'Name' => name_hash,
           'AffiliationName' => {
-            'TriWest - PC3' => 25,
-            'TriWest - Choice' => 16
+            'CCN Region 1' => 4
           },
           'RelationshipName' => {
-            'PC3' => 25,
-            'Choice' => 16
+            'CCN' => 4
           },
           'CareSiteName' => {
-            'Orthopedic Specialists of North America PLLC' => 19,
-            'Lewis H Freed DPM PC' => 16,
-            'OrthoArizona' => 4,
-            'OSNA PLLC' => 2
+            'VISITING NURSE ASSOCIATION OF CENTRAL' => 1,
+            'VISITING NURSE ASSOCIATION OF CENTRAL J' => 3
           },
           'CareSiteAddressZipCode' => {
-            '85206' => 14,
-            '85248' => 8,
-            '85226' => 7,
-            '85258' => 4,
-            '85295' => 7,
-            '85234' => 1
+            '07712-5359' => 1,
+            '07701-2162' => 1,
+            '07701-1063' => 1,
+            '07735-1267' => 1
           }
         )
       end
@@ -198,7 +160,7 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
 
   describe '#specialties' do
     it 'returns some Specialties' do
-      VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
+      VCR.use_cassette('facilities/ppms/ppms_specialties', match_requests_on: %i[path query]) do
         r = Facilities::PPMS::V0::Client.new.specialties
         expect(r.each_with_object(Hash.new(0)) do |specialty, count|
           count[specialty['SpecialtyCode']] += 1
