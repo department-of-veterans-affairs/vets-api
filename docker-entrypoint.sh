@@ -8,6 +8,7 @@ exec "$@"
 
 if [ -e  "./startserver" ] ; then
   echo Starting the rails server!
+  rake db:reset
   rails server --binding=0.0.0.0
 fi
 

@@ -100,3 +100,26 @@ Now, run the following endpoint and ensure that the breakpoint is hit:
 
 http://localhost:3000/v0/status
 
+######Interacting with the shell:
+Execute a *docker ps*
+```
+$ docker ps
+CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS
+                                       NAMES
+9d47b7f24e7c        vets-api:latest 
+```
+Note the container id '9d47b7f24e7c' for vets-api.
+Executing (from git bash on windows)
+```
+$ winpty docker exec -it 9d47b7f24e7c bash
+vets-api@9d47b7f24e7c:~/src$
+```
+
+Allows you to interact with the application from the shell like:
+- `rake lint`
+- `rails console`
+
+For more details see:
+[native instructions](docs/setup/running_natively.md)
+
+
