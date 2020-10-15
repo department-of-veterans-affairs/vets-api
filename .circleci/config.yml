@@ -163,7 +163,6 @@
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
         when: << pipeline.parameters.verify_stable_pacts >>
-        steps:
             - run:
                 name: Create artifact for webhook info
                 command: |
