@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'debts/letter_downloader'
+
 module V0
   class DebtLettersController < ApplicationController
     def index

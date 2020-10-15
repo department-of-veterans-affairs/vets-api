@@ -3,10 +3,11 @@
 module ClaimsApi
   class BaseUploader < CarrierWave::Uploader::Base
     include SetAwsConfig
-    include ValidateFileSize
     include ValidatePdf
 
-    MAX_FILE_SIZE = 25.megabytes
+    def size_range
+      1.byte...25.megabytes
+    end
 
     def initialize(guid)
       super
