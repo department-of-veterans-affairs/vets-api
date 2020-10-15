@@ -53,10 +53,8 @@
         - setup_test_db
         - verify_stable_pacts
         - run: echo << pipeline.parameters.verify_stable_pacts >>
-        - when:
-          condition: << pipeline.parameters.verify_stable_pacts >>
-          steps:
-            - add_pact_broker_artifact
+        - when: << pipeline.parameters.verify_stable_pacts >>
+         - add_pact_broker_artifact
     bundle_audit:
       <<: *defaults
       steps:
