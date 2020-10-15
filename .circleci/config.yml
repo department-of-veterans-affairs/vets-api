@@ -166,6 +166,7 @@
     add_pact_broker_artifact:
         - when:
             condition: << pipeline.parameters.verify_stable_pacts >>
+            steps:
                 - run:
                    name: Create artifact for webhook info
                    command: |
