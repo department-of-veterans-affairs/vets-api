@@ -299,3 +299,8 @@ features:
     enable_in_development: true
     description: >
       Ask for a password when an encrypted PDF is detected before uploading
+  education_reports_cleanup:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
