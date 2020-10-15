@@ -197,7 +197,7 @@ paths:
                 $ref: "#/components/schemas/Errors"
   /v0/letters/{type}/download:
     post:
-      summary: /v0/letters/{id}
+      summary: /v0/letters/{type}/download
       description: Returns requested letter for download
       operationId: download
       security:
