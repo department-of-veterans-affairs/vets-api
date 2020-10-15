@@ -174,7 +174,6 @@
                 command: bundle exec rake pact:verify
             - store_artifacts:
                 path: /tmp/pact-broker-webhook-info
-                destination: pact-broker-info-artifact-file
     bundle_audit:
         steps:
             - run:
