@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/ppms/v0/client'
-require 'facilities/ppms/v1/client'
 
 vcr_options = {
   cassette_name: 'facilities/ppms/ppms',
