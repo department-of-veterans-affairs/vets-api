@@ -7,8 +7,6 @@ module BGSDependents
       svc_type_cd: 'CP',
       pgm_type_cd: 'COMP',
       bnft_claim_type_cd: '130DPNEBNADJ',
-      claim_jrsdtn_lctn_id: '347',
-      intake_jrsdtn_lctn_id: '347',
       atchms_ind: 'N'
     }.freeze
 
@@ -23,7 +21,9 @@ module BGSDependents
         claim_rcvd_dt: Time.current.iso8601,
         ptcpnt_clmant_id: @veteran[:vnp_participant_id],
         ptcpnt_mail_addrs_id: @veteran[:vnp_participant_address_id],
-        vnp_ptcpnt_vet_id: @veteran[:vnp_participant_id]
+        vnp_ptcpnt_vet_id: @veteran[:vnp_participant_id],
+        claim_jrsdtn_lctn_id: @veteran[:regional_office],
+        intake_jrsdtn_lctn_id: @veteran[:regional_office]
       }.merge(VNP_BENEFIT_CREATE_PARAMS)
     end
 
@@ -31,6 +31,8 @@ module BGSDependents
       {
         vnp_proc_id: vnp_benefit_claim_record[:vnp_proc_id],
         vnp_bnft_claim_id: vnp_benefit_claim_record[:vnp_benefit_claim_id],
+        vnp_ptcpnt_vet_id: @veteran[:vnp_participant_id],
+        end_prdct_type_cd: @veteran[:benefit_claim_type_end_product],
         bnft_claim_type_cd: benefit_claim_record[:claim_type_code],
         claim_rcvd_dt: Time.current.iso8601,
         bnft_claim_id: benefit_claim_record[:benefit_claim_id],

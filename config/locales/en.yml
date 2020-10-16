@@ -23,13 +23,8 @@ en:
   time:
     formats:
       pdf_stamp: "%Y-%m-%d"
-  uploads:
-    pdf:
-      locked: PDF must not be encrypted or locked. Please re-save it without a password
-      invalid: PDF is not able to be opened. Try re-saving or re-uploading it.
-    text:
-      not_ascii: Cannot read file encoding. Text files must be ASCII encoded.
-  dependency_claim_failuer_mailer:
+
+  dependency_claim_failure_mailer:
     subject: We can't process your dependents application
     body_html: >
       <p>We're sorry. Something went wrong when we tried to submit your application to add or remove a dependent on your VA benefits (VA Forms 21-686c and 21-674).</p>
@@ -38,3 +33,29 @@ en:
       <p>Thank you for your service,</p>
       <p>VA.gov</p>
       <p><i>Note: This is an automated message sent from an unmonitored email account.</i></p>
+
+  errors:
+    messages:
+      # begin carrierwave messages
+      # from carrierwave https://github.com/carrierwaveuploader/carrierwave/blob/master/lib/carrierwave/locale/en.yml
+      carrierwave_processing_error: failed to be processed
+      carrierwave_integrity_error: is not of an allowed file type
+      carrierwave_download_error: could not be downloaded
+      extension_whitelist_error: "You are not allowed to upload %{extension} files, allowed types: %{allowed_types}"
+      # extension_blacklist_error: "You are not allowed to upload %{extension} files, prohibited types: %{prohibited_types}"
+      content_type_whitelist_error: "You are not allowed to upload %{content_type} files"
+      #content_type_blacklist_error: "You are not allowed to upload %{content_type} files"
+      # rmagick_processing_error: "Failed to manipulate with rmagick, maybe it is not an image?"
+      # mini_magick_processing_error: "Failed to manipulate with MiniMagick, maybe it is not an image? Original Error: %{e}"
+      min_size_error: "File size should be greater than %{min_size}"
+      max_size_error: "File size should be less than %{max_size}"
+      # end carrierwave messages
+
+      uploads:
+        document_type_unknown:  'Must use a known document type'
+        encrypted: 'PDF must not be encrypted'
+        malformed_pdf: 'PDF is malformed'
+        ascii_encoded: 'Cannot read file encoding. Text files must be ASCII encoded.'
+        pdf:
+          locked: PDF must not be encrypted or locked. Please re-save it without a password
+          invalid: PDF is not able to be opened. Try re-saving or re-uploading it.

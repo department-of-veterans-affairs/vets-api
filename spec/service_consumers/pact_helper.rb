@@ -42,7 +42,13 @@ RSpec.configure do |config|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
+
+    Redis.current.flushall
   end
+end
+
+FactoryBot::SyntaxRunner.class_eval do
+  include RSpec::Mocks::ExampleMethods
 end
 
 Pact.service_provider 'VA.gov API' do

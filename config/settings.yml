@@ -12,7 +12,6 @@ saml:
   cert_path: config/certs/vetsgov-localhost.crt
   cert_new_path: config/certs/vetsgov-localhost_new.crt
   key_path: config/certs/vetsgov-localhost.key
-  key_new_path: ~
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
@@ -68,19 +67,22 @@ debts:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
   mock: true
-  url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465'
+  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
+
+fsr:
+  prefill: true
 
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
 
 salesforce-gibft:
-  url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
+  url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
 salesforce-carma:
-  url: 'https://fake-carma.salesforce.com'
+  url: "https://fake-carma.salesforce.com"
   consumer_key: 12345ABC.QQ_1234BBfake
-  signing_key_path: 'spec/fixtures/carma/privatekey.pem' # A dummy private key used for test suite
+  signing_key_path: "spec/fixtures/carma/privatekey.pem" # A dummy private key used for test suite
   username: fake-user@va.gov.carmafake
 
 salesforce:
@@ -101,13 +103,13 @@ dependents:
 pension_burial:
   prefill: true
   sftp:
-    relative_path: '../VETSGOV_PENSION'
+    relative_path: "../VETSGOV_PENSION"
 
 central_mail:
   upload:
     enabled: true
-    host: 'icmhs-api-test.csrarad.com'
-    token: '<PENSIONS_TOKEN>'
+    host: "icmhs-api-test.csrarad.com"
+    token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
 bip:
@@ -123,8 +125,8 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
-    hostname: 'sandbox-api.va.gov'
-    api_key: '<AV_KEY>'
+    hostname: "sandbox-api.va.gov"
+    api_key: "<AV_KEY>"
 
 # Settings for IHub
 ihub:
@@ -153,6 +155,9 @@ decision_review:
 modules_appeals_api:
   higher_level_review_updater_enabled: true
   schema_dir: config/schemas
+
+vre_counseling:
+  prefill: true
 
 # Settings for EVSS
 evss:
@@ -203,7 +208,7 @@ evss:
     root_ca: ~
   reference_data_service:
     enabled: false
-  international_postal_codes: 'config/evss/international_postal_codes.json'
+  international_postal_codes: "config/evss/international_postal_codes.json"
 
 # Settings for GI Bill Data Service
 gids:
@@ -221,7 +226,7 @@ hca:
   endpoint: https://test-foo.vets.gov
   timeout: 30
   ee:
-    endpoint: 'http://example.com'
+    endpoint: "http://example.com"
     user: "HCASvcUsr"
     pass: "password"
 
@@ -247,8 +252,8 @@ ppms:
 # Settings for MyHealthEVet
 mhv:
   # include ranges first, then individual exceptions to the ranges last.
-  facility_range: [[358,718],[720,740],[742,758]]
-  facility_specific: [['741MM']] # 741 is excluded, but 741MM is included
+  facility_range: [[358, 718], [720, 740], [742, 758]]
+  facility_specific: [["741MM"]] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -327,6 +332,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+  timeout: 20
 
 vic:
   url: https://some.fakesite.com
@@ -412,7 +418,7 @@ sentry:
 iam_ssoe:
   client_cert_path: ~
   client_key_path: ~
-  client_id: 'Mobile_App_API_Server_LOWERS'
+  client_id: "Mobile_App_API_Server_LOWERS"
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
   sts_url: "https://preprod.services.eauth.va.gov:9301"
@@ -528,6 +534,7 @@ flipper:
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
+    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
 
 bgs:
   application: ~
@@ -536,16 +543,16 @@ bgs:
   env: ~
   mock_response_location: ~
   mock_responses: ~
-  ssl_verify_mode: 'peer'
+  ssl_verify_mode: "peer"
 
 va_mobile:
-  url: 'https://veteran.apps.va.gov'
+  url: "https://veteran.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
 
 hqva_mobile:
-  url: 'https://veteran.apps.va.gov'
+  url: "https://veteran.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
@@ -578,7 +585,7 @@ github_stats:
   token: fake_token
 
 google_analytics:
-  url: 'https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473'
+  url: "https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473"
   tracking_id: ~
 
 # Settings for the coronavirus chatbot tokens

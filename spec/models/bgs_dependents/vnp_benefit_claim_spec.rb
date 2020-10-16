@@ -3,7 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe BGSDependents::VnpBenefitClaim do
-  let(:veteran) { { vnp_participant_id: '146189', vnp_participant_address_id: '113372' } }
+  let(:veteran) do
+    {
+      vnp_participant_id: '146189',
+      vnp_participant_address_id: '113372',
+      participant_claimant_id: '600061742',
+      benefit_claim_type_end_product: '032312395'
+    }
+  end
+
   let(:benefit_claim) { described_class.new('3828033', veteran) }
   let(:create_params_output) do
     {
@@ -15,7 +23,9 @@ RSpec.describe BGSDependents::VnpBenefitClaim do
       vnp_proc_id: '3828033',
       vnp_bnft_claim_id: '425718',
       bnft_claim_type_cd: '130DPNEBNADJ',
+      end_prdct_type_cd: '032312395',
       bnft_claim_id: '600196508',
+      vnp_ptcpnt_vet_id: '146189',
       ptcpnt_clmant_id: '146189',
       status_type_cd: 'PEND'
     }
@@ -34,7 +44,6 @@ RSpec.describe BGSDependents::VnpBenefitClaim do
     {
       benefit_claim_id: '600196508',
       claim_type_code: '130DPNEBNADJ',
-      participant_claimant_id: '600061742',
       program_type_code: 'CPL',
       service_type_code: 'CP',
       status_type_code: 'PEND'

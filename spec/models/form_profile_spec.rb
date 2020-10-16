@@ -20,12 +20,7 @@ RSpec.describe FormProfile, type: :model do
     described_class.new(form_id: 'foo', user: user)
   end
 
-  let(:us_phone) do
-    form_profile.send(
-      :get_us_phone,
-      user.pciu_primary_phone
-    )
-  end
+  let(:us_phone) { form_profile.send :pciu_us_phone }
 
   let(:full_name) do
     {
@@ -70,6 +65,15 @@ RSpec.describe FormProfile, type: :model do
           'phoneNumber' => us_phone
         }
       }
+    }
+  end
+
+  let(:v0873_expected) do
+    {
+      'fullName' => full_name,
+      'email' => user.pciu_email,
+      'phone' => us_phone,
+      'address' => address
     }
   end
 
@@ -563,6 +567,17 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v5655_expected) do
+    {
+      'personalData' => {
+        'fullName' => full_name,
+        'address' => address,
+        'phone' => us_phone,
+        'dateOfBirth' => user.birth_date
+      }
+    }
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,
@@ -672,24 +687,6 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v20_0996_expected) do
-    {
-      'data' => {
-        'attributes' => {
-          'veteran' => {
-            'address' => {
-              'zipCode5' => user.va_profile[:address][:zip_code]
-            },
-            'phone' => {
-              'phoneNumber' => us_phone
-            },
-            'emailAddressText' => user.pciu_email
-          }
-        }
-      }
-    }
-  end
-
   let(:vfeedback_tool_expected) do
     {
       'address' => {
@@ -715,27 +712,43 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  describe '#get_us_phone' do
-    def self.test_get_us_phone(phone, expected)
+  let(:v28_8832_expected) do
+    {
+      'claimantAddress' => {
+        'addressLine1' => street_check[:street],
+        'addressLine2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'stateCode' => user.va_profile[:address][:state],
+        'countryName' => user.va_profile[:address][:country],
+        'zipCode' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'claimantPhoneNumber' => us_phone,
+      'claimantEmailAddress' => user.pciu_email
+    }
+  end
+
+  describe '#pciu_us_phone' do
+    def self.test_pciu_us_phone(primary, expected)
       it "returns #{expected}" do
-        expect(form_profile.send(:get_us_phone, phone)).to eq(expected)
+        allow_any_instance_of(FormProfile).to receive(:pciu_primary_phone).and_return(primary)
+        expect(form_profile.send(:pciu_us_phone)).to eq(expected)
       end
     end
 
     context 'with nil' do
-      test_get_us_phone(nil, '')
+      test_pciu_us_phone(nil, '')
     end
 
     context 'with an intl phone number' do
-      test_get_us_phone('442079460976', '')
+      test_pciu_us_phone('442079460976', '')
     end
 
     context 'with a us phone number' do
-      test_get_us_phone('5557940976', '5557940976')
+      test_pciu_us_phone('5557940976', '5557940976')
     end
 
     context 'with a us phone number' do
-      test_get_us_phone('15557940976', '5557940976')
+      test_pciu_us_phone('15557940976', '5557940976')
     end
   end
 
@@ -800,6 +813,12 @@ RSpec.describe FormProfile, type: :model do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
         end
+      end
+    end
+
+    context 'with a user that can prefill financial status report' do
+      it 'returns a prefilled 5655 form' do
+        expect_prefilled('5655')
       end
     end
 
@@ -992,6 +1011,7 @@ RSpec.describe FormProfile, type: :model do
           22-0993
           FEEDBACK-TOOL
           686C-674
+          28-8832
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
@@ -1054,16 +1074,51 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
+    context 'with the ask a question form' do
+      context 'for full name of the veteran' do
+        it 'returns the va profile mapped to contact infromation' do
+          expect_prefilled('0873')
+        end
+      end
+    end
+
     context 'with a higher level review form' do
-      it 'returns the va profile mapped to the higher level review form' do
-        schema_name = '20-0996'
-        schema = VetsJsonSchema::SCHEMAS[schema_name]
+      let(:schema_name) { '20-0996' }
+      let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
+      let(:form_profile) { described_class.for(form_id: schema_name, user: user) }
+      let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
+
+      before do
+        allow_any_instance_of(BGS::PeopleService).to(
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        )
+        allow_any_instance_of(Vet360::Models::Address).to(
+          receive(:address_line3).and_return('suite 500')
+        )
+      end
+
+      it 'street3 returns Vet360 address_line3' do
+        expect(form_profile.send(:vet360_mailing_address)&.address_line3).to eq form_profile.send :street3
+      end
+
+      it 'prefills' do
+        expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
+        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
+        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
+        expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
+      end
+
+      it 'prefills an object that passes the schema' do
         full_example = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
-
-        prefill_data = Oj.load(described_class.for(form_id: schema_name, user: user).prefill.to_json)['form_data']
-
-        test_data = full_example.deep_merge prefill_data
-
+        test_data = full_example.deep_merge prefill
         errors = JSON::Validator.fully_validate(
           schema,
           test_data,

@@ -1,0 +1,4 @@
+fullName: [identity_information, full_name]
+email: [contact_information, email]
+phone: [contact_information, us_phone]
+address: [contact_information, address]
