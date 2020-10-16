@@ -42,11 +42,7 @@ module Facilities
 
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
         def provider_info(identifier)
-          qparams = if Flipper.enabled?(:facility_locator_ppms_client_v1_get_specialties)
-                      { :$expand => 'ProviderSpecialties' }
-                    else
-                      {}
-                    end
+          qparams = { :$expand => 'ProviderSpecialties' }
 
           response = perform(:get, "v1.0/Providers(#{identifier})", qparams)
           return nil if response.body.nil? || response.body[0].nil?
