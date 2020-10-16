@@ -51,7 +51,7 @@ FactoryBot.modify do
           birth_date: '19530401',
           ssn: '796061976'
         )
-        mvi = Mvi.for_user(user)
+        mvi = MPIData.for_user(user)
         profile_response = MVI::Responses::FindProfileResponse.new(
           status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
           profile: profile
