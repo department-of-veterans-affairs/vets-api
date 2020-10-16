@@ -17,10 +17,8 @@ class V1::Facilities::CcpController < FacilitiesController
   def show
     api_result = api.provider_info(ppms_show_params[:id])
 
-    unless Flipper.enabled?(:facility_locator_ppms_use_v1_client)
-      services = api.provider_services(ppms_show_params[:id])
-      api_result.add_provider_service(services[0]) if services.present?
-    end
+    services = api.provider_services(ppms_show_params[:id])
+    api_result.add_provider_service(services[0]) if services.present?
 
     api_result = PPMS::Provider.new(api_result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym })
 
@@ -60,17 +58,17 @@ class V1::Facilities::CcpController < FacilitiesController
   end
 
   def api
-    @api ||=  if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
-                Facilities::PPMS::V1::Client.new
-              else
-                Facilities::PPMS::V0::Client.new
+    @api ||= if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
+               Facilities::PPMS::V1::Client.new
+             else
+               Facilities::PPMS::V0::Client.new
               end
   end
 
   def ppms_params
-    params.require([:bbox, :type])
+    params.require(%i[bbox type])
     params.permit(
-    :address,
+      :address,
       :page,
       :per_page,
       :type,

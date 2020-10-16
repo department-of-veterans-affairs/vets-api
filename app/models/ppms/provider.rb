@@ -76,6 +76,19 @@ class PPMS::Provider < Common::Base
     self.attributes = attributes.merge(new_attr)
   end
 
+  def add_provider_service(provider_service)
+    new_attr = provider_service.attributes.dup.transform_keys { |k| k.to_s.snakecase.to_sym }.slice(
+      :address_city,
+      :address_postal_code,
+      :address_state_province,
+      :address_street,
+      :latitude,
+      :longitude
+    )
+
+    self.attributes = attributes.merge(new_attr)
+  end
+
   def specialty_ids
     specialties.collect(&:specialty_code)
   end

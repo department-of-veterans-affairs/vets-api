@@ -57,6 +57,15 @@ module Facilities
           Facilities::PPMS::V1::Response.new(response.body[0]).provider
         end
 
+        def provider_services(identifier)
+          response = perform(:get, "v1.0/Providers(#{identifier})/ProviderServices", {})
+
+          trim_response_attributes!(response)
+          deduplicate_response_arrays!(response)
+
+          Facilities::PPMS::V1::Response.new(response.body).providers
+        end
+
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
         def specialties
           response = perform(:get, 'v1.0/Specialties', {})
