@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'facilities/ppms/v0/client'
+require 'facilities/ppms/v1/client'
 
 vcr_options = {
   cassette_name: 'facilities/ppms/ppms',
@@ -92,9 +94,16 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               get '/v1/facilities/ccp', params: params
 
               bod = JSON.parse(response.body)
+
+              sha256 = if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
+                         '104ecb200e22dfd96f759bcdd27c6c174ee35c02394bc4d199aaccb51d8486f3'
+                       else
+                         '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41'
+                       end
+
               expect(bod['data']).to include(
                 {
-                  'id' => '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
+                  'id' => sha256,
                   'type' => 'provider',
                   'attributes' => {
                     'acc_new_patients' => 'true',
@@ -144,7 +153,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               hash_including(
                 tags: ['facilities.ppms']
               )
-            ).exactly(10).times
+            ).exactly(7).times
 
             expect do
               get '/v1/facilities/ccp', params: params
@@ -157,26 +166,42 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             [3, 1, 4]
           ].each do |(page, per_page, total_items)|
             it "paginates ppms responses (page: #{page}, per_page: #{per_page}, total_items: #{total_items})" do
-              mock_client = double('Facilities::PPMS::V0::Client')
               params_with_pagination = params.merge(
                 page: page.to_s,
                 per_page: per_page.to_s
               )
-              expect(Facilities::PPMS::V0::Client).to receive(:new).and_return(mock_client)
-              expect(mock_client).to receive(:provider_locator).with(
-                ActionController::Parameters.new(params_with_pagination).permit!
-              ).and_return(
-                FactoryBot.build_list(:provider, total_items)
-              )
-              allow(mock_client).to receive(:provider_info).and_return(
-                FactoryBot.build(:provider)
-              )
+
+              case client_version
+              when 0
+                mock_client = instance_double('Facilities::PPMS::V0::Client')
+                expect(Facilities::PPMS::V0::Client).to receive(:new).and_return(mock_client)
+                expect(mock_client).to receive(:provider_locator).with(
+                  ActionController::Parameters.new(params_with_pagination).permit!
+                ).and_return(
+                  FactoryBot.build_list(:provider, total_items)
+                )
+                allow(mock_client).to receive(:provider_info).and_return(
+                  FactoryBot.build(:provider)
+                )
+              when 1
+                client = Facilities::PPMS::V1::Client.new
+
+                expect(Facilities::PPMS::V1::Client).to receive(:new).and_return(client)
+                expect(client).to receive(:provider_locator).and_return(
+                  Facilities::PPMS::V1::Response.new(
+                    FactoryBot.build_list(:ppms_provider,total_items).collect(&:attributes),
+                    params_with_pagination
+                  ).providers
+                )
+                allow(client).to receive(:provider_info).and_return(
+                  FactoryBot.build(:ppms_provider)
+                )
+              end
 
               get '/v1/facilities/ccp', params: params_with_pagination
               bod = JSON.parse(response.body)
 
               prev_page = page == 1 ? nil : page - 1
-
               expect(bod['meta']).to include(
                 'pagination' => {
                   'current_page' => page,
