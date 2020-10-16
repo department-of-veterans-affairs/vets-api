@@ -68,6 +68,8 @@ module EducationForm
         EducationFacility::REGIONS.each do |region|
           # Atlanta is to be excluded from FYTD reports after the 2017 fiscal year
           next if fiscal_year > 2017 && region == :southern
+          # St. Louis is to be excluded from FYTD reports after the 2020 fiscal year
+          next if fiscal_year > 2020 && region == :central && Flipper.enabled?(:education_reports_cleanup)
 
           region_submissions = {}
 
