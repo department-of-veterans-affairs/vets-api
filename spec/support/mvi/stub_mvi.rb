@@ -7,8 +7,8 @@ def stub_mvi(profile = nil)
   # don't allow Mvi instances to be frozen during specs so that
   # response_from_redis_or_service can always be reset
   # (avoids WARNING: rspec-mocks was unable to restore the original... message)
-  allow_any_instance_of(Mvi).to receive(:freeze) { self }
-  allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
+  allow_any_instance_of(MPIData).to receive(:freeze) { self }
+  allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
     MVI::Responses::FindProfileResponse.new(
       status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
       profile: profile
@@ -17,7 +17,7 @@ def stub_mvi(profile = nil)
 end
 
 def stub_mvi_not_found
-  allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
+  allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
     MVI::Responses::FindProfileResponse.with_not_found(not_found_exception)
   )
 end

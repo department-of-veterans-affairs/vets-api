@@ -45,7 +45,7 @@ module ClaimsApi
     end
 
     def mvi
-      @mvi ||= Mvi.for_user(self)
+      @mvi ||= MPIData.for_user(self)
     end
 
     def mvi_record?

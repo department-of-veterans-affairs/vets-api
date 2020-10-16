@@ -20,10 +20,10 @@ module Veteran
     end
 
     def bgs_service
-      external_key = @user.common_name || @user.email
+      external_key = "#{@user.first_name} #{@user.last_name}"
 
       @bgs_service ||= BGS::Services.new(
-        external_uid: @user.icn,
+        external_uid: @user.mvi.icn,
         external_key: external_key
       )
     end
