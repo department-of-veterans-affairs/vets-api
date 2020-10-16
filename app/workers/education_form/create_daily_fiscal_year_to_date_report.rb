@@ -71,25 +71,29 @@ module EducationForm
           # St. Louis is to be excluded from FYTD reports after the 2020 fiscal year
           next if fiscal_year > 2020 && region == :central && Flipper.enabled?(:education_reports_cleanup)
 
-          region_submissions = {}
-
           relation = build_submission_relation(range_type, region, form_type, status)
 
-          if show_individual_benefits(form_type)
-            application_types.each do |application_type|
-              region_submissions[application_type] = relation.where(application_type => true).count
-            end
-          else
-            region_submissions[:all] = relation.count
-          end
-
-          form_submissions[region] = region_submissions
+          form_submissions[region] = build_region_submission(application_types, form_type, relation)
         end
 
         submissions[form_type] = form_submissions
       end
 
       submissions
+    end
+
+    def build_region_submission(application_types, form_type, relation)
+      region_submissions = {}
+
+      if show_individual_benefits(form_type)
+        application_types.each do |application_type|
+          region_submissions[application_type] = relation.where(application_type => true).count
+        end
+      else
+        region_submissions[:all] = relation.count
+      end
+
+      region_submissions
     end
 
     def create_csv_header
