@@ -9,7 +9,7 @@ require 'common/models/concerns/cache_aside'
 # Facade for MVI. User model delegates MVI correlation id and VA profile (golden record) methods to this class.
 # When a profile is requested from one of the delegates it is returned from either a cached response in Redis
 # or from the MVI SOAP service.
-class Mvi < Common::RedisStore
+class MPIData < Common::RedisStore
   include Common::CacheAside
 
   REDIS_CONFIG_KEY = :mvi_profile_response
@@ -18,12 +18,12 @@ class Mvi < Common::RedisStore
   # @return [User] the user to query MVI for.
   attr_accessor :user
 
-  # Creates a new Mvi instance for a user.
+  # Creates a new MPIData instance for a user.
   #
   # @param user [User] the user to query MVI for
-  # @return [Mvi] an instance of this class
+  # @return [MPIData] an instance of this class
   def self.for_user(user)
-    mvi = Mvi.new
+    mvi = MPIData.new
     mvi.user = user
     mvi
   end
