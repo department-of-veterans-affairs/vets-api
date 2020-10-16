@@ -62,7 +62,7 @@ class V1::Facilities::CcpController < FacilitiesController
                Facilities::PPMS::V1::Client.new
              else
                Facilities::PPMS::V0::Client.new
-              end
+             end
   end
 
   def ppms_params
@@ -102,7 +102,7 @@ class V1::Facilities::CcpController < FacilitiesController
   end
 
   def provider_search_v0(options = {})
-    api.provider_locator(ppms_params.merge(options)).uniq(&:id).each do |provider|
+    api.provider_locator(ppms_params.merge(options)).uniq(&:id).map do |provider|
       begin
         prov_info = api.provider_info(provider.id)
         provider.add_details(prov_info)

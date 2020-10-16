@@ -189,7 +189,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                 expect(Facilities::PPMS::V1::Client).to receive(:new).and_return(client)
                 expect(client).to receive(:provider_locator).and_return(
                   Facilities::PPMS::V1::Response.new(
-                    FactoryBot.build_list(:ppms_provider,total_items).collect(&:attributes),
+                    FactoryBot.build_list(:ppms_provider, total_items).collect(&:attributes),
                     params_with_pagination
                   ).providers
                 )
@@ -265,11 +265,11 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                   'specialization' => nil,
                   'specialty_code' => '213E00000X',
                   'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
-                                               '(D.P.M.) degree, licensed by the state, and practicing within the scope ' \
-                                               'of that license. Podiatrists diagnose and treat foot diseases and ' \
-                                               'deformities. They perform medical, surgical and other operative ' \
-                                               'procedures, prescribe corrective devices and prescribe and administer ' \
-                                               'drugs and physical therapy.'
+                                             '(D.P.M.) degree, licensed by the state, and practicing within the ' \
+                                             'scope of that license. Podiatrists diagnose and treat foot diseases ' \
+                                             'and deformities. They perform medical, surgical and other operative ' \
+                                             'procedures, prescribe corrective devices and prescribe and administer ' \
+                                             'drugs and physical therapy.'
                 }
               }
             )
