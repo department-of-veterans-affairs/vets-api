@@ -29,7 +29,7 @@ describe HCA::Service do
       root = Rails.root.join('spec', 'fixtures', 'hca', 'conformance')
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
-          allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
+          allow_any_instance_of(MPIData).to receive(:icn).and_return('1000123456V123456')
           service =
             if form.match?(/authenticated/)
               described_class.new(
