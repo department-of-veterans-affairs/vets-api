@@ -367,9 +367,15 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             bod = JSON.parse(response.body)
 
+            sha256 = if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
+                       '104ecb200e22dfd96f759bcdd27c6c174ee35c02394bc4d199aaccb51d8486f3'
+                     else
+                       '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41'
+                     end
+
             expect(bod['data']).to include(
               {
-                'id' => '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
+                'id' => sha256,
                 'type' => 'provider',
                 'attributes' => {
                   'acc_new_patients' => 'true',
