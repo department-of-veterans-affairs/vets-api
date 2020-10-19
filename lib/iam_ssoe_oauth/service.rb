@@ -19,6 +19,7 @@ module IAMSSOeOAuth
     CLIENT_ID = Settings.iam_ssoe.client_id
     TOKEN_TYPE_HINT = 'access_token'
     INTROSPECT_PATH = '/oauthe/sps/oauth/oauth20/introspect'
+    REVOKE_PATH = '/oauthe/sps/oauth/oauth20/revoke'
 
     # Validate a user's auth token and returns either valid active response with a set
     # of user traits or raise's an unauthorized error if the response comes back as invalid.
@@ -35,6 +36,21 @@ module IAMSSOeOAuth
       raise Common::Exceptions::Unauthorized, detail: 'IAM user session is inactive' if inactive?(response)
 
       response.body
+    end
+
+    def post_revoke(token)
+      perform(
+        :post, REVOKE_PATH, encoded_params(token), { 'Content-Type' => 'application/x-www-form-urlencoded' }
+      )
+    rescue Common::Client::Errors::ClientError => error
+      case error.status
+      when 400
+        raise Common::Exceptions::BackendServiceException.new('IAM_SSOE_400', detail: error.body)
+      when 500
+        raise Common::Exceptions::BackendServiceException.new('IAM_SSOE_502')
+      else
+        raise error
+      end
     end
 
     def encoded_params(token)

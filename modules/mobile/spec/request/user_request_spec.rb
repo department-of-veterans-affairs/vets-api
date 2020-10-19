@@ -6,23 +6,23 @@ require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'user', type: :request do
   include JsonSchemaMatchers
-
+  
   describe 'GET /mobile/v0/user' do
     before { iam_sign_in }
-
+    
     context 'with no upstream errors' do
       before { get '/mobile/v0/user', headers: iam_headers }
-
+      
       let(:attributes) { JSON.parse(response.body).dig('data', 'attributes') }
-
+      
       it 'returns an ok response' do
         expect(response).to have_http_status(:ok)
       end
-
+      
       it 'returns a user profile response with the expected schema' do
         expect(response.body).to match_json_schema('user')
       end
-
+      
       it 'includes the users names' do
         expect(attributes['profile']).to include(
           'firstName' => 'GREG',
@@ -30,13 +30,13 @@ RSpec.describe 'user', type: :request do
           'lastName' => 'ANDERSON'
         )
       end
-
+      
       it 'includes the users email' do
         expect(attributes['profile']).to include(
           'email' => 'va.api.user+idme.008@gmail.com'
         )
       end
-
+      
       it 'includes the expected residential address' do
         expect(attributes['profile']).to include(
           'residentialAddress' => {
@@ -54,7 +54,7 @@ RSpec.describe 'user', type: :request do
           }
         )
       end
-
+      
       it 'includes the expected mailing address' do
         expect(attributes['profile']).to include(
           'mailingAddress' => {
@@ -72,7 +72,7 @@ RSpec.describe 'user', type: :request do
           }
         )
       end
-
+      
       it 'includes a home phone number' do
         expect(attributes['profile']['homePhone']).to include(
           {
@@ -85,7 +85,7 @@ RSpec.describe 'user', type: :request do
           }
         )
       end
-
+      
       it 'includes a mobile phone number' do
         expect(attributes['profile']['mobilePhone']).to include(
           {
@@ -98,7 +98,7 @@ RSpec.describe 'user', type: :request do
           }
         )
       end
-
+      
       it 'includes a work phone number' do
         expect(attributes['profile']['workPhone']).to include(
           {
@@ -111,7 +111,7 @@ RSpec.describe 'user', type: :request do
           }
         )
       end
-
+      
       it 'includes the service the user has access to' do
         expect(attributes['authorizedServices']).to eq(
           %w[
@@ -125,7 +125,7 @@ RSpec.describe 'user', type: :request do
           ]
         )
       end
-
+      
       it 'includes a complete list of mobile api services (even if the user does not have access to them)' do
         expect(JSON.parse(response.body).dig('meta', 'availableServices')).to eq(
           %w[
@@ -139,13 +139,13 @@ RSpec.describe 'user', type: :request do
           ]
         )
       end
-
+      
       context 'with a user who does not have access to evss' do
         before do
           iam_sign_in(FactoryBot.build(:iam_user, :no_edipi_id))
           get '/mobile/v0/user', headers: iam_headers
         end
-
+        
         it 'does not include edipi services (claims, direct deposit, letters, military history)' do
           expect(attributes['authorizedServices']).to eq(
             %w[
@@ -157,34 +157,98 @@ RSpec.describe 'user', type: :request do
         end
       end
     end
-
+    
     context 'when the upstream va profile service returns an error' do
       before do
         allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
-
+      
       it 'returns a service unavailable error' do
         get '/mobile/v0/user', headers: iam_headers
-
+        
         expect(response).to have_http_status(:bad_gateway)
         expect(response.body).to match_json_schema('errors')
       end
     end
-
+    
     context 'when the va profile service throws an error' do
       before do
         allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
           ArgumentError.new
         )
       end
-
+      
       it 'returns an internal service error' do
         get '/mobile/v0/user', headers: iam_headers
-
+        
         expect(response).to have_http_status(:internal_server_error)
         expect(response.body).to match_json_schema('errors')
+      end
+    end
+  end
+  
+  describe 'GET /mobile/v0/user/logout' do
+    before { iam_sign_in }
+    
+    context 'with a 200 response' do
+      before do
+        VCR.use_cassette('iam_ssoe_oauth/revoke_200') do
+          get '/mobile/v0/user/logout', headers: iam_headers
+        end
+      end
+      
+      it 'returns an ok response' do
+        expect(response).to have_http_status(:ok)
+      end
+    end
+    
+    context 'with a 400 response' do
+      before do
+        VCR.use_cassette('iam_ssoe_oauth/revoke_400') do
+          get '/mobile/v0/user/logout', headers: iam_headers
+        end
+      end
+      
+      it 'returns a bad_request (400) response' do
+        expect(response).to have_http_status(:bad_request)
+      end
+      
+      it 'the response body matches the errors schema' do
+        expect(response.body).to match_json_schema('errors')
+      end
+      
+      it 'includes the error details' do
+        expect(response.parsed_body['errors'].first['detail']).to eq(
+          {
+            
+            "errorDescription" => "FBTOAU202E The required parameter: [token] was not found in the request.",
+            "error" => "invalid_request"
+          }
+        )
+      end
+    end
+
+    context 'with a 500 response' do
+      before do
+        VCR.use_cassette('iam_ssoe_oauth/revoke_500') do
+          get '/mobile/v0/user/logout', headers: iam_headers
+        end
+      end
+  
+      it 'returns a bad_gateway (502) response' do
+        expect(response).to have_http_status(:bad_gateway)
+      end
+  
+      it 'the response body matches the errors schema' do
+        expect(response.body).to match_json_schema('errors')
+      end
+  
+      it 'includes generic error details to avoid leaking data' do
+        expect(response.parsed_body['errors'].first['detail']).to eq(
+          "Received an an invalid response from the upstream server"
+        )
       end
     end
   end
