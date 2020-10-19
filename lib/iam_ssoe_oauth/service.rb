@@ -42,14 +42,14 @@ module IAMSSOeOAuth
       perform(
         :post, REVOKE_PATH, encoded_params(token), { 'Content-Type' => 'application/x-www-form-urlencoded' }
       )
-    rescue Common::Client::Errors::ClientError => error
-      case error.status
+    rescue Common::Client::Errors::ClientError => e
+      case e.status
       when 400
-        raise Common::Exceptions::BackendServiceException.new('IAM_SSOE_400', detail: error.body)
+        raise Common::Exceptions::BackendServiceException.new('IAM_SSOE_400', detail: e.body)
       when 500
-        raise Common::Exceptions::BackendServiceException.new('IAM_SSOE_502')
+        raise Common::Exceptions::BackendServiceException, 'IAM_SSOE_502'
       else
-        raise error
+        raise e
       end
     end
 

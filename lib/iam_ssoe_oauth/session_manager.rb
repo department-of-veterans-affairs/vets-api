@@ -14,7 +14,7 @@ module IAMSSOeOAuth
 
       create_user_session
     end
-    
+
     def logout
       response = iam_ssoe_service.post_revoke(@access_token)
       destroy_user_session if response.status == 200
@@ -24,19 +24,21 @@ module IAMSSOeOAuth
 
     def destroy_user_session
       uuid = @session.uuid
-      identity_destroy_result = IAMUserIdentity.find(uuid).destroy
-      user_destroy_result = IAMUser.find(uuid).destroy
-      session_destroy_result = @session.destroy
-      
-      if [identity_destroy_result, user_destroy_result, session_destroy_result].all? true
+
+      identity_destroy_count = IAMUserIdentity.find(uuid).destroy
+      user_destroy_count = IAMUser.find(uuid).destroy
+      session_destroy_count = @session.destroy
+
+      # redis returns number of records successfully deleted
+      if [identity_destroy_count, user_destroy_count, session_destroy_count].sum == 3
         Rails.logger.info('IAMUser log out success', uuid: uuid)
         true
       else
         Rails.logger.warn('IAMUser log out failure', uuid: uuid, status: {
-          identity_destroy_result: identity_destroy_result,
-          user_destroy_result: user_destroy_result,
-          session_destroy_result: session_destroy_result
-        })
+                            identity_destroy_count: identity_destroy_count,
+                            user_destroy_count: user_destroy_count,
+                            session_destroy_count: session_destroy_count
+                          })
         false
       end
     end
@@ -58,8 +60,8 @@ module IAMSSOeOAuth
     end
 
     def build_session(access_token, user_identity)
-      session = IAMSession.new(token: access_token, uuid: user_identity.uuid)
-      session.save
+      @session = IAMSession.new(token: access_token, uuid: user_identity.uuid)
+      @session.save
     end
 
     def build_user(user_identity)
