@@ -66,10 +66,7 @@ module EducationForm
         form_submissions = {}
 
         EducationFacility::REGIONS.each do |region|
-          # Atlanta is to be excluded from FYTD reports after the 2017 fiscal year
-          next if fiscal_year > 2017 && region == :southern
-          # St. Louis is to be excluded from FYTD reports after the 2020 fiscal year
-          next if fiscal_year > 2020 && region == :central && Flipper.enabled?(:education_reports_cleanup)
+          next if region_excluded(fiscal_year, region)
 
           relation = build_submission_relation(range_type, region, form_type, status)
 
@@ -192,10 +189,7 @@ module EducationForm
       grand_totals = get_totals_hash_with_form_types
 
       EducationFacility::REGIONS.each do |region|
-        # Atlanta is to be excluded from FYTD reports after the 2017 fiscal year
-        next if fiscal_year > 2017 && region == :southern
-        # St. Louis is to be excluded from FYTD reports after the 2020 fiscal year
-        next if fiscal_year > 2020 && region == :central && Flipper.enabled?(:education_reports_cleanup)
+        next if region_excluded(fiscal_year, region)
 
         submissions_total = get_totals_hash_with_form_types
 
@@ -213,6 +207,15 @@ module EducationForm
       submissions_csv_array << create_totals_row(['ALL RPOS TOTAL', ''], grand_totals)
 
       submissions_csv_array
+    end
+
+    def region_excluded(fiscal_year, region)
+      # Atlanta is to be excluded from FYTD reports after the 2017 fiscal year
+      return true if fiscal_year > 2017 && region == :southern
+      # St. Louis is to be excluded from FYTD reports after the 2020 fiscal year
+      return true if fiscal_year > 2020 && region == :central && Flipper.enabled?(:education_reports_cleanup)
+
+      false
     end
 
     def create_csv_array
