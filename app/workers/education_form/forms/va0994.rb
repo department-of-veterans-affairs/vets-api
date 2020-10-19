@@ -73,7 +73,7 @@ module EducationForm::Forms
       end
     end
 
-    def bank_account_type
+    def account_type
       if @applicant.bankAccount&.accountType.present?
         @applicant.bankAccount.accountType
       elsif !new_bank_info?

@@ -73,7 +73,16 @@ RSpec.describe FormProfile, type: :model do
       'fullName' => full_name,
       'email' => user.pciu_email,
       'phone' => us_phone,
-      'address' => address
+      'address' => address,
+      'veteranServiceInformation' => {
+        'dateOfBirth' => user.birth_date,
+        'socialSecurityNumber' => user.ssn,
+        'branchOfService' => 'air force',
+        'serviceDateRange' => {
+          'from' => '2007-04-01',
+          'to' => '2007-04-02'
+        }
+      }
     }
   end
 
@@ -1076,7 +1085,7 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with the ask a question form' do
       context 'for full name of the veteran' do
-        it 'returns the va profile mapped to contact infromation' do
+        it 'returns the va profile mapped to contact information' do
           expect_prefilled('0873')
         end
       end
