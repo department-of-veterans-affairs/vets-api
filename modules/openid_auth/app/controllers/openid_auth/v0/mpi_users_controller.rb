@@ -6,7 +6,7 @@ require 'common/exceptions'
 
 module OpenidAuth
   module V0
-    class MviUsersController < ApplicationController
+    class MPIUsersController < ApplicationController
       skip_before_action :authenticate
       before_action :check_required_headers, only: :show
 
