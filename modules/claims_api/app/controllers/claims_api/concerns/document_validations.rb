@@ -34,7 +34,7 @@ module ClaimsApi
 
       def pdf?(document)
         extension = document.original_filename.split('.').last
-        ['application/pdf', 'text/plain'].include?(document.content_type) && extension.downcase == 'pdf'
+        ['application/pdf', 'text/plain', 'application/octet-stream'].include?(document.content_type) && extension.downcase == 'pdf'
       end
 
       def json_api_page_size_error(document)
