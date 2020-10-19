@@ -1,14 +1,37 @@
 # frozen_string_literal: true
 
+module VA0873
+  FORM_ID = '0873'
+
+  class ServiceDateRange
+    include Virtus.model
+
+    attribute :from, String
+    attribute :to, String
+
+    def self.permitted_params
+      %i[from to]
+    end
+  end
+
+  class VeteranServiceInformation
+    include Virtus.model
+
+    attribute :dateOfBirth, String
+    attribute :socialSecurityNumber, String
+    attribute :branchOfService, String
+    attribute :service_date_range, ServiceDateRange
+  end
+
+
+end
+
 class FormProfiles::VA0873 < FormProfile
   class FormAddress
     include Virtus.model
 
     attribute :fullName, String
-  end
-
-  def prefill
-    super
+    attribute :veteranServiceInformation, VA0873::VeteranServiceInformation
   end
 
   def metadata

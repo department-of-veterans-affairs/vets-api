@@ -30,6 +30,18 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:veteran_service_information) do
+    {
+      'dateOfBirth' => user.birth_date,
+      'socialSecurityNumber' => user.ssn,
+      'branchOfService' => 'air force',
+      'serviceDateRange' => {
+          'from' => '2007-04-01',
+          'to' => '2007-04-02'
+      }
+    }
+  end
+
   let(:veteran_full_name) do
     {
       'veteranFullName' => full_name
@@ -74,15 +86,7 @@ RSpec.describe FormProfile, type: :model do
       'email' => user.pciu_email,
       'phone' => us_phone,
       'address' => address,
-      'veteranServiceInformation' => {
-        'dateOfBirth' => user.birth_date,
-        'socialSecurityNumber' => user.ssn,
-        'branchOfService' => 'air force',
-        'serviceDateRange' => {
-          'from' => '2007-04-01',
-          'to' => '2007-04-02'
-        }
-      }
+      'veteranServiceInformation' => veteran_service_information
     }
   end
 
