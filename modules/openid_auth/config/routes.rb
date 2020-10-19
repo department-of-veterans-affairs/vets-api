@@ -5,8 +5,8 @@ OpenidAuth::Engine.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     get 'validation', to: 'validation#index'
-    get 'mvi-user', to: 'mvi_users#show'
-    post 'mvi-user', to: 'mvi_users#search'
+    get 'mvi-user', to: 'mpi_users#show'
+    post 'mvi-user', to: 'mpi_users#search'
     post 'okta', to: 'okta#okta_callback'
   end
 
@@ -17,7 +17,7 @@ OpenidAuth::Engine.routes.draw do
   namespace :docs do
     namespace :v0, defaults: { format: 'json' } do
       get 'validation', to: 'validation#index'
-      get 'mvi-user', to: 'mvi_users#index'
+      get 'mvi-user', to: 'mpi_users#index'
       get 'okta', to: 'okta#index'
     end
   end
