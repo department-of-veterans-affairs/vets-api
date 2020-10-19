@@ -22,7 +22,10 @@ module ClaimsApi
       else
         fetch_or_error_local_claim_id
       end
-    rescue EVSS::ErrorMiddleware::EVSSError
+    rescue => e
+      log_message_to_sentry('Error in claims show',
+                            :warning,
+                            body: e.message)
       render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
              status: :not_found
     end

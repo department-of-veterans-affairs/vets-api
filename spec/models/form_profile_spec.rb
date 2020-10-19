@@ -68,6 +68,15 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v0873_expected) do
+    {
+      'fullName' => full_name,
+      'email' => user.pciu_email,
+      'phone' => us_phone,
+      'address' => address
+    }
+  end
+
   let(:v686_c_674_expected) do
     {
       'veteranContactInformation' => {
@@ -1062,6 +1071,14 @@ RSpec.describe FormProfile, type: :model do
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
+      end
+    end
+
+    context 'with the ask a question form' do
+      context 'for full name of the veteran' do
+        it 'returns the va profile mapped to contact infromation' do
+          expect_prefilled('0873')
+        end
       end
     end
 
