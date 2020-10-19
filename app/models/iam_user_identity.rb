@@ -38,6 +38,10 @@ class IAMUserIdentity < ::UserIdentity
     identity
   end
 
+  def multifactor
+    loa[:current].try(:to_i) == LOA::THREE
+  end
+
   def set_expire
     redis_namespace.expireat(REDIS_CONFIG[:iam_user_identity][:namespace], expiration_timestamp)
   end
