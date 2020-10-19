@@ -614,3 +614,9 @@ genisis:
   service_path: /COVID19Service
   user: TestUser
   pass: bogus
+
+# Settings for live Cerner facilities
+cerner:
+  facility_ids:
+    - 757
+    - 668

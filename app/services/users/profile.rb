@@ -163,9 +163,10 @@ module Users
 
     def facility(facility_id)
       cerner_facility_ids = user.va_profile.cerner_facility_ids || []
+      is_cerner = cerner_facility_ids.include?(facility_id) || Settings.cerner.facility_ids.include?(facility_id)
       {
         facility_id: facility_id,
-        is_cerner: cerner_facility_ids.include?(facility_id)
+        is_cerner: is_cerner
       }
     end
 
