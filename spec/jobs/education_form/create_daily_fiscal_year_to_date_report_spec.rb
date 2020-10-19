@@ -14,6 +14,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
   let(:date) { Time.zone.today - 1.day }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:education_reports_cleanup).and_return(true)
     allow_any_instance_of(EducationBenefitsClaim).to receive(:create_education_benefits_submission)
   end
 
@@ -144,7 +145,6 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
 
       before do
         expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:education_reports_cleanup).and_return(true)
       end
 
       after do
