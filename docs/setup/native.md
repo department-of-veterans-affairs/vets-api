@@ -100,7 +100,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
       - ```bash
          PG_CPPFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' CFLAGS='-DACCEPT_USE_OF_DEPRECATED_PROJ_API_H -I/usr/local/include' pex install postgis
 
-      
+
 1. Install ImageMagick
    - `brew install imagemagick`
 1. Install Poppler
@@ -159,7 +159,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 1. Install ImageMagick
    - `sudo apt install -y imagemagick`
 1. Install Poppler
-   - `sudo apt install -y poppler-utils
+   - `sudo apt install -y poppler-utils`
 1. Install ClamAV
    - `sudo apt install -y clamav`
 1. Install pdftk
