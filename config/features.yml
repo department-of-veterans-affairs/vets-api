@@ -228,6 +228,7 @@ features:
       This determines when the wizard should show up on the 1990e introduction page
   get_help_ask_form:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
   show_healthcare_experience_questionnaire:
