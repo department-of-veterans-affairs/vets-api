@@ -22,8 +22,6 @@ module VA0873
     attribute :branchOfService, String
     attribute :service_date_range, ServiceDateRange
   end
-
-
 end
 
 class FormProfiles::VA0873 < FormProfile

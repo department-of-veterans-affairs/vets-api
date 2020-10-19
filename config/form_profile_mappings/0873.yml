@@ -5,7 +5,7 @@ address: [contact_information, address]
 veteranServiceInformation:
   dateOfBirth: [identity_information, date_of_birth]
   socialSecurityNumber: [identity_information, ssn]
-  branchOfService: [military_information, hca_last_service_branch]
+  branchOfService: [military_information, last_service_branch]
   serviceDateRange:
     from: [military_information, last_entry_date]
     to: [military_information, last_discharge_date]
