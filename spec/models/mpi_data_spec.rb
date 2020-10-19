@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-describe Mvi, skip_mvi: true do
+describe MPIData, skip_mvi: true do
   let(:user) { build(:user, :loa3) }
-  let(:mvi) { Mvi.for_user(user) }
+  let(:mvi) { MPIData.for_user(user) }
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_codes) do
     {
@@ -27,8 +27,8 @@ describe Mvi, skip_mvi: true do
     )
   end
   let(:add_response_error) { MVI::Responses::AddPersonResponse.with_server_error(server_error_exception) }
-  let(:default_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
-  let(:failure_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
+  let(:default_ttl) { REDIS_CONFIG[MPIData::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
+  let(:failure_ttl) { REDIS_CONFIG[MPIData::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
 
   describe '.new' do
     it 'creates an instance with user attributes' do
@@ -41,8 +41,8 @@ describe Mvi, skip_mvi: true do
       it 'returns the successful response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response)
-        expect_any_instance_of(Mvi).to receive(:add_ids).once.and_call_original
-        expect_any_instance_of(Mvi).to receive(:cache).once.and_call_original
+        expect_any_instance_of(MPIData).to receive(:add_ids).once.and_call_original
+        expect_any_instance_of(MPIData).to receive(:cache).once.and_call_original
         response = user.mvi.mvi_add_person
         expect(response.status).to eq('OK')
       end
@@ -61,8 +61,8 @@ describe Mvi, skip_mvi: true do
       it 'returns the failed add response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MVI::Service).to receive(:add_person).and_return(add_response_error)
-        expect_any_instance_of(Mvi).not_to receive(:add_ids)
-        expect_any_instance_of(Mvi).not_to receive(:cache)
+        expect_any_instance_of(MPIData).not_to receive(:add_ids)
+        expect_any_instance_of(MPIData).not_to receive(:cache)
         response = user.mvi.mvi_add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
@@ -213,7 +213,7 @@ describe Mvi, skip_mvi: true do
   end
 
   describe '#add_ids' do
-    let(:mvi) { Mvi.for_user(user) }
+    let(:mvi) { MPIData.for_user(user) }
     let(:response) do
       MVI::Responses::AddPersonResponse.new(
         status: 'OK',
@@ -226,7 +226,7 @@ describe Mvi, skip_mvi: true do
 
     it 'updates the user profile and updates the cache' do
       allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
-      expect_any_instance_of(Mvi).to receive(:cache).twice.and_call_original
+      expect_any_instance_of(MPIData).to receive(:cache).twice.and_call_original
       mvi.send(:add_ids, response)
       expect(user.participant_id).to eq('0987654321')
       expect(user.birls_id).to eq('1234567890')

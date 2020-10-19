@@ -42,10 +42,10 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     context 'with errors' do
-      it 'renders an empty array' do
+      it 'shows a errored Claims not found error message' do
         VCR.use_cassette('evss/claims/claims_with_errors') do
           get '/services/claims/v0/claims', params: nil, headers: request_headers
-          expect(JSON.parse(response.body)['data'].length).to eq(0)
+          expect(response.status).to eq(404)
         end
       end
 
