@@ -84,7 +84,7 @@ module ClaimsApi
       log_message_to_sentry('Upload error in 526', :error, body: e.message)
 
       {
-        errors: [{ status: 422, detail: e.message, source: e.key }]
+        errors: [{ status: 422, detail: e&.message, source: e&.key }]
       }.to_json
     end
   end
