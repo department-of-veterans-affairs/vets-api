@@ -10,7 +10,8 @@ module IAMSessionHelper
   def iam_headers(additional_headers = nil)
     headers = {
       'Authorization' => "Bearer #{access_token}",
-      'X-Key-Inflection' => 'camel'
+      'X-Key-Inflection' => 'camel',
+      'CONTENT_TYPE' => 'application/json'
     }
     headers.merge!(additional_headers) if additional_headers
     headers

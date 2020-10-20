@@ -8,11 +8,11 @@ Mobile::Engine.routes.draw do
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     get '/military-service-history', to: 'military_information#get_service_history'
-    get '/payment_information', to: 'payment_information#index'
+    get '/payment-information/benefits', to: 'payment_information#index'
     put '/user/addresses', to: 'addresses#update'
     put '/user/emails', to: 'emails#update'
     put '/user/phones', to: 'phones#update'
-    put '/payment_information', to: 'payment_information#update'
+    put '/payment-information/benefits', to: 'payment_information#update'
     post '/letters/:type/download', to: 'letters#download'
   end
 end
