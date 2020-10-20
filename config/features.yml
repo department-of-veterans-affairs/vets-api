@@ -280,11 +280,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
-  stem_document_type:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Set 10203 spool file document type
   stem_text_message_question:
     actor_type: user
     enable_in_development: true
