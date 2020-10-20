@@ -112,7 +112,7 @@ class EVSSClaimDocument < Common::Base
   rescue PdfInfo::MetadataReadError => e
     log_exception_to_sentry(e, nil, nil, 'warn')
     if e.message.include?('Incorrect password')
-      errors.add(:base, I18n.t('errors.messages.uploads.locked'))
+      errors.add(:base, I18n.t('errors.messages.uploads.pdf.locked'))
     else
       errors.add(:base, I18n.t('errors.messages.uploads.malformed_pdf'))
     end
