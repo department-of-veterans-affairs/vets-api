@@ -3,7 +3,7 @@
 module OpenidAuth
   module Docs
     module V0
-      class MviUsersController < ApplicationController
+      class MPIUsersController < ApplicationController
         skip_before_action(:authenticate)
 
         def index

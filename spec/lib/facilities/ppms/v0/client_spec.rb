@@ -37,7 +37,6 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
 
   describe '#provider_locator' do
     it 'returns a list of providers' do
-      Flipper.enable(:facility_locator_ppms_location_query, false)
       VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
         r = Facilities::PPMS::V0::Client.new.provider_locator(params.merge(services: ['213E00000X']))
         expect(r.length).to be 10
