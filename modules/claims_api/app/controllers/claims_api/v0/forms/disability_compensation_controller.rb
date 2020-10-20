@@ -14,8 +14,9 @@ module ClaimsApi
 
         skip_before_action(:authenticate)
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
-        before_action :validate_documents_content_type, only: %i[upload_supporting_documents]
-        before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
+        # TODO: Fix methods in document_validations to work correctly before uncommenting, add broader range of tests
+        # before_action :validate_documents_content_type, only: %i[upload_supporting_documents]
+        # before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
         def submit_form_526
