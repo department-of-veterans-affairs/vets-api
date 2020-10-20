@@ -756,9 +756,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-  /v0/payment-information:
+  /v0/payment-information/benfits:
     get:
-      summary: /v0/payment-information
+      summary: /v0/payment-information/benfits
       description: Returns direct deposit payment info
       operationId: index
       security:
@@ -819,7 +819,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Errors"
     put:
-      summary: /v0/payment-information
+      summary: /v0/payment-information/benfits
       description: Returns updated direct deposit payment info
       operationId: update
       security:
