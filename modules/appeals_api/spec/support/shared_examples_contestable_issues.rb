@@ -24,6 +24,33 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
       end
     end
 
+    context 'when X-VA-Receipt-Date is missing' do
+      it 'returns a 422' do
+        get_issues(ssn: '872958715', receipt_date: nil, options: options)
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_an Array
+      end
+    end
+
+    context 'when X-VA-SSN and X-VA-File-Number are missing' do
+      it 'returns a 422' do
+        get_issues(ssn: nil, file_number: nil, options: options)
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_an Array
+      end
+    end
+
+    context 'when X-VA-SSN has an invalid format' do
+      it 'returns a 422' do
+        get_issues(ssn: '87295a71b', options: options)
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_an Array
+      end
+    end
+
     context 'unusable response' do
       before do
         allow_any_instance_of(Caseflow::Service).to(
@@ -65,9 +92,10 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
 
   private
 
-  def get_issues(ssn: '872958715', file_number: nil, options:)
-    headers = { 'X-VA-Receipt-Date' => '2019-12-01' }
+  def get_issues(ssn: '872958715', file_number: nil, receipt_date: '2019-12-01', options:)
+    headers = {}
 
+    headers['X-VA-Receipt-Date'] = receipt_date unless receipt_date.nil?
     if file_number.present?
       headers['X-VA-File-Number'] = file_number
     elsif ssn.present?
