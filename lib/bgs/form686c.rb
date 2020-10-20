@@ -70,10 +70,10 @@ module BGS
     # end
 
     def create_proc_id_and_form
-      vnp_response = bgs_service.create_proc('130SCHATTEBN')
+      vnp_response = bgs_service.create_proc('130DPNEBNADJ')
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
-        '130 - Automated School Attendance 674'
+        '130 - Automated Dependency 686c'
       )
 
       vnp_response[:vnp_proc_id]
