@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 module V0
-  class MviUsersController < ApplicationController
-    before_action { authorize :mvi, :access_add_person? }
+  # Formerly MviUsersController
+  class MPIUsersController < ApplicationController
+    before_action { authorize :mpi, :access_add_person? }
 
     def submit
       # Caller must be using proxy add in order to complete Intent to File or Disability Compensation forms
@@ -10,7 +11,7 @@ module V0
       if ['21-0966', FormProfiles::VA526ez::FORM_ID].exclude?(form_id)
         raise Common::Exceptions::Forbidden.new(
           detail: "Action is prohibited with id parameter #{form_id}",
-          source: 'MviUsersController'
+          source: 'MPIUsersController'
         )
       end
 
@@ -18,7 +19,7 @@ module V0
       if @current_user.birls_id.nil? && @current_user.participant_id.present?
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: 'No birls_id while participant_id present',
-          source: 'MviUsersController'
+          source: 'MPIUsersController'
         )
       end
 

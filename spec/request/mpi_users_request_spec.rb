@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe 'MVI Users Endpoint', type: :request do
+RSpec.describe 'MPI Users Endpoint', type: :request do
   describe 'POST #submit' do
     let(:user) { build(:user_with_no_ids) }
 
