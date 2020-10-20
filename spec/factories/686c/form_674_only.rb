@@ -5,7 +5,7 @@ FactoryBot.define do
     initialize_with do
       {
         'view:selectable686_options' => {
-          'report674' => true,
+          'report674' => true
         },
         'dependents_application' => {
           'student_does_have_networth' => true,
