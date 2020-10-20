@@ -39,7 +39,7 @@ RSpec.describe BGSDependents::ChildSchool do
   describe '#params for 686c' do
     it 'formats child school params for submission' do
       formatted_info = child_school_info.params_for_686c
-
+      binding.pry
       expect(formatted_info).to include(formatted_params_result)
     end
   end

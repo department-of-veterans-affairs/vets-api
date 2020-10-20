@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'bgs/form686c'
+require 'bgs/form674'
 
 module BGS
-  class SubmitForm686cJob
-    class Invalid686cClaim < StandardError; end
+  class SubmitForm674Job
+    class Invalid674Claim < StandardError; end
     include Sidekiq::Worker
     include SentryLogging
 
@@ -15,7 +15,7 @@ module BGS
       user = User.find(user_uuid)
       claim = valid_claim(saved_claim_id, vet_info)
 
-      BGS::Form686c.new(user).submit(claim.parsed_form)
+      BGS::Form674.new(user).submit(claim.parsed_form)
     rescue
       DependentsApplicationFailureMailer.build(user).deliver_now if user.present?
     end
@@ -25,9 +25,9 @@ module BGS
     def valid_claim(saved_claim_id, vet_info)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
 
-      raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
+      raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
 
-      claim.formatted_686_data(vet_info)
+      claim.formatted_674_data(vet_info)
     end
   end
 end

@@ -15,11 +15,11 @@ module BGS
       @user = user
     end
 
-    def create_proc
+    def create_proc(proc_type_code)
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_create(
           {
-            vnp_proc_type_cd: 'DEPCHG',
+            vnp_proc_type_cd: proc_type_code,
             vnp_proc_state_type_cd: 'Started',
             creatd_dt: Time.current.iso8601,
             last_modifd_dt: Time.current.iso8601,
@@ -29,12 +29,12 @@ module BGS
       end
     end
 
-    def create_proc_form(vnp_proc_id)
+    def create_proc_form(vnp_proc_id, form_type_code)
       # Temporary log proc_id to sentry
       log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
-          { vnp_proc_id: vnp_proc_id, form_type_cd: '21-686c' }.merge(bgs_auth)
+          { vnp_proc_id: vnp_proc_id, form_type_cd: form_type_code }.merge(bgs_auth)
         )
       end
     end

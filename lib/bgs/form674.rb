@@ -11,7 +11,7 @@ require_relative 'vnp_veteran'
 require_relative 'children'
 
 module BGS
-  class Form686c
+  class Form674
     def initialize(user)
       @user = user
     end
@@ -54,18 +54,23 @@ module BGS
 
     def process_674(proc_id, dependents, payload)
       dependents.each do |dependent|
-        StudentSchool.new(
-          proc_id: proc_id,
-          vnp_participant_id: dependent[:vnp_participant_id],
-          payload: payload,
-          user: @user
-        ).create
+        if dependent_over_18_attending_school?(dependent[:type])
+          StudentSchool.new(
+            proc_id: proc_id,
+            vnp_participant_id: dependent[:vnp_participant_id],
+            payload: payload,
+            user: @user
+          ).create
+        end
       end
     end
 
     def create_proc_id_and_form
-      vnp_response = bgs_service.create_proc
-      bgs_service.create_proc_form(vnp_response[:vnp_proc_id])
+      vnp_response = bgs_service.create_proc('130SCHATTEBN')
+      bgs_service.create_proc_form(
+        vnp_response[:vnp_proc_id],
+        '130 - Automated School Attendance 674'
+      )
 
       vnp_response[:vnp_proc_id]
     end
