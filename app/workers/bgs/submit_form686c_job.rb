@@ -15,7 +15,7 @@ module BGS
       user = User.find(user_uuid)
       claim = valid_claim(saved_claim_id, vet_info)
 
-      BGS::Form686c.new(user).submit(claim.parsed_form)
+      BGS::Form686c.new(user).submit(claim)
     rescue
       DependentsApplicationFailureMailer.build(user).deliver_now if user.present?
     end
