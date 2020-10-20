@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/mvi_verification'
-require_dependency 'claims_api/concerns/header_validation'
-require_dependency 'claims_api/concerns/json_format_validation'
 require 'evss/error_middleware'
 require 'bgs/power_of_attorney_verifier'
 
