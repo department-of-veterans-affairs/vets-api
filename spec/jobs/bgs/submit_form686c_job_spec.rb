@@ -27,7 +27,7 @@ RSpec.describe BGS::SubmitForm686cJob, type: :job do
     described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
   end
 
-  context 'error' dod
+  context 'error' do
     it 'calls #submit for 686c submission' do
       client_stub = instance_double('BGS::Form686c')
       mailer_double = double('Mail::Message')
