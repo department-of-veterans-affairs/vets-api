@@ -163,10 +163,7 @@ module Users
 
     def facility(facility_id)
       cerner_facility_ids = user.va_profile.cerner_facility_ids || []
-
-      is_cerner = cerner_facility_ids.include?(facility_id)
-      is_cerner = true if facility_id == '668' && Flipper.enabled?(:cerner_override_668)
-      is_cerner = true if facility_id == '757' && Flipper.enabled?(:cerner_override_757)
+      is_cerner = cerner_facility_ids.include?(facility_id) || Flipper.enabled?("cerner_override_#{facility_id}")
 
       {
         facility_id: facility_id,
