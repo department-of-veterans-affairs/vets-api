@@ -71,3 +71,6 @@ dump.rdb
 
 # Ignore IDE files
 *.iml
+
+#ignore docker_debugging
+docker_debugging
