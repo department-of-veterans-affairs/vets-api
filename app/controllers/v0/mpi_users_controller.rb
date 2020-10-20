@@ -3,7 +3,7 @@
 module V0
   # Formerly MviUsersController
   class MPIUsersController < ApplicationController
-    before_action { authorize :mvi, :access_add_person? }
+    before_action { authorize :mpi, :access_add_person? }
 
     def submit
       # Caller must be using proxy add in order to complete Intent to File or Disability Compensation forms
