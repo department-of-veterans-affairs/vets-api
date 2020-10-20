@@ -9,12 +9,22 @@ class ParamsAsJsonController < ActionController::API
   end
 end
 
-Rails.application.routes.draw do
-  get 'some_json' => 'params_as_json#index'
-end
-
 describe 'OliveBranchPatch', type: :request do
-  it 'does not change response keys when camel inflection is not used'
+  before(:all) do
+    Rails.application.routes.draw do
+      get 'some_json' => 'params_as_json#index'
+    end
+  end
+
+  after(:all) do
+    Rails.application.reload_routes!
+  end
+
+  it 'does not change response keys when camel inflection is not used' do
+    hash = { hello_there: 'hello there' }
+    get '/some_json', params: hash
+    expect(JSON.parse(response.body).keys).to eq ['hello_there']
+  end
   it 'does not change a Rack::Response response object'
   it 'does not add keys if `VA` is not in the middle of a key' do
     hash = { hello_there: 'hello there' }
@@ -26,5 +36,9 @@ describe 'OliveBranchPatch', type: :request do
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     expect(JSON.parse(response.body).keys).to include('weLoveTheVa', 'weLoveTheVA')
   end
-  it 'adds a second key to data with `VA` in the key except the key uses `Va` for each instance of `VA`'
+  it 'adds additional keys to data with `VA` in multiple keys except the keys use `Va` for each instance of `VA`'  do
+    hash = { we_love_the_va: true, the_va_loves_our_troops: true }
+    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    expect(JSON.parse(response.body).keys).to include('weLoveTheVa', 'weLoveTheVA', 'theVALovesOurTroops', 'theVaLovesOurTroops')
+  end
 end
