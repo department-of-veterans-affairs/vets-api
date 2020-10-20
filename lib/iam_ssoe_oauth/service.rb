@@ -36,22 +36,26 @@ module IAMSSOeOAuth
       raise Common::Exceptions::Unauthorized, detail: 'IAM user session is inactive' if inactive?(response)
 
       response.body
+    rescue Common::Client::Errors::ClientError => e
+      remap_error(e)
     end
 
+    # Revokes the auth token sent in the request.
+    # https:://dvagov.sharepoint.com/sites/OITEPMOIA/playbooks/Pages/OAuth/OAuth Example - Revoke.aspx
+    #
+    # @token String the auth token for the user
+    #
+    # @return String returns a empty body on success
+    #
     def post_revoke(token)
       perform(
         :post, REVOKE_PATH, encoded_params(token), { 'Content-Type' => 'application/x-www-form-urlencoded' }
       )
     rescue Common::Client::Errors::ClientError => e
-      case e.status
-      when 400
-        raise Common::Exceptions::BackendServiceException.new('IAM_SSOE_400', detail: e.body)
-      when 500
-        raise Common::Exceptions::BackendServiceException, 'IAM_SSOE_502'
-      else
-        raise e
-      end
+      remap_error(e)
     end
+
+    private
 
     def encoded_params(token)
       URI.encode_www_form(
@@ -65,6 +69,17 @@ module IAMSSOeOAuth
 
     def inactive?(response)
       !response.body[:active]
+    end
+
+    def remap_error(e)
+      case e.status
+      when 400
+        raise Common::Exceptions::BackendServiceException.new('IAM_SSOE_400', detail: e.body)
+      when 500
+        raise Common::Exceptions::BackendServiceException, 'IAM_SSOE_502'
+      else
+        raise e
+      end
     end
   end
 end
