@@ -38,7 +38,8 @@ class FormAttachment < ApplicationRecord
     return file unless File.extname(file) == '.pdf'
 
     pdftk = PdfForms.new(Settings.binaries.pdftk)
-    tmpf = Tempfile.new(['decrypted', '.pdf'])
+    tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
+
     error_messages = pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
     if error_messages.present?
       log_message_to_sentry(error_messages, 'warn')

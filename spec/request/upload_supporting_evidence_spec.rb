@@ -19,7 +19,9 @@ RSpec.describe 'Upload supporting evidence', type: :request do
         post '/v0/upload_supporting_evidence',
              params: { supporting_evidence_attachment: { file_data: pdf_file } }
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq SupportingEvidenceAttachment.last.guid
+        sea = SupportingEvidenceAttachment.last
+        expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq sea.guid
+        expect(sea.get_file&.read).not_to be_nil
       end
     end
 
@@ -28,7 +30,9 @@ RSpec.describe 'Upload supporting evidence', type: :request do
         post '/v0/upload_supporting_evidence',
              params: { supporting_evidence_attachment: { file_data: encrypted_pdf_file, password: 'test' } }
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq SupportingEvidenceAttachment.last.guid
+        sea = SupportingEvidenceAttachment.last
+        expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq sea.guid
+        expect(sea.get_file&.read).not_to be_nil
       end
 
       it 'returns a 422 for a pdf with an incorrect password' do

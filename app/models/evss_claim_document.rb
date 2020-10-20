@@ -87,7 +87,7 @@ class EVSSClaimDocument < Common::Base
     return unless file_name.match?(/\.pdf$/i) && password.present?
 
     pdftk = PdfForms.new(Settings.binaries.pdftk)
-    tempfile_without_pass = Tempfile.new('no_password_here')
+    tempfile_without_pass = Tempfile.new(['decrypted_evss_claim_document', '.pdf'])
 
     error_messages = pdftk.call_pdftk(file_obj.tempfile.path,
                                       'input_pw', password,
