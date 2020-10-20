@@ -472,7 +472,7 @@
       :uid_locator: X-VA-SSN
   - :method: :get
     :path: "/api/v3/decision_reviews/appeals/contestable_issues"
-    :file_path: "modules_appeals_api/decision_reviews/contestable_issues"
+    :file_path: "modules_appeals_api/notice_of_disagreements/contestable_issues"
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: X-VA-SSN
