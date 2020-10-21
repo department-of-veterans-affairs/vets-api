@@ -156,7 +156,7 @@
         steps:
             - run:
                 name: Install dependencies (pdftk, poppler, imagemagick)
-                command: sudo apt install imagemagick pdftk poppler-utils
+                command: DEBIAN_FRONTEND=noninteractive sudo apt install -y imagemagick pdftk poppler-utils
     setup_test_db:
         steps:
             - run:
