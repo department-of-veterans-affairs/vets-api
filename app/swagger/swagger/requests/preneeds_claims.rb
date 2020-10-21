@@ -170,7 +170,9 @@ module Swagger
             key :required, true
 
             schema do
+              key :required, %i[file_data]
               property :file_data, type: :string, example: 'filename.pdf'
+              property :password, type: :string, example: 'My Password'
             end
           end
 
