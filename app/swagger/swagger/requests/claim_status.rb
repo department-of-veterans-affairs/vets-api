@@ -43,13 +43,17 @@ module Swagger
       end
 
       swagger_schema :ClaimDocumentInput do
-        key :required, [:file]
+        key :required, %i[file document_type]
 
         property :file do
           key :type, :string
         end
         property :tracked_item_id do
           key :type, :string
+        end
+        property :password do
+          key :type, :string
+          key :example, 'My Password!'
         end
         property :document_type do
           key :type, :string
