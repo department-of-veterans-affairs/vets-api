@@ -12,7 +12,7 @@ RSpec.describe BGS::Service do
   describe '#create_proc' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc') do
-        response = bgs_service.create_proc('DEPCHG')
+        response = bgs_service.create_proc
 
         expect(response).to have_key(:vnp_proc_id)
       end

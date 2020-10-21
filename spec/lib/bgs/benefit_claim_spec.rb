@@ -34,7 +34,9 @@ RSpec.describe BGS::BenefitClaim do
             vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
             veteran: vet_hash,
             user: user_object,
-            proc_id: proc_id
+            proc_id: proc_id,
+            end_product_name: '130 - Automated Dependency 686c',
+            end_product_code: '130DPNEBNADJ'
           }
         ).create
 
@@ -77,7 +79,9 @@ RSpec.describe BGS::BenefitClaim do
             vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
             veteran: vet_hash,
             user: user_object,
-            proc_id: proc_id
+            proc_id: proc_id,
+            end_product_name: '130 - Automated Dependency 686c',
+            end_product_code: '130DPNEBNADJ'
           }
         ).create
       end

@@ -56,22 +56,7 @@ module BGS
         step_children: children[:step_children],
         user: @user
       ).create_all
-
-      # process_674(proc_id, dependents, payload)
     end
-
-    # def process_674(proc_id, dependents, payload)
-    #   dependents.each do |dependent|
-    #     if dependent_over_18_attending_school?(dependent[:type])
-    #       StudentSchool.new(
-    #         proc_id: proc_id,
-    #         vnp_participant_id: dependent[:vnp_participant_id],
-    #         payload: payload,
-    #         user: @user
-    #       ).create
-    #     end
-    #   end
-    # end
 
     def create_proc_id_and_form
       vnp_response = bgs_service.create_proc
@@ -82,12 +67,6 @@ module BGS
 
       vnp_response[:vnp_proc_id]
     end
-
-    # def dependent_over_18_attending_school?(dependent_type)
-    #   return true if dependent_type == '674'
-    #
-    #   false
-    # end
 
     def bgs_service
       BGS::Service.new(@user)
