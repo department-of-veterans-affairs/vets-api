@@ -13,16 +13,16 @@ module BGS
 
     def perform(user_uuid, saved_claim_id, vet_info)
       user = User.find(user_uuid)
-      claim = valid_claim(saved_claim_id, vet_info)
+      claim_data = valid_claim_data(saved_claim_id, vet_info)
 
-      BGS::Form686c.new(user).submit(claim)
+      BGS::Form686c.new(user).submit(claim_data)
     rescue
       DependentsApplicationFailureMailer.build(user).deliver_now if user.present?
     end
 
     private
 
-    def valid_claim(saved_claim_id, vet_info)
+    def valid_claim_data(saved_claim_id, vet_info)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
 
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
