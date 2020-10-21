@@ -42,9 +42,6 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
   private
 
   def not_pdf?(file)
-    puts "!!!!!!!! #{original_filename}"
-    puts "!!!!!!!! #{file.content_type}"
-    puts "!!!!!!!!#{file.content_type != 'application/pdf'}"
     file.content_type != 'application/pdf'
   end
 end
