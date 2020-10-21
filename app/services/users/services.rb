@@ -24,7 +24,7 @@ module Users
       @list << BackendServices::MHV_AC if user.authorize :mhv_account_creation, :access?
       @list << BackendServices::EVSS_CLAIMS if user.authorize :evss, :access?
       @list << BackendServices::FORM526 if user.authorize :evss, :access_form526?
-      @list << BackendServices::ADD_PERSON if user.authorize :mvi, :access_add_person?
+      @list << BackendServices::ADD_PERSON if user.authorize :mpi, :access_add_person?
       @list << BackendServices::USER_PROFILE if user.can_access_user_profile?
       @list << BackendServices::APPEALS_STATUS if user.authorize :appeals, :access?
       @list << BackendServices::ID_CARD if user.can_access_id_card?

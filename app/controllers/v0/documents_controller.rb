@@ -16,7 +16,8 @@ module V0
         uuid: SecureRandom.uuid,
         file_name: params[:file].original_filename,
         tracked_item_id: params[:tracked_item_id],
-        document_type: params[:document_type]
+        document_type: params[:document_type],
+        password: params[:password]
       )
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
