@@ -4,7 +4,6 @@ module V0
   module Ask
     class AsksController < ApplicationController
       skip_before_action :authenticate, only: :create
-      skip_before_action :verify_authenticity_token
 
       def create
         return service_unavailable unless Flipper.enabled?(:get_help_ask_form)

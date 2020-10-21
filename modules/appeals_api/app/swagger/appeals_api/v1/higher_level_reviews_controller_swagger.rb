@@ -135,6 +135,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     end
   end
 
+  # rubocop:disable Metrics/BlockLength
   swagger_path '/higher_level_reviews/contestable_issues/{benefit_type}' do
     operation :get, tags: HLR_TAG do
       key :operationId, 'getContestableIssues'
@@ -154,10 +155,21 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       parameter name: 'benefit_type', 'in': 'path', required: true, description: 'benefit type' do
         schema '$ref': 'hlrCreateBenefitType'
       end
-      key :responses, read_json_from_same_dir['responses_contestable_issues.json']
+
+      responses = read_json_from_same_dir['responses_contestable_issues.json']
+      responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
+        "value": {
+          "errors": [{ "status": 422, "code": 'invalid_benefit_type', "title": 'Invalid Benefit Type',
+                       "detail": 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
+              '"fiduciary", "insurance", "education", "voc_rehab", "loan_guaranty", "vha", "nca"]' }]
+        }
+      }
+      key :responses, responses
+
       security do
         key :apikey, []
       end
     end
   end
+  # rubocop:enable Metrics/BlockLength
 end

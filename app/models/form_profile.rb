@@ -105,6 +105,7 @@ class FormProfile
   }.freeze
 
   FORM_ID_TO_CLASS = {
+    '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
@@ -137,7 +138,7 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   def self.prefill_enabled_forms
-    forms = %w[21-686C 40-10007]
+    forms = %w[21-686C 40-10007 0873]
     ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end

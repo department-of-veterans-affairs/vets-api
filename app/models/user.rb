@@ -303,7 +303,7 @@ class User < Common::RedisStore
   end
 
   def mvi
-    @mvi ||= Mvi.for_user(self)
+    @mvi ||= MPIData.for_user(self)
   end
 
   # A user can have served in the military without being a veteran.  For example,

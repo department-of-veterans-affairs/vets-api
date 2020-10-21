@@ -44,13 +44,14 @@ module Caseflow
     # Returns contestable issues for a veteran.
     #
     # @param headers [Hash] Headers to include.
+    # @param decision_review_type [String] The type of decision review (appeals (nod), higher_level_reviews, etc)
     # @return [Hash] Response object.
     #
-    def get_contestable_issues(headers:, benefit_type:)
+    def get_contestable_issues(headers:, benefit_type:, decision_review_type:)
       with_monitoring do
         authorized_perform(
           :get,
-          "#{CASEFLOW_V3_API_PATH}higher_level_reviews/contestable_issues/#{benefit_type}",
+          "#{CASEFLOW_V3_API_PATH}#{decision_review_type}/contestable_issues/#{benefit_type}",
           {},
           headers
         )

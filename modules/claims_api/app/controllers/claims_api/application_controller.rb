@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/mvi_verification'
+require_dependency 'claims_api/concerns/mpi_verification'
 require_dependency 'claims_api/concerns/header_validation'
 require_dependency 'claims_api/concerns/json_format_validation'
 require 'evss/error_middleware'
@@ -8,7 +8,7 @@ require 'bgs/power_of_attorney_verifier'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
-    include ClaimsApi::MviVerification
+    include ClaimsApi::MPIVerification
     include ClaimsApi::HeaderValidation
     include ClaimsApi::JsonFormatValidation
 
@@ -22,7 +22,10 @@ module ClaimsApi
       else
         fetch_or_error_local_claim_id
       end
-    rescue EVSS::ErrorMiddleware::EVSSError
+    rescue => e
+      log_message_to_sentry('Error in claims show',
+                            :warning,
+                            body: e.message)
       render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
              status: :not_found
     end
