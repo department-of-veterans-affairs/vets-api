@@ -9,6 +9,10 @@ module StringHelpers
     str.slice(0, 1).capitalize + str.slice(1..-1)
   end
 
+  def mask_sensitive(string)
+    string&.gsub(/.(?=.{4})/, '*')
+  end
+
   def hyphenated_ssn(ssn)
     return if ssn.blank?
 
