@@ -264,6 +264,14 @@ features:
     actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+  cerner_override_668:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 668 as `isCerner`.
+  cerner_override_757:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 757 as `isCerner`.
   gibct_benefit_filter_enhancement:
     actor_type: user
     description: >
