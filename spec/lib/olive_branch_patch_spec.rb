@@ -5,7 +5,15 @@ require 'rails_helper'
 class ParamsAsJsonController < ActionController::API
   def index
     params.permit!
-    render json: params.reject { |k, _| %w[controller action].include?(k) }.to_json
+    response = params.reject { |k, _| %w[controller action].include?(k) }
+    render json: response.to_json
+  end
+
+  def document
+    send_data params[:text] || 'documentDOCUMENTdocument',
+              filename: 'json.pdf',
+              type: 'application/pdf',
+              disposition: 'attachment'
   end
 end
 
@@ -13,6 +21,7 @@ describe 'OliveBranchPatch', type: :request do
   before(:all) do
     Rails.application.routes.draw do
       get 'some_json' => 'params_as_json#index'
+      get 'some_document' => 'params_as_json#document'
     end
   end
 
@@ -25,7 +34,13 @@ describe 'OliveBranchPatch', type: :request do
     get '/some_json', params: hash
     expect(JSON.parse(response.body).keys).to eq ['hello_there']
   end
-  it 'does not change a Rack::Response response object'
+  it 'does not change document responses' do
+    # TODO maybe this should return some pdf document from a fixture
+    text = 'blah blah blah'
+    hash = { text: text }
+    get '/some_document', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    expect(response.body).to eq text
+  end
   it 'does not add keys if `VA` is not in the middle of a key' do
     hash = { hello_there: 'hello there' }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
