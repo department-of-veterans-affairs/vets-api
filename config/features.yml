@@ -145,11 +145,6 @@ features:
     enable_in_development: true
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
-  edu_benefits_stem_scholarship:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables STEM scholarship functionality
   form526_original_claims:
     actor_type: user
     description: >
