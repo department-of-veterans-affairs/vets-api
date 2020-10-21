@@ -26,12 +26,14 @@ module BGS
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
       benefit_claim_record = BenefitClaim.new(
-        vnp_benefit_claim: vnp_benefit_claim_record,
-        veteran: veteran,
-        user: @user,
-        proc_id: proc_id,
-        end_product_name: '130 - Automated Dependency 686c',
-        end_product_code: '130DPNEBNADJ'
+        args: {
+          vnp_benefit_claim: vnp_benefit_claim_record,
+          veteran: veteran,
+          user: @user,
+          proc_id: proc_id,
+          end_product_name: '130 - Automated Dependency 686c',
+          end_product_code: '130DPNEBNADJ'
+        }
       ).create
 
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)

@@ -13,13 +13,13 @@ module BGS
       pre_discharge_indicator: 'N'
     }.freeze
 
-    def initialize(vnp_benefit_claim:, veteran:, user:, proc_id:, end_product_name:, end_product_code:)
-      @vnp_benefit_claim = vnp_benefit_claim
-      @veteran = veteran
-      @user = user
-      @proc_id = proc_id
-      @end_product_name = end_product_name
-      @end_product_code = end_product_code
+    def initialize(args:)
+      @vnp_benefit_claim = args[:vnp_benefit_claim]
+      @veteran = args[:veteran]
+      @user = args[:user]
+      @proc_id = args[:proc_id]
+      @end_product_name = args[:end_product_name]
+      @end_product_code = args[:end_product_code]
     end
 
     def create

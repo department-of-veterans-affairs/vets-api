@@ -30,10 +30,12 @@ RSpec.describe BGS::BenefitClaim do
     it 'returns a BenefitClaim hash' do
       VCR.use_cassette('bgs/benefit_claim/create') do
         benefit_claim = BGS::BenefitClaim.new(
-          vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
-          veteran: vet_hash,
-          user: user_object,
-          proc_id: proc_id
+          args: {
+            vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
+            veteran: vet_hash,
+            user: user_object,
+            proc_id: proc_id
+          }
         ).create
 
         expect(benefit_claim).to include(
@@ -71,10 +73,12 @@ RSpec.describe BGS::BenefitClaim do
           .and_call_original
 
         BGS::BenefitClaim.new(
-          vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
-          veteran: vet_hash,
-          user: user_object,
-          proc_id: proc_id
+          args: {
+            vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
+            veteran: vet_hash,
+            user: user_object,
+            proc_id: proc_id
+          }
         ).create
       end
     end
@@ -89,10 +93,12 @@ RSpec.describe BGS::BenefitClaim do
           )
 
           BGS::BenefitClaim.new(
-            vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
-            veteran: vet_hash,
-            user: user_object,
-            proc_id: proc_id
+            args: {
+              vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
+              veteran: vet_hash,
+              user: user_object,
+              proc_id: proc_id
+            }
           ).create
         end
       end
@@ -103,10 +109,12 @@ RSpec.describe BGS::BenefitClaim do
         VCR.use_cassette('bgs/benefit_claim/create/error') do
           expect do
             BGS::BenefitClaim.new(
-              vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
-              veteran: vet_hash,
-              user: user_object,
-              proc_id: proc_id
+              args: {
+                vnp_benefit_claim: { vnp_benefit_claim_type_code: '130DPNEBNADJ' },
+                veteran: vet_hash,
+                user: user_object,
+                proc_id: proc_id
+              }
             ).create
           end.to raise_error(BGS::ServiceException)
         end
