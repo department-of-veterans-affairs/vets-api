@@ -329,7 +329,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           200,
           '_data' => {
             'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/preneeds/extras.pdf', 'application/pdf')
+              'file_data' => fixture_file_upload('spec/fixtures/preneeds/extras.pdf')
             }
           }
         )
