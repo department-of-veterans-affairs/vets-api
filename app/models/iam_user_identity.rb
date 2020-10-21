@@ -39,7 +39,7 @@ class IAMUserIdentity < ::UserIdentity
   end
 
   def multifactor
-    loa[:current].try(:to_i) == LOA::THREE
+    loa[:current]&.to_int == LOA::THREE
   end
 
   def set_expire
