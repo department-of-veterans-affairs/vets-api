@@ -18,7 +18,7 @@ module BGS
 
     def submit(payload)
       proc_id = create_proc_id_and_form
-      veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user).create
+      veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user, claim_type: '130SCHATTEBN').create
 
       process_relationships(proc_id, veteran, payload)
 
@@ -29,7 +29,9 @@ module BGS
         vnp_benefit_claim: vnp_benefit_claim_record,
         veteran: veteran,
         user: @user,
-        proc_id: proc_id
+        proc_id: proc_id,
+        end_product_name: '130 - Automated School Attendance 674',
+        end_product_code: '130SCHATTEBN'
       ).create
 
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
@@ -39,12 +41,12 @@ module BGS
     private
 
     def process_relationships(proc_id, veteran, payload)
-      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create_all
+      dependent = DependentHigherEdAttendance.new(proc_id: proc_id, payload: payload, user: @user).create
 
       VnpRelationships.new(
         proc_id: proc_id,
         veteran: veteran,
-        dependents: dependents,
+        dependents: [dependent],
         step_children: [],
         user: @user
       ).create_all
@@ -66,7 +68,7 @@ module BGS
     end
 
     def create_proc_id_and_form
-      vnp_response = bgs_service.create_proc('130SCHATTEBN')
+      vnp_response = bgs_service.create_proc
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
         '130 - Automated School Attendance 674'

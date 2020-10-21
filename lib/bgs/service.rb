@@ -15,11 +15,11 @@ module BGS
       @user = user
     end
 
-    def create_proc(proc_type_code)
+    def create_proc
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_create(
           {
-            vnp_proc_type_cd: proc_type_code,
+            vnp_proc_type_cd: 'DEPCHG',
             vnp_proc_state_type_cd: 'Started',
             creatd_dt: Time.current.iso8601,
             last_modifd_dt: Time.current.iso8601,
@@ -113,10 +113,10 @@ module BGS
       end
     end
 
-    def find_benefit_claim_type_increment
+    def find_benefit_claim_type_increment(claim_type_cd)
       increment_params = {
         ptcpnt_id: @user.participant_id,
-        bnft_claim_type_cd: '130DPNEBNADJ',
+        bnft_claim_type_cd: claim_type_cd,
         pgm_type_cd: 'CPL'
       }
 

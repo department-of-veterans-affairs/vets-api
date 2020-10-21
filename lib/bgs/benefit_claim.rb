@@ -10,16 +10,16 @@ module BGS
       disposition: 'M',
       section_unit_no: '555',
       folder_with_claim: 'N',
-      end_product_name: '130 - Automated Dependency 686c',
-      pre_discharge_indicator: 'N',
-      end_product_code: '130DPNEBNADJ'
+      pre_discharge_indicator: 'N'
     }.freeze
 
-    def initialize(vnp_benefit_claim:, veteran:, user:, proc_id:)
+    def initialize(vnp_benefit_claim:, veteran:, user:, proc_id:, end_product_name:, end_product_code:)
       @vnp_benefit_claim = vnp_benefit_claim
       @veteran = veteran
       @user = user
       @proc_id = proc_id
+      @end_product_name = end_product_name
+      @end_product_code = end_product_code
     end
 
     def create
@@ -55,7 +55,9 @@ module BGS
         postal_code: @veteran[:address_zip_code],
         email_address: @veteran[:email_address],
         country: @veteran[:address_country],
-        date_of_claim: Time.current.strftime('%m/%d/%Y')
+        date_of_claim: Time.current.strftime('%m/%d/%Y'),
+        end_product_name: @end_product_name,
+        end_product_code: @end_product_code
       }.merge(BENEFIT_CLAIM_PARAM_CONSTANTS)
     end
 
