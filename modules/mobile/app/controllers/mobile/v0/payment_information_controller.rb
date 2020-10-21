@@ -33,10 +33,10 @@ module Mobile
 
       def ppiu_params
         params.permit(
-            :account_type,
-            :financial_institution_name,
-            :account_number,
-            :financial_institution_routing_number
+          :account_type,
+          :financial_institution_name,
+          :account_number,
+          :financial_institution_routing_number
         )
       end
 
@@ -61,10 +61,10 @@ module Mobile
           end
         else
           log_message_to_sentry(
-              'Direct Deposit info update: no email address present for confirmation email',
-              :info,
-              {},
-              feature: 'direct_deposit'
+            'Direct Deposit info update: no email address present for confirmation email',
+            :info,
+            {},
+            feature: 'direct_deposit'
           )
         end
       end

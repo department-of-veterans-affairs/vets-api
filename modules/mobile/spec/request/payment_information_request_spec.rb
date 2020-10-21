@@ -6,37 +6,36 @@ require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'payment_information', type: :request do
   include JsonSchemaMatchers
-  let(:user) { create(:user, :mhv) }
   before { iam_sign_in }
-
+  
+  let(:user) { create(:user, :mhv) }
   let(:payment_info_body) do
     {
-        'data' => {
-            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
-            'type' => 'paymentInformation',
-            'attributes' => {
-                'accountControl' => {
-                    'canUpdateAddress' => true,
-                    'corpAvailIndicator' => true,
-                    'corpRecFoundIndicator' => true,
-                    'hasNoBdnPaymentsIndicator' => true,
-                    'identityIndicator' => true,
-                    'isCompetentIndicator' => true,
-                    'indexIndicator' => true,
-                    'noFiduciaryAssignedIndicator' => true,
-                    'notDeceasedIndicator' => true
-                },
-                'paymentAccount' => {
-                    'accountType' => 'Checking',
-                    'financialInstitutionName' => 'Comerica',
-                    'accountNumber' => '9876543211234',
-                    'financialInstitutionRoutingNumber' => '042102115'
-                }
-            }
+      'data' => {
+        'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+        'type' => 'paymentInformation',
+        'attributes' => {
+          'accountControl' => {
+            'canUpdateAddress' => true,
+            'corpAvailIndicator' => true,
+            'corpRecFoundIndicator' => true,
+            'hasNoBdnPaymentsIndicator' => true,
+            'identityIndicator' => true,
+            'isCompetentIndicator' => true,
+            'indexIndicator' => true,
+            'noFiduciaryAssignedIndicator' => true,
+            'notDeceasedIndicator' => true
+          },
+          'paymentAccount' => {
+            'accountType' => 'Checking',
+            'financialInstitutionName' => 'Comerica',
+            'accountNumber' => '9876543211234',
+            'financialInstitutionRoutingNumber' => '042102115'
+          }
         }
+      }
     }
   end
-
 
   describe 'GET /mobile/v0/payment-information/benefits' do
     context 'with a valid evss response' do
@@ -71,7 +70,8 @@ RSpec.describe 'payment_information', type: :request do
     end
   end
 
-  describe 'PUT /v0/ppiu/payment_information' do
+  describe 'PUT /mobile/v0/payment-information' do
+    let(:content_type) { { 'CONTENT_TYPE' => 'application/json' } }
     let(:payment_info_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
 
     before do
@@ -85,7 +85,8 @@ RSpec.describe 'payment_information', type: :request do
     context 'with a valid evss response' do
       it 'matches the ppiu schema' do
         VCR.use_cassette('evss/ppiu/update_payment_information') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: iam_headers
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                         headers: iam_headers.merge(content_type)
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('payment_information')
           # expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response_in_camel))
@@ -99,7 +100,8 @@ RSpec.describe 'payment_information', type: :request do
               expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
             end
 
-            put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: iam_headers
+            put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                           headers: iam_headers.merge(content_type)
           end
         end
       end
@@ -118,7 +120,8 @@ RSpec.describe 'payment_information', type: :request do
             expect_any_instance_of(User).to receive(:all_emails).and_return([])
             expect(Raven).to receive(:capture_message).once
 
-            put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: iam_headers
+            put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                           headers: iam_headers.merge(content_type)
             expect(response).to have_http_status(:ok)
           end
         end
@@ -128,14 +131,15 @@ RSpec.describe 'payment_information', type: :request do
     context 'with an invalid request payload' do
       let(:payment_info_request) do
         {
-            'account_type' => 'Checking',
-            'financial_institution_name' => 'Bank of Ad Hoc',
-            'account_number' => '12345678'
+          'account_type' => 'Checking',
+          'financial_institution_name' => 'Bank of Ad Hoc',
+          'account_number' => '12345678'
         }.to_json
       end
 
       it 'returns a validation error' do
-        put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: iam_headers
+        put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                       headers: iam_headers.merge(content_type)
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.body).to match_json_schema('errors')
       end
@@ -144,7 +148,8 @@ RSpec.describe 'payment_information', type: :request do
     context 'with a 403 response' do
       it 'returns a not authorized response' do
         VCR.use_cassette('evss/ppiu/update_forbidden') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: iam_headers
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                         headers: iam_headers.merge(content_type)
           expect(response).to have_http_status(:forbidden)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -154,7 +159,8 @@ RSpec.describe 'payment_information', type: :request do
     context 'with a 500 server error type' do
       it 'returns a service error response' do
         VCR.use_cassette('evss/ppiu/update_service_error') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: iam_headers
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                         headers: iam_headers.merge(content_type)
           expect(response).to have_http_status(:service_unavailable)
           expect(response.body).to match_json_schema('evss_errors')
         end
@@ -164,7 +170,8 @@ RSpec.describe 'payment_information', type: :request do
     context 'with a 500 server error type pertaining to potential fraud' do
       it 'returns a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_fraud') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: iam_headers
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                         headers: iam_headers.merge(content_type)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to match_json_schema('evss_errors')
           expect(JSON.parse(response.body)['errors'].first['title']).to eq('Potential Fraud')
@@ -175,7 +182,8 @@ RSpec.describe 'payment_information', type: :request do
     context 'with a 500 server error type pertaining to the account being flagged' do
       it 'returns a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_flagged') do
-          put '/mobile/v0/payment-information/benefits', params: payment_info_request, headers: iam_headers
+          put '/mobile/v0/payment-information/benefits', params: payment_info_request,
+                                                         headers: iam_headers.merge(content_type)
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to match_json_schema('evss_errors')
           expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')
