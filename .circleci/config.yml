@@ -156,7 +156,7 @@
         steps:
             - run:
                 name: Install dependencies (pdftk, poppler, imagemagick)
-                command: sudo apt install imagemagick pdftk poppler-utils libpq5 libxml2-dev libxslt-dev libpq-dev
+                command: sudo apt install imagemagick pdftk poppler-utils
     setup_test_db:
         steps:
             - run:
