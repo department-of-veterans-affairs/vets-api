@@ -551,3 +551,11 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'email_address":"(.*?)"'
+
+#MAP_APPOINTMENT_SERVICE
+- :name: "MAP_APPOINTMENT_SERVICE"
+  :base_uri: <%= "#{URI(Settings.hqva_mobile.url).host}" %>
+  :endpoints:
+  - :method: :get
+    :path: "/appointments/v1/patients/*/appointments/*"
+    :file_path: "hqva_mobile/appointments/default"
