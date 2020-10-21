@@ -21,7 +21,11 @@ https://www.cylindric.net/git/force-lf
 
 The main readme describes setting up (touching) your certs. Make sure you do that.
 
-Create a setting.local.yml file. Here is a sample. Yours must include the redis changes at a minimum.
+###API keys:
+go to:  https://developer.va.gov/ and click the 'Request an API key' button. You will receive an email with your API key that you will use in Postman as well as in the setup in settings.local.yml below.
+
+###Settings.local.yml
+Create a settings.local.yml file. Here is a sample.
 
 ```
 # betamocks:
@@ -44,6 +48,29 @@ redis:
     # secondary_url: redis://localhost:6378
   sidekiq:
     url: redis://redis:6379
+
+lighthouse:
+  api_key: <your api key here>
+  facilities:
+    url: https://sandbox-api.va.gov
+    api_key: <your api key here>
+
+forms:
+  url: https://sandbox-api.va.gov/services/va_forms/v0/
+  mock: false
+
+va_forms:
+  drupal_username: api
+  drupal_password: drupal8
+  drupal_url: https://prod.cms.va.gov
+
+database_url: 'postgis://postgres:password@postgres:5432/vets_api_development?pool=4'
+test_database_url: 'postgis://postgres:password@postgres:5432/vets_api_test?pool=4'
+
+docker_debugging:
+  set_up_db: false
+  hang_around: false
+
 ```
 The main docker file has the following line:
 ```
@@ -54,7 +81,7 @@ Commenting out this line can save you a lot of time in the initial build if you 
 Now it is time to do your initial build. You need to do this before configuring RubyMine because the image must be built in order for RubyMine to be able to scan it for gems.
 Run following from Rails root (this will cause the PUMA server to come up as well):
 ```
-touch startserver
+touch docker_debugging
 ```
 Now build the Docker image and bring up Puma via:
 ```
@@ -115,6 +142,12 @@ $ winpty docker exec -it 9d47b7f24e7c bash
 vets-api@9d47b7f24e7c:~/src$
 ```
 
+Alternatively, you can run this based on the container name:
+
+```
+$ winpty docker exec -it vets-api_vets-api_1 bash
+```
+
 Allows you to interact with the application from the shell like:
 - `rake lint`
 - `rails console`
@@ -138,5 +171,15 @@ REACT_APP_SALESFORCE_ENV=VICDEV
 Run:
 - npm install
 - npm start
+
+Set up your SSH keys:
+Follow these instructions for generating and setting up your SSH public and private keys.
+
+https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/internal-tools.md#creating-an-ssh-keypair-in-windows
+
+Once these keys are generated you will need to request environment access.
+
+https://github.com/department-of-veterans-affairs/va.gov-team/issues/new?assignees=&labels=external-request%2C+operations&template=Environment-Access-Request-Template.md&title=Access+for+%5Bindividual%5D
+
 
 
