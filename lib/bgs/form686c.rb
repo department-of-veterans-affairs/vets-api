@@ -77,7 +77,7 @@ module BGS
       vnp_response = bgs_service.create_proc
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
-        '130 - Automated Dependency 686c'
+        '21-686c'
       )
 
       vnp_response[:vnp_proc_id]

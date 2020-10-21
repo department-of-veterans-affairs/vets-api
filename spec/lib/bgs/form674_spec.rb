@@ -28,7 +28,6 @@ RSpec.describe BGS::Form674 do
       expect_any_instance_of(BGS::Service).to receive(:create_proc).and_call_original
       expect_any_instance_of(BGS::Service).to receive(:create_proc_form).and_call_original
       expect_any_instance_of(BGS::VnpVeteran).to receive(:create).and_call_original
-      expect_any_instance_of(BGS::Dependents).to receive(:create_all).and_call_original
       expect_any_instance_of(BGS::BenefitClaim).to receive(:create).and_call_original
       expect_any_instance_of(BGS::StudentSchool).to receive(:create).and_call_original
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:create).and_call_original

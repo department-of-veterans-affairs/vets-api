@@ -2,13 +2,12 @@
 
 require_relative 'benefit_claim'
 require_relative 'dependents'
-require_relative 'marriages'
 require_relative 'service'
 require_relative 'student_school'
 require_relative 'vnp_benefit_claim'
 require_relative 'vnp_relationships'
 require_relative 'vnp_veteran'
-require_relative 'children'
+require_relative 'dependent_higher_ed_attendance'
 
 module BGS
   class Form674
@@ -53,27 +52,23 @@ module BGS
         user: @user
       ).create_all
 
-      process_674(proc_id, dependents, payload)
+      process_674(proc_id, dependent, payload)
     end
 
-    def process_674(proc_id, dependents, payload)
-      dependents.each do |dependent|
-        if dependent_over_18_attending_school?(dependent[:type])
-          StudentSchool.new(
-            proc_id: proc_id,
-            vnp_participant_id: dependent[:vnp_participant_id],
-            payload: payload,
-            user: @user
-          ).create
-        end
-      end
+    def process_674(proc_id, dependent, payload)
+      StudentSchool.new(
+        proc_id: proc_id,
+        vnp_participant_id: dependent[:vnp_participant_id],
+        payload: payload,
+        user: @user
+      ).create
     end
 
     def create_proc_id_and_form
       vnp_response = bgs_service.create_proc
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
-        '130 - Automated School Attendance 674'
+        '21-674'
       )
 
       vnp_response[:vnp_proc_id]
