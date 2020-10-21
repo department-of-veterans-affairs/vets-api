@@ -322,6 +322,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'preneed attachments upload' do
+      it 'supports uploading a file' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          200,
+          '_data' => {
+            'preneed_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/preneeds/extras.pdf', 'application/pdf')
+            }
+          }
+        )
+      end
+
       it 'returns a 400 if no attachment data is given' do
         expect(subject).to validate(
           :post,
