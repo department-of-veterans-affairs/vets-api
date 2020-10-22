@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
+    resources :education_career_counseling_claims, only: :create
 
     resources :letters, only: [:index] do
       collection do
@@ -239,6 +240,9 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+
+      resources :ch33_bank_accounts, only: %i[index]
+      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
     end
 
     resources :search, only: :index

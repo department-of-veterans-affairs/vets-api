@@ -188,4 +188,68 @@ RSpec.describe 'user', type: :request do
       end
     end
   end
+
+  describe 'GET /mobile/v0/user/logout' do
+    before { iam_sign_in }
+
+    context 'with a 200 response' do
+      before do
+        VCR.use_cassette('iam_ssoe_oauth/revoke_200') do
+          get '/mobile/v0/user/logout', headers: iam_headers
+        end
+      end
+
+      it 'returns an ok response' do
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'with a 400 response' do
+      before do
+        VCR.use_cassette('iam_ssoe_oauth/revoke_400') do
+          get '/mobile/v0/user/logout', headers: iam_headers
+        end
+      end
+
+      it 'returns a bad_request (400) response' do
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'the response body matches the errors schema' do
+        expect(response.body).to match_json_schema('errors')
+      end
+
+      it 'includes the error details' do
+        expect(response.parsed_body['errors'].first['detail']).to eq(
+          {
+
+            'errorDescription' => 'FBTOAU202E The required parameter: [token] was not found in the request.',
+            'error' => 'invalid_request'
+          }
+        )
+      end
+    end
+
+    context 'with a 500 response' do
+      before do
+        VCR.use_cassette('iam_ssoe_oauth/revoke_500') do
+          get '/mobile/v0/user/logout', headers: iam_headers
+        end
+      end
+
+      it 'returns a bad_gateway (502) response' do
+        expect(response).to have_http_status(:bad_gateway)
+      end
+
+      it 'the response body matches the errors schema' do
+        expect(response.body).to match_json_schema('errors')
+      end
+
+      it 'includes generic error details to avoid leaking data' do
+        expect(response.parsed_body['errors'].first['detail']).to eq(
+          'Received an an invalid response from the upstream server'
+        )
+      end
+    end
+  end
 end
