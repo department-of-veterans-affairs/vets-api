@@ -19,13 +19,13 @@ RSpec.describe BGS::DependentHigherEdAttendance do
           ).create
 
           expect(dependents).to include(
-                                  {
-                                    vnp_participant_id: "151598",
-                                    participant_relationship_type_name: "Child",
-                                    family_relationship_type_name: "Other",
-                                    type: "674"
-                                  }
-                                )
+            {
+              vnp_participant_id: '151598',
+              participant_relationship_type_name: 'Child',
+              family_relationship_type_name: 'Other',
+              type: '674'
+            }
+          )
         end
       end
     end
