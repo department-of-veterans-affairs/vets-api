@@ -7,7 +7,7 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'payment_information', type: :request do
   include JsonSchemaMatchers
   before { iam_sign_in }
-  
+
   let(:user) { create(:user, :mhv) }
   let(:payment_info_body) do
     {
