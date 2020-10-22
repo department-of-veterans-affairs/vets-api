@@ -1,34 +1,32 @@
 {
-  "claimant_information": {
-    "full_name": {
+  "claimantInformation": {
+    "fullName": {
       "first": "Dardan",
       "middle": "Adam",
       "last": "Testy",
       "suffix": "Jr."
     },
-    "va_file_number": "22334455",
     "ssn": "333224444",
-    "date_of_birth": "1964-12-26"
+    "dateOfBirth": "1964-12-26",
+    "VAFileNumber": "22334455",
+    "emailAddress": "vet123@test.com",
+    "phoneNumber": "8888675309"
   },
-  "claimant_address": {
-    "country_name": "USA",
-    "address_line1": "123 Sunshine Blvd",
-    "address_line2": "Apt 1",
+  "claimantAddress": {
+    "country": "USA",
+    "addressLine1": "123 Sunshine Blvd",
+    "addressLine2": "Apt 1",
     "city": "Miami",
-    "state_code": "FL",
-    "zip_code": "33928-0808"
+    "stateCode": "FL",
+    "postalCode": "33928-0808"
   },
-  "phone_number":"8888675309",
-  "claimant_email_address":"vet123@test.com",
-  "veteran_information": {
-    "full_name": {
-      "first": "Jerry",
-      "middle": "Mark",
-      "last": "Brooks",
-      "suffix": "Sr."
-    },
-    "va_file_number": "55667788",
-    "ssn": "796104437"
+  "veteranFullName": {
+    "first": "Jerry",
+    "middle": "Mark",
+    "last": "Brooks",
+    "suffix": "Sr."
   },
+  "VAFileNumber": "55667788",
+  "veteranSocialSecurityNumber": "796104437",
   "status": "isSpouse"
 }

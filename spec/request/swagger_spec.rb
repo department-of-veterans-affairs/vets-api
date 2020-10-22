@@ -2811,6 +2811,36 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'education career counseling claims' do
+      it 'supports adding a career counseling claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/education_career_counseling_claims',
+          200,
+          headers.merge(
+            '_data' => {
+              'education_career_counseling_claim' => {
+                form: build(:education_career_counseling_claim).form
+              }
+            }
+          )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/education_career_counseling_claims',
+          422,
+          headers.merge(
+            '_data' => {
+              'education_career_counseling_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
+    end
+
     describe 'va file number' do
       it 'supports checking if a user has a veteran number' do
         expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 401)
