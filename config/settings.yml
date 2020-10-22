@@ -555,7 +555,8 @@ va_mobile:
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: true
-  key_path: /fake/client/key/path
+  cert_path: config/certs/vetsgov-localhost.crt
+  key_path: config/certs/vetsgov-localhost.key
   timeout: 15
 
 lighthouse:
