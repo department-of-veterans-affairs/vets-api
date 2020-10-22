@@ -16,32 +16,27 @@ module IAMSSOeOAuth
     end
 
     def logout
-      response = iam_ssoe_service.post_revoke(@access_token)
-      destroy_user_session if response.status == 200
-    end
-
-    private
-
-    def destroy_user_session
       uuid = @session.uuid
-
+  
       identity_destroy_count = IAMUserIdentity.find(uuid).destroy
       user_destroy_count = IAMUser.find(uuid).destroy
       session_destroy_count = @session.destroy
-
+  
       # redis returns number of records successfully deleted
       if [identity_destroy_count, user_destroy_count, session_destroy_count].all?(&:positive?)
         Rails.logger.info('IAMUser log out success', uuid: uuid)
         true
       else
         Rails.logger.warn('IAMUser log out failure', uuid: uuid, status: {
-                            identity_destroy_count: identity_destroy_count,
-                            user_destroy_count: user_destroy_count,
-                            session_destroy_count: session_destroy_count
-                          })
+          identity_destroy_count: identity_destroy_count,
+          user_destroy_count: user_destroy_count,
+          session_destroy_count: session_destroy_count
+        })
         false
       end
     end
+
+    private
 
     def create_user_session
       iam_profile = iam_ssoe_service.post_introspect(@access_token)
