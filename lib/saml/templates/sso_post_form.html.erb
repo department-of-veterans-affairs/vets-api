@@ -28,15 +28,15 @@
   <% end %>
 
   <script>
+    if (typeof(Sentry) != 'undefined' && "<%= sentrydsn %>") {
+      Sentry.init({
+        dsn: "<%= sentrydsn %>",
+        integrations: [new Sentry.Integrations.BrowserTracing()],
+      });
+      /* extra tag so we can easily search for any errors in Sentry */
+      Sentry.setTag("page", "SSOe-Post-Binding-Form");
+    }
     (function() {
-      if (typeof(Sentry) != 'undefined' && "<%= sentrydsn %>") {
-        Sentry.init({
-          dsn: "<%= sentrydsn %>",
-          integrations: [new Sentry.Integrations.BrowserTracing()],
-        });
-        /* extra tag so we can easily search for any errors in Sentry */
-        Sentry.setTag("page", "SSOe-Post-Binding-Form");
-      }
       var req = new XMLHttpRequest();
       var qs = "id=" + encodeURIComponent("<%= id %>") +
                 "&authn=" + encodeURIComponent("<%= authn %>") +
