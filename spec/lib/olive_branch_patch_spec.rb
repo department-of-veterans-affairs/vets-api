@@ -35,7 +35,7 @@ describe 'OliveBranchPatch', type: :request do
     expect(JSON.parse(response.body).keys).to eq ['hello_there']
   end
   it 'does not change document responses' do
-    # TODO maybe this should return some pdf document from a fixture
+    # TODO: maybe this should return some pdf document from a fixture
     text = 'blah blah blah'
     hash = { text: text }
     get '/some_document', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
@@ -51,9 +51,14 @@ describe 'OliveBranchPatch', type: :request do
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     expect(JSON.parse(response.body).keys).to include('weLoveTheVa', 'weLoveTheVA')
   end
-  it 'adds additional keys to data with `VA` in multiple keys except the keys use `Va` for each instance of `VA`'  do
+  it 'adds additional keys to data with `VA` in multiple keys except the keys use `Va` for each instance of `VA`' do
     hash = { we_love_the_va: true, the_va_loves_our_troops: true }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
-    expect(JSON.parse(response.body).keys).to include('weLoveTheVa', 'weLoveTheVA', 'theVALovesOurTroops', 'theVaLovesOurTroops')
+    expect(JSON.parse(response.body).keys).to include(
+      'weLoveTheVa',
+      'weLoveTheVA',
+      'theVALovesOurTroops',
+      'theVaLovesOurTroops'
+    )
   end
 end
