@@ -3,6 +3,9 @@
 class EVSS::DocumentUpload
   include Sidekiq::Worker
 
+  # retry for one day
+  sidekiq_options retry: 14
+
   def perform(auth_headers, user_uuid, document_hash)
     document = EVSSClaimDocument.new document_hash
     client = EVSS::DocumentsService.new(auth_headers)

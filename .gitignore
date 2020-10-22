@@ -22,10 +22,11 @@
 # Ignore precompiled assets
 public/assets/**
 
-# *Uploader.store_dir for local development
+# *Uploader.store_dir for local development and test
 public/disability_compensation_supporting_form/**
 public/hca_attachments/**
 public/preneed_attachments/**
+spec/support/uploads/
 
 # Ignore local config
 config/application.yml
