@@ -7,7 +7,7 @@
 ###
 FROM ruby:2.6.6-slim-stretch AS base
 
-#ARG userid=993
+ARG userid=993
 SHELL ["/bin/bash", "-c"]
 RUN groupadd -g 993 -r vets-api && \
     useradd -u 993 -r -m -d /srv/vets-api -g vets-api vets-api
