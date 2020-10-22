@@ -10,10 +10,11 @@ module OliveBranchMiddlewareExtension
         # do not process strings that aren't json (like pdf responses)
         next unless json.is_a?(String) && json.starts_with?('{')
 
-        if match = json.match(VA_KEY_VALUE_PAIR_REGEX)
-          key = match[1]
-          value = match[2]
-          json.gsub!(VA_KEY_VALUE_PAIR_REGEX, "\"#{key}\":\"#{value}\", \"#{key.gsub('VA', 'Va')}\":\"#{value}\"")
+        json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do |va_key_value|
+          # key = $1
+          # value = $2
+          key, value = va_key_value.split(':')
+          "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
         end
       end
     end
