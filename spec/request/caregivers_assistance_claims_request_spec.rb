@@ -77,23 +77,22 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   end
 
   describe 'POST /v0/caregivers_assistance_claims' do
+    subject do
+      post endpoint, params: body, headers: headers
+    end
+
     let(:endpoint) { uri + '/v0/caregivers_assistance_claims' }
+    let(:body) do
+      form_data = build_valid_form_submission.call
+
+      { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
+    end
     let(:vcr_options) do
       {
         record: :none,
         allow_unused_http_interactions: false,
         match_requests_on: %i[method uri host path]
       }
-    end
-
-    subject do
-      post endpoint, params: body, headers: headers
-    end
-
-    let(:body) do
-      form_data = build_valid_form_submission.call
-
-      { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
     end
 
     it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims'
