@@ -17,21 +17,21 @@ module IAMSSOeOAuth
 
     def logout
       uuid = @session.uuid
-  
+
       identity_destroy_count = IAMUserIdentity.find(uuid).destroy
       user_destroy_count = IAMUser.find(uuid).destroy
       session_destroy_count = @session.destroy
-  
+
       # redis returns number of records successfully deleted
       if [identity_destroy_count, user_destroy_count, session_destroy_count].all?(&:positive?)
         Rails.logger.info('IAMUser log out success', uuid: uuid)
         true
       else
         Rails.logger.warn('IAMUser log out failure', uuid: uuid, status: {
-          identity_destroy_count: identity_destroy_count,
-          user_destroy_count: user_destroy_count,
-          session_destroy_count: session_destroy_count
-        })
+                            identity_destroy_count: identity_destroy_count,
+                            user_destroy_count: user_destroy_count,
+                            session_destroy_count: session_destroy_count
+                          })
         false
       end
     end
