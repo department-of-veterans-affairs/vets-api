@@ -46,7 +46,7 @@ module VaForms
         }
       }
       socks = Settings.docker_debugging&.socks_url ? Settings.docker_debugging.socks_url : 'socks://localhost:2001'
-      puts "Using a socks server of #{socks}"
+      #puts "Using a socks server of #{socks}"
       options[:proxy] = { uri: URI.parse(socks) } unless Rails.env.production?
       options
     end
