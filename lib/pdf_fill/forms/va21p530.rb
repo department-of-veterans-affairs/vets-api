@@ -202,15 +202,24 @@ module PdfFill
           }
         },
         'claimantAddress' => {
-          always_overflow: true,
-          first_key: 'street',
-          'fullAddress' => {
-            question_num: 5,
-            question_text: 'CURRENT MAILING ADDRESS'
-          },
           'street' => {
             key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]'
-          }
+          },
+          'street2' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
+          },
+          'city' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_City[0]'
+          },
+          'state' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_StateOrProvince[0]'
+          },
+          'country' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_Country[0]'
+          },
+          'postalCode' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
+          },
         },
         'relationship' => {
           'checkbox' => {
