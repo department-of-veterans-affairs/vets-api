@@ -9,7 +9,7 @@ RSpec.describe 'payment_information', type: :request do
   before { iam_sign_in }
 
   let(:user) { create(:user, :mhv) }
-  let(:payment_info_body) do
+  let(:get_payment_info_body) do
     {
       'data' => {
         'id' => '69ad43ea-6882-5673-8552-377624da64a5',
@@ -27,9 +27,9 @@ RSpec.describe 'payment_information', type: :request do
             'notDeceasedIndicator' => true
           },
           'paymentAccount' => {
-            'accountType' => 'Checking',
+            'accountType' => 'Checking account',
             'financialInstitutionName' => 'Comerica',
-            'accountNumber' => '9876543211234',
+            'accountNumber' => '*********1234',
             'financialInstitutionRoutingNumber' => '042102115'
           }
         }
@@ -43,7 +43,7 @@ RSpec.describe 'payment_information', type: :request do
         VCR.use_cassette('evss/ppiu/payment_information') do
           get '/mobile/v0/payment-information/benefits', headers: iam_headers
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)).to eq(payment_info_body)
+          expect(JSON.parse(response.body)).to eq(get_payment_info_body)
           expect(response.body).to match_json_schema('payment_information')
         end
       end
@@ -73,6 +73,33 @@ RSpec.describe 'payment_information', type: :request do
   describe 'PUT /mobile/v0/payment-information' do
     let(:content_type) { { 'CONTENT_TYPE' => 'application/json' } }
     let(:payment_info_request) { File.read('spec/support/ppiu/update_ppiu_request.json') }
+    let(:post_payment_info_body) do
+      {
+        'data' => {
+          'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+          'type' => 'paymentInformation',
+          'attributes' => {
+            'accountControl' => {
+              'canUpdateAddress' => true,
+              'corpAvailIndicator' => true,
+              'corpRecFoundIndicator' => true,
+              'hasNoBdnPaymentsIndicator' => true,
+              'identityIndicator' => true,
+              'isCompetentIndicator' => true,
+              'indexIndicator' => true,
+              'noFiduciaryAssignedIndicator' => true,
+              'notDeceasedIndicator' => true
+            },
+            'paymentAccount' => {
+              'accountType' => 'Checking account',
+              'financialInstitutionName' => 'Bank of EVSS',
+              'accountNumber' => '****5678',
+              'financialInstitutionRoutingNumber' => '021000021'
+            }
+          }
+        }
+      }
+    end
 
     before do
       VCR.insert_cassette('evss/ppiu/payment_information')
@@ -88,8 +115,8 @@ RSpec.describe 'payment_information', type: :request do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: iam_headers.merge(content_type)
           expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)).to eq(post_payment_info_body)
           expect(response.body).to match_json_schema('payment_information')
-          # expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response_in_camel))
         end
       end
 
