@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  module MviVerification
+  module MPIVerification
     extend ActiveSupport::Concern
 
     included do

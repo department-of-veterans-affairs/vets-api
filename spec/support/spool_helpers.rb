@@ -4,7 +4,7 @@ module SpoolHelpers
   extend ActiveSupport::Concern
 
   module ClassMethods
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:disable Metrics/MethodLength
     def test_spool_file(form_type, test_name)
       describe "#{form_type} #{test_name} spool test" do
         subject do
@@ -20,7 +20,6 @@ module SpoolHelpers
         end
 
         before do
-          allow(Flipper).to receive(:enabled?).with(:stem_document_type).and_return(true)
           allow(Flipper).to receive(:enabled?).with(:stem_text_message_question).and_return(true)
           allow(education_benefits_claim).to receive(:id).and_return(1)
           education_benefits_claim.instance_variable_set(:@application, nil)
@@ -35,6 +34,6 @@ module SpoolHelpers
         end
       end
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
   end
 end

@@ -286,6 +286,22 @@ FactoryBot.define do
       end
     end
 
+    factory :ch33_dd_user, traits: [:loa3] do
+      ssn { '796104437' }
+
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            icn: '82836359962678900'
+          )
+        )
+
+        allow(BGS.configuration).to receive(:env).and_return('prepbepbenefits')
+        allow(BGS.configuration).to receive(:client_ip).and_return('10.247.35.119')
+      end
+    end
+
     trait :user_with_no_idme_uuid do
       uuid { '133e619f-7b69-4e7a-b571-e4c9478d0a04' }
       sec_id { '1234' }

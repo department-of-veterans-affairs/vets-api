@@ -5,6 +5,7 @@ Mobile::Engine.routes.draw do
 
   namespace :v0 do
     get '/user', to: 'users#show'
+    get '/user/logout', to: 'users#logout'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     get '/military-service-history', to: 'military_information#get_service_history'

@@ -27,7 +27,9 @@ RSpec.describe 'Documents management', type: :request do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: 'invalid type' }
     post '/v0/evss_claims/189625/documents', params: params
     expect(response.status).to eq(422)
-    expect(JSON.parse(response.body)['errors'].first['title']).to eq('Must use a known document type')
+    expect(JSON.parse(response.body)['errors'].first['title']).to eq(
+      I18n.t('errors.messages.uploads.document_type_unknown')
+    )
   end
 
   it 'normalizes requests with a null tracked_item_id' do
@@ -51,14 +53,30 @@ RSpec.describe 'Documents management', type: :request do
     end
   end
 
-  context 'with locked PDF' do
-    let(:locked_file) { fixture_file_upload('files/locked-pdf.pdf', 'application/pdf') }
+  context 'with locked PDF and no provided password' do
+    let(:locked_file) { fixture_file_upload('files/locked_pdf_password_is_test.pdf', 'application/pdf') }
 
-    it 'rejects locked PDFs' do
+    it 'rejects locked PDFs if no password is provided' do
       params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq('PDF must not be encrypted')
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
+    end
+
+    it 'accepts locked PDFs with the correct password' do
+      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type, password: 'test' }
+      post '/v0/evss_claims/189625/documents', params: params
+      expect(response.status).to eq(202)
+      expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+    end
+
+    it 'rejects locked PDFs with the incocorrect password' do
+      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type, password: 'bad' }
+      post '/v0/evss_claims/189625/documents', params: params
+      expect(response.status).to eq(422)
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(
+        I18n.t('errors.messages.uploads.pdf.incorrect_password')
+      )
     end
   end
 
@@ -74,7 +92,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq('PDF is malformed')
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.malformed_pdf'))
     end
   end
 
@@ -103,9 +121,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq(
-        'Cannot read file encoding. Text files must be ASCII encoded.'
-      )
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
     end
   end
 
@@ -139,9 +155,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params: params
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq(
-        'Cannot read file encoding. Text files must be ASCII encoded.'
-      )
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('errors.messages.uploads.ascii_encoded'))
     end
   end
 end
