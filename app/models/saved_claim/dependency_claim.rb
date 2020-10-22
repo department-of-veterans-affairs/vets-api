@@ -87,7 +87,7 @@ class SavedClaim::DependencyClaim < SavedClaim
 
     college_student_data = dependent_data['dependents_application'].extract!(*STUDENT_ATTENDING_COLLEGE_KEYS)
 
-    {college_student_data: college_student_data, dependent_data: dependent_data}
+    { college_student_data: college_student_data, dependent_data: dependent_data }
   end
 
   def upload_to_vbms(path)
