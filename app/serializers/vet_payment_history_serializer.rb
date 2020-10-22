@@ -70,10 +70,10 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
   end
 
   def get_payment_method(payment)
-    if payment.dig(:address_eft, :account_number).present?
-      'Direct Deposit'
-    else
-      'Paper Check'
-    end
+    return 'Direct Deposit' if payment.dig(:address_eft, :account_number).present?
+
+    return 'Paper Check' if payment.dig(:check_address, :address_line1).present?
+
+    nil
   end
 end

@@ -9,6 +9,42 @@ RSpec.describe BGS::Service do
   let(:proc_id) { '3829671' }
   let(:participant_id) { '149456' }
 
+  context 'direct deposit methods' do
+    let(:user_object) { build(:ch33_dd_user) }
+
+    context 'with a user that has no icn' do
+      before do
+        allow(user_object).to receive(:icn).and_return(nil)
+        allow(user_object).to receive(:uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
+      end
+
+      it 'retrieves a users dd eft info' do
+        VCR.use_cassette('bgs/service/find_ch33_dd_eft_no_icn', VCR::MATCH_EVERYTHING) do
+          response = bgs_service.find_ch33_dd_eft
+          expect(response.body[:find_ch33_dd_eft_response][:return][:dposit_acnt_nbr]).to eq('444')
+        end
+      end
+    end
+
+    it 'retrieves a users dd eft info' do
+      VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+        response = bgs_service.find_ch33_dd_eft
+        expect(response.body[:find_ch33_dd_eft_response][:return][:dposit_acnt_nbr]).to eq('123')
+      end
+    end
+
+    it 'updates a users dd eft info' do
+      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+        response = bgs_service.update_ch33_dd_eft(
+          '122239982',
+          '444',
+          true
+        )
+        expect(response.body[:update_ch33_dd_eft_response][:return][:return_message]).to eq('SUCCESS')
+      end
+    end
+  end
+
   describe '#create_proc' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc') do

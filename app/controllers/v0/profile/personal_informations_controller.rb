@@ -3,7 +3,7 @@
 module V0
   module Profile
     class PersonalInformationsController < ApplicationController
-      before_action { authorize :mvi, :queryable? }
+      before_action { authorize :mpi, :queryable? }
 
       # Fetches the personal information for the current user.
       # Namely their gender and birth date.
@@ -21,7 +21,7 @@ module V0
       #   }
       #
       def show
-        response = Mvi.for_user(@current_user).profile
+        response = MPIData.for_user(@current_user).profile
 
         handle_errors!(response)
 
@@ -46,7 +46,7 @@ module V0
       def log_errors_for(response)
         if response&.gender.nil? || response&.birth_date.nil?
           log_message_to_sentry(
-            'mvi missing data bug',
+            'mpi missing data bug',
             :info,
             {
               response: response,

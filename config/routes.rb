@@ -47,7 +47,7 @@ Rails.application.routes.draw do
       get 'separation_locations'
     end
 
-    post '/mvi_users/:id', to: 'mvi_users#submit'
+    post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
@@ -239,6 +239,9 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+
+      resources :ch33_bank_accounts, only: %i[index]
+      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
     end
 
     resources :search, only: :index
