@@ -146,6 +146,7 @@ module ClaimsApi
                     end
                     property :participant_claimant_id do
                       key :type, :integer
+                      key :required, :false
                       key :example, 123_456_789
                       key :description, I18n.t('claims_api.field_descriptions.participant_claimant_id')
                     end
