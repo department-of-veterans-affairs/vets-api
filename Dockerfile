@@ -45,7 +45,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 && \
     chmod +x /usr/local/bin/cc-test-reporter && \
     cc-test-reporter --version
-COPY --chown=vets-api:vets-api config/freshclam.conf docker-entrypoint.sh ./
+COPY --chown=vets-api:vets-api config/freshclam.conf docker-entrypoint.sh Gemfile.lock ./
 USER vets-api
 # XXX: this is tacky
 #RUN freshclam --config-file freshclam.conf todo uncomment this before merge

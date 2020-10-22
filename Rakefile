@@ -4,10 +4,10 @@
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
 require_relative 'config/application'
-
+# Rake.add_rakelib('./modules/va_forms/lib/tasks')
+# Rake.load_rakefile('./modules/va_forms/lib/tasks/va_forms.rake')
 # Load rake support files
 Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].sort.each { |f| require f }
-
 Rails.application.load_tasks
 
 unless Rails.env.production?
