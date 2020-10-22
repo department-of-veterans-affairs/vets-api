@@ -24,6 +24,12 @@ The main readme describes setting up (touching) your certs. Make sure you do tha
 ###API keys:
 go to:  https://developer.va.gov/ and click the 'Request an API key' button. You will receive an email with your API key that you will use in Postman as well as in the setup in settings.local.yml below.
 
+###.env File
+Create a .env file in Rails root and add the following code:
+```
+VETS_API_USER_ID=993
+```
+
 ###Settings.local.yml
 Create a settings.local.yml file. Here is a sample.
 
@@ -127,25 +133,19 @@ Now, run the following endpoint and ensure that the breakpoint is hit:
 
 http://localhost:3000/v0/status
 
-######Interacting with the shell:
-Execute a *docker ps*
+###Interacting with the shell:
+Create the following scripts and run them from a GitBash terminal. They can be placed wherever you want as they are used to connect the vets-api Docker container. 
+
+**go.bash** (connects as vets-api user)
 ```
-$ docker ps
-CONTAINER ID        IMAGE                       COMMAND                  CREATED             STATUS              PORTS
-                                       NAMES
-9d47b7f24e7c        vets-api:latest 
-```
-Note the container id '9d47b7f24e7c' for vets-api.
-Executing (from git bash on windows)
-```
-$ winpty docker exec -it 9d47b7f24e7c bash
-vets-api@9d47b7f24e7c:~/src$
+#!/usr/bin/bash
+winpty docker exec -it vets-api_vets-api_1 bash
 ```
 
-Alternatively, you can run this based on the container name:
-
+**rgo.bash** (connects as root user)
 ```
-$ winpty docker exec -it vets-api_vets-api_1 bash
+#!/usr/bin/bash
+winpty docker exec -u 0 -it vets-api_vets-api_1 bash
 ```
 
 Allows you to interact with the application from the shell like:
@@ -168,6 +168,7 @@ REACT_APP_VETSGOV_SWAGGER_API=http://localhost:3000
 REACT_APP_DEVELOPER_PORTAL_SELF_SERVICE_URL=http://localhost:3000
 REACT_APP_SALESFORCE_ENV=VICDEV
 ```
+
 Run:
 - npm install
 - npm start
