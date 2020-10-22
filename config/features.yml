@@ -17,6 +17,10 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
+  ch33_dd:
+    actor_type: user
+    description: >
+      Allows user to access chapter 33 benefits direct deposit view/update APIs
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
@@ -44,6 +48,9 @@ features:
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
+  facilities_ppms_suppress_pharmacies:
+    actor_type: user
+    description: Front End Flag to suppress the ability to search for pharmacies
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
@@ -142,11 +149,6 @@ features:
     enable_in_development: true
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
-  edu_benefits_stem_scholarship:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables STEM scholarship functionality
   form526_original_claims:
     actor_type: user
     description: >
@@ -264,6 +266,14 @@ features:
     actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+  cerner_override_668:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 668 as `isCerner`.
+  cerner_override_757:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 757 as `isCerner`.
   gibct_benefit_filter_enhancement:
     actor_type: user
     description: >
@@ -280,11 +290,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
-  stem_document_type:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Set 10203 spool file document type
   stem_text_message_question:
     actor_type: user
     enable_in_development: true

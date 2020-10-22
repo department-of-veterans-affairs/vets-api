@@ -554,7 +554,7 @@ va_mobile:
 
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
-  mock: false
+  mock: true
   key_path: /fake/client/key/path
   timeout: 15
 

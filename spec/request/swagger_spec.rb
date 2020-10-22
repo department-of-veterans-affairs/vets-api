@@ -2137,6 +2137,42 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      context 'ch33 bank accounts methods' do
+        let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
+
+        it 'supports the update ch33 bank account api' do
+          expect(subject).to validate(:put, '/v0/profile/ch33_bank_accounts', 401)
+
+          VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :put,
+              '/v0/profile/ch33_bank_accounts',
+              200,
+              headers.merge(
+                '_data' => {
+                  account_type: 'Checking',
+                  account_number: '444',
+                  financial_institution_routing_number: '122239982'
+                }
+              )
+            )
+          end
+        end
+
+        it 'supports the get ch33 bank account api' do
+          expect(subject).to validate(:get, '/v0/profile/ch33_bank_accounts', 401)
+
+          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :get,
+              '/v0/profile/ch33_bank_accounts',
+              200,
+              headers
+            )
+          end
+        end
+      end
+
       it 'supports the address validation api' do
         expect(subject).to validate(:post, '/v0/profile/address_validation', 401)
 
@@ -2767,6 +2803,36 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           headers.merge(
             '_data' => {
               'dependency_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
+    end
+
+    describe 'education career counseling claims' do
+      it 'supports adding a career counseling claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/education_career_counseling_claims',
+          200,
+          headers.merge(
+            '_data' => {
+              'education_career_counseling_claim' => {
+                form: build(:education_career_counseling_claim).form
+              }
+            }
+          )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/education_career_counseling_claims',
+          422,
+          headers.merge(
+            '_data' => {
+              'education_career_counseling_claim' => {
                 'invalid-form' => { invalid: true }.to_json
               }
             }

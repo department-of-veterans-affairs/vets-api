@@ -23,7 +23,6 @@ en:
   time:
     formats:
       pdf_stamp: "%Y-%m-%d"
-
   dependency_claim_failure_mailer:
     subject: We can't process your dependents application
     body_html: >
@@ -59,3 +58,4 @@ en:
         pdf:
           locked: PDF must not be encrypted or locked. Please re-save it without a password
           invalid: PDF is not able to be opened. Try re-saving or re-uploading it.
+          incorrect_password: We're sorry, we were unable to unlock this PDF.

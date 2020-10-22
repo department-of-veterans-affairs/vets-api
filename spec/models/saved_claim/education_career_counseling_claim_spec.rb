@@ -6,19 +6,19 @@ RSpec.describe SavedClaim::EducationCareerCounselingClaim do
   let(:claim) { create(:education_career_counseling_claim_no_vet_information) }
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
 
-  describe '#add_veteran_info' do
+  describe '#add_claimant_info' do
     it 'adds veteran information' do
-      claim.add_veteran_info(user_object)
+      claim.add_claimant_info(user_object)
 
       expect(claim.parsed_form).to include(
-        'claimant_information' => {
-          'full_name' => {
+        'claimantInformation' => {
+          'fullName' => {
             'first' => 'WESLEY',
-            'middle' => nil,
+            'middle' => '',
             'last' => 'FORD'
           },
-          'ssn' => '796043735',
-          'date_of_birth' => '1809-02-12'
+          'veteranSocialSecurityNumber' => '796043735',
+          'dateOfBirth' => '1809-02-12'
         }
       )
     end
