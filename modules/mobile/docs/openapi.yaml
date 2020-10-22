@@ -363,7 +363,6 @@ paths:
       responses:
         '200':
           description: OK
-          content:
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
