@@ -133,6 +133,12 @@ Now, run the following endpoint and ensure that the breakpoint is hit:
 
 http://localhost:3000/v0/status
 
+Debugging in RubyMine ONLY brings up PUMA. So, if you need to run sidekiq you will need to log into the container using the bash scripts and run commands such as:
+
+```
+foreman start -m job=1,clamd=0,freshclam=0
+``` 
+
 ###Interacting with the shell:
 Create the following scripts and run them from a GitBash terminal. They can be placed wherever you want as they are used to connect the vets-api Docker container. 
 
