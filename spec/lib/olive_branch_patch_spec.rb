@@ -10,7 +10,7 @@ class ParamsAsJsonController < ActionController::API
   end
 
   def document
-    send_data params[:text] || 'documentDOCUMENTdocument',
+    send_data File.read(params[:path]),
               filename: 'json.pdf',
               type: 'application/pdf',
               disposition: 'attachment'
@@ -36,12 +36,10 @@ describe 'OliveBranchPatch', type: :request do
   end
 
   it 'does not change document responses' do
-    # TODO: maybe this should return some pdf document from a fixture
-    #  spec/fixtures/pdf_fill/21-0781a/simple.pdf
-    text = 'blah blah blah'
-    hash = { text: text }
+    # this pdf fixture chosen arbitrarily
+    hash = { path: 'spec/fixtures/pdf_fill/21-0781a/simple.pdf' }
     get '/some_document', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
-    expect(response.body).to eq text
+    expect(response).to have_http_status(:ok)
   end
 
   it 'does not add keys if `VA` is not in the middle of a key' do
