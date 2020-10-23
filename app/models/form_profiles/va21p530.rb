@@ -14,13 +14,7 @@ class FormProfiles::VA21p530 < FormProfile
   def prefill
     @identity_information = initialize_identity_information
     @contact_information = initialize_contact_information
-
-    @contact_information.address.country = if vet360_mailing_address.present?
-      vet360_mailing_address.country_code_iso2
-    else
-      convert_to_iso2(va_profile_address_hash[:country])
-    end
-
+    @contact_information.address.country = convert_to_iso2(@contact_information.address.country)
     @military_information = initialize_military_information
     mappings = self.class.mappings_for_form(form_id)
 
