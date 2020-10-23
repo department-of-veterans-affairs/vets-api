@@ -12,12 +12,21 @@ class FormProfiles::VA21p530 < FormProfile
   end
 
   def prefill
-    super
+    @identity_information = initialize_identity_information
+    @contact_information = initialize_contact_information
+
     @contact_information.address.country = if vet360_mailing_address.present?
-                                             vet360_mailing_address.country_code_iso2
-                                           else
-                                             convert_to_iso2(va_profile_address_hash[:country])
-                                           end
+      vet360_mailing_address.country_code_iso2
+    else
+      convert_to_iso2(va_profile_address_hash[:country])
+    end
+
+    @military_information = initialize_military_information
+    mappings = self.class.mappings_for_form(form_id)
+
+    form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form_id)
+
+    { form_data: form_data, metadata: metadata }    
   end
 
   private
