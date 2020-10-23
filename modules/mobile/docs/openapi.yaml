@@ -363,7 +363,6 @@ paths:
       responses:
         '200':
           description: OK
-          content:
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1185,11 +1184,13 @@ components:
                   $ref: "#/components/schemas/Address"
                 mailingAddress:
                   $ref: "#/components/schemas/Address"
-                homePhone:
+                homePhoneNumber:
                   $ref: "#/components/schemas/Phone"
-                mobilePhone:
+                mobilePhoneNumber:
                   $ref: "#/components/schemas/Phone"
-                workPhone:
+                workPhoneNumber:
+                  $ref: "#/components/schemas/Phone"
+                faxPhoneNumber:
                   $ref: "#/components/schemas/Phone"
             authorizedServices:
               type: array
