@@ -147,7 +147,7 @@ describe MVI::Messages::FindProfileMessage do
             given_names: %w[John William],
             last_name: nil,
             birth_date: Time.new(1980, 1, 1).utc,
-            ssn: rand.to_s[2..11]=
+            ssn: rand.to_s[2..11]
           )
         end.to raise_error(ArgumentError, 'required values are missing')
       end
