@@ -219,7 +219,7 @@ module PdfFill
           },
           'postalCode' => {
             key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
-          },
+          }
         },
         'relationship' => {
           'checkbox' => {
