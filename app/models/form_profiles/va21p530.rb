@@ -14,10 +14,10 @@ class FormProfiles::VA21p530 < FormProfile
   def prefill
     super
     @contact_information.address.country = if vet360_mailing_address.present?
-      vet360_mailing_address.country_code_iso2
-    else
-      convert_to_iso2(va_profile_address_hash.country)
-    end
+                                             vet360_mailing_address.country_code_iso2
+                                           else
+                                             convert_to_iso2(va_profile_address_hash.country)
+                                           end
   end
 
   private
