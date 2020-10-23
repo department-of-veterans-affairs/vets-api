@@ -368,7 +368,6 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
 
       carma_client = double
-      expect(carma_client).not_to receive(:create_submission_stub)
 
       expect(submission.carma_case_id).to eq(nil)
       expect(submission.submitted_at).to eq(nil)
