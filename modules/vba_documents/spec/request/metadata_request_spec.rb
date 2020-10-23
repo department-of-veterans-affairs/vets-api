@@ -47,7 +47,7 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
 
     context 'v0' do
       it 'returns correct response and status when healthy' do
-        expect(CentralMail::Service).to receive(:current_breaker_outage?).at_least(:once).and_return(true)
+        allow(Breakers::Outage).to receive(:find_latest).and_return(nil)
         get '/services/vba_documents/v0/upstream_healthcheck'
         expect(response).to have_http_status(:ok)
 
@@ -70,7 +70,8 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
       end
 
       it 'returns correct status when central_mail is not healthy' do
-        expect(CentralMail::Service).to receive(:current_breaker_outage?).at_least(:once).and_return(false)
+        allow(Breakers::Outage).to receive(:find_latest).and_return(OpenStruct.new(start_time: Time.zone.now))
+        allow_any_instance_of(CentralMail::Service).to receive(:status).and_return(OpenStruct.new(status: 503))
         get '/services/vba_documents/v0/upstream_healthcheck'
         expect(response).to have_http_status(:service_unavailable)
 
@@ -94,7 +95,7 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
 
       context 'v1' do
         it 'returns correct response and status when healthy' do
-          expect(CentralMail::Service).to receive(:current_breaker_outage?).at_least(:once).and_return(true)
+          allow(Breakers::Outage).to receive(:find_latest).and_return(nil)
           get '/services/vba_documents/v1/upstream_healthcheck'
           expect(response).to have_http_status(:ok)
 
@@ -117,7 +118,8 @@ RSpec.describe 'VBA Documents Metadata Endpoint', type: :request do
         end
 
         it 'returns correct status when central_mail is not healthy' do
-          expect(CentralMail::Service).to receive(:current_breaker_outage?).at_least(:once).and_return(false)
+          allow(Breakers::Outage).to receive(:find_latest).and_return(OpenStruct.new(start_time: Time.zone.now))
+          allow_any_instance_of(CentralMail::Service).to receive(:status).and_return(OpenStruct.new(status: 503))
           get '/services/vba_documents/v1/upstream_healthcheck'
           expect(response).to have_http_status(:service_unavailable)
 
