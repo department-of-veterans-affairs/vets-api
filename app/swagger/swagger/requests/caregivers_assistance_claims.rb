@@ -15,14 +15,6 @@ module Swagger
           key :tags, %w[benefits_forms]
 
           parameter do
-            key :name, 'x-google-client-id'
-            key :in, :header
-            key :description, "The user's google analytics client id"
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, :form
             key :in, :body
             key :description, 'The application\'s submission data (formatted in compliance with the 10-10CG schema).'
