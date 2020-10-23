@@ -20,7 +20,7 @@ module VA0873
     attribute :dateOfBirth, String
     attribute :socialSecurityNumber, String
     attribute :branchOfService, String
-    attribute :service_date_range, ServiceDateRange
+    attribute :serviceDateRange, ServiceDateRange
   end
 end
 
