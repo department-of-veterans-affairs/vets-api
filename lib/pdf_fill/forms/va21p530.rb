@@ -203,22 +203,28 @@ module PdfFill
         },
         'claimantAddress' => {
           'street' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]'
+            key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]',
+            limit: 30
           },
           'street2' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
+            key: 'form1[0].#subform[36].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+            limit: 5
           },
           'city' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_City[0]'
+            key: 'form1[0].#subform[36].CurrentMailingAddress_City[0]',
+            limit: 18
           },
           'state' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_StateOrProvince[0]'
+            key: 'form1[0].#subform[36].CurrentMailingAddress_StateOrProvince[0]',
+            limit: 2
           },
           'country' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_Country[0]'
+            key: 'form1[0].#subform[36].CurrentMailingAddress_Country[0]',
+            limit: 2
           },
           'postalCode' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
+            key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
+            limit: 5
           }
         },
         'relationship' => {
