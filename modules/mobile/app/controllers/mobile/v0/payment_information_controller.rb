@@ -45,7 +45,6 @@ module Mobile
       end
 
       def validate_pay_info
-        # binding.pry
         unless pay_info.valid?
           Raven.tags_context(validation: 'direct_deposit')
           raise Common::Exceptions::ValidationErrors, pay_info
