@@ -65,4 +65,28 @@ describe 'OliveBranchPatch', type: :request do
       'thumbsUpForTheVa'
     )
   end
+
+  it 'adds a second `VA` key with a nested object in the value' do
+    hash = { the_va_address: {
+      name: 'Veteran Affairs Building',
+      street: '810 Vermont Avenue NW',
+      city: 'Washington',
+      state: 'D.C.',
+      country: 'U.S.'
+    }}
+    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    expect(JSON.parse(response.body).keys).to include('theVAAddress', 'theVaAddress')
+  end
+
+  it 'adds a second `VA` key with an array value' do
+    hash = { three_va_administrations: ['VHA', 'VBA', 'National Cemetery Administration'] }
+    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    expect(JSON.parse(response.body).keys).to include('threeVaAdministrations', 'threeVAAdministrations')
+  end
+
+  it 'adds a second `VA` key with an null value' do
+    hash = { year_va_closes: nil }
+    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    expect(JSON.parse(response.body).keys).to include('yearVaCloses', 'yearVACloses')
+  end
 end
