@@ -66,8 +66,7 @@ module V0
       auditor.record(
         :submission_failure_client_qualification,
         claim_guid: @claim.guid,
-        veteran_name: @claim.veteran_data['fullName'],
-        ga_client_id: request.headers['x-google-client-id']
+        veteran_name: @claim.veteran_data['fullName']
       )
 
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
