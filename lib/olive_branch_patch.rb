@@ -6,7 +6,11 @@
 # This is a deprecation path and should be removed once consumers have adopted the inflection
 
 module OliveBranchMiddlewareExtension
-  VA_KEY_VALUE_PAIR_REGEX = /\"([^"]+VA[^"]*)\":\"([^"]*)\"/.freeze
+  # this regex captures keys with capital VA in the middle and the value.
+  #   the value part optionally captures quotes around the value, but captures
+  #   anything not a quote, comma, or closing brace so that numbers and booleans are captured
+  VA_KEY_VALUE_PAIR_REGEX = /\"([^"]+VA[^"]*)\":\"?([^("|,|\})]*)\"?/.freeze
+
   def call(env)
     result = super(env)
     _status, _headers, response = result
