@@ -6,7 +6,8 @@ class ParamsAsJsonController < ActionController::API
   def index
     params.permit!
     response = params.reject { |k, _| %w[controller action].include?(k) }
-    render json: response.to_json
+    # render json: response.to_json.gsub('"true"', 'true').gsub('"false"', 'false')
+    render json: response.to_json.gsub(/\"(true|false|\d+)\"/) { |quoted_value| quoted_value.gsub('"','') }
   end
 
   def document
@@ -30,9 +31,9 @@ describe 'OliveBranchPatch', type: :request do
   end
 
   it 'does not change response keys when camel inflection is not used' do
-    hash = { hello_there: 'hello there' }
+    hash = { hello_to_the_va: 'greetings' }
     get '/some_json', params: hash
-    expect(JSON.parse(response.body).keys).to eq ['hello_there']
+    expect(JSON.parse(response.body).keys).to eq ['hello_to_the_va']
   end
 
   it 'does not change document responses' do
@@ -49,19 +50,19 @@ describe 'OliveBranchPatch', type: :request do
   end
 
   it 'adds a second key to data with `VA` in the key except the key uses `Va`' do
-    hash = { we_love_the_va: true }
+    hash = { year_va_founded: 1989 }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
-    expect(JSON.parse(response.body).keys).to include('weLoveTheVa', 'weLoveTheVA')
+    expect(JSON.parse(response.body).keys).to include('yearVaFounded', 'yearVAFounded')
   end
 
   it 'adds additional keys to data with `VA` in multiple keys except the keys use `Va` for each instance of `VA`' do
-    hash = { we_love_the_va: true, the_va_loves_our_troops: true }
+    hash = { we_love_the_va: true, thumbs_up_for_the_va: 'two' }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     expect(JSON.parse(response.body).keys).to include(
       'weLoveTheVa',
       'weLoveTheVA',
-      'theVALovesOurTroops',
-      'theVaLovesOurTroops'
+      'thumbsUpForTheVA',
+      'thumbsUpForTheVa'
     )
   end
 end
