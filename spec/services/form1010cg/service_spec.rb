@@ -39,7 +39,7 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#icn_for' do
-    let(:set_ssn) { ->(data) { data['ssnOrTin'] = '111111111' } }
+    let(:set_ssn) { ->(data, _form_subject) { data['ssnOrTin'] = '111111111' } }
 
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
