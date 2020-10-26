@@ -31,6 +31,7 @@ module CentralMail
       if response.success?
         update_submission('success')
       else
+        log_message_to_sentry(response.to_s, :warn, nil, { team: 'vfs-ebenefits' })
         raise CentralMailResponseError
       end
     rescue
