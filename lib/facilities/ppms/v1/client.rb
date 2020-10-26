@@ -43,6 +43,7 @@ module Facilities
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
         def provider_info(identifier)
           qparams = { :$expand => 'ProviderSpecialties' }
+
           response = perform(:get, "v1.0/Providers(#{identifier})", qparams)
           return nil if response.body.nil? || response.body[0].nil?
 
@@ -50,6 +51,15 @@ module Facilities
           deduplicate_response_arrays!(response)
 
           Facilities::PPMS::V1::Response.new(response.body[0]).provider
+        end
+
+        def provider_services(identifier)
+          response = perform(:get, "v1.0/Providers(#{identifier})/ProviderServices", {})
+
+          trim_response_attributes!(response)
+          deduplicate_response_arrays!(response)
+
+          Facilities::PPMS::V1::Response.new(response.body).providers
         end
 
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
@@ -143,7 +153,7 @@ module Facilities
             hsh["specialtycode#{index + 1}".to_sym] = code
           end
 
-          specialty_codes.merge(base_params(params))
+          base_params(params).merge(specialty_codes)
         end
       end
     end
