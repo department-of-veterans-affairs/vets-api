@@ -18,7 +18,7 @@ module Caseflow
 
     STATSD_KEY_PREFIX = 'api.appeals'
     CASEFLOW_V2_API_PATH = '/api/v2/appeals'
-    CASEFLOW_V3_API_PATH = '/api/v3/decision_reviews/'
+    CASEFLOW_V3_API_PATH = '/api/v3/decision_reviews'
     DEFAULT_HEADERS = { 'Authorization' => "Token token=#{Settings.caseflow.app_token}" }.freeze
 
     ##
@@ -51,7 +51,7 @@ module Caseflow
       with_monitoring do
         authorized_perform(
           :get,
-          "#{CASEFLOW_V3_API_PATH}#{decision_review_type}/contestable_issues/#{benefit_type}",
+          "#{CASEFLOW_V3_API_PATH}#{decision_review_type}/contestable_issues/#{benefit_type}".chomp('/'),
           {},
           headers
         )
@@ -66,7 +66,7 @@ module Caseflow
     #
     def create_higher_level_review(body)
       with_monitoring do
-        authorized_perform(:post, "#{CASEFLOW_V3_API_PATH}higher_level_reviews", body)
+        authorized_perform(:post, "#{CASEFLOW_V3_API_PATH}/higher_level_reviews", body)
       end
     end
 
