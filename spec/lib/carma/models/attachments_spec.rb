@@ -162,7 +162,6 @@ RSpec.describe CARMA::Models::Attachments, type: :model do
         }
 
         carma_client = double
-        expect(carma_client).not_to receive(:upload_attachments_stub)
         expect(carma_client).to receive(:upload_attachments).with(
           expected_request_payload
         ).and_return(
