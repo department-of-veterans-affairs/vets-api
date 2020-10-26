@@ -82,7 +82,8 @@ describe 'OliveBranchPatch', type: :request do
       'street' => '810 Vermont Avenue NW',
       'city' => 'Washington',
       'state' => 'D.C.',
-      'country' => 'U.S.'
+      'country' => 'U.S.',
+      'notes' => { 'url' => 'va.gov' }
     } }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
