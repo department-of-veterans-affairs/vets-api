@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/file_data'
 require_dependency 'claims_api/stamp_signature_error'
 require 'json_marshal/marshaller'
 require 'common/file_helpers'
