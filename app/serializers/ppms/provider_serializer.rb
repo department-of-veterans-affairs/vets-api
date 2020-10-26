@@ -44,7 +44,13 @@ class PPMS::ProviderSerializer
 
   attribute :phone, &:main_phone
 
-  attribute :pos_codes
+  attribute :pos_codes do |object|
+    if object.pos_codes.is_a?(Array)
+      object.pos_codes.first
+    else
+      object.pos_codes
+    end
+  end
 
   attribute :pref_contact, &:contact_method
 

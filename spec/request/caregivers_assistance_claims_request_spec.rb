@@ -8,7 +8,6 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     {
       'ACCEPT' => 'application/json',
       'CONTENT_TYPE' => 'application/json',
-      'HTTP_X_GOOGLE_CLIENT_ID' => 'google_client_id',
       'HTTP_X_KEY_INFLECTION' => 'camel'
     }
   end
@@ -99,26 +98,8 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
     timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
-    context 'with an invalid veteran status' do
-      before do
-        expect_any_instance_of(
-          Form1010cg::Service
-        ).to receive(:icn_for).with('veteran').and_return(Form1010cg::Service::NOT_FOUND)
-        expect(Settings.google_analytics).to receive(:tracking_id).and_return('foo')
-        expect(Settings).to receive(:vsp_environment).and_return('staging')
-      end
-
-      it 'logs an event to google analytics' do
-        VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
-          subject
-        end
-
-        expect(response.code).to eq('503')
-      end
-    end
-
     it 'can submit a valid submission', run_at: timestamp.iso8601 do
-      VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
+      VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
         VCR.use_cassette 'carma/auth/token/200', vcr_options do
           VCR.use_cassette 'carma/submissions/create/201', vcr_options do
             VCR.use_cassette 'carma/attachments/upload/201', vcr_options do

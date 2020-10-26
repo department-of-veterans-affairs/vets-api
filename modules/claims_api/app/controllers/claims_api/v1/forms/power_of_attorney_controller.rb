@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/poa_verification'
-require_dependency 'claims_api/concerns/document_validations'
 require 'bgs/power_of_attorney_verifier'
 
 module ClaimsApi
