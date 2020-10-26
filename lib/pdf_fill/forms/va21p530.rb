@@ -425,7 +425,7 @@ module PdfFill
         combine_both_addr(@form_data, 'claimantAddress')
         @form_data['claimantAddress'] = [
           {
-            'fullAddress' => @form_data['claimantAddress']
+            'bugsnax' => @form_data['claimantAddress']
           }
         ]
       end
@@ -469,8 +469,6 @@ module PdfFill
         expand_firm
 
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
-
-        expand_claimant_addr
 
         %w[
           previouslyReceivedAllowance
