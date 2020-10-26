@@ -17,8 +17,11 @@ module SentryLogging
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
+    level = exception.sentry_type if exception.is_a?(Common::Exceptions::BaseError)
+    # Why is this line below required?!?!? it will override whats specified in exception.en.yml; Why info??
     level = 'info' if extra_context.is_a?(Hash) && client_error?(extra_context[:va_exception_errors])
     level = normalize_level(level)
+    return if level == 'none'
     if Settings.sentry.dsn.present?
       set_raven_metadata(extra_context, tags_context)
       Raven.capture_exception(exception.cause.presence || exception, level: level)
