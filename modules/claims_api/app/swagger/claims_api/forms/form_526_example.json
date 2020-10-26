@@ -31,6 +31,7 @@
       }
     ],
     "standardClaim": false,
+    "autoCestPDFGenerationDisabled": false,
     "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
     "serviceInformation": {
       "servicePeriods": [
@@ -41,7 +42,7 @@
         },
         {
           "activeDutyEndDate": "1999-01-01",
-          "serviceBranch": "Air Force Reserve",
+          "serviceBranch": "Air Force Reserves",
           "activeDutyBeginDate": "1990-04-05"
         }
       ]
