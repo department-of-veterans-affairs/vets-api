@@ -109,4 +109,44 @@ describe 'OliveBranchPatch', type: :request do
     expect(json['yearVaCloses']).to eq json['yearVACloses']
     expect(json['yearVaCloses']).to eq hash[:year_va_closes]
   end
+
+  it 'adds addtional VA keys in complex example' do
+    hash = {
+      some_va_details: {
+        'year_va_founded' => 1989,
+        'year_va_closes' => nil,
+        'lists_for_va' => [{ 'three_va_administrations' => ['VHA', 'VBA', 'National Cemetery Administration'] }],
+        'the_va_address' => {
+          'name' => 'Veteran Affairs Building',
+          'street' => '810 Vermont Avenue NW',
+          'city' => 'Washington',
+          'state' => 'D.C.',
+          'country' => 'U.S.',
+          'notes' => { 'url_for_va' => 'va.gov' }
+        },
+        'we_love_the_va' => true,
+        'thumbs_up_for_the_va' => 'two',
+        'different_key' => 'this one does not say VA'
+      },
+      hello_there: 'hello there',
+      hello_to_the_va: 'greetings'
+    }
+
+    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+
+    json = JSON.parse(response.body)
+    expect(json.keys).to include('someVADetails', 'someVaDetails', 'helloThere', 'helloToTheVA', 'helloToTheVa')
+
+    # expect(json['someVADetails']).to eq json['someVADetails']
+    expect(json['someVADetails'].keys).to include('yearVAFounded', 'yearVACloses', 'listsForVA', 'theVAAddress', 'weLoveTheVA', 'thumbsUpForTheVA', 'differentKey')
+    expect(json['someVaDetails'].keys).to include('yearVaFounded', 'yearVaCloses', 'listsForVa', 'theVaAddress', 'weLoveTheVa', 'thumbsUpForTheVa', 'differentKey')
+    # expect(json.dig('someVaDetails', 'yearVaCloses')).to eq json.dig('someVADetails', 'yearVACloses')
+    # expect(json.dig('someVaDetails', 'yearVaFounded')).to eq json.dig('someVADetails', 'yearVAFounded')
+    # expect(json.dig('someVaDetails', 'theVaAddress').reject_key('notes')).to eq json.dig('someVADetails', 'theVAAddress')
+
+    expect(json['helloThere']).to eq hash[:hello_there]
+
+    expect(json['helloToTheVA']).to eq json['helloToTheVa']
+    expect(json['helloToTheVa']).to eq hash[:hello_to_the_va]
+  end
 end
