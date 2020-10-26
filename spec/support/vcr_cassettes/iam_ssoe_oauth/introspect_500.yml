@@ -2,10 +2,10 @@
 http_interactions:
   - request:
       method: post
-      uri: https://int.fed.eauth.va.gov:444/oauthe/sps/oauth/oauth20/revoke
+      uri: https://int.fed.eauth.va.gov:444/oauthe/sps/oauth/oauth20/introspect
       body:
         encoding: UTF-8
-        string: 'client_id=CLIENT_ID&token=ypXeAwQedpmAy5xFD2u5&token_type_hint=access_token'
+        string: 'client_id=CLIENT_ID&token=ypXeAwQedpmAy5xFD2u4&token_type_hint=access_token'
       headers:
         Accept: "application/json"
         Content-Type: "application/x-www-form-urlencoded"
@@ -22,7 +22,7 @@ http_interactions:
         content-type:
           - application/json;charset=UTF-8
         date:
-          - Fri, 16 Oct 2020 17:33:07 GMT
+          - Wed, 05 Aug 2020 21:52:29 GMT
         p3p:
           - CP="NON CUR OTPi OUR NOR UNI"
         x-frame-options:
@@ -57,5 +57,5 @@ http_interactions:
             "error": "internal server error"
           }
         http_version:
-    recorded_at: Fri, 16 Oct 2020 17:33:07 GMT
+    recorded_at: Wed, 05 Aug 2020 21:52:29 GMT
 recorded_with: VCR 5.0.0
