@@ -13,7 +13,7 @@ RSpec.describe 'user', type: :request do
     context 'with no upstream errors' do
       before { get '/mobile/v0/user', headers: iam_headers }
 
-      let(:attributes) { JSON.parse(response.body).dig('data', 'attributes') }
+      let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
       it 'returns an ok response' do
         expect(response).to have_http_status(:ok)
@@ -34,6 +34,12 @@ RSpec.describe 'user', type: :request do
       it 'includes the users email' do
         expect(attributes['profile']).to include(
           'email' => 'va.api.user+idme.008@gmail.com'
+        )
+      end
+
+      it 'includes the users birth date' do
+        expect(attributes['profile']).to include(
+          'birthDate' => '1970-08-12'
         )
       end
 
@@ -138,6 +144,20 @@ RSpec.describe 'user', type: :request do
             userProfileUpdate
           ]
         )
+      end
+
+      context 'when user object birth_date is nil' do
+        before do
+          allow_any_instance_of(IAMUserIdentity).to receive(:birth_date).and_return(nil)
+          get '/mobile/v0/user', headers: iam_headers
+        end
+
+        it 'returns a nil birthdate' do
+          expect(response).to have_http_status(:ok)
+          expect(attributes['profile']).to include(
+            'birthDate' => nil
+          )
+        end
       end
 
       context 'with a user who does not have access to evss' do
