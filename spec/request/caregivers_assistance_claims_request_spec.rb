@@ -97,7 +97,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false).twice
 
-        VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
+        VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
           VCR.use_cassette 'carma/auth/token/200', vcr_options do
             VCR.use_cassette 'carma/submissions/create/201', vcr_options do
               VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
@@ -130,7 +130,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true).twice
 
-        VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
+        VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
           post endpoint, params: body, headers: headers
         end
 
