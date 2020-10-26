@@ -51,7 +51,7 @@ module Caseflow
       with_monitoring do
         authorized_perform(
           :get,
-          "#{CASEFLOW_V3_API_PATH}#{decision_review_type}/contestable_issues/#{benefit_type}".chomp('/'),
+          "#{CASEFLOW_V3_API_PATH}/#{decision_review_type}/contestable_issues/#{benefit_type}".chomp('/'),
           {},
           headers
         )
