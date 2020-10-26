@@ -8,7 +8,7 @@ require 'pact/provider/rspec'
 require 'rspec/rails'
 require 'support/factory_bot'
 require 'support/authenticated_session_helper'
-require 'support/mvi/stub_mvi'
+require 'support/mpi/stub_mpi'
 require 'support/stub_emis'
 require 'support/stub_session'
 require 'support/vet360/stub_vet360'
@@ -39,7 +39,7 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
 
   config.before do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
+    stub_mpi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
 
