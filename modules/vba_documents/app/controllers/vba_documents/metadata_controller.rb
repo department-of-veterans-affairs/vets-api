@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'central_mail/service'
+require 'vba_documents/health_checker'
 
 module VBADocuments
   class MetadataController < ::ApplicationController
@@ -32,40 +32,45 @@ module VBADocuments
     end
 
     def healthcheck
-      if CentralMail::Service.current_breaker_outage?
-        render json: unhealthy_service_response,
-               status: :service_unavailable
-      else
-        render json: healthy_service_response
-      end
+      render json: {
+        description: 'VBA Documents API health check',
+        status: 'UP',
+        time: Time.zone.now.to_formatted_s(:iso8601)
+      }
+    end
+
+    def upstream_healthcheck
+      health_checker = VBADocuments::HealthChecker.new
+      time = Time.zone.now.to_formatted_s(:iso8601)
+
+      render json: {
+        description: 'VBA Documents API upstream health check',
+        status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
+        time: time,
+        details: {
+          name: 'All upstream services',
+          upstreamServices: VBADocuments::HealthChecker::SERVICES.map do |service|
+                              upstream_service_details(service, health_checker, time)
+                            end
+        }
+      }, status: health_checker.services_are_healthy? ? 200 : 503
     end
 
     private
 
-    def healthy_service_response
-      {
-        data: {
-          id: 'vba_healthcheck',
-          type: 'vba_documents_healthcheck',
-          attributes: {
-            healthy: true,
-            date: Time.zone.now.to_formatted_s(:iso8601)
-          }
-        }
-      }.to_json
-    end
+    def upstream_service_details(service_name, health_checker, time)
+      healthy = health_checker.healthy_service?(service_name)
 
-    def unhealthy_service_response
       {
-        errors: [
-          {
-            title: 'VBA Documents API Unavailable',
-            detail: 'VBA Documents API is currently unavailable.',
-            code: '503',
-            status: '503'
-          }
-        ]
-      }.to_json
+        description: service_name.titleize,
+        status: healthy ? 'UP' : 'DOWN',
+        details: {
+          name: service_name.titleize,
+          statusCode: healthy ? 200 : 503,
+          status: healthy ? 'OK' : 'Unavailable',
+          time: time
+        }
+      }
     end
   end
 end
