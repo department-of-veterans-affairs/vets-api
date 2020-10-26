@@ -7,7 +7,7 @@ class ParamsAsJsonController < ActionController::API
     params.permit!
     response = params.reject { |k, _| %w[controller action].include?(k) }
     # render json: response.to_json.gsub('"true"', 'true').gsub('"false"', 'false')
-    render json: response.to_json.gsub(/\"(true|false|\d+)\"/) { |quoted_value| quoted_value.gsub('"','') }
+    render json: response.to_json.gsub(/\"(true|false|\d+)\"/) { |quoted_value| quoted_value.gsub('"', '') }
   end
 
   def document
@@ -73,7 +73,7 @@ describe 'OliveBranchPatch', type: :request do
       city: 'Washington',
       state: 'D.C.',
       country: 'U.S.'
-    }}
+    } }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     expect(JSON.parse(response.body).keys).to include('theVAAddress', 'theVaAddress')
   end
