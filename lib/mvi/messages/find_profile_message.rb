@@ -38,8 +38,8 @@ module MVI
       end
 
       def required_fields_present?(profile)
-        raise ArgumentError, 'required key missing' unless REQUIRED_FIELDS.all? { |k| profile.key?(k) }
-        raise ArgumentError, 'required value missing' unless REQUIRED_FIELDS.all? { |k| profile[k].present? }
+        raise ArgumentError, 'required keys are missing' unless REQUIRED_FIELDS.all? { |k| profile.key?(k) }
+        raise ArgumentError, 'required values are missing' unless REQUIRED_FIELDS.all? { |k| profile[k].present? }
       end
 
       private
