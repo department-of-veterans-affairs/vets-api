@@ -78,11 +78,11 @@ describe 'OliveBranchPatch', type: :request do
 
   it 'adds a second `VA` key with a nested object in the value' do
     hash = { the_va_address: {
-      'name': 'Veteran Affairs Building',
-      'street': '810 Vermont Avenue NW',
-      'city': 'Washington',
-      'state': 'D.C.',
-      'country': 'U.S.'
+      'name' => 'Veteran Affairs Building',
+      'street' => '810 Vermont Avenue NW',
+      'city' => 'Washington',
+      'state' => 'D.C.',
+      'country' => 'U.S.'
     } }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)

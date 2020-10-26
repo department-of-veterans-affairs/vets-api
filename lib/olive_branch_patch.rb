@@ -19,13 +19,48 @@ module OliveBranchMiddlewareExtension
         # do not process strings that aren't json (like pdf responses)
         next unless json.is_a?(String) && json.starts_with?('{')
 
+        object_keys = []
         json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do |va_key_value|
           key, value = va_key_value.split(':')
-          "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
+          if value.starts_with?('{')
+            object_keys << key
+            va_key_value
+          else
+            "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
+          end
+        end
+
+        object_keys.each do |key|
+          key_index = json.index(key)
+          new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_whole_object(json, key)}, "
+          json.insert(key_index, new_key_and_value)
         end
       end
     end
     result
+  end
+
+  private
+
+  def capture_whole_object(json, key)
+    index = json.index(key) + key.length
+    object = json[index + 1]
+    index += 2 # +2 for `:` and `{`
+    braces = 1
+    while index < json.length
+      char = json[index]
+      object << char
+      if char == '{'
+        braces += 1
+      elsif char == '}'
+        braces -= 1
+      end
+
+      break if braces.zero?
+
+      index += 1
+    end
+    object
   end
 end
 
