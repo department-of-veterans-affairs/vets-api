@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs/service'
-require 'mvi/service'
+require 'mpi/service'
 require 'evss/service'
 
 module ClaimsApi
@@ -10,15 +10,15 @@ module ClaimsApi
 
     def self.services_are_healthy?
       # TODO: we should add check for Okta and SAML Proxies being up as well
-      mvi_is_healthy? && evss_is_healthy? && bgs_is_healthy? && vbms_is_healthy?
+      mpi_is_healthy? && evss_is_healthy? && bgs_is_healthy? && vbms_is_healthy?
     end
 
     def self.evss_is_healthy?
       Settings.evss.mock_claims || EVSS::Service.service_is_up?
     end
 
-    def self.mvi_is_healthy?
-      Settings.mvi.mock || MVI::Service.service_is_up?
+    def self.mpi_is_healthy?
+      Settings.mpi.mock || MPI::Service.service_is_up?
     end
 
     def self.bgs_is_healthy?
