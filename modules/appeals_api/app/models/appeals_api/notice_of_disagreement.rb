@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 module AppealsApi
-  class NoticeOfDisagreement
+  class NoticeOfDisagreement < ApplicationRecord
+    include SentryLogging
+
     class << self
       def date_from_string(string)
         string.match(/\d{4}-\d{2}-\d{2}/) && Date.parse(string)
@@ -9,60 +13,69 @@ module AppealsApi
         nil
       end
 
-      def json_schemer_error_to_string(error)
-        invalid_property = error['data_pointer'].presence || '/'
-
-        reason = if detail['type'] == 'required'
-                   "did not contain the required key #{error['details']['missing_key']}"
-                 else
-                   "did not match the following requirements #{detail['schema']}"
-                 end
-
-        "The property #{invalid_property} #{reason}"
-      end
-
-      def load_schema(filename)
+      def load_json_schema(filename)
         MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
       end
 
-      # returns errors array
-      def validate_against_schema(hash, schema:)
-        JSONSchemer.schema(schema).validate(hash).to_a
+      def json_schemer_error_to_string(error)
+        path = error['data_pointer'].presence || '/'
+
+        reason = if error['type'] == 'required'
+                   "did not contain the required key #{error.dig('details', 'missing_key')}"
+                 else
+                   "did not match the following requirements: #{error['schema']}"
+                 end
+
+        "The property \"#{path}\" #{reason}"
       end
     end
 
-    FORM_SCHEMA = load_schema '10182'
-    AUTH_HEADERS_SCHEMA = load_schema '10182_headers'
+    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    attr_reader :form_data, :auth_headers
+    FORM_SCHEMA = load_json_schema '10182'
+    AUTH_HEADERS_SCHEMA = load_json_schema '10182_headers'
 
-    def initialize(form_data:, auth_headers:)
-      @form_data = form_data
-      @auth_headers = auth_headers
-      validate
+    validate(
+      :validate_auth_headers_against_schema,
+      :validate_form_data_against_schema,
+      :validate_claimant_properly_included_or_absent,
+      :validate_that_at_least_one_set_of_contact_info_is_present
+    )
+
+    def claimant_name
+      name 'Claimant'
     end
 
-    def validate
-      validate_against_schemas && validate_that_claimant_info_is_complete_or_absent
+    def claimant_birth_date
+      birth_date 'Claimant'
     end
 
-    # adds to model errors
-    def validate_against_schemas
-      (
-        validate_against_schema(data: form_data, schema: FORM_SCHEMA, attribute_name: :form_data) +
-        validate_against_schema(data: auth_headers, schema: AUTH_HEADERS_SCHEMA, attribute_name: :auth_headers)
-      ).blank?
+    def claimant_contact_info
+      form_data&.dig('data', 'attributes', 'claimant')
     end
 
-    # adds to model errors
+    def veteran_contact_info
+      form_data&.dig('data', 'attributes', 'veteran')
+    end
+
+    private
+
+    def validate_auth_headers_against_schema
+      validate_against_schema data: auth_headers, schema: AUTH_HEADERS_SCHEMA, attribute_name: :auth_headers
+    end
+
+    def validate_form_data_against_schema
+      validate_against_schema data: form_data, schema: FORM_SCHEMA, attribute_name: :form_data
+    end
+
     def validate_against_schema(data:, schema:, attribute_name:)
-      errors = self.class.validate_against_schema data, schema: schema
-      add_errors errors, attribute_name: attribute_name
-      errors
+      JSONSchemer.schema(schema).validate(data || {}).to_a
+                 .map { |error| self.class.json_schemer_error_to_string error }
+                 .each { |error_message| errors.add attribute_name, error_message }
     end
 
-    # adds to model errors
-    def validate_claimant_properly_included_or_absent?
+    def validate_claimant_properly_included_or_absent
       return true if claimant_properly_included_or_absent?
 
       # at least 1 piece is missing (name, birth_date, or contact info)
@@ -72,6 +85,7 @@ module AppealsApi
       if claimant_contact_info.blank?
         add_missing_claimant_info_error 'contact info (data/attributes/claimant)', attribute_name: :form_data
       end
+
       false
     end
 
@@ -87,24 +101,18 @@ module AppealsApi
       claimant_name.blank? && claimant_birth_date.blank? && claimant_contact_info.blank?
     end
 
-    def claimant_contact_info
-      form_data&.dig('data', 'attributes', 'claimant')
-    end
-
     def add_missing_claimant_info_error(field, attribute_name:)
       errors.add attribute_name, "if any claimant info is present, claimant #{field} must also be present"
     end
 
-    def claimant_birth_date
-      birth_date 'Claimant'
+    def validate_that_at_least_one_set_of_contact_info_is_present
+      return if veteran_contact_info.present? || claimant_contact_info.present?
+
+      errors.add :form_data, "at least one must be incuded: '/data/attributes/veteran', '/data/attributes/claimant'"
     end
 
     def birth_date(who)
       self.class.date_from_string header_field_as_string "X-VA-#{who}-Birth-Date"
-    end
-
-    def claimant_name
-      name 'Claimant'
     end
 
     def name(who)
@@ -133,10 +141,6 @@ module AppealsApi
 
     def header_field(key)
       auth_headers&.dig(key)
-    end
-
-    def add_errors(messages, attribute_name: :base)
-      messages.each { |m| errors.add(attribute_name, m) }
     end
   end
 end

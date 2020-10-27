@@ -58,13 +58,14 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "addressLine1": { "type": "string" },
-        "addressLine2": { "type": "string" },
-        "addressLine3": { "type": "string" },
-        "city":         { "type": "string" },
-        "stateCode":    { "$ref": "#/definitions/nodCreateStateCode" },
-        "countryName":  { "type": "string" },
-        "zipCode5":     { "type": "string", "pattern": "^[0-9]{5}$" }
+        "addressLine1":            { "type": "string" },
+        "addressLine2":            { "type": "string" },
+        "addressLine3":            { "type": "string" },
+        "city":                    { "type": "string" },
+        "stateCode":               { "$ref": "#/definitions/nodCreateStateCode" },
+        "countryName":             { "type": "string" },
+        "zipCode5":                { "type": "string", "pattern": "^[0-9]{5}$" },
+        "internationalPostalCode": { "type": "string" }
       },
       "required": [ "addressLine1", "city", "countryName", "zipCode5" ]
     },
@@ -145,6 +146,12 @@
         "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV",
         "WI", "WY"
       ]
+    },
+
+
+    "nodCreateBoardReviewOption": {
+      "type": "string",
+      "enum": [ "direct_review", "evidence_submission", "hearing" ]
     },
 
 

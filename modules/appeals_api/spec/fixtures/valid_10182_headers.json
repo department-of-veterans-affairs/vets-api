@@ -1,0 +1,12 @@
+{
+  "X-VA-Veteran-First-Name": "Jane",
+  "X-VA-Veteran-Middle-Initial": "Z",
+  "X-VA-Veteran-Last-Name": "Doe",
+  "X-VA-Veteran-SSN": "123456789",
+  "X-VA-Veteran-File-Number": "987654321",
+  "X-VA-Veteran-Birth-Date": "1969-12-31",
+  "X-VA-Claimant-First-Name": "Maria",
+  "X-VA-Claimant-Middle-Initial": "A",
+  "X-VA-Claimant-Last-Name": "Garcia",
+  "X-VA-Claimant-Birth-Date": "1970-01-01"
+}

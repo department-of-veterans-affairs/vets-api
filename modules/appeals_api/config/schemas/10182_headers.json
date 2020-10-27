@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "JSON Schema for Higher-Level Review Creation endpoint headers (Decision Reviews API)",
+  "description": "JSON Schema for Notice of Disagreement Creation endpoint headers (Decision Reviews API)",
   "$ref": "#/definitions/nodCreateHeadersRoot",
   "definitions": {
 
