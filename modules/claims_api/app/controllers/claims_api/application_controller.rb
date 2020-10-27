@@ -12,6 +12,7 @@ module ClaimsApi
     skip_before_action :set_tags_and_extra_context, raise: false
     before_action :validate_json_format, if: -> { request.post? }
 
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def show
       claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
 
@@ -30,6 +31,7 @@ module ClaimsApi
       render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
              status: :not_found
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     private
 
