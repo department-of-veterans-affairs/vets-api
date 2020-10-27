@@ -120,14 +120,36 @@ describe MVI::Messages::FindProfileMessage do
     end
 
     context 'missing arguments' do
-      it 'throws an argument error' do
+      it 'throws an argument error for missing key' do
         expect do
           MVI::Messages::FindProfileMessage.new(
             given_names: %w[John William],
             last_name: 'Smith',
             birth_date: Time.new(1980, 1, 1).utc
           )
-        end.to raise_error(ArgumentError, 'wrong number of arguments')
+        end.to raise_error(ArgumentError, 'required keys are missing')
+      end
+
+      it 'throws an argument error for empty value' do
+        expect do
+          MVI::Messages::FindProfileMessage.new(
+            given_names: %w[John William],
+            last_name: '',
+            birth_date: Time.new(1980, 1, 1).utc,
+            ssn: rand.to_s[2..11]
+          )
+        end.to raise_error(ArgumentError, 'required values are missing')
+      end
+
+      it 'throws an argument error for nil value' do
+        expect do
+          MVI::Messages::FindProfileMessage.new(
+            given_names: %w[John William],
+            last_name: nil,
+            birth_date: Time.new(1980, 1, 1).utc,
+            ssn: rand.to_s[2..11]
+          )
+        end.to raise_error(ArgumentError, 'required values are missing')
       end
     end
   end
