@@ -25,6 +25,7 @@ module ClaimsApi
     attribute :loa, Hash
     attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
+    attribute :errors, Common::Exceptions::ValidationErrors
 
     delegate :birls_id, to: :mpi, allow_nil: true
     delegate :participant_id, to: :mpi, allow_nil: true
@@ -49,6 +50,7 @@ module ClaimsApi
     end
 
     def mpi_record?
+      # mpi.response &&
       mpi.mvi_response.ok?
     end
 
@@ -74,18 +76,23 @@ module ClaimsApi
     end
 
     def self.from_identity(identity:)
-      new(
+      identity_hash = {
         uuid: identity.uuid,
-        ssn: identity.ssn,
         first_name: identity.first_name,
         last_name: identity.last_name,
-        va_profile: OpenStruct.new(birth_date: identity.birth_date),
         last_signed_in: Time.now.utc,
         loa: identity.loa,
-        gender: identity.gender,
-        edipi: identity&.edipi,
-        participant_id: identity&.participant_id
-      )
+        gender: identity.gender
+      }
+
+      unless identity.mpi.response.nil?
+        identity_hash.merge(ssn: identity.ssn,
+                            va_profile: OpenStruct.new(birth_date: identity.birth_date),
+                            edipi: identity&.edipi,
+                            participant_id: identity&.participant_id)
+      end
+
+      new(identity_hash)
     end
 
     def self.build_profile(birth_date)

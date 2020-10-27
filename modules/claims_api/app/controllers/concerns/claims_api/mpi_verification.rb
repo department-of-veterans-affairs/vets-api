@@ -8,13 +8,13 @@ module ClaimsApi
       before_action :verify_mpi
 
       def verify_mpi
-        unless target_veteran.mpi_record?
-          log_message_to_sentry('MPIError in claims',
-                                :warning,
-                                body: target_veteran.mpi&.response&.error&.inspect)
-          render json: { errors: [{ detail: 'MPI user not found' }] },
-                 status: :not_found
-        end
+        raise 'MPI user not found' unless target_veteran.mpi_record?
+      rescue => e
+        log_message_to_sentry('MPIError in claims',
+                              :warning,
+                              body: target_veteran.mpi&.response&.error&.inspect || e.message)
+        render json: { errors: [{ status: 404, detail: 'Veteran not found, some functionality may be limited.' }] },
+               status: :not_found
       end
     end
   end
