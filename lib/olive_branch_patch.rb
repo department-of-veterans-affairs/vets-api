@@ -21,32 +21,21 @@ module OliveBranchMiddlewareExtension
         # do not process strings that aren't json (like pdf responses)
         next unless json.is_a?(String) && json.starts_with?('{')
 
-        object_keys = []
-        array_keys = []
+        keys_with_collections = []
         json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do |va_key_value|
           key, value = va_key_value.split(':')
-          if value.starts_with?('{')
-            object_keys << key
-            va_key_value
-          elsif value.starts_with?('[')
-            array_keys << key
+          if value.starts_with?(/{|\[/)
+            keys_with_collections << { key: key, opener: value.first, sort_index: json.index(key) }
             va_key_value
           else
             "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
           end
         end
 
-        # if these are nested inside another one, they only duplicate the first instance
-        # TODO: combine these logics
-        object_keys.sort{ |key1, key2| json.index(key2) <=> json.index(key1) }.each do |key|
+        keys_with_collections.sort { |info1, info2| info2[:sort_index] <=> info1[:sort_index] }.each do |info|
+          key = info[:key]
           key_index = json.index(key)
-          new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_whole_object(json, key)}, "
-          json.insert(key_index, new_key_and_value)
-        end
-
-        array_keys.sort{ |key1, key2| json.index(key2) <=> json.index(key1) }.each do |key|
-          key_index = json.index(key)
-          new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_whole_array(json, key)}, "
+          new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info)}, "
           json.insert(key_index, new_key_and_value)
         end
       end
@@ -56,42 +45,22 @@ module OliveBranchMiddlewareExtension
 
   private
 
-  def capture_whole_object(json, key)
+  def capture_collection(json, key:, opener:, sort_index:)
+    closer = opener == '{' ? '}' : ']'
     index = json.index(key) + key.length
     object = json[index + 1]
-    index += 2 # +2 for `:` and `{`
-    braces = 1
+    index += 2 # +2 for `:` and opening character
+    needed_closures = 1
     while index < json.length
       char = json[index]
       object << char
-      if char == '{'
-        braces += 1
-      elsif char == '}'
-        braces -= 1
+      if char == opener
+        needed_closures += 1
+      elsif char == closer
+        needed_closures -= 1
       end
 
-      break if braces.zero?
-
-      index += 1
-    end
-    object
-  end
-
-  def capture_whole_array(json, key)
-    index = json.index(key) + key.length
-    object = json[index + 1]
-    index += 2 # +2 for `:` and `[`
-    brackets = 1
-    while index < json.length
-      char = json[index]
-      object << char
-      if char == '['
-        brackets += 1
-      elsif char == ']'
-        brackets -= 1
-      end
-
-      break if brackets.zero?
+      break if needed_closures.zero?
 
       index += 1
     end
