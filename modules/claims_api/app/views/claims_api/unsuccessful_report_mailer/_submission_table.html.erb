@@ -1,0 +1,22 @@
+<table>
+  <thead>
+    <tr>
+      <th>GUID</th>
+      <th>Consumer Name</th>
+      <th>Status</th>
+      <th>Created At</th>
+      <th>Updated At</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% claims.each do |claim| %>
+      <tr>
+        <td><%= claim.id %></td>
+        <td><%= submission.source %></td>
+        <td><%= submission.status %></td>
+        <td><%= submission.created_at %></td>
+        <td><%= submission.updated_at %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
