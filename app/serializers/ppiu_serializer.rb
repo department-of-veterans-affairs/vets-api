@@ -6,14 +6,12 @@ class PPIUSerializer < ActiveModel::Serializer
   def responses
     object.responses.each do |response|
       account_number = response.payment_account&.account_number
-      response.payment_account.account_number = mask(account_number) if account_number
+      response.payment_account.account_number = StringHelpers.mask_sensitive(account_number) if account_number
       routing_number = response.payment_account&.financial_institution_routing_number
-      response.payment_account.financial_institution_routing_number = mask(routing_number) if routing_number
+      if routing_number
+        response.payment_account.financial_institution_routing_number = StringHelpers.mask_sensitive(routing_number)
+      end
     end
-  end
-
-  def mask(number)
-    number.gsub(/.(?=.{4})/, '*')
   end
 
   def id

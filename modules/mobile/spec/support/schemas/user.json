@@ -50,19 +50,29 @@
                 "email": {
                   "type": "string"
                 },
+                "birth_date": {
+                  "type": "string"
+                },
+                "gender": {
+                  "type": "string",
+                  "enum": ["F", "M"]
+                },
                 "residentialAddress": {
                   "$ref": "address.json"
                 },
                 "mailingAddress": {
                   "$ref": "address.json"
                 },
-                "homePhone": {
+                "faxNumber": {
                   "$ref": "phone.json"
                 },
-                "mobilePhone": {
+                "homePhoneNumber": {
                   "$ref": "phone.json"
                 },
-                "workPhone": {
+                "mobilePhoneNumber": {
+                  "$ref": "phone.json"
+                },
+                "workPhoneNumber": {
                   "$ref": "phone.json"
                 }
               }

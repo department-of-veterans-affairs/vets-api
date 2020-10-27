@@ -13,13 +13,13 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
 
     before do
       allow(BipClaims::Service).to receive(:new).and_return(bip_claims)
-      allow(bip_claims).to receive(:lookup_veteran_from_mvi).and_return(
+      allow(bip_claims).to receive(:lookup_veteran_from_mpi).and_return(
         OpenStruct.new(participant_id: 123)
       )
     end
 
     it 'attempts Veteran MVI lookup' do
-      expect(bip_claims).to receive(:lookup_veteran_from_mvi).with(claim).and_return(
+      expect(bip_claims).to receive(:lookup_veteran_from_mpi).with(claim).and_return(
         OpenStruct.new(participant_id: 123)
       )
       job.perform(claim.id)

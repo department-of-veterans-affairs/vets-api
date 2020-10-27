@@ -165,6 +165,7 @@ module V0
       Swagger::Requests::VAFacilities,
       Swagger::Requests::CCProviders,
       Swagger::Requests::CaregiversAssistanceClaims,
+      Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,

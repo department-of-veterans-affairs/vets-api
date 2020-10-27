@@ -13,7 +13,7 @@ FactoryBot.define do
     ssn { '796121200' }
     iam_sec_id { '0000028114' }
     iam_icn { '1008596379V859838' }
-    multifactor { false }
+    multifactor { true }
     iam_edipi { '1005079124' }
 
     sign_in do

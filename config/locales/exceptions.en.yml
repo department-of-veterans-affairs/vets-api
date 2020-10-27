@@ -582,6 +582,18 @@ en:
         code: 'HEALTH_QUEST_502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
+      IAM_SSOE_400:
+        <<: *defaults
+        title: Bad Request
+        detail: ~
+        code: IAM_SSOE_400
+        status: 400
+      IAM_SSOE_502:
+        <<: *defaults
+        title: Bad Gateway
+        code: IAM_SSOE_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway

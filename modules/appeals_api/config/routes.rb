@@ -20,6 +20,9 @@ AppealsApi::Engine.routes.draw do
           post 'validate', to: 'higher_level_reviews#validate'
         end
       end
+      namespace :notice_of_disagreements do
+        get 'contestable_issues', to: 'contestable_issues#index'
+      end
     end
   end
   namespace :docs do

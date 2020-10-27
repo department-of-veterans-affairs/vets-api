@@ -26,8 +26,8 @@ module ClaimsApi
     attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
 
-    delegate :birls_id, to: :mvi, allow_nil: true
-    delegate :participant_id, to: :mvi, allow_nil: true
+    delegate :birls_id, to: :mpi, allow_nil: true
+    delegate :participant_id, to: :mpi, allow_nil: true
 
     alias dslogon_edipi edipi
 
@@ -35,7 +35,7 @@ module ClaimsApi
       va_profile[:birth_date]
     end
 
-    # Virtus doesnt provide a valid? method, but MVI requires it
+    # Virtus doesnt provide a valid? method, but MPI requires it
     def valid?(*)
       va_profile.present?
     end
@@ -44,12 +44,13 @@ module ClaimsApi
       loa[:current] == 3
     end
 
-    def mvi
-      @mvi ||= Mvi.for_user(self)
+    def mpi
+      @mpi ||= MPIData.for_user(self)
     end
 
-    def mvi_record?
-      mvi.mvi_response.ok?
+    def mpi_record?
+      # mpi.response &&
+      mpi.mvi_response.ok?
     end
 
     def ssn=(new_ssn)
@@ -74,18 +75,23 @@ module ClaimsApi
     end
 
     def self.from_identity(identity:)
-      new(
+      identity_hash = {
         uuid: identity.uuid,
-        ssn: identity.ssn,
         first_name: identity.first_name,
         last_name: identity.last_name,
-        va_profile: OpenStruct.new(birth_date: identity.birth_date),
         last_signed_in: Time.now.utc,
         loa: identity.loa,
-        gender: identity.gender,
-        edipi: identity.edipi,
-        participant_id: identity.participant_id
-      )
+        gender: identity.gender
+      }
+
+      unless identity.mpi.response.nil?
+        identity_hash.merge(ssn: identity.ssn,
+                            va_profile: OpenStruct.new(birth_date: identity.birth_date),
+                            edipi: identity&.edipi,
+                            participant_id: identity&.participant_id)
+      end
+
+      new(identity_hash)
     end
 
     def self.build_profile(birth_date)

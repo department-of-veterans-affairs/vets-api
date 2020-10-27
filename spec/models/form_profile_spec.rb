@@ -30,6 +30,18 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:veteran_service_information) do
+    {
+      'dateOfBirth' => user.birth_date,
+      'socialSecurityNumber' => user.ssn,
+      'branchOfService' => 'Air Force',
+      'serviceDateRange' => {
+        'from' => '2007-04-01',
+        'to' => '2007-04-02'
+      }
+    }
+  end
+
   let(:veteran_full_name) do
     {
       'veteranFullName' => full_name
@@ -65,6 +77,16 @@ RSpec.describe FormProfile, type: :model do
           'phoneNumber' => us_phone
         }
       }
+    }
+  end
+
+  let(:v0873_expected) do
+    {
+      'fullName' => full_name,
+      'email' => user.pciu_email,
+      'phone' => us_phone,
+      'address' => address,
+      'veteranServiceInformation' => veteran_service_information
     }
   end
 
@@ -926,6 +948,17 @@ RSpec.describe FormProfile, type: :model do
               end
             end
           end
+        end
+      end
+
+      context 'with emis and vet360 prefill for 0873' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+        end
+
+        it 'prefills 0873' do
+          expect_prefilled('0873')
         end
       end
 
