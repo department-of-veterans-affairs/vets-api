@@ -12,7 +12,7 @@ module MVI
     #  message = MVI::Messages::AddPersonMessage.new(user).to_xml
     #
     class AddPersonMessage
-      SCHEMA_FILE_NAME = 'mvi_add_person_template.xml'
+      SCHEMA_FILE_NAME = 'mpi_add_person_template.xml'
 
       def initialize(user)
         raise ArgumentError, 'User missing attributes' unless user.can_mvi_proxy_add?
@@ -22,7 +22,7 @@ module MVI
 
       def to_xml
         template = Liquid::Template.parse(
-          File.read(File.join('config', 'mvi_schema', SCHEMA_FILE_NAME))
+          File.read(File.join('config', 'mpi_schema', SCHEMA_FILE_NAME))
         )
 
         template.render!(build_content(@user))

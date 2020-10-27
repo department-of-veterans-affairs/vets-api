@@ -8,7 +8,6 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     {
       'ACCEPT' => 'application/json',
       'CONTENT_TYPE' => 'application/json',
-      'HTTP_X_GOOGLE_CLIENT_ID' => 'google_client_id',
       'HTTP_X_KEY_INFLECTION' => 'camel'
     }
   end
@@ -87,46 +86,22 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     end
 
     context 'when :stub_carma_responses is disabled' do
-      subject do
-        post endpoint, params: body, headers: headers
-      end
-
-      let(:body) do
-        form_data = build_valid_form_submission.call
-
-        { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
-      end
-
       it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims'
 
       timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
-      context 'with an invalid veteran status' do
-        before do
-          expect_any_instance_of(
-            Form1010cg::Service
-          ).to receive(:icn_for).with('veteran').and_return(Form1010cg::Service::NOT_FOUND)
-          expect(Settings.google_analytics).to receive(:tracking_id).and_return('foo')
-          expect(Settings).to receive(:vsp_environment).and_return('staging')
-        end
-
-        it 'logs an event to google analytics' do
-          VCR.use_cassette('staccato/1010cg', VCR::MATCH_EVERYTHING) do
-            subject
-          end
-
-          expect(response.code).to eq('503')
-        end
-      end
-
       it 'can submit a valid submission', run_at: timestamp.iso8601 do
+        form_data = build_valid_form_submission.call
+
+        body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
+
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false).twice
 
-        VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
+        VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
           VCR.use_cassette 'carma/auth/token/200', vcr_options do
             VCR.use_cassette 'carma/submissions/create/201', vcr_options do
               VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
-                subject
+                post endpoint, params: body, headers: headers
               end
             end
           end
@@ -155,7 +130,7 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
         expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true).twice
 
-        VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
+        VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
           post endpoint, params: body, headers: headers
         end
 
