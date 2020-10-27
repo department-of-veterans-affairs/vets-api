@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs/service'
-require 'mpi/service'
+require 'mvi/service'
 require 'evss/service'
 
 module ClaimsApi
@@ -18,7 +18,7 @@ module ClaimsApi
     end
 
     def self.mpi_is_healthy?
-      Settings.mpi.mock || MPI::Service.service_is_up?
+      Settings.mvi.mock || MVI::Service.service_is_up?
     end
 
     def self.bgs_is_healthy?

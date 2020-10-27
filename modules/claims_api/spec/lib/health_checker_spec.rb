@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'claims_api/health_checker'
-require 'mpi/service'
+require 'mvi/service'
 
 describe ClaimsApi::HealthChecker do
   describe 'something' do
@@ -26,7 +26,7 @@ describe ClaimsApi::HealthChecker do
       allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
       allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
       allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
-      allow(MPI::Service).to receive(:service_is_up?).and_return(false)
+      allow(MVI::Service).to receive(:service_is_up?).and_return(false)
       expect(ClaimsApi::HealthChecker.services_are_healthy?).to eq(false)
     end
 

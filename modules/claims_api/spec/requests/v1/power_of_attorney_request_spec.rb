@@ -17,7 +17,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
   before do
     stub_poa_verification
-    stub_mpi
+    stub_mvi
   end
 
   describe '#2122' do
