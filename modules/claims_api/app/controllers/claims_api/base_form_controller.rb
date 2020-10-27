@@ -74,10 +74,11 @@ module ClaimsApi
     end
 
     def intent_to_file_options
+      participant_claimant_id = form_type == 'burial' ? @current_user.participant_id : target_veteran.participant_id
+
       {
         intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES[form_type],
-        participant_claimant_id: form_attributes['participant_claimant_id'] ||
-          @current_user.participant_id || target_veteran.participant_id,
+        participant_claimant_id: form_attributes['participant_claimant_id'] || participant_claimant_id,
         participant_vet_id: form_attributes['participant_vet_id'] || target_veteran.participant_id,
         received_date: v0? && received_date ? received_date : Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z'),
         submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
