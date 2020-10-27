@@ -25,7 +25,6 @@ module ClaimsApi
     attribute :loa, Hash
     attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
-    attribute :errors, Common::Exceptions::ValidationErrors
 
     delegate :birls_id, to: :mpi, allow_nil: true
     delegate :participant_id, to: :mpi, allow_nil: true
