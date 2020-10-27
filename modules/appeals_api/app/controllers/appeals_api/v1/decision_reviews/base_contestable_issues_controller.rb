@@ -4,9 +4,12 @@ require 'caseflow/service'
 require 'common/exceptions'
 
 class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < AppealsApi::ApplicationController
-  skip_before_action(:authenticate)
+  SSN_REGEX = /^[0-9]{9}$/.freeze
 
-  EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date].freeze
+  skip_before_action(:authenticate)
+  before_action :validate_headers, only: %i[index]
+
+  EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date X-VA-File-Number].freeze
 
   UNUSABLE_RESPONSE_ERROR = {
     errors: [
@@ -58,7 +61,7 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   def headers
     EXPECTED_HEADERS.reduce({}) do |hash, key|
       hash.merge(key => request.headers[key])
-    end
+    end.compact
   end
 
   def caseflow_response_has_a_body_and_a_status?
@@ -79,5 +82,28 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
 
   def render_unusable_response_error
     render json: UNUSABLE_RESPONSE_ERROR, status: UNUSABLE_RESPONSE_ERROR[:errors].first[:status]
+  end
+
+  def validate_headers
+    validation_errors = []
+    ssn = request.headers['X-VA-SSN']
+
+    if request.headers['X-VA-Receipt-Date'].nil?
+      validation_errors << { status: 422, detail: 'X-VA-Receipt-Date is required' }
+    end
+    if ssn.nil? && request.headers['X-VA-File-Number'].nil?
+      validation_errors << { status: 422, detail: 'X-VA-SSN or X-VA-File-Number is required' }
+    end
+    if ssn.present? && !SSN_REGEX.match?(ssn)
+      validation_errors << { status: 422, detail: "X-VA-SSN has an invalid format. Pattern: #{SSN_REGEX.inspect}" }
+    end
+
+    render_validation_errors(validation_errors)
+  end
+
+  def render_validation_errors(validation_errors)
+    return if validation_errors.empty?
+
+    render json: { errors: validation_errors }, status: :unprocessable_entity unless validation_errors.empty?
   end
 end

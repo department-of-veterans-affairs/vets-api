@@ -143,7 +143,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports adding an caregiver\'s assistance claim' do
-      VCR.use_cassette 'mvi/find_candidate/valid' do
+      VCR.use_cassette 'mpi/find_candidate/valid' do
         VCR.use_cassette 'emis/get_veteran_status/valid' do
           VCR.use_cassette 'carma/auth/token/200' do
             VCR.use_cassette 'carma/submissions/create/201' do
@@ -204,7 +204,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 
       VCR.use_cassette(
-        'mvi/find_candidate/find_profile_with_attributes',
+        'mpi/find_candidate/find_profile_with_attributes',
         VCR::MATCH_EVERYTHING
       ) do
         expect(subject).to validate(
@@ -329,7 +329,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           200,
           '_data' => {
             'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+              'file_data' => fixture_file_upload('spec/fixtures/preneeds/extras.pdf', 'application/pdf')
             }
           }
         )
@@ -761,8 +761,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 403, headers.merge('id' => '12-1234'))
         end
         it 'when correct form id is passed, it supports creating mvi user' do
-          VCR.use_cassette('mvi/add_person/add_person_success') do
-            VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
+          VCR.use_cassette('mpi/add_person/add_person_success') do
+            VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
               expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
             end
           end
@@ -1988,7 +1988,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports getting personal information data' do
         expect(subject).to validate(:get, '/v0/profile/personal_information', 401)
-        VCR.use_cassette('mvi/find_candidate/valid') do
+        VCR.use_cassette('mpi/find_candidate/valid') do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 200, headers)
         end
       end
@@ -2444,7 +2444,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         allow_any_instance_of(MVI::Models::MviProfile).to receive(:gender).and_return(nil)
         allow_any_instance_of(MVI::Models::MviProfile).to receive(:birth_date).and_return(nil)
 
-        VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
+        VCR.use_cassette('mpi/find_candidate/missing_birthday_and_gender') do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 502, headers)
         end
       end

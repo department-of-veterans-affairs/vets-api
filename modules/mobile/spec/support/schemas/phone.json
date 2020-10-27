@@ -27,7 +27,7 @@
     },
     "phoneType": {
       "type": "string",
-      "enum": ["HOME", "MOBILE", "WORK"]
+      "enum": ["FAX", "HOME", "MOBILE", "WORK"]
     }
   }
 }
