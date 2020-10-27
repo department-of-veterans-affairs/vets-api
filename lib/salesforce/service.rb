@@ -34,6 +34,8 @@ module Salesforce
       body = with_monitoring { request(:post, '', oauth_params).body }
       Raven.extra_context(oauth_response_body: body)
 
+      Rails.logger.info('Salesforce Auth Response Body:', body)
+
       body['access_token']
     end
 
