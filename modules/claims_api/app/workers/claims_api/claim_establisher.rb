@@ -10,8 +10,6 @@ module ClaimsApi
     include Sidekiq::Worker
     include SentryLogging
 
-    sidekiq_options 'retry': true, unique_until: :success
-
     def perform(auto_claim_id)
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
