@@ -7,6 +7,8 @@ module ClaimsApi
   class ClaimUploader
     include Sidekiq::Worker
 
+    sidekiq_options 'retry': true, unique_until: :success
+
     def perform(uuid)
       document = ClaimsApi::SupportingDocument.find_by(id: uuid) || ClaimsApi::AutoEstablishedClaim.pending?(uuid)
       auto_claim = document.try(:auto_established_claim) || document

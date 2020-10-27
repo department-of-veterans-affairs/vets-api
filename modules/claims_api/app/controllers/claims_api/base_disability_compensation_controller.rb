@@ -16,12 +16,17 @@ module ClaimsApi
 
     def upload_form_526
       pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
-      pending_claim.set_file_data!(documents.first, params[:doc_type])
-      pending_claim.save!
 
-      ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
+      if pending_claim 
+        pending_claim.set_file_data!(documents.first, params[:doc_type])
+        pending_claim.save!
 
-      render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+        ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
+
+        render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+      else
+        render json: {status: 400, message: 'Pending claim not active'}.to_json, status: :bad request
+      end
     rescue => e
       render json: unprocessable_response(e), status: :unprocessable_entity
     end
