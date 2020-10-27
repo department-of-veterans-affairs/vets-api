@@ -25,7 +25,7 @@ module ClaimsApi
 
         render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
       else
-        render json: { status: 400, message: 'Pending claim not active' }.to_json, status: :bad_request
+        render json: { status: 404, message: 'Claim not found' }.to_json, status: :not_found
       end
     rescue => e
       render json: unprocessable_response(e), status: :unprocessable_entity
