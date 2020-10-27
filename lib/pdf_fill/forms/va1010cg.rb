@@ -491,11 +491,15 @@ module PdfFill
 
         merge_address_helpers
         merge_gender_helpers
-        merge_signature_helpers if options[:sign]
 
         merge_primary_caregiver_insurance_helper
         merge_veteran_last_treatment_facility_helper
         merge_planned_facility_label_helper
+
+        if options[:sign]
+          merge_signature_helpers
+          merge_certification_helpers
+        end
 
         @form_data
       end
@@ -535,6 +539,14 @@ module PdfFill
               'date' => timestamp
             }
           end
+        end
+      end
+
+      def merge_certification_helpers
+        subjects.each do |subject|
+          provided_certifications = @form_data.dig(subject, 'certifications')
+          certification_requirements = certification_requirements_for(subject)
+          meets_requirement = certification_requirements.include?(provided_certifications)
         end
       end
 
@@ -582,6 +594,63 @@ module PdfFill
 
       def generate_signiture_timestamp
         Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m/%d/%Y %l:%M%P %Z')
+      end
+
+      def certification_requirements_for(form_subject)
+        primary_caregiver_requirements = [
+          [
+            # Family Member of Veteran
+            'information-is-correct-and-true',
+            'at-least-18-years-of-age',
+            'member-of-veterans-family',
+            'agree-to-perform-services--as-primary',
+            'understand-revocable-status--as-primary',
+            'have-understanding-of-non-employment-relationship',
+          ],
+          [
+            # Non-Family Member of Veteran
+            'information-is-correct-and-true',
+            'at-least-18-years-of-age',
+            'not-member-of-veterans-family',
+            'currently-or-will-reside-with-veteran--as-primary',
+            'agree-to-perform-services--as-primary',
+            'understand-revocable-status--as-primary',
+            'have-understanding-of-non-employment-relationship',
+          ]
+        ]
+
+        secondary_caregiver_requirements = [
+          [
+            # Family Member of Veteran
+            'information-is-correct-and-true',
+            'at-least-18-years-of-age',
+            'member-of-veterans-family',
+            'agree-to-perform-services--as-secondary',
+            'understand-revocable-status--as-secondary',
+            'have-understanding-of-non-employment-relationship',
+          ],
+          [
+            # Non-Family Member of Veteran
+            'information-is-correct-and-true',
+            'at-least-18-years-of-age',
+            'not-member-of-veterans-family',
+            'currently-or-will-reside-with-veteran--as-secondary',
+            'agree-to-perform-services--as-secondary',
+            'understand-revocable-status--as-secondary',
+            'have-understanding-of-non-employment-relationship',
+          ]
+        ]
+
+        case form_subject
+        when 'veteran'
+          [['information-is-correct-and-true', 'consent-to-caregivers-to-perform-care']]
+        when 'primaryCaregiver'
+          primary_caregiver_requirements
+        when 'secondaryCaregiverOne'
+          secondary_caregiver_requirements
+        when 'secondaryCaregiverTwo'
+          secondary_caregiver_requirements
+        end
       end
     end
   end
