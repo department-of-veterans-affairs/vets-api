@@ -29,13 +29,10 @@ Rails.application.routes.draw do
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
-<<<<<<< HEAD
     resources :financial_status_report, only: :create
 
     resource :form526_opt_in, only: :create
-=======
     resources :education_career_counseling_claims, only: :create
->>>>>>> master
 
     resources :letters, only: [:index] do
       collection do
