@@ -80,6 +80,11 @@ module AppealsApi
         "F[0].#subform[2].VAFileNumber[0]": hlr.file_number,
         "F[0].#subform[2].VeteransServiceNumber[0]": hlr.service_number,
         "F[0].#subform[2].InsurancePolicyNumber[0]": hlr.insurance_policy_number,
+        "F[0].#subform[2].ClaimantType[0]": 'off',
+        "F[0].#subform[2].ClaimantType[1]": 'off',
+        "F[0].#subform[2].ClaimantType[2]": 'off',
+        "F[0].#subform[2].ClaimantType[3]": 'off',
+        "F[0].#subform[2].ClaimantType[4]": 1, # veteran. Note: Ordering of array doesn't seem to match form
         "F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]": HigherLevelReview::NO_ADDRESS_PROVIDED_SENTENCE,
         "F[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]": '',
         "F[0].#subform[2].CurrentMailingAddress_City[0]": '',
