@@ -30,8 +30,6 @@ Rails.application.routes.draw do
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
     resources :financial_status_report, only: :create
-
-    resource :form526_opt_in, only: :create
     resources :education_career_counseling_claims, only: :create
 
     resources :letters, only: [:index] do
