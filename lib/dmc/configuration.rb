@@ -10,11 +10,11 @@ module DMC
     end
 
     def service_name
-      'DMC'
+      'Debts'
     end
 
     def base_path
-      "#{Settings.dmc.url}/api/v1/debtletter/"
+      "#{Settings.dmc.url}/debt-letters/get"
     end
 
     def connection

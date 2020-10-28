@@ -67,7 +67,7 @@ dmc:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
   mock: true
-  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
+  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services"
 
 fsr:
   prefill: true

@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require_relative 'configuration'
-require_relative 'responses/get_debts_response'
-require_relative 'responses/financial_status_report_response'
+require 'dmc/configuration'
+require 'dmc/responses/get_debts_response'
 
 module DMC
   class DebtsService < Common::Client::Base
@@ -30,12 +29,6 @@ module DMC
 
     def veteran_has_dependent_debts?
       @debts.any? { |debt| debt['payeeNumber'] != '00' }
-    end
-
-    def submit_financial_status_report(form)
-      FinancialStatusReportResponse(
-        perform(:post, 'fsr', form, fileNumber: @file_number).body
-      )
     end
 
     private
