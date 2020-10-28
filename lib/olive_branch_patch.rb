@@ -12,7 +12,8 @@ module OliveBranchMiddlewareExtension
 
   # this regex matches the key and value of a json element, except it will only match the first
   #    character of an object or array to handle that differently
-  VA_KEY_VALUE_PAIR_REGEX = /"([^"]+VA[^"]*)":("[^"]*"|\d+|true|false|null|{|\[)/.freeze
+  VA_KEY_VALUE_PAIR_REGEX = /("[^"]+VA[^"]*"):("[^"]*"|\d+|true|false|null)/.freeze
+  VA_KEY_COLLECTION_REGEX = /("[^"]+VA[^"]*"):({|\[)/.freeze
 
   def call(env)
     result = super(env)
@@ -22,22 +23,20 @@ module OliveBranchMiddlewareExtension
         # do not process strings that aren't json (like pdf responses)
         next unless json.is_a?(String) && json.starts_with?('{')
 
-        keys_with_collections = []
         json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do |va_key_value|
           key, value = va_key_value.split(':')
-          if value.starts_with?(/{|\[/)
-            keys_with_collections << { key: key, opener: value.first, sort_index: json.index(key) }
-            va_key_value
-          else
-            "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
-          end
+          "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
+        end
+
+        keys_with_collections = []
+        json.scan(VA_KEY_COLLECTION_REGEX) do |key, opener|
+          keys_with_collections << { key: key, opener: opener, sort_index: json.index(key) }
         end
 
         keys_with_collections.sort { |info1, info2| info2[:sort_index] <=> info1[:sort_index] }.each do |info|
           key = info[:key]
-          key_index = json.index(key)
           new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info[:key], info[:opener])}, "
-          json.insert(key_index, new_key_and_value)
+          json.insert(json.index(key), new_key_and_value)
         end
       end
     end
