@@ -20,7 +20,7 @@ RSpec.describe BGS::Service do
 
       it 'retrieves a users dd eft info' do
         VCR.use_cassette('bgs/service/find_ch33_dd_eft_no_icn', VCR::MATCH_EVERYTHING) do
-          response = bgs_service.create_proc_form('21874', '130 - Automated Dependency 686c')
+          response = bgs_service.find_ch33_dd_eft
           expect(response.body[:find_ch33_dd_eft_response][:return][:dposit_acnt_nbr]).to eq('444')
         end
       end
@@ -58,7 +58,7 @@ RSpec.describe BGS::Service do
   describe '#create_proc_form' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc_form') do
-        response = bgs_service.create_proc_form('21874')
+        response = bgs_service.create_proc_form('21874', '130 - Automated Dependency 686c')
 
         expect(response).to have_key(:comp_id)
       end
