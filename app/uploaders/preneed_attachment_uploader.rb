@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PreneedAttachmentUploader < CarrierWave::Uploader::Base
-  include SetAwsConfig
+  include SetAWSConfig
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 
