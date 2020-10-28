@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dmc/debts_service'
+
 module DMC
   class DebtLetterDownloader
     DEBTS_DOCUMENT_TYPES = %w[

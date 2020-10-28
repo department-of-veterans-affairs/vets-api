@@ -6,16 +6,28 @@ FactoryBot.define do
 
     form {
       {
-        status: 'isVeteran',
-        claimant_phone_number: '5555555555',
-        claimant_email_address: 'cohnjesse@gmail.xom',
-        claimant_address: {
-          country_name: 'USA',
-          address_line1: '9417 Princess Palm',
-          city: 'Tampa',
-          state_code: 'FL',
-          zip_code: '33928'
-        }
+        claimantInformation: {
+          fullName: {
+            first: 'Dardan',
+            middle: 'Adam',
+            last: 'Testy',
+            suffix: 'Jr.',
+            ssn: '333224444'
+          },
+          dateOfBirth: '1964-12-26',
+          VAFileNumber: '22334455',
+          emailAddress: 'vet123@test.com',
+          phoneNumber: '8888675309'
+        },
+        claimantAddress: {
+          country: 'USA',
+          addressLine1: '123 Sunshine Blvd',
+          addressLine2: 'Apt 1',
+          city: 'Miami',
+          stateCode: 'FL',
+          postalCode: '33928-0808'
+        },
+        status: 'isVeteran'
       }.to_json
     }
   end

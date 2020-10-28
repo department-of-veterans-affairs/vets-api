@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/poa_verification'
-require_dependency 'claims_api/concerns/document_validations'
-require 'evss/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 
 module ClaimsApi
   module V1
@@ -80,7 +78,7 @@ module ClaimsApi
         private
 
         def current_poa
-          @current_poa ||= EVSS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def header_md5

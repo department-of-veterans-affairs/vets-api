@@ -12,7 +12,6 @@ saml:
   cert_path: config/certs/vetsgov-localhost.crt
   cert_new_path: config/certs/vetsgov-localhost_new.crt
   key_path: config/certs/vetsgov-localhost.key
-  key_new_path: ~
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
@@ -31,18 +30,23 @@ saml_ssoe:
   response_signing: false
   response_encryption: false
 
+ssoe_eauth_cookie:
+  name: vagov_saml_request_localhost
+  domain: localhost
+  secure: false
+
 session_cookie:
   secure: false
 
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
 sso:
-  cookie_enabled: true
-  cookie_signout_enabled: true
-  cookie_name: vagov_session_dev
-  cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
-  cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
-  cookie_secure: false
   cookie_domain: localhost
+  cookie_enabled: true
+  cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
+  cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
+  cookie_name: vagov_session_dev
+  cookie_secure: false
+  cookie_signout_enabled: true
 
 binaries:
   # you can specify a full path in settings.local.yml if necessary
@@ -63,19 +67,22 @@ dmc:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
   mock: true
-  url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465'
+  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
+
+fsr:
+  prefill: true
 
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
 
 salesforce-gibft:
-  url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
+  url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
 salesforce-carma:
-  url: 'https://fake-carma.salesforce.com'
+  url: "https://fake-carma.salesforce.com"
   consumer_key: 12345ABC.QQ_1234BBfake
-  signing_key_path: 'spec/fixtures/carma/privatekey.pem' # A dummy private key used for test suite
+  signing_key_path: "spec/fixtures/carma/privatekey.pem" # A dummy private key used for test suite
   username: fake-user@va.gov.carmafake
 
 salesforce:
@@ -96,13 +103,13 @@ dependents:
 pension_burial:
   prefill: true
   sftp:
-    relative_path: '../VETSGOV_PENSION'
+    relative_path: "../VETSGOV_PENSION"
 
 central_mail:
   upload:
     enabled: true
-    host: 'icmhs-api-test.csrarad.com'
-    token: '<PENSIONS_TOKEN>'
+    host: "icmhs-api-test.csrarad.com"
+    token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
 bip:
@@ -118,8 +125,8 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
-    hostname: 'sandbox-api.va.gov'
-    api_key: '<AV_KEY>'
+    hostname: "sandbox-api.va.gov"
+    api_key: "<AV_KEY>"
 
 # Settings for IHub
 ihub:
@@ -148,6 +155,9 @@ decision_review:
 modules_appeals_api:
   higher_level_review_updater_enabled: true
   schema_dir: config/schemas
+
+vre_counseling:
+  prefill: true
 
 # Settings for EVSS
 evss:
@@ -181,15 +191,15 @@ evss:
   pciu_address:
     timeout: 30
   mock_claims: false
-  mock_letters: false
+  mock_common_service: true
+  mock_disabilities_form: true
   mock_gi_bill_status: false
+  mock_itf: true
+  mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
-  mock_reference: false
-  mock_itf: true
-  mock_disabilities_form: true
-  mock_common_service: true
+  mock_reference: true
   mock_vso_search: false
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
@@ -198,7 +208,7 @@ evss:
     root_ca: ~
   reference_data_service:
     enabled: false
-  international_postal_codes: 'config/evss/international_postal_codes.json'
+  international_postal_codes: "config/evss/international_postal_codes.json"
 
 # Settings for GI Bill Data Service
 gids:
@@ -216,7 +226,7 @@ hca:
   endpoint: https://test-foo.vets.gov
   timeout: 30
   ee:
-    endpoint: 'http://example.com'
+    endpoint: "http://example.com"
     user: "HCASvcUsr"
     pass: "password"
 
@@ -242,8 +252,8 @@ ppms:
 # Settings for MyHealthEVet
 mhv:
   # include ranges first, then individual exceptions to the ranges last.
-  facility_range: [[358,718],[720,740],[742,758]]
-  facility_specific: [['741MM']] # 741 is excluded, but 741MM is included
+  facility_range: [[358, 718], [720, 740], [742, 758]]
+  facility_specific: [["741MM"]] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -322,6 +332,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+  timeout: 20
 
 vic:
   url: https://some.fakesite.com
@@ -407,7 +418,7 @@ sentry:
 iam_ssoe:
   client_cert_path: ~
   client_key_path: ~
-  client_id: 'Mobile_App_API_Server_LOWERS'
+  client_id: "Mobile_App_API_Server_LOWERS"
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
   sts_url: "https://preprod.services.eauth.va.gov:9301"
@@ -455,8 +466,6 @@ betamocks:
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
 
-google_analytics_tracking_id: ~
-
 # Settings for search
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
@@ -482,8 +491,6 @@ flipper:
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - jesse.cohn@adhocteam.us
-    - johnny@oddball.io
-    - johnpaul.ashenfelter@oddball.io
     - kabrown@thoughtworks.com
     - kam@adhocteam.us
     - keifer@oddball.io
@@ -491,7 +498,9 @@ flipper:
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
+    - jlinn@governmentcio.com
     - lauren.alexanderson@va.gov
+    - lihan@adhocteam.us
     - lindsey.hattamer@oddball.io
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
@@ -521,9 +530,11 @@ flipper:
     - zurbergram@gmail.com
     - tony.williams@va.gov
     - jennie.mcgibney@va.gov
+    - adewitt@thoughtworks.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
+    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
 
 bgs:
   application: ~
@@ -532,18 +543,19 @@ bgs:
   env: ~
   mock_response_location: ~
   mock_responses: ~
-  ssl_verify_mode: 'peer'
+  ssl_verify_mode: "peer"
 
 va_mobile:
-  url: 'https://veteran.apps.va.gov'
+  url: "https://veteran.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
   timeout: 15
 
 hqva_mobile:
-  url: 'https://veteran.apps.va.gov'
-  mock: false
-  key_path: /fake/client/key/path
+  url: "https://veteran.apps.va.gov"
+  mock: true
+  cert_path: config/certs/vetsgov-localhost.crt
+  key_path: config/certs/vetsgov-localhost.key
   timeout: 15
 
 lighthouse:
@@ -574,7 +586,8 @@ github_stats:
   token: fake_token
 
 google_analytics:
-  url: 'https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473'
+  url: "https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473"
+  tracking_id: ~
 
 # Settings for the coronavirus chatbot tokens
 coronavirus_chatbot:

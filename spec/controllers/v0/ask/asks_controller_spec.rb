@@ -22,7 +22,7 @@ RSpec.describe V0::Ask::AsksController, type: :controller do
 
       context 'enabled' do
         context 'when form is valid' do
-          it 'returns 200 OK' do
+          it 'returns 200 OK with confirmationNumber and dateSubmitted' do
             form_data = get_fixture('ask/minimal').to_json
             params = { inquiry: { form: form_data } }
             claim = build(:ask, form: form_data)
@@ -38,6 +38,8 @@ RSpec.describe V0::Ask::AsksController, type: :controller do
             post :create, params: params
 
             expect(response).to have_http_status(:ok)
+
+            expect(JSON.parse(response.body)).to include('confirmationNumber', 'dateSubmitted')
           end
         end
 

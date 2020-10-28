@@ -19,7 +19,8 @@ require 'evss/gi_bill_status/service'
 require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
 require 'facilities/bulk_configuration'
-require 'facilities/ppms/configuration'
+require 'facilities/ppms/v0/configuration'
+require 'facilities/ppms/v1/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
@@ -59,7 +60,8 @@ services = [
   Gibft::Configuration.instance.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
-  Facilities::PPMS::Configuration.instance.breakers_service,
+  Facilities::PPMS::V0::Configuration.instance.breakers_service,
+  Facilities::PPMS::V1::Configuration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,

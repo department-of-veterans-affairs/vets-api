@@ -64,7 +64,7 @@ module Form1010cg
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
     # @return [Boolean]
-    def submit_attachment # rubocop:disable Metrics/MethodLength
+    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity
       raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
       raise 'submission already has attachments'  if  submission.attachments.any?
 
@@ -96,11 +96,13 @@ module Form1010cg
         #
         # If we made it this far, there is a submission that exists in CARMA.
         # So the user should get a sucessful response, whether attachments reach CARMA or not.
-        File.delete(file_path)
+        File.delete(file_path) if File.exist?(file_path)
         return false
       end
 
-      File.delete(file_path)
+      # In some cases the file will not exist here even though it's generated above.
+      # Check to see the file exists before attempting to delete it, in order to avoid raising an error.
+      File.delete(file_path) if File.exist?(file_path)
       true
     end
 
@@ -154,7 +156,7 @@ module Form1010cg
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
-      response = mvi_service.find_profile(build_user_identity_for(form_subject_data))
+      response = mpi_service.find_profile(build_user_identity_for(form_subject_data))
 
       if response.status == 'OK'
         log_mpi_search_result form_subject, :found
@@ -193,8 +195,8 @@ module Form1010cg
 
     private
 
-    def mvi_service
-      @mvi_service ||= MVI::Service.new
+    def mpi_service
+      @mpi_service ||= MVI::Service.new
     end
 
     def carma_client

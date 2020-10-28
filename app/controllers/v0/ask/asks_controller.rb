@@ -12,7 +12,10 @@ module V0
 
         validate!(claim)
 
-        render json: { 'message': '200 ok' }
+        render json: {
+          'confirmationNumber': '0000-0000-0000',
+          'dateSubmitted': DateTime.now.utc.strftime('%m-%d-%Y')
+        }
       end
 
       private

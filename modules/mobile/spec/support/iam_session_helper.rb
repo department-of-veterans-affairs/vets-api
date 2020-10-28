@@ -7,6 +7,15 @@ module IAMSessionHelper
     DEFAULT_ACCESS_TOKEN
   end
 
+  def iam_headers(additional_headers = nil)
+    headers = {
+      'Authorization' => "Bearer #{access_token}",
+      'X-Key-Inflection' => 'camel'
+    }
+    headers.merge!(additional_headers) if additional_headers
+    headers
+  end
+
   def stub_iam_certs
     allow(IAMSSOeOAuth::Configuration.instance).to receive(:ssl_cert)
       .and_return(instance_double('OpenSSL::X509::Certificate'))
@@ -27,11 +36,13 @@ RSpec.configure do |config|
 
   config.before :each, type: :request do
     Flipper.enable('mobile_api')
+    Flipper.enable('va_online_scheduling')
     stub_iam_certs
   end
 
   config.before :each, type: :controller do
     Flipper.enable('mobile_api')
+    Flipper.enable('va_online_scheduling')
     stub_iam_certs
   end
 end
