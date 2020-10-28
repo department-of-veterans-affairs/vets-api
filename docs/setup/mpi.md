@@ -1,7 +1,7 @@
-## MVI Service
+## MPI Service
 
-The Master Veteran Index service retrieves and updates a veteran's 'golden
-record'. To configure `vets-api` for use with MVI, configure
+The Master Person Index (formerly Master Veteran Index, so mvi is used as a key for settings purposes) service retrieves and updates a veteran's 'golden
+record'. To configure `vets-api` for use with MPI, configure
 `config/settings.local.yml` with the settings given to you by devops or your
 team. For example,
 
