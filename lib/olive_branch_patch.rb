@@ -36,7 +36,7 @@ module OliveBranchMiddlewareExtension
         keys_with_collections.sort { |info1, info2| info2[:sort_index] <=> info1[:sort_index] }.each do |info|
           key = info[:key]
           key_index = json.index(key)
-          new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info)}, "
+          new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info[:key], info[:opener])}, "
           json.insert(key_index, new_key_and_value)
         end
       end
@@ -46,7 +46,7 @@ module OliveBranchMiddlewareExtension
 
   private
 
-  def capture_collection(json, key:, opener:, sort_index:)
+  def capture_collection(json, key, opener)
     closer = opener == '{' ? '}' : ']'
     index = json.index(key) + key.length
     object = json[index + 1]

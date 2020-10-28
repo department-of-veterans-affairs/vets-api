@@ -137,12 +137,16 @@ describe 'OliveBranchPatch', type: :request do
     json = JSON.parse(response.body)
     expect(json.keys).to include('someVADetails', 'someVaDetails', 'helloThere', 'helloToTheVA', 'helloToTheVa')
 
-    # expect(json['someVADetails']).to eq json['someVADetails']
-    expect(json['someVADetails'].keys).to include('yearVAFounded', 'yearVACloses', 'listsForVA', 'theVAAddress', 'weLoveTheVA', 'thumbsUpForTheVA', 'differentKey')
-    expect(json['someVaDetails'].keys).to include('yearVaFounded', 'yearVaCloses', 'listsForVa', 'theVaAddress', 'weLoveTheVa', 'thumbsUpForTheVa', 'differentKey')
-    # expect(json.dig('someVaDetails', 'yearVaCloses')).to eq json.dig('someVADetails', 'yearVACloses')
-    # expect(json.dig('someVaDetails', 'yearVaFounded')).to eq json.dig('someVADetails', 'yearVAFounded')
-    # expect(json.dig('someVaDetails', 'theVaAddress').reject_key('notes')).to eq json.dig('someVADetails', 'theVAAddress')
+    expect(json['someVADetails'].keys).to include(
+      'yearVAFounded', 'yearVACloses', 'listsForVA', 'theVAAddress', 'weLoveTheVA', 'thumbsUpForTheVA', 'differentKey'
+    )
+    expect(json['someVaDetails'].keys).to include(
+      'yearVaFounded', 'yearVaCloses', 'listsForVa', 'theVaAddress', 'weLoveTheVa', 'thumbsUpForTheVa', 'differentKey'
+    )
+
+    url_for_va = hash.dig(:some_va_details, 'the_va_address', 'notes', 'url_for_va')
+    expect(json.dig('someVADetails', 'theVAAddress', 'notes', 'urlForVA')).to eq url_for_va
+    expect(json.dig('someVaDetails', 'theVaAddress', 'notes', 'urlForVa')).to eq url_for_va
 
     expect(json['helloThere']).to eq hash[:hello_there]
 
