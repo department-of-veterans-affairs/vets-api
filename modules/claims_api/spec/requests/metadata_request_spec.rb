@@ -22,7 +22,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
       end
 
       it 'returns correct status when evss is not healthy' do
-        allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
+        allow(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(false)
@@ -30,18 +30,18 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
         expect(response.status).to eq(503)
       end
 
-      it 'returns correct status when mvi is not healthy' do
+      it 'returns correct status when mpi is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
-        allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(false)
+        allow(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(false)
         get '/services/claims/v0/healthcheck'
         expect(response.status).to eq(503)
       end
 
       it 'returns correct status when vbms is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
-        allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
+        allow(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(false)
         get '/services/claims/v0/healthcheck'
@@ -51,7 +51,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
       it 'returns correct status when bgs is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
-        allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
+        allow(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(false)
         get '/services/claims/v0/healthcheck'
         expect(response.status).to eq(503)
@@ -70,17 +70,17 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
       it 'returns correct status when evss is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
-        allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
+        allow(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(false)
         get '/services/claims/v1/healthcheck'
         expect(response.status).to eq(503)
       end
 
-      it 'returns correct status when mvi is not healthy' do
+      it 'returns correct status when mpi is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
-        allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(false)
+        allow(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(false)
         get '/services/claims/v1/healthcheck'
         expect(response.status).to eq(503)
       end
@@ -88,7 +88,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
       it 'returns correct status when vbms is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
-        allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
+        allow(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(false)
         get '/services/claims/v1/healthcheck'
         expect(response.status).to eq(503)
@@ -96,7 +96,7 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
 
       it 'returns correct status when bgs is not healthy' do
         allow(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
-        allow(ClaimsApi::HealthChecker).to receive(:mvi_is_healthy?).and_return(true)
+        allow(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
         allow(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(false)
         get '/services/claims/v1/healthcheck'

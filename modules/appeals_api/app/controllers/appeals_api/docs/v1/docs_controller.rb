@@ -5,6 +5,7 @@ class AppealsApi::Docs::V1::DocsController < ApplicationController
 
   SWAGGERED_CLASSES = [
     AppealsApi::V1::HigherLevelReviewsControllerSwagger,
+    AppealsApi::V1::NoticeOfDisagreementsControllerSwagger,
     AppealsApi::V1::SwaggerRoot
   ].freeze
 

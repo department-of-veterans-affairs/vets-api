@@ -143,7 +143,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     it 'supports adding an caregiver\'s assistance claim' do
-      VCR.use_cassette 'mvi/find_candidate/valid' do
+      VCR.use_cassette 'mpi/find_candidate/valid' do
         VCR.use_cassette 'emis/get_veteran_status/valid' do
           VCR.use_cassette 'carma/auth/token/200' do
             VCR.use_cassette 'carma/submissions/create/201' do
@@ -204,7 +204,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
 
       VCR.use_cassette(
-        'mvi/find_candidate/find_profile_with_attributes',
+        'mpi/find_candidate/find_profile_with_attributes',
         VCR::MATCH_EVERYTHING
       ) do
         expect(subject).to validate(
@@ -319,6 +319,43 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           }
         }
       )
+    end
+
+    describe 'preneed attachments upload' do
+      it 'supports uploading a file' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          200,
+          '_data' => {
+            'preneed_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/preneeds/extras.pdf', 'application/pdf')
+            }
+          }
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          400,
+          ''
+        )
+      end
+
+      it 'returns 422 if the attachment is not an allowed type' do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/preneed_attachments',
+          422,
+          '_data' => {
+            'preneed_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
+            }
+          }
+        )
+      end
     end
 
     context 'debts tests' do
@@ -443,9 +480,20 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           200,
           '_data' => {
             'hca_attachment' => {
-              file_data: Rack::Test::UploadedFile.new(
-                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
-              )
+              file_data: fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+            }
+          }
+        )
+      end
+
+      it 'returns 422 if the attachment is not an allowed type' do
+        expect(subject).to validate(
+          :post,
+          '/v0/hca_attachments',
+          422,
+          '_data' => {
+            'hca_attachment' => {
+              file_data: fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
             }
           }
         )
@@ -713,8 +761,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:post, '/v0/mvi_users/{id}', 403, headers.merge('id' => '12-1234'))
         end
         it 'when correct form id is passed, it supports creating mvi user' do
-          VCR.use_cassette('mvi/add_person/add_person_success') do
-            VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
+          VCR.use_cassette('mpi/add_person/add_person_success') do
+            VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
               expect(subject).to validate(:post, '/v0/mvi_users/{id}', 200, headers.merge('id' => '21-0966'))
             end
           end
@@ -778,7 +826,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'returns a 400 if no attachment data is given' do
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 400, '')
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          400,
+          ''
+        )
+      end
+
+      it 'returns a 422 if a file is corrupted or invalid' do
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          422,
+          '_data' => {
+            'supporting_evidence_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+            }
+          }
+        )
       end
     end
 
@@ -1593,8 +1659,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports getting the services list' do
-          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_1407842941')
+          VCR.use_cassette('facilities/ppms/ppms_specialties', match_requests_on: %i[path query]) do
+            expect(subject).to validate(:get, '/v0/facilities/services', 200)
           end
         end
       end
@@ -1922,7 +1988,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports getting personal information data' do
         expect(subject).to validate(:get, '/v0/profile/personal_information', 401)
-        VCR.use_cassette('mvi/find_candidate/valid') do
+        VCR.use_cassette('mpi/find_candidate/valid') do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 200, headers)
         end
       end
@@ -2071,6 +2137,42 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      context 'ch33 bank accounts methods' do
+        let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
+
+        it 'supports the update ch33 bank account api' do
+          expect(subject).to validate(:put, '/v0/profile/ch33_bank_accounts', 401)
+
+          VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :put,
+              '/v0/profile/ch33_bank_accounts',
+              200,
+              headers.merge(
+                '_data' => {
+                  account_type: 'Checking',
+                  account_number: '444',
+                  financial_institution_routing_number: '122239982'
+                }
+              )
+            )
+          end
+        end
+
+        it 'supports the get ch33 bank account api' do
+          expect(subject).to validate(:get, '/v0/profile/ch33_bank_accounts', 401)
+
+          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :get,
+              '/v0/profile/ch33_bank_accounts',
+              200,
+              headers
+            )
+          end
+        end
+      end
+
       it 'supports the address validation api' do
         expect(subject).to validate(:post, '/v0/profile/address_validation', 401)
 
@@ -2200,7 +2302,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'profile/status' do
       before do
         # vet360_id appears in the API request URI so we need it to match the cassette
-        allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
+        allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
           MVI::Responses::FindProfileResponse.new(
             status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
             profile: build(:mvi_profile, vet360_id: '1')
@@ -2342,7 +2444,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         allow_any_instance_of(MVI::Models::MviProfile).to receive(:gender).and_return(nil)
         allow_any_instance_of(MVI::Models::MviProfile).to receive(:birth_date).and_return(nil)
 
-        VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
+        VCR.use_cassette('mpi/find_candidate/missing_birthday_and_gender') do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 502, headers)
         end
       end
@@ -2709,6 +2811,36 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'education career counseling claims' do
+      it 'supports adding a career counseling claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/education_career_counseling_claims',
+          200,
+          headers.merge(
+            '_data' => {
+              'education_career_counseling_claim' => {
+                form: build(:education_career_counseling_claim).form
+              }
+            }
+          )
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/education_career_counseling_claims',
+          422,
+          headers.merge(
+            '_data' => {
+              'education_career_counseling_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
+    end
+
     describe 'va file number' do
       it 'supports checking if a user has a veteran number' do
         expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 401)
@@ -2722,6 +2854,35 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       expect(subject).to validate(:get, '/v0/profile/payment_history', 401)
       VCR.use_cassette('bgs/payment_history/retrieve_payment_summary_with_bdn') do
         expect(subject).to validate(:get, '/v0/profile/payment_history', 200, headers)
+      end
+    end
+
+    describe 'claim status tool' do
+      let!(:claim) do
+        FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
+                                       user_uuid: mhv_user.uuid, data: {})
+      end
+
+      it 'uploads a document to support a claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/evss_claims/{evss_claim_id}/documents',
+          202,
+          headers.merge('_data' => { file: fixture_file_upload('/files/doctors-note.pdf', 'application/pdf'),
+                                     tracked_item_id: 33,
+                                     document_type: 'L023' }, 'evss_claim_id' => 189_625)
+        )
+      end
+      it 'rejects a malformed document' do
+        expect(subject).to validate(
+          :post,
+          '/v0/evss_claims/{evss_claim_id}/documents',
+          422,
+          headers.merge('_data' => { file: fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf',
+                                                               'application/pdf'),
+                                     tracked_item_id: 33,
+                                     document_type: 'L023' }, 'evss_claim_id' => 189_625)
+        )
       end
     end
   end

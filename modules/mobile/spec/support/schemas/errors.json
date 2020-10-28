@@ -20,7 +20,7 @@
             "type": "string"
           },
           "detail": {
-            "type": "string"
+            "type": ["string", "object"]
           },
           "source": {
             "type": ["string", "object"]

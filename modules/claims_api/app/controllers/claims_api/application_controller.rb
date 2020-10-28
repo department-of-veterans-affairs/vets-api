@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/mvi_verification'
-require_dependency 'claims_api/concerns/header_validation'
-require_dependency 'claims_api/concerns/json_format_validation'
 require 'evss/error_middleware'
-require 'evss/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
-    include ClaimsApi::MviVerification
+    include ClaimsApi::MPIVerification
     include ClaimsApi::HeaderValidation
     include ClaimsApi::JsonFormatValidation
 
@@ -22,7 +19,10 @@ module ClaimsApi
       else
         fetch_or_error_local_claim_id
       end
-    rescue EVSS::ErrorMiddleware::EVSSError
+    rescue => e
+      log_message_to_sentry('Error in claims show',
+                            :warning,
+                            body: e.message)
       render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
              status: :not_found
     end
@@ -111,7 +111,7 @@ module ClaimsApi
     end
 
     def verify_power_of_attorney
-      verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+      verifier = BGS::PowerOfAttorneyVerifier.new(target_veteran)
       verifier.verify(@current_user)
     end
 
@@ -127,14 +127,12 @@ module ClaimsApi
       vet.loa = if @current_user
                   @current_user.loa
                 else
-                  vet.loa = {
-                    current: header('X-VA-LOA').try(:to_i),
-                    highest: header('X-VA-LOA').try(:to_i)
-                  }
+                  { current: header('X-VA-LOA').try(:to_i), highest: header('X-VA-LOA').try(:to_i) }
                 end
-      vet.mvi_record?
-      vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender
-      vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
+      vet.mpi_record?
+      vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
+      vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
+      vet.participant_id = header('X-VA-PID') || vet.mpi.profile&.participant_id
       vet
     end
   end

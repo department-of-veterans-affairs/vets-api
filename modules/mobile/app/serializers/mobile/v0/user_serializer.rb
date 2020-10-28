@@ -22,6 +22,15 @@ module Mobile
         zip_code_suffix
       ].freeze
 
+      PHONE_KEYS = %i[
+        id
+        area_code
+        country_code
+        extension
+        phone_number
+        phone_type
+      ].freeze
+
       SERVICE_DICTIONARY = {
         appeals: :appeals,
         appointments: :vaos,
@@ -32,8 +41,8 @@ module Mobile
         userProfileUpdate: :vet360
       }.freeze
 
-      def self.filter_address(address)
-        address&.to_h&.slice(*ADDRESS_KEYS)
+      def self.filter_keys(value, keys)
+        value&.to_h&.slice(*keys)
       end
 
       attribute :profile do |user|
@@ -42,8 +51,14 @@ module Mobile
           middle_name: user.middle_name,
           last_name: user.last_name,
           email: user.email,
-          residential_address: filter_address(user.vet360_contact_info&.residential_address),
-          mailing_address: filter_address(user.vet360_contact_info&.mailing_address)
+          birth_date: user.birth_date.nil? ? nil : Date.parse(user.birth_date).iso8601,
+          gender: user.gender,
+          residential_address: filter_keys(user.vet360_contact_info&.residential_address, ADDRESS_KEYS),
+          mailing_address: filter_keys(user.vet360_contact_info&.mailing_address, ADDRESS_KEYS),
+          home_phone_number: filter_keys(user.vet360_contact_info&.home_phone, PHONE_KEYS),
+          mobile_phone_number: filter_keys(user.vet360_contact_info&.work_phone, PHONE_KEYS),
+          work_phone_number: filter_keys(user.vet360_contact_info&.mobile_phone, PHONE_KEYS),
+          fax_number: filter_keys(user.vet360_contact_info&.fax_number, PHONE_KEYS)
         }
       end
 

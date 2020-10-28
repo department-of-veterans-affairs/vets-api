@@ -81,6 +81,10 @@ module V0
         key :description, 'In-progress form operations'
       end
       tag do
+        key :name, 'claim_status_tool'
+        key :description, 'Claim Status Tool'
+      end
+      tag do
         key :name, 'site'
         key :description, 'Site service availability and feedback'
       end
@@ -121,6 +125,7 @@ module V0
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
+      Swagger::Requests::ClaimStatus,
       Swagger::Requests::DebtLetters,
       Swagger::Requests::DependentsApplications,
       Swagger::Requests::DisabilityCompensationForm,
@@ -160,6 +165,7 @@ module V0
       Swagger::Requests::VAFacilities,
       Swagger::Requests::CCProviders,
       Swagger::Requests::CaregiversAssistanceClaims,
+      Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,

@@ -12,7 +12,6 @@ saml:
   cert_path: config/certs/vetsgov-localhost.crt
   cert_new_path: config/certs/vetsgov-localhost_new.crt
   key_path: config/certs/vetsgov-localhost.key
-  key_new_path: ~
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
@@ -192,15 +191,15 @@ evss:
   pciu_address:
     timeout: 30
   mock_claims: false
-  mock_letters: false
+  mock_common_service: true
+  mock_disabilities_form: true
   mock_gi_bill_status: false
+  mock_itf: true
+  mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
-  mock_reference: false
-  mock_itf: true
-  mock_disabilities_form: true
-  mock_common_service: true
+  mock_reference: true
   mock_vso_search: false
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
@@ -492,8 +491,6 @@ flipper:
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - jesse.cohn@adhocteam.us
-    - johnny@oddball.io
-    - johnpaul.ashenfelter@oddball.io
     - kabrown@thoughtworks.com
     - kam@adhocteam.us
     - keifer@oddball.io
@@ -503,6 +500,7 @@ flipper:
     - kmircovich@governmentcio.com
     - jlinn@governmentcio.com
     - lauren.alexanderson@va.gov
+    - lihan@adhocteam.us
     - lindsey.hattamer@oddball.io
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
@@ -532,9 +530,11 @@ flipper:
     - zurbergram@gmail.com
     - tony.williams@va.gov
     - jennie.mcgibney@va.gov
+    - adewitt@thoughtworks.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
+    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
 
 bgs:
   application: ~
@@ -553,8 +553,9 @@ va_mobile:
 
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
-  mock: false
-  key_path: /fake/client/key/path
+  mock: true
+  cert_path: config/certs/vetsgov-localhost.crt
+  key_path: config/certs/vetsgov-localhost.key
   timeout: 15
 
 lighthouse:

@@ -34,9 +34,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 40d00689d0845c2eb72819f3c0df04869564c980
+  revision: c7883a1a05b5812e0fdfb5c07aef868713a7b4a4
   specs:
-    bgs_ext (0.14.9)
+    bgs_ext (0.15.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -57,10 +57,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: e4287e82d188337ff833a68d2c6832c71481342a
+  revision: fe2dc390373cd59f7a3e519425a7dabb941840a8
   branch: master
   specs:
-    vets_json_schema (16.0.0)
+    vets_json_schema (17.0.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -240,7 +240,7 @@ GEM
     benchmark-ips (2.8.2)
     bindex (0.8.1)
     brakeman (4.9.0)
-    breakers (0.3.0)
+    breakers (0.4.0)
       faraday (>= 0.7.4, < 0.18)
       multi_json (~> 1.0)
     builder (3.2.4)
@@ -272,7 +272,6 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     colored2 (3.1.2)
-    colorize (0.8.1)
     combine_pdf (1.0.16)
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.1.7)
@@ -524,8 +523,6 @@ GEM
       rails (>= 4.0)
     open4 (1.3.4)
     operating_hours (0.1.0)
-    origami (2.1.0)
-      colorize (~> 0.7)
     overcommit (0.53.0)
       childprocess (>= 0.6.3, < 4)
       iniparse (~> 1.4)
@@ -918,7 +915,6 @@ DEPENDENCIES
   olive_branch
   openid_auth!
   operating_hours
-  origami
   overcommit
   ox
   pact

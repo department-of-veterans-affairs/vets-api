@@ -2,11 +2,12 @@
 
 # Files uploaded as part of a form526 submission that will be sent to EVSS upon form submission.
 class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
-  include ValidateFileSize
   include SetAwsConfig
   include ValidatePdf
 
-  MAX_FILE_SIZE = 50.megabytes
+  def size_range
+    1.byte...50.megabytes
+  end
 
   def initialize(guid)
     super
