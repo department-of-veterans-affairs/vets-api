@@ -10,8 +10,9 @@ module OliveBranchMiddlewareExtension
   #   the value part optionally captures quotes around the value, but captures
   #   anything not a quote, comma, or closing brace so that numbers and booleans are captured
 
-  # TODO: this regex is not catching "year_va_founded" and "lists_for_va" in the complicated example
-  VA_KEY_VALUE_PAIR_REGEX = /"([^"]+VA[^"]*)":"?([^("|,|\})]*)"?/.freeze
+  # this regex matches the key and value of a json element, except it will only match the first
+  #    character of an object or array to handle that differently
+  VA_KEY_VALUE_PAIR_REGEX = /"([^"]+VA[^"]*)":("[^"]*"|\d+|true|false|null|{|\[)/.freeze
 
   def call(env)
     result = super(env)
