@@ -19,7 +19,7 @@ module DMC
     def initialize(user)
       @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env)
-      @service = dmc_service
+      @service = debts_service
       verify_no_dependent_debts
     end
 
@@ -58,8 +58,8 @@ module DMC
       )
     end
 
-    def dmc_service
-      DMC::Service.new(@user)
+    def debts_service
+      DMC::DebtsService.new(@user)
     end
 
     def verify_no_dependent_debts
