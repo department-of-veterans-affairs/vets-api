@@ -34,7 +34,12 @@ RSpec.describe BGS::VnpVeteran do
     context 'married veteran' do
       it 'returns a VnpPersonAddressPhone object' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user_object).create
+          vnp_veteran = BGS::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload,
+            user: user_object,
+            claim_type: '130DPNEBNADJ'
+          ).create
 
           expect(vnp_veteran).to eq(
             vnp_participant_id: '151031',
@@ -105,7 +110,12 @@ RSpec.describe BGS::VnpVeteran do
           .with(a_hash_including(expected_address))
           .and_call_original
 
-        BGS::VnpVeteran.new(proc_id: '12345', payload: all_flows_payload, user: user_object).create
+        BGS::VnpVeteran.new(
+          proc_id: '12345',
+          payload: all_flows_payload,
+          user: user_object,
+          claim_type: '130DPNEBNADJ'
+        ).create
       end
     end
   end
