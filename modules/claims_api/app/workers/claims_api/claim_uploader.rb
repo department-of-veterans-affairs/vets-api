@@ -10,14 +10,18 @@ module ClaimsApi
     sidekiq_options 'retry': true, unique_until: :success
 
     def perform(uuid)
-      document = ClaimsApi::SupportingDocument.find_by(id: uuid) || ClaimsApi::AutoEstablishedClaim.pending?(uuid)
-      auto_claim = document.try(:auto_established_claim) || document
-      auth_headers = auto_claim.auth_headers
-      uploader = document.uploader
-      uploader.retrieve_from_store!(document.file_data['filename'])
-      file_body = uploader.read
-      service(auth_headers).upload(file_body, document)
-      uploader.remove!
+      object = ClaimsApi::SupportingDocument.find_by(id: uuid) || ClaimsApi::AutoEstablishedClaim.find_by(id: uuid)
+      auto_claim = object.try(:auto_established_claim) || object
+      if auto_claim.evss_id.nil?
+        # TODO: need to retry again exponentially
+      else
+        auth_headers = auto_claim.auth_headers
+        uploader = object.uploader
+        uploader.retrieve_from_store!(object.file_data['filename'])
+        file_body = uploader.read
+        service(auth_headers).upload(file_body, object)
+        uploader.remove!
+      end
     end
 
     private
