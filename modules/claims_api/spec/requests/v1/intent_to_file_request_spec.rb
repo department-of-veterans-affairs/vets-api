@@ -19,7 +19,6 @@ RSpec.describe 'Intent to file', type: :request do
   let(:extra) do
     { type: 'compensation',
       participant_claimant_id: 123_456_789,
-      participant_vet_id: 987_654_321,
       received_date: '2015-01-05T17:42:12.058Z' }
   end
   let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '0966.json')) }
