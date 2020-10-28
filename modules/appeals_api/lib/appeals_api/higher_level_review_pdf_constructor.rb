@@ -92,8 +92,9 @@ module AppealsApi
         "F[0].#subform[2].CurrentMailingAddress_Country[0]": '',
         "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": '',
         "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": '',
-        "F[0].#subform[2].TELEPHONE[0]": hlr.veteran_phone_number,
-        "F[0].#subform[2].EMAIL[0]": hlr.email,
+        "F[0].#subform[2].TELEPHONE[0]": hlr.veteran_phone_number.presence ||
+                                         HigherLevelReview::NO_PHONE_PROVIDED_SENTENCE,
+        "F[0].#subform[2].EMAIL[0]": hlr.email.presence || HigherLevelReview::NO_EMAIL_PROVIDED_SENTENCE,
         "F[0].#subform[2].BenefitType[0]": hlr.benefit_type == 'nca' ? 9 : 'Off',
         "F[0].#subform[2].BenefitType[1]": hlr.benefit_type == 'vha' ? 6 : 'Off',
         "F[0].#subform[2].BenefitType[2]": hlr.benefit_type == 'education' ? 5 : 'Off',
