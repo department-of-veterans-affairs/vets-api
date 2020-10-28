@@ -13,8 +13,8 @@ module V0
 
       dependent_service.submit_686c_form(claim)
 
-      # Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      # clear_saved_form(claim.form_id)
+      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      clear_saved_form(claim.form_id)
 
       render(json: claim)
     end
