@@ -173,4 +173,17 @@ RSpec.describe BGS::Service do
       end
     end
   end
+
+  describe '#find_regional_offices' do
+    it 'returns a list of regional offices' do
+      VCR.use_cassette('bgs/service/find_regional_offices') do
+        response = bgs_service.find_regional_offices
+
+        expect(response).to be_an_instance_of(Array)
+        # don't want to use an exact match here
+        # in case regional offices get closed or added
+        expect(response.size).to be > 1
+      end
+    end
+  end
 end
