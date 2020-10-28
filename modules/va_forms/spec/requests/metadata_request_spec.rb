@@ -90,17 +90,6 @@ RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
       it 'returns correct status when cms is not healthy' do
         unhealthy_checks(path)
       end
-
-      context 'v1' do
-        path = '/services/va_forms/v1/upstream_healthcheck'
-        it 'returns correct response and status when healthy' do
-          healthy_checks(path)
-        end
-
-        it 'returns correct status when central_mail is not healthy' do
-          unhealthy_checks(path)
-        end
-      end
     end
   end
 end
