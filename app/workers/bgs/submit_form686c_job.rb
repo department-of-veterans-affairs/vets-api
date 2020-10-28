@@ -29,7 +29,7 @@ module BGS
 
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
-      formatted_686_data(vet_info)
+      claim.formatted_686_data(vet_info)
     end
   end
 end
