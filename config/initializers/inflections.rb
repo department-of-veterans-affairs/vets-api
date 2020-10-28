@@ -22,6 +22,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'NCA' # National Cemetery Administration
   inflect.acronym 'OAuth'
   inflect.acronym 'PagerDuty'
+  inflect.acronym 'PDF'
   inflect.acronym 'PPIU'
   inflect.acronym 'PPMS'
   inflect.acronym 'PSSG'
@@ -32,6 +33,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SSO'
   inflect.acronym 'VAOS'
   inflect.acronym 'VBA'
+  inflect.acronym 'VBMS'
   inflect.acronym 'VC'
   inflect.acronym 'VA'
   inflect.acronym 'VHA'
