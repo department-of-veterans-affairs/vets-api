@@ -257,6 +257,9 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  - :method: :get
+    :path: "/wss-referencedata-services-web/rest/referencedata/v1/intakesites"
+    :file_path: "evss/reference_data/intakesites"
 
   # Letters
   - :method: :get
@@ -551,3 +554,11 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'email_address":"(.*?)"'
+
+#MAP_APPOINTMENT_SERVICE
+- :name: "MAP_APPOINTMENT_SERVICE"
+  :base_uri: <%= "#{URI(Settings.hqva_mobile.url).host}" %>
+  :endpoints:
+  - :method: :get
+    :path: "/appointments/v1/patients/*/appointments/*"
+    :file_path: "hqva_mobile/appointments/default"
