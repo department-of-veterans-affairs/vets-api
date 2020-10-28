@@ -6,15 +6,6 @@
 # This is a deprecation path and should be removed once consumers have adopted the inflection
 
 module OliveBranchMiddlewareExtension
-  # this regex captures keys with capital VA in the middle and the value.
-  #   the value part optionally captures quotes around the value, but captures
-  #   anything not a quote, comma, or closing brace so that numbers and booleans are captured
-
-  # this regex matches the key and value of a json element, except it will only match the first
-  #    character of an object or array to handle that differently
-  VA_KEY_VALUE_PAIR_REGEX = /("[^"]+VA[^"]*"):("[^"]*"|\d+|true|false|null)/.freeze
-  VA_KEY_COLLECTION_REGEX = /("[^"]+VA[^"]*"):({|\[)/.freeze
-
   def call(env)
     result = super(env)
     _status, _headers, response = result
@@ -23,27 +14,39 @@ module OliveBranchMiddlewareExtension
         # do not process strings that aren't json (like pdf responses)
         next unless json.is_a?(String) && json.starts_with?('{')
 
-        json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do |va_key_value|
-          key, value = va_key_value.split(':')
-          "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
-        end
-
-        keys_with_collections = []
-        json.scan(VA_KEY_COLLECTION_REGEX) do |key, opener|
-          keys_with_collections << { key: key, opener: opener, sort_index: json.index(key) }
-        end
-
-        keys_with_collections.sort { |info1, info2| info2[:sort_index] <=> info1[:sort_index] }.each do |info|
-          key = info[:key]
-          new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info[:key], info[:opener])}, "
-          json.insert(json.index(key), new_key_and_value)
-        end
+        duplicate_basic_va_keys!(json)
+        duplicate_collection_va_keys!(json)
       end
     end
     result
   end
 
   private
+
+  VA_KEY_VALUE_PAIR_REGEX = /("[^"]+VA[^"]*"):("[^"]*"|\d+|true|false|null)/.freeze
+
+  def duplicate_basic_va_keys!(json)
+    json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do |va_key_value|
+      key, value = va_key_value.split(':')
+      "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
+    end
+  end
+
+  VA_KEY_COLLECTION_REGEX = /("[^"]+VA[^"]*"):({|\[)/.freeze
+
+  def duplicate_collection_va_keys!(json)
+    keys_with_collections = []
+    json.scan(VA_KEY_COLLECTION_REGEX) do |key, opener|
+      keys_with_collections << { key: key, opener: opener, sort_index: json.index(key) }
+    end
+
+    # replace them last to first, so that encapsulated collections will be duped
+    keys_with_collections.sort { |info1, info2| info2[:sort_index] <=> info1[:sort_index] }.each do |info|
+      key = info[:key]
+      new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info[:key], info[:opener])}, "
+      json.insert(json.index(key), new_key_and_value)
+    end
+  end
 
   def capture_collection(json, key, opener)
     closer = opener == '{' ? '}' : ']'
