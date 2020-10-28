@@ -11,7 +11,7 @@ module OliveBranchMiddlewareExtension
   #   anything not a quote, comma, or closing brace so that numbers and booleans are captured
 
   # TODO: this regex is not catching "year_va_founded" and "lists_for_va" in the complicated example
-  VA_KEY_VALUE_PAIR_REGEX = /\"([^"]+VA[^"]*)\":\"?([^("|,|\})]*)\"?/.freeze
+  VA_KEY_VALUE_PAIR_REGEX = /"([^"]+VA[^"]*)":"?([^("|,|\})]*)"?/.freeze
 
   def call(env)
     result = super(env)
