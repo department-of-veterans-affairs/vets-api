@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 module Debts
-  class FinancialStatusReportResponse
+  class FSRResponse
     def initialize(res)
     end
-
-    
   end
 end
