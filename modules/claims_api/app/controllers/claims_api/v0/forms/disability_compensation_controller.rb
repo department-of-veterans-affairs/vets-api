@@ -47,12 +47,6 @@ module ClaimsApi
         def validate_form_526
           super
         end
-
-        private
-
-        def source_name
-          request.headers['X-Consumer-Username']
-        end
       end
     end
   end

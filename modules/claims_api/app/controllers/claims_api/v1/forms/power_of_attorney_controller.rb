@@ -96,11 +96,6 @@ module ClaimsApi
           }
         end
 
-        def source_name
-          user = header_request? ? @current_user : target_veteran
-          "#{user.first_name} #{user.last_name}"
-        end
-
         def find_poa_by_id
           @power_of_attorney = ClaimsApi::PowerOfAttorney.find_by id: params[:id]
           render_poa_not_found unless @power_of_attorney

@@ -52,11 +52,6 @@ module ClaimsApi
 
         private
 
-        def source_name
-          user = header_request? ? @current_user : target_veteran
-          "#{user.first_name} #{user.last_name}"
-        end
-
         def validate_initial_claim
           if claims_service.claims_count.zero? && form_attributes['autoCestPDFGenerationDisabled'] == false
             error = {
