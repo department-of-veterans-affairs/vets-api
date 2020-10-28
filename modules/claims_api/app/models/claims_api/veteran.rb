@@ -75,23 +75,18 @@ module ClaimsApi
     end
 
     def self.from_identity(identity:)
-      identity_hash = {
+      new(
         uuid: identity.uuid,
         first_name: identity.first_name,
         last_name: identity.last_name,
         last_signed_in: Time.now.utc,
         loa: identity.loa,
-        gender: identity.gender
-      }
-
-      unless identity.mpi.response.nil?
-        identity_hash.merge(ssn: identity.ssn,
-                            va_profile: OpenStruct.new(birth_date: identity.birth_date),
-                            edipi: identity&.edipi,
-                            participant_id: identity&.participant_id)
-      end
-
-      new(identity_hash)
+        gender: identity.gender,
+        ssn: identity.ssn,
+        va_profile: OpenStruct.new(birth_date: identity.birth_date),
+        edipi: identity&.edipi,
+        participant_id: identity&.participant_id
+      )
     end
 
     def self.build_profile(birth_date)
