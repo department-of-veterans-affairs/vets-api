@@ -3,13 +3,6 @@
 module HealthQuest
   module V0
     class AppointmentsController < HealthQuest::V0::BaseController
-      before_action :valid_params_present?, only: :index
-
-      def index
-        res = serializer.new(appointments[:data], meta: appointments[:meta])
-        render json: res
-      end
-
       def show
         apt = appointment_by_id
 
