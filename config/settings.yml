@@ -557,10 +557,9 @@ va_mobile:
   timeout: 15
 
 hqva_mobile:
-  url: "https://veteran.apps.va.gov"
-  mock: true
-  cert_path: config/certs/vetsgov-localhost.crt
-  key_path: config/certs/vetsgov-localhost.key
+  url: "https://vagovtest.mapsandbox.net"
+  mock: false
+  key_path: spec/fixtures/carma/privatekey.pem
   timeout: 15
 
 lighthouse:
