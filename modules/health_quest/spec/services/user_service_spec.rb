@@ -55,14 +55,14 @@ describe HealthQuest::UserService do
 
       context 'with a 200 response' do
         it 'returns the session token' do
-          VCR.use_cassette('health_quest/users/post_session') do
+          VCR.use_cassette('health_quest/users/post_session_playground') do
             session_token = subject.session(user)
             expect(session_token).to be_a(String)
           end
         end
 
         it 'makes a call out to the the health_quest user service once' do
-          VCR.use_cassette('health_quest/users/post_session') do
+          VCR.use_cassette('health_quest/users/post_session_playground') do
             # rubocop:disable RSpec/SubjectStub
             expect(subject).to receive(:perform).once.and_return(response)
             # rubocop:enable RSpec/SubjectStub
@@ -71,7 +71,7 @@ describe HealthQuest::UserService do
         end
 
         it 'sets the cached token ttl to expire five seconds before the VAMF token expires' do
-          VCR.use_cassette('health_quest/users/post_session') do
+          VCR.use_cassette('health_quest/users/post_session_playground') do
             subject.session(user)
             expect(Redis.current.ttl("va-mobile-session:#{user.account_uuid}")).to eq(895)
           end
@@ -80,7 +80,7 @@ describe HealthQuest::UserService do
 
       context 'with a 400 response' do
         it 'raises a client error' do
-          VCR.use_cassette('health_quest/users/post_session_400') do
+          VCR.use_cassette('health_quest/users/post_session_400_playground') do
             expect { subject.session(user) }.to raise_error(
               Common::Exceptions::BackendServiceException
             )
@@ -90,7 +90,7 @@ describe HealthQuest::UserService do
 
       context 'with a 403 response' do
         it 'raises a client error' do
-          VCR.use_cassette('health_quest/users/post_session_403') do
+          VCR.use_cassette('health_quest/users/post_session_403_playground') do
             expect { subject.session(user) }.to raise_error(
               Common::Exceptions::BackendServiceException
             )
@@ -100,7 +100,7 @@ describe HealthQuest::UserService do
 
       context 'with a blank response' do
         it 'raises a client error' do
-          VCR.use_cassette('health_quest/users/post_session_blank_body') do
+          VCR.use_cassette('health_quest/users/post_session_blank_body_playground') do
             expect { subject.session(user) }.to raise_error(
               Common::Exceptions::BackendServiceException
             )
@@ -111,7 +111,7 @@ describe HealthQuest::UserService do
 
     describe '#extend_session' do
       before do
-        VCR.use_cassette('health_quest/users/post_session') do
+        VCR.use_cassette('health_quest/users/post_session_playground') do
           subject.session(user)
         end
       end
@@ -121,7 +121,7 @@ describe HealthQuest::UserService do
   describe '#update_session_token' do
     context 'with a cached token' do
       before do
-        VCR.use_cassette('health_quest/users/post_session') do
+        VCR.use_cassette('health_quest/users/post_session_playground') do
           subject.session(user)
         end
       end

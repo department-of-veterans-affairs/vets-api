@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/users/v2/session/jwts
+      uri: https://vagovtest.mapsandbox.net/users/v2/session/jwts
       body:
         encoding: US-ASCII
         string: ''
