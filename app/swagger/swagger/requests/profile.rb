@@ -7,6 +7,95 @@ module Swagger
     class Profile
       include Swagger::Blocks
 
+      swagger_path '/v0/profile/ch33_bank_accounts' do
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates chapter 33 direct deposit bank info'
+          key :operationId, 'updateCh33BankAccount'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          key :produces, ['application/json']
+          key :consumes, ['application/json']
+
+          parameter do
+            key :name, :bank_account
+            key :in, :body
+            key :description, 'Bank account details'
+            key :required, true
+
+            schema do
+              key :type, :object
+              key :required, %i[account_type account_number financial_institution_routing_number]
+
+              property :account_type, type: :string, enum: %w[Checking Savings]
+              property :account_number, type: :string
+              property :financial_institution_routing_number, type: :string
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :type, :object
+
+              property(:update_ch33_dd_eft_response) do
+                key :type, :object
+
+                property '@xmlns:ns0', type: :string
+
+                property :return do
+                  key :type, :object
+
+                  property :return_code, type: :string
+                  property :return_message, type: :string
+                end
+              end
+            end
+          end
+        end
+
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets chapter 33 direct deposit bank info'
+          key :operationId, 'getCh33BankAccount'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          key :produces, ['application/json']
+          key :consumes, ['application/json']
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :type, :object
+
+              property(:data) do
+                key :type, :object
+                property :id, type: :string
+                property :type, type: :string
+
+                property :attributes do
+                  key :type, :object
+
+                  property :account_type, type: :string
+                  property :account_number, type: :string
+                  property :financial_institution_routing_number, type: :string
+                end
+              end
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/address_validation' do
         operation :post do
           extend Swagger::Responses::AuthenticationError

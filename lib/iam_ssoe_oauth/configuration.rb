@@ -35,6 +35,7 @@ module IAMSSOeOAuth
         base_path, headers: base_request_headers, request: request_options, ssl: ssl_options
       ) do |conn|
         conn.use :breakers
+        conn.use Faraday::Response::RaiseError
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
         conn.adapter Faraday.default_adapter

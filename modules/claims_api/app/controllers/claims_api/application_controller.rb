@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/mpi_verification'
-require_dependency 'claims_api/concerns/header_validation'
-require_dependency 'claims_api/concerns/json_format_validation'
 require 'evss/error_middleware'
 require 'bgs/power_of_attorney_verifier'
 
@@ -132,10 +129,10 @@ module ClaimsApi
                 else
                   { current: header('X-VA-LOA').try(:to_i), highest: header('X-VA-LOA').try(:to_i) }
                 end
-      vet.mvi_record?
-      vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender
-      vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
-      vet.participant_id = header('X-VA-PID') || vet.mvi.profile&.participant_id
+      vet.mpi_record?
+      vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
+      vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
+      vet.participant_id = header('X-VA-PID') || vet.mpi.profile&.participant_id
       vet
     end
   end

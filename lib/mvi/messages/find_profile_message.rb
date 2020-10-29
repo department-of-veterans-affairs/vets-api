@@ -17,22 +17,29 @@ module MVI
       include FindProfileMessageHelpers
       attr_reader :given_names, :family_name, :birth_date, :ssn, :gender
 
+      REQUIRED_FIELDS = %i[
+        given_names
+        last_name
+        birth_date
+        ssn
+      ].freeze
+
       def initialize(profile, orch_search = false, edipi = nil)
-        # gender is optional and will default to nil if it DNE
-        raise ArgumentError, 'wrong number of arguments' unless %i[
-          given_names
-          last_name
-          birth_date
-          ssn
-        ].all? { |k| profile.key? k }
+        required_fields_present?(profile)
 
         @given_names = profile[:given_names]
         @family_name = profile[:last_name]
         @birth_date = profile[:birth_date]
         @ssn = profile[:ssn]
+        # gender is optional and will default to nil if it DNE
         @gender = profile[:gender]
         @orch_search = orch_search
         @edipi = edipi
+      end
+
+      def required_fields_present?(profile)
+        raise ArgumentError, 'required keys are missing' unless REQUIRED_FIELDS.all? { |k| profile.key?(k) }
+        raise ArgumentError, 'required values are missing' unless REQUIRED_FIELDS.all? { |k| profile[k].present? }
       end
 
       private
