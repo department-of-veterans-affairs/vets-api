@@ -2,11 +2,10 @@
 
 require 'rails_helper'
 
-class ParamsAsJsonController < ActionController::API
-  def index
+class OliveBranchPatchController < ActionController::API
+  def params_as_json
     params.permit!
     response = params.reject { |k, _| %w[controller action].include?(k) }
-    # render json: response.to_json.gsub('"true"', 'true').gsub('"false"', 'false')
     render json: response.to_json.gsub(/\"(true|false|\d+)\"/) { |quoted_value| quoted_value.gsub('"', '') }
   end
 
@@ -21,8 +20,8 @@ end
 describe 'OliveBranchPatch', type: :request do
   before(:all) do
     Rails.application.routes.draw do
-      get 'some_json' => 'params_as_json#index'
-      get 'some_document' => 'params_as_json#document'
+      get 'some_json' => 'olive_branch_patch#params_as_json'
+      get 'some_document' => 'olive_branch_patch#document'
     end
   end
 
