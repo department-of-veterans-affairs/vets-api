@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe 'MVI Users Endpoint', type: :request do
+RSpec.describe 'MPI Users Endpoint', type: :request do
   describe 'POST #submit' do
     let(:user) { build(:user_with_no_ids) }
 
@@ -62,8 +62,8 @@ RSpec.describe 'MVI Users Endpoint', type: :request do
         end
 
         it 'return 200, add user to MVI' do
-          VCR.use_cassette('mvi/add_person/add_person_success') do
-            VCR.use_cassette('mvi/find_candidate/orch_search_with_attributes') do
+          VCR.use_cassette('mpi/add_person/add_person_success') do
+            VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
               # expect success to be achieved by calling mvi_add_person
               expect_any_instance_of(MPIData).to receive(:mvi_add_person).once.and_call_original
               post "/v0/mvi_users/#{valid_form_id}"

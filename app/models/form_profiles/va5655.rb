@@ -5,7 +5,7 @@ class FormProfiles::VA5655 < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/5655/applicant/information'
+      returnUrl: '/veteran-information'
     }
   end
 end

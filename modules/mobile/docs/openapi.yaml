@@ -197,7 +197,7 @@ paths:
                 $ref: "#/components/schemas/Errors"
   /v0/letters/{type}/download:
     post:
-      summary: /v0/letters/{id}
+      summary: /v0/letters/{type}/download
       description: Returns requested letter for download
       operationId: download
       security:
@@ -310,6 +310,67 @@ paths:
                 $ref: "#/components/schemas/Errors"
         '404':
           description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/logout:
+    get:
+      summary: /v0/user/logout
+      description: >
+        Logs the user out by revoking their access token from the IAM SSOe OAuth service and destroying the IAM user, user identity, and session objects from Redis.
+      operationId: user.logout
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '400':
+          description: Bad Request.
           content:
             application/json:
               schema:
@@ -756,7 +817,136 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-
+  /v0/payment-information/benfits:
+    get:
+      summary: /v0/payment-information/benfits
+      description: Returns direct deposit payment info
+      operationId: index
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      summary: /v0/payment-information/benfits
+      description: Returns updated direct deposit payment info
+      operationId: update
+      security:
+        - Bearer: [ ]
+      requestBody:
+        description: New direct deposit info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePaymentInfoRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
 components:
   securitySchemes:
     Bearer:
@@ -766,6 +956,99 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    UpdatePaymentInfoRequest:
+      required:
+        - accountNumber
+        - accountType
+        - financialInstitutionName
+        - financialInstitutionRoutingNumber
+      properties:
+        accountNumber:
+          type: string
+          example: "12345678901"
+        accountType:
+          type: string
+          example: "Savings"
+          enum:
+            - Savings
+            - Checking
+        financialInstitutionName:
+          type: string
+          example: "PACIFIC PREMIER BANK"
+        financialInstitutionRoutingNumber:
+          type: string
+          example: "021000021"
+    PaymentInfo:
+      required:
+        - id
+        - type
+        - attibutes
+      properties:
+        type:
+          type: string
+          example: "paymentInformation"
+        id:
+          type: string
+          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+        attributes:
+          required:
+            - paymentAccount
+            - accountControl
+          properties:
+            accountControl:
+              type: object
+              required:
+                - canUpdateAddress
+                - corpAvailIndicator
+                - corpRecFoundIndicator
+                - hasNoBdnPaymentsIndicator
+                - identityIndicator
+                - indexIndicator
+                - isCompetentIndicator
+                - noFiduciaryAssignedIndicator
+                - notDeceasedIndicator
+              properties:
+                canUpdateAddress:
+                  type: boolean
+                corpAvailIndicator:
+                  type: boolean
+                corpRecFoundIndicator:
+                  type: boolean
+                hasNoBdnPaymentsIndicator:
+                  type: boolean
+                identityIndicator:
+                  type: boolean
+                indexIndicator:
+                  type: boolean
+                isCompetentIndicator:
+                  type: boolean
+                noFiduciaryAssignedIndicator:
+                  type: boolean
+                notDeceasedIndicator:
+                  type: boolean
+            paymentAccount:
+              type: object
+              required:
+                - accountNumber
+                - accountType
+                - financialInstitutionName
+                - financialInstitutionRoutingNumber
+              properties:
+                accountNumber:
+                  type: string
+                  example: "************6464"
+                accountType:
+                  type: string
+                  example: "Savings account"
+                  enum:
+                    - Savings account
+                    - Checking account
+                financialInstitutionName:
+                  type: string
+                  example: "PACIFIC PREMIER BANK"
+                financialInstitutionRoutingNumber:
+                  type: string
+                  example: "948529982"
     MilitaryHistory:
       required:
         - data
@@ -1123,11 +1406,13 @@ components:
                   $ref: "#/components/schemas/Address"
                 mailingAddress:
                   $ref: "#/components/schemas/Address"
-                homePhone:
+                homePhoneNumber:
                   $ref: "#/components/schemas/Phone"
-                mobilePhone:
+                mobilePhoneNumber:
                   $ref: "#/components/schemas/Phone"
-                workPhone:
+                workPhoneNumber:
+                  $ref: "#/components/schemas/Phone"
+                faxPhoneNumber:
                   $ref: "#/components/schemas/Phone"
             authorizedServices:
               type: array

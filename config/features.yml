@@ -17,6 +17,10 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
+  ch33_dd:
+    actor_type: user
+    description: >
+      Allows user to access chapter 33 benefits direct deposit view/update APIs
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
@@ -25,6 +29,11 @@ features:
     actor_type: user
     description: >
       Allows for showing a special COVID19 alert on the My VA Dashboard
+  dashboard_show_dashboard_2:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables The New My VA Dashboard 2.0
   facility_locator_show_community_cares:
     actor_type: user
     enable_in_development: true
@@ -38,12 +47,15 @@ features:
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
-  facility_locator_ppms_location_query:
+  facility_locator_ppms_use_v1_client:
     actor_type: user
-    description: Use the Lat/Long instead of an address
+    description: Have the V1 API use the PPMS::V1::Client
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
+  facilities_ppms_suppress_pharmacies:
+    actor_type: user
+    description: Front End Flag to suppress the ability to search for pharmacies
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
@@ -60,11 +72,6 @@ features:
     enable_in_development: true
     description: >
       https://www.va.gov/profile/ show Receive Text Notifications
-  profile_show_profile_2.0:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables Profile 2.0
   va_online_scheduling:
     actor_type: user
     enable_in_development: true
@@ -142,11 +149,6 @@ features:
     enable_in_development: true
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
-  edu_benefits_stem_scholarship:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables STEM scholarship functionality
   form526_original_claims:
     actor_type: user
     description: >
@@ -177,19 +179,10 @@ features:
     actor_type: cookie_id
     description: >
       Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
-  stub_carma_responses:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.
   gibct_eyb_bottom_sheet:
     actor_type: user
     description: >
       Panel that displays while the user is modifying inputs to give context to their currently estimated benefits until they reach the full your estimated benefits panel.
-  gibct_search_enhancements:
-    actor_type: user
-    description: >
-      Comparison Tool Search Enhancements to improve usability
   form996_higher_level_review:
     actor_type: user
     description: >
@@ -264,6 +257,14 @@ features:
     actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+  cerner_override_668:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 668 as `isCerner`.
+  cerner_override_757:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 757 as `isCerner`.
   gibct_benefit_filter_enhancement:
     actor_type: user
     description: >
@@ -280,11 +281,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
-  stem_document_type:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Set 10203 spool file document type
   stem_text_message_question:
     actor_type: user
     enable_in_development: true
@@ -300,3 +296,8 @@ features:
     enable_in_development: true
     description: >
       Ask for a password when an encrypted PDF is detected before uploading
+  education_reports_cleanup:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Updates to the daily education reports to remove old data that isn't needed in the new fiscal year

@@ -143,8 +143,13 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       desc = 'Returns all issues a Veteran could contest in a Higher-Level Review as of the `receiptDate` ' \
         'and bound by `benefitType`. Associate these results when creating new Decision Reviews.'
       key :description, desc
-      parameter name: 'X-VA-SSN', 'in': 'header', required: true, description: 'veteran\'s ssn' do
+      parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
+        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema '$ref': 'X-VA-SSN'
+      end
+      parameter name: 'X-VA-File-Number', 'in': 'header', description: 'veteran\'s file number' do
+        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
+        schema type: :string
       end
       parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
         desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \

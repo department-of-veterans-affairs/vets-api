@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module OpenidAuth
-  class MviLookupSerializer < ActiveModel::Serializer
-    type 'user-mvi-icn'
+  class MPILookupSerializer < ActiveModel::Serializer
+    type 'user-mpi-icn'
 
     def id
       object.profile.icn

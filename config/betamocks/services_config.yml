@@ -257,6 +257,9 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  - :method: :get
+    :path: "/wss-referencedata-services-web/rest/referencedata/v1/intakesites"
+    :file_path: "evss/reference_data/intakesites"
 
   # Letters
   - :method: :get
@@ -471,6 +474,12 @@
       :uid_location: header
       :uid_locator: X-VA-SSN
   - :method: :get
+    :path: "/api/v3/decision_reviews/appeals/contestable_issues"
+    :file_path: "modules_appeals_api/notice_of_disagreements/contestable_issues"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: X-VA-SSN
+  - :method: :get
     :path: "/health-check"
     :file_path: "appeals/health-check"
 
@@ -545,3 +554,11 @@
       :cache_multiple_responses:
         :uid_location: body
         :uid_locator: 'email_address":"(.*?)"'
+
+#MAP_APPOINTMENT_SERVICE
+- :name: "MAP_APPOINTMENT_SERVICE"
+  :base_uri: <%= "#{URI(Settings.hqva_mobile.url).host}" %>
+  :endpoints:
+  - :method: :get
+    :path: "/appointments/v1/patients/*/appointments/*"
+    :file_path: "hqva_mobile/appointments/default"
