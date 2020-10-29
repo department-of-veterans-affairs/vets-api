@@ -21,6 +21,140 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+
+  /v0/appointments:
+    get:
+      summary: /v0/appointments
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments
+      operationId: getAppointments
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointments"
+              examples:
+                VA Appointment:
+                  value:
+                    resourceType: Bundle
+                    id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                    type: searchset
+                    total: 7
+                    entry:
+                      - resource:
+                          resourceType: Appointment
+                          id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                          status: booked
+                          start: '2020-11-14T11:30:00.000Z'
+                          minutesDuration: 60
+                          comment: Please arrive 20 minutes before the start of your appointment
+                          participant:
+                            - reference: Practitioner/PRACTITIONER_ID
+                              display: Bob Belcher
+                          contained:
+                            - resourceType: Location
+                              id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                              name: Audiologists of Dayton
+                              address:
+                                line:
+                                  - 123 Main St
+                                city: Dayton
+                                state: OH
+                                postalCode: '45405'
+                          vaos:
+                            isPastAppointment: false
+                            appointmentType:
+                            isCommunityCare: true
+                            timeZone: America/Los_Angeles
+                Community Care Appointment:
+                  value:
+                    resourceType: Bundle
+                    id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                    type: searchset
+                    total: 7
+                    entry:
+                      - resource:
+                          resourceType: Appointment
+                          id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                          status: booked
+                          start: '2020-11-14T11:30:00.000Z'
+                          minutesDuration: 60
+                          comment: Please arrive 20 minutes before the start of your appointment
+                          participant:
+                            - reference: Practitioner/PRACTITIONER_ID
+                              display: Bob Belcher
+                          contained:
+                            - resourceType: Location
+                              id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                              name: Audiologists of Dayton
+                              address:
+                                line:
+                                  - 123 Main St
+                                city: Dayton
+                                state: OH
+                                postalCode: '45405'
+                          vaos:
+                            isPastAppointment: false
+                            appointmentType:
+                            isCommunityCare: true
+                            timeZone: America/Los_Angeles
+
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   /v0/military-service-history:
     get:
       summary: /v0/military-service-history
@@ -956,6 +1090,149 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    Appointments:
+      required:
+        - resourceType
+        - id
+        - type
+        - total
+        - entry
+      properties:
+        resourceType:
+          type: string
+          example: "Bundle"
+        id:
+          type: string
+          example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+        type:
+          type: string
+          example: "searchset"
+        total:
+          type: integer
+          example: 7
+        entry:
+          type: array
+          items:
+            $ref: "#/components/schemas/Appointment"
+
+    Appointment:
+      required:
+        - resource
+      properties:
+        resource:
+          type: object
+          required:
+            - resourceType
+            - id
+            - status
+            - start
+            - minutesDuration
+            - comment
+            - participant
+            - contained
+            - vaos
+          properties:
+            resourceType:
+              type: string
+              example: "Appointment"
+            id:
+              type: string
+              example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+            status:
+              type: string
+              example: "booked"
+            start:
+              type: datetime
+              example: "2020-11-14T11:30:00.000Z"
+            minutesDuration:
+              type: integer
+              example: 60
+            comment:
+              type: string
+              example: "Please arrive 20 minutes before the start of your appointment"
+            participant:
+              type: array
+              items:
+                $ref: "#/components/schemas/Actor"
+            contained:
+              type: array
+              items:
+                $ref: "#/components/schemas/Location"
+            vaos:
+              type: object
+              required:
+                - isPastAppointment
+                - appointmentType
+                - isCommunityCare
+                - timeZone
+              properties:
+                isPastAppointment:
+                  type: boolean
+                  example: false
+                appointmentType:
+                  type: "ccAppointment"
+                isCommunityCare:
+                  type: boolean
+                  example: true
+                timeZone:
+                  type: string
+                  example: "America/Los_Angeles"
+
+    Actor:
+      required:
+        - reference
+        - display
+      properties:
+        reference:
+          type: string
+          example: "Practitioner/PRACTITIONER_ID"
+        display:
+          type: string
+          example: "Bob Belcher"
+
+    Location:
+      required:
+        - resourceType
+        - id
+        - name
+        - address
+        - city
+        - state
+        - postalCode
+      properties:
+        resourceType:
+          type: string
+          example: "Location"
+        id:
+          type: string
+          example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+        name:
+          type: string
+          example: "Audiologists of Dayton"
+        address:
+          type: object
+          required:
+            - line
+            - city
+            - state
+            - postalCode
+            - telecom
+          properties:
+            line:
+              type: array
+              items:
+                type: string
+                example: "123 Main St"
+            city:
+              type: string
+              example: "Dayton"
+            state:
+              type: string
+              example: "OH"
+            postalCode:
+              type: string
+              example: "45405"
+
     UpdatePaymentInfoRequest:
       required:
         - accountNumber
