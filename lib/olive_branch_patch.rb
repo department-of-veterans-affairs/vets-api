@@ -36,20 +36,20 @@ module OliveBranchMiddlewareExtension
 
   def duplicate_collection_va_keys!(json)
     keys_with_collections = []
-    json.scan(VA_KEY_COLLECTION_REGEX) do |key, opener|
-      keys_with_collections << { key: key, opener: opener, sort_index: json.index(key) }
+    json.scan(VA_KEY_COLLECTION_REGEX) do |key, bracket_type|
+      keys_with_collections << { key: key, bracket_type: bracket_type, sort_index: json.index(key) }
     end
 
     # replace them last to first, so that encapsulated collections will be duped
     keys_with_collections.sort { |info1, info2| info2[:sort_index] <=> info1[:sort_index] }.each do |info|
       key = info[:key]
-      new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info[:key], info[:opener])}, "
+      new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info[:key], info[:bracket_type])}, "
       json.insert(json.index(key), new_key_and_value)
     end
   end
 
-  def capture_collection(json, key, opener)
-    closer = opener == '{' ? '}' : ']'
+  def capture_collection(json, key, bracket_opener)
+    bracket_closer = bracket_opener == '{' ? '}' : ']'
     index = json.index(key) + key.length
     object = json[index + 1]
     index += 2 # +2 for `:` and opening character
@@ -57,9 +57,9 @@ module OliveBranchMiddlewareExtension
     while index < json.length
       char = json[index]
       object << char
-      if char == opener
+      if char == bracket_opener
         needed_closures += 1
-      elsif char == closer
+      elsif char == bracket_closer
         needed_closures -= 1
       end
 
