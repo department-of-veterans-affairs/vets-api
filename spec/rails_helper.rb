@@ -12,7 +12,7 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
-require 'support/mvi/stub_mvi'
+require 'support/mpi/stub_mpi'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
 require 'support/factory_bot'
@@ -162,7 +162,7 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
+    stub_mpi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
 
