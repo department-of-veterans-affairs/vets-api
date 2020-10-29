@@ -1,0 +1,116 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Apps
+  description: |
+    The Applications Api provides a list of applications
+
+    ## Design
+
+    ### Authorization and Access
+
+    This API is available publically without an API Key.
+
+    1. Client Request: GET https://sandbox-api.va.gov/services/apps/v0/directory
+
+    2. Service Response: A JSON API object with a list of all applications available
+
+
+  termsOfService: 'https://developer.va.gov/terms-of-service'
+  contact:
+    name: va.gov
+tags:
+  - name: apps
+    description: Applications API
+servers:
+  - url: https://sandbox-api.va.gov/services/apps/{version}
+    description: VA.gov API sandbox environment
+    variables:
+      version:
+        default: v0
+  - url: https://api.va.gov/services/apps/{version}
+    description: VA.gov API production environment
+    variables:
+      version:
+        default: v0
+paths:
+  /directory:
+    get:
+      tags:
+        - apps
+      summary: Retrieve OAuth Applications available
+      operationId: getApps
+      responses:
+        '200':
+          description: Applications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/App"
+                  meta:
+                    type: object
+                    properties:
+                      count:
+                        type: number
+                        description: 'Counter used for pagination'
+                        example: 1
+
+components:
+  schemas:
+    App:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique ID of the application.
+          example: '1'
+        app_type:
+          type: string
+          description: The type of the application.
+          example: 'Third-Party-OAuth'
+        name:
+          type: string
+          description: The name of the application.
+          example: 'Example Health'
+        description:
+          type: string
+          description: The description of the application.
+          example: 'Example Health is a app to help you manage your healthcare records.'
+        platforms:
+          type: array
+          items:
+            type: string
+            description: The platforms the application is available on.
+          example:
+            - Web
+            - IOS
+        logo_url:
+          type: string
+          description: The source url of the application's logo.
+          example: 'https://www.example.com/static/images/example.png'
+        service_categories:
+          type: array
+          items:
+            type: string
+            description: An array of categories this application belongs to.
+          example:
+            - Health
+        app_url:
+          type: string
+          description: The URL of the application.
+          example: 'https://www.example.com'
+        privacy_url:
+          type: string
+          description: The Applications Privacy Policy
+          example: 'https://www.example.com/privacy'
+        tos_url:
+          type: string
+          description: The Applications Terms of Service
+          example: 'https://www.example.com/tos'

@@ -13,6 +13,7 @@ module Okta
     API_BASE_PATH = '/api/v1'
     USER_API_BASE_PATH = "#{API_BASE_PATH}/users"
     APP_API_BASE_PATH = "#{API_BASE_PATH}/apps"
+    AUTH_SERVER_API_BASE_PATH = "#{API_BASE_PATH}/authorizationServers"
 
     configuration Okta::Configuration
 
@@ -28,6 +29,18 @@ module Okta
     def app(app_id)
       with_monitoring do
         get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}")
+      end
+    end
+
+    def get_auth_servers
+      with_monitoring do
+        get_url_with_token(AUTH_SERVER_API_BASE_PATH)
+      end
+    end
+
+    def get_server_scopes(server_id)
+      with_monitoring do
+        get_url_with_token("#{AUTH_SERVER_API_BASE_PATH}/#{server_id}/scopes")
       end
     end
 
