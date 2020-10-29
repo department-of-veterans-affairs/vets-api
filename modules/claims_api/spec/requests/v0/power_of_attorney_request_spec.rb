@@ -42,8 +42,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
       expect(newly_parsed['data']['id']).to eq(parsed['data']['id'])
     end
 
-    it 'returns a unsuccessful response without mvi' do
-      allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
+    it 'returns a unsuccessful response without mpi' do
+      allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
       post path, params: data, headers: headers
       expect(response.status).to eq(404)
     end
