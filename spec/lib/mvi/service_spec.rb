@@ -395,7 +395,7 @@ describe MVI::Service do
 
     context 'when a MVI invalid request response is returned' do
       it 'raises a invalid request error', :aggregate_failures do
-        invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
+        invalid_xml = File.read('spec/support/mpi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_exception_to_sentry)
 
@@ -407,7 +407,7 @@ describe MVI::Service do
     end
 
     context 'when a MVI internal system problem response is returned' do
-      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+      let(:body) { File.read('spec/support/mpi/find_candidate_ar_code_database_error_response.xml') }
 
       it 'raises a invalid request error', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
