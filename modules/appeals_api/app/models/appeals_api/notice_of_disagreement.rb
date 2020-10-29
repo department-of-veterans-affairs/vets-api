@@ -165,7 +165,7 @@ module AppealsApi
     def validate_that_at_least_one_set_of_contact_info_is_present
       return if veteran_contact_info.present? || claimant_contact_info.present?
 
-      errors.add :form_data, "at least one must be incuded: '/data/attributes/veteran', '/data/attributes/claimant'"
+      errors.add :form_data, "at least one must be included: '/data/attributes/veteran', '/data/attributes/claimant'"
     end
 
     def birth_date(who)
