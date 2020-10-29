@@ -34,11 +34,12 @@ module BGS
       # retrieve the list of all regional offices
       # match the regional number above to find the corresponding location id
       regional_offices = bgs_service.find_regional_offices
-      regional_offices.each do |ro|
-        station_number = ro[:station_number]
-        return ro[:lctn_id] if station_number == regional_office_number
-      end
-      '347' # return default value 347 if regional office is not found
+      return '347' if regional_offices.nil? # return default value 347 if regional office is not found
+
+      regional_office = regional_offices.find { |ro| ro[:station_number] == regional_office_number }
+      return '347' if regional_office.nil? # return default value 347 if regional office is not found
+
+      regional_office[:lctn_id]
     end
 
     def veteran
