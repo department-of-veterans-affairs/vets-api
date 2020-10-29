@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 describe HealthQuest::AppointmentService do
-  let(:user) { build(:user, :health_quest) }
   subject { described_class.new(user) }
+
+  let(:user) { build(:user, :health_quest) }
 
   before do
     Flipper.enable('show_healthcare_experience_questionnaire')
