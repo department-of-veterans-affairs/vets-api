@@ -5,16 +5,16 @@ module ClaimsApi
     extend ActiveSupport::Concern
 
     included do
-      before_action :verify_mvi
+      before_action :verify_mpi
 
-      def verify_mvi
-        unless target_veteran.mvi_record?
-          log_message_to_sentry('MVIError in claims',
-                                :warning,
-                                body: target_veteran.mvi&.response&.error&.inspect)
-          render json: { errors: [{ detail: 'MVI user not found' }] },
-                 status: :not_found
-        end
+      def verify_mpi
+        raise 'MPI user not found' unless target_veteran.mpi_record?
+      rescue => e
+        log_message_to_sentry('MPIError in claims',
+                              :warning,
+                              body: target_veteran.mpi&.response&.error&.inspect || e.message)
+        render json: { errors: [{ status: 404, detail: 'Veteran not found, some functionality may be limited.' }] },
+               status: :not_found
       end
     end
   end

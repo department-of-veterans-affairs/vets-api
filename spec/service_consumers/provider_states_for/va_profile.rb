@@ -15,7 +15,7 @@ Pact.provider_states_for 'VA Profile' do
   provider_state 'there are no service history records' do
     set_up do
       build_user_and_stub_session
-      stub_mvi(
+      stub_mpi(
         FactoryBot.build(
           :mvi_profile,
           edipi: '1005079124'

@@ -149,7 +149,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_vbms.refresh_status!
     end
 
-    it 'raises on error status from downstream without updating state' do
+    it 'raises on error status from upstream without updating state' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(false)
       expect(faraday_response).to receive(:status).and_return(401)
@@ -159,7 +159,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('received')
     end
 
-    it 'raises on duplicate error status from downstream and updates state' do
+    it 'raises on duplicate error status from upstream and updates state' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(false)
       expect(faraday_response).to receive(:status).and_return(401)

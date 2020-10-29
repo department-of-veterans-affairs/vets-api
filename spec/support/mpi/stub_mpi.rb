@@ -2,7 +2,7 @@
 
 require 'mvi/responses/find_profile_response'
 
-def stub_mvi(profile = nil)
+def stub_mpi(profile = nil)
   profile ||= build(:mvi_profile)
   # don't allow Mvi instances to be frozen during specs so that
   # response_from_redis_or_service can always be reset
@@ -16,7 +16,7 @@ def stub_mvi(profile = nil)
   )
 end
 
-def stub_mvi_not_found
+def stub_mpi_not_found
   allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
     MVI::Responses::FindProfileResponse.with_not_found(not_found_exception)
   )
