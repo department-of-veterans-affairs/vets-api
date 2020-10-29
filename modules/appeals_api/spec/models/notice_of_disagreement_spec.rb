@@ -50,7 +50,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq("Form data at least one must be included: " \
+          expect(notice_of_disagreement.errors.full_messages.first).to eq('Form data at least one must be included: ' \
 "'/data/attributes/veteran', '/data/attributes/claimant'")
         end
       end
@@ -69,8 +69,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq("Auth headers if any claimant info is" \
-" present, claimant name must also be present")
+          expect(notice_of_disagreement.errors.full_messages.first).to eq('Auth headers if any claimant info is' \
+' present, claimant name must also be present')
         end
       end
 
@@ -79,8 +79,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq("Auth headers if any claimant info is" \
-" present, claimant birth date must also be present")
+          expect(notice_of_disagreement.errors.full_messages.first).to eq('Auth headers if any claimant info is' \
+' present, claimant birth date must also be present')
         end
       end
 
@@ -89,8 +89,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq("Form data if any claimant info is present," \
-" claimant contact info (data/attributes/claimant) must also be present")
+          expect(notice_of_disagreement.errors.full_messages.first).to eq('Form data if any claimant info is present,' \
+' claimant contact info (data/attributes/claimant) must also be present')
         end
       end
     end
@@ -158,7 +158,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
           "#{default_auth_headers['X-VA-Claimant-First-Name']} " \
           "#{default_auth_headers['X-VA-Claimant-Middle-Initial']} "\
           "#{default_auth_headers['X-VA-Claimant-Last-Name']}"
-         )
+        )
       end
     end
 
@@ -174,7 +174,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
   describe '#claimant_birth_date' do
     context 'when claimant headers are present' do
-      it { expect(notice_of_disagreement.claimant_birth_date).to eq(Date.parse("1970-01-01")) }
+      it { expect(notice_of_disagreement.claimant_birth_date).to eq(Date.parse('1970-01-01')) }
     end
 
     context 'when claimant headers are not present' do
@@ -190,10 +190,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
   def headers_without_claimant(default_auth_headers)
     default_auth_headers.except(
-        'X-VA-Claimant-First-Name',
-        'X-VA-Claimant-Middle-Initial',
-        'X-VA-Claimant-Last-Name',
-        'X-VA-Claimant-Birth-Date'
+      'X-VA-Claimant-First-Name',
+      'X-VA-Claimant-Middle-Initial',
+      'X-VA-Claimant-Last-Name',
+      'X-VA-Claimant-Birth-Date'
     )
   end
 end
