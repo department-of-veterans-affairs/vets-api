@@ -12,8 +12,19 @@ module ClaimsApi
     skip_before_action :set_tags_and_extra_context, raise: false
     before_action :validate_json_format, if: -> { request.post? }
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def show
+      find_claim
+    rescue => e
+      log_message_to_sentry('Error in claims show',
+                            :warning,
+                            body: e.message)
+      render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
+             status: :not_found
+    end
+
+    private
+
+    def find_claim
       claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id]) # , source: source_name)
 
       if claim && claim.status == 'errored'
@@ -24,16 +35,7 @@ module ClaimsApi
         evss_claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
         render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
       end
-    rescue => e
-      log_message_to_sentry('Error in claims show',
-                            :warning,
-                            body: e.message)
-      render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
-             status: :not_found
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-
-    private
 
     def source_name
       if v0?
