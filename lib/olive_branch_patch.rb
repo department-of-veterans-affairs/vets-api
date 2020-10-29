@@ -43,12 +43,12 @@ module OliveBranchMiddlewareExtension
     # replace them last to first, so that encapsulated collections will be duped
     keys_with_collections.sort { |info1, info2| info2[:sort_index] <=> info1[:sort_index] }.each do |info|
       key = info[:key]
-      new_key_and_value = "#{key.gsub('VA', 'Va')}:#{capture_collection(json, info[:key], info[:bracket_type])}, "
+      new_key_and_value = "#{key.gsub('VA', 'Va')}:#{collection_value(json, info[:key], info[:bracket_type])}, "
       json.insert(json.index(key), new_key_and_value)
     end
   end
 
-  def capture_collection(json, key, bracket_opener)
+  def collection_value(json, key, bracket_opener)
     bracket_closer = bracket_opener == '{' ? '}' : ']'
     index = json.index(key) + key.length
     object = json[index + 1]
