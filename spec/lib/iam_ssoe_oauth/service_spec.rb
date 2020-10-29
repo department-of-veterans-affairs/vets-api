@@ -56,5 +56,15 @@ describe 'IAMSSOeOAuth::Service' do
         end
       end
     end
+
+    context 'with a 500' do
+      it 'raises a BackendServiceException' do
+        VCR.use_cassette('iam_ssoe_oauth/introspect_500') do
+          expect { service.post_introspect('ypXeAwQedpmAy5xFD2u4') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
   end
 end

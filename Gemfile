@@ -10,6 +10,7 @@ gem 'websocket-extensions', '>= 0.1.5'
 
 # Modules
 gem 'appeals_api', path: 'modules/appeals_api'
+gem 'apps_api', path: 'modules/apps_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'covid_research', path: 'modules/covid_research'
 gem 'health_quest', path: 'modules/health_quest'
