@@ -37,6 +37,14 @@ describe 'OliveBranchPatch', type: :request do
     expect(json['hello_to_the_va']).to eq hash[:hello_to_the_va]
   end
 
+  # camelCase would keep the leading `va` in lower case
+  it 'does not duplicate keys with leading va' do
+    hash = { va_key: 'VA Value' }
+    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    json = JSON.parse(response.body)
+    expect(json.keys).to eq ['vaKey']
+  end
+
   it 'does not change document responses' do
     # this pdf fixture chosen arbitrarily
     hash = { path: 'spec/fixtures/pdf_fill/21-0781a/simple.pdf' }
