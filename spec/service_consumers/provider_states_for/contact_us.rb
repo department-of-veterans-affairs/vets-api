@@ -2,10 +2,6 @@
 
 Pact.provider_states_for 'Contact Us' do
   provider_state 'minimum required data' do
-    set_up do
-    end
-
-    tear_down do
-    end
+    no_op # nothing to setup or tear down
   end
 end
