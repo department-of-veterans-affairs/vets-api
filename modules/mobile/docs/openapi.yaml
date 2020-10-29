@@ -51,15 +51,15 @@ paths:
                 VA Appointment:
                   value:
                     resourceType: Bundle
-                    id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                    id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
                     type: searchset
-                    total: 7
+                    total: 1
                     entry:
                       - resource:
                           resourceType: Appointment
-                          id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                          id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
                           status: booked
-                          start: '2020-11-14T11:30:00.000Z'
+                          start: 2020-10-29T10:30:00-07:00
                           minutesDuration: 60
                           comment: Please arrive 20 minutes before the start of your appointment
                           participant:
@@ -74,24 +74,95 @@ paths:
                                   - 123 Main St
                                 city: Dayton
                                 state: OH
-                                postalCode: '45405'
+                                postalCode: 45405
                           vaos:
                             isPastAppointment: false
-                            appointmentType:
+                            appointmentType: vaAppointment
                             isCommunityCare: true
-                            timeZone: America/Los_Angeles
+                            timeZone: -07:00 PST
+                VA Video Connect Appointment:
+                  value:
+                    resourceType: Bundle
+                    id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
+                    type: searchset
+                    total: 1
+                    entry:
+                      - resource:
+                          resourceType: Appointment
+                          id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
+                          status: booked
+                          start: 2020-11-25T08:17:00-07:00
+                          minutesDuration: 60
+                          comment: Medication Review
+                          participant: null
+                          contained:
+                            - resourceType: HealthcareService
+                              id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
+                              type:
+                                - text: Patient Virtual Meeting Room
+                              characteristic:
+                                - coding: videoConnect
+                              telecom:
+                                - system: url
+                                  value: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+                                  period:
+                                    start: 2020-11-25T08:17:00-07:00
+                          vaos:
+                            isPastAppointment: false
+                            appointmentType: vaAppointment
+                            isCommunityCare: false
+                            timeZone: -07:00 PST
+                VA Video Connect ATLAS Appointment:
+                  value:
+                    resourceType: Bundle
+                    id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
+                    type: searchset
+                    total: 1
+                    entry:
+                      - resource:
+                          resourceType: Appointment
+                          id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
+                          status: booked
+                          start: 2020-11-25T08:17:00-07:00
+                          minutesDuration: 60
+                          comment: Medication Review
+                          participant: null
+                          contained:
+                            - resourceType: HealthcareService
+                              id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
+                              type:
+                                - text: Patient Virtual Meeting Room
+                              location:
+                                reference: Location/var983
+                              characteristic:
+                                - coding: videoConnectAtlas
+                                  text: GL32CA
+                            - resourceType: Location
+                              id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
+                              name: Audiologists of Dayton
+                              address:
+                                line:
+                                  - 123 Main St
+                                city: Dayton
+                                state: OH
+                                postalCode: 45405
+                          vaos:
+                            isPastAppointment: false
+                            appointmentType: vaAppointment
+                            isCommunityCare: false
+                            timeZone: -07:00 PST
                 Community Care Appointment:
                   value:
                     resourceType: Bundle
-                    id: 23fe358d-6e82-4541-804c-ce7562ba28f4
+                    id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
                     type: searchset
-                    total: 7
+                    total: 1
                     entry:
                       - resource:
                           resourceType: Appointment
                           id: 23fe358d-6e82-4541-804c-ce7562ba28f4
                           status: booked
-                          start: '2020-11-14T11:30:00.000Z'
+                          start: 2020-10-29T10:30:00-07:00
                           minutesDuration: 60
                           comment: Please arrive 20 minutes before the start of your appointment
                           participant:
@@ -111,7 +182,7 @@ paths:
                             isPastAppointment: false
                             appointmentType:
                             isCommunityCare: true
-                            timeZone: America/Los_Angeles
+                            timeZone: "-07:00 PST"
 
         '401':
           description: Authentication is possible but has failed or not yet been provided.
@@ -1100,13 +1171,13 @@ components:
       properties:
         resourceType:
           type: string
-          example: "Bundle"
+          example: Bundle
         id:
           type: string
-          example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+          example: 23fe358d-6e82-4541-804c-ce7562ba28f4
         type:
           type: string
-          example: "searchset"
+          example: searchset
         total:
           type: integer
           example: 7
@@ -1134,22 +1205,23 @@ components:
           properties:
             resourceType:
               type: string
-              example: "Appointment"
+              example: Appointment
             id:
               type: string
-              example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+              example: 23fe358d-6e82-4541-804c-ce7562ba28f4
             status:
               type: string
-              example: "booked"
+              enum: ['booked', 'cancelled']
+              example: booked
             start:
               type: datetime
-              example: "2020-11-14T11:30:00.000Z"
+              example: 2020-10-29T10:30:00-07:00
             minutesDuration:
               type: integer
               example: 60
             comment:
               type: string
-              example: "Please arrive 20 minutes before the start of your appointment"
+              example: Please arrive 20 minutes before the start of your appointment
             participant:
               type: array
               items:
@@ -1157,7 +1229,10 @@ components:
             contained:
               type: array
               items:
-                $ref: "#/components/schemas/Location"
+                anyOf:
+                  - $ref: "#/components/schemas/HealthcareService"
+                  - $ref: "#/components/schemas/Location"
+
             vaos:
               type: object
               required:
@@ -1170,13 +1245,15 @@ components:
                   type: boolean
                   example: false
                 appointmentType:
-                  type: "ccAppointment"
+                  type: string
+                  enum: ['vaAppointment', 'ccAppointment']
+                  example: vaAppointment
                 isCommunityCare:
                   type: boolean
                   example: true
                 timeZone:
                   type: string
-                  example: "America/Los_Angeles"
+                  example: -07:00 PST
 
     Actor:
       required:
@@ -1185,10 +1262,66 @@ components:
       properties:
         reference:
           type: string
-          example: "Practitioner/PRACTITIONER_ID"
+          example: Practitioner/PRACTITIONER_ID
         display:
           type: string
-          example: "Bob Belcher"
+          example: Bob Belcher
+
+    HealthcareService:
+      required:
+        - resourceType
+        - id
+        - type
+        - characteristic
+        - telecom
+      properties:
+        resourceType:
+          type: string
+          example: HealthCareService
+        id:
+          type: string
+          example: 23fe358d-6e82-4541-804c-ce7562ba28f4
+        type:
+          type: array
+          items:
+            required:
+              - text
+            properties:
+              text:
+                type: string
+                example: Patient Virtual Meeting Room
+        characteristic:
+          type: array
+          items:
+            required:
+              - coding
+            properties:
+              coding:
+                type: string
+                example: videoConnect
+        telecom:
+          type: array
+          items:
+            required:
+              - system
+              - value
+              - period
+            properties:
+              system:
+                type: string
+                enum: ['phone', 'fax', 'email', 'pager', 'url', 'sms', 'other']
+                example: url
+              value:
+                type: string
+                example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+              period:
+                type: object
+                required:
+                  - start
+                properties:
+                  start:
+                    type: datetime
+                    example: 2020-11-25T08:17:00-07:00
 
     Location:
       required:
@@ -1202,13 +1335,13 @@ components:
       properties:
         resourceType:
           type: string
-          example: "Location"
+          example: Location
         id:
           type: string
-          example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+          example: 23fe358d-6e82-4541-804c-ce7562ba28f4
         name:
           type: string
-          example: "Audiologists of Dayton"
+          example: Audiologists of Dayton
         address:
           type: object
           required:
@@ -1222,16 +1355,16 @@ components:
               type: array
               items:
                 type: string
-                example: "123 Main St"
+                example: 123 Main St
             city:
               type: string
-              example: "Dayton"
+              example: Dayton
             state:
               type: string
-              example: "OH"
+              example: OH
             postalCode:
               type: string
-              example: "45405"
+              example: 45405
 
     UpdatePaymentInfoRequest:
       required:
