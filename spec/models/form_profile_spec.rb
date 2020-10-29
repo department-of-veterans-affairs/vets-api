@@ -582,6 +582,10 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v5655_expected) do
     {
+      'personalIdentification' => {
+        'sSN' => user.ssn.last(4),
+        'fileNumber' => '7890'
+      },
       'personalData' => {
         'fullName' => full_name,
         'address' => address,
