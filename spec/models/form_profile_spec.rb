@@ -830,6 +830,12 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with a user that can prefill financial status report' do
+      before do
+        allow_any_instance_of(BGS::PeopleService).to(
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        )
+      end
+
       it 'returns a prefilled 5655 form' do
         expect_prefilled('5655')
       end
