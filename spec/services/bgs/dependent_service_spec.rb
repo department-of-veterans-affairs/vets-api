@@ -48,7 +48,7 @@ RSpec.describe BGS::DependentService do
         allow(claim).to receive(:submittable_686?)
         allow(claim).to receive(:submittable_674?)
 
-        expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, vet_info)
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(claim.id, vet_info)
 
         service.submit_686c_form(claim)
       end

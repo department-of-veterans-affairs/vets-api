@@ -45,7 +45,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   let(:terms) { create(:terms_and_conditions, latest: true, name: MHVAccount::TERMS_AND_CONDITIONS_NAME) }
 
   before do
-    stub_mvi(mvi_profile)
+    stub_mpi(mvi_profile)
     sign_in_as(user)
   end
 

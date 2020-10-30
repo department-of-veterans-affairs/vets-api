@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VBMS::SubmitDependentsPDFJob do
+RSpec.describe VBMS::SubmitDependentsPdfJob do
   let(:invalid_dependency_claim) { create(:dependency_claim_no_vet_information) }
   let(:dependency_claim) { create(:dependency_claim) }
   let(:vet_info) do
@@ -45,7 +45,7 @@ RSpec.describe VBMS::SubmitDependentsPDFJob do
         job = described_class.new
 
         expect(job).to receive(:send_error_to_sentry).with(
-          an_instance_of(VBMS::SubmitDependentsPDFJob::Invalid686cClaim),
+          an_instance_of(VBMS::SubmitDependentsPdfJob::Invalid686cClaim),
           an_instance_of(Integer)
         )
 

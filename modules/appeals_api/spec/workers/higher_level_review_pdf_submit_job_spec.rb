@@ -38,7 +38,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     expect(updated.status).to eq('submitted')
   end
 
-  it 'sets error status for downstream server error' do
+  it 'sets error status for upstream server error' do
     allow(CentralMail::Service).to receive(:new) { client_stub }
     allow(faraday_response).to receive(:status).and_return(422)
     allow(faraday_response).to receive(:body).and_return('')

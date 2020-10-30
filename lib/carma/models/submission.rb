@@ -51,11 +51,7 @@ module CARMA
 
         @request_body = to_request_payload
 
-        response =  if Flipper.enabled?(:stub_carma_responses)
-                      client.create_submission_stub(request_body)
-                    else
-                      client.create_submission(request_body)
-                    end
+        response = client.create_submission(request_body)
 
         @carma_case_id = response['data']['carmacase']['id']
         @submitted_at = response['data']['carmacase']['createdAt']
