@@ -2,7 +2,7 @@
 
 require 'sidekiq'
 
-module VBADocuments
+module ClaimsApi
   class ReportUnsuccessfulSubmissions
     include Sidekiq::Worker
 
@@ -10,37 +10,35 @@ module VBADocuments
       if Settings.claims.report_enabled
         @to = Time.zone.now
         @from = @to.monday? ? 7.days.ago : 1.day.ago
-        @consumers = VBADocuments::UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq
+        @consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:source).uniq
 
-        VBADocuments::UnsuccessfulReportMailer.build(totals, stuck, errored, @from, @to).deliver_now
+        ClaimsApi::UnsuccessfulReportMailer.build(totals, pending, errored, @from, @to).deliver_now
       end
     end
 
     def errored
-      VBADocuments::UploadSubmission.where(
+      ClaimsApi::AutoEstablishedClaim.where(
         created_at: @from..@to,
-        status: %w[error expired]
-      ).order(:consumer_name, :status)
+        status: %w[errored]
+      ).order(:source, :status)
     end
 
-    def stuck
-      VBADocuments::UploadSubmission.where(
+    def pending
+      ClaimsApi::AutoEstablishedClaim.where(
         created_at: @from..@to,
-        status: 'uploaded'
-      ).order(:consumer_name, :status)
+        status: 'pending'
+      ).order(:source, :status)
     end
 
     def totals
       @consumers.map do |name|
-        counts = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
+        counts = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to, source: name).group(:status).count
         totals = counts.sum { |_k, v| v }
-        error_rate = counts['error'] ? (100.0 / totals * counts['error']).round : 0
-        expired_rate = counts['expired'] ? (100.0 / totals * counts['expired']).round : 0
+        error_rate = counts['errored'] ? (100.0 / totals * counts['errored']).round : 0
         if totals.positive?
           {
             name => counts.merge(totals: totals,
-                                 error_rate: "#{error_rate}%",
-                                 expired_rate: "#{expired_rate}%")
+                                 error_rate: "#{error_rate}%")
           }
         end
       end
