@@ -48,4 +48,14 @@ describe HealthQuest::SessionService do
       expect(subject.send(:headers)).to eq(headers)
     end
   end
+
+  describe '#perform' do
+    it 'perform has a body of type Hash' do
+      path = '/appointments/v1/patients/1012845331V153043/appointments/132'
+
+      VCR.use_cassette('health_quest/appointments/get_appointment_by_id_playground') do
+        expect(subject.send(:perform, :get, path, {}, {}, {}).body).to be_a(Hash)
+      end
+    end
+  end
 end
