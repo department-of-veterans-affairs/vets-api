@@ -30,6 +30,17 @@
         type: "REGULAR"
         current_status: "NO ACTION TAKEN/TODAY"
         booking_notes: "Follow-up/Routine: testing reason for visit field availability"
+      vvs_appointments:
+      - id: "abc"
+        status: "defgh"
+        patients:
+          patient:
+          - id: "1"
+            name: "Foo Bar"
+        providers:
+          provider:
+          - name: "The Provider"
+            id: "9000"
   :headers:
     Cache-Control: no-cache
     Pragma: no-cache

@@ -11,8 +11,14 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
   end
 
   describe 'GET appointments' do
-    context 'loa3 user' do
+    context 'health_quest user' do
       let(:current_user) { build(:user, :health_quest) }
+
+      it 'has an instance of a va appointment serializer' do
+        expect(HealthQuest::V0::VAAppointmentsSerializer).to receive(:new).once
+
+        get '/health_quest/v0/appointments/132'
+      end
 
       it 'is successful' do
         get '/health_quest/v0/appointments/132'
