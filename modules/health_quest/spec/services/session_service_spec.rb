@@ -6,9 +6,18 @@ describe HealthQuest::SessionService do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :health_quest) }
+  let(:request_id) { SecureRandom.uuid }
+  let(:headers) do
+    {
+      'Referer' => 'https://review-instance.va.gov',
+      'X-VAMF-JWT' => 'stubbed_token',
+      'X-Request-ID' => request_id
+    }
+  end
 
   before do
     Flipper.enable('show_healthcare_experience_questionnaire')
+    RequestStore['request_id'] = request_id
     allow_any_instance_of(HealthQuest::UserService).to receive(:session).and_return('stubbed_token')
   end
 
@@ -19,6 +28,24 @@ describe HealthQuest::SessionService do
 
     it 'user attribute is a User' do
       expect(subject.user).to be_a(User)
+    end
+  end
+
+  describe '#config' do
+    it 'has a configuration' do
+      expect(subject.send(:config)).to be_a(HealthQuest::Configuration)
+    end
+  end
+
+  describe '#user_service' do
+    it 'has a user service instance' do
+      expect(subject.send(:user_service)).to be_an_instance_of(HealthQuest::UserService)
+    end
+  end
+
+  describe '#headers' do
+    it 'has headers' do
+      expect(subject.send(:headers)).to eq(headers)
     end
   end
 end
