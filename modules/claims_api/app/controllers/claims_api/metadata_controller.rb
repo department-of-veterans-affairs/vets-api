@@ -32,40 +32,45 @@ module ClaimsApi
     end
 
     def healthcheck
-      if ClaimsApi::HealthChecker.services_are_healthy?
-        render json: healthy_service_response
-      else
-        render json: unhealthy_service_response,
-               status: :service_unavailable
-      end
+      render json: {
+        description: 'Claims API health check',
+        status: 'UP',
+        time: Time.zone.now.to_formatted_s(:iso8601)
+      }
+    end
+
+    def upstream_healthcheck
+      health_checker = ClaimsApi::HealthChecker.new
+      time = Time.zone.now.to_formatted_s(:iso8601)
+
+      render json: {
+        description: 'Claims API upstream health check',
+        status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
+        time: time,
+        details: {
+          name: 'All upstream services',
+          upstreamServices: ClaimsApi::HealthChecker::SERVICES.map do |service|
+                              upstream_service_details(service, health_checker, time)
+                            end
+        }
+      }, status: health_checker.services_are_healthy? ? 200 : 503
     end
 
     private
 
-    def healthy_service_response
-      {
-        data: {
-          id: 'claims_healthcheck',
-          type: 'claims_healthcheck',
-          attributes: {
-            healthy: true,
-            date: Time.zone.now.to_formatted_s(:iso8601)
-          }
-        }
-      }.to_json
-    end
+    def upstream_service_details(service_name, health_checker, time)
+      healthy = health_checker.healthy_service?(service_name)
 
-    def unhealthy_service_response
       {
-        errors: [
-          {
-            title: 'ClaimsAPI Unavailable',
-            detail: 'ClaimsAPI is currently unavailable.',
-            code: '503',
-            status: '503'
-          }
-        ]
-      }.to_json
+        description: service_name.upcase,
+        status: healthy ? 'UP' : 'DOWN',
+        details: {
+          name: service_name.upcase,
+          statusCode: healthy ? 200 : 503,
+          status: healthy ? 'OK' : 'Unavailable',
+          time: time
+        }
+      }
     end
   end
 end
