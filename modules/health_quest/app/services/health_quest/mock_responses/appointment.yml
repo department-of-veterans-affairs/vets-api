@@ -25,6 +25,7 @@
           facility_code: "983"
           facility:
             display_name: "VDS Facility Display Name"
+          stop_code: "323"
         patient_id: "7219393"
         type: "REGULAR"
         current_status: "NO ACTION TAKEN/TODAY"
