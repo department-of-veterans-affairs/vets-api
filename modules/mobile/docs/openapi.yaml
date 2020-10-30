@@ -50,139 +50,107 @@ paths:
               examples:
                 VA Appointment:
                   value:
-                    resourceType: Bundle
-                    id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                    type: searchset
-                    total: 1
-                    entry:
-                      - resource:
-                          resourceType: Appointment
-                          id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                          status: booked
-                          start: 2020-10-29T10:30:00-07:00
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: va
+                          status: BOOKED
+                          startTime: 2020-10-29T10:30:00Z
                           minutesDuration: 60
                           comment: Please arrive 20 minutes before the start of your appointment
-                          participant:
-                            - reference: Practitioner/PRACTITIONER_ID
-                              display: Bob Belcher
-                          contained:
-                            - resourceType: Location
-                              id: 23fe358d-6e82-4541-804c-ce7562ba28f4
-                              name: Audiologists of Dayton
-                              address:
-                                line:
-                                  - 123 Main St
-                                city: Dayton
-                                state: OH
-                                postalCode: 45405
-                          vaos:
-                            isPastAppointment: false
-                            appointmentType: vaAppointment
-                            isCommunityCare: true
-                            timeZone: -07:00 PST
+                          timeZone: America/Los_Angeles
+                          healthcareService: Blind Rehabilitation Center
+                          location:
+                            name: VA Long Beach Healthcare System
+                            address:
+                              line1: 5901 East 7th Street
+                              line2: Building 166
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90822"
+                            phone:
+                              number: 562-826-8000
+                              extension: "5696"
+                            url: null
+                            code: null
+
                 VA Video Connect Appointment:
                   value:
-                    resourceType: Bundle
-                    id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                    type: searchset
-                    total: 1
-                    entry:
-                      - resource:
-                          resourceType: Appointment
-                          id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                          status: booked
-                          start: 2020-11-25T08:17:00-07:00
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: VA_VIDEO_CONNECT
+                          status: CANCELLED
+                          startTime: 2020-10-29T10:30:00Z
                           minutesDuration: 60
-                          comment: Medication Review
-                          participant: null
-                          contained:
-                            - resourceType: HealthcareService
-                              id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                              type:
-                                - text: Patient Virtual Meeting Room
-                              characteristic:
-                                - coding: videoConnect
-                              telecom:
-                                - system: url
-                                  value: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
-                                  period:
-                                    start: 2020-11-25T08:17:00-07:00
-                          vaos:
-                            isPastAppointment: false
-                            appointmentType: vaAppointment
-                            isCommunityCare: false
-                            timeZone: -07:00 PST
+                          comment: Please log on 5 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: null
+                          location:
+                            name: null
+                            address: null
+                            phone: null
+                            url: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+                            code: null
+
                 VA Video Connect ATLAS Appointment:
                   value:
-                    resourceType: Bundle
-                    id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                    type: searchset
-                    total: 1
-                    entry:
-                      - resource:
-                          resourceType: Appointment
-                          id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                          status: booked
-                          start: 2020-11-25T08:17:00-07:00
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: VA_VIDEO_CONNECT_ATLAS
+                          status: BOOKED
+                          startTime: 2020-10-29T10:30:00Z
                           minutesDuration: 60
-                          comment: Medication Review
-                          participant: null
-                          contained:
-                            - resourceType: HealthcareService
-                              id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                              type:
-                                - text: Patient Virtual Meeting Room
-                              location:
-                                reference: Location/var983
-                              characteristic:
-                                - coding: videoConnectAtlas
-                                  text: GL32CA
-                            - resourceType: Location
-                              id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                              name: Audiologists of Dayton
-                              address:
-                                line:
-                                  - 123 Main St
-                                city: Dayton
-                                state: OH
-                                postalCode: 45405
-                          vaos:
-                            isPastAppointment: false
-                            appointmentType: vaAppointment
-                            isCommunityCare: false
-                            timeZone: -07:00 PST
+                          comment: Please log on 5 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: ATLAS Conference Center
+                          location:
+                            name: VA Long Beach Healthcare System
+                            address:
+                              line1: 5901 East 7th Street
+                              line2: Building 165
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90822"
+                            phone:
+                              number: 562-826-8000
+                              extension: null
+                            url: null
+                            code: null
+
                 Community Care Appointment:
                   value:
-                    resourceType: Bundle
-                    id: '23fe358d-6e82-4541-804c-ce7562ba28f4'
-                    type: searchset
-                    total: 1
-                    entry:
-                      - resource:
-                          resourceType: Appointment
-                          id: 23fe358d-6e82-4541-804c-ce7562ba28f4
-                          status: booked
-                          start: 2020-10-29T10:30:00-07:00
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: COMMUNITY_CARE
+                          status: CANCELLED
+                          startTime: 2020-10-29T10:30:00Z
                           minutesDuration: 60
                           comment: Please arrive 20 minutes before the start of your appointment
-                          participant:
-                            - reference: Practitioner/PRACTITIONER_ID
-                              display: Bob Belcher
-                          contained:
-                            - resourceType: Location
-                              id: 23fe358d-6e82-4541-804c-ce7562ba28f4
-                              name: Audiologists of Dayton
-                              address:
-                                line:
-                                  - 123 Main St
-                                city: Dayton
-                                state: OH
-                                postalCode: '45405'
-                          vaos:
-                            isPastAppointment: false
-                            appointmentType:
-                            isCommunityCare: true
-                            timeZone: "-07:00 PST"
+                          timeZone: America/Los_Angeles
+                          healthcareService: null
+                          location:
+                            name: Kaiser Shoreline Treatment Center
+                            address:
+                              line1: 191 Argonne Ave
+                              line2: Ste 3
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90803"
+                            phone:
+                              number: 562-434-6008
+                              extension: null
+                            url: null
+                            code: null
 
         '401':
           description: Authentication is possible but has failed or not yet been provided.
@@ -1163,208 +1131,115 @@ components:
   schemas:
     Appointments:
       required:
-        - resourceType
-        - id
-        - type
-        - total
-        - entry
+        - data
       properties:
-        resourceType:
-          type: string
-          example: Bundle
-        id:
-          type: string
-          example: 23fe358d-6e82-4541-804c-ce7562ba28f4
-        type:
-          type: string
-          example: searchset
-        total:
-          type: integer
-          example: 7
-        entry:
+        data:
           type: array
           items:
             $ref: "#/components/schemas/Appointment"
 
     Appointment:
       required:
-        - resource
+        - type
+        - id
+        - attributes
       properties:
-        resource:
+        type:
+          type: string
+          example: "appointment"
+        id:
+          type: string
+          example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+        attributes:
           type: object
           required:
-            - resourceType
-            - id
+            - appointmentType
             - status
-            - start
+            - startTime
             - minutesDuration
             - comment
-            - participant
-            - contained
-            - vaos
+            - timeZone
+            - healthcareService
+            - location
           properties:
-            resourceType:
+            appointmentType:
               type: string
-              example: Appointment
-            id:
-              type: string
-              example: 23fe358d-6e82-4541-804c-ce7562ba28f4
+              enum: [COMMUNITY_CARE, VA, VA_VIDEO_CONNECT, VA_VIDEO_CONNECT_ATLAS]
+              example: VA
             status:
               type: string
-              enum: ['booked', 'cancelled']
-              example: booked
-            start:
+              enum: [BOOKED, CANCELLED]
+              example: BOOKED
+            startTime:
               type: datetime
-              example: 2020-10-29T10:30:00-07:00
+              example: 2020-10-29T10:30:00Z
             minutesDuration:
               type: integer
               example: 60
             comment:
               type: string
               example: Please arrive 20 minutes before the start of your appointment
-            participant:
-              type: array
-              items:
-                $ref: "#/components/schemas/Actor"
-            contained:
-              type: array
-              items:
-                anyOf:
-                  - $ref: "#/components/schemas/HealthcareService"
-                  - $ref: "#/components/schemas/Location"
-
-            vaos:
+            timeZone:
+              type: string
+              enum: [Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York]
+              example: America/Los_Angeles
+            healthcareService:
+              type: string
+              example: Blind Rehabilitation Center
+            location:
               type: object
               required:
-                - isPastAppointment
-                - appointmentType
-                - isCommunityCare
-                - timeZone
+                - address
+                - phoneNumber
+                - url
+                - code
               properties:
-                isPastAppointment:
-                  type: boolean
-                  example: false
-                appointmentType:
+                address:
+                  type: object
+                  required:
+                    - line1
+                    - line2
+                    - line3
+                    - city
+                    - state
+                    - zipCode
+                  properties:
+                    line1:
+                      type: string
+                      example: 5901 East 7th Street
+                    line2:
+                      type: string
+                      example: Building 166
+                    line3:
+                      type: string
+                      example: null
+                    city:
+                      type: string
+                      example: Long Beach
+                    state:
+                      type: string
+                      example: CA
+                    zipCode:
+                      type: string
+                      example: 90822
+                phone:
+                  type: object
+                  required:
+                    - number
+                    - extension
+                  properties:
+                    number:
+                      type: string
+                      example: 562-434-6008
+                    extension:
+                      type: string
+                      example: 1001
+                url:
                   type: string
-                  enum: ['vaAppointment', 'ccAppointment']
-                  example: vaAppointment
-                isCommunityCare:
-                  type: boolean
-                  example: true
-                timeZone:
+                  example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+                code:
                   type: string
-                  example: -07:00 PST
-
-    Actor:
-      required:
-        - reference
-        - display
-      properties:
-        reference:
-          type: string
-          example: Practitioner/PRACTITIONER_ID
-        display:
-          type: string
-          example: Bob Belcher
-
-    HealthcareService:
-      required:
-        - resourceType
-        - id
-        - type
-        - characteristic
-        - telecom
-      properties:
-        resourceType:
-          type: string
-          example: HealthCareService
-        id:
-          type: string
-          example: 23fe358d-6e82-4541-804c-ce7562ba28f4
-        type:
-          type: array
-          items:
-            required:
-              - text
-            properties:
-              text:
-                type: string
-                example: Patient Virtual Meeting Room
-        characteristic:
-          type: array
-          items:
-            required:
-              - coding
-            properties:
-              coding:
-                type: string
-                example: videoConnect
-        telecom:
-          type: array
-          items:
-            required:
-              - system
-              - value
-              - period
-            properties:
-              system:
-                type: string
-                enum: ['phone', 'fax', 'email', 'pager', 'url', 'sms', 'other']
-                example: url
-              value:
-                type: string
-                example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
-              period:
-                type: object
-                required:
-                  - start
-                properties:
-                  start:
-                    type: datetime
-                    example: 2020-11-25T08:17:00-07:00
-
-    Location:
-      required:
-        - resourceType
-        - id
-        - name
-        - address
-        - city
-        - state
-        - postalCode
-      properties:
-        resourceType:
-          type: string
-          example: Location
-        id:
-          type: string
-          example: 23fe358d-6e82-4541-804c-ce7562ba28f4
-        name:
-          type: string
-          example: Audiologists of Dayton
-        address:
-          type: object
-          required:
-            - line
-            - city
-            - state
-            - postalCode
-            - telecom
-          properties:
-            line:
-              type: array
-              items:
-                type: string
-                example: 123 Main St
-            city:
-              type: string
-              example: Dayton
-            state:
-              type: string
-              example: OH
-            postalCode:
-              type: string
-              example: 45405
+                  example: GL32CA
 
     UpdatePaymentInfoRequest:
       required:
