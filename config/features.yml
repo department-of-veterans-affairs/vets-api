@@ -286,6 +286,10 @@ features:
     actor_type: user
     description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
+  show_chapter_31:
+    actor_type: user
+    description: >
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
   stem_text_message_question:
     actor_type: user
     enable_in_development: true
