@@ -43,17 +43,10 @@ describe HealthQuest::V0::VAAppointmentsSerializer do
     end
 
     it 'data has attributes' do
-      expect(subject.serializable_hash[:data][:attributes].keys).to eq(%i[
-                                                                         start_date
-                                                                         sta6aid
-                                                                         clinic_id
-                                                                         clinic_friendly_name
-                                                                         facility_id
-                                                                         community_care
-                                                                         patient_icn
-                                                                         vds_appointments
-                                                                         vvs_appointments
-                                                                       ])
+      expect(subject.serializable_hash[:data][:attributes].keys).to eq(
+        %i[start_date sta6aid clinic_id clinic_friendly_name facility_id community_care patient_icn vds_appointments
+           vvs_appointments]
+      )
     end
 
     it 'ignores patient id for vvs_appointments' do
