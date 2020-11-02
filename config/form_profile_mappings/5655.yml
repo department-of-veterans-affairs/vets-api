@@ -1,3 +1,6 @@
+personalIdentification:
+  sSN: [identity_information, ssn_last_four]
+  fileNumber: [va_file_number_last_four]
 personalData:
   fullName: [identity_information, full_name]
   address: [contact_information, address]
