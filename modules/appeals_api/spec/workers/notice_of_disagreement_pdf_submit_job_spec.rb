@@ -19,7 +19,7 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
     it 'generates the expected pdf' do
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
       path = described_class.new.generate_pdf(notice_of_disagreement.id)
-      expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996.pdf') # TODO change to expected_10182.pdf
+      expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996.pdf') # TODO: change to expected_10182.pdf
       generated_pdf_md5 = Digest::MD5.digest(File.read(path))
       expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
       byebug
