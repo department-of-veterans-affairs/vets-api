@@ -17,6 +17,22 @@ RSpec.describe ApplicationController, type: :controller do
       raise Pundit::NotAuthorizedError
     end
 
+    def unauthorized
+      raise Common::Exceptions::Unauthorized
+    end
+
+    def routing_error
+      raise Common::Exceptions::RoutingError
+    end
+
+    def forbidden
+      raise Common::Exceptions::Forbidden
+    end
+
+    def breakers_outage
+      raise Breakers::OutageException
+    end
+
     def record_not_found
       raise Common::Exceptions::RecordNotFound, 'some_id'
     end
@@ -43,6 +59,10 @@ RSpec.describe ApplicationController, type: :controller do
   before do
     routes.draw do
       get 'not_authorized' => 'anonymous#not_authorized'
+      get 'unauthorized' => 'anonymous#unauthorized'
+      get 'routing_error' => 'anonymous#routing_error'
+      get 'forbidden' => 'anonymous#forbidden'
+      get 'breakers_outage' => 'anonymous#breakers_outage'
       get 'record_not_found' => 'anonymous#record_not_found'
       get 'other_error' => 'anonymous#other_error'
       get 'client_connection_failed' => 'anonymous#client_connection_failed'
@@ -52,6 +72,44 @@ RSpec.describe ApplicationController, type: :controller do
   end
 
   it_behaves_like 'a sentry logger'
+
+  describe 'Sentry Handling' do
+    around do |example|
+      with_settings(Settings.sentry, dsn: 'T') do
+        example.run
+      end
+    end
+
+    it 'does log exceptions to sentry if Pundit::NotAuthorizedError' do
+      expect(Raven).to receive(:capture_exception).with('')
+      expect(Raven).not_to receive(:capture_message)
+      get :not_authorized
+    end
+
+    it 'does log exceptions to sentry if Breakers::OutageException' do
+      expect(Raven).to receive(:capture_exception).with('')
+      expect(Raven).not_to receive(:capture_message)
+      get :breakers_outage
+    end
+
+    it 'does not log to sentry if Common::Exceptions::Unauthorized' do
+      expect(Raven).not_to receive(:capture_exception)
+      expect(Raven).not_to receive(:capture_message)
+      get :unauthorized
+    end
+
+    it 'does not log to sentry if Common::Exceptions::RoutingError' do
+      expect(Raven).not_to receive(:capture_exception)
+      expect(Raven).not_to receive(:capture_message)
+      get :routing_error
+    end
+
+    it 'does not log to sentry if Common::Exceptions::Forbidden' do
+      expect(Raven).not_to receive(:capture_exception)
+      expect(Raven).not_to receive(:capture_message)
+      get :forbidden
+    end
+  end
 
   describe '#clear_saved_form' do
     subject do
