@@ -2,7 +2,7 @@
 
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   PROCESSING_CLASS = VIC::ProcessingUploader
-  include SetAwsConfig
+  include SetAWSConfig
   include AsyncProcessing
   include LogMetrics
 

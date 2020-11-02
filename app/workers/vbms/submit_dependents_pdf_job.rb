@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VBMS
-  class SubmitDependentsPDFJob
+  class SubmitDependentsPdfJob
     class Invalid686cClaim < StandardError; end
     include Sidekiq::Worker
     include SentryLogging

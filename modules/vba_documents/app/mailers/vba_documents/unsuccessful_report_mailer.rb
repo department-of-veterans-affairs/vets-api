@@ -15,9 +15,9 @@ module VBADocuments
       gregory.bowman@libertyits.com
     ].freeze
 
-    def build(consumer_totals, stuck_submissions, unsuccessful_submissions, date_from, date_to)
+    def build(consumer_totals, pending_submissions, unsuccessful_submissions, date_from, date_to)
       @consumer_totals = consumer_totals
-      @stuck_submissions = stuck_submissions
+      @pending_submissions = pending_submissions
       @unsuccessful_submissions = unsuccessful_submissions
       @date_from = date_from
       @date_to = date_to

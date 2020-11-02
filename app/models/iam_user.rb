@@ -36,7 +36,7 @@ class IAMUser < ::User
   # @return [String] the users DoD EDIPI
   #
   def edipi
-    loa3? && iam_edipi.present? ? iam_edipi : mvi&.edipi
+    loa3? && iam_edipi.present? ? iam_edipi : mpi&.edipi
   end
 
   # for PII reasons we don't send correlation ids over the wire

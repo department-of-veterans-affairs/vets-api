@@ -9,7 +9,7 @@ RSpec.describe Debts::LetterDownloader do
 
   let(:file_number) { '796043735' }
   let(:user) { build(:user, :loa3, ssn: file_number) }
-  let(:vbms_client) { FakeVbms.new }
+  let(:vbms_client) { FakeVBMS.new }
   let(:good_document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
   let(:bad_document_id) { '{abc}' }
 
