@@ -65,7 +65,7 @@ Pact.service_provider 'VA.gov API' do
   # end
 
   honours_pacts_from_pact_broker do
-    pact_broker_base_url 'https://https://dev.va.gov/_vfs/pact-broker',
+    pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker',
                          {
                            username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
                            password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
