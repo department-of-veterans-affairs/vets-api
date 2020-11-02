@@ -947,6 +947,181 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  /v0/all-appeals:
+    get:
+      summary: /v0/all-appeals
+      description: Returns user's appeals data
+      operationId: index
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllAppeals"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/all-claims-async:
+    get:
+      summary: /v0/all-claims-async
+      description: Asyncronously returns info on all user's claims
+      operationId: index
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AllClaims"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/claim-async/{claim}:
+    get:
+      summary: /v0/claim-async
+      description: Asyncronously returns info for requested claim
+      operationId: getClaim
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: path
+          name: claim
+          required: true
+          schema:
+            type: string
+          description: claim id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
 components:
   securitySchemes:
     Bearer:
@@ -956,6 +1131,493 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    Claim:
+      required:
+        - data
+        - meta
+      properties:
+        meta:
+          type: object
+          required:
+            - syncStatus
+          properties:
+            syncStatus:
+              type: string
+              example: "SUCCESS"
+              enum:
+                - SUCCESS
+                - FAILURE
+                - REQUESTED
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "claim"
+            id:
+              type: string
+              description: user id
+              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+            attributes:
+              type: object
+              required:
+                - id
+                - dateFiled
+                - displayDateFiled
+                - minEstDate
+                - displayMinEstDate
+                - maxEstDate
+                - displayMaxEstDate
+                - phaseChangeDate
+                - open
+                - waiverSubmitted
+                - documentsNeeded
+                - developmentLetterSent
+                - decisionLetterSent
+                - phase
+                - everPhaseBack
+                - currentPhaseBack
+                - requestedDecision
+                - claimType
+                - updatedAt
+                - displayUpdatedAt
+                - contentionList
+                - vaRepresentative
+                - eventsTimeline
+              properties:
+                id:
+                  type: number
+                  example: 600207887
+                dateFiled:
+                  type: string
+                  example: "2020-10-07"
+                displayDateFiled:
+                  type: string
+                  example: "October 7, 2020"
+                minEstDate:
+                  type: string, null
+                  example: "2016-11-14"
+                displayMinEstDate:
+                  type: string, null
+                  example: "November 14, 2016"
+                maxEstDate:
+                  type: string, null
+                  example: "2016-11-14"
+                displayMaxEstDate:
+                  type: string, null
+                  example: "November 14, 2016"
+                phaseChangeDate:
+                  type: string
+                  example: "2020-10-07"
+                open:
+                  type: boolean
+                waiverSubmitted:
+                  type: boolean
+                documentsNeeded:
+                  type: boolean
+                developmentLetterSent:
+                  type: boolean
+                decisionLetterSent:
+                  type: boolean
+                phase:
+                  type: number
+                  example: 2
+                  enum:
+                    - 1
+                    - 2
+                    - 3
+                    - 4
+                    - 5
+                    - 6
+                    - 7
+                    - 8
+                everPhaseBack:
+                  type: boolean
+                currentPhaseBack:
+                  type: boolean
+                requestedDecision:
+                  type: boolean
+                claimType:
+                  type: string
+                  example: "Compensation"
+                updatedAt:
+                  type: string
+                  example: "2020-10-07T18:19:26.192Z"
+                displayUpdatedAt:
+                  type: string
+                  example: "October 7, 2020"
+                contentionList:
+                  type: array
+                  items:
+                    type: string
+                    example: "abscess liver (New)"
+                vaRepresentative:
+                  type: string
+                  example: "VENKATA KOMMOJU"
+                eventsTimeline:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/ClaimEvent"
+    ClaimEvent:
+      required:
+        - type
+        - date
+        - displayDate
+      properties:
+        type:
+          type: string
+          example: "other_documents_list"
+        date:
+          type: string, null
+          example: "2020-05-01"
+        displayDate:
+          type: string
+          example: "May 1, 2020"
+        trackedItemId:
+          type: number, null
+        fileType:
+          type: string, null
+          example: "VA 21-4142a General Release for Medical Provider Information"
+        documentType:
+          type: string, null
+          example: "L533"
+        filename:
+          type: string, null
+        uploadDate:
+          type: string, null
+    AllClaims:
+      required:
+        - data
+        - meta
+      properties:
+        meta:
+          type: object
+          required:
+            - syncStatus
+          properties:
+            syncStatus:
+              type: string
+              example: "SUCCESS"
+              enum:
+                - SUCCESS
+                - FAILURE
+                - REQUESTED
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "allClaims"
+            id:
+              type: string
+              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+            attributes:
+              type: object
+              required:
+                - claims
+              properties:
+                claims:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/ClaimForAllClaims"
+    ClaimForAllClaims:
+      required:
+        - id
+        - dateFiled
+        - displayDateFiled
+        - minEstDate
+        - displayMinEstDate
+        - maxEstDate
+        - displayMaxEstDate
+        - phaseChangeDate
+        - open
+        - waiverSubmitted
+        - documentsNeeded
+        - developmentLetterSent
+        - decisionLetterSent
+        - phase
+        - everPhaseBack
+        - currentPhaseBack
+        - requestedDecision
+        - claimType
+        - updatedAt
+        - displayUpdatedAt
+      properties:
+        id:
+          type: number
+          example: 600207887
+        dateFiled:
+          type: string
+          example: "2020-10-07"
+        displayDateFiled:
+          type: string
+          example: "October 7, 2020"
+        minEstDate:
+          type: string, null
+          example: "2016-11-14"
+        displayMinEstDate:
+          type: string, null
+          example: "November 14, 2016"
+        maxEstDate:
+          type: string, null
+          example: "2016-11-14"
+        displayMaxEstDate:
+          type: string, null
+          example: "November 14, 2016"
+        phaseChangeDate:
+          type: string
+          example: "2020-10-07"
+        open:
+          type: boolean
+        waiverSubmitted:
+          type: boolean
+        documentsNeeded:
+          type: boolean
+        developmentLetterSent:
+          type: boolean
+        decisionLetterSent:
+          type: boolean
+        phase:
+          type: number
+          example: 2
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+        everPhaseBack:
+          type: boolean
+        currentPhaseBack:
+          type: boolean
+        requestedDecision:
+          type: boolean
+        claimType:
+          type: string
+          example: "Compensation"
+        updatedAt:
+          type: string
+          example: "2020-10-07T18:19:26.192Z"
+        displayUpdatedAt:
+          type: string
+          example: "October 7, 2020"
+    AllAppeals:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "allAppeals"
+            id:
+              type: string
+              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+            attributes:
+              type: object
+              required:
+                - appeals
+              properties:
+                appeals:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Appeal"
+    Appeal:
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "HLR2423"
+        type:
+          type: string
+          example: "higherLevelReview"
+        attributes:
+          required:
+            - appealsIds
+            - updated
+            - displayUpdated
+            - incompleteHistory
+            - active
+            - description
+            - location
+            - aod
+            - aoj
+            - programArea
+            - alerts
+            - issues
+            - events
+            - evidence
+          properties:
+            appealsIds:
+              type: array
+              items:
+                type: string
+                example: "HLR2423"
+            updated:
+              type: string
+              example: "2020-10-27T11:14:32-04:00"
+            diplayUpdated:
+              type: string
+              example: "October 27, 2020"
+            incompleteHistory:
+              type: boolean
+            active:
+              type: boolean
+            description:
+              type: string
+              example: "7 compensation issues"
+            location:
+              type: string
+              example: "aoj"
+            aod:
+              type: boolean
+            aoj:
+              type: string
+              example: "vba"
+            programArea:
+              type: string
+              example: "compensation"
+            alerts:
+              type: array
+              items:
+                type: object
+                $ref: "#/components/schemas/AppealAlert"
+            issues:
+              type: array
+              items:
+                type: object
+                $ref: "#/components/schemas/AppealIssue"
+            events:
+              type: array
+              items:
+                type: object
+                $ref: "#/components/schemas/AppealEvent"
+            evidence:
+              type: array
+            docket:
+              type: object
+              required:
+                - front
+                - total
+                - ahead
+                - ready
+                - month
+                - displayMonth
+                - docketMonth
+                - displayDocketMonth
+                - eta
+              properties:
+                front:
+                  type: boolean
+                total:
+                  type: number
+                  example: 140135
+                ahead:
+                  type: number
+                  example: 65851
+                ready:
+                  type: number
+                  example: 8115
+                month:
+                  type: string
+                  example: "2010-11-01"
+                displayMonth:
+                  type: string
+                  example: "January 2010"
+                docketMonth:
+                  type: string
+                  example: "2011-01-01"
+                displayDocketMonth:
+                  type: string
+                  example: "January 2011"
+                eta:
+                  type: string, null
+                  example: null
+    AppealAlert:
+      required:
+        - type
+        - details
+      properties:
+        type:
+          type: string
+          example: "scheduled_hearing"
+        details:
+          type: object
+          required:
+            - date
+            - displayDate
+            - type
+            - location
+          properties:
+            date:
+              type: string
+              example: "2017-08-26"
+            displayDate:
+              type: string
+              example: "August 26, 2017"
+            type:
+              type: string
+              example: "video"
+            location:
+              type: string, null
+    AppealEvent:
+      required:
+        - type
+        - date
+        - displayDate
+      properties:
+        type:
+          type: string
+          example: "hlr_request"
+        date:
+          type: string
+          example: "2020-05-01"
+        displayDate:
+          type: string
+          example: "May 1, 2020"
+    AppealIssue:
+      required:
+        - active
+        - lastAction
+        - date
+        - description
+        - diagnosticCode
+      properties:
+        active:
+          type: boolean
+        lastAction:
+          type: string, null
+          example: "withdrawn"
+        date:
+          type: string, null
+          example: "2003-09-30"
+        description:
+          type: string
+          example: "Compensation issue"
+        diagnosticCode:
+          type: string, null
+          example: "5295"
     UpdatePaymentInfoRequest:
       required:
         - accountNumber
