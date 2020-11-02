@@ -25,6 +25,7 @@ services:
       - .:/srv/vets-api/src:cached
       - "../vets-api-mockdata:/cache"
       - dev_bundle:/usr/local/bundle
+      - "./test_files:/test_files"
     ports:
       - "3000:3000"
     environment:
