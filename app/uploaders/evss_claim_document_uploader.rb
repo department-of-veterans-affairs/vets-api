@@ -3,7 +3,7 @@
 # Files that will be associated with a previously submitted claim, from the Claim Status tool
 class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
-  include SetAwsConfig
+  include SetAWSConfig
 
   def size_range
     1.byte...50.megabytes

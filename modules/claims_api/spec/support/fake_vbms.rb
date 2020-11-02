@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FakeVbms
+class FakeVBMS
   attr_accessor :client
 
   delegate :send_request, to: :client

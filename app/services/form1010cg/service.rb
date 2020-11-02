@@ -156,7 +156,7 @@ module Form1010cg
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
-      response = mvi_service.find_profile(build_user_identity_for(form_subject_data))
+      response = mpi_service.find_profile(build_user_identity_for(form_subject_data))
 
       if response.status == 'OK'
         log_mpi_search_result form_subject, :found
@@ -195,8 +195,8 @@ module Form1010cg
 
     private
 
-    def mvi_service
-      @mvi_service ||= MVI::Service.new
+    def mpi_service
+      @mpi_service ||= MVI::Service.new
     end
 
     def carma_client
