@@ -89,7 +89,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     it 'does not log to sentry if Breakers::OutageException' do
-      expect(Raven).not_to receive(:capture_exception).with('')
+      expect(Raven).not_to receive(:capture_exception)
       expect(Raven).not_to receive(:capture_message)
       get :breakers_outage
     end
