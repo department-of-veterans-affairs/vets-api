@@ -40,7 +40,12 @@ module CARMA
       private
 
       def restforce
-        @client ||= get_client
+        return @client if @client.present?
+
+        @client = get_client
+        @client.builder.insert_before(Faraday::Adapter::NetHttp, Betamocks::Middleware) if Settings['salesforce-carma'].mock
+
+        @client
       end
     end
   end
