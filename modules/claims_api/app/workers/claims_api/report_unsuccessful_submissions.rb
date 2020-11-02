@@ -7,7 +7,7 @@ module ClaimsApi
     include Sidekiq::Worker
 
     def perform
-      if Settings.claims.report_enabled
+      if Settings.claims_api.unsuccessful_report_enabled
         @to = Time.zone.now
         @from = @to.monday? ? 7.days.ago : 1.day.ago
         @consumers = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).pluck(:source).uniq

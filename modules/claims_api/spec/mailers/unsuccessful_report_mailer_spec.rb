@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
-  let(:errored_upload) { FactoryBot.create(:auto_established, :status_errored) }
-  let(:uploaded_upload) { FactoryBot.create(:auto_established, :status_established) }
+  let(:errored_upload) { FactoryBot.create(:auto_established_claim, :status_errored) }
+  let(:uploaded_upload) { FactoryBot.create(:auto_established_claim, :status_established) }
   let(:totals) do
     [
       {

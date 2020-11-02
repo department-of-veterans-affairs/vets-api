@@ -3,12 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
-  let(:error_upload) { FactoryBot.create(:auto_established, :status_errored, consumer_name: 'test consumer') }
-  let(:pending) { FactoryBot.create(:auto_established, :status_uploaded, consumer_name: 'test consumer') }
+  let(:errored_upload) { FactoryBot.create(:auto_established_claim, :status_errored, source: 'test consumer') }
+  let(:pending) { FactoryBot.create(:auto_established_claim, source: 'test consumer') }
 
   describe '#perform' do
     it 'sends mail' do
-      with_settings(Settings.claims,
+      with_settings(Settings.claims_api,
                     unsuccessful_report_enabled: true) do
         Timecop.freeze
         to = Time.zone.now
@@ -34,18 +34,17 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
     end
 
     it 'calculate totals' do
-      with_settings(Settings.claims,
+      with_settings(Settings.claims_api,
                     unsuccessful_report_enabled: true) do
-        error_upload
-        upload
-        expired
+        errored_upload
+        pending
 
         job = described_class.new
         job.perform
         totals = job.totals
 
         expect(totals.first.keys).to eq(['test consumer'])
-        expect(totals.first.values.first[:error_rate]).to eq('33%')
+        expect(totals.first.values.first[:error_rate]).to eq('50%')
       end
     end
   end
