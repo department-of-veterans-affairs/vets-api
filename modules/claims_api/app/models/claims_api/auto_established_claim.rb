@@ -15,6 +15,9 @@ module ClaimsApi
     SUBMITTED = 'submitted'
     ESTABLISHED = 'established'
     ERRORED = 'errored'
+
+    ALL_STATUSES = [PENDING, SUBMITTED, ESTABLISHED, ERRORED].freeze
+
     EVSS_CLAIM_ATTRIBUTES = %i[date_filed min_est_date max_est_date open waiver_submitted
                                documents_needed development_letter_sent decision_letter_sent
                                requested_decision va_representative].freeze

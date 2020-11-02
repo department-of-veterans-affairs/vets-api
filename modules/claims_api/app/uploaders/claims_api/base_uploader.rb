@@ -2,7 +2,7 @@
 
 module ClaimsApi
   class BaseUploader < CarrierWave::Uploader::Base
-    include SetAwsConfig
+    include SetAWSConfig
     include ValidatePdf
 
     def size_range

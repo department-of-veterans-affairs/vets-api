@@ -3,7 +3,7 @@
 require 'claims_api/vbms_uploader'
 
 module ClaimsApi
-  module VbmsSidekiq
+  module VBMSSidekiq
     def rescue_file_not_found(power_of_attorney)
       power_of_attorney.update(
         status: 'failed',
@@ -23,7 +23,7 @@ module ClaimsApi
     end
 
     def upload_to_vbms(power_of_attorney, path)
-      uploader = VbmsUploader.new(
+      uploader = VBMSUploader.new(
         filepath: path,
         file_number: power_of_attorney.auth_headers['va_eauth_pnid'],
         doc_type: '295'

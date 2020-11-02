@@ -60,7 +60,7 @@ module CentralMail
       )
     end
 
-    def map_downstream_error(status, body, error_class)
+    def map_error(status, body, error_class)
       if status.between?(400, 499)
         detail = if body.match?(INVALID_ZIP_CODE_ERROR_REGEX)
                    INVALID_ZIP_CODE_ERROR_MSG
@@ -69,7 +69,7 @@ module CentralMail
                  else
                    body
                  end
-        raise error_class.new(code: 'DOC104', detail: "Downstream status: #{status} - #{detail}")
+        raise error_class.new(code: 'DOC104', detail: "Upstream status: #{status} - #{detail}")
       # Defined values: 500
       elsif status.between?(500, 599)
         raise error_class.new(code: 'DOC201',
