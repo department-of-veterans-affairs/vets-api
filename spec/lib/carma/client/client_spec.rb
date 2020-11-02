@@ -4,6 +4,17 @@ require 'rails_helper'
 require 'carma/client/client'
 
 RSpec.describe CARMA::Client::Client, type: :model do
+  let(:restforce_client) do
+    restforce_client = double
+    builder = double
+
+    expect(subject).to receive(:get_client).and_return(restforce_client)
+    expect(restforce_client).to receive(:builder).and_return(builder)
+    expect(builder).to receive(:insert_before).with(Faraday::Adapter::NetHttp, Betamocks::Middleware)
+
+    restforce_client
+  end
+
   describe 'configuration' do
     it 'sets the proper constants' do
       expect(described_class::STATSD_KEY_PREFIX).to eq('api.carma')
@@ -17,9 +28,8 @@ RSpec.describe CARMA::Client::Client, type: :model do
   describe '#create_submission' do
     it 'accepts a payload and submitts to CARMA' do
       payload           = { 'my' => 'data' }
-      restforce_client  = double
       response_double   = double
-      expect(subject).to receive(:get_client).and_return(restforce_client)
+
       expect(restforce_client).to receive(:post).with(
         '/services/apexrest/carma/v1/1010-cg-submissions',
         payload,
@@ -38,9 +48,8 @@ RSpec.describe CARMA::Client::Client, type: :model do
   describe '#upload_attachments' do
     it 'accepts a payload and submitts to CARMA' do
       payload           = { 'my' => 'data' }
-      restforce_client  = double
       response_double   = double
-      expect(subject).to receive(:get_client).and_return(restforce_client)
+
       expect(restforce_client).to receive(:post).with(
         '/services/data/v47.0/composite/tree/ContentVersion',
         payload,
