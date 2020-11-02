@@ -559,7 +559,7 @@ va_mobile:
   timeout: 15
 
 hqva_mobile:
-  url: "https://vagovtest.mapsandbox.net"
+  url: "https://veteran.apps.va.gov"
   mock: false
   key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
