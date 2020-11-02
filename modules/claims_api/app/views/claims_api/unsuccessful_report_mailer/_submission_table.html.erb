@@ -15,7 +15,7 @@
         <td><%= claim.id %></td>
         <td><%= claim.source %></td>
         <td><%= claim.status %></td>
-        <td><%= claim.evss_response %></td>
+        <td><%= claim.evss_response&.to_s %></td>
         <td><%= claim.created_at %></td>
         <td><%= claim.updated_at %></td>
       </tr>
