@@ -31,7 +31,7 @@
   </tbody>
 </table>
 
-<h3> Stuck Submissions Count: <%= @pending_submissions.count %></h3>
+<h3> Pending Submissions Count: <%= @pending_submissions.count %></h3>
 <%= render partial: 'submission_table', locals: {submissions: @pending_submissions} unless @pending_submissions.count.zero? %>
 
 <hr>
