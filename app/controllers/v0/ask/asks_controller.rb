@@ -15,7 +15,7 @@ module V0
         render json: {
           'confirmationNumber': '0000-0000-0000',
           'dateSubmitted': DateTime.now.utc.strftime('%m-%d-%Y')
-        }
+        }, status: :created
       end
 
       private
