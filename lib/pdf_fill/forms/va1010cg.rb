@@ -545,8 +545,28 @@ module PdfFill
       def merge_certification_helpers
         subjects.each do |subject|
           provided_certifications = @form_data.dig(subject, 'certifications')
-          certification_requirements = certification_requirements_for(subject)
-          meets_requirement = certification_requirements.include?(provided_certifications)
+          sub_schema = VetsJsonSchema::SCHEMAS['10-10CG']['properties'][subject]['properties']['certifications']
+
+          schemer = JSONSchemer.schema(sub_schema)
+
+          if schemer.valid?(provided_certifications)
+            if subject == 'veteran'
+              @form_data['helpers'][subject]['certify'] = '1'
+            else
+              required_certification_options = required_certifications_options_for(subject)
+
+              # Identify whether the caregiver chose the family or non-family option of certifications
+              matches = required_certification_options.map do |required_certification_option|
+                # Ensure that each required certification id is present in the list of certification ids provided
+                required_certification_option.map do |required_certification_id|
+                  provided_certifications.include?(required_certification_id)
+                end.all?(true)
+              end
+
+              @form_data['helpers'][subject]['certify'] = '1' if matches[0] # Family Member options selected
+              @form_data['helpers'][subject]['certify'] = '2' if matches[1] # Non-Family Member options selected
+            end
+          end
         end
       end
 
@@ -596,7 +616,8 @@ module PdfFill
         Time.now.in_time_zone('Eastern Time (US & Canada)').strftime('%m/%d/%Y %l:%M%P %Z')
       end
 
-      def certification_requirements_for(form_subject)
+      # rubocop:disable Metrics/MethodLength
+      def required_certifications_options_for(form_subject)
         primary_caregiver_requirements = [
           [
             # Family Member of Veteran
@@ -605,7 +626,7 @@ module PdfFill
             'member-of-veterans-family',
             'agree-to-perform-services--as-primary',
             'understand-revocable-status--as-primary',
-            'have-understanding-of-non-employment-relationship',
+            'have-understanding-of-non-employment-relationship'
           ],
           [
             # Non-Family Member of Veteran
@@ -615,7 +636,7 @@ module PdfFill
             'currently-or-will-reside-with-veteran--as-primary',
             'agree-to-perform-services--as-primary',
             'understand-revocable-status--as-primary',
-            'have-understanding-of-non-employment-relationship',
+            'have-understanding-of-non-employment-relationship'
           ]
         ]
 
@@ -627,7 +648,7 @@ module PdfFill
             'member-of-veterans-family',
             'agree-to-perform-services--as-secondary',
             'understand-revocable-status--as-secondary',
-            'have-understanding-of-non-employment-relationship',
+            'have-understanding-of-non-employment-relationship'
           ],
           [
             # Non-Family Member of Veteran
@@ -637,13 +658,13 @@ module PdfFill
             'currently-or-will-reside-with-veteran--as-secondary',
             'agree-to-perform-services--as-secondary',
             'understand-revocable-status--as-secondary',
-            'have-understanding-of-non-employment-relationship',
+            'have-understanding-of-non-employment-relationship'
           ]
         ]
 
         case form_subject
         when 'veteran'
-          [['information-is-correct-and-true', 'consent-to-caregivers-to-perform-care']]
+          [%w[information-is-correct-and-true consent-to-caregivers-to-perform-care]]
         when 'primaryCaregiver'
           primary_caregiver_requirements
         when 'secondaryCaregiverOne'
@@ -652,6 +673,7 @@ module PdfFill
           secondary_caregiver_requirements
         end
       end
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end
