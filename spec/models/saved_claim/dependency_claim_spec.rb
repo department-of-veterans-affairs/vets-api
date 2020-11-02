@@ -31,7 +31,7 @@ RSpec.describe SavedClaim::DependencyClaim do
     end
 
     it 'uploads to vbms' do
-      expect_any_instance_of(ClaimsApi::VbmsUploader).to receive(:upload!)
+      expect_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload!)
 
       dependency_claim.add_veteran_info(va_file_number_with_payload)
       dependency_claim.upload_pdf

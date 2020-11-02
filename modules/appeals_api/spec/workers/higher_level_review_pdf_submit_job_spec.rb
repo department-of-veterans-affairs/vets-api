@@ -122,8 +122,8 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996_minimum.pdf')
       generated_pdf_md5 = Digest::MD5.digest(File.read(path))
       expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
-      File.delete(path) if File.exist?(path)
       expect(generated_pdf_md5).to eq(expected_pdf_md5)
+      File.delete(path) if File.exist?(path)
       Timecop.return
     end
   end
