@@ -7,13 +7,7 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
 
   before { Sidekiq::Worker.clear_all }
 
-  let(:auth_headers) do
-    File.read(
-      Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_10182_headers.json')
-    )
-  end
-
-  let(:notice_of_disagreement) { create_notice_of_disagreement(:notice_of_disagreement) }
+  let(:notice_of_disagreement) { create(:notice_of_disagreement) }
 
   context 'pdf extra content verification' do
     it 'generates the expected pdf' do
@@ -26,14 +20,5 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       expect(generated_pdf_md5).to eq(expected_pdf_md5)
       Timecop.return
     end
-  end
-
-  private
-
-  def create_notice_of_disagreement(type)
-    notice_of_disagreement = create(type)
-    notice_of_disagreement.auth_headers = JSON.parse(auth_headers)
-    notice_of_disagreement.save
-    notice_of_disagreement
   end
 end
