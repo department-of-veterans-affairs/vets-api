@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
-RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
-  include FixtureHelpers
 
+RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
   subject { described_class }
 
   before { Sidekiq::Worker.clear_all }
@@ -14,9 +12,6 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_10182_headers.json')
     )
   end
-
-  let(:default_auth_headers) { fixture_as_json 'valid_10182_headers.json' }
-  let(:default_form_data) { fixture_as_json 'valid_10182.json' }
 
   let(:notice_of_disagreement) { create_notice_of_disagreement(:notice_of_disagreement) }
 
@@ -37,9 +32,8 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
   private
 
   def create_notice_of_disagreement(type)
-    notice_of_disagreement = AppealsApi::NoticeOfDisagreement.create form_data: default_form_data, auth_headers: default_auth_headers
-    # notice_of_disagreement = create(type) # TODO need factory instead
-    # notice_of_disagreement.auth_headers = JSON.parse(auth_headers)
+    notice_of_disagreement = create(type)
+    notice_of_disagreement.auth_headers = JSON.parse(auth_headers)
     notice_of_disagreement.save
     notice_of_disagreement
   end
