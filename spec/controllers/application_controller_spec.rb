@@ -30,7 +30,9 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     def breakers_outage
-      raise Breakers::OutageException
+      Rx::Configuration.instance.breakers_service.begin_forced_outage!
+      client = Rx::Client.new(session: { user_id: 123 })
+      client.get_session
     end
 
     def record_not_found
@@ -81,13 +83,13 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     it 'does log exceptions to sentry if Pundit::NotAuthorizedError' do
-      expect(Raven).to receive(:capture_exception).with('')
+      expect(Raven).to receive(:capture_exception).with(Pundit::NotAuthorizedError, { level: 'info' })
       expect(Raven).not_to receive(:capture_message)
       get :not_authorized
     end
 
-    it 'does log exceptions to sentry if Breakers::OutageException' do
-      expect(Raven).to receive(:capture_exception).with('')
+    it 'does not log to sentry if Breakers::OutageException' do
+      expect(Raven).not_to receive(:capture_exception).with('')
       expect(Raven).not_to receive(:capture_message)
       get :breakers_outage
     end
