@@ -35,12 +35,5 @@ describe HealthQuest::AppointmentService do
       expect(appointment[:data].respond_to?(:community_care)).to be(true)
       expect(appointment[:data].respond_to?(:vds_appointments)).to be(true)
     end
-
-    it 'has pagination information' do
-      expect(appointment[:meta][:pagination][:current_page]).to eq(0)
-      expect(appointment[:meta][:pagination][:per_page]).to eq(0)
-      expect(appointment[:meta][:pagination][:total_pages]).to eq(0)
-      expect(appointment[:meta][:pagination][:total_entries]).to eq(0)
-    end
   end
 end

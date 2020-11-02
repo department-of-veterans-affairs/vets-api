@@ -22,10 +22,7 @@ module HealthQuest
         response =
           YAML.load_file(Rails.root.join(*appointment_file)).with_indifferent_access
 
-        {
-          data: OpenStruct.new(response[:body][:data]),
-          meta: pagination({})
-        }
+        { data: OpenStruct.new(response[:body][:data]) }
       end
     end
 
