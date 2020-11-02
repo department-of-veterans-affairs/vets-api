@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VBADocuments
+module ClaimsApi
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
       michael.bastos@oddball.io
@@ -9,10 +9,8 @@ module VBADocuments
       valerie.hase@va.gov
       mark.greenburg@adhocteam.us
       premal.shah@va.gov
-      lydia.vian@thunderyard.com
-      joshua.jennings@libertyits.com
-      cristopher.shupp@libertyits.com
-      gregory.bowman@libertyits.com
+      lee.deboom@oddball.io
+      dan.hinze@adhocteam.us
     ].freeze
 
     def build(consumer_totals, pending_submissions, unsuccessful_submissions, date_from, date_to)
@@ -22,10 +20,10 @@ module VBADocuments
       @date_from = date_from
       @date_to = date_to
 
-      path = VBADocuments::Engine.root.join(
+      path = ClaimsApi::Engine.root.join(
         'app',
         'views',
-        'vba_documents',
+        'claims_api',
         'unsuccessful_report_mailer',
         'unsuccessful_report.html.erb'
       )
@@ -34,7 +32,7 @@ module VBADocuments
 
       mail(
         to: RECIPIENTS,
-        subject: 'Benefits Intake Unsuccessful Submission Report',
+        subject: 'Benefits Claims Unsuccessful Submission Report',
         body: body
       )
     end
