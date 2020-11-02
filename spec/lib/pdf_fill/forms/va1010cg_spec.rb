@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/forms/Va1010cg'
+require 'pdf_fill/forms/va1010cg'
 require_relative '../../../support/form1010cg_helpers/build_claim_data_for'
 
 describe PdfFill::Forms::Va1010cg do
