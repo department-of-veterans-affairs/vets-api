@@ -13,7 +13,7 @@ module ClaimsApi
       object = ClaimsApi::SupportingDocument.find_by(id: uuid) || ClaimsApi::AutoEstablishedClaim.find_by(id: uuid)
       auto_claim = object.try(:auto_established_claim) || object
       if auto_claim.evss_id.nil?
-        # TODO: need to retry again exponentially
+        self.class.perform_in(30.minutes, uuid)
       else
         auth_headers = auto_claim.auth_headers
         uploader = object.uploader
