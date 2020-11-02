@@ -72,7 +72,7 @@ module VBADocuments
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
       else
-        map_downstream_error(response.status, response.body, VBADocuments::UploadError)
+        map_error(response.status, response.body, VBADocuments::UploadError)
       end
     end
 

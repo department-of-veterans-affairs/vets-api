@@ -19,8 +19,8 @@ module VbaDocuments
 
           property :detail do
             key :type, :string
-            key :example, 'DOC104 - Upload rejected by downstream system.'
-            key :description, 'A more detailed message about why an error occured'
+            key :example, 'DOC104 - Upload rejected by upstream system.'
+            key :description, 'A more detailed message about why an error occurred'
           end
         end
       end
