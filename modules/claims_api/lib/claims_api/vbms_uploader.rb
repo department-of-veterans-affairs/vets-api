@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class VbmsUploader
+  class VBMSUploader
     def initialize(filepath:, file_number:, doc_type:)
       @filepath = filepath
       @file_number = file_number

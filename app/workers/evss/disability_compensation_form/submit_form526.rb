@@ -16,7 +16,7 @@ module EVSS
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
-        job_exhausted(msg)
+        job_exhausted(msg, STATSD_KEY_PREFIX)
       end
       # :nocov:
 

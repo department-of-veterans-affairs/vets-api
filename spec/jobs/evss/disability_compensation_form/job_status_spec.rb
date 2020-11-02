@@ -17,7 +17,8 @@ describe EVSS::DisabilityCompensationForm::JobStatus do
     end
 
     it 'tracks an exhausted job' do
-      dummy_class.job_exhausted(msg)
+      expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_exhausted)
+      dummy_class.job_exhausted(msg, 'stats_key')
       job_status = Form526JobStatus.last
       expect(job_status.status).to eq 'exhausted'
       expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
