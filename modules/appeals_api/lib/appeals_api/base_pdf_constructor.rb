@@ -66,7 +66,7 @@ module AppealsApi
       CentralMail::DatestampPdf.new(bottom_stamped_path).run(
         text: "Submitted by #{consumer_name} via api.va.gov",
         x: 429,
-        y: 770,
+        y: 775,
         text_only: true
       )
     end

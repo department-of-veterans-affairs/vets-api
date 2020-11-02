@@ -200,6 +200,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  describe '#consumer_name' do
+    it { expect(notice_of_disagreement.consumer_name).to eq('va.gov') }
+  end
+
   private
 
   def headers_without_claimant(default_auth_headers)
