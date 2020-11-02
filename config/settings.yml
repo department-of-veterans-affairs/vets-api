@@ -368,6 +368,7 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
+  unsuccessful_report_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
