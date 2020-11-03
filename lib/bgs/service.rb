@@ -196,6 +196,12 @@ module BGS
       '347' # return default location id
     end
 
+    def find_regional_offices
+      service.data.find_regional_offices[:return]
+    rescue => e
+      notify_of_service_exception(e, __method__, 1, :warn)
+    end
+
     private
 
     def service
