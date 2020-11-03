@@ -114,6 +114,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
             'type' => default_form_data['data']['type'],
             'attributes' => {
               'boardReviewOption' => default_form_data['data']['attributes']['boardReviewOption'],
+              'socOptIn' => default_form_data['data']['attributes']['socOptIn'],
               'veteran' => {
                 'homeless' => default_form_data['data']['attributes']['veteran']['homeless'],
                 'address' => default_form_data['data']['attributes']['veteran']['address'].except('addressLine1'),

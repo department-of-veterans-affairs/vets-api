@@ -37,7 +37,7 @@
         "timezone":          { "$ref": "#/definitions/nodCreateTimezone" },
         "socOptIn":          { "type": "boolean" }
       },
-      "required": [ "boardReviewOption" ]
+      "required": [ "boardReviewOption", "socOptIn" ]
     },
 
 
