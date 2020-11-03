@@ -3,7 +3,7 @@
 require_relative 'service'
 require_relative 'attr_configuration'
 
-module MVI
+module MPI
   class AttrService < Service
     configuration MVI::AttrConfiguration
 

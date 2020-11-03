@@ -3,7 +3,7 @@
 require 'common/models/attribute_types/date_time_string'
 require_relative 'mvi_profile_address'
 
-module MVI
+module MPI
   module Models
     class MviProfile
       include Virtus.model

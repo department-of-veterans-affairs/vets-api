@@ -4,7 +4,7 @@ require 'ox'
 require_relative 'message_builder'
 require_relative 'find_candidate_message_error'
 
-module MVI
+module MPI
   module Messages
     module FindProfileMessageHelpers
       include MVI::Messages::MessageBuilder

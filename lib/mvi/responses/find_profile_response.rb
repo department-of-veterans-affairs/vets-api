@@ -5,7 +5,7 @@ require 'common/models/redis_store'
 require 'common/client/concerns/service_status'
 require 'mvi/models/mvi_profile'
 
-module MVI
+module MPI
   module Responses
     # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
     class FindProfileResponse

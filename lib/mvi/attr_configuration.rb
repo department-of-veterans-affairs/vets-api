@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MVI
+module MPI
   class AttrConfiguration < Common::Client::Configuration::SOAP
     def self.open_timeout
       Settings.mvi_hca.open_timeout

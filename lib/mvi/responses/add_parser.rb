@@ -3,7 +3,7 @@
 require 'sentry_logging'
 require_relative 'parser_base'
 
-module MVI
+module MPI
   module Responses
     # Parses a MVI response and returns a MviProfile
     class AddParser < ParserBase

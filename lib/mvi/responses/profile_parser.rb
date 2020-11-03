@@ -5,7 +5,7 @@ require_relative 'id_parser'
 require_relative 'historical_icn_parser'
 require_relative 'parser_base'
 
-module MVI
+module MPI
   module Responses
     # Parses a MVI response and returns a MviProfile
     class ProfileParser < ParserBase

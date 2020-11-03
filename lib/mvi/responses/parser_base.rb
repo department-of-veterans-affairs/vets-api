@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module MVI
+module MPI
   module Responses
     class ParserBase
       # MVI response code options.

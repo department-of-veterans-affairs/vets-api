@@ -14,7 +14,7 @@ require 'mvi/messages/find_profile_message_edipi'
 require 'mvi/responses/add_person_response'
 require 'mvi/responses/find_profile_response'
 
-module MVI
+module MPI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
   # to three MVI endpoints:
   # * PRPA_IN201301UV02 (TODO(AJD): Add Person)
