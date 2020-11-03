@@ -197,8 +197,7 @@ module BGS
     end
 
     def find_regional_offices
-      find_regional_offices_response = service.data.find_regional_offices
-      find_regional_offices_response[:return]
+      service.data.find_regional_offices[:return]
     rescue => e
       notify_of_service_exception(e, __method__, 1, :warn)
     end
