@@ -22,6 +22,14 @@ FactoryBot.define do
       evss_response { 'something' }
     end
 
+    trait :autoCestPDFGeneration_disabled do
+      form_data do
+        json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_json_api.json"))
+        json['data']['attributes']['autoCestPDFGenerationDisabled'] = false
+        json['data']['attributes']
+      end
+    end
+
     factory :auto_established_claim_with_supporting_documents do
       after(:create) do |auto_established_claim|
         create_list(:supporting_document, 1, auto_established_claim: auto_established_claim)
