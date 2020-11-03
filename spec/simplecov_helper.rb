@@ -7,6 +7,7 @@ require 'active_support/inflector'
 require 'simplecov'
 
 class SimpleCovHelper
+  # rubocop:disable Metrics/AbcSize
   def self.report_coverage(base_dir: './coverage_results')
     SimpleCov.start 'rails' do
       skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
@@ -53,7 +54,7 @@ class SimpleCovHelper
     end
     new(base_dir: base_dir).merge_results
   end
-
+  # rubocop:enable Metrics/AbcSize
   attr_reader :base_dir
 
   def initialize(base_dir:)
