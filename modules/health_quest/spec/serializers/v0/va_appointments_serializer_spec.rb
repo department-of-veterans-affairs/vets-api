@@ -28,12 +28,16 @@ describe HealthQuest::V0::VAAppointmentsSerializer do
     end
 
     it 'has default values' do
-      expect(subject.serializable_hash[:meta]).to eq({ 'pagination': {
-                                                       'current_page': 0,
-                                                       'per_page': 0,
-                                                       'total_pages': 0,
-                                                       'total_entries': 0
-                                                     } })
+      meta_hash = {
+        'pagination': {
+          'current_page': 0,
+          'per_page': 0,
+          'total_pages': 0,
+          'total_entries': 0
+        }
+      }
+
+      expect(subject.serializable_hash[:meta]).to eq(meta_hash)
     end
   end
 
