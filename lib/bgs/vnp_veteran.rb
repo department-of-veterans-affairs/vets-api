@@ -18,15 +18,29 @@ module BGS
       person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       address = bgs_service.create_address(address_params)
-      regional_office_number = bgs_service.get_regional_office_by_zip_code(
-        address[:zip_prefix_nbr], address[:cntry_nm], '', 'CP', @user.ssn
-      )
+      location_id = get_location_id(address[:zip_prefix_nbr], address[:cntry_nm], '')
       bgs_service.create_person(person_params)
       bgs_service.create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
-      veteran.veteran_response(participant, va_file_number, address, claim_type_end_product, regional_office_number)
+      veteran.veteran_response(participant, va_file_number, address, claim_type_end_product, location_id)
     end
 
     private
+
+    def get_location_id(zip, country, province)
+      # find the regional office number closest to the Veteran's zip code
+      regional_office_number = bgs_service.get_regional_office_by_zip_code(
+        zip, country, province, 'CP', @user.ssn
+      )
+      # retrieve the list of all regional offices
+      # match the regional number above to find the corresponding location id
+      regional_offices = bgs_service.find_regional_offices
+      return '347' if regional_offices.nil? # return default value 347 if regional office is not found
+
+      regional_office = regional_offices.find { |ro| ro[:station_number] == regional_office_number }
+      return '347' if regional_office.nil? # return default value 347 if regional office is not found
+
+      regional_office[:lctn_id]
+    end
 
     def veteran
       @veteran ||= BGSDependents::Veteran.new(@proc_id, @user)
