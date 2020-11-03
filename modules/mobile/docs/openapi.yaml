@@ -947,10 +947,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-  /v0/all-appeals:
+  /v0/claims-and-appeals-overview:
     get:
-      summary: /v0/all-appeals
-      description: Returns user's appeals data
+      summary: /v0/claims-and-appeals-overview
+      description: Asyncronously returns info on all user's claims and appeals for mobile overview page
       operationId: index
       security:
         - Bearer: [ ]
@@ -960,126 +960,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AllAppeals"
-        '401':
-          description: Authentication is possible but has failed or not yet been provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '404':
-          description: The requested resource could not be found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '500':
-          description: An internal API error occured.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: An upstream service the API depends on returned an error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '503':
-          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: A response from an upstream service timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-  /v0/all-claims-async:
-    get:
-      summary: /v0/all-claims-async
-      description: Asyncronously returns info on all user's claims
-      operationId: index
-      security:
-        - Bearer: [ ]
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AllClaims"
-        '401':
-          description: Authentication is possible but has failed or not yet been provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '404':
-          description: The requested resource could not be found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '500':
-          description: An internal API error occured.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: An upstream service the API depends on returned an error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '503':
-          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: A response from an upstream service timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-  /v0/claim-async/{claim}:
-    get:
-      summary: /v0/claim-async
-      description: Asyncronously returns info for requested claim
-      operationId: getClaim
-      security:
-        - Bearer: [ ]
-      parameters:
-        - in: path
-          name: claim
-          required: true
-          schema:
-            type: string
-          description: claim id
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Claim"
+                $ref: "#/components/schemas/ClaimsAndAppealsOverview"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1290,7 +1171,7 @@ components:
           type: string, null
         uploadDate:
           type: string, null
-    AllClaims:
+    ClaimsAndAppealsOverview:
       required:
         - data
         - meta
@@ -1316,130 +1197,55 @@ components:
           properties:
             type:
               type: string
-              example: "allClaims"
+              example: "claimsAndAppealsOverview"
             id:
               type: string
               example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+              description: Non-PII User UUID
             attributes:
               type: object
               required:
-                - claims
+                - claimsAndAppeals
               properties:
-                claims:
+                claimsAndAppeals:
                   type: array
                   items:
                     type: object
-                    $ref: "#/components/schemas/ClaimForAllClaims"
-    ClaimForAllClaims:
+                    $ref: "#/components/schemas/ClaimsAndAppeals"
+                    description: array of all claims and appeals for a given user
+    ClaimsAndAppeals:
       required:
         - id
+        - type
+        - subtype
+        - completed
         - dateFiled
-        - displayDateFiled
-        - minEstDate
-        - displayMinEstDate
-        - maxEstDate
-        - displayMaxEstDate
-        - phaseChangeDate
-        - open
-        - waiverSubmitted
-        - documentsNeeded
-        - developmentLetterSent
-        - decisionLetterSent
-        - phase
-        - everPhaseBack
-        - currentPhaseBack
-        - requestedDecision
-        - claimType
         - updatedAt
-        - displayUpdatedAt
       properties:
         id:
-          type: number
-          example: 600207887
-        dateFiled:
           type: string
-          example: "2020-10-07"
-        displayDateFiled:
+          example: "600117255"
+          description: Claim or Appeal Id
+        type:
           type: string
-          example: "October 7, 2020"
-        minEstDate:
-          type: string, null
-          example: "2016-11-14"
-        displayMinEstDate:
-          type: string, null
-          example: "November 14, 2016"
-        maxEstDate:
-          type: string, null
-          example: "2016-11-14"
-        displayMaxEstDate:
-          type: string, null
-          example: "November 14, 2016"
-        phaseChangeDate:
-          type: string
-          example: "2020-10-07"
-        open:
-          type: boolean
-        waiverSubmitted:
-          type: boolean
-        documentsNeeded:
-          type: boolean
-        developmentLetterSent:
-          type: boolean
-        decisionLetterSent:
-          type: boolean
-        phase:
-          type: number
-          example: 2
+          example: "claim"
           enum:
-            - 1
-            - 2
-            - 3
-            - 4
-            - 5
-            - 6
-            - 7
-            - 8
-        everPhaseBack:
-          type: boolean
-        currentPhaseBack:
-          type: boolean
-        requestedDecision:
-          type: boolean
-        claimType:
+            - claim
+            - appeal
+        subtype:
           type: string
           example: "Compensation"
+          description: Human readable string for claim or appeal subtype
+        completed:
+          type: boolean
+        dateFiled:
+          type: string
+          format: date
+          example: "2020-01-01"
         updatedAt:
           type: string
-          example: "2020-10-07T18:19:26.192Z"
-        displayUpdatedAt:
-          type: string
-          example: "October 7, 2020"
-    AllAppeals:
-      required:
-        - data
-      properties:
-        data:
-          type: object
-          required:
-            - type
-            - id
-            - attributes
-          properties:
-            type:
-              type: string
-              example: "allAppeals"
-            id:
-              type: string
-              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
-            attributes:
-              type: object
-              required:
-                - appeals
-              properties:
-                appeals:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/Appeal"
+          format: date-time
+          example: "2020-01-01T00:00:00.00Z"
     Appeal:
       required:
         - id
