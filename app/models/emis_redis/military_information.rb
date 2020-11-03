@@ -85,6 +85,16 @@ module EMISRedis
       YEM
     ].freeze
 
+    EVSS_SERVICE_BRANCHES = VetsJsonSchema::SCHEMAS.dig('21-526EZ-ALLCLAIMS',
+                                                        'properties',
+                                                        'serviceInformation',
+                                                        'properties',
+                                                        'servicePeriods',
+                                                        'items',
+                                                        'properties',
+                                                        'serviceBranch',
+                                                        'enum')
+
     # Vietnam ISO country code
     VIETNAM = 'VNM'
     # Date range for Vietnam War
@@ -124,7 +134,6 @@ module EMISRedis
         }
       end
     end
-    # rubocop:disable Metrics/CyclomaticComplexity
 
     # Convert service branch code from a military service episode
     # into a formatted readable string.
@@ -133,16 +142,7 @@ module EMISRedis
     # @param military_service_episode [EMIS::Models::MilitaryServiceEpisode]
     #  Military service episode model
     # @return [String] Readable service branch name formatted for EVSS
-    def build_service_branch(military_service_episode)
-      branch = case military_service_episode.hca_branch_of_service
-               when 'noaa'
-                 military_service_episode.hca_branch_of_service.upcase
-               when 'usphs'
-                 'Public Health Service'
-               else
-                 military_service_episode.hca_branch_of_service.titleize
-               end
-
+    def service_name_used_in_diability(military_service_episode)
       category = case military_service_episode.personnel_category_type_code
                  when 'A'
                    ''
@@ -154,20 +154,21 @@ module EMISRedis
                    ''
                  end
 
-      "#{branch} #{category}".strip
+      service_name = "#{military_service_episode.branch_of_service} #{category}".strip
+      service_name.gsub!('Air Force National Guard', 'Air National Guard')
+      service_name if EVSS_SERVICE_BRANCHES.include? service_name
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     # @return [Array<Hash>] Data about the veteran's service periods
     #  including service branch served under and date range of each
-    #  service period
+    #  service period, used only for Form 526 - Disability form
     def service_periods
       service_episodes_by_date.map do |military_service_episode|
-        # avoid prefilling if service branch is 'other' as this breaks validation
-        return {} if military_service_episode.hca_branch_of_service == 'other'
+        sn = service_name_used_in_diability(military_service_episode)
+        return {} unless sn
 
         {
-          service_branch: build_service_branch(military_service_episode),
+          service_branch: sn,
           date_range: {
             from: military_service_episode.begin_date.to_s,
             to: military_service_episode.end_date.to_s
