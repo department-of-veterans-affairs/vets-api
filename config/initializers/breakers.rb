@@ -65,7 +65,7 @@ services = [
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,
-  MVI::Configuration.instance.breakers_service,
+  MPI::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
   Vet360::ContactInformation::Configuration.instance.breakers_service,
