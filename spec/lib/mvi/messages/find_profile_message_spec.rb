@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mpi/messages/find_profile_message'
 
-describe MVI::Messages::FindProfileMessage do
+describe MPI::Messages::FindProfileMessage do
   describe '.to_xml' do
     context 'with first, last, birth_date, and ssn from auth provider' do
       let(:xml) do
@@ -95,7 +95,7 @@ describe MVI::Messages::FindProfileMessage do
 
     context 'with nil gender' do
       let(:xml) do
-        MVI::Messages::FindProfileMessage.new(
+        MPI::Messages::FindProfileMessage.new(
           given_names: %w[John William],
           last_name: 'Smith',
           birth_date: '1980-1-1',
@@ -122,7 +122,7 @@ describe MVI::Messages::FindProfileMessage do
     context 'missing arguments' do
       it 'throws an argument error for missing key' do
         expect do
-          MVI::Messages::FindProfileMessage.new(
+          MPI::Messages::FindProfileMessage.new(
             given_names: %w[John William],
             last_name: 'Smith',
             birth_date: Time.new(1980, 1, 1).utc
@@ -132,7 +132,7 @@ describe MVI::Messages::FindProfileMessage do
 
       it 'throws an argument error for empty value' do
         expect do
-          MVI::Messages::FindProfileMessage.new(
+          MPI::Messages::FindProfileMessage.new(
             given_names: %w[John William],
             last_name: '',
             birth_date: Time.new(1980, 1, 1).utc,
@@ -143,7 +143,7 @@ describe MVI::Messages::FindProfileMessage do
 
       it 'throws an argument error for nil value' do
         expect do
-          MVI::Messages::FindProfileMessage.new(
+          MPI::Messages::FindProfileMessage.new(
             given_names: %w[John William],
             last_name: nil,
             birth_date: Time.new(1980, 1, 1).utc,

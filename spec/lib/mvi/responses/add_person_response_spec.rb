@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mpi/responses/add_person_response'
 
-describe MVI::Responses::AddPersonResponse do
+describe MPI::Responses::AddPersonResponse do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_response.xml')) }
   let(:ok_response) { described_class.with_parsed_response(faraday_response) }
@@ -76,7 +76,7 @@ describe MVI::Responses::AddPersonResponse do
 
       it 'raises an invalid request error' do
         expect { described_class.with_parsed_response(faraday_response) }.to raise_error(
-          MVI::Errors::InvalidRequestError
+          MPI::Errors::InvalidRequestError
         )
       end
     end
@@ -86,7 +86,7 @@ describe MVI::Responses::AddPersonResponse do
 
       it 'raises a failed request error' do
         expect { described_class.with_parsed_response(faraday_response) }.to raise_error(
-          MVI::Errors::FailedRequestError
+          MPI::Errors::FailedRequestError
         )
       end
     end

@@ -3,9 +3,9 @@
 require 'rails_helper'
 require 'mpi/responses/profile_parser'
 
-describe MVI::Responses::ProfileParser do
+describe MPI::Responses::ProfileParser do
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:parser) { MVI::Responses::ProfileParser.new(faraday_response) }
+  let(:parser) { MPI::Responses::ProfileParser.new(faraday_response) }
 
   context 'given a valid response' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }

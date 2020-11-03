@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'mpi/messages/add_person_message'
 
-describe MVI::Messages::AddPersonMessage do
+describe MPI::Messages::AddPersonMessage do
   let(:xml) { described_class.new(user).to_xml }
 
   describe '.to_xml' do

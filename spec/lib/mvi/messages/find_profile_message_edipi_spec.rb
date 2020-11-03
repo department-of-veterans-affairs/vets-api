@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mpi/messages/find_profile_message_edipi'
 
-describe MVI::Messages::FindProfileMessageEdipi do
+describe MPI::Messages::FindProfileMessageEdipi do
   describe '.to_xml' do
     context 'with edipi' do
       let(:edipi) { 'fake-edipi-number' }

@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'hca/user_attributes' # a UserAttributes set that `find_profile` can use
 require 'mpi/attr_service'
 
-describe MVI::AttrService do
+describe MPI::AttrService do
   describe '#find_profile' do
     it 'allows searching mvi with user attributes', run_at: 'Thu, 29 Aug 2019 17:45:03 GMT' do
       allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')

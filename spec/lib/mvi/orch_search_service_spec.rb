@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mpi/orch_search_service'
 
-describe MVI::OrchSearchService do
+describe MPI::OrchSearchService do
   let(:user) { build(:user, :loa3, user_hash) }
 
   describe '.find_profile with attributes' do

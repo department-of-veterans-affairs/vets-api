@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mpi/responses/add_parser'
 
-describe MVI::Responses::AddParser do
+describe MPI::Responses::AddParser do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:parser) { described_class.new(faraday_response) }
 
@@ -62,7 +62,7 @@ describe MVI::Responses::AddParser do
       it 'returns true' do
         allow(faraday_response).to receive(:body) { body }
         expect(parser).to be_failed_or_invalid
-        expect(PersonalInformationLog.last.error_class).to eq 'MVI::Errors'
+        expect(PersonalInformationLog.last.error_class).to eq 'MPI::Errors'
       end
     end
   end

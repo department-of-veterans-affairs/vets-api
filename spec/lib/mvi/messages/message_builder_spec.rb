@@ -3,8 +3,8 @@
 require 'rails_helper'
 require 'mpi/messages/message_builder'
 
-describe MVI::Messages::MessageBuilder do
-  let(:dummy_class) { Class.new { extend MVI::Messages::MessageBuilder } }
+describe MPI::Messages::MessageBuilder do
+  let(:dummy_class) { Class.new { extend MPI::Messages::MessageBuilder } }
 
   describe '#build_idm' do
     let(:el) { dummy_class.build_idm('PRPA_IN201305UV02') }
