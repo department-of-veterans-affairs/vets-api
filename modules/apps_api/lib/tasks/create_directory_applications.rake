@@ -1,23 +1,10 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require 'rake'
-
-describe AppsApi do
-  before do
-    Rails.application.load_tasks
-  end
-
-  let(:run_create_application_task) do
-    Rake::Task['apps_api:create_applications'].invoke
-  end
-
-  it 'runs without error' do
-    expect { run_create_application_task }.not_to raise_error
-  end
-
-  it 'processed Apple Health' do
-    resp = DirectoryApplication.find_or_create_by!(name: 'Apple Health') do |app|
+# rubocop:disable Metrics/BlockLength
+namespace :apps_api do
+  desc 'Creates initial application directory applications'
+  task create_applications: :environment do
+    DirectoryApplication.find_or_create_by!(name: 'Apple Health') do |app|
       app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs01ca0lwp7cApBuM297'
       app.app_type = 'Third-Party-OAuth'
       app.service_categories = ['Health']
@@ -32,11 +19,7 @@ describe AppsApi do
       app.privacy_url = 'https://www.apple.com/legal/privacy/'
       app.tos_url = 'https://www.apple.com/legal/sla/'
     end
-    expect(resp).to eq(DirectoryApplication.find_by(name: 'Apple Health'))
-  end
-
-  it 'processed iBlueButton' do
-    resp = DirectoryApplication.find_or_create_by!(name: 'iBlueButton') do |app|
+    DirectoryApplication.find_or_create_by!(name: 'iBlueButton') do |app|
       app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofxnUUHtF1i297'
       app.app_type = 'Third-Party-OAuth'
       app.service_categories = ['Health']
@@ -51,10 +34,7 @@ describe AppsApi do
       app.privacy_url = 'https://ice.ibluebutton.com/docs/ibb/privacy_policy.html'
       app.tos_url = 'https://ice.ibluebutton.com/docs/ibb/eula.html'
     end
-    expect(resp).to eq(DirectoryApplication.find_by(name: 'iBlueButton'))
-  end
-  it 'processed MyLinks' do
-    resp = DirectoryApplication.find_or_create_by!(name: 'MyLinks') do |app|
+    DirectoryApplication.find_or_create_by!(name: 'MyLinks') do |app|
       app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofptWwE5ruy297'
       app.app_type = 'Third-Party-OAuth'
       app.service_categories = ['Health']
@@ -69,10 +49,7 @@ describe AppsApi do
       app.privacy_url = 'https://mylinks.com/privacypolicy'
       app.tos_url = 'https://mylinks.com/termsofservice'
     end
-    expect(resp).to eq(DirectoryApplication.find_by(name: 'MyLinks'))
-  end
-  it 'processed Clinical Trial Selector' do
-    resp = DirectoryApplication.find_or_create_by!(name: 'Clinical Trial Selector') do |app|
+    DirectoryApplication.find_or_create_by!(name: 'Clinical Trial Selector') do |app|
       app.logo_url = 'https://cts.girlscomputingleague.org/static/img/CTS-white-100.png'
       app.app_type = 'Third-Party-OAuth'
       app.service_categories = ['Health']
@@ -87,12 +64,6 @@ describe AppsApi do
       app.privacy_url = 'https://cts.girlscomputingleague.org/generalprivacypolicy.html'
       app.tos_url = 'https://cts.girlscomputingleague.org/generaltermsofuse.html'
     end
-    expect(resp).to eq(DirectoryApplication.find_by(name: 'Clinical Trial Selector'))
-  end
-
-  it 'does not process an app without all fields given' do
-    expect do
-      DirectoryApplication.find_or_create_by!(name: 'Something that doesnt exist')
-    end.to raise_error(ActiveRecord::RecordInvalid)
   end
 end
+# rubocop:enable Metrics/BlockLength

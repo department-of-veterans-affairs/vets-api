@@ -9,7 +9,7 @@ module AppsApi
     include SentryLogging
 
     def perform
-      application_name = Rails.application.class.parent_name
+      application_name = Rails.application.class.module_parent_name
       application = Object.const_get(application_name)
       application::Application.load_tasks
       Rake::Task['apps_api:create_applications'].invoke
