@@ -43,7 +43,7 @@ module ClaimsApi
     end
 
     def mpi_is_healthy?
-      @mpi_healthy = Settings.mvi.mock || MVI::Service.service_is_up?
+      @mpi_healthy = Settings.mvi.mock || MPI::Service.service_is_up?
     end
 
     def bgs_is_healthy?
