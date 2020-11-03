@@ -301,3 +301,7 @@ features:
     enable_in_development: true
     description: >
       Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
+  sidekiq_create_daily_spool_file_logging:
+    actor_type: user
+    description: >
+      Flips all info logging for create_daily_spool_files to be error for debugging purposes

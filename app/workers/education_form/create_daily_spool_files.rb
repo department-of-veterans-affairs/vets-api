@@ -10,6 +10,9 @@ module EducationForm
   class FormattingError < StandardError
   end
 
+  class DailySpoolFileError < StandardError
+  end
+
   class CreateDailySpoolFiles
     LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495 0993 0994 10203].map { |t| "22-#{t.upcase}" }.freeze
     include Sidekiq::Worker
@@ -19,7 +22,7 @@ module EducationForm
                     retry: 5
 
     # Setting the default value to the `unprocessed` scope is safe
-    # because the execution of the query itself is defered until the
+    # because the execution of the query itself is deferred until the
     # data is accessed by the code inside of the method.
     # Be *EXTREMELY* careful running this manually as it may overwrite
     # existing files on the SFTP server if one was already written out
@@ -36,10 +39,10 @@ module EducationForm
 
       # Group the formatted records into different regions
       if records.count.zero?
-        logger.info('No records to process.')
+        log_info('No records to process.')
         return true
       else
-        logger.info("Processing #{records.count} application(s)")
+        log_info("Processing #{records.count} application(s)")
       end
       regional_data = group_submissions_by_region(records)
       formatted_records = format_records(regional_data)
@@ -75,15 +78,21 @@ module EducationForm
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
-        log_submissions(records, filename)
-        # create the single textual spool file
-        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
-        writer.write(contents, filename)
+        begin
+          log_submissions(records, filename)
+          # create the single textual spool file
+          contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
-        # track and update the records as processed once the file has been successfully written
-        track_submissions(region_id)
-        records.each { |r| r.record.update(processed_at: Time.zone.now) }
+          writer.write(contents, filename)
+
+          # track and update the records as processed once the file has been successfully written
+          track_submissions(region_id)
+          records.each { |r| r.record.update(processed_at: Time.zone.now) }
+        rescue => error
+          exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{error}")
+          log_exception_to_sentry(exception)
+        end
       end
     ensure
       writer.close
@@ -98,17 +107,22 @@ module EducationForm
         track_form_type("22-#{data.form_type}", rpo)
         form
       else
-        inform_on_error(data)
+        inform_on_error(data, rpo)
         nil
       end
-    rescue
-      inform_on_error(data)
+    rescue => e
+      inform_on_error(data, rpo, e)
       nil
     end
 
-    def inform_on_error(claim)
-      StatsD.increment('worker.education_benefits_claim.failed_formatting')
-      exception = FormattingError.new("Could not format #{claim.confirmation_number}")
+    def inform_on_error(claim, region, error = nil)
+      form_type = "22-#{claim.form_type}"
+      StatsD.increment("worker.education_benefits_claim.failed_formatting.#{region}.#{form_type}")
+      exception = if error.present?
+                    FormattingError.new("Could not format #{claim.confirmation_number}.\n\n#{error}")
+                  else
+                    FormattingError.new("Could not format #{claim.confirmation_number}")
+                  end
       log_exception_to_sentry(exception)
     end
 
@@ -116,10 +130,10 @@ module EducationForm
 
     def federal_holiday?
       holiday = Holidays.on(Time.zone.today, :us, :observed)
-      if holiday.empty?
+      if holiday.nil?
         false
       else
-        logger.info("Skipping on a Holiday: #{holiday.first[:name]}")
+        log_info("Skipping on a Holiday: #{holiday.first[:name]}")
         true
       end
     end
@@ -127,9 +141,10 @@ module EducationForm
     # Useful for debugging which records were or were not sent over successfully,
     # in case of network failures.
     def log_submissions(records, filename)
+      binding.pry
       ids = records.map { |r| r.record.id }
-      logger.info("Writing #{records.count} application(s) to #{filename}")
-      logger.info("IDs: #{ids}")
+      log_info("Writing #{records.count} application(s) to #{filename}")
+      log_info("IDs: #{ids}")
     end
 
     # Useful for alerting and monitoring the numbers of successfully send submissions
@@ -146,6 +161,14 @@ module EducationForm
 
     def stats
       @stats ||= Hash.new(Hash.new(0))
+    end
+
+    def log_info(message)
+      if Flipper.enabled?(:sidekiq_create_daily_spool_file_logging)
+        log_exception_to_sentry(message)
+      else
+        logger.info(message)
+      end
     end
   end
 end
