@@ -29,12 +29,11 @@ describe AppsApi do
       it 'processed Clinical Trial Selector' do
         expect(DirectoryApplication.where(name: 'Clinical Trial Selector')).to exist
       end
-    end
-
-    it 'does not process an app without all fields given' do
-      expect do
-        DirectoryApplication.find_or_create_by!(name: 'Something that doesnt exist')
-      end.to raise_error(ActiveRecord::RecordInvalid)
+      it 'does not process an app without all fields given' do
+        expect do
+          DirectoryApplication.find_or_create_by!(name: 'Something that doesnt exist')
+        end.to raise_error(ActiveRecord::RecordInvalid)
+      end
     end
   end
 end
