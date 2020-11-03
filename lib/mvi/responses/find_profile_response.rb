@@ -3,7 +3,7 @@
 require_relative 'profile_parser'
 require 'common/models/redis_store'
 require 'common/client/concerns/service_status'
-require 'mvi/models/mvi_profile'
+require 'mpi/models/mvi_profile'
 
 module MPI
   module Responses
