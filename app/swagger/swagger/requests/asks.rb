@@ -8,7 +8,6 @@ module Swagger
       swagger_path '/v0/ask/asks' do
         operation :post do
           extend Swagger::Responses::ValidationError
-          extend Swagger::Responses::SavedForm
 
           key :description, 'Submit a message'
           key :operationId, 'createsAnInquiry'
