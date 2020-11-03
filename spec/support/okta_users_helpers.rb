@@ -3,12 +3,18 @@
 def with_okta_configured(&block)
   with_settings(
     Settings.oidc,
-    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
-    issuer: 'https://example.com/oauth2/default',
-    issuer_prefix: 'https://example.com/oauth2',
+    # auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
+    # issuer: 'https://example.com/oauth2/default',
+    # issuer_prefix: 'https://example.com/oauth2',
+    # audience: 'api://default',
+    # base_api_url: 'https://example.com/',
+    # base_api_token: 'token'
+    auth_server_metadata_url: 'https://dev-api.va.gov/oauth2/.well-known/openid-configuration',
+    issuer: 'https://deptva-eval.okta.com/oauth2/default',
+    issuer_prefix: 'https://deptva-eval.okta.com/oauth2',
     audience: 'api://default',
-    base_api_url: 'https://example.com/',
-    base_api_token: 'token'
+    base_api_url: 'https://deptva-eval.okta.com/api/v1/users/',
+    base_api_token: '00nf9J5yDsdebpGPdhl6OeD1f6vUMMrL_hBLwTLK_w'
   ) do
     with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
       VCR.use_cassette('okta/metadata') do
