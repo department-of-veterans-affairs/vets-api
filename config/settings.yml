@@ -368,6 +368,7 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
+  unsuccessful_report_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
@@ -531,6 +532,11 @@ flipper:
     - tony.williams@va.gov
     - jennie.mcgibney@va.gov
     - adewitt@thoughtworks.com
+    - shefai.nayak@thoughtworks.com
+    - jacob.gacek@thoughtworks.com
+    - paul.phillips@thoughtworks.com
+    - mnunemak@thoughtworks.com
+    - hshin@thoughtworks.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT

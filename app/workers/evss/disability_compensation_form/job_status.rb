@@ -14,7 +14,7 @@ module EVSS
         #
         # @param msg [Hash] The message payload from Sidekiq
         #
-        def job_exhausted(msg)
+        def job_exhausted(msg, statsd_key_prefix)
           values = {
             form526_submission_id: msg['args'].first,
             job_id: msg['jid'],
@@ -32,7 +32,7 @@ module EVSS
                                  error_class: msg['error_class'],
                                  error_message: msg['error_message']
           )
-          Metrics.new(STATSD_KEY_PREFIX).increment_exhausted
+          Metrics.new(statsd_key_prefix).increment_exhausted
         rescue => e
           Rails.logger.error('error tracking job exhausted', error: e, class: msg['class'].demodulize)
         end

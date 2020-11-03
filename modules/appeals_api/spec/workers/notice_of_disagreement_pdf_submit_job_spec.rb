@@ -7,7 +7,6 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
 
   before { Sidekiq::Worker.clear_all }
 
-
   context 'pdf minimum content verification' do
     let(:notice_of_disagreement) { create(:minimal_notice_of_disagreement) }
 

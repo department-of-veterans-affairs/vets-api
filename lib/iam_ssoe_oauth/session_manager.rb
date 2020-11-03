@@ -16,13 +16,6 @@ module IAMSSOeOAuth
     end
 
     def logout
-      response = iam_ssoe_service.post_revoke(@access_token)
-      destroy_user_session if response.status == 200
-    end
-
-    private
-
-    def destroy_user_session
       uuid = @session.uuid
 
       identity_destroy_count = IAMUserIdentity.find(uuid).destroy
@@ -42,6 +35,8 @@ module IAMSSOeOAuth
         false
       end
     end
+
+    private
 
     def create_user_session
       iam_profile = iam_ssoe_service.post_introspect(@access_token)

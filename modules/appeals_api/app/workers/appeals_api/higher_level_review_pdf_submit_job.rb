@@ -54,7 +54,7 @@ module AppealsApi
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         higher_level_review.update!(status: 'submitted')
       else
-        map_downstream_error(response.status, response.body, AppealsApi::UploadError)
+        map_error(response.status, response.body, AppealsApi::UploadError)
       end
     end
   end

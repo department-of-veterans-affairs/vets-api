@@ -51,7 +51,7 @@ module Mobile
           middle_name: user.middle_name,
           last_name: user.last_name,
           email: user.email,
-          birth_date: Date.parse(user.birth_date).iso8601,
+          birth_date: user.birth_date.nil? ? nil : Date.parse(user.birth_date).iso8601,
           gender: user.gender,
           residential_address: filter_keys(user.vet360_contact_info&.residential_address, ADDRESS_KEYS),
           mailing_address: filter_keys(user.vet360_contact_info&.mailing_address, ADDRESS_KEYS),

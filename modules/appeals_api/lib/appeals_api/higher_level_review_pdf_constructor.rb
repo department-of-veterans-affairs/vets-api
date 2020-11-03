@@ -37,6 +37,11 @@ module AppealsApi
         "F[0].#subform[2].VAFileNumber[0]": appeal.file_number,
         "F[0].#subform[2].VeteransServiceNumber[0]": appeal.service_number,
         "F[0].#subform[2].InsurancePolicyNumber[0]": appeal.insurance_policy_number,
+        "F[0].#subform[2].ClaimantType[0]": 'off',
+        "F[0].#subform[2].ClaimantType[1]": 'off',
+        "F[0].#subform[2].ClaimantType[2]": 'off',
+        "F[0].#subform[2].ClaimantType[3]": 'off',
+        "F[0].#subform[2].ClaimantType[4]": 1, # veteran. Note: Ordering of array doesn't seem to match form
         "F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]": HigherLevelReview::NO_ADDRESS_PROVIDED_SENTENCE,
         "F[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]": '',
         "F[0].#subform[2].CurrentMailingAddress_City[0]": '',
@@ -44,8 +49,9 @@ module AppealsApi
         "F[0].#subform[2].CurrentMailingAddress_Country[0]": '',
         "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": '',
         "F[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": '',
-        "F[0].#subform[2].TELEPHONE[0]": appeal.veteran_phone_number,
-        "F[0].#subform[2].EMAIL[0]": appeal.email,
+        "F[0].#subform[2].TELEPHONE[0]": appeal.veteran_phone_number.presence ||
+                                         HigherLevelReview::NO_PHONE_PROVIDED_SENTENCE,
+        "F[0].#subform[2].EMAIL[0]": appeal.email.presence || HigherLevelReview::NO_EMAIL_PROVIDED_SENTENCE,
         "F[0].#subform[2].BenefitType[0]": appeal.benefit_type == 'nca' ? 9 : 'Off',
         "F[0].#subform[2].BenefitType[1]": appeal.benefit_type == 'vha' ? 6 : 'Off',
         "F[0].#subform[2].BenefitType[2]": appeal.benefit_type == 'education' ? 5 : 'Off',
@@ -66,6 +72,7 @@ module AppealsApi
         "F[0].#subform[3].SIGNATUREOFVETERANORCLAIMANT[0]": appeal.full_name,
         "F[0].#subform[3].DateSigned[0]": appeal.date_signed
       }
+
       appeal.contestable_issues.each_with_index do |issue, index|
         if index < 6
           if index.zero?
