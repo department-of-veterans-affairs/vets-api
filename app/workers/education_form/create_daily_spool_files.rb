@@ -10,6 +10,9 @@ module EducationForm
   class FormattingError < StandardError
   end
 
+  class DailySpoolFileLogging < StandardError
+  end
+
   class DailySpoolFileError < StandardError
   end
 
@@ -141,7 +144,6 @@ module EducationForm
     # Useful for debugging which records were or were not sent over successfully,
     # in case of network failures.
     def log_submissions(records, filename)
-      binding.pry
       ids = records.map { |r| r.record.id }
       log_info("Writing #{records.count} application(s) to #{filename}")
       log_info("IDs: #{ids}")
@@ -165,7 +167,7 @@ module EducationForm
 
     def log_info(message)
       if Flipper.enabled?(:sidekiq_create_daily_spool_file_logging)
-        log_exception_to_sentry(message)
+        log_exception_to_sentry(DailySpoolFileLogging.new(message))
       else
         logger.info(message)
       end
