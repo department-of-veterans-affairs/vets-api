@@ -8,6 +8,19 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
 
   before { Sidekiq::Worker.clear_all }
 
+  # This is a temporary spec until addition of uploading to central mail is implemented.
+  # Test coverage fell beneath 90% due to `#perform` not being tested. Once central mail upload
+  # is implemented another spec will replace this one testing `#perform`
+  describe '#perform' do
+    let(:notice_of_disagreement) { create(:minimal_notice_of_disagreement) }
+
+    it 'calls generate_pdf' do
+      submit_job = described_class.new
+      expect(submit_job).to receive(:generate_pdf).and_call_original.once
+      submit_job.perform(notice_of_disagreement.id)
+    end
+  end
+
   context 'pdf minimum content verification' do
     let(:notice_of_disagreement) { create(:minimal_notice_of_disagreement) }
 
