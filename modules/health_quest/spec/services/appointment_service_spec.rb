@@ -23,17 +23,16 @@ describe HealthQuest::AppointmentService do
       expect(appointment[:data]).to be_a(OpenStruct)
     end
 
-    it 'data has relevant keys' do
-      expect(appointment[:data].respond_to?(:id)).to be(true)
-      expect(appointment[:data].respond_to?(:start_date)).to be(true)
-      expect(appointment[:data].respond_to?(:clinic_id)).to be(true)
-      expect(appointment[:data].respond_to?(:clinic_friendly_name)).to be(true)
-      expect(appointment[:data].respond_to?(:facility_id)).to be(true)
-      expect(appointment[:data].respond_to?(:sta6aid)).to be(true)
-      expect(appointment[:data].respond_to?(:station_name)).to be(true)
-      expect(appointment[:data].respond_to?(:patient_icn)).to be(true)
-      expect(appointment[:data].respond_to?(:community_care)).to be(true)
-      expect(appointment[:data].respond_to?(:vds_appointments)).to be(true)
+    it 'data openstruct object has expected keys' do
+      data = appointment[:data]
+      attributes = %i[
+        id start_date clinic_id clinic_friendly_name facility_id sta6aid
+        station_name patient_icn community_care vds_appointments
+      ]
+
+      attributes.each do |attr|
+        expect(data.respond_to?(attr)).to be(true)
+      end
     end
   end
 end
