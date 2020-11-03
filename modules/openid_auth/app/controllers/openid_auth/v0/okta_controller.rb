@@ -46,7 +46,7 @@ module OpenidAuth
           uuid: user_attributes[:idp_uuid]
         )
 
-        mvi_response = MVI::Service.new.find_profile(user_identity)
+        mvi_response = MPI::Service.new.find_profile(user_identity)
 
         raise mvi_response.error if mvi_response.error # TODO: add error logging
 
