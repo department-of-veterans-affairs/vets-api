@@ -439,6 +439,7 @@ maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
   services:
+    carma: P6XLE0T
     appeals: P9S4RFU
     arcgis: P45YBFA
     dslogon: P9DJJAV
