@@ -51,8 +51,31 @@ RSpec.describe BGS::VnpVeteran do
             address_zip_code: '21122',
             type: 'veteran',
             benefit_claim_type_end_product: '139',
-            regional_office: '313'
+            location_id: '343'
           )
+        end
+      end
+    end
+
+    context 'default location id' do
+      it 'returns 347 when BGS::Service#find_regional_offices returns nil' do
+        VCR.use_cassette('bgs/vnp_veteran/create') do
+          expect_any_instance_of(BGS::Service).to receive(:find_regional_offices).and_return nil
+
+          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user_object).create
+
+          expect(vnp_veteran).to include(location_id: '347')
+        end
+      end
+
+      it 'returns 347 when BGS::Service#get_regional_office_by_zip_code returns an invalid regional office' do
+        VCR.use_cassette('bgs/vnp_veteran/create') do
+          expect_any_instance_of(BGS::Service)
+            .to receive(:get_regional_office_by_zip_code).and_return 'invalid regional office'
+
+          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user_object).create
+
+          expect(vnp_veteran).to include(location_id: '347')
         end
       end
     end
