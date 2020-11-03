@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/responses/add_person_response'
+require 'mpi/responses/add_person_response'
 
 describe MVI::Responses::AddPersonResponse do
   let(:faraday_response) { instance_double('Faraday::Response') }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/messages/find_profile_message_icn'
+require 'mpi/messages/find_profile_message_icn'
 
 describe MVI::Messages::FindProfileMessageIcn do
   describe '.to_xml' do

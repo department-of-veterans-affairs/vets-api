@@ -4,7 +4,7 @@
 
 require 'carma/models/submission'
 require 'carma/models/attachments'
-require 'mvi/service'
+require 'mpi/service'
 require 'emis/service'
 
 module Form1010cg

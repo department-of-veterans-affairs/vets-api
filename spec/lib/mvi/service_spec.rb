@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/service'
+require 'mpi/service'
 
 describe MVI::Service do
   let(:user_hash) do

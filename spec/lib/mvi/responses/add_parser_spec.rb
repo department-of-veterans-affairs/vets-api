@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/responses/add_parser'
+require 'mpi/responses/add_parser'
 
 describe MVI::Responses::AddParser do
   let(:faraday_response) { instance_double('Faraday::Response') }

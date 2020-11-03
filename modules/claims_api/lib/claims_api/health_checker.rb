@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs/service'
-require 'mvi/service'
+require 'mpi/service'
 require 'evss/service'
 
 module ClaimsApi

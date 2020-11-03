@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 # these requires are needed to stub values for tests (they won't normally be laoded until the class is exercised)
-require 'mvi/models/mvi_profile'
-require 'mvi/attr_service'
+require 'mpi/models/mvi_profile'
+require 'mpi/attr_service'
 
 RSpec.describe VeteranConfirmation::StatusService do
   describe '.get_by_attributes' do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'mvi/responses/find_profile_response'
+require 'mpi/responses/find_profile_response'
 
 def stub_mpi(profile = nil)
   profile ||= build(:mvi_profile)

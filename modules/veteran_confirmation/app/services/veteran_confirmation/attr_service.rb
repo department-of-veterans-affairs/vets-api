@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'mvi/attr_service'
-require 'mvi/configuration'
+require 'mpi/attr_service'
+require 'mpi/configuration'
 
 module VeteranConfirmation
   class AttrService < MVI::AttrService
