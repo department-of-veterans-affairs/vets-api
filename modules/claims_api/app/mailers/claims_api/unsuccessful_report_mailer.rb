@@ -11,6 +11,10 @@ module ClaimsApi
       premal.shah@va.gov
       lee.deboom@oddball.io
       dan.hinze@adhocteam.us
+      seth.johnson@gdit.com
+      kayur.shah@gdit.com
+      tim.barto@gdit.com
+      zachary.goldfine@va.gov
     ].freeze
 
     def build(consumer_totals, pending_submissions, unsuccessful_submissions, date_from, date_to)
