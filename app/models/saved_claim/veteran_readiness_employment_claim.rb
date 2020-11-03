@@ -45,6 +45,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     response[:file_nbr]
   rescue
+    binding.pry
     nil
   end
 
