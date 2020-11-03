@@ -224,7 +224,7 @@ module V0
       Swagger::Schemas::CCProviders,
       Swagger::Schemas::UserInternalServices,
       Swagger::Schemas::Permission,
-      Swagger::Schemas::ValidVaFileNumber,
+      Swagger::Schemas::ValidVAFileNumber,
       Swagger::Schemas::PaymentHistory,
       Swagger::Schemas::Vet360::Address,
       Swagger::Schemas::Vet360::Email,
