@@ -330,6 +330,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
   describe '#upload_documents' do
     let(:auto_claim) { create(:auto_established_claim) }
+    let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
     let(:binary_params) do
       { 'attachment1': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
         'attachment2': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
@@ -356,6 +357,16 @@ RSpec.describe 'Disability Claims ', type: :request do
             params: base64_params, headers: headers.merge(auth_header))
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
+      end
+    end
+
+    it 'rejects uploading 526 through PUT when autoCestPDFGenerationDisabled is false' do
+      with_okta_user(scopes) do |auth_header|
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        put("/services/claims/v1/forms/526/#{non_auto_claim.id}",
+            params: binary_params, headers: headers.merge(auth_header))
+        non_auto_claim.reload
+        expect(response.status).to eq(422)
       end
     end
 
