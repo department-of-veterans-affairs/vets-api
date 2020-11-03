@@ -7,6 +7,7 @@ module MPI
 
     class ServiceError < MPI::Errors::Base
       attr_reader :body
+
       def initialize(body = nil)
         @body = body
         super
