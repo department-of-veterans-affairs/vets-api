@@ -168,6 +168,24 @@ module BGS
       { ssn: @user.ssn }
     end
 
+    def find_ch33_dd_eft
+      service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
+    end
+
+    def update_ch33_dd_eft(routing_number, acct_number, checking_acct)
+      service.claims.send(
+        :request,
+        :update_ch33_dd_eft,
+        ch33DdEftInput: {
+          dpositAcntNbr: acct_number,
+          dpositAcntTypeNm: checking_acct ? 'C' : 'S',
+          fileNumber: @user.ssn,
+          routngTrnsitNbr: routing_number,
+          tranCode: '2'
+        }
+      )
+    end
+
     def get_regional_office_by_zip_code(zip_code, country, province, lob, ssn)
       regional_office_response = service.routing.get_regional_office_by_zip_code(
         zip_code, country, province, lob, ssn
@@ -178,12 +196,21 @@ module BGS
       '347' # return default location id
     end
 
+    def find_regional_offices
+      service.data.find_regional_offices[:return]
+    rescue => e
+      notify_of_service_exception(e, __method__, 1, :warn)
+    end
+
     private
 
     def service
       external_key = @user.common_name || @user.email
 
-      @service ||= BGS::Services.new(external_uid: @user.icn, external_key: external_key)
+      @service ||= BGS::Services.new(
+        external_uid: @user.icn || @user.uuid,
+        external_key: external_key
+      )
     end
   end
 end

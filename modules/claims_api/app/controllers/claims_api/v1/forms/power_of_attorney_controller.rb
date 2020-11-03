@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/poa_verification'
-require_dependency 'claims_api/concerns/document_validations'
 require 'bgs/power_of_attorney_verifier'
 
 module ClaimsApi
@@ -55,7 +53,7 @@ module ClaimsApi
           @power_of_attorney.reload
 
           # This job will trigger whether submission is from a Veteran or Representative when a document is sent.
-          ClaimsApi::VbmsUploadJob.perform_async(@power_of_attorney.id)
+          ClaimsApi::VBMSUploadJob.perform_async(@power_of_attorney.id)
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 

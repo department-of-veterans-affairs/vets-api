@@ -191,15 +191,15 @@ evss:
   pciu_address:
     timeout: 30
   mock_claims: false
-  mock_letters: false
+  mock_common_service: true
+  mock_disabilities_form: true
   mock_gi_bill_status: false
+  mock_itf: true
+  mock_letters: false
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
-  mock_reference: false
-  mock_itf: true
-  mock_disabilities_form: true
-  mock_common_service: true
+  mock_reference: true
   mock_vso_search: false
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
@@ -368,6 +368,7 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
+  unsuccessful_report_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
@@ -438,6 +439,7 @@ maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
   services:
+    carma: P6XLE0T
     appeals: P9S4RFU
     arcgis: P45YBFA
     dslogon: P9DJJAV
@@ -491,8 +493,6 @@ flipper:
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - jesse.cohn@adhocteam.us
-    - johnny@oddball.io
-    - johnpaul.ashenfelter@oddball.io
     - kabrown@thoughtworks.com
     - kam@adhocteam.us
     - keifer@oddball.io
@@ -502,6 +502,7 @@ flipper:
     - kmircovich@governmentcio.com
     - jlinn@governmentcio.com
     - lauren.alexanderson@va.gov
+    - lihan@adhocteam.us
     - lindsey.hattamer@oddball.io
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
@@ -531,6 +532,12 @@ flipper:
     - zurbergram@gmail.com
     - tony.williams@va.gov
     - jennie.mcgibney@va.gov
+    - adewitt@thoughtworks.com
+    - shefai.nayak@thoughtworks.com
+    - jacob.gacek@thoughtworks.com
+    - paul.phillips@thoughtworks.com
+    - mnunemak@thoughtworks.com
+    - hshin@thoughtworks.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
@@ -553,8 +560,9 @@ va_mobile:
 
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
-  mock: false
-  key_path: /fake/client/key/path
+  mock: true
+  cert_path: config/certs/vetsgov-localhost.crt
+  key_path: config/certs/vetsgov-localhost.key
   timeout: 15
 
 lighthouse:

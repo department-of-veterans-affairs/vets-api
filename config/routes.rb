@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
+    resources :education_career_counseling_claims, only: :create
 
     resources :letters, only: [:index] do
       collection do
@@ -47,7 +48,7 @@ Rails.application.routes.draw do
       get 'separation_locations'
     end
 
-    post '/mvi_users/:id', to: 'mvi_users#submit'
+    post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
@@ -239,6 +240,9 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+
+      resources :ch33_bank_accounts, only: %i[index]
+      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
     end
 
     resources :search, only: :index
@@ -322,11 +326,12 @@ Rails.application.routes.draw do
   end
 
   scope '/services' do
+    mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VaForms::Engine, at: '/va_forms'
+    mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end

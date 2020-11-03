@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
-module VaForms
+require 'va_forms/health_checker'
+
+module VAForms
   class MetadataController < ::ApplicationController
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
     skip_before_action(:authenticate)
+    include HealthChecker::Constants
 
     def index
       render json: {
@@ -23,40 +26,45 @@ module VaForms
     end
 
     def healthcheck
-      if VaForms::Form.count.positive?
-        render json: healthy_service_response
-      else
-        render json: unhealthy_service_response,
-               status: :service_unavailable
-      end
+      render json: {
+        description: HEALTH_DESCRIPTION,
+        status: 'UP',
+        time: Time.zone.now.to_formatted_s(:iso8601)
+      }
+    end
+
+    def upstream_healthcheck
+      health_checker = VAForms::HealthChecker.new
+      time = Time.zone.now.to_formatted_s(:iso8601)
+
+      render json: {
+        description: HEALTH_DESCRIPTION_UPSTREAM,
+        status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
+        time: time,
+        details: {
+          name: 'All upstream services',
+          upstreamServices: VAForms::HealthChecker::SERVICES.map do |service|
+                              upstream_service_details(service, health_checker, time)
+                            end
+        }
+      }, status: health_checker.services_are_healthy? ? 200 : 503
     end
 
     private
 
-    def healthy_service_response
-      {
-        data: {
-          id: 'va_forms_healthcheck',
-          type: 'va_forms_healthcheck',
-          attributes: {
-            healthy: true,
-            date: Time.zone.now.to_formatted_s(:iso8601)
-          }
-        }
-      }.to_json
-    end
+    def upstream_service_details(service_name, health_checker, time)
+      healthy = health_checker.healthy_service?(service_name)
 
-    def unhealthy_service_response
       {
-        errors: [
-          {
-            title: 'VA Form API Unavailable',
-            detail: 'VA Forms API is currently unavailable.',
-            code: '503',
-            status: '503'
-          }
-        ]
-      }.to_json
+        description: service_name.titleize,
+        status: healthy ? 'UP' : 'DOWN',
+        details: {
+          name: service_name.titleize,
+          statusCode: healthy ? 200 : 503,
+          status: healthy ? 'OK' : 'Unavailable',
+          time: time
+        }
+      }
     end
   end
 end
