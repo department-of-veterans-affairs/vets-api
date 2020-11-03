@@ -21,7 +21,7 @@ module MPI
 
       # Builds a response with a server error status and a nil mvi_codes
       #
-      # @return [MVI::Responses::AddPersonResponse] the response
+      # @return [MPI::Responses::AddPersonResponse] the response
       def self.with_server_error(exception = nil)
         AddPersonResponse.new(
           status: AddPersonResponse::RESPONSE_STATUS[:server_error],
@@ -33,7 +33,7 @@ module MPI
       # Builds a response with a variable status and a nil mvi_codes. The status
       # should represent the status returned from the orchestrated search.
       #
-      # @return [MVI::Responses::AddPersonResponse] the response
+      # @return [MPI::Responses::AddPersonResponse] the response
       def self.with_failed_orch_search(status, exception = nil)
         AddPersonResponse.new(
           status: status,
@@ -45,12 +45,12 @@ module MPI
       # Builds a response with a ok status and a codes response
       #
       # @param response [Ox::Element] ox element returned from the soap service middleware
-      # @return [MVI::Responses::AddPersonResponse] response with a possible parsed codes
+      # @return [MPI::Responses::AddPersonResponse] response with a possible parsed codes
       def self.with_parsed_response(response)
         add_parser = AddParser.new(response)
         mvi_codes = add_parser.parse
-        raise MVI::Errors::InvalidRequestError, mvi_codes if add_parser.invalid_request?
-        raise MVI::Errors::FailedRequestError, mvi_codes if add_parser.failed_request?
+        raise MPI::Errors::InvalidRequestError, mvi_codes if add_parser.invalid_request?
+        raise MPI::Errors::FailedRequestError, mvi_codes if add_parser.failed_request?
 
         AddPersonResponse.new(
           status: RESPONSE_STATUS[:ok],

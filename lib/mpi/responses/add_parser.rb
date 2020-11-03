@@ -23,7 +23,7 @@ module MPI
 
         if failed_or_invalid?
           PersonalInformationLog.create(
-            error_class: 'MVI::Errors',
+            error_class: 'MPI::Errors',
             data: {
               payload: response.body
             }

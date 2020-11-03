@@ -32,8 +32,8 @@ module MPI
       }.freeze
     end
 
-    # @return [MVI::Configuration] the configuration for this service
-    configuration MVI::Configuration
+    # @return [MPI::Configuration] the configuration for this service
+    configuration MPI::Configuration
 
     STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
     SERVER_ERROR = 'server_error'
@@ -47,7 +47,7 @@ module MPI
             create_add_message(user_identity),
             soapaction: OPERATIONS[:add_person]
           )
-          MVI::Responses::AddPersonResponse.with_parsed_response(raw_response)
+          MPI::Responses::AddPersonResponse.with_parsed_response(raw_response)
         end
       end
     rescue Breakers::OutageException => e
@@ -60,7 +60,7 @@ module MPI
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_message_to_sentry("MVI add_person error: #{e.message}", :warn)
       mvi_add_exception_response_for('MVI_504', e)
-    rescue MVI::Errors::Base => e
+    rescue MPI::Errors::Base => e
       key = get_mvi_error_key(e)
       mvi_error_handler(user_identity, e, 'add_person')
       mvi_add_exception_response_for(key, e)
@@ -70,7 +70,7 @@ module MPI
     # Given a user queries MVI and returns their VA profile.
     #
     # @param user [UserIdentity] the user to query MVI for
-    # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
+    # @return [MPI::Responses::FindProfileResponse] the parsed response from MVI.
     # rubocop:disable Metrics/MethodLength
     def find_profile(user_identity)
       with_monitoring do
@@ -80,7 +80,7 @@ module MPI
             create_profile_message(user_identity),
             soapaction: OPERATIONS[:find_profile]
           )
-          MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+          MPI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
       end
     rescue Breakers::OutageException => e
@@ -93,9 +93,9 @@ module MPI
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_message_to_sentry("MVI find_profile error: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
-    rescue MVI::Errors::Base => e
+    rescue MPI::Errors::Base => e
       mvi_error_handler(user_identity, e, 'find_profile')
-      if e.is_a?(MVI::Errors::RecordNotFound)
+      if e.is_a?(MPI::Errors::RecordNotFound)
         mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
         mvi_profile_exception_response_for('MVI_502', e)
@@ -104,7 +104,7 @@ module MPI
     # rubocop:enable Metrics/MethodLength
 
     def self.service_is_up?
-      last_mvi_outage = Breakers::Outage.find_latest(service: MVI::Configuration.instance.breakers_service)
+      last_mvi_outage = Breakers::Outage.find_latest(service: MPI::Configuration.instance.breakers_service)
       last_mvi_outage.blank? || last_mvi_outage.end_time.present?
     end
 
@@ -124,16 +124,16 @@ module MPI
     def mvi_add_exception_response_for(key, error)
       exception = build_exception(key, error)
 
-      MVI::Responses::AddPersonResponse.with_server_error(exception)
+      MPI::Responses::AddPersonResponse.with_server_error(exception)
     end
 
     def mvi_profile_exception_response_for(key, error, type: SERVER_ERROR)
       exception = build_exception(key, error)
 
       if type == SERVER_ERROR
-        MVI::Responses::FindProfileResponse.with_server_error(exception)
+        MPI::Responses::FindProfileResponse.with_server_error(exception)
       else
-        MVI::Responses::FindProfileResponse.with_not_found(exception)
+        MPI::Responses::FindProfileResponse.with_not_found(exception)
       end
     end
 
@@ -148,18 +148,18 @@ module MPI
 
     def mvi_error_handler(user_identity, error, source = '')
       case error
-      when MVI::Errors::DuplicateRecords
+      when MPI::Errors::DuplicateRecords
         log_exception_to_sentry(error, nil, nil, 'warn')
-      when MVI::Errors::RecordNotFound
+      when MPI::Errors::RecordNotFound
         Rails.logger.info('MVI Record Not Found')
-      when MVI::Errors::InvalidRequestError
+      when MPI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user_identity.mhv_icn.present?
           log_exception_to_sentry(error, {}, { message: 'Possible RecordNotFound', source: source })
         else
           log_exception_to_sentry(error, {}, { message: 'MVI Invalid Request', source: source })
         end
-      when MVI::Errors::FailedRequestError
+      when MPI::Errors::FailedRequestError
         log_exception_to_sentry(error)
       end
     end
@@ -174,7 +174,7 @@ module MPI
     def create_add_message(user)
       raise Common::Exceptions::ValidationErrors, user unless user.valid?
 
-      MVI::Messages::AddPersonMessage.new(user).to_xml if user.icn_with_aaid.present?
+      MPI::Messages::AddPersonMessage.new(user).to_xml if user.icn_with_aaid.present?
     end
 
     # rubocop:disable Layout/LineLength
@@ -189,12 +189,12 @@ module MPI
 
     def message_icn(user)
       Raven.tags_context(mvi_find_profile: 'icn')
-      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+      MPI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
     end
 
     def message_edipi(user)
       Raven.tags_context(mvi_find_profile: 'edipi')
-      MVI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi).to_xml
+      MPI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi).to_xml
     end
 
     def message_user_attributes(user)
@@ -208,7 +208,7 @@ module MPI
         ssn: user.ssn,
         gender: user.gender
       }
-      MVI::Messages::FindProfileMessage.new(profile).to_xml
+      MPI::Messages::FindProfileMessage.new(profile).to_xml
     end
   end
 end

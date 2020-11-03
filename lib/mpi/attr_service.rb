@@ -5,7 +5,7 @@ require_relative 'attr_configuration'
 
 module MPI
   class AttrService < Service
-    configuration MVI::AttrConfiguration
+    configuration MPI::AttrConfiguration
 
     private
 
