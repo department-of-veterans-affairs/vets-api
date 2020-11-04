@@ -2823,8 +2823,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             :post,
             '/v0/ask/asks',
             422,
-            headers.merge('_data' =>
-              {
+            headers.merge(
+              '_data' => {
                 'inquiry' => {
                   'form' => {}.to_json
                 }
