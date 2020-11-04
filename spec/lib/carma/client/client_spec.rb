@@ -35,21 +35,6 @@ RSpec.describe CARMA::Client::Client, type: :model do
     end
   end
 
-  describe '#create_submission_stub' do
-    timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
-
-    it 'returns a hard coded response', run_at: timestamp.iso8601 do
-      expect(subject).not_to receive(:get_client)
-      response = subject.create_submission_stub(nil)
-
-      expect(response['message']).to eq('Application Received')
-      expect(response['data']).to be_present
-      expect(response['data']['carmacase']).to be_present
-      expect(response['data']['carmacase']['id']).to eq 'aB935000000F3VnCAK'
-      expect(DateTime.parse(response['data']['carmacase']['createdAt'])).to eq timestamp
-    end
-  end
-
   describe '#upload_attachments' do
     it 'accepts a payload and submitts to CARMA' do
       payload           = { 'my' => 'data' }
@@ -67,25 +52,6 @@ RSpec.describe CARMA::Client::Client, type: :model do
       expect(response_double).to receive(:body).and_return(:response_token)
       response = subject.upload_attachments(payload)
       expect(response).to eq(:response_token)
-    end
-  end
-
-  describe '#upload_attachments_stub' do
-    it 'returns a hard coded response' do
-      expect(subject).not_to receive(:get_client)
-      response = subject.upload_attachments_stub(nil)
-
-      expect(response).to eq(
-        {
-          'hasErrors' => false,
-          'results' => [
-            {
-              'referenceId' => '1010CG',
-              'id' => '06835000000YpsjAAC'
-            }
-          ]
-        }
-      )
     end
   end
 end

@@ -54,6 +54,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
           joshua.jennings@libertyits.com
           cristopher.shupp@libertyits.com
           gregory.bowman@libertyits.com
+          zachary.goldfine@va.gov
         ]
       )
     end
