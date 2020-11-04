@@ -1015,20 +1015,7 @@ components:
     Claim:
       required:
         - data
-        - meta
       properties:
-        meta:
-          type: object
-          required:
-            - syncStatus
-          properties:
-            syncStatus:
-              type: string
-              example: "SUCCESS"
-              enum:
-                - SUCCESS
-                - FAILURE
-                - REQUESTED
         data:
           type: object
           required:
@@ -1174,20 +1161,7 @@ components:
     ClaimsAndAppealsOverview:
       required:
         - data
-        - meta
       properties:
-        meta:
-          type: object
-          required:
-            - syncStatus
-          properties:
-            syncStatus:
-              type: string
-              example: "SUCCESS"
-              enum:
-                - SUCCESS
-                - FAILURE
-                - REQUESTED
         data:
           type: object
           required:
