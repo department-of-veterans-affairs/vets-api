@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'openid_auth/application_controller'
-require 'mpi/service'
+require 'mvi/service'
 require 'common/exceptions'
 
 module OpenidAuth
@@ -28,7 +28,7 @@ module OpenidAuth
       private
 
       def process_identity(user_identity)
-        service = MPI::Service.new
+        service = MVI::Service.new
         mvi_response = service.find_profile(user_identity)
         raise mvi_response.error if mvi_response.error
 
