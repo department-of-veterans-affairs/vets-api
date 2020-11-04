@@ -22,25 +22,6 @@ describe HealthQuest::V0::VAAppointmentsSerializer do
     end
   end
 
-  describe 'KEY #meta' do
-    it 'has meta key' do
-      expect(subject.serializable_hash.key?(:meta)).to be(true)
-    end
-
-    it 'has default values' do
-      meta_hash = {
-        'pagination': {
-          'current_page': 0,
-          'per_page': 0,
-          'total_pages': 0,
-          'total_entries': 0
-        }
-      }
-
-      expect(subject.serializable_hash[:meta]).to eq(meta_hash)
-    end
-  end
-
   describe 'KEY #data' do
     it 'has data key' do
       expect(subject.serializable_hash.key?(:data)).to be(true)
