@@ -81,20 +81,20 @@ module EducationForm
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
+        log_submissions(records, filename)
+        # create the single textual spool file
+        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
         begin
-          log_submissions(records, filename)
-          # create the single textual spool file
-          contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
-
           writer.write(contents, filename)
 
           # track and update the records as processed once the file has been successfully written
           track_submissions(region_id)
           records.each { |r| r.record.update(processed_at: Time.zone.now) }
-        rescue => error
-          exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{error}")
+        rescue => e
+          exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{e}")
           log_exception_to_sentry(exception)
+          next
         end
       end
     ensure
@@ -133,7 +133,7 @@ module EducationForm
 
     def federal_holiday?
       holiday = Holidays.on(Time.zone.today, :us, :observed)
-      if holiday.nil?
+      if holiday.empty?
         false
       else
         log_info("Skipping on a Holiday: #{holiday.first[:name]}")
