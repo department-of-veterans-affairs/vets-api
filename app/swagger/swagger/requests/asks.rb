@@ -11,7 +11,7 @@ module Swagger
 
           key :description, 'Submit a message'
           key :operationId, 'createsAnInquiry'
-          key :tags, %w[get_help_ask_form]
+          key :tags, %w[contact_us]
 
           parameter :optional_authorization
 
