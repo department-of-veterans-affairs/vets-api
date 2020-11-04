@@ -14,7 +14,9 @@ module HealthQuest
     end
 
     def rsa_key
-      @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.hqva_mobile.key_path))
+      private_key_path = Rails.env.development? ? Settings.hqva_mobile.local_key_path : Settings.hqva_mobile.key_path
+
+      @key ||= OpenSSL::PKey::RSA.new(File.read(private_key_path))
     end
 
     def connection
