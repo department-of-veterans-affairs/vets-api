@@ -14,7 +14,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     FileUtils.remove_dir('tmp/spool_files')
   end
 
-  context 'scheduling' do 
+  context 'scheduling' do
     before do
       Flipper.disable('sidekiq_create_daily_spool_file_logging')
       allow(Rails.env).to receive('development?').and_return(true)
@@ -197,6 +197,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
     let(:filename) { '307_09172016_070000_vetsgov.spl' }
     let!(:second_record) { FactoryBot.create(:va1995) }
+
     before do
       Flipper.disable('sidekiq_create_daily_spool_file_logging')
     end
