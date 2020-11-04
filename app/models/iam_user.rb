@@ -17,7 +17,7 @@ class IAMUser < ::User
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
 
-  # MVI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
+  # MPI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
   alias mhv_icn iam_icn
 
   # Builds an user instance from a IAMUserIdentity
@@ -36,7 +36,7 @@ class IAMUser < ::User
   # @return [String] the users DoD EDIPI
   #
   def edipi
-    loa3? && iam_edipi.present? ? iam_edipi : mvi&.edipi
+    loa3? && iam_edipi.present? ? iam_edipi : mpi&.edipi
   end
 
   # for PII reasons we don't send correlation ids over the wire

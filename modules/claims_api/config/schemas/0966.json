@@ -2,28 +2,11 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Form 0966 Schema",
   "type": "object",
-  "required": [
-    "type"
-  ],
-  "if": {
-    "properties": {
-      "type": { "const": "burial" }
-    },
-    "required": ["type"]
-  },
-  "then": {
-    "required": [
-      "participant_claimant_id"
-    ]
-  },
+  "required": ["type"],
   "properties": {
     "type": {
       "type": "string",
-      "enum": [
-        "compensation",
-        "pension",
-        "burial"
-      ]
+      "enum": ["compensation", "pension", "burial"]
     },
     "participant_claimant_id": {
       "type": "string",

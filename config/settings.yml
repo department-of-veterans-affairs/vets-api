@@ -351,7 +351,7 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
-  unsuccessful_report_enabled: false
+  report_enabled: false
   location:
     prefix: http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
@@ -368,6 +368,7 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
+  report_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
@@ -438,6 +439,7 @@ maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
   services:
+    carma: P6XLE0T
     appeals: P9S4RFU
     arcgis: P45YBFA
     dslogon: P9DJJAV
@@ -531,6 +533,11 @@ flipper:
     - tony.williams@va.gov
     - jennie.mcgibney@va.gov
     - adewitt@thoughtworks.com
+    - shefai.nayak@thoughtworks.com
+    - jacob.gacek@thoughtworks.com
+    - paul.phillips@thoughtworks.com
+    - mnunemak@thoughtworks.com
+    - hshin@thoughtworks.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
