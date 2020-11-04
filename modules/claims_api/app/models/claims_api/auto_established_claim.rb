@@ -49,7 +49,7 @@ module ClaimsApi
 
     def self.pending?(id)
       query = where(id: id)
-      query.exists? && query.first.evss_id.nil? ? query.first : false
+      query.exists? ? query.first : false
     end
 
     def self.evss_id_by_token(token)
