@@ -4,7 +4,7 @@
 
 require 'carma/models/submission'
 require 'carma/models/attachments'
-require 'mvi/service'
+require 'mpi/service'
 require 'emis/service'
 
 module Form1010cg
@@ -196,7 +196,7 @@ module Form1010cg
     private
 
     def mpi_service
-      @mpi_service ||= MVI::Service.new
+      @mpi_service ||= MPI::Service.new
     end
 
     def carma_client
@@ -215,8 +215,8 @@ module Form1010cg
       )
     end
 
-    # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
-    # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
+    # MPI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
+    # This method will build a valid UserIdentity, so MPI::Service can pluck the name, ssn, dob, and gender.
     #
     # @param form_subject_data [Hash] The data of a specific form subject (ex: claim.parsed_form['veteran'])
     # @return [UserIdentity] A valid UserIdentity for the given form_subject

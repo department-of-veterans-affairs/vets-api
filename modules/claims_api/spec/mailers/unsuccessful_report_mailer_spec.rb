@@ -49,6 +49,10 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
           premal.shah@va.gov
           lee.deboom@oddball.io
           dan.hinze@adhocteam.us
+          seth.johnson@gdit.com
+          kayur.shah@gdit.com
+          tim.barto@gdit.com
+          zachary.goldfine@va.gov
         ]
       )
     end
