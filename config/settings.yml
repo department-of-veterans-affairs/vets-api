@@ -562,7 +562,7 @@ hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
   key_path: /srv/vets-api/secret/health-quest.key
-  local_key_path: modules/health_quest/config/rsa/sandbox_rsa
+  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
 
 lighthouse:
