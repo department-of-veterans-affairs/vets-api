@@ -43,7 +43,7 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
         expect(appointment_attr['clinic_friendly_name']).to eq('CHY PC VAR2')
         expect(appointment_attr['facility_id']).to eq('983')
         expect(appointment_attr['community_care']).to eq(false)
-        expect(appointment_attr['patient_icn']).to eq(nil)
+        expect(appointment_attr['patient_icn']).to eq('1013124304V115761')
         expect(appointment_attr['vds_appointments']).to be_a(Array)
       end
     end
