@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for Notice of Disagreement Creation endpoint headers (Decision Reviews API)",
+  "$ref": "#/definitions/nodCreateHeadersRoot",
+  "definitions": {
+
+
+    "nodCreateHeadersRoot": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "X-VA-Veteran-First-Name":      { "$ref": "#/definitions/nodCreateHeadersFirstName" },
+        "X-VA-Veteran-Middle-Initial":  { "$ref": "#/definitions/nodCreateHeadersMiddleInitial" },
+        "X-VA-Veteran-Last-Name":       { "$ref": "#/definitions/nodCreateHeadersLastName" },
+        "X-VA-Veteran-SSN":             { "$ref": "#/definitions/nodCreateHeadersSsn" },
+        "X-VA-Veteran-File-Number":     { "$ref": "#/definitions/nodCreateHeadersFileNumber" },
+        "X-VA-Veteran-Birth-Date":      { "$ref": "#/definitions/nodCreateHeadersBirthDate" },
+        "X-VA-Claimant-First-Name":     { "$ref": "#/definitions/nodCreateHeadersFirstName" },
+        "X-VA-Claimant-Middle-Initial": { "$ref": "#/definitions/nodCreateHeadersMiddleInitial" },
+        "X-VA-Claimant-Last-Name":      { "$ref": "#/definitions/nodCreateHeadersLastName" },
+        "X-VA-Claimant-Birth-Date":     { "$ref": "#/definitions/nodCreateHeadersBirthDate" }
+      },
+      "required": [
+        "X-VA-Veteran-First-Name",
+        "X-VA-Veteran-Last-Name",
+        "X-VA-Veteran-SSN",
+        "X-VA-Veteran-Birth-Date"
+      ]
+    },
+
+
+    "nodCreateHeadersSsn": {
+      "allOf": [
+        { "description": "social security number" },
+        { "type": "string", "pattern": "^[0-9]{9}$" }
+      ]
+    },
+
+
+    "nodCreateHeadersFirstName": {
+      "allOf": [
+        { "description": "first name" },
+        {
+          "type": "string",
+          "$comment": "can be whitespace, to accomodate those with 1 legal name"
+        }
+      ]
+    },
+
+
+    "nodCreateHeadersMiddleInitial": {
+      "allOf": [
+        { "description": "middle initial" },
+        { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
+      ]
+    },
+
+
+    "nodCreateHeadersLastName": {
+      "allOf": [
+        { "description": "last name" },
+        { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
+      ]
+    },
+
+
+    "nodCreateHeadersBirthDate": {
+      "allOf": [
+        { "description": "birth date" },
+        { "$ref": "#/definitions/nodCreateHeadersDate" }
+      ]
+    },
+
+
+    "nodCreateHeadersFileNumber": {
+      "allOf": [
+        { "description": "VA file number (c-file / css)" },
+        { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
+      ]
+    },
+
+
+    "nodCreateHeadersDate": { "type": "string", "pattern": "^[0-9]{4}(-[0-9]{2}){2}$" },
+
+
+    "nodCreateHeadersNonBlankString": {
+      "type": "string",
+      "pattern": "[^ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]",
+      "$comment": "The pattern used ensures that a string has at least one non-whitespace character. The pattern comes from JavaScript's \\s character class. \"\\s Matches a single white space character, including space, tab, form feed, line feed, and other Unicode spaces. Equivalent to [ \\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff].\": https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Character_Classes  We are using simple character classes at JSON Schema's recommendation: https://tools.ietf.org/html/draft-handrews-json-schema-validation-01#section-4.3"
+    }
+  }
+}
