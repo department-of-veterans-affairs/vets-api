@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/MethodLength
-
+# rubocop:disable Metrics/AbcSize
 # spec/simplecov_helper.rb
 require 'active_support/inflector'
 require 'simplecov'
 
 class SimpleCovHelper
-  # rubocop:disable Metrics/AbcSize
   def self.report_coverage(base_dir: './coverage_results')
     SimpleCov.start 'rails' do
       skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
@@ -38,8 +37,8 @@ class SimpleCovHelper
       add_group 'Services', 'app/services'
       add_group 'Swagger', 'app/swagger'
       add_group 'Uploaders', 'app/uploaders'
-      add_group 'AppealsApi', 'modules/appeals_api/'
       add_group 'AppsApi', 'modules/apps_api'
+      add_group 'AppealsApi', 'modules/appeals_api/'
       add_group 'ClaimsApi', 'modules/claims_api/'
       add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'VBADocuments', 'modules/vba_documents/'
@@ -54,7 +53,7 @@ class SimpleCovHelper
     end
     new(base_dir: base_dir).merge_results
   end
-  # rubocop:enable Metrics/AbcSize
+
   attr_reader :base_dir
 
   def initialize(base_dir:)
@@ -73,4 +72,5 @@ class SimpleCovHelper
   end
 end
 
+# rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/MethodLength
