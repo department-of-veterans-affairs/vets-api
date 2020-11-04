@@ -48,33 +48,33 @@ describe PdfFill::Filler, type: :model do
       {
         form_id: '21P-530',
         factory: :burial_claim
-      },
-      {
-        form_id: '21P-527EZ',
-        factory: :pension_claim
-      },
-      {
-        form_id: '10-10CG',
-        factory: :caregivers_assistance_claim,
-        input_data_fixture_dir: 'pdf_fill/10-10CG',
-        output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
-        fill_options: {
-          sign: false
-        }
-      },
-      {
-        form_id: '10-10CG',
-        factory: :caregivers_assistance_claim,
-        input_data_fixture_dir: 'pdf_fill/10-10CG',
-        output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
-        fill_options: {
-          sign: true
-        }
-      },
-      {
-        form_id: '686C-674',
-        factory: :dependency_claim
-      }
+      }#,
+      # {
+      #   form_id: '21P-527EZ',
+      #   factory: :pension_claim
+      # },
+      # {
+      #   form_id: '10-10CG',
+      #   factory: :caregivers_assistance_claim,
+      #   input_data_fixture_dir: 'pdf_fill/10-10CG',
+      #   output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
+      #   fill_options: {
+      #     sign: false
+      #   }
+      # },
+      # {
+      #   form_id: '10-10CG',
+      #   factory: :caregivers_assistance_claim,
+      #   input_data_fixture_dir: 'pdf_fill/10-10CG',
+      #   output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
+      #   fill_options: {
+      #     sign: true
+      #   }
+      # },
+      # {
+      #   form_id: '686C-674',
+      #   factory: :dependency_claim
+      # }
     ].each do |form_id:, factory:, **options|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
@@ -109,7 +109,7 @@ describe PdfFill::Filler, type: :model do
                   FileUtils.compare_file(extras_path, "spec/fixtures/#{output_pdf_fixture_dir}/overflow_extras.pdf")
                 ).to eq(true)
 
-                File.delete(extras_path)
+                #File.delete(extras_path)
               end
 
               expect(
