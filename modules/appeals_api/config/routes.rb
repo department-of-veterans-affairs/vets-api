@@ -25,6 +25,7 @@ AppealsApi::Engine.routes.draw do
       end
       resources :notice_of_disagreements, only: %i[] do
         collection do
+          get 'schema', to: 'notice_of_disagreements#schema'
           post 'validate', to: 'notice_of_disagreements#validate'
         end
       end

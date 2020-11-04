@@ -46,4 +46,13 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
     end
   end
+
+  describe '#schema' do
+    let(:path) { base_path 'notice_of_disagreements/schema' }
+
+    it 'renders the json schema' do
+      get path
+      expect(response.status).to eq(200)
+    end
+  end
 end
