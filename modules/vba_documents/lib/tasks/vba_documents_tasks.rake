@@ -1,16 +1,21 @@
 # frozen_string_literal: true
+require_relative '../vba_documents/pdf_inspector'
 
 namespace :vba_documents do
-
+  no_pdf = %{
+No PDF directory provided. Point pdf_dir to the directory with the PDF files to test against.
+Invoke as follows:
+rake vba_documents:upload PDF_DIR= /path/to/pdfs
+}
   desc "Determines the PDF document and/or attachment violating the 21x21 validation error"
-  task :upload_21x21_violations, [:pdf_dir] => [:environment] do |_, args|
-    raise 'No test file directory provided. Point pdf_dir to the directory with the PDF files to test against.' unless args[:pdf_dir]
-    pdf_dir = args[:pdf_dir]
-    raise "The PDF directory, #{pdf_dir} is not a valid directory path" unless Dir.exist?(pdf_dir)
-    files = Dir.entries(pdf_dir).select { |f| File.file? f }
-
+  task :upload => [:environment] do
+    pdf_dir =  ENV['PDF_DIR']
+    raise ArgumentError.new no_pdf unless pdf_dir
+    raise  ArgumentError.new "The PDF directory, #{pdf_dir} is not a valid directory path" unless Dir.exist?(pdf_dir)
+    files = Dir["#{pdf_dir}/*"]
     files.each do |f|
-      puts f
+      inspector = VBADocuments::PDFInspector.new(pdf: f)
+      puts inspector.to_s
     end
   end
 end
