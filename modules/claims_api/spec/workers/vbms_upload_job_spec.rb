@@ -3,12 +3,12 @@
 require 'rails_helper'
 require_relative '../support/fake_vbms'
 
-RSpec.describe ClaimsApi::VbmsUploadJob, type: :job do
+RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
   subject { described_class }
 
   before do
     Sidekiq::Worker.clear_all
-    @vbms_client = FakeVbms.new
+    @vbms_client = FakeVBMS.new
     allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
   end
 
@@ -53,10 +53,10 @@ RSpec.describe ClaimsApi::VbmsUploadJob, type: :job do
         '@new_document_version_ref_id' => '{52300B69-1D6E-43B2-8BEB-67A7C55346A2}',
         '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
       }.with_indifferent_access)
-      allow_any_instance_of(ClaimsApi::VbmsUploadJob).to receive(:fetch_file_path).and_return('/tmp/path.pdf')
+      allow_any_instance_of(ClaimsApi::VBMSUploadJob).to receive(:fetch_file_path).and_return('/tmp/path.pdf')
 
-      allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:fetch_upload_token).and_return(token_response)
-      allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:upload_document).and_return(document_response)
+      allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
+      allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_return(document_response)
       VCR.use_cassette('vbms/document_upload_success') do
         subject.new.perform(power_of_attorney.id)
         power_of_attorney.reload
@@ -74,8 +74,8 @@ RSpec.describe ClaimsApi::VbmsUploadJob, type: :job do
           '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
         }.with_indifferent_access)
 
-        allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:fetch_upload_token).and_return(token_response)
-        allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:upload_document).and_raise(Errno::ENOENT)
+        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
+        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload_document).and_raise(Errno::ENOENT)
         subject.new.perform(power_of_attorney.id)
         power_of_attorney.reload
         expect(power_of_attorney.status).to eq('failed')
@@ -90,7 +90,7 @@ RSpec.describe ClaimsApi::VbmsUploadJob, type: :job do
           '@document_series_ref_id' => '{A57EF6CC-2236-467A-BA4F-1FA1EFD4B374}'
         }.with_indifferent_access)
 
-        allow_any_instance_of(ClaimsApi::VbmsUploader).to receive(:fetch_upload_token).and_return(token_response)
+        allow_any_instance_of(ClaimsApi::VBMSUploader).to receive(:fetch_upload_token).and_return(token_response)
         allow_any_instance_of(VBMS::Client).to receive(:send_request).and_return(response)
         allow(VBMS::Requests::UploadDocument).to receive(:new).and_return({})
         subject.new.perform(power_of_attorney.id)

@@ -33,7 +33,7 @@ FactoryBot.define do
     end
 
     after(:build) do
-      stub_mvi(
+      stub_mpi(
         build(
           :mvi_profile,
           edipi: '1005079124',
@@ -52,7 +52,7 @@ FactoryBot.define do
       end
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             edipi: nil,

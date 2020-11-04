@@ -71,10 +71,10 @@ module AppealsApi
       healthy = health_checker.healthy_service?(service_name)
 
       {
-        description: service_name.capitalize,
+        description: service_name.titleize,
         status: healthy ? 'UP' : 'DOWN',
         details: {
-          name: service_name.capitalize,
+          name: service_name.titleize,
           statusCode: healthy ? 200 : 503,
           status: healthy ? 'OK' : 'Unavailable',
           time: time

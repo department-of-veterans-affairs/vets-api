@@ -6,7 +6,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
   before do
-    stub_mvi
+    stub_mpi
   end
 
   let(:request_headers) do

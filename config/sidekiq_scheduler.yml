@@ -128,7 +128,12 @@ VBADocuments::UploadStatusBatch:
 VBADocuments::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
   class: VBADocuments::ReportUnsuccessfulSubmissions
-  description: "Weekly report of unsuccessful submissions"
+  description: "Weekly report of unsuccessful benefits intake submissions"
+
+ClaimsApi::ReportUnsuccessfulSubmissions:
+  cron: "0 0 * * MON-FRI America/New_York"
+  class: ClaimsApi::ReportUnsuccessfulSubmissions
+  description: "Weekly report of unsuccessful claims submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
   cron: "0 0 23 * * America/New_York"
@@ -161,7 +166,7 @@ ExternalServicesStatusJob:
   every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
 
-VaForms::FetchLatest:
+VAForms::FetchLatest:
   cron: "0 0 * * * America/New_York"
-  class: VaForms::FormReloader
+  class: VAForms::FormReloader
   description: "Fetches latest VA Forms"
