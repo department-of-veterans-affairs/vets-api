@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative '../vba_documents/pdf_inspector'
+require 'yaml'
 
 namespace :vba_documents do
   no_pdf = %{
@@ -13,10 +14,12 @@ rake vba_documents:upload PDF_DIR= /path/to/pdfs
     raise ArgumentError.new no_pdf unless pdf_dir
     raise  ArgumentError.new "The PDF directory, #{pdf_dir} is not a valid directory path" unless Dir.exist?(pdf_dir)
     files = Dir["#{pdf_dir}/*"]
+    pdfs = []
     files.each do |f|
       inspector = VBADocuments::PDFInspector.new(pdf: f)
-      puts inspector.to_s
+      pdfs << inspector.pdf_data
     end
+    puts pdfs.to_yaml
   end
 end
 
