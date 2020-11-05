@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VbaDocuments
+module VBADocuments
   module V1
     class ControllerSwagger
       include Swagger::Blocks
