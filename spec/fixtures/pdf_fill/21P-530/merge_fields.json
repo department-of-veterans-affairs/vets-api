@@ -87,14 +87,14 @@
     }
   },
   "firmName": "firmName",
-  "claimantAddress": [
-    {
-      "fullAddress": {
-        "value": "street, street2, Baltimore, MD, 21231, USA",
-        "extras_value": "street\nstreet2\nBaltimore, MD, 21231\nUSA"
-      }
-    }
-  ],
+  "claimantAddress": {
+    "city": "Baltimore",
+    "country": "US",
+    "postalCode": "21231",
+    "street": "street",
+    "street2": "street2",
+    "state": "MD"
+  },
   "veteranFullName": {
     "first": "john",
     "middle": "middle",
@@ -111,8 +111,8 @@
   },
   "placeOfDeath": "VA MEDICAL CENTER",
   "firmNameAndAddr": {
-    "value": "firmName, street, street2, Baltimore, MD, 21231, USA",
-    "extras_value": "firmName\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"
+    "value": "firmName, street, street2, Baltimore, MD, 21231, US",
+    "extras_value": "firmName\nstreet\nstreet2\nBaltimore, MD, 21231\nUS"
   },
   "hasPreviouslyReceivedAllowance": false,
   "noPreviouslyReceivedAllowance": true,
