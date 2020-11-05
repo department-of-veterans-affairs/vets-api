@@ -43,26 +43,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
     end
   end
 
-  context 'with betamocks enabled' do
-    before do
-      expect(Settings['salesforce-carma']).to receive(:mock).and_return(true)
-
-      builder = double
-      expect(restforce_client).to receive(:builder).and_return(builder)
-      expect(builder).to receive(:insert_before).with(Faraday::Adapter::NetHttp, Betamocks::Middleware)
-    end
-
-    test_carma_submission
-  end
-
-  context 'with betamocks disabled' do
-    before do
-      expect(Settings['salesforce-carma']).to receive(:mock).and_return(false)
-      expect(restforce_client).not_to receive(:builder)
-    end
-
-    test_carma_submission
-
+  def self.test_upload_attachments
     describe '#upload_attachments' do
       it 'accepts a payload and submitts to CARMA' do
         payload           = { 'my' => 'data' }
@@ -81,5 +62,30 @@ RSpec.describe CARMA::Client::Client, type: :model do
         expect(response).to eq(:response_token)
       end
     end
+  end
+
+  context 'with betamocks enabled' do
+    before do
+      expect(Settings['salesforce-carma']).to receive(:mock).and_return(true)
+
+      builder = double
+      expect(restforce_client).to receive(:builder).and_return(builder)
+      expect(builder).to receive(:insert_before).with(Faraday::Adapter::NetHttp, Betamocks::Middleware)
+    end
+
+    test_carma_submission
+
+    test_upload_attachments
+  end
+
+  context 'with betamocks disabled' do
+    before do
+      expect(Settings['salesforce-carma']).to receive(:mock).and_return(false)
+      expect(restforce_client).not_to receive(:builder)
+    end
+
+    test_carma_submission
+
+    test_upload_attachments
   end
 end
