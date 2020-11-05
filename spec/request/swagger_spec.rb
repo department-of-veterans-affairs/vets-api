@@ -2810,6 +2810,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports posting contact us form data' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
+
           expect(subject).to validate(
             :post,
             '/v0/ask/asks',
@@ -2819,10 +2821,29 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports validating posted contact us form data' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
+
           expect(subject).to validate(
             :post,
             '/v0/ask/asks',
             422,
+            headers.merge(
+              '_data' => {
+                'inquiry' => {
+                  'form' => {}.to_json
+                }
+              }
+            )
+          )
+        end
+
+        it 'supports 501 when feature is disabled' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(false)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/ask/asks',
+            501,
             headers.merge(
               '_data' => {
                 'inquiry' => {
