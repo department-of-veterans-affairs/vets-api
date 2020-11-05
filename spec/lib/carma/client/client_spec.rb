@@ -8,12 +8,6 @@ RSpec.describe CARMA::Client::Client, type: :model do
     restforce_client = double
     expect(subject).to receive(:get_client).and_return(restforce_client)
 
-    if Settings['salesforce-carma'].mock
-      builder = double
-      expect(restforce_client).to receive(:builder).and_return(builder)
-      expect(builder).to receive(:insert_before).with(Faraday::Adapter::NetHttp, Betamocks::Middleware)
-    end
-
     restforce_client
   end
 
@@ -27,8 +21,8 @@ RSpec.describe CARMA::Client::Client, type: :model do
     end
   end
 
-  describe '#create_submission' do
-    def self.test_carma_submission
+  def self.test_carma_submission
+    describe '#create_submission' do
       it 'accepts a payload and submits to CARMA' do
         payload           = { 'my' => 'data' }
         response_double   = double
@@ -47,36 +41,45 @@ RSpec.describe CARMA::Client::Client, type: :model do
         expect(response).to eq(:response_token)
       end
     end
-
-    context 'with betamocks enabled' do
-      test_carma_submission
-    end
-
-    context 'with betamocks disabled' do
-      before do
-        Settings['salesforce-carma'].mock = false
-      end
-
-      test_carma_submission
-    end
   end
 
-  describe '#upload_attachments' do
-    it 'accepts a payload and submitts to CARMA' do
-      payload           = { 'my' => 'data' }
-      response_double   = double
+  context 'with betamocks enabled' do
+    before do
+      expect(Settings['salesforce-carma']).to receive(:mock).and_return(true)
 
-      expect(restforce_client).to receive(:post).with(
-        '/services/data/v47.0/composite/tree/ContentVersion',
-        payload,
-        'Content-Type': 'application/json'
-      ).and_return(
-        response_double
-      )
+      builder = double
+      expect(restforce_client).to receive(:builder).and_return(builder)
+      expect(builder).to receive(:insert_before).with(Faraday::Adapter::NetHttp, Betamocks::Middleware)
+    end
 
-      expect(response_double).to receive(:body).and_return(:response_token)
-      response = subject.upload_attachments(payload)
-      expect(response).to eq(:response_token)
+    test_carma_submission
+  end
+
+  context 'with betamocks disabled' do
+    before do
+      expect(Settings['salesforce-carma']).to receive(:mock).and_return(false)
+      expect(restforce_client).not_to receive(:builder)
+    end
+
+    test_carma_submission
+
+    describe '#upload_attachments' do
+      it 'accepts a payload and submitts to CARMA' do
+        payload           = { 'my' => 'data' }
+        response_double   = double
+
+        expect(restforce_client).to receive(:post).with(
+          '/services/data/v47.0/composite/tree/ContentVersion',
+          payload,
+          'Content-Type': 'application/json'
+        ).and_return(
+          response_double
+        )
+
+        expect(response_double).to receive(:body).and_return(:response_token)
+        response = subject.upload_attachments(payload)
+        expect(response).to eq(:response_token)
+      end
     end
   end
 end
