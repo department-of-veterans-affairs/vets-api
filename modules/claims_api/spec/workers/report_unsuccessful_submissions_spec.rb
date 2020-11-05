@@ -9,7 +9,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
   describe '#perform' do
     it 'sends mail' do
       with_settings(Settings.claims_api,
-                    unsuccessful_report_enabled: true) do
+                    report_enabled: true) do
         Timecop.freeze
         to = Time.zone.now
         from = to.monday? ? 7.days.ago : 1.day.ago
@@ -35,7 +35,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
 
     it 'calculate totals' do
       with_settings(Settings.claims_api,
-                    unsuccessful_report_enabled: true) do
+                    report_enabled: true) do
         errored_upload
         pending
 

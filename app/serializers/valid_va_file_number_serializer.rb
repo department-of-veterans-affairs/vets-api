@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ValidVaFileNumberSerializer < ActiveModel::Serializer
+class ValidVAFileNumberSerializer < ActiveModel::Serializer
   type :valid_va_file_number
 
   attribute :valid_va_file_number
