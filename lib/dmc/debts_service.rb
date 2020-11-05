@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 require 'dmc/configuration'
-require 'dmc/responses/get_debts_response'
+require 'dmc/responses/debts_response'
 
 module DMC
   class DebtsService < Common::Client::Base
