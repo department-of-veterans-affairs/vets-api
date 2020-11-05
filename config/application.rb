@@ -72,5 +72,8 @@ module VetsAPI
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
                                    http_only: true
+
+    # These files do not contain auto-loaded ruby classes, they are loaded through app/workers/education_form/forms/base.rb
+    Rails.autoloaders.main.ignore(Rails.root.join('app', 'workers', 'education_form', 'templates', '1990-disclosure'))
   end
 end
