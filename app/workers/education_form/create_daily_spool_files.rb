@@ -165,11 +165,7 @@ module EducationForm
     end
 
     def log_info(message)
-      if Flipper.enabled?(:sidekiq_create_daily_spool_file_logging)
-        log_exception_to_sentry(DailySpoolFileLogging.new(message))
-      else
-        logger.info(message)
-      end
+      log_exception_to_sentry(DailySpoolFileLogging.new(message), {}, {}, :info)
     end
   end
 end

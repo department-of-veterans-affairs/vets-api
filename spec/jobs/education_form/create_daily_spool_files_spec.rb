@@ -16,7 +16,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'scheduling' do
     before do
-      Flipper.disable('sidekiq_create_daily_spool_file_logging')
       allow(Rails.env).to receive('development?').and_return(true)
     end
 
@@ -66,10 +65,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#format_application' do
-    before do
-      Flipper.disable('sidekiq_create_daily_spool_file_logging')
-    end
-
     it 'logs an error if the record is invalid' do
       application_1606.saved_claim.form = {}.to_json
       application_1606.saved_claim.save!(validate: false)
@@ -111,10 +106,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#perform' do
-    before do
-      Flipper.disable('sidekiq_create_daily_spool_file_logging')
-    end
-
     context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
       let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
 
@@ -152,10 +143,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#group_submissions_by_region' do
-    before do
-      Flipper.disable('sidekiq_create_daily_spool_file_logging')
-    end
-
     it 'takes a list of records into chunked forms' do
       base_form = {
         veteranFullName: {
@@ -197,10 +184,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
     let(:filename) { '307_09172016_070000_vetsgov.spl' }
     let!(:second_record) { FactoryBot.create(:va1995) }
-
-    before do
-      Flipper.disable('sidekiq_create_daily_spool_file_logging')
-    end
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
