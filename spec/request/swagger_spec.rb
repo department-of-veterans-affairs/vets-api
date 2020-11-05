@@ -2778,6 +2778,63 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'asks' do
+      describe 'POST v0/ask/asks' do
+        let(:post_body) do
+          {
+            inquiry: {
+              form: JSON.generate(
+                {
+                  fullName: {
+                    first: 'Obi Wan',
+                    last: 'Kenobi'
+                  },
+                  topic: {
+                    levelOne: 'Caregiver Support Program',
+                    levelTwo: 'VA Supportive Services'
+                  },
+                  inquiryType: 'Question',
+                  query: 'Can you help me?',
+                  veteranStatus: {
+                    veteranStatus: 'general'
+                  },
+                  preferredContactMethod: 'email',
+                  email: 'obi1kenobi@gmail.com',
+                  address: {
+                    country: 'USA'
+                  }
+                }
+              )
+            }
+          }
+        end
+
+        it 'supports posting contact us form data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/ask/asks',
+            201,
+            headers.merge('_data' => post_body)
+          )
+        end
+
+        it 'supports validating posted contact us form data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/ask/asks',
+            422,
+            headers.merge(
+              '_data' => {
+                'inquiry' => {
+                  'form' => {}.to_json
+                }
+              }
+            )
+          )
+        end
+      end
+    end
+
     describe 'dependents applications' do
       it 'supports getting dependent information' do
         expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
