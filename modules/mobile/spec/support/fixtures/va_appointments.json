@@ -1,0 +1,257 @@
+{
+  "data": {
+    "result": {
+      "partial": false,
+      "sources": [
+        "VVS",
+        "983",
+        "984"
+      ],
+      "pageCount": 1,
+      "currentPage": 1
+    },
+    "appointmentList": [
+      {
+        "startDate": "2020-11-03T16:00:00Z",
+        "clinicId": "308",
+        "clinicFriendlyName": "Green Team Clinic1",
+        "facilityId": "983",
+        "sta6aid": "983",
+        "patientIcn": "1012845331V153043",
+        "communityCare": false,
+        "vdsAppointments": [
+          {
+            "appointmentLength": "20",
+            "appointmentTime": "2020-11-03T16:00:00Z",
+            "clinic": {
+              "name": "CHY PC KILPATRICK",
+              "askForCheckIn": false,
+              "facilityCode": "983"
+            },
+            "patientId": "7216691",
+            "type": "SERVICE CONNECTED",
+            "currentStatus": "FUTURE"
+          }
+        ]
+      },
+      {
+        "startDate": "2020-11-03T20:20:00Z",
+        "clinicId": "308",
+        "clinicFriendlyName": "Green Team Clinic1",
+        "facilityId": "983",
+        "sta6aid": "983",
+        "patientIcn": "1012845331V153043",
+        "communityCare": false,
+        "vdsAppointments": [
+          {
+            "appointmentTime": "2020-11-03T20:20:00Z",
+            "clinic": {
+              "name": "CHY PC KILPATRICK",
+              "askForCheckIn": false,
+              "facilityCode": "983"
+            },
+            "patientId": "7216691",
+            "type": "REGULAR",
+            "currentStatus": "CANCELLED BY PATIENT"
+          }
+        ]
+      },
+      {
+        "startDate": "2020-11-05T16:00:00Z",
+        "clinicId": "308",
+        "clinicFriendlyName": "Green Team Clinic1",
+        "facilityId": "983",
+        "sta6aid": "983",
+        "patientIcn": "1012845331V153043",
+        "communityCare": false,
+        "vdsAppointments": [
+          {
+            "appointmentTime": "2020-11-05T16:00:00Z",
+            "clinic": {
+              "name": "CHY PC KILPATRICK",
+              "askForCheckIn": false,
+              "facilityCode": "983"
+            },
+            "patientId": "7216691",
+            "type": "REGULAR",
+            "currentStatus": "CANCELLED BY PATIENT"
+          }
+        ]
+      },
+      {
+        "startDate": "2020-11-08T14:00:00Z",
+        "clinicId": "455",
+        "facilityId": "983",
+        "sta6aid": "983",
+        "patientIcn": "1012845331V153043",
+        "communityCare": false,
+        "vdsAppointments": [
+          {
+            "appointmentLength": "60",
+            "appointmentTime": "2020-11-08T14:00:00Z",
+            "clinic": {
+              "name": "CHY PC CASSIDY",
+              "askForCheckIn": false,
+              "facilityCode": "983"
+            },
+            "patientId": "7216691",
+            "type": "EMPLOYEE",
+            "currentStatus": "FUTURE"
+          }
+        ]
+      },
+      {
+        "startDate": "2020-11-10T15:00:00Z",
+        "clinicId": "945",
+        "clinicFriendlyName": "C&P BEV AUDIO FTC",
+        "facilityId": "983",
+        "sta6aid": "983GC",
+        "patientIcn": "1012845331V153043",
+        "communityCare": false,
+        "vdsAppointments": [
+          {
+            "appointmentTime": "2020-11-10T15:00:00Z",
+            "clinic": {
+              "name": "ZZFTC C&P AUDIO BEV",
+              "askForCheckIn": false,
+              "facilityCode": "983"
+            },
+            "patientId": "7216691",
+            "type": "REGULAR",
+            "currentStatus": "CANCELLED BY PATIENT"
+          }
+        ]
+      },
+      {
+        "startDate": "2020-11-17T20:40:00Z",
+        "clinicId": "308",
+        "clinicFriendlyName": "Green Team Clinic1",
+        "facilityId": "983",
+        "sta6aid": "983",
+        "patientIcn": "1012845331V153043",
+        "communityCare": false,
+        "vdsAppointments": [
+          {
+            "appointmentTime": "2020-11-17T20:40:00Z",
+            "clinic": {
+              "name": "CHY PC KILPATRICK",
+              "askForCheckIn": false,
+              "facilityCode": "983"
+            },
+            "patientId": "7216691",
+            "type": "REGULAR",
+            "currentStatus": "CANCELLED BYPATIENT"
+          }
+        ]
+      },
+      {
+        "startDate": "2020-11-24T16:00:00Z",
+        "clinicId": "945",
+        "clinicFriendlyName": "C&P BEV AUDIO FTC",
+        "facilityId": "983",
+        "sta6aid": "983GC",
+        "patientIcn": "1012845331V153043",
+        "communityCare": false,
+        "vdsAppointments": [
+          {
+            "appointmentTime": "2020-11-24T16:00:00Z",
+            "clinic": {
+              "name": "ZZFTC C&P AUDIO BEV",
+              "askForCheckIn": false,
+              "facilityCode": "983"
+            },
+            "patientId": "7216691",
+            "type": "REGULAR",
+            "currentStatus": "CANCELLED BY PATIENT"
+          }
+        ]
+      },
+      {
+        "startDate": "2020-11-30T17:32:00Z",
+        "facilityId": "983",
+        "patientIcn": "1012845331V153043",
+        "vvsAppointments": [
+          {
+            "id": "e9972ec4-ad85-4fbe-816c-d49010657d49",
+            "appointmentKind": "ADHOC",
+            "sourceSystem": "SM",
+            "dateTime": "2020-11-30T17:32:00Z",
+            "duration": 20,
+            "status": {
+              "description": "F",
+              "code": "FUTURE"
+            },
+            "schedulingRequestType": "NEXT_AVAILABLE_APPT",
+            "type": "REGULAR",
+            "instructionsOther": false,
+            "patients": {
+              "patient": [
+                {
+                  "id": {
+                    "assigningAuthority": "ICN",
+                    "uniqueId": "1012845331V153043"
+                  },
+                  "name": {
+                    "firstName": "JUDY",
+                    "lastName": "MORRISON"
+                  },
+                  "contactInformation": {
+                    "mobile": "7279902346",
+                    "preferredEmail": "olena.guidry@va.gov"
+                  },
+                  "location": {
+                    "type": "NonVA",
+                    "facility": {
+                      "name": "CHEYENNE VAMC",
+                      "siteCode": "983",
+                      "timeZone": "10"
+                    }
+                  },
+                  "patientAppointment": true,
+                  "virtualMeetingRoom": {
+                    "conference": "VVC2520583",
+                    "pin": "6792040429#",
+                    "url": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC2520583@care2.evn.va.gov&pin=6792040429#"
+                  }
+                }
+              ]
+            },
+            "providers": {
+              "provider": [
+                {
+                  "name": {
+                    "firstName": "testing adhoc video visit",
+                    "lastName": "OG"
+                  },
+                  "id": {
+                    "assigningAuthority": "DFN-983",
+                    "uniqueId": "7216691"
+                  },
+                  "contactInformation": {
+                    "mobile": "3212300328",
+                    "preferredEmail": "oguidry@alakaina.com",
+                    "timeZone": "10"
+                  },
+                  "location": {
+                    "type": "VA",
+                    "facility": {
+                      "name": "CHEYENNE VAMC",
+                      "siteCode": "983",
+                      "timeZone": "10"
+                    }
+                  },
+                  "virtualMeetingRoom": {
+                    "conference": "VVC2520583",
+                    "pin": "5364921#",
+                    "url": "https://care2.evn.va.gov/vvc-app/?name=OG%2Ctesting+adhoc+video+visit&join=1&media=1&escalate=1&conference=VVC2520583@care2.evn.va.gov&pin=5364921#"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "numAppointments": 8
+  }
+}
