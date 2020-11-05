@@ -142,7 +142,7 @@ module EMISRedis
     # @param military_service_episode [EMIS::Models::MilitaryServiceEpisode]
     #  Military service episode model
     # @return [String] Readable service branch name formatted for EVSS
-    def service_name_used_in_diability(military_service_episode)
+    def service_branch_used_in_disability(military_service_episode)
       category = case military_service_episode.personnel_category_type_code
                  when 'A'
                    ''
@@ -164,11 +164,11 @@ module EMISRedis
     #  service period, used only for Form 526 - Disability form
     def service_periods
       service_episodes_by_date.map do |military_service_episode|
-        sn = service_name_used_in_diability(military_service_episode)
-        return {} unless sn
+        service_branch = service_branch_used_in_disability(military_service_episode)
+        return {} unless service_branch
 
         {
-          service_branch: sn,
+          service_branch: service_branch,
           date_range: {
             from: military_service_episode.begin_date.to_s,
             to: military_service_episode.end_date.to_s

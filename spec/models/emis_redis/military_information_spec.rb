@@ -27,11 +27,11 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
-  describe '#service_name_used_in_diability' do
-    it 'something' do
-      expect(subject.service_name_used_in_diability(service_episode)).to eq('Air National Guard')
-      expect(subject.service_name_used_in_diability(dod_service_epsiode)).to eq(nil)
-      expect(subject.service_name_used_in_diability(army_reserve_service_epsiode)).to eq('Army Reserve')
+  describe '#service_branch_used_in_disability' do
+    it 'translates the service_episode codes to a string' do
+      expect(subject.service_branch_used_in_disability(ang_service_episode)).to eq('Air National Guard')
+      expect(subject.service_branch_used_in_disability(dod_service_epsiode)).to eq(nil)
+      expect(subject.service_branch_used_in_disability(army_reserve_service_epsiode)).to eq('Army Reserve')
     end
   end
 
