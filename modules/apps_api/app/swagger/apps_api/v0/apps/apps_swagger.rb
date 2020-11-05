@@ -2,7 +2,7 @@
 
 module AppsApi
   module Apps
-    class App
+    class AppsSwagger
       include Swagger::Blocks
 
       swagger_component do
