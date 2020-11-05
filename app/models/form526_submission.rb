@@ -68,6 +68,34 @@ class Form526Submission < ApplicationRecord
     jids.first
   end
 
+  # Runs the start method above but first looks to see if the veteran has BIRLS IDs that previous start
+  # attempts haven't used before (if so, swaps one of those into auth_headers).
+  # If all BIRLS IDs for a veteran have been tried, does nothing and returns nil.
+  # Note: this assumes that the current BIRLS ID has been used (that `start` has been attempted once).
+  #
+  # @return [String] the job id of the first job in the batch, i.e the 526 submit job
+  # @return [NilClass] all BIRLS IDs for the veteran have been tried
+  #
+  def start_but_use_a_birls_id_that_hasnt_been_tried_yet(extra_content_for_sentry = {})
+    mark_current_birls_id_as_tried
+
+    birls_id_that_hasnt_been_tried_yet = birls_ids_that_havent_been_tried_yet.first
+    return unless birls_id_that_hasnt_been_tried_yet
+
+    self.multiple_birls = true
+    self.birls_id = birls_id_that_hasnt_been_tried_yet
+    save!
+    start
+  rescue => e
+    # 1) why rescue all errors? 2) why not rethrow the error?
+    # This method is primarily intended to be triggered by a running Sidekiq job that has hit a dead end
+    # (exhausted, or non-retryable error). One of the places this method is called is inside a
+    # `sidekiq_retries_exhausted` block. It seems like the value of self for that block won't be the
+    # Sidekiq job instance. Also, rethrowing the error (and letting it bubble up to Sidekiq) might trigger
+    # the current job to retry (which we don't want).
+    log_exception_to_sentry e, extra_content_for_sentry
+  end
+
   def get_full_name
     user = User.find(user_uuid)
     user&.full_name_normalized&.values&.compact&.join(' ')&.upcase
@@ -158,20 +186,6 @@ class Form526Submission < ApplicationRecord
 
   def bdd?
     form.dig('form526', 'form526', 'bddQualified') || false
-  end
-
-  def try_a_different_birls_id(extra_content_for_sentry = {})
-    mark_current_birls_id_as_tried
-
-    different_birls_id = birls_ids_that_havent_been_tried_yet.first
-    return unless different_birls_id
-
-    self.multiple_birls = true
-    self.birls_id = different_birls_id
-    save
-    start
-  rescue => e
-    log_exception_to_sentry e, extra_content_for_sentry
   end
 
   private
