@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'dmc/responses/dmc_response'
+
 module DMC
   class DebtsResponse < DMC::Response
     attr_reader :debts
