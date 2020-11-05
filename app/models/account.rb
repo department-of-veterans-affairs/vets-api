@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/active_record_cache_aside'
+require 'mvi/service'
 require 'sentry_logging'
 
 # Account's purpose is to correlate unique identifiers, and to
@@ -120,6 +121,10 @@ class Account < ApplicationRecord
 
   private_class_method :account_attrs_from_user, :get_key, :sort_with_idme_uuid_priority
 
+  def mvi_find_profile_response
+    MVI::Service.new.find_profile user_identity
+  end
+
   private
 
   def initialize_uuid
@@ -134,5 +139,10 @@ class Account < ApplicationRecord
 
   def generate_uuid
     SecureRandom.uuid
+  end
+
+  # for use with MVI::Service#find_profile
+  def user_identity
+    Struct.new(:mhv_icn, :dslogon_edipi).new(icn, edipi)
   end
 end

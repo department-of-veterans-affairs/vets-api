@@ -17,6 +17,8 @@ module EVSS
       # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
         job_exhausted(msg, STATSD_KEY_PREFIX)
+        submission = Form526Submission.find msg['args'].first
+        submission.try_a_different_birls_id job_class: msg['class'].demodulize, job_id: msg['jid']
       end
       # :nocov:
 
@@ -52,6 +54,12 @@ module EVSS
         # update JobStatus, log and metrics in JobStatus#retryable_error_handler
         super(error)
         raise error
+      end
+
+      def non_retryable_error_handler(error)
+        # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
+        super(error)
+        submission.try_a_different_birls_id job_class: self.class.to_s.demodulize, job_id: jid
       end
 
       def service(_auth_headers)

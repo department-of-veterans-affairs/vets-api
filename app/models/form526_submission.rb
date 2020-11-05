@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+require 'sentry_logging'
+
 class Form526Submission < ApplicationRecord
+  include SentryLogging
+
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
   #
@@ -24,6 +29,7 @@ class Form526Submission < ApplicationRecord
   #
   attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
   attr_encrypted(:form_json, key: Settings.db_encryption_key)
+  attr_encrypted(:birls_ids_tried, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
   belongs_to :saved_claim,
              class_name: 'SavedClaim::DisabilityCompensation',
@@ -34,6 +40,7 @@ class Form526Submission < ApplicationRecord
 
   validates(:auth_headers_json, presence: true)
 
+  class Error < StandardError; end
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
   FORM_4142 = 'form4142'
@@ -153,6 +160,20 @@ class Form526Submission < ApplicationRecord
     form.dig('form526', 'form526', 'bddQualified') || false
   end
 
+  def try_a_different_birls_id(extra_content_for_sentry = {})
+    mark_current_birls_id_as_tried
+
+    different_birls_id = birls_ids_that_havent_been_tried_yet.first
+    return unless different_birls_id
+
+    self.multiple_birls = true
+    self.birls_id = different_birls_id
+    save
+    start
+  rescue => e
+    log_exception_to_sentry e, extra_content_for_sentry
+  end
+
   private
 
   def submit_uploads
@@ -174,5 +195,40 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  end
+
+  def mark_current_birls_id_as_tried
+    raise Error, "can't retrieve current birls_id --no auth_headers" unless auth_headers
+
+    self.birls_ids_tried = [*birls_ids_tried, birls_id]
+  end
+
+  def birls_ids_that_havent_been_tried_yet
+    all_birls_ids_for_veteran - (birls_ids_tried || [])
+  end
+
+  def all_birls_ids_for_veteran
+    raise Error, 'no edipi' unless edipi
+
+    accounts = Account.where edipi: edipi
+    raise Error, "edipi didn't pull up an account" if accounts.empty?
+    raise Error, 'edipi pulled up multiple accounts' if accounts.count > 1
+
+    accounts.first.mvi_find_profile_response.profile.birls_ids
+  end
+
+  def edipi
+    auth_headers&.dig 'va_eauth_dodedipnid'
+  end
+
+  def birls_id
+    auth_headers&.dig 'va_eauth_birlsfilenumber'
+  end
+
+  def birls_id=(value)
+    raise Error, "can't set birls_id --no auth_headers" unless auth_headers
+
+    auth_headers['va_eauth_birlsfilenumber'] = value
+    self.auth_headers_json = auth_headers.to_json
   end
 end
