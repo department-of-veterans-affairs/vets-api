@@ -84,7 +84,7 @@ paths:
                       - type: appointment
                         id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
                         attributes:
-                          appointmentType: VA_VIDEO_CONNECT
+                          appointmentType: VA_VIDEO_CONNECT_HOME
                           status: CANCELLED
                           startTime: 2020-10-29T10:30:00-07:00
                           minutesDuration: 60
