@@ -4,27 +4,12 @@ require 'pdf_info'
 module VBADocuments
 
   class PDFInspector
-    DEFAULT_HASH = Hash.new.merge!({tempfile: '', source: '', dimensions: {}, offending_pdf: false, pages: 0})
-    attr_accessor :file, :metadata, :source, :tempfile, :pdf_data
+    attr_accessor :file, :pdf_data
 
     def initialize(pdf:)
       raise ArgumentError.new("Invalid file #{pdf}, does not exist!") unless File.exist? pdf
       @file = pdf
-      @metadata = Hash.new
       @pdf_data = inspect_pdf
-    end
-
-    def page_count
-      @metadata.pages
-    end
-
-    def pdf_dimensions
-      @metadata.page_size_inches
-    end
-
-    def is_oversized?
-      doc_info = @metadata.page_size_inches
-      doc_info[:height] >= 21 || doc_info[:width] >= 21
     end
 
     def inspect
@@ -37,10 +22,10 @@ module VBADocuments
 
     def inspect_pdf
       parts = VBADocuments::MultipartParser.parse(@file)
-      data = DEFAULT_HASH.clone
+      data = Hash.new
       data[:tempfile] = parts['content'].path
       source = JSON.parse(parts['metadata'])['source']
-      data[:source] = source #parts_metadata['source']
+      data[:source] = source
 
       # read the PDF content
       metadata = PdfInfo::Metadata.read(parts['content'])
@@ -51,10 +36,6 @@ module VBADocuments
       data[:dimensions] = doc_info
       data[:offending_pdf] = doc_info[:height] >= 21 || doc_info[:width] >= 21
 
-      # if doc_info[:height] >= 21 || doc_info[:width] >= 21
-      #   data[:offending_pdf] = true
-      # end
-
       # check if this PDF has attachments
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       data[:attachments] = [] unless attachment_names.empty?
@@ -63,14 +44,14 @@ module VBADocuments
         attach_metadata = PdfInfo::Metadata.read(parts[att])
         attach_dim = attach_metadata.page_size_inches
 
-        attach_data = DEFAULT_HASH.clone
+        attach_data = Hash.new
         attach_data[:tempfile] = parts[att].path
         attach_data[:dimensions] = attach_dim
         attach_data[:source] = source
-        attach_data[:offending_pdf] = doc_info[:height] >= 21 || doc_info[:width] >= 21
+        attach_data[:offending_pdf] = attach_dim[:height] >= 21 || attach_dim[:width] >= 21
         data[:attachments] << attach_data
       end
-      data
+      {@file => data}
     end
 
     private
@@ -85,6 +66,7 @@ module VBADocuments
     end
   end
 end
+
 =begin
   # read all files in the test_files directory excluding this Ruby file
   files = Dir.entries("./test_files").reject! { |f| File.directory? f }.reject! { |f| File.basename(__FILE__).eql?(f) }
@@ -149,6 +131,7 @@ attachment_names.each_with_index do |att, i|
 
 load './modules/vba_documents/lib/vba_documents/pdf_inspector.rb'
 inspector = VBADocuments::PDFInspector.new(pdf: './test_files/0d8f95d1-567a-4801-84e9-62b2fad59bef')
+inspector = VBADocuments::PDFInspector.new(pdf: './test_files/209b706f-c290-47b9-bae4-498bd44c7f3d')
 s = inspector.to_s
 
 =end
