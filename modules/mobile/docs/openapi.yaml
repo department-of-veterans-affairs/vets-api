@@ -58,7 +58,7 @@ paths:
                         attributes:
                           appointmentType: va
                           status: BOOKED
-                          startTime: 2020-10-29T10:30:00Z
+                          startTime: 2020-10-29T10:30:00-07:00
                           minutesDuration: 60
                           comment: Please arrive 20 minutes before the start of your appointment
                           timeZone: America/Los_Angeles
@@ -86,7 +86,7 @@ paths:
                         attributes:
                           appointmentType: VA_VIDEO_CONNECT
                           status: CANCELLED
-                          startTime: 2020-10-29T10:30:00Z
+                          startTime: 2020-10-29T10:30:00-07:00
                           minutesDuration: 60
                           comment: Please log on 5 minutes before the start of your appointment
                           timeZone: America/Los_Angeles
@@ -106,7 +106,7 @@ paths:
                         attributes:
                           appointmentType: VA_VIDEO_CONNECT_ATLAS
                           status: BOOKED
-                          startTime: 2020-10-29T10:30:00Z
+                          startTime: 2020-10-29T10:30:00-07:00
                           minutesDuration: 60
                           comment: Please log on 5 minutes before the start of your appointment
                           timeZone: America/Los_Angeles
@@ -124,7 +124,7 @@ paths:
                               number: 562-826-8000
                               extension: null
                             url: null
-                            code: null
+                            code: GL45678
 
                 Community Care Appointment:
                   value:
@@ -134,7 +134,7 @@ paths:
                         attributes:
                           appointmentType: COMMUNITY_CARE
                           status: CANCELLED
-                          startTime: 2020-10-29T10:30:00Z
+                          startTime: 2020-10-29T10:30:00-07:00
                           minutesDuration: 60
                           comment: Please arrive 20 minutes before the start of your appointment
                           timeZone: America/Los_Angeles
@@ -1166,7 +1166,7 @@ components:
           properties:
             appointmentType:
               type: string
-              enum: [COMMUNITY_CARE, VA, VA_VIDEO_CONNECT, VA_VIDEO_CONNECT_ATLAS]
+              enum: [COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_ONSITE]
               example: VA
             status:
               type: string
@@ -1174,7 +1174,7 @@ components:
               example: BOOKED
             startTime:
               type: datetime
-              example: 2020-10-29T10:30:00Z
+              example: 2020-10-29T10:30:00-07:00
             minutesDuration:
               type: integer
               example: 60
@@ -1242,6 +1242,25 @@ components:
                 code:
                   type: string
                   example: GL32CA
+            practitioner:
+              required:
+                - prefix
+                - firstName
+                - middleName
+                - lastName
+              properties:
+                prefix:
+                  type: string
+                  example: "Dr."
+                firstName:
+                  type: string
+                  example: "John"
+                middleName:
+                  type: string
+                  example: "A."
+                lastName:
+                  type: string
+                  example: "Smith"
 
     UpdatePaymentInfoRequest:
       required:
