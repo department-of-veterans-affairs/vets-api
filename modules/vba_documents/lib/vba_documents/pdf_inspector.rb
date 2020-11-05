@@ -29,7 +29,10 @@ module VBADocuments
 
       # read the PDF content
       metadata = PdfInfo::Metadata.read(parts['content'])
-      data[:pages] = metadata.pages
+      doc_page_total = metadata.pages
+      data[:page_count] = doc_page_total
+      data[:doc_count] = 1
+      data[:total_pages] = doc_page_total
 
       # get the dimensions
       doc_info = metadata.page_size_inches
@@ -43,14 +46,19 @@ module VBADocuments
       attachment_names.each do |att|
         attach_metadata = PdfInfo::Metadata.read(parts[att])
         attach_dim = attach_metadata.page_size_inches
+        attach_pages = attach_metadata.pages
 
         attach_data = Hash.new
         attach_data[:tempfile] = parts[att].path
-        attach_data[:dimensions] = attach_dim
         attach_data[:source] = source
+        attach_data[:page_count] = attach_pages
+        attach_data[:dimensions] = attach_dim
         attach_data[:offending_pdf] = attach_dim[:height] >= 21 || attach_dim[:width] >= 21
         data[:attachments] << attach_data
+        doc_page_total += attach_pages
       end
+      data[:total_pages] = doc_page_total
+      data[:doc_count] = attachment_names.size + 1
       {@file => data}
     end
 
