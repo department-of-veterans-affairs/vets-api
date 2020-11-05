@@ -3,7 +3,9 @@
 require 'dmc/fsr_service'
 
 module V0
-  class FSRController < ApplicationController
+  class FinancialStatusReportsController < ApplicationController
+    skip_before_action :verify_authenticity_token
+
     def create
       render json: service.submit_financial_status_report(params)
     end
@@ -11,7 +13,7 @@ module V0
     private
 
     def service
-      DMC::FSRService.new(@current_user)
+      DMC::FSRService.new
     end
   end
 end

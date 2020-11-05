@@ -9,14 +9,12 @@ module DMC
 
     include Common::Client::Concerns::Monitoring
 
-    configuration DMC::Configuration
+    configuration DMC::FSRConfiguration
 
     STATSD_KEY_PREFIX = 'api.dmc'
 
     def submit_financial_status_report(form)
-      DMC::Response(
-        perform(:post, 'formtopdf', form).body
-      )
+      DMC::Response(perform(:post, 'formtopdf', form).body)
     end
   end
 end

@@ -14,11 +14,11 @@ module DMC
     end
 
     def base_path
-      "#{Settings.dmc.url}/api/v1/financial-status-report/"
+      "#{Settings.dmc.url}/api/v1/digital-services/financial-status-report/"
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |f|
+      Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: {verify: false}) do |f|
         f.use :breakers
         f.use Faraday::Response::RaiseError
         f.request :json
