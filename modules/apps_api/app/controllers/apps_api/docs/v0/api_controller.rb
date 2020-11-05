@@ -13,7 +13,7 @@ module AppsApi
 
         SWAGGERED_CLASSES = [
           AppsApi::V0::ControllerSwagger,
-          AppsApi::Apps::V0::AppsSwagger,
+          AppsApi::V0::Apps::AppsSwagger,
           AppsApi::V0::SwaggerRoot
         ].freeze
 
