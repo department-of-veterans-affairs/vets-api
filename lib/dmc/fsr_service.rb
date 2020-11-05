@@ -15,7 +15,7 @@ module DMC
 
     def submit_financial_status_report(form)
       DMC::Response(
-        perform(:post, 'fsr', form).body
+        perform(:post, 'formtopdf', form).body
       )
     end
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'dmc/configuration'
+require 'dmc/debts_configuration'
 require 'dmc/responses/debts_response'
 
 module DMC
@@ -10,7 +10,7 @@ module DMC
 
     include Common::Client::Concerns::Monitoring
 
-    configuration DMC::Configuration
+    configuration DMC::DebtsConfiguration
 
     STATSD_KEY_PREFIX = 'api.dmc'
 
