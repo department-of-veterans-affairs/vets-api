@@ -52,8 +52,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     it 'logs a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
       expect(subject).not_to receive(:write_files)
-      expect(subject).to receive(:log_exception_to_sentry)
-                             .with("Skipping on a Holiday: New Year's Day", any_args).at_least(:once)
+      expect(subject).to receive('log_info').with("Skipping on a Holiday: New Year's Day")
       expect(subject.perform).to be false
     end
 
@@ -124,7 +123,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'processes the valid messages' do
-        expect(subject).to receive(:log_exception_to_sentry).twice
+        expect(subject).to receive(:log_exception_to_sentry).at_least(:once)
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
         expect(Dir[spool_files].count).to eq(2)
       end
@@ -137,7 +136,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       it 'prints a statement and exits', run_at: '2017-02-21 00:00:00 EDT' do
         expect(subject).not_to receive(:write_files)
-        expect(subject).to receive(:log_exception_to_sentry).with('No records to process.', any_args).at_least(:once)
+        expect(subject).to receive('log_info').with('No records to process.').once
         expect(subject.perform).to be(true)
       end
     end
