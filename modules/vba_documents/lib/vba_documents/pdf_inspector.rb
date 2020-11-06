@@ -4,29 +4,14 @@ require 'pdf_info'
 module VBADocuments
   class PDFInspector
     attr_accessor :file, :pdf_data, :parts
+    DOC_TYPE_KEY = :doc_type
+    SOURCE_KEY = :source
 
     # If add_file_key is true the file is added to the returned hash as the parent key.  Useful for the rake task vba_documents:inspect_pdf
     def initialize(pdf:, add_file_key:  false)
       raise ArgumentError.new("Invalid file #{pdf}, does not exist!") unless File.exist? pdf
       @file = pdf
       @pdf_data = inspect_pdf(add_file_key)
-    end
-
-    #@todo change these helpers to accept the hash and return total documents as a class method
-    def total_documents
-      @pdf_data[:total_documents]
-    end
-
-    def total_pages
-      @pdf_data[:total_pages]
-    end
-
-    def doc_type
-      @pdf_data[:doc_type]
-    end
-
-    def inspect
-      @pdf_data.inspect
     end
 
     def to_s
@@ -38,8 +23,8 @@ module VBADocuments
       data = Hash.new
       parts_metadata = JSON.parse(@parts['metadata'])
       source = parts_metadata['source']
-      data[:source] = source
-      data[:doc_type] = parts_metadata['docType'] || 'Unknown'
+      data[SOURCE_KEY] = source
+      data[DOC_TYPE_KEY] = parts_metadata['docType'] || 'Unknown'
 
       # read the PDF content
       parts_content = PdfInfo::Metadata.read(@parts['content'])
@@ -51,7 +36,7 @@ module VBADocuments
       # get the dimensions
       doc_dim = parts_content.page_size_inches
       data[:dimensions] = doc_dim
-      data[:offending_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
+      data[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
 
       # check if this PDF has attachments
       attachment_names = @parts.keys.select { |k| k.match(/attachment\d+/) }
@@ -60,13 +45,14 @@ module VBADocuments
       attachment_names.each do |att|
         attach_content = PdfInfo::Metadata.read(@parts[att])
         attach_dim = attach_content.page_size_inches
+        attach_dim[:height] = attach_dim[:height].round(2)
+        attach_dim[:width] = attach_dim[:width].round(2)
         attach_pages = attach_content.pages
 
         attach_data = Hash.new
-        attach_data[:source] = source
         attach_data[:page_count] = attach_pages
         attach_data[:dimensions] = attach_dim
-        attach_data[:offending_pdf] = attach_dim[:height] >= 21 || attach_dim[:width] >= 21
+        attach_data[:oversized_pdf] = attach_dim[:height] >= 21 || attach_dim[:width] >= 21
         data[:attachments] << attach_data
         doc_page_total += attach_pages
       end
