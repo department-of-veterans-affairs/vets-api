@@ -34,7 +34,7 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
       allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(StandardError)
 
-      allow(mailer_double).to receive(:deliver_now)
+      allow(mailer_double).to receive(:deliver_later)
       expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(User)) { mailer_double }
 
       described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
