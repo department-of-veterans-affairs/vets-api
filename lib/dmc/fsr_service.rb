@@ -14,7 +14,14 @@ module DMC
     STATSD_KEY_PREFIX = 'api.dmc'
 
     def submit_financial_status_report(form)
+      form = camelize(form)
       DMC::Response(perform(:post, 'formtopdf', form).body)
+    end
+
+    private
+
+    def camelize(hash)
+      hash.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
     end
   end
 end
