@@ -1405,7 +1405,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 {
                   'dateRange' => {
                     'from' => '1980-02-05',
-                    'to' => (today + 89).to_s
+                    'to' => (today + 80).to_s
                   },
                   'serviceBranch' => 'Air Force'
                 }
