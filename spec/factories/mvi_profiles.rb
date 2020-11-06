@@ -63,7 +63,9 @@ FactoryBot.define do
     active_mhv_ids { mhv_ids }
     edipi { Faker::Number.number(digits: 10) }
     participant_id { Faker::Number.number(digits: 10) }
-    birls_id { Faker::Number.number(digits: 10) }
+    birls = [Faker::Number.number(digits: 10)]
+    birls_id { birls.first }
+    birls_ids { birls }
     vet360_id { '123456789' }
     sec_id { '0001234567' }
     historical_icns { %w[1000123457V123456 1000123458V123456] }
@@ -97,7 +99,9 @@ FactoryBot.define do
       vha_facility_ids { %w[516 553 200HD 200IP 200MHV] }
       edipi { '1234567890' }
       participant_id { '12345678' }
-      birls_id { '796122306' }
+      birls = ['796122306']
+      birls_id { birls.first }
+      birls_ids { birls }
       vet360_id { '123456789' }
 
       trait :missing_attrs do
@@ -108,6 +112,8 @@ FactoryBot.define do
         ssn { '796122306' }
         home_phone { nil }
         icn { '1008714701V416111' }
+        birls_id { nil }
+        birls_ids { [] }
         mhv_ids { nil }
         active_mhv_ids { nil }
         vha_facility_ids { ['200MHS'] }
@@ -130,7 +136,9 @@ FactoryBot.define do
         vha_facility_ids { %w[200MH 200MH] }
         edipi { '1122334455' }
         participant_id { '12345678' }
-        birls_id { '123412345' }
+        birls = ['123412345']
+        birls_id { birls.first }
+        birls_ids { birls }
         vet360_id { nil }
       end
 
