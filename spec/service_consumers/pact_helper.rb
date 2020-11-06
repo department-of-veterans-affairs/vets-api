@@ -61,7 +61,7 @@ Pact.service_provider 'VA.gov API' do
 
   # # temporarily define the url or else we will get failing verification
   # honours_pact_with 'Search' do
-  #   pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/Search/latest'
+  #   pact_uri 'https://dev.va.gov/_vfs/pact-broker/pacts/provider/VA.gov%20API/consumer/Search/latest'
   # end
 
   honours_pacts_from_pact_broker do
