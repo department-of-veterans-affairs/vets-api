@@ -3,14 +3,16 @@ require 'pdf_info'
 
 module VBADocuments
   class PDFInspector
-    attr_accessor :file, :pdf_data
+    attr_accessor :file, :pdf_data, :parts
 
-    def initialize(pdf:)
+    # If add_file_key is true the file is added to the returned hash as the parent key.  Useful for the rake task vba_documents:inspect_pdf
+    def initialize(pdf:, add_file_key:  false)
       raise ArgumentError.new("Invalid file #{pdf}, does not exist!") unless File.exist? pdf
       @file = pdf
-      @pdf_data = inspect_pdf
+      @pdf_data = inspect_pdf(add_file_key)
     end
 
+    #@todo change these helpers to accept the hash and return total documents as a class method
     def total_documents
       @pdf_data[:total_documents]
     end
@@ -31,17 +33,16 @@ module VBADocuments
       inspect
     end
 
-    def inspect_pdf
-      parts = VBADocuments::MultipartParser.parse(@file)
+    def inspect_pdf(add_file_key)
+      @parts = VBADocuments::MultipartParser.parse(@file)
       data = Hash.new
-      data[:tempfile] = parts['content'].path
-      parts_metadata = JSON.parse(parts['metadata'])
+      parts_metadata = JSON.parse(@parts['metadata'])
       source = parts_metadata['source']
       data[:source] = source
       data[:doc_type] = parts_metadata['docType'] || 'Unknown'
 
       # read the PDF content
-      parts_content = PdfInfo::Metadata.read(parts['content'])
+      parts_content = PdfInfo::Metadata.read(@parts['content'])
       doc_page_total = parts_content.pages
       data[:page_count] = doc_page_total
       data[:total_documents] = 1
@@ -53,16 +54,15 @@ module VBADocuments
       data[:offending_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
 
       # check if this PDF has attachments
-      attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
+      attachment_names = @parts.keys.select { |k| k.match(/attachment\d+/) }
       data[:attachments] = [] unless attachment_names.empty?
 
       attachment_names.each do |att|
-        attach_content = PdfInfo::Metadata.read(parts[att])
+        attach_content = PdfInfo::Metadata.read(@parts[att])
         attach_dim = attach_content.page_size_inches
         attach_pages = attach_content.pages
 
         attach_data = Hash.new
-        attach_data[:tempfile] = parts[att].path
         attach_data[:source] = source
         attach_data[:page_count] = attach_pages
         attach_data[:dimensions] = attach_dim
@@ -72,7 +72,8 @@ module VBADocuments
       end
       data[:total_pages] = doc_page_total
       data[:total_documents] = attachment_names.size + 1
-      {@file => data}
+      return {@file => data} if add_file_key
+      data
     end
   end
 end

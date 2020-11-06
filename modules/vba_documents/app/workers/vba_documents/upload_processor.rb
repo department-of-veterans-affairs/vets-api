@@ -2,6 +2,8 @@
 
 require_dependency 'vba_documents/multipart_parser'
 require_dependency 'vba_documents/payload_manager'
+require_dependency 'vba_documents/pdf_inspector'
+
 require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_info'
@@ -17,7 +19,8 @@ module VBADocuments
     def perform(guid, retries = 0)
       @retries = retries
       @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      if @upload
+      # if @upload
+      if true
         Rails.logger.info("VBADocuments: Start Processing: #{@upload.inspect}")
         download_and_process
         Rails.logger.info("VBADocuments: Stop Processing: #{@upload.inspect}")
@@ -27,11 +30,16 @@ module VBADocuments
     private
 
     def download_and_process
-      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
+      #  tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)# todo put this line back
+      ## mocking out
+      tempfile = File.new('./test_files/209b706f-c290-47b9-bae4-498bd44c7f3d')
+      timestamp = tempfile.mtime
       begin
-        parts = VBADocuments::MultipartParser.parse(tempfile.path)
+        inspector = VBADocuments::PDFInspector.new(pdf: tempfile.path)
+        parts = inspector.parts
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
+        update_pdf_metadata(inspector)
         metadata = perfect_metadata(parts, timestamp)
         response = submit(metadata, parts)
         process_response(response)
@@ -44,6 +52,10 @@ module VBADocuments
         tempfile.close
         close_part_files(parts) if parts.present?
       end
+    end
+
+    def update_pdf_metadata(inspector)
+      @upload.update(pdf_metadata: inspector.pdf_data)
     end
 
     def close_part_files(parts)

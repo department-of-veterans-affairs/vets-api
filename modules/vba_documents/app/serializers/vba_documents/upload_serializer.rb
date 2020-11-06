@@ -6,7 +6,7 @@ module VBADocuments
   class UploadSerializer < ActiveModel::Serializer
     type 'document_upload'
 
-    attributes :guid, :status, :code, :detail, :location, :updated_at
+    attributes :guid, :status, :code, :detail, :location, :updated_at, :pdf_metadata
 
     def id
       object.guid
