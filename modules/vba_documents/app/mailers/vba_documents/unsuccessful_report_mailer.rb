@@ -3,6 +3,7 @@
 module VBADocuments
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
+      david.mazik@va.gov
       michael.bastos@oddball.io
       ryan.link@oddball.io
       christopher.stone@libertyits.com
