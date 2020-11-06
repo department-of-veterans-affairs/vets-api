@@ -17,7 +17,7 @@ module BGS
 
       BGS::Form674.new(user).submit(claim_data)
     rescue
-      DependentsApplicationFailureMailer.build(user).deliver_now if user.present?
+      DependentsApplicationFailureMailer.build(user).deliver_later if user.present?
     end
 
     private
