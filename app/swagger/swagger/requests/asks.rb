@@ -221,6 +221,10 @@ module Swagger
               key :'$ref', :Asks
             end
           end
+
+          response 501 do
+            key :description, 'Feature toggled off'
+          end
         end
       end
     end
