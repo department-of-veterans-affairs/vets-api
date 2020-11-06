@@ -64,6 +64,26 @@ namespace :apps_api do
       app.privacy_url = 'https://cts.girlscomputingleague.org/generalprivacypolicy.html'
       app.tos_url = 'https://cts.girlscomputingleague.org/generaltermsofuse.html'
     end
+    DirectoryApplication.find_or_create_by!(name: 'OneRecord') do |app|
+      app.logo_url = 'https://ok5static.oktacdn.com/fs/bcg/4/gfs5hrv23wAozhWis297'
+      app.app_type = 'Third-Party-OAuth'
+      app.service_categories = ['Health']
+      app.platforms = %w[Web IOS Android]
+      app.app_url = 'https://onerecord.com'
+      app.description =
+        'OneRecord is a consumer facing application that enables the user to access and aggregate their medical '\
+        'records from Electronic Health Record Systems through healthcare industry standards and APIs. '\
+        'The platform is secure, scalable and device agnostic.'\
+        'OneRecord is built on a foundation of interoperability so that all data can flow seamlessly. '\
+        'Leveraging IHE XCA/ XCPD and HL7 FHIR transactions, OneRecord is able combine data sets to run '\
+        'through through our proprietary machine learning reconciliation and deduplication process. '\
+        'Users are involved in the deduplication of their own data, creating a unique patient-in-the-loop '\
+        'framework for our algorithms. OneRecord builds a longitudinal health record and while also creating '\
+        'a patient generated data in the tracking portion of the app. '\
+        'OneRecord is focused on women with chronic illnesses.'
+      app.privacy_url = 'https://onerecord.com/privacy'
+      app.tos_url = 'https://onerecord.com/terms'
+    end
   end
 end
 # rubocop:enable Metrics/BlockLength
