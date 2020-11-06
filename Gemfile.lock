@@ -780,7 +780,7 @@ GEM
       sprockets (>= 3.0.0)
     staccato (0.5.3)
     statsd-instrument (2.6.0)
-    super_diff (0.5.1)
+    super_diff (0.5.2)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
