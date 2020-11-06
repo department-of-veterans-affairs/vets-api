@@ -13,6 +13,7 @@ module VBADocuments
       joshua.jennings@libertyits.com
       cristopher.shupp@libertyits.com
       gregory.bowman@libertyits.com
+      zachary.goldfine@va.gov
     ].freeze
 
     def build(consumer_totals, pending_submissions, unsuccessful_submissions, date_from, date_to)

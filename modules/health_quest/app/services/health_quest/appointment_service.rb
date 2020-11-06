@@ -17,13 +17,12 @@ module HealthQuest
       end
     end
 
-    def get_appointment_by_id(id)
+    def get_appointment_by_id(_id)
       with_monitoring do
-        response = perform(:get, "#{get_appointments_base_url}/#{id}", {}, headers, timeout: 55)
-        {
-          data: OpenStruct.new(response.body),
-          meta: pagination({})
-        }
+        response =
+          YAML.load_file(Rails.root.join(*appointment_file)).with_indifferent_access
+
+        { data: OpenStruct.new(response[:body][:data]) }
       end
     end
 
@@ -70,6 +69,10 @@ module HealthQuest
 
     def date_format(date)
       date.strftime('%Y-%m-%dT%TZ')
+    end
+
+    def appointment_file
+      ['modules', 'health_quest', 'config', 'mock', 'appointment.yml']
     end
   end
 end
