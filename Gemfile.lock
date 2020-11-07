@@ -928,7 +928,6 @@ DEPENDENCIES
   pact
   pact-mock_service
   paper_trail
-  parallel
   pdf-forms
   pdf-inspector
   pdf-reader

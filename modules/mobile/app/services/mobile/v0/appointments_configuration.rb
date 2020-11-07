@@ -9,14 +9,13 @@ module Mobile
     #   configuration Mobile::V0::Configuration
     #
     class Configuration < VAOS::Configuration
-
       # Service name for breakers integration
       # @return String the service name
       #
       def service_name
         'MobileAppointments'
       end
-      
+
       # Faraday connection object with breakers, snakecase and json response middleware
       # @return Faraday::Connection connection to make http calls
       #

@@ -1166,7 +1166,7 @@ components:
           properties:
             appointmentType:
               type: string
-              enum: [COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_ONSITE]
+              enum: [COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_GFE]
               example: VA
             status:
               type: string
