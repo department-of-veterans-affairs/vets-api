@@ -4,8 +4,12 @@ require 'pdf_info'
 module VBADocuments
   class PDFInspector
     attr_accessor :file, :pdf_data, :parts
-    DOC_TYPE_KEY = :doc_type
-    SOURCE_KEY = :source
+
+    module Constants
+      DOC_TYPE_KEY = :doc_type
+      SOURCE_KEY = :source
+    end
+    include Constants
 
     # If add_file_key is true the file is added to the returned hash as the parent key.  Useful for the rake task vba_documents:inspect_pdf
     def initialize(pdf:, add_file_key:  false)
@@ -32,15 +36,17 @@ module VBADocuments
       data[:page_count] = doc_page_total
       data[:total_documents] = 1
       data[:total_pages] = doc_page_total
+      content = {}
+      data[:content] = content
 
       # get the dimensions
       doc_dim = parts_content.page_size_inches
-      data[:dimensions] = doc_dim
-      data[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
+      content[:dimensions] = doc_dim
+      content[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
 
       # check if this PDF has attachments
       attachment_names = @parts.keys.select { |k| k.match(/attachment\d+/) }
-      data[:attachments] = [] unless attachment_names.empty?
+      content[:attachments] = [] unless attachment_names.empty?
 
       attachment_names.each do |att|
         attach_content = PdfInfo::Metadata.read(@parts[att])
@@ -53,11 +59,11 @@ module VBADocuments
         attach_data[:page_count] = attach_pages
         attach_data[:dimensions] = attach_dim
         attach_data[:oversized_pdf] = attach_dim[:height] >= 21 || attach_dim[:width] >= 21
-        data[:attachments] << attach_data
+        content[:attachments] << attach_data
         doc_page_total += attach_pages
       end
-      data[:total_pages] = doc_page_total
-      data[:total_documents] = attachment_names.size + 1
+      content[:total_pages] = doc_page_total
+      content[:total_documents] = attachment_names.size + 1
       return {@file => data} if add_file_key
       data
     end

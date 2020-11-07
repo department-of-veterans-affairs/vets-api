@@ -32,7 +32,11 @@ module VBADocuments
     def download_and_process
       #  tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)# todo put this line back
       ## mocking out
-      tempfile = File.new('./test_files/209b706f-c290-47b9-bae4-498bd44c7f3d')
+        tempfile = File.new('./test_files/209b706f-c290-47b9-bae4-498bd44c7f3d')
+      #  tempfile = File.new('./modules/vba_documents/spec/fixtures/valid_multipart_base64_pdf.txt')
+      #  tempfile = File.new('./modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob')
+      # tempfile = File.new('./modules/vba_documents/spec/fixtures/valid_multipart_pdf.blob')
+
       timestamp = tempfile.mtime
       begin
         inspector = VBADocuments::PDFInspector.new(pdf: tempfile.path)
@@ -55,7 +59,7 @@ module VBADocuments
     end
 
     def update_pdf_metadata(inspector)
-      @upload.update(pdf_metadata: inspector.pdf_data)
+      @upload.update(uploaded_pdf: inspector.pdf_data)
     end
 
     def close_part_files(parts)
