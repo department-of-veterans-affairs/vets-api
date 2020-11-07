@@ -2,23 +2,22 @@
 
 require_relative 'benefit_claim'
 require_relative 'dependents'
-require_relative 'marriages'
 require_relative 'service'
 require_relative 'student_school'
 require_relative 'vnp_benefit_claim'
 require_relative 'vnp_relationships'
 require_relative 'vnp_veteran'
-require_relative 'children'
+require_relative 'dependent_higher_ed_attendance'
 
 module BGS
-  class Form686c
+  class Form674
     def initialize(user)
       @user = user
     end
 
     def submit(payload)
       proc_id = create_proc_id_and_form
-      veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user, claim_type: '130DPNEBNADJ').create
+      veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user, claim_type: '130SCHATTEBN').create
 
       process_relationships(proc_id, veteran, payload)
 
@@ -31,8 +30,8 @@ module BGS
           veteran: veteran,
           user: @user,
           proc_id: proc_id,
-          end_product_name: '130 - Automated Dependency 686c',
-          end_product_code: '130DPNEBNADJ'
+          end_product_name: '130 - Automated School Attendance 674',
+          end_product_code: '130SCHATTEBN'
         }
       ).create
 
@@ -43,26 +42,33 @@ module BGS
     private
 
     def process_relationships(proc_id, veteran, payload)
-      dependents = Dependents.new(proc_id: proc_id, payload: payload, user: @user).create_all
-      marriages = Marriages.new(proc_id: proc_id, payload: payload, user: @user).create_all
-      children = Children.new(proc_id: proc_id, payload: payload, user: @user).create_all
-
-      veteran_dependents = dependents + marriages + children[:dependents]
+      dependent = DependentHigherEdAttendance.new(proc_id: proc_id, payload: payload, user: @user).create
 
       VnpRelationships.new(
         proc_id: proc_id,
         veteran: veteran,
-        dependents: veteran_dependents,
-        step_children: children[:step_children],
+        dependents: [dependent],
+        step_children: [],
         user: @user
       ).create_all
+
+      process_674(proc_id, dependent, payload)
+    end
+
+    def process_674(proc_id, dependent, payload)
+      StudentSchool.new(
+        proc_id: proc_id,
+        vnp_participant_id: dependent[:vnp_participant_id],
+        payload: payload,
+        user: @user
+      ).create
     end
 
     def create_proc_id_and_form
       vnp_response = bgs_service.create_proc
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
-        '21-686c'
+        '21-674'
       )
 
       vnp_response[:vnp_proc_id]

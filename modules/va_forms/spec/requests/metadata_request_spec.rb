@@ -16,14 +16,14 @@ RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
       get '/services/va_forms/v0/healthcheck'
       parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
-      expect(parsed_response['description']).to eq(VAForms::HealthChecker::HEALTH_DESCRIPTION)
+      expect(parsed_response['description']).to eq(VaForms::HealthChecker::HEALTH_DESCRIPTION)
       expect(parsed_response['status']).to eq('UP')
       expect(parsed_response['time']).not_to be_nil
     end
 
     context 'v0' do
       it 'returns correct response and status when healthy' do
-        allow(VAForms::Form).to receive(:count).and_return(1)
+        allow(VaForms::Form).to receive(:count).and_return(1)
         common_health_checks
       end
 
@@ -44,7 +44,7 @@ RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
     def common_upstream_health_checks(path)
       get path
       parsed_response = JSON.parse(response.body)
-      expect(parsed_response['description']).to eq(VAForms::HealthChecker::HEALTH_DESCRIPTION_UPSTREAM)
+      expect(parsed_response['description']).to eq(VaForms::HealthChecker::HEALTH_DESCRIPTION_UPSTREAM)
       expect(parsed_response['time']).to eq('2020-09-21T00:00:00Z')
 
       details = parsed_response['details']
@@ -52,14 +52,14 @@ RSpec.describe 'VA Forms Metadata Endpoint', type: :request do
 
       upstream_service = details['upstreamServices'].first
       expect(details['upstreamServices'].size).to eq(1)
-      expect(upstream_service['description']).to eq(VAForms::HealthChecker::CMS_SERVICE)
-      expect(upstream_service['details']['name']).to eq(VAForms::HealthChecker::CMS_SERVICE)
+      expect(upstream_service['description']).to eq(VaForms::HealthChecker::CMS_SERVICE)
+      expect(upstream_service['details']['name']).to eq(VaForms::HealthChecker::CMS_SERVICE)
       expect(upstream_service['details']['time']).to eq('2020-09-21T00:00:00Z')
       { parsed_response: parsed_response, upstream_service: upstream_service }
     end
 
     def healthy_checks(path)
-      allow(VAForms::Form).to receive(:count).and_return(1)
+      allow(VaForms::Form).to receive(:count).and_return(1)
       results = common_upstream_health_checks(path)
       expect(response).to have_http_status(:ok)
       parsed_response = results[:parsed_response]
