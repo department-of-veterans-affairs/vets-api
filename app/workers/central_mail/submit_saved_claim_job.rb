@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'central_mail/service'
+require 'sentry_logging'
 require 'central_mail/datestamp_pdf'
 require 'pdf_info'
 
 module CentralMail
   class SubmitSavedClaimJob
     include Sidekiq::Worker
+    include SentryLogging
 
     FOREIGN_POSTALCODE = '00000'
 
@@ -28,6 +30,7 @@ module CentralMail
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
 
+      log_message_to_sentry(response.to_s, :warn, {}, { team: 'vfs-ebenefits' })
       if response.success?
         update_submission('success')
       else
