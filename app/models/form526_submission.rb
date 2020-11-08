@@ -79,11 +79,11 @@ class Form526Submission < ApplicationRecord
   def start_but_use_a_birls_id_that_hasnt_been_tried_yet(extra_content_for_sentry = {})
     mark_current_birls_id_as_tried
 
-    birls_id_that_hasnt_been_tried_yet = birls_ids_that_havent_been_tried_yet.first
-    return unless birls_id_that_hasnt_been_tried_yet
+    untried_birls_id = birls_ids_that_havent_been_tried_yet.first
+    return unless untried_birls_id
 
     self.multiple_birls = true
-    self.birls_id = birls_id_that_hasnt_been_tried_yet
+    self.birls_id = untried_birls_id
     save!
     start
   rescue => e
@@ -214,7 +214,7 @@ class Form526Submission < ApplicationRecord
   def mark_current_birls_id_as_tried
     raise Error, "can't retrieve current birls_id --no auth_headers" unless auth_headers
 
-    self.birls_ids_tried = [*birls_ids_tried, birls_id]
+    birls_ids_tried << birls_id
   end
 
   def birls_ids_that_havent_been_tried_yet
@@ -222,13 +222,11 @@ class Form526Submission < ApplicationRecord
   end
 
   def all_birls_ids_for_veteran
-    raise Error, 'no edipi' unless edipi
+    mvi_profile.birls_ids
+  end
 
-    accounts = Account.where edipi: edipi
-    raise Error, "edipi didn't pull up an account" if accounts.empty?
-    raise Error, 'edipi pulled up multiple accounts' if accounts.count > 1
-
-    accounts.first.mvi_find_profile_response.profile.birls_ids
+  def mvi_profile
+    MVI::Service.new.find_profile(OpenStruct.new(mhv_icn: icn, dslogon_edipi: edipi)).profile
   end
 
   def edipi
@@ -244,5 +242,16 @@ class Form526Submission < ApplicationRecord
 
     auth_headers['va_eauth_birlsfilenumber'] = value
     self.auth_headers_json = auth_headers.to_json
+  end
+
+  # @return [String] the icn for the veteran
+  # @return [NilClass] the account(s) where edipi has a nil icn
+  def icn
+    raise Error, 'no edipi' unless edipi
+
+    icns = Account.where(edipi: edipi).pluck :icn
+    raise Error, 'multiple icns' if icns.uniq > 1
+
+    icns.first
   end
 end

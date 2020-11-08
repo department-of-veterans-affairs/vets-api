@@ -121,10 +121,6 @@ class Account < ApplicationRecord
 
   private_class_method :account_attrs_from_user, :get_key, :sort_with_idme_uuid_priority
 
-  def mvi_find_profile_response
-    MVI::Service.new.find_profile user_identity
-  end
-
   private
 
   def initialize_uuid
@@ -139,10 +135,5 @@ class Account < ApplicationRecord
 
   def generate_uuid
     SecureRandom.uuid
-  end
-
-  # for use with MVI::Service#find_profile
-  def user_identity
-    Struct.new(:mhv_icn, :dslogon_edipi).new(icn, edipi)
   end
 end
