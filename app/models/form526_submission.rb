@@ -214,7 +214,7 @@ class Form526Submission < ApplicationRecord
   def mark_current_birls_id_as_tried
     raise Error, "can't retrieve current birls_id --no auth_headers" unless auth_headers
 
-    birls_ids_tried << birls_id
+    self.birls_ids_tried = [*birls_ids_tried, birls_id]
   end
 
   def birls_ids_that_havent_been_tried_yet
@@ -226,7 +226,13 @@ class Form526Submission < ApplicationRecord
   end
 
   def mvi_profile
-    MVI::Service.new.find_profile(OpenStruct.new(mhv_icn: icn, dslogon_edipi: edipi)).profile
+    find_profile_response = MVI::Service.new.find_profile user_identity
+    raise find_profile_response.error if find_profile_response.error
+    find_profile_response.profile
+  end
+
+  def user_identity
+    OpenStruct.new mhv_icn: icn, dslogon_edipi: edipi
   end
 
   def edipi
@@ -250,7 +256,7 @@ class Form526Submission < ApplicationRecord
     raise Error, 'no edipi' unless edipi
 
     icns = Account.where(edipi: edipi).pluck :icn
-    raise Error, 'multiple icns' if icns.uniq > 1
+    raise Error, 'multiple icns' if icns.uniq.length > 1
 
     icns.first
   end

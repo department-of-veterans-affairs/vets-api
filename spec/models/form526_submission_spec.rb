@@ -31,6 +31,24 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe '#start_but_use_a_birls_id_that_hasnt_been_tried_yet' do
+    before do
+      Sidekiq::Worker.clear_all
+      #allow_any_instance_of(MVI::Responses::IdParser).to receive(:birls_ids).and_return(%w[a b c])
+      allow_any_instance_of(Form526Submission).to receive(:user_identity).and_return(OpenStruct.new mhv_icn: '62788312892276600', dslogon_edipi: '5521609171')
+    end
+
+    context 'when it is all claims' do
+      it 'queues an all claims job' do
+        VCR.use_cassette('mpi/find_candidate/valid') do
+          expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet }.to(
+            change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
+          )
+        end
+      end
+    end
+  end
+
   describe '#form' do
     it 'returns the form as a hash' do
       expect(subject.form).to eq(JSON.parse(form_json))
