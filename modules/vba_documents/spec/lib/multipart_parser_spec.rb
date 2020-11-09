@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'vba_documents/multipart_parser'
 require_relative '../support/vba_document_fixtures'
+require 'vba_documents/pdf_inspector'
 
 RSpec.describe VBADocuments::MultipartParser do
   include VBADocuments::Fixtures
@@ -29,6 +30,22 @@ RSpec.describe VBADocuments::MultipartParser do
       expect(result).to have_key('attachment1')
       expect(result['attachment1']).to be_a(Tempfile)
     end
+
+=begin
+    it 'the inspector can parse a valid multipart payload with attachments and return metadata' do
+      valid_doc = get_fixture('valid_multipart_pdf_attachments.blob').path
+      inspector = VBADocuments::PDFInspector.new(pdf: valid_doc)
+      data = inspector.pdf_data
+      expect(data).to be_a(Hash)
+      expect(data.keys[0]).to eq(valid_doc)
+
+      doc_hash = data[valid_doc]
+      expect(doc_hash).to have_key(:tempfile)
+      expect(doc_hash).to have_key(:total_pages)
+      expect(doc_hash[:total_pages]).to eq(2)
+      expect(data[valid_doc][:offending_pdf]).to eq(false)
+    end
+=end
 
     it 'raises on a malformed multipart payload' do
       invalid_doc = get_fixture('invalid_multipart_no_boundary.blob').path
