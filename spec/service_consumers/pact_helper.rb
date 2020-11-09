@@ -64,12 +64,12 @@ Pact.service_provider 'VA.gov API' do
     pact_uri 'https://dev.va.gov/_vfs/pact-broker/pacts/provider/VA.gov%20API/consumer/Search/latest'
   end
 
-  # honours_pacts_from_pact_broker do
-  #   pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker/',
-  #                        {
-  #                          username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
-  #                          password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
-  #                        }
+  honours_pacts_from_pact_broker do
+    pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker/',
+                         {
+                           username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
+                           password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
+                         }
   #   # When using WIP pacts feature,
   #   # it's best to turn on pending pacts so that any WIP pact failures
   #   # don't cause the build to fail
@@ -85,7 +85,7 @@ Pact.service_provider 'VA.gov API' do
   #   # consumer_version_tags ['pact-search', 'pact-user', 'pact-hca']
   #   consumer_version_tags ['master']
   # end
-
+  #
   app_version git_sha
   app_version_tags git_branch
   publish_verification_results publish_flag if ENV['CIRCLE_JOB']
