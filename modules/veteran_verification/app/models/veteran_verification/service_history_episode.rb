@@ -20,7 +20,11 @@ module VeteranVerification
     attribute :separation_reason, String
 
     def self.for_user(user)
-      emis = Settings.vet_verification.mock_emis ? EMISRedis::MockMilitaryInformationV2.for_user(user) : EMISRedis::MilitaryInformationV2.for_user(user)
+      emis = if Settings.vet_verification.mock_emis
+               EMISRedis::MockMilitaryInformationV2.for_user(user)
+             else
+               EMISRedis::MilitaryInformationV2.for_user(user)
+             end
       handle_errors!(emis)
       episodes(emis, user)
     end

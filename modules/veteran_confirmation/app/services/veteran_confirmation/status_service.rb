@@ -14,7 +14,11 @@ module VeteranConfirmation
       return NOT_CONFIRMED if mvi_resp.not_found?
       raise mvi_resp.error unless mvi_resp.ok?
 
-      emis_resp = Settings.vet_verification.mock_emis ? EMIS::MockVeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile)) : EMIS::VeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
+      emis_resp = if Settings.vet_verification.mock_emis
+                    EMIS::MockVeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
+                  else
+                    EMIS::VeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
+                  end
       return NOT_CONFIRMED if emis_resp.error?
 
       emis_resp.items.first.title38_status_code == 'V1' ? CONFIRMED : NOT_CONFIRMED
