@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/base_form_controller'
-require_dependency 'claims_api/concerns/document_validations'
 require 'jsonapi/parser'
 
 module ClaimsApi
@@ -46,7 +45,7 @@ module ClaimsApi
           power_of_attorney.status = 'submitted'
           power_of_attorney.save!
           power_of_attorney.reload
-          ClaimsApi::VbmsUploadJob.perform_async(power_of_attorney.id)
+          ClaimsApi::VBMSUploadJob.perform_async(power_of_attorney.id)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 

@@ -20,6 +20,12 @@ describe StringHelpers do
     end
   end
 
+  describe '#mask_sensitive' do
+    it 'replaces part of the string with asterisks' do
+      expect(described_class.mask_sensitive('sdkfjsdklflsdf')).to eq('**********lsdf')
+    end
+  end
+
   context 'levenshtein_distance' do
     fixtures = [
       ['hello', 'hello', 0],

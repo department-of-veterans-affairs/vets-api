@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_12_163204) do
+ActiveRecord::Schema.define(version: 2020_10_27_024317) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -44,6 +44,15 @@ ActiveRecord::Schema.define(version: 2020_10_12_163204) do
     t.datetime "updated_at", null: false
     t.string "code"
     t.string "detail"
+  end
+
+  create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.string "encrypted_auth_headers"
+    t.string "encrypted_auth_headers_iv"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -151,6 +160,20 @@ ActiveRecord::Schema.define(version: 2020_10_12_163204) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "auto_established_claim_id"
+  end
+
+  create_table "directory_applications", force: :cascade do |t|
+    t.string "name"
+    t.string "logo_url"
+    t.string "app_type"
+    t.text "service_categories", default: [], array: true
+    t.text "platforms", default: [], array: true
+    t.string "app_url"
+    t.text "description"
+    t.string "privacy_url"
+    t.string "tos_url"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|

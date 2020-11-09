@@ -5,9 +5,9 @@ require 'claims_api/vbms_uploader'
 require 'claims_api/vbms_sidekiq'
 
 module ClaimsApi
-  class VbmsUploadJob
+  class VBMSUploadJob
     include Sidekiq::Worker
-    include ClaimsApi::VbmsSidekiq
+    include ClaimsApi::VBMSSidekiq
 
     def perform(power_of_attorney_id)
       power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)

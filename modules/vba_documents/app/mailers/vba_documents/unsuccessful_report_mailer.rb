@@ -3,6 +3,7 @@
 module VBADocuments
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
+      david.mazik@va.gov
       michael.bastos@oddball.io
       ryan.link@oddball.io
       christopher.stone@libertyits.com
@@ -13,11 +14,12 @@ module VBADocuments
       joshua.jennings@libertyits.com
       cristopher.shupp@libertyits.com
       gregory.bowman@libertyits.com
+      zachary.goldfine@va.gov
     ].freeze
 
-    def build(consumer_totals, stuck_submissions, unsuccessful_submissions, date_from, date_to)
+    def build(consumer_totals, pending_submissions, unsuccessful_submissions, date_from, date_to)
       @consumer_totals = consumer_totals
-      @stuck_submissions = stuck_submissions
+      @pending_submissions = pending_submissions
       @unsuccessful_submissions = unsuccessful_submissions
       @date_from = date_from
       @date_to = date_to

@@ -30,6 +30,18 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:veteran_service_information) do
+    {
+      'dateOfBirth' => user.birth_date,
+      'socialSecurityNumber' => user.ssn,
+      'branchOfService' => 'Air Force',
+      'serviceDateRange' => {
+        'from' => '2007-04-01',
+        'to' => '2007-04-02'
+      }
+    }
+  end
+
   let(:veteran_full_name) do
     {
       'veteranFullName' => full_name
@@ -73,7 +85,8 @@ RSpec.describe FormProfile, type: :model do
       'fullName' => full_name,
       'email' => user.pciu_email,
       'phone' => us_phone,
-      'address' => address
+      'address' => address,
+      'veteranServiceInformation' => veteran_service_information
     }
   end
 
@@ -569,6 +582,10 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v5655_expected) do
     {
+      'personalIdentification' => {
+        'sSN' => user.ssn.last(4),
+        'fileNumber' => '7890'
+      },
       'personalData' => {
         'fullName' => full_name,
         'address' => address,
@@ -624,7 +641,7 @@ RSpec.describe FormProfile, type: :model do
         'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
+        'country' => 'US',
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhone' => us_phone,
@@ -817,6 +834,12 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with a user that can prefill financial status report' do
+      before do
+        allow_any_instance_of(BGS::PeopleService).to(
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        )
+      end
+
       it 'returns a prefilled 5655 form' do
         expect_prefilled('5655')
       end
@@ -935,6 +958,17 @@ RSpec.describe FormProfile, type: :model do
               end
             end
           end
+        end
+      end
+
+      context 'with emis and vet360 prefill for 0873' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+        end
+
+        it 'prefills 0873' do
+          expect_prefilled('0873')
         end
       end
 
@@ -1071,14 +1105,6 @@ RSpec.describe FormProfile, type: :model do
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
-      end
-    end
-
-    context 'with the ask a question form' do
-      context 'for full name of the veteran' do
-        it 'returns the va profile mapped to contact infromation' do
-          expect_prefilled('0873')
-        end
       end
     end
 

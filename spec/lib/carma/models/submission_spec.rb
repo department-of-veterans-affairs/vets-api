@@ -355,77 +355,35 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       end
     end
 
-    context 'when :stub_carma_responses Flipper is disabled' do
-      it 'submits to CARMA, and updates :carma_case_id, :submitted_at, and :request_body' do
-        expected_response = {
-          'data' => {
-            'carmacase' => {
-              'id' => 'aB935000000F3VnCAK',
-              'createdAt' => '2020-03-09T10:48:59Z'
-            }
+    it 'submits to CARMA, and updates :carma_case_id, :submitted_at, and :request_body' do
+      expected_response = {
+        'data' => {
+          'carmacase' => {
+            'id' => 'aB935000000F3VnCAK',
+            'createdAt' => '2020-03-09T10:48:59Z'
           }
         }
+      }
 
-        expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false)
-        expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
+      expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
 
-        carma_client = double
-        expect(carma_client).not_to receive(:create_submission_stub)
+      carma_client = double
 
-        expect(submission.carma_case_id).to eq(nil)
-        expect(submission.submitted_at).to eq(nil)
-        expect(submission.request_body).to eq(nil)
-        expect(submission.submitted?).to eq(false)
+      expect(submission.carma_case_id).to eq(nil)
+      expect(submission.submitted_at).to eq(nil)
+      expect(submission.request_body).to eq(nil)
+      expect(submission.submitted?).to eq(false)
 
-        expect(carma_client).to receive(:create_submission).and_return(
-          expected_response
-        )
+      expect(carma_client).to receive(:create_submission).and_return(
+        expected_response
+      )
 
-        submission.submit!(carma_client)
+      submission.submit!(carma_client)
 
-        expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
-        expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
-        expect(submission.request_body).to eq(:REQUEST_PAYLOAD)
-        expect(submission.submitted?).to eq(true)
-      end
-    end
-
-    context 'when :stub_carma_responses Flipper is enabled' do
-      it 'returns a hardcoded CARMA response, and updates :carma_case_id, :submitted_at, and :request_body' do
-        expected_response = {
-          'data' => {
-            'carmacase' => {
-              'id' => 'aB935000000F3VnCAK',
-              'createdAt' => '2020-03-09T10:48:59Z'
-            }
-          }
-        }
-
-        expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true)
-        expect(submission).to receive(:to_request_payload).and_return(:REQUEST_PAYLOAD)
-
-        carma_client = double
-        expect(carma_client).not_to receive(:create_submission)
-        expect(carma_client).to receive(
-          :create_submission_stub
-        ).with(
-          :REQUEST_PAYLOAD
-        ).and_return(
-          expected_response
-        )
-
-        expect(submission.carma_case_id).to eq(nil)
-        expect(submission.submitted_at).to eq(nil)
-        expect(submission.request_body).to eq(nil)
-        expect(submission.submitted?).to eq(false)
-
-        submission.submit!(carma_client)
-
-        expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
-        expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
-        expect(submission.request_body).to eq(:REQUEST_PAYLOAD)
-        expect(submission.submitted?).to eq(true)
-      end
+      expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
+      expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
+      expect(submission.request_body).to eq(:REQUEST_PAYLOAD)
+      expect(submission.submitted?).to eq(true)
     end
   end
 end

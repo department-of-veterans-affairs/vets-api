@@ -5,7 +5,7 @@ require 'mvi/responses/add_person_response'
 
 describe MVI::Responses::AddPersonResponse do
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:body) { Ox.parse(File.read('spec/support/mvi/add_person_response.xml')) }
+  let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_response.xml')) }
   let(:ok_response) { described_class.with_parsed_response(faraday_response) }
   let(:error_response) { described_class.with_server_error }
   let(:failed_search) { described_class.with_failed_orch_search(status) }
@@ -72,7 +72,7 @@ describe MVI::Responses::AddPersonResponse do
     end
 
     context 'with an invalid request response' do
-      let(:body) { Ox.parse(File.read('spec/support/mvi/add_person_invalid_response.xml')) }
+      let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_invalid_response.xml')) }
 
       it 'raises an invalid request error' do
         expect { described_class.with_parsed_response(faraday_response) }.to raise_error(
@@ -82,7 +82,7 @@ describe MVI::Responses::AddPersonResponse do
     end
 
     context 'with a failed request response' do
-      let(:body) { Ox.parse(File.read('spec/support/mvi/add_person_internal_error_response.xml')) }
+      let(:body) { Ox.parse(File.read('spec/support/mpi/add_person_internal_error_response.xml')) }
 
       it 'raises a failed request error' do
         expect { described_class.with_parsed_response(faraday_response) }.to raise_error(

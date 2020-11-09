@@ -35,6 +35,7 @@ class V1::Facilities::VaController < FacilitiesController
       :state,
       :type,
       :zip,
+      :exclude_mobile,
       bbox: [],
       services: []
     )

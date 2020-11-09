@@ -38,6 +38,10 @@ class Provider < Common::Base
     self.ProviderHexdigest = hexdigest
   end
 
+  def id
+    self.ProviderHexdigest || self.ProviderIdentifier
+  end
+
   def self.from_provloc(prov_loc)
     provider = Provider.new(prov_loc)
     provider.AddressCity = prov_loc['CareSiteAddressCity']

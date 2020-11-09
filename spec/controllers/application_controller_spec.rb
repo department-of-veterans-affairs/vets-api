@@ -29,6 +29,12 @@ RSpec.describe ApplicationController, type: :controller do
       raise Common::Exceptions::Forbidden
     end
 
+    def breakers_outage
+      Rx::Configuration.instance.breakers_service.begin_forced_outage!
+      client = Rx::Client.new(session: { user_id: 123 })
+      client.get_session
+    end
+
     def record_not_found
       raise Common::Exceptions::RecordNotFound, 'some_id'
     end
@@ -62,7 +68,7 @@ RSpec.describe ApplicationController, type: :controller do
       get 'unauthorized' => 'anonymous#unauthorized'
       get 'routing_error' => 'anonymous#routing_error'
       get 'forbidden' => 'anonymous#forbidden'
-      get 'common_error_with_info_sentry' => 'anonymous#common_error_with_info_sentry'
+      get 'breakers_outage' => 'anonymous#breakers_outage'
       get 'record_not_found' => 'anonymous#record_not_found'
       get 'other_error' => 'anonymous#other_error'
       get 'client_connection_failed' => 'anonymous#client_connection_failed'
@@ -78,6 +84,18 @@ RSpec.describe ApplicationController, type: :controller do
       with_settings(Settings.sentry, dsn: 'T') do
         example.run
       end
+    end
+
+    it 'does log exceptions to sentry if Pundit::NotAuthorizedError' do
+      expect(Raven).to receive(:capture_exception).with(Pundit::NotAuthorizedError, { level: 'info' })
+      expect(Raven).not_to receive(:capture_message)
+      get :not_authorized
+    end
+
+    it 'does not log to sentry if Breakers::OutageException' do
+      expect(Raven).not_to receive(:capture_exception)
+      expect(Raven).not_to receive(:capture_message)
+      get :breakers_outage
     end
 
     it 'does not log to sentry if Common::Exceptions::Unauthorized' do
@@ -96,15 +114,6 @@ RSpec.describe ApplicationController, type: :controller do
       expect(Raven).not_to receive(:capture_exception)
       expect(Raven).not_to receive(:capture_message)
       get :forbidden
-    end
-
-    it 'it logs to sentry with level matching exception.en.yml' do
-      expect(Raven).to receive(:capture_exception).with(
-        Common::Exceptions::BackendServiceException,
-        { level: "warning" }
-      )
-      expect(Raven).not_to receive(:capture_message)
-      get :common_error_with_info_sentry
     end
   end
 

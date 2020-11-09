@@ -8,7 +8,7 @@ describe MVI::Responses::ProfileParser do
   let(:parser) { MVI::Responses::ProfileParser.new(faraday_response) }
 
   context 'given a valid response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
 
     before do
       allow(faraday_response).to receive(:body) { body }
@@ -26,6 +26,7 @@ describe MVI::Responses::ProfileParser do
           :mvi_profile_response,
           :address_austin,
           birls_id: nil,
+          birls_ids: [],
           sec_id: nil,
           historical_icns: nil,
           search_token: 'WSDOC1609131753362231779394902'
@@ -45,6 +46,7 @@ describe MVI::Responses::ProfileParser do
             given_names: nil,
             suffix: nil,
             birls_id: nil,
+            birls_ids: [],
             sec_id: nil,
             historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902'
@@ -58,12 +60,13 @@ describe MVI::Responses::ProfileParser do
       end
 
       context 'with a missing address, invalid edipi, and invalid participant id' do
-        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
+        let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response_nil_address.xml')) }
         let(:mvi_profile) do
           build(
             :mvi_profile_response,
             address: nil,
             birls_id: nil,
+            birls_ids: [],
             sec_id: nil,
             historical_icns: nil,
             vet360_id: nil,
@@ -90,12 +93,14 @@ describe MVI::Responses::ProfileParser do
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
         let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
-        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs_response.xml')) }
+        let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_attrs_response.xml')) }
         let(:mvi_profile) do
           build(
             :mvi_profile_response,
             :missing_attrs,
             :address_austin,
+            birls_id: '796122306',
+            birls_ids: ['796122306'],
             sec_id: '1008714701',
             historical_icns: nil,
             mhv_ids: ['1100792239'],
@@ -120,7 +125,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'with no subject element' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_no_subject_response.xml')) }
     let(:mvi_profile) { build(:mvi_profile_response, :missing_attrs) }
 
     describe '#parse' do
@@ -132,7 +137,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'given an invalid response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_invalid_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_invalid_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
@@ -143,7 +148,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'given a failure response' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_ar_code_database_error_response.xml')) }
 
     describe '#failed_or_invalid?' do
       it 'returns true' do
@@ -154,7 +159,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'given a multiple match' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_match_response.xml')) }
 
     before do
       allow(faraday_response).to receive(:body) { body }
@@ -175,7 +180,7 @@ describe MVI::Responses::ProfileParser do
 
   context 'with multiple MHV IDs' do
     let(:icn_with_aaid) { '12345678901234567^NI^200M^USVHA' }
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_mhv_response.xml')) }
     let(:mvi_profile) do
       build(
         :mvi_profile_response,
@@ -205,14 +210,15 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'with a vet360 id' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
     let(:mvi_profile) do
       build(
         :mvi_profile_response,
         :address_austin,
         historical_icns: nil,
-        birls_id: nil,
         sec_id: nil,
+        birls_id: nil,
+        birls_ids: [],
         search_token: 'WSDOC1609131753362231779394902'
       )
     end
@@ -227,7 +233,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'with inactive MHV ID edge cases' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_inactive_mhv_ids.xml')) }
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_inactive_mhv_ids.xml')) }
 
     before do
       Settings.sentry.dsn = 'asdf'
