@@ -44,6 +44,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
     it 'sends to the right people' do
       expect(subject.to).to eq(
         %w[
+          david.mazik@va.gov
           michael.bastos@oddball.io
           ryan.link@oddball.io
           christopher.stone@libertyits.com
@@ -54,6 +55,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
           joshua.jennings@libertyits.com
           cristopher.shupp@libertyits.com
           gregory.bowman@libertyits.com
+          zachary.goldfine@va.gov
         ]
       )
     end

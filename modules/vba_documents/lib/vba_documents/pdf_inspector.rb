@@ -41,8 +41,10 @@ module VBADocuments
 
       # get the dimensions
       doc_dim = parts_content.page_size_inches
-      content[:dimensions] = doc_dim
-      content[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
+      doc_dim[:height] = doc_dim[:height].round(2)
+      doc_dim[:width] = doc_dim[:width].round(2)
+      data[:dimensions] = doc_dim
+      data[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
 
       # check if this PDF has attachments
       attachment_names = @parts.keys.select { |k| k.match(/attachment\d+/) }

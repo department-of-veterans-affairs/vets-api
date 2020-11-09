@@ -46,6 +46,15 @@ ActiveRecord::Schema.define(version: 2020_11_05_180822) do
     t.string "detail"
   end
 
+  create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.string "encrypted_auth_headers"
+    t.string "encrypted_auth_headers_iv"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "async_transactions", id: :serial, force: :cascade do |t|
     t.string "type"
     t.string "user_uuid"
@@ -534,7 +543,6 @@ ActiveRecord::Schema.define(version: 2020_11_05_180822) do
     t.boolean "s3_deleted"
     t.string "consumer_name"
     t.uuid "consumer_id"
-    t.json "uploaded_pdf"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end

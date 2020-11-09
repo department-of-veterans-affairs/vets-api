@@ -1,0 +1,57 @@
+---
+  :method: :get
+  :body:
+    error_occurred: false
+    error_message: null
+    status: null
+    debug_info: null
+    data:
+      id: "202008261500983000084800000000000000"
+      start_date: "2020-08-26T15:00:00Z"
+      clinic_id: "848"
+      clinic_friendly_name: "CHY PC VAR2"
+      facility_id: "983"
+      sta6aid: "983"
+      station_name: "CHYSHR-Cheyenne VA Medical Center"
+      patient_icn: "1013124304V115761"
+      community_care: false
+      vds_appointments:
+      - id: "848;20200826.090000"
+        appointment_length: "20"
+        appointment_time: "2020-08-26T15:00:00Z"
+        clinic:
+          name: "CHY PC VAR2"
+          ask_for_check_in: false
+          facility_code: "983"
+          facility:
+            display_name: "VDS Facility Display Name"
+          stop_code: "323"
+        patient_id: "7219393"
+        type: "REGULAR"
+        current_status: "NO ACTION TAKEN/TODAY"
+        booking_notes: "Follow-up/Routine: testing reason for visit field availability"
+      vvs_appointments:
+      - id: "abc"
+        status: "defgh"
+        patients:
+          patient:
+          - id: "1"
+            name: "Foo Bar"
+        providers:
+          provider:
+          - name: "The Provider"
+            id: "9000"
+  :headers:
+    Cache-Control: no-cache
+    Pragma: no-cache
+    Content-Length: '77249'
+    Content-Type: application/json; charset=utf-8
+    Expires: "-1"
+    Server: Microsoft-IIS/7.5
+    X-Aspnet-Version: 4.0.30319
+    X-Powered-By: ASP.NET
+    Access-Control-Allow-Origin: "*"
+    Access-Control-Allow-Methods: GET, PUT, POST, DELETE, HEAD
+    Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept
+    Date: Fri, 20 Jul 2018 15:38:45 GMT
+  :status: 200
