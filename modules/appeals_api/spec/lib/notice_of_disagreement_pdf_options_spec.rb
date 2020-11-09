@@ -8,7 +8,7 @@ describe AppealsApi::NoticeOfDisagreementPdfOptions do
   let(:pdf_options) { described_class.new(notice_of_disagreement) }
 
   describe '#veteran_name' do
-    it { expect(pdf_options.veteran_name).to eq('Jane, Z, Doe') }
+    it { expect(pdf_options.veteran_name).to eq('Jane Z. Doe') }
   end
 
   describe '#veteran_ssn' do
@@ -24,7 +24,7 @@ describe AppealsApi::NoticeOfDisagreementPdfOptions do
   end
 
   describe '#claimant_name' do
-    it { expect(pdf_options.claimant_name).to eq('Maria, A, Garcia') }
+    it { expect(pdf_options.claimant_name).to eq('Maria A. Garcia') }
   end
 
   describe '#claimant_dob' do
