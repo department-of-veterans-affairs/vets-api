@@ -60,31 +60,31 @@ Pact.service_provider 'VA.gov API' do
   # end
 
   # # temporarily define the url or else we will get failing verification
-  # honours_pact_with 'Search' do
-  #   pact_uri 'https://dev.va.gov/_vfs/pact-broker/pacts/provider/VA.gov%20API/consumer/Search/latest'
-  # end
-
-  honours_pacts_from_pact_broker do
-    pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker/pacts/provider/VA.gov%20API/consumer/Search/latest',
-                         {
-                           username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
-                           password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
-                         }
-    # When using WIP pacts feature,
-    # it's best to turn on pending pacts so that any WIP pact failures
-    # don't cause the build to fail
-    # enable_pending true
-    #
-    # # When verifying pacts, the verification task can be configured
-    # # to include all "work in progress" pacts (as well as the pacts that you
-    # # specify by tag, like master or prod).
-    # include_wip_pacts_since '2020-09-01'
-    #
-    # # Optionally specify the consumer version tags for the pacts you want to verify
-    # # This will verify the latest pact with the tag `master`
-    # # consumer_version_tags ['pact-search', 'pact-user', 'pact-hca']
-    # consumer_version_tags ['master']
+  honours_pact_with 'Search' do
+    pact_uri 'https://dev.va.gov/_vfs/pact-broker/pacts/provider/VA.gov%20API/consumer/Search/latest'
   end
+
+  # honours_pacts_from_pact_broker do
+  #   pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker/',
+  #                        {
+  #                          username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
+  #                          password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
+  #                        }
+  #   # When using WIP pacts feature,
+  #   # it's best to turn on pending pacts so that any WIP pact failures
+  #   # don't cause the build to fail
+  #   enable_pending true
+  #
+  #   # When verifying pacts, the verification task can be configured
+  #   # to include all "work in progress" pacts (as well as the pacts that you
+  #   # specify by tag, like master or prod).
+  #   include_wip_pacts_since '2020-09-01'
+  #
+  #   # Optionally specify the consumer version tags for the pacts you want to verify
+  #   # This will verify the latest pact with the tag `master`
+  #   # consumer_version_tags ['pact-search', 'pact-user', 'pact-hca']
+  #   consumer_version_tags ['master']
+  # end
 
   app_version git_sha
   app_version_tags git_branch
