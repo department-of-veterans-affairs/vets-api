@@ -6,7 +6,7 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NoticeOfDisagreement, type: :model do
   include FixtureHelpers
 
-  let(:notice_of_disagreement) { described_class.create form_data: form_data, auth_headers: auth_headers }
+  let(:notice_of_disagreement) { build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers) }
 
   let(:auth_headers) { default_auth_headers }
   let(:form_data) { default_form_data }
@@ -14,7 +14,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   let(:default_auth_headers) { fixture_as_json 'valid_10182_headers.json' }
   let(:default_form_data) { fixture_as_json 'valid_10182.json' }
 
-  describe '.create' do
+  describe '.build' do
+    before { notice_of_disagreement.valid? }
+
     it('has no errors') do
       expect(notice_of_disagreement.errors).to be_empty
     end
@@ -46,6 +48,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         before do
           form_data['data']['attributes'].delete('claimant')
           form_data['data']['attributes'].delete('veteran')
+          notice_of_disagreement.valid?
         end
 
         it do
@@ -67,6 +70,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
                                       'X-VA-Claimant-Last-Name')
         end
 
+        before { notice_of_disagreement.valid? }
+
         it do
           expect(notice_of_disagreement.errors.count).to be 1
           expect(notice_of_disagreement.errors.full_messages.first).to eq('Auth headers if any claimant info is' \
@@ -77,6 +82,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       context 'when claimant birth date is missing' do
         let(:auth_headers) { default_auth_headers.except('X-VA-Claimant-Birth-Date') }
 
+        before { notice_of_disagreement.valid? }
+
         it do
           expect(notice_of_disagreement.errors.count).to be 1
           expect(notice_of_disagreement.errors.full_messages.first).to eq('Auth headers if any claimant info is' \
@@ -85,7 +92,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end
 
       context 'when claimant contact info is missing' do
-        before { form_data['data']['attributes'].delete('claimant') }
+        before do
+          form_data['data']['attributes'].delete('claimant')
+          notice_of_disagreement.valid?
+        end
 
         it do
           expect(notice_of_disagreement.errors.count).to be 1
@@ -104,6 +114,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
             'type' => default_form_data['data']['type'],
             'attributes' => {
               'boardReviewOption' => default_form_data['data']['attributes']['boardReviewOption'],
+              'socOptIn' => default_form_data['data']['attributes']['socOptIn'],
               'veteran' => {
                 'homeless' => default_form_data['data']['attributes']['veteran']['homeless'],
                 'address' => default_form_data['data']['attributes']['veteran']['address'].except('addressLine1'),
@@ -118,6 +129,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
       let(:auth_headers) { headers_without_claimant(default_auth_headers) }
 
+      before { notice_of_disagreement.valid? }
+
       it('has errors') do
         expect(notice_of_disagreement.errors.count).to be 1
         expect(notice_of_disagreement.errors.full_messages.first).to include 'addressLine1'
@@ -128,6 +141,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   describe '10182 headers schema' do
     context 'missing veteran last name' do
       let(:auth_headers) { default_auth_headers.except('X-VA-Veteran-Last-Name') }
+
+      before { notice_of_disagreement.valid? }
 
       it('has errors') do
         expect(notice_of_disagreement.errors.count).to be 1
@@ -184,6 +199,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
       it { expect(notice_of_disagreement.claimant_birth_date).to be_nil }
     end
+  end
+
+  describe '#consumer_name' do
+    it { expect(notice_of_disagreement.consumer_name).to eq('va.gov') }
   end
 
   private
