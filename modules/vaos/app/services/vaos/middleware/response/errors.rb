@@ -9,49 +9,53 @@ module VAOS
         def on_complete(env)
           return if env.success?
 
-          Raven.extra_context(vamf_status: env.status, vamf_body: env.body, vamf_url: env.url)
+          @status = env.status
+          @body = env.body
+          @url = env.url
+
+          Raven.extra_context(vamf_status: @status, vamf_body: @body, vamf_url: @url)
           case env.status
           when 400, 409
-            error_400(env.body)
+            raise Common::Exceptions::BackendServiceException.new('VAOS_400', response_values, @status, @body)
           when 403
-            raise Common::Exceptions::BackendServiceException.new('VAOS_403', source: self.class)
+            raise Common::Exceptions::BackendServiceException.new('VAOS_403', response_values, @status, @body)
           when 404
-            raise Common::Exceptions::BackendServiceException.new('VAOS_404', source: self.class)
+            raise Common::Exceptions::BackendServiceException.new('VAOS_404', response_values, @status, @body)
           when 500..510
-            error_500(env.body)
+            error_500(@body)
           else
-            raise Common::Exceptions::BackendServiceException.new('VA900', source: self.class)
+            raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, @body)
           end
         end
 
-        def error_500(body)
+        private
+
+        def error_500
           # NOTE: This is a temporary patch more on that here:
           # https://github.com/department-of-veterans-affairs/vets-api/pull/5082
-          if /APTCRGT/.match?(body)
-            error_400(body)
+          if /APTCRGT/.match?(@body)
+            raise Common::Exceptions::BackendServiceException.new('VAOS_400', response_values, @status, @body)
           else
-            raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class)
+            raise Common::Exceptions::BackendServiceException.new('VAOS_502', response_values, @status, @body)
           end
         end
 
-        def error_400(body)
-          raise Common::Exceptions::BackendServiceException.new(
-            'VAOS_400',
-            title: 'Bad Request',
-            detail: parse_error(body),
-            source: self.class
-          )
+        def response_values
+          {
+            detail: detail,
+            source: { vamf_url: @url, vamf_body: @body, vamf_status: @status }
+          }
         end
 
-        def parse_error(body)
-          parsed = JSON.parse(body)
+        def detail
+          parsed = JSON.parse(@body)
           if parsed['errors']
             parsed['errors'].first['errorMessage']
           else
             parsed['message']
           end
         rescue
-          body
+          @body
         end
       end
     end
