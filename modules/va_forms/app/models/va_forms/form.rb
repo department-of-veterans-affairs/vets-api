@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VAForms
+module VaForms
   class Form < ApplicationRecord
     has_paper_trail only: ['sha256']
 
