@@ -2,7 +2,7 @@
 
 require 'ostruct'
 require 'emis/veteran_status_service'
-
+require 'emis/mock_veteran_status_service'
 module VeteranConfirmation
   class StatusService
     CONFIRMED = 'confirmed'
@@ -14,7 +14,7 @@ module VeteranConfirmation
       return NOT_CONFIRMED if mvi_resp.not_found?
       raise mvi_resp.error unless mvi_resp.ok?
 
-      emis_resp = EMIS::VeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
+      emis_resp = Settings.vet_verification.mock_emis ? EMIS::MockVeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile)) : EMIS::VeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
       return NOT_CONFIRMED if emis_resp.error?
 
       emis_resp.items.first.title38_status_code == 'V1' ? CONFIRMED : NOT_CONFIRMED
