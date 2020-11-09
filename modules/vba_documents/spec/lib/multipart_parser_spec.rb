@@ -52,7 +52,6 @@ RSpec.describe VBADocuments::MultipartParser do
       expect(doc_hash[:attachments]).to be_a(Array)
       expect(doc_hash[:attachments].count).to eq(1)
 
-
       # Load the inspector without adding the file key. This is used to save the data to the database
       inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: false)
       data = inspector.pdf_data
