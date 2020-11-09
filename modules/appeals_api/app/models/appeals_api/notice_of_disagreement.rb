@@ -113,6 +113,10 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran')
     end
 
+    def consumer_name
+      auth_headers&.dig('X-Consumer-Username')
+    end
+
     private
 
     def validate_auth_headers_against_schema

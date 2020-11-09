@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
-class V1::Facilities::VACcpController < FacilitiesController
+class V1::Facilities::VaCcpController < FacilitiesController
   def urgent_care
     providers_facilities = PPMS::ProviderFacility.new(
       pagination_params: pagination_params,
