@@ -20,7 +20,7 @@ module VeteranVerification
     attribute :separation_reason, String
 
     def self.for_user(user)
-      emis = EMISRedis::MilitaryInformationV2.for_user(user)
+      emis = EMISRedis::MockMilitaryInformationV2.for_user(user)
       handle_errors!(emis)
       episodes(emis, user)
     end
