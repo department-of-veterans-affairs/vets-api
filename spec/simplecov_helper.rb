@@ -34,7 +34,7 @@ class SimpleCovHelper
       add_group 'Services', 'app/services'
       add_group 'Swagger', 'app/swagger'
       add_group 'Uploaders', 'app/uploaders'
-      add_group 'AppsApi', 'modules/apps_api'
+      add_group 'AppealsApi', 'modules/appeals_api/'
       add_group 'ClaimsApi', 'modules/claims_api/'
       add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'VBADocuments', 'modules/vba_documents/'
