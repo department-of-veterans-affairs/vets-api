@@ -947,13 +947,83 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-  /v0/claims-and-appeals-overview:
+  /v0/claims-and-appeals/overview:
     get:
       summary: /v0/claims-and-appeals-overview
-      description: Asyncronously returns info on all user's claims and appeals for mobile overview page
+      description: Returns info on all user's claims and appeals for mobile overview page
       operationId: index
       security:
         - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimsAndAppealsOverview"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/claims-and-appeals/{type}/{id}:
+    get:
+      summary: /v0/{type}/{id}
+      description: Returns details of a claim or an appeal matching the provided id and type
+      operationId: index
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema:
+            type: string
+            enum:
+              - claim
+              - appeal
+        - in: path
+          name: id
+          schema:
+            type: string
+            description: id for specific claim or appeal
       responses:
         '200':
           description: OK
