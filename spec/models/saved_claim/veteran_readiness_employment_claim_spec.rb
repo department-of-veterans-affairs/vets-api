@@ -18,16 +18,13 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#send_to_vre' do
     it 'adds veteran information' do
-      VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
-        claim.add_claimant_info(user_object)
-        faraday_response = double('faraday_connection')
-        allow(faraday_response).to receive(:status) { 200 }
+      faraday_response = double('faraday_connection')
+      allow(faraday_response).to receive(:status) { 200 }
 
-        allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
+      allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
 
-        response = claim.send_to_vre
-        expect(response.status).to eq(200)
-      end
+      response = claim.send_to_vre
+      expect(response.status).to eq(200)
     end
   end
 end

@@ -4,26 +4,25 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   FORM = '28-1900'
 
   def add_claimant_info(user)
-    form_data = parsed_form
+    return if form.blank?
 
-    vet_info = {
-      'veteranInformation' => {
-        'fullName' => {
-          'first' => user.first_name,
-          'middle' => user.middle_name,
-          'last' => user.last_name,
-          'suffix' => nil
-        },
-        'ssn' => user.ssn,
-        'VAFileNumber' => veteran_va_file_number(user),
-        'pid' => user.participant_id,
-        'edipi' => user.edipi,
-        'vet360ID' => user.vet360_id,
-        'dob' => user.birth_date
-      }
+    updated_form = parsed_form
+
+    updated_form['veteranInformation'] = {
+      'fullName' => {
+        'first' => user.first_name,
+        'middle' => user.middle_name || '',
+        'last' => user.last_name
+      },
+      'ssn' => user.ssn,
+      'VAFileNumber' => veteran_va_file_number(user),
+      'pid' => user.participant_id,
+      'edipi' => user.edipi,
+      'vet360ID' => user.vet360_id,
+      'dob' => user.birth_date
     }
 
-    self.form = form_data.merge!(vet_info).to_json
+    update(form: updated_form.to_json)
   end
 
   def send_to_vre
@@ -37,13 +36,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     end
   end
 
+  # SavedClaims require regional_office to be defined
+  def regional_office
+    []
+  end
+
   private
 
   def veteran_va_file_number(user)
     service = BGS::PeopleService.new(user)
     response = service.find_person_by_participant_id
 
-    response[:file_nbr]
+    file_number = response[:file_nbr]
+    file_number.blank? ? nil : file_number
   rescue
     nil
   end
@@ -54,48 +59,48 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     vre_payload = {
       data: {
-        educationLevel: form_data['years_of_education'],
+        educationLevel: form_data['yearsOfEducation'],
         useEva: form_data['use_eva'],
-        useTelecounseling: form_data['use_telecounseling'],
-        meetingTime: form_data['appointment_time_preferences'].key(true),
-        isMoving: form_data['is_moving'],
-        mainPhone: form_data['main_phone'],
-        cellPhone: form_data['cell_phone'],
+        useTelecounseling: form_data['useTelecounseling'],
+        meetingTime: form_data['appointmentTimePreferences'].key(true),
+        isMoving: form_data['isMoving'],
+        mainPhone: form_data['mainPhone'],
+        cellPhone: form_data['cellPhone'],
         emailAddress: form_data['email'],
         veteranAddress: {
-          isForeign: form_data['veteran_address']['country'] != 'USA',
-          isMilitary: form_data['veteran_address']['is_military'],
-          countryName: form_data['veteran_address']['country'],
-          addressLine1: form_data['veteran_address']['street'],
-          addressLine2: form_data['veteran_address']['street2'],
-          addressLine3: form_data['veteran_address']['street3'],
-          city: form_data['veteran_address']['city'],
-          stateCode: form_data['veteran_address']['state'],
-          zipCode: form_data['veteran_address']['postal_code']
+          isForeign: form_data['veteranAddress']['country'] != 'USA',
+          isMilitary: form_data['veteranAddress']['isMilitary'],
+          countryName: form_data['veteranAddress']['country'],
+          addressLine1: form_data['veteranAddress']['street'],
+          addressLine2: form_data['veteranAddress']['street2'],
+          addressLine3: form_data['veteranAddress']['street3'],
+          city: form_data['veteranAddress']['city'],
+          stateCode: form_data['veteranAddress']['state'],
+          zipCode: form_data['veteranAddress']['postalCode']
         }
       }
     }
 
     vre_payload[:data].merge!({ veteranInformation: parsed_form['veteranInformation'] })
-    vre_payload[:data].merge!(new_address) if parsed_form['new_address'].present?
+    vre_payload[:data].merge!(new_address) if parsed_form['newAddress'].present?
 
     vre_payload.to_json
   end
   # rubocop:enable Metrics/MethodLength
 
   def new_address
-    new_address = parsed_form['new_address']
+    new_address = parsed_form['newAddress']
     {
       "newAddress": {
         "isForeign": new_address['country'] != 'USA',
-        "isMilitary": new_address['is_military'],
+        "isMilitary": new_address['isMilitary'],
         "countryName": new_address['country'],
         "addressLine1": new_address['street'],
         "addressLine2": new_address['street2'],
         "addressLine3": new_address['street3'],
         "city": new_address['city'],
         "province": new_address['state'],
-        "internationalPostalCode": new_address['postal_code']
+        "internationalPostalCode": new_address['postalCode']
       }
     }
   end

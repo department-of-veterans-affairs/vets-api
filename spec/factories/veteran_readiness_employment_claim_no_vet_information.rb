@@ -6,25 +6,24 @@ FactoryBot.define do
 
     form {
       {
-        use_eva: true,
-        use_telecounseling: true,
-        years_of_education: '4',
-        is_moving: false,
-        main_phone: '5555555555',
-        cell_phone: '3333333333',
+        useEva: true,
+        useTelecounseling: true,
+        yearsOfEducation: '4',
+        isMoving: false,
+        mainPhone: '5555555555',
+        cellPhone: '3333333333',
         email: 'cohnjesse@gmail.xom',
-        privacy_agreement_accepted: true,
-        veteran_address: {
-          is_military: true,
+        veteranAddress: {
+          isMilitary: true,
           country: 'USA',
           street: '2020 Princess Palm',
           street2: 'line 2',
           street3: 'line 3',
           city: 'FPO',
           state: 'AA',
-          postal_code: '33928'
+          postalCode: '33928'
         },
-        appointment_time_preferences: {
+        appointmentTimePreferences: {
           morning: true,
           mid_day: false,
           afternoon: false,
