@@ -31,21 +31,33 @@ RSpec.describe VBADocuments::MultipartParser do
       expect(result['attachment1']).to be_a(Tempfile)
     end
 
-=begin
     it 'the inspector can parse a valid multipart payload with attachments and return metadata' do
       valid_doc = get_fixture('valid_multipart_pdf_attachments.blob').path
-      inspector = VBADocuments::PDFInspector.new(pdf: valid_doc)
+      inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: true)
       data = inspector.pdf_data
       expect(data).to be_a(Hash)
       expect(data.keys[0]).to eq(valid_doc)
-
       doc_hash = data[valid_doc]
-      expect(doc_hash).to have_key(:tempfile)
-      expect(doc_hash).to have_key(:total_pages)
+      has_all_keys = %i[source doc_type page_count total_documents total_pages dimensions oversized_pdf attachments].all? {|s| doc_hash.key? s}
+      expect(has_all_keys).to eq(true)
+      expect(doc_hash[:dimensions]).to be_a(Hash)
+      expect(doc_hash[:dimensions]).to have_key(:height)
+      expect(doc_hash[:dimensions]).to have_key(:width)
+      expect(doc_hash[:dimensions][:height]).to eq(8.5)
+      expect(doc_hash[:dimensions][:width]).to eq(11.0)
+      expect(doc_hash[:page_count]).to eq(1)
       expect(doc_hash[:total_pages]).to eq(2)
-      expect(data[valid_doc][:offending_pdf]).to eq(false)
+      expect(doc_hash[:total_documents]).to eq(2)
+      expect(doc_hash[:oversized_pdf]).to eq(false)
+      expect(doc_hash[:attachments]).to be_a(Array)
+      expect(doc_hash[:attachments].count).to eq(1)
+
+
+      # Load the inspector without adding the file key. This is used to save the data to the database
+      inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: false)
+      data = inspector.pdf_data
+      expect(data).not_to have_key(valid_doc)
     end
-=end
 
     it 'raises on a malformed multipart payload' do
       invalid_doc = get_fixture('invalid_multipart_no_boundary.blob').path

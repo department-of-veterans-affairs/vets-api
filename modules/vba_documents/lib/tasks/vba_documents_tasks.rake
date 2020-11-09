@@ -20,7 +20,7 @@ namespace :vba_documents do
     pdfs = []
     files.each do |f|
       begin
-        inspector = VBADocuments::PDFInspector.new(pdf: f)
+        inspector = VBADocuments::PDFInspector.new(pdf: f, add_file_key: true)
         pdfs << inspector.pdf_data
       rescue StandardError => msg
         pdfs << "The file #{f} is not a valid PDF. Error: #{msg.message}"
