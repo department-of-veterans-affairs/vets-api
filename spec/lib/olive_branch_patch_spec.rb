@@ -60,6 +60,15 @@ describe 'OliveBranchPatch', type: :request do
     expect(json['helloThere']).to eq hash[:hello_there]
   end
 
+  it 'duplicates va keys containing a colon' do
+    hash = { 'view:has_va_medical_records' => true }
+    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    json = JSON.parse(response.body)
+    expect(json.keys).to include('view:hasVaMedicalRecords', 'view:hasVAMedicalRecords')
+    expect(json['view:hasVaMedicalRecords']).to eq json['view:hasVAMedicalRecords']
+    expect(json['view:hasVAMedicalRecords']).to eq hash['view:has_va_medical_records']
+  end
+
   it 'adds a second key to data with `VA` in the key except the key uses `Va`' do
     hash = { year_va_founded: 1989 }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
