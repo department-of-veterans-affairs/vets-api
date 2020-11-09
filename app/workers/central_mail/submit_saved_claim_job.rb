@@ -25,7 +25,7 @@ module CentralMail
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
-
+      # Here you go
       response = CentralMail::Service.new.upload(create_request_body)
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
