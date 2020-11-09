@@ -43,7 +43,7 @@ RSpec.describe ApplicationController, type: :controller do
       raise Common::Exceptions::BackendServiceException, 'RX139'
     end
 
-    def common_error_with_info_sentry
+    def common_error_with_warning_sentry
       raise Common::Exceptions::BackendServiceException, 'VAOS_409A'
     end
 
@@ -69,6 +69,7 @@ RSpec.describe ApplicationController, type: :controller do
       get 'routing_error' => 'anonymous#routing_error'
       get 'forbidden' => 'anonymous#forbidden'
       get 'breakers_outage' => 'anonymous#breakers_outage'
+      get 'common_error_with_warning_sentry' => 'anonymous#common_error_with_warning_sentry'
       get 'record_not_found' => 'anonymous#record_not_found'
       get 'other_error' => 'anonymous#other_error'
       get 'client_connection_failed' => 'anonymous#client_connection_failed'
@@ -90,6 +91,12 @@ RSpec.describe ApplicationController, type: :controller do
       expect(Raven).to receive(:capture_exception).with(Pundit::NotAuthorizedError, { level: 'info' })
       expect(Raven).not_to receive(:capture_message)
       get :not_authorized
+    end
+
+    it 'does log exceptions to sentry based on level identified in exception.en.yml' do
+      expect(Raven).to receive(:capture_exception).with(Common::Exceptions::BackendServiceException, { level: 'warn' })
+      expect(Raven).not_to receive(:capture_message)
+      get :common_error_with_warning_sentry
     end
 
     it 'does not log to sentry if Breakers::OutageException' do
