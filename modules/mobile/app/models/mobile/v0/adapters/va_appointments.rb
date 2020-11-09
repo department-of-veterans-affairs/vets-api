@@ -13,14 +13,15 @@ module Mobile
           appointments_list.each do |appointment_hash|
             facilities.add(appointment_hash['facilityId']) if appointment_hash['facilityId']
             details, type = parse_by_appointment_type(appointment_hash)
-
+            
             attributes = {
               appointment_type: type,
               comment: comment(details, type),
               facility_id: appointment_hash['facilityId'],
               healthcare_service: healthcare_service(details, type),
               location: nil,
-              minutes_duration: minutes_duration(details, type)
+              minutes_duration: minutes_duration(details, type),
+              start_date: get_start_date(appointment_hash)
             }
 
             # pp appointment_hash
@@ -35,6 +36,12 @@ module Mobile
         end
 
         private
+
+        def get_start_date(appointment_hash)
+          return nil unless appointment_hash['startDate']
+          
+          Date.parse(appointment_hash['startDate'])
+        end
 
         def parse_by_appointment_type(appointment)
           if on_site?(appointment)
