@@ -2,7 +2,7 @@
 
 require 'active_support/core_ext/digest/uuid'
 require 'common/exceptions'
-
+require 'emis/mock_military_information_v2'
 module VeteranVerification
   class ServiceHistoryEpisode
     include ActiveModel::Serialization
@@ -20,7 +20,7 @@ module VeteranVerification
     attribute :separation_reason, String
 
     def self.for_user(user)
-      emis = EMISRedis::MockMilitaryInformationV2.for_user(user)
+      emis = Settings.vet_verification.mock_emis ? EMISRedis::MockMilitaryInformationV2.for_user(user) : EMISRedis::MilitaryInformationV2.for_user(user)
       handle_errors!(emis)
       episodes(emis, user)
     end
