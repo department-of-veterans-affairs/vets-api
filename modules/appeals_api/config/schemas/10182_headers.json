@@ -18,7 +18,8 @@
         "X-VA-Claimant-First-Name":     { "$ref": "#/definitions/nodCreateHeadersFirstName" },
         "X-VA-Claimant-Middle-Initial": { "$ref": "#/definitions/nodCreateHeadersMiddleInitial" },
         "X-VA-Claimant-Last-Name":      { "$ref": "#/definitions/nodCreateHeadersLastName" },
-        "X-VA-Claimant-Birth-Date":     { "$ref": "#/definitions/nodCreateHeadersBirthDate" }
+        "X-VA-Claimant-Birth-Date":     { "$ref": "#/definitions/nodCreateHeadersBirthDate" },
+        "X-Consumer-Username":          { "$ref": "#/definitions/nodCreateHeadersConsumerUsername"}
       },
       "required": [
         "X-VA-Veteran-First-Name",
@@ -75,6 +76,14 @@
     "nodCreateHeadersFileNumber": {
       "allOf": [
         { "description": "VA file number (c-file / css)" },
+        { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
+      ]
+    },
+
+
+    "nodCreateHeadersConsumerUsername": {
+      "allOf": [
+        { "description": "Consumer Username (passed from Kong)" },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },
