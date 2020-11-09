@@ -10,11 +10,7 @@ module EMIS
     # Military Information Service URL
     # @return [String] Military Information Service URL
     def base_path
-      if Settings.vet_verification.mock_emis
-        URI.join(Settings.vet_verification.mock_emis_host, Settings.emis.military_information_url.v2).to_s
-      else
-        URI.join(Settings.emis.host, Settings.emis.military_information_url.v2).to_s
-      end
+      URI.join(Settings.vet_verification.mock_emis_host, Settings.emis.military_information_url.v2).to_s
     end
   end
 end
