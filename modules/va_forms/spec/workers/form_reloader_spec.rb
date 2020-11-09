@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe VAForms::FormReloader, type: :job do
+RSpec.describe VaForms::FormReloader, type: :job do
   subject { described_class }
 
-  let(:form_reloader) { VAForms::FormReloader.new }
+  let(:form_reloader) { VaForms::FormReloader.new }
 
   before do
     Sidekiq::Worker.clear_all
@@ -14,10 +14,10 @@ RSpec.describe VAForms::FormReloader, type: :job do
   describe 'importer' do
     it 'loads the initial set of data' do
       VCR.use_cassette('va_forms/gql_forms') do
-        allow_any_instance_of(VAForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
+        allow_any_instance_of(VaForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
         expect do
           form_reloader.perform
-        end.to change(VAForms::Form, :count).by(10)
+        end.to change(VaForms::Form, :count).by(10)
       end
     end
 
@@ -31,7 +31,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
 
     it 'updates the sha256 when forms are submitted' do
       VCR.use_cassette('va_forms/stringio') do
-        form = VAForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-8599.pdf')
+        form = VaForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-8599.pdf')
         form = form_reloader.update_sha256(form)
         expect(form.valid_pdf).to eq(true)
         expect(form.sha256).to eq('f99d16fb94859065855dd71e3b253571229b31d4d46ca08064054b15207598bc')
@@ -40,7 +40,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
 
     it 'fails to update the sha256 when forms are submitted' do
       VCR.use_cassette('va_forms/fails') do
-        form = VAForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-85992.pdf')
+        form = VaForms::Form.new(url: 'http://www.vba.va.gov/pubs/forms/26-85992.pdf')
         form = form_reloader.update_sha256(form)
         expect(form.valid_pdf).to eq(false)
         expect(form.sha256).to eq(nil)
@@ -49,19 +49,19 @@ RSpec.describe VAForms::FormReloader, type: :job do
 
     it 'expands relative urls' do
       test_url = './medical/pdf/vha10-10171-fill.pdf'
-      final_url = VAForms::FormReloader.new.expand_va_url(test_url)
+      final_url = VaForms::FormReloader.new.expand_va_url(test_url)
       expect(final_url).to eq('https://www.va.gov/vaforms/medical/pdf/vha10-10171-fill.pdf')
     end
 
     describe 'date parsing checks' do
       it 'parses date when month day year' do
         date_string = '2018-7-30'
-        expect(VAForms::FormReloader.new.parse_date(date_string).to_s).to eq('2018-07-30')
+        expect(VaForms::FormReloader.new.parse_date(date_string).to_s).to eq('2018-07-30')
       end
 
       it 'parses date when month and year' do
         date_string = '07-2018'
-        expect(VAForms::FormReloader.new.parse_date(date_string).to_s).to eq('2018-07-01')
+        expect(VaForms::FormReloader.new.parse_date(date_string).to_s).to eq('2018-07-01')
       end
     end
 
@@ -72,7 +72,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
       let(:deleted_form) do
         JSON.parse(File.read(Rails.root.join('modules', 'va_forms', 'spec', 'fixtures', 'gql_form_deleted.json')))
       end
-      let(:job) { VAForms::FormReloader.new }
+      let(:job) { VaForms::FormReloader.new }
 
       before do
         @form = job.build_and_save_form(form_json)
