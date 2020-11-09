@@ -60,13 +60,13 @@ Pact.service_provider 'VA.gov API' do
   # end
 
   # # temporarily define the url or else we will get failing verification
-  honours_pact_with 'Search' do
-    pact_uri 'https://dev.va.gov/_vfs/pact-broker/verification-results/consumer/Search/version/06fd2cd3b50889580597dad0123bdb211073822e/latest',
-                         {
-                           username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
-                           password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
-                         }
-  end
+  # honours_pact_with 'Search' do
+  #   pact_uri 'https://dev.va.gov/_vfs/pact-broker/verification-results/consumer/Search/version/06fd2cd3b50889580597dad0123bdb211073822e/latest',
+  #                        {
+  #                          username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
+  #                          password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
+  #                        }
+  # end
 
   honours_pacts_from_pact_broker do
     pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker/',
