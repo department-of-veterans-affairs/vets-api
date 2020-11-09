@@ -6,7 +6,7 @@ module EMIS
   # Configuration for {EMIS::MilitaryInformationService}
   # includes API URL and breakers service name.
   #
-  class MMilitaryInfoConfig < MilitaryInformationConfigurationV2
+  class MockMilitaryInfoConfig < MilitaryInformationConfigurationV2
     # Military Information Service URL
     # @return [String] Military Information Service URL
     def base_path
