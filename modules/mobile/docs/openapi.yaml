@@ -1200,7 +1200,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PushPrefs'
+                $ref: '#/components/schemas/PushPreferences'
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1256,12 +1256,12 @@ paths:
       security:
         - Bearer: [ ]
       requestBody:
-        description: Push notification types
+        description: Push notification preferences
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PushPrefs'
+              $ref: '#/components/schemas/PushPreferences'
       responses:
         '200':
           description: OK
@@ -1488,13 +1488,13 @@ components:
             type:
               type: string
               example: "pushRegistration"
+              readOnly: true
             attributes:
               type: object
               required:
                 - deviceToken
                 - osName
                 - osVersion
-                - deviceName
               properties:
                 deviceToken:
                   type: string
@@ -1510,7 +1510,7 @@ components:
                 deviceName:
                   type: string
                   example: "Jeff's iPhone"
-    PushPrefs:
+    PushPreferences:
       required:
         - data
       properties:
@@ -1522,12 +1522,31 @@ components:
           properties:
             type:
               type: string
-              example: "pushPrefs"
+              example: "pushPreferences"
+              readOnly: true
             attributes:
               type: object
               properties:
-                appointment_reminders:
-                  type: boolean
+                pushNotificationTypes:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/PushNotificationType"
+    PushNotificationType:
+      required:
+        - key
+        - enabled
+        - displayName
+      properties:
+        key:
+          type: string
+          example: "appointment_reminders"
+        displayName:
+          type: string
+          example: "Appointment Reminders"
+          readOnly: true
+        enabled:
+          type: boolean
     PaymentInfo:
       required:
         - id
