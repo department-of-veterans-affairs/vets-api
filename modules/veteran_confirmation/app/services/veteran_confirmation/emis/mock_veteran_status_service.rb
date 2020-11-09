@@ -5,7 +5,7 @@ require 'emis/veteran_status_configuration'
 
 module EMIS
   # HTTP Client for EMIS Veteran Status Service requests.
-  class VeteranStatusService < Service
+  class MockVeteranStatusService < VeteranStatusService
     configuration EMIS::MockVeteranStatusConfig
   end
 end
