@@ -99,11 +99,14 @@ module AppealsApi
     private
 
     def name(who)
+      initial = middle_initial(who)
+      initial = "#{initial}." if initial.size.positive?
+
       [
         first_name(who),
-        middle_initial(who),
+        initial,
         last_name(who)
-      ].map(&:presence).compact.map(&:strip).join(', ')
+      ].map(&:presence).compact.map(&:strip).join(' ')
     end
 
     def first_name(who)
