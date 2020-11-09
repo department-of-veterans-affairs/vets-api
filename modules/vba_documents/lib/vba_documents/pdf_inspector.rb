@@ -42,7 +42,7 @@ module VBADocuments
 
       # check if this PDF has attachments
       attachment_names = @parts.keys.select { |k| k.match(/attachment\d+/) }
-      data[:attachments] = [] unless attachment_names.empty?
+      data[:attachments] = []
 
       attachment_names.each do |att|
         attach_content = PdfInfo::Metadata.read(@parts[att])
@@ -68,6 +68,4 @@ end
 
 =begin
 load './modules/vba_documents/lib/vba_documents/pdf_inspector.rb'
-inspector = VBADocuments::PDFInspector.new(pdf: './test_files/0d8f95d1-567a-4801-84e9-62b2fad59bef')
-inspector = VBADocuments::PDFInspector.new(pdf: './test_files/209b706f-c290-47b9-bae4-498bd44c7f3d')
 =end
