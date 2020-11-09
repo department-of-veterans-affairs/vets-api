@@ -61,15 +61,19 @@ Pact.service_provider 'VA.gov API' do
 
   # # temporarily define the url or else we will get failing verification
   honours_pact_with 'Search' do
-    pact_uri 'https://dev.va.gov/_vfs/pact-broker/pacts/provider/VA.gov%20API/consumer/Search/latest'
-  end
-
-  honours_pacts_from_pact_broker do
-    pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker/',
+    pact_uri 'https://dev.va.gov/_vfs/pact-broker/pacts/provider/VA.gov%20API/consumer/Search/latest',
                          {
                            username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
                            password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
                          }
+  end
+
+  honours_pacts_from_pact_broker do
+    # pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker/',
+    #                      {
+    #                        username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
+    #                        password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']
+    #                      }
     # # When using WIP pacts feature,
     # # it's best to turn on pending pacts so that any WIP pact failures
     # # don't cause the build to fail
