@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'emis/mock_military_information_service_v2'
 require 'emis_redis/military_information_v2'
 module EMISRedis
