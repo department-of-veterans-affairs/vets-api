@@ -22,7 +22,7 @@ module VAOS
           when 404
             raise Common::Exceptions::BackendServiceException.new('VAOS_404', response_values, @status, @body)
           when 500..510
-            error_500(@body)
+            error_500
           else
             raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, @body)
           end
