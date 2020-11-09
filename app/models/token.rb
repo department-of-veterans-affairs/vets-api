@@ -50,7 +50,7 @@ class Token
   def valid_issuer?
     decoded_token = JWT.decode(@token_string, nil, false, algorithm: 'RS256')
     iss = decoded_token[0]['iss']
-    !iss.nil? && iss.start_with?(Settings.oidc.issuer_prefix)
+    !iss.nil? && iss.match?(/^#{Regexp.escape(Settings.oidc.issuer_prefix)}\/\w+$/)
   rescue JWT::DecodeError => e
     raise error_klass(e.message)
   end
