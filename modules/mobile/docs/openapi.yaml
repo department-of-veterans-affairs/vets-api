@@ -1005,7 +1005,7 @@ paths:
                 $ref: "#/components/schemas/Errors"
   /v0/claims-and-appeals/{type}/{id}:
     get:
-      summary: /v0/{type}/{id}
+      summary: /v0/claims-and-appeals/{type}/{id}
       description: Returns details of a claim or an appeal matching the provided id and type
       operationId: index
       security:
