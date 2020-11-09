@@ -1342,7 +1342,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   end
 
   describe '#translate_bdd' do
-    today = Time.now.in_time_zone('Central Time (US & Canada)').to_date
+    let(:today) { Time.now.in_time_zone('Central Time (US & Canada)').to_date }
 
     context 'when rad date is > 180 away' do
       let(:form_content) do
