@@ -58,7 +58,7 @@ RSpec.describe BGS::Service do
   describe '#create_proc_form' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc_form') do
-        response = bgs_service.create_proc_form('21874')
+        response = bgs_service.create_proc_form('21874', '130 - Automated Dependency 686c')
 
         expect(response).to have_key(:comp_id)
       end
@@ -170,6 +170,19 @@ RSpec.describe BGS::Service do
         response = bgs_service.get_regional_office_by_zip_code('19018', 'USA', '', 'CP', '123')
 
         expect(response).to eq('310')
+      end
+    end
+  end
+
+  describe '#find_regional_offices' do
+    it 'returns a list of regional offices' do
+      VCR.use_cassette('bgs/service/find_regional_offices') do
+        response = bgs_service.find_regional_offices
+
+        expect(response).to be_an_instance_of(Array)
+        # don't want to use an exact match here
+        # in case regional offices get closed or added
+        expect(response.size).to be > 1
       end
     end
   end

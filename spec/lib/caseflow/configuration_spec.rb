@@ -19,7 +19,7 @@ describe Caseflow::Configuration do
   describe '.read_timeout' do
     context 'when Settings.mvi.timeout is set' do
       it 'uses the setting' do
-        expect(Caseflow::Configuration.instance.read_timeout).to eq(20)
+        expect(Caseflow::Configuration.instance.read_timeout).to eq(40)
       end
     end
   end
