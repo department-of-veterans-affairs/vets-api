@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-# rubocop:disable Metrics/AbcSize
 # spec/simplecov_helper.rb
 require 'active_support/inflector'
 require 'simplecov'
 
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength
 class SimpleCovHelper
   def self.report_coverage(base_dir: './coverage_results')
     SimpleCov.start 'rails' do
@@ -24,6 +24,8 @@ class SimpleCovHelper
       add_filter 'lib/search/response.rb'
       add_filter 'lib/vet360/exceptions/builder.rb'
       add_filter 'lib/vet360/response.rb'
+      add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
+      add_filter 'modules/apps_api/app/swagger'
       add_filter 'modules/apps_api/lib/tasks/create_directory_applications.rake'
       add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
       add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
@@ -71,6 +73,5 @@ class SimpleCovHelper
     end
   end
 end
-
 # rubocop:enable Metrics/AbcSize
 # rubocop:enable Metrics/MethodLength
