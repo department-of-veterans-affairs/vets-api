@@ -18,12 +18,13 @@ module VeteranVerification
       @session = Session.find(token)
       establish_session if @session.nil?
       return false if @session.nil?
-      openId = if Settings.vet_verification.mock_emis
-                 MockOpenidUser
-               else
-                 OpenidUser
-               end
-      @current_user = MockOpenidUser.find(@session.uuid)
+
+      open_id = if Settings.vet_verification.mock_emis
+                  MockOpenidUser
+                else
+                  OpenidUser
+                end
+      @current_user = open_id.find(@session.uuid)
     end
 
     def set_default_format_to_json
