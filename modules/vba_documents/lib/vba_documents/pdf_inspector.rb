@@ -7,8 +7,11 @@ module VBADocuments
   class PDFInspector
     attr_accessor :file, :pdf_data, :parts
 
-    DOC_TYPE_KEY = :doc_type
-    SOURCE_KEY = :source
+    module Constants
+      DOC_TYPE_KEY = :doc_type
+      SOURCE_KEY = :source
+    end
+    include Constants
 
     # If add_file_key is true the file is added to the returned hash as the parent key.
     # Useful for the rake task vba_documents:inspect_pdf
