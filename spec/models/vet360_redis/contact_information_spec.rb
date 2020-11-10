@@ -31,6 +31,22 @@ describe Vet360Redis::ContactInformation do
     Vet360::ContactInformation::PersonResponse.from(raw_response)
   end
 
+  context 'with a 404 from get_person', skip_vet360: true do
+    before do
+      expect(Settings.vet360.contact_information).to receive(:cache_enabled).and_return(true)
+      expect_any_instance_of(
+        Vet360::ContactInformation::Service
+      ).to receive(:get_person).once.and_return(
+        Vet360::ContactInformation::PersonResponse.new(404, person: nil)
+      )
+    end
+
+    it 'caches the empty response' do
+      expect(contact_info.email).to eq(nil)
+      expect(contact_info.home_phone).to eq(nil)
+    end
+  end
+
   describe '.new' do
     it 'creates an instance with user attributes' do
       expect(contact_info.user).to eq(user)
