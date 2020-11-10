@@ -1,15 +1,20 @@
+# frozen_string_literal: true
+
 require 'vba_documents/multipart_parser'
 require 'pdf_info'
 
 module VBADocuments
   class PDFInspector
     attr_accessor :file, :pdf_data, :parts
+
     DOC_TYPE_KEY = :doc_type
     SOURCE_KEY = :source
 
-    # If add_file_key is true the file is added to the returned hash as the parent key.  Useful for the rake task vba_documents:inspect_pdf
-    def initialize(pdf:, add_file_key:  false)
-      raise ArgumentError.new("Invalid file #{pdf}, does not exist!") unless File.exist? pdf
+    # If add_file_key is true the file is added to the returned hash as the parent key.
+    # Useful for the rake task vba_documents:inspect_pdf
+    def initialize(pdf:, add_file_key: false)
+      raise ArgumentError, "Invalid file #{pdf}, does not exist!" unless File.exist? pdf
+
       @file = pdf
       @pdf_data = inspect_pdf(add_file_key)
     end
@@ -20,52 +25,53 @@ module VBADocuments
 
     def inspect_pdf(add_file_key)
       @parts = VBADocuments::MultipartParser.parse(@file)
-      data = Hash.new
       parts_metadata = JSON.parse(@parts['metadata'])
-      source = parts_metadata['source']
-      data[SOURCE_KEY] = source
-      data[DOC_TYPE_KEY] = parts_metadata['docType'] || 'Unknown'
+
+      # instantiate the data hash and set the source and doc_type
+      data = { SOURCE_KEY => parts_metadata['source'], DOC_TYPE_KEY => parts_metadata['docType'] || 'Unknown',
+               total_documents: 0, total_pages: 0, content: {} }
 
       # read the PDF content
-      parts_content = PdfInfo::Metadata.read(@parts['content'])
-      doc_page_total = parts_content.pages
-      data[:page_count] = doc_page_total
-      data[:total_documents] = 1
-      data[:total_pages] = doc_page_total
-
-      # get the dimensions
-      doc_dim = parts_content.page_size_inches
-      doc_dim[:height] = doc_dim[:height].round(2)
-      doc_dim[:width] = doc_dim[:width].round(2)
-      data[:dimensions] = doc_dim
-      data[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
+      data[:content].merge!(read_pdf_metadata(@parts['content']))
+      data[:content][:attachments] = []
+      total_pages = data[:content][:page_count]
+      total_documents = 1
 
       # check if this PDF has attachments
       attachment_names = @parts.keys.select { |k| k.match(/attachment\d+/) }
-      data[:attachments] = []
 
       attachment_names.each do |att|
-        attach_content = PdfInfo::Metadata.read(@parts[att])
-        attach_dim = attach_content.page_size_inches
-        attach_dim[:height] = attach_dim[:height].round(2)
-        attach_dim[:width] = attach_dim[:width].round(2)
-        attach_pages = attach_content.pages
-
-        attach_data = Hash.new
-        attach_data[:page_count] = attach_pages
-        attach_data[:dimensions] = attach_dim
-        attach_data[:oversized_pdf] = attach_dim[:height] >= 21 || attach_dim[:width] >= 21
-        data[:attachments] << attach_data
-        doc_page_total += attach_pages
+        attach_data = read_pdf_metadata(@parts[att])
+        total_pages += attach_data[:page_count]
+        total_documents += 1
+        data[:content][:attachments] << attach_data
       end
-      data[:total_pages] = doc_page_total
-      data[:total_documents] = attachment_names.size + 1
-      return {@file => data} if add_file_key
+      data[:total_documents] = total_documents
+      data[:total_pages] = total_pages
+      return { @file => data } if add_file_key
+
       data
+    end
+
+    private
+
+    def read_pdf_metadata(content_key)
+      # read the PDF content
+      parts_content = PdfInfo::Metadata.read(content_key)
+      data_hash = {}
+      data_hash[:page_count] = parts_content.pages
+
+      # get and set the dimensions
+      doc_dim = round_dimensions(parts_content.page_size_inches)
+      data_hash[:dimensions] = doc_dim
+      data_hash[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
+      data_hash
+    end
+
+    def round_dimensions(dimensions)
+      { height: dimensions[:height].round(2), width: dimensions[:width].round(2) }
     end
   end
 end
 
-=begin
-load './modules/vba_documents/lib/vba_documents/pdf_inspector.rb'
-=end
+# load './modules/vba_documents/lib/vba_documents/pdf_inspector.rb'
