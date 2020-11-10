@@ -35,6 +35,11 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       expect(subject.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.primary_caregiver.icn).to eq('ABCD1234')
     end
+
+    it 'is can be set to nil' do
+      subject.primary_caregiver = nil
+      expect(subject.primary_caregiver).to eq(nil)
+    end
   end
 
   describe '#secondary_caregiver_one' do
@@ -72,9 +77,8 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       expect(subject.veteran.icn).to eq(nil)
       expect(subject.veteran.is_veteran).to eq(nil)
 
-      # Should default to empty described_class::Caregiver
-      expect(subject.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
-      expect(subject.primary_caregiver.icn).to eq(nil)
+      # Should default to nil
+      expect(subject.primary_caregiver).to eq(nil)
 
       # Should default to nil
       expect(subject.secondary_caregiver_one).to eq(nil)
@@ -132,28 +136,66 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
   end
 
   describe '#to_request_payload' do
-    describe 'can receive :to_request_payload' do
-      it 'with a minimal data set' do
-        subject = described_class.new claim_id: 123, claim_guid: 'my-uuid'
+    context 'with a minimal required data set' do
+      context 'only containing primaryCaregiver' do
+        it 'can receive :to_request_payload' do
+          subject = described_class.new(
+            claim_id: 123,
+            claim_guid: 'my-uuid',
+            primary_caregiver: {
+              icn: 'PC1234'
+            }
+          )
 
-        expect(subject.to_request_payload).to eq(
-          {
-            'claimId' => 123,
-            'claimGuid' => 'my-uuid',
-            'veteran' => {
-              'icn' => nil,
-              'isVeteran' => nil
-            },
-            'primaryCaregiver' => {
-              'icn' => nil
-            },
-            'secondaryCaregiverOne' => nil,
-            'secondaryCaregiverTwo' => nil
-          }
-        )
+          expect(subject.to_request_payload).to eq(
+            {
+              'claimId' => 123,
+              'claimGuid' => 'my-uuid',
+              'veteran' => {
+                'icn' => nil,
+                'isVeteran' => nil
+              },
+              'primaryCaregiver' => {
+                'icn' => 'PC1234'
+              },
+              'secondaryCaregiverOne' => nil,
+              'secondaryCaregiverTwo' => nil
+            }
+          )
+        end
       end
 
-      it 'with a maximum data set' do
+      context 'only containing secondaryCaregiverOne' do
+        it 'can receive :to_request_payload' do
+          subject = described_class.new(
+            claim_id: 123,
+            claim_guid: 'my-uuid',
+            secondary_caregiver_one: {
+              icn: 'SCO1234'
+            }
+          )
+
+          expect(subject.to_request_payload).to eq(
+            {
+              'claimId' => 123,
+              'claimGuid' => 'my-uuid',
+              'veteran' => {
+                'icn' => nil,
+                'isVeteran' => nil
+              },
+              'primaryCaregiver' => nil,
+              'secondaryCaregiverOne' => {
+                'icn' => 'SCO1234'
+              },
+              'secondaryCaregiverTwo' => nil
+            }
+          )
+        end
+      end
+    end
+
+    context 'with a maximum data set' do
+      it 'can receive :to_request_payload' do
         subject = described_class.new(
           claim_id: 123,
           claim_guid: 'my-uuid',

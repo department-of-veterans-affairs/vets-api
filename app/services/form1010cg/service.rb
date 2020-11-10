@@ -120,7 +120,7 @@ module Form1010cg
     #     is_veteran: true | false | nil,
     #     icn: String | nil
     #   },
-    #   primaryCaregiver: { icn: String | nil },
+    #   primaryCaregiver?: { icn: String | nil },
     #   secondaryCaregiverOne?: { icn: String | nil },
     #   secondaryCaregiverTwo?: { icn: String | nil }
     # }
