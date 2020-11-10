@@ -38,19 +38,30 @@ RSpec.describe VBADocuments::MultipartParser do
       expect(data).to be_a(Hash)
       expect(data.keys[0]).to eq(valid_doc)
       doc_hash = data[valid_doc]
-      has_all_keys = %i[source doc_type page_count total_documents total_pages dimensions oversized_pdf attachments].all? {|s| doc_hash.key? s}
+      pdf_keys = %i[source doc_type total_documents total_pages content]
+      has_all_keys = pdf_keys.all? { |s| doc_hash.key? s }
       expect(has_all_keys).to eq(true)
-      expect(doc_hash[:dimensions]).to be_a(Hash)
-      expect(doc_hash[:dimensions]).to have_key(:height)
-      expect(doc_hash[:dimensions]).to have_key(:width)
-      expect(doc_hash[:dimensions][:height]).to eq(8.5)
-      expect(doc_hash[:dimensions][:width]).to eq(11.0)
-      expect(doc_hash[:page_count]).to eq(1)
+      
+      # check content keys
+      content_keys = %i[page_count dimensions oversized_pdf attachments]
+      has_all_keys = content_keys.all? { |s| doc_hash[:content].key? s }
+      expect(has_all_keys).to eq(true)
+
+      # validate content data
+      content_hash = doc_hash[:content]
+      expect(content_hash[:dimensions]).to be_a(Hash)
+      expect(content_hash[:dimensions]).to have_key(:height)
+      expect(content_hash[:dimensions]).to have_key(:width)
+      expect(content_hash[:dimensions][:height]).to eq(8.5)
+      expect(content_hash[:dimensions][:width]).to eq(11.0)
+      expect(content_hash[:page_count]).to eq(1)
+      expect(content_hash[:oversized_pdf]).to eq(false)
+      expect(content_hash[:attachments]).to be_a(Array)
+      expect(content_hash[:attachments].count).to eq(1)
+
+      # validate total pages and documents
       expect(doc_hash[:total_pages]).to eq(2)
       expect(doc_hash[:total_documents]).to eq(2)
-      expect(doc_hash[:oversized_pdf]).to eq(false)
-      expect(doc_hash[:attachments]).to be_a(Array)
-      expect(doc_hash[:attachments].count).to eq(1)
 
       # Load the inspector without adding the file key. This is used to save the data to the database
       inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: false)
