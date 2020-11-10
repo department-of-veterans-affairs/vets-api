@@ -34,16 +34,18 @@ RSpec.describe Form526Submission do
   describe '#start_but_use_a_birls_id_that_hasnt_been_tried_yet' do
     before do
       Sidekiq::Worker.clear_all
-      #allow_any_instance_of(MVI::Responses::IdParser).to receive(:birls_ids).and_return(%w[a b c])
-      allow_any_instance_of(Form526Submission).to receive(:user_identity).and_return(OpenStruct.new mhv_icn: '62788312892276600', dslogon_edipi: '5521609171')
+      Settings.mvi.edipi_search = true
     end
 
     context 'when it is all claims' do
       it 'queues an all claims job' do
-        VCR.use_cassette('mpi/find_candidate/valid') do
+        VCR.use_cassette('mpi/find_candidate/multiple_birls') do
+          first_birls = subject.send :birls_id
           expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet }.to(
             change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
           )
+          second_birls = subject.send :birls_id
+          expect(second_birls).not_to eq first_birls
         end
       end
     end
@@ -353,6 +355,127 @@ RSpec.describe Form526Submission do
           subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
         end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
       end
+    end
+  end
+
+  describe '#mark_current_birls_id_as_tried' do
+    subject do
+      headers = JSON.parse auth_headers.to_json
+      headers['va_eauth_birlsfilenumber'] = birls_id
+      Form526Submission.new(
+        user_uuid: user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: headers.to_json,
+        form_json: form_json,
+        birls_ids_tried: birls_ids_tried
+      )
+    end
+
+    let(:birls_id) { 'a' }
+
+    context 'nil birls_ids_tried' do
+      let(:birls_ids_tried) { nil }
+
+      it 'adds the current BIRLS ID to birls_ids_tried array (turns birls_ids_tried into an array if nil)' do
+        expect(subject.birls_ids_tried).to eq birls_ids_tried
+        subject.send(:mark_current_birls_id_as_tried)
+        expect(subject.birls_ids_tried).to eq ['a']
+      end
+
+      it 'adding the current BIRLS ID to birls_ids_tried is marshaled/unmarshaled correctly' do
+        subject.save
+        expect(subject.birls_ids_tried).to eq birls_ids_tried
+        subject.send(:mark_current_birls_id_as_tried)
+        subject.save
+        expect(subject.birls_ids_tried).to eq ['a']
+      end
+    end
+
+    context 'previous attempts' do
+      let(:birls_ids_tried) { ['b'] }
+
+      it 'adds the current BIRLS ID to birls_ids_tried array (turns birls_ids_tried into an array if nil)' do
+        expect(subject.birls_ids_tried).to eq birls_ids_tried
+        subject.send(:mark_current_birls_id_as_tried)
+        expect(subject.birls_ids_tried).to match_array [birls_id, *birls_ids_tried]
+      end
+    end
+  end
+
+  describe '#birls_ids_that_havent_been_tried_yet' do
+    subject do
+      Form526Submission.new(
+        user_uuid: user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: auth_headers.to_json,
+        form_json: form_json,
+        birls_ids_tried: birls_ids_tried
+      )
+    end
+
+    before { Settings.mvi.edipi_search = true }
+
+    let(:birls_ids_tried) { ['a'] }
+
+    it 'does not include birls ids that have already been tried' do
+      VCR.use_cassette('mpi/find_candidate/multiple_birls') do
+        expect(subject.send(:birls_ids_that_havent_been_tried_yet)).not_to include 'a'
+      end
+    end
+  end
+
+  describe '#all_birls_ids_for_veteran' do
+    before { Settings.mvi.edipi_search = true }
+
+    it 'returns all BIRLS IDs for the veteran' do
+      VCR.use_cassette('mpi/find_candidate/multiple_birls') do
+        expect(subject.send(:all_birls_ids_for_veteran).length).to be > 1
+      end
+    end
+  end
+
+  describe '#mvi_profile' do
+    before { Settings.mvi.edipi_search = true }
+
+    it 'looks up the veteran' do
+      VCR.use_cassette('mpi/find_candidate/valid') do
+        expect(subject.send(:mvi_profile)).to be_truthy
+      end
+    end
+  end
+
+  describe '#edipi' do
+    it('returns the edipi') { expect(subject.send(:edipi)).to be_truthy }
+
+    context 'no auth_headers' do
+      it('returns nil') { expect(Form526Submission.new.send(:edipi)).to be_nil }
+    end
+  end
+
+  describe '#birls_id' do
+    it('returns the birls_id') { expect(subject.send(:birls_id)).to be_truthy }
+
+    context 'no auth_headers' do
+      it('returns nil') { expect(Form526Submission.new.send(:birls_id)).to be_nil }
+    end
+  end
+
+  describe '#icn' do
+    it 'returns the icn by looking up the account' do
+      icn = '1234433455'
+      create :account, edipi: subject.send(:edipi), icn: icn
+      expect(subject.send(:icn)).to eq(icn)
+    end
+
+    it 'returns an icn even if multiple accounts match (as long as they all have the same icn)' do
+      icn = '1234433455'
+      create_list :account, 2, edipi: subject.send(:edipi), icn: icn
+      expect(subject.send(:icn)).to eq(icn)
+    end
+
+    it 'throws an error when multiple unique icns are found for the edipi' do
+      2.times { |i| create :account, edipi: subject.send(:edipi), icn: i }
+      expect { subject.send(:icn) }.to raise_error Form526Submission::Error
     end
   end
 end

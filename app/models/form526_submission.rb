@@ -236,11 +236,11 @@ class Form526Submission < ApplicationRecord
   end
 
   def edipi
-    auth_headers&.dig 'va_eauth_dodedipnid'
+    auth_headers['va_eauth_dodedipnid'] if auth_headers_json
   end
 
   def birls_id
-    auth_headers&.dig 'va_eauth_birlsfilenumber'
+    auth_headers['va_eauth_birlsfilenumber'] if auth_headers_json
   end
 
   def birls_id=(value)
