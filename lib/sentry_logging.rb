@@ -38,7 +38,7 @@ module SentryLogging
             elsif exception.is_a?(Common::Exceptions::BaseError)
               exception.sentry_type.to_s
             else
-              level
+              level.to_s
             end
 
     return 'warning' if level == 'warn'
