@@ -25,6 +25,7 @@ class SavedClaim::DependencyClaim < SavedClaim
     report_divorce
     add_child
     report_stepchild_not_in_household
+    report_marriage_of_child_under18
     child_marriage
     not_attending_school
     add_spouse

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VAForms
+module VaForms
   module V0
     class ControllerSwagger
       include Swagger::Blocks
@@ -30,7 +30,7 @@ module VAForms
           end
 
           response 200 do
-            key :description, 'VAForms index response'
+            key :description, 'VaForms index response'
             content 'application/json' do
               schema do
                 key :type, :object
