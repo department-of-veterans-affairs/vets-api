@@ -2,6 +2,7 @@
 
 require 'ostruct'
 require 'emis/veteran_status_service'
+
 module VeteranConfirmation
   class StatusService
     CONFIRMED = 'confirmed'
