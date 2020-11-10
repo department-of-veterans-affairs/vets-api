@@ -41,7 +41,7 @@ RSpec.describe VBADocuments::MultipartParser do
       pdf_keys = %i[source doc_type total_documents total_pages content]
       has_all_keys = pdf_keys.all? { |s| doc_hash.key? s }
       expect(has_all_keys).to eq(true)
-      
+
       # check content keys
       content_keys = %i[page_count dimensions oversized_pdf attachments]
       has_all_keys = content_keys.all? { |s| doc_hash[:content].key? s }

@@ -23,6 +23,12 @@ AppealsApi::Engine.routes.draw do
       namespace :notice_of_disagreements do
         get 'contestable_issues', to: 'contestable_issues#index'
       end
+      resources :notice_of_disagreements, only: %i[] do
+        collection do
+          get 'schema', to: 'notice_of_disagreements#schema'
+          post 'validate', to: 'notice_of_disagreements#validate'
+        end
+      end
     end
   end
   namespace :docs do

@@ -8,5 +8,6 @@
   "X-VA-Claimant-First-Name": "Maria",
   "X-VA-Claimant-Middle-Initial": "A",
   "X-VA-Claimant-Last-Name": "Garcia",
-  "X-VA-Claimant-Birth-Date": "1970-01-01"
+  "X-VA-Claimant-Birth-Date": "1970-01-01",
+  "X-Consumer-Username": "va.gov"
 }
