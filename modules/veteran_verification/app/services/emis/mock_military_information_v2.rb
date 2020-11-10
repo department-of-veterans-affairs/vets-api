@@ -5,7 +5,8 @@ require 'emis_redis/military_information_v2'
 module EMISRedis
   class MockMilitaryInformationV2 < MilitaryInformationV2
     def service
-      @service ||= EMIS::MockMilitaryInfoServiceV2.new
+      military_info_service_v2 = EMIS::MockMilitaryInfoServiceV2.new
+      @service ||= military_info_service_v2
     end
   end
 end
