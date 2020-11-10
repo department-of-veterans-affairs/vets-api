@@ -1,8 +1,8 @@
 <% if RequestStore.store[:flipper_user_email_for_log].present? || Rails.env.development? %>
 
   <% actor_type = FLIPPER_FEATURE_CONFIG['features'].dig(feature_name, 'actor_type')%>
-  <% actor_name = actor_type == FLIPPER_ACTOR_STRING ? 'Google Analytics Users' : 'Logged in Users'  %>
-  <% actor_id_name = actor_type == FLIPPER_ACTOR_STRING ? 'Google Analytics ID' : "email address associated with their login"%>
+  <% actor_name = actor_type == FLIPPER_ACTOR_STRING ? 'FLIPPER_ID cookie' : 'Logged in Users'  %>
+  <% actor_id_name = actor_type == FLIPPER_ACTOR_STRING ? 'ID from FLIPPER_ID cookie' : "email address associated with their login"%>
 
   <% if params.key?("error") %>
     <div class="alert alert-danger">
@@ -200,27 +200,6 @@
         </div>
       </div>
     </div>
-
-    <% if Flipper::UI.configuration.feature_removal_enabled %>
-    <div class="vads-l-row">
-      <div class="vads-l-col">
-        <div class="usa-alert usa-alert-warning vads-u-margin-bottom--5">
-          <div class="usa-alert-body">
-            <h4 class="usa-alert-heading"><%= Flipper::UI.configuration.delete.title %></h4>
-            <p>
-              <%= Flipper::UI.configuration.delete.description %>
-            </p>
-
-            <form action="<%= script_name %>/features/<%= @feature.key %>" method="post" onsubmit="return confirm('Are you sure you want to remove this feature from the list of features and disable it for everyone?')" class="usa-form">
-              <%== csrf_input_tag %>
-              <input type="hidden" name="_method" value="DELETE">
-              <button type="submit" name="action" value="Delete" class="vads-u-background-color--secondary vads-u-width--auto vads-u-margin--0 vads-u-margin-top--1" title="Remove feature from list of features and disable it.">Delete feature</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-    <% end %>
   </div>
 <% else %>
   <a href ="<%= SAML::URLService::VIRTUAL_HOST_MAPPINGS.dig(request.base_url, :base_redirect) %>">Sign in</a> with an identity-verified admin account to edit feature toggles.
