@@ -5,7 +5,7 @@ require 'dmc/debt_letter_downloader'
 def stub_debt_letters(method)
   let!(:letter_downloader) do
     letter_downloader = double
-    expect(Debts::LetterDownloader).to receive(:new).and_return(letter_downloader)
+    expect(DMC::DebtLetterDownloader).to receive(:new).and_return(letter_downloader)
     letter_downloader
   end
 
