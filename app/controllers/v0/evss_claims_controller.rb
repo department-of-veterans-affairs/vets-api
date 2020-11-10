@@ -40,9 +40,8 @@ module V0
 
     private
 
-    def skip_sentry_exception?(exception)
-      return true if exception.is_a?(Common::Exceptions::BackendServiceException)
-      super
+    def skip_sentry_exception_types
+      super + [Common::Exceptions::BackendServiceException]
     end
 
     def service

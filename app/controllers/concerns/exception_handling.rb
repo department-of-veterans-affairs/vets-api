@@ -6,10 +6,20 @@ require 'common/client/errors'
 module ExceptionHandling
   extend ActiveSupport::Concern
 
+  # In addition to Common::Exceptions::BackendServiceException that have sentry_type :none the following exceptions
+  # will also be skipped.
+  SKIP_SENTRY_EXCEPTION_TYPES = [
+    Breakers::OutageException
+  ]
+
   private
 
+  def skip_sentry_exception_types
+    SKIP_SENTRY_EXCEPTION_TYPES
+  end
+
   def skip_sentry_exception?(exception)
-    return true if exception.is_a?(Breakers::OutageException)
+    return true if exception.class.in?(skip_sentry_exception_types)
 
     exception.respond_to?(:sentry_type) && !exception.log_to_sentry?
   end
