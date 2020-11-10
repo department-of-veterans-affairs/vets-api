@@ -10,10 +10,21 @@ vcr_options = {
 }
 
 RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vcr: vcr_options do
-  [0, 1].each do |client_version|
-    context "Facilities::PPMS::V#{client_version}::Client" do
+  [ [ 0, false ], [ 1, false ], [ 1, true ] ].each do |(client_version, skip_round_trips)|
+    context "Facilities::PPMS::V#{client_version}::Client, Skip Extra Round Trips [#{skip_round_trips}]" do
       before do
         Flipper.enable(:facility_locator_ppms_use_v1_client, client_version == 1)
+        Flipper.enable(:facility_locator_ppms_skip_additional_round_trips, skip_round_trips)
+      end
+
+      let(:sha256) do
+        if Flipper.enabled?(:facility_locator_ppms_skip_additional_round_trips)
+          'bd2b84cc5c0aa3676090eacde32e99c7d668388e5fc5440e3c582aef419fc398'
+        elsif Flipper.enabled?(:facility_locator_ppms_use_v1_client)
+          'bd2b84cc5c0aa3676090eacde32e99c7d668388e5fc5440e3c582aef419fc398'
+        else
+          'b15b6aeb98d75d1fe64450c412483f9e38d3245a875e071c13ccb6bf44415f4a'
+        end
       end
 
       describe '#index' do
@@ -31,39 +42,36 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             get '/v1/facilities/ccp', params: params
 
             bod = JSON.parse(response.body)
-            expect(bod).to include(
-              'data' => [
-                {
-                  'id' => '1407842941',
-                  'type' => 'provider',
-                  'attributes' => {
-                    'acc_new_patients' => 'true',
-                    'address' => {
-                      'street' => '3195 S Price Rd Ste 148',
-                      'city' => 'Chandler',
-                      'state' => 'AZ',
-                      'zip' => '85248'
-                    },
-                    'caresite_phone' => '4807057300',
-                    'email' => nil,
-                    'fax' => nil,
-                    'gender' => 'Male',
-                    'lat' => 33.258135,
-                    'long' => -111.887927,
-                    'name' => 'Freed, Lewis',
-                    'phone' => nil,
-                    'pos_codes' => nil,
-                    'pref_contact' => nil,
-                    'unique_id' => '1407842941'
+            expect(bod['data'][0]).to include(
+              {
+                'id' => '1407842941',
+                'type' => 'provider',
+                'attributes' => {
+                  'acc_new_patients' => 'true',
+                  'address' => {
+                    'street' => '3195 S Price Rd Ste 148',
+                    'city' => 'Chandler',
+                    'state' => 'AZ',
+                    'zip' => '85248'
                   },
-                  'relationships' => {
-                    'specialties' => {
-                      'data' => []
-                    }
+                  'caresite_phone' => '4807057300',
+                  'email' => nil,
+                  'fax' => nil,
+                  'gender' => 'Male',
+                  'lat' => 33.258135,
+                  'long' => -111.887927,
+                  'name' => 'Lewis H Freed DPM PC',
+                  'phone' => nil,
+                  'pos_codes' => nil,
+                  'pref_contact' => nil,
+                  'unique_id' => '1407842941'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
                   }
                 }
-              ],
-              'included' => []
+              }
             )
           end
         end
@@ -93,13 +101,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
               bod = JSON.parse(response.body)
 
-              sha256 = if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
-                         '104ecb200e22dfd96f759bcdd27c6c174ee35c02394bc4d199aaccb51d8486f3'
-                       else
-                         '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41'
-                       end
-
-              expect(bod['data']).to include(
+              expect(bod['data'][0]).to include(
                 {
                   'id' => sha256,
                   'type' => 'provider',
@@ -145,13 +147,15 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               )
             )
 
-            expect(StatsD).to receive(:measure).with(
-              'facilities.ppms.providers',
-              kind_of(Numeric),
-              hash_including(
-                tags: ['facilities.ppms']
-              )
-            ).exactly(7).times
+            unless skip_round_trips
+              expect(StatsD).to receive(:measure).with(
+                'facilities.ppms.providers',
+                kind_of(Numeric),
+                hash_including(
+                  tags: ['facilities.ppms']
+                )
+              ).exactly(7).times
+            end
 
             expect do
               get '/v1/facilities/ccp', params: params
@@ -183,7 +187,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                 )
               when 1
                 client = Facilities::PPMS::V1::Client.new
-
                 expect(Facilities::PPMS::V1::Client).to receive(:new).and_return(client)
                 expect(client).to receive(:provider_locator).and_return(
                   Facilities::PPMS::V1::Response.new(
@@ -211,7 +214,49 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             end
           end
 
-          it 'returns a results from the provider_locator' do
+          if skip_round_trips
+            it 'returns a results from the provider_locator' do
+            get '/v1/facilities/ccp', params: params
+
+            bod = JSON.parse(response.body)
+
+            expect(bod['data']).to include(
+              {
+                'id' => '1386050060',
+                'type' => 'provider',
+                'attributes' => {
+                  'acc_new_patients' => 'true',
+                  'address' => {
+                    'street' => '1831 E Queen Creek Rd Ste 119',
+                    'city' => 'Chandler',
+                    'state' => 'AZ',
+                    'zip' => '85286'
+                  },
+                  'caresite_phone' => '4809172300',
+                  'email' => nil,
+                  'fax' => nil,
+                  'gender' => 'Male',
+                  'lat' => 33.262403,
+                  'long' => -111.808538,
+                  'name' => 'OBryant, Steven',
+                  'phone' => nil,
+                  'pos_codes' => nil,
+                  'pref_contact' => nil,
+                  'unique_id' => '1386050060'
+                },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
+                }
+              }
+            )
+            expect(bod['included']).to match([])
+
+            expect(response).to be_successful
+          end
+          else
+            it 'returns a results from the provider_locator' do
             get '/v1/facilities/ccp', params: params
 
             bod = JSON.parse(response.body)
@@ -274,6 +319,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             expect(response).to be_successful
           end
+          end
+
         end
 
         context 'type=pharmacy' do
@@ -284,6 +331,51 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               type: 'pharmacy'
             }
           end
+
+          if skip_round_trips
+
+          it 'returns results from the pos_locator' do
+            get '/v1/facilities/ccp', params: params
+
+            bod = JSON.parse(response.body)
+            expect(bod['data']).to include(
+              {
+                'id' => '1972660348',
+                'type' => 'provider',
+                'attributes' =>
+                 {
+                   'acc_new_patients' => 'false',
+                   'address' => {
+                     'street' => '2750 E GERMANN RD',
+                     'city' => 'CHANDLER',
+                     'state' => 'AZ',
+                     'zip' => '85249'
+                   },
+                   'caresite_phone' => '4808122942',
+                   'email' => nil,
+                   'fax' => nil,
+                   'gender' => 'NotSpecified',
+                   'lat' => 33.281291,
+                   'long' => -111.793486,
+                   'name' => 'WAL-MART',
+                   'phone' => nil,
+                   'pos_codes' => nil,
+                   'pref_contact' => nil,
+                   'unique_id' => '1972660348'
+                 },
+                'relationships' => {
+                  'specialties' => {
+                    'data' => []
+                  }
+                }
+              }
+            )
+            
+            expect(bod['included']).to match([])
+            expect(response).to be_successful
+          end
+
+          else
 
           it 'returns results from the pos_locator' do
             get '/v1/facilities/ccp', params: params
@@ -348,6 +440,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             )
             expect(response).to be_successful
           end
+
+          end
         end
 
         context 'type=urgent_care' do
@@ -364,12 +458,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             get '/v1/facilities/ccp', params: params
 
             bod = JSON.parse(response.body)
-
-            sha256 = if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
-                       '104ecb200e22dfd96f759bcdd27c6c174ee35c02394bc4d199aaccb51d8486f3'
-                     else
-                       '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41'
-                     end
 
             expect(bod['data']).to include(
               {
