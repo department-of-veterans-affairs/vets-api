@@ -17,9 +17,8 @@ module SentryLogging
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
-    level = exception.sentry_type if exception.is_a?(Common::Exceptions::BaseError)
-    level = normalize_level(level)
-    return if level == 'none'
+    level = normalize_level(level, exception)
+
     if Settings.sentry.dsn.present?
       set_raven_metadata(extra_context, tags_context)
       Raven.capture_exception(exception.cause.presence || exception, level: level)
@@ -35,10 +34,17 @@ module SentryLogging
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
 
-  def normalize_level(level)
+  def normalize_level(level, exception = nil)
     # https://docs.sentry.io/clients/ruby/usage/
     # valid raven levels: debug, info, warning, error, fatal
-    level = level.to_s
+    level = if exception.is_a?(Pundit::NotAuthorizedError)
+              'info'
+            elsif exception.kind_of?(Common::Exceptions::BaseError)
+              exception.sentry_type.to_s
+            else
+              level
+            end
+
     return 'warning' if level == 'warn'
 
     level

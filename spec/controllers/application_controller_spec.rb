@@ -94,7 +94,10 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     it 'does log exceptions to sentry based on level identified in exception.en.yml' do
-      expect(Raven).to receive(:capture_exception).with(Common::Exceptions::BackendServiceException, { level: 'warn' })
+      expect(Raven).to receive(:capture_exception).with(
+        Common::Exceptions::BackendServiceException,
+        { level: 'warning' }
+      )
       expect(Raven).not_to receive(:capture_message)
       get :common_error_with_warning_sentry
     end
