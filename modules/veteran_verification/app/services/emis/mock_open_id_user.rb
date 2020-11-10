@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'models/openid_user'
 require 'emis/mock_veteran_status'
+
 class MockOpenidUser < OpenidUser
   redis_store REDIS_CONFIG[:openid_user_store][:namespace]
   redis_ttl REDIS_CONFIG[:openid_user_store][:each_ttl]
