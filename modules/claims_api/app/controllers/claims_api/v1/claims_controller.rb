@@ -25,6 +25,10 @@ module ClaimsApi
       def show
         super
       end
+
+      def fetch_aud
+        Settings.oidc.isolated_audience.claims
+      end
     end
   end
 end
