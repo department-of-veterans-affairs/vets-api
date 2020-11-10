@@ -10,6 +10,7 @@ module ExceptionHandling
 
   def skip_sentry_exception?(exception)
     return true if exception.is_a?(Breakers::OutageException)
+
     exception.respond_to?(:sentry_type) && !exception.log_to_sentry?
   end
 

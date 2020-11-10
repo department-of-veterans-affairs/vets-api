@@ -14,8 +14,6 @@ module SentryLogging
     end
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
   def log_exception_to_sentry(exception, extra_context = {}, tags_context = {}, level = 'error')
     level = normalize_level(level, exception)
 
@@ -31,15 +29,13 @@ module SentryLogging
     end
     rails_logger(level, exception.backtrace.join("\n")) unless exception.backtrace.nil?
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/PerceivedComplexity
 
   def normalize_level(level, exception = nil)
     # https://docs.sentry.io/clients/ruby/usage/
     # valid raven levels: debug, info, warning, error, fatal
     level = if exception.is_a?(Pundit::NotAuthorizedError)
               'info'
-            elsif exception.kind_of?(Common::Exceptions::BaseError)
+            elsif exception.is_a?(Common::Exceptions::BaseError)
               exception.sentry_type.to_s
             else
               level
