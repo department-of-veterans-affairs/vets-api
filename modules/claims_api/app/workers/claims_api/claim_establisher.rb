@@ -20,6 +20,9 @@ module ClaimsApi
       auto_claim.evss_id = response.claim_id
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
       auto_claim.save
+
+      flashes = auto_claim.form_data.dig('veteran', 'flashes')
+      ClaimsApi::FlashUpdater(bgs_user(auth_headers), flashes) if flashes.present?
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
@@ -44,6 +47,21 @@ module ClaimsApi
           auth_headers
         )
       end
+    end
+
+    def bgs_user(auth_headers)
+      user = OpenStruct.new(ssn: auth_headers['va_eauth_pnid'],
+                                   uuid: nil,
+                                   email: nil,
+                                   icn: nil,
+                                   common_name: nil)
+      return user unless auth_headers['va_bgs_authorization'].present?
+
+      bgs_auth_headers = JSON.parse(auth_headers['va_bgs_authorization'])
+      user.uuid = bgs_auth_headers['external_uid']
+      user.email = bgs_auth_headers['external_key']
+
+      user
     end
   end
 end
