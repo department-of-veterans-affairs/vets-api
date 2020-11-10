@@ -17,14 +17,4 @@ class MockOpenidUser < OpenidUser
       emis_model
     end
   end
-
-  def identity
-    @identity ||= OpenidUserIdentity.find(uuid)
-  end
-
-  def self.build_from_identity(identity:, ttl:)
-    user = new(identity.attributes)
-    user.expire(ttl)
-    user
-  end
 end
