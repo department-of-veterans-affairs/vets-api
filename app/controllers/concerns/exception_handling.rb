@@ -10,7 +10,7 @@ module ExceptionHandling
   # will also be skipped.
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Breakers::OutageException
-  ]
+  ].freeze
 
   private
 
