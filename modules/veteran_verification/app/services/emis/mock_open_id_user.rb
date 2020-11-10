@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require '/home/luke/Repositories/vets-api/app/models/openid_user'
+require 'models/openid_user'
 require 'emis/mock_veteran_status'
 class MockOpenidUser < OpenidUser
   redis_store REDIS_CONFIG[:openid_user_store][:namespace]
