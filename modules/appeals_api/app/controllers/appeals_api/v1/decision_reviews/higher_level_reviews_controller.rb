@@ -5,7 +5,7 @@ require 'appeals_api/form_schemas'
 require_dependency 'appeals_api/concerns/json_format_validation'
 
 class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi::ApplicationController
-  include AppealsApi::JsonFormatValidation
+  include AppealsApi::Concerns::JsonFormatValidation
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }

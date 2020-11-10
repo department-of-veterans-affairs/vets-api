@@ -4,7 +4,7 @@ require 'appeals_api/form_schemas'
 require_dependency 'appeals_api/concerns/json_format_validation'
 
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
-  include AppealsApi::JsonFormatValidation
+  include AppealsApi::Concerns::JsonFormatValidation
 
   FORM_NUMBER = '10182'
 
