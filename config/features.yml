@@ -301,3 +301,8 @@ features:
     enable_in_development: true
     description: >
       Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
+  feedback_tool_ssn_removal:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Remove the SSN field from the feedback tool
