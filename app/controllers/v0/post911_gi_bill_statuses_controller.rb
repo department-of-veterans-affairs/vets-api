@@ -88,8 +88,9 @@ module V0
       Time.parse(user.va_profile.birth_date).iso8601
     end
 
-    def skip_sentry_exception_types
-      super + [EVSS::GiBillStatus::OutsideWorkingHours]
+    def skip_sentry_exception?(exception)
+      return true if exception.is_a?(EVSS::GiBillStatus::OutsideWorkingHours)
+      super
     end
 
     def service
