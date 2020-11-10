@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'rake'
 require_relative '../../../lib/apps_api/directory_application_creator'
 
 module AppsApi
