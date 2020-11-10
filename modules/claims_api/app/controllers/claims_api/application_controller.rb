@@ -22,6 +22,10 @@ module ClaimsApi
              status: :not_found
     end
 
+    def fetch_aud
+      Settings.oidc.isolated_audience.claims
+    end
+
     private
 
     def find_claim
