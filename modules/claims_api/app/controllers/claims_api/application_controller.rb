@@ -133,5 +133,15 @@ module ClaimsApi
       vet.participant_id = header('X-VA-PID') || vet.mpi.profile&.participant_id
       vet
     end
+
+    def authenticate_token
+      super
+    rescue => e
+      log_message_to_sentry('Authentication Error in claims',
+                            :warning,
+                            body: e.message)
+      render json: { errors: [{ status: 401, detail: 'User not a valid or authorized Veteran for this end point.' }] },
+             status: :unauthorized
+    end
   end
 end
