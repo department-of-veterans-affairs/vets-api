@@ -3,7 +3,6 @@
 require 'emis/military_information_service_v2'
 require 'emis/mock_military_information_configuration_v2'
 module EMIS
-  # HTTP Client for EMIS Military Information Service requests.
   class MockMilitaryInfoServiceV2 < MilitaryInformationServiceV2
     configuration EMIS::MockMilitaryInfoConfig
   end
