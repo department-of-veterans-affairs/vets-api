@@ -21,7 +21,7 @@ module Mobile
             formatted_entries.push(formatted_appeal[:data])
           end
         end
-        formatted_entries = formatted_entries.sort_by{|entry| entry[:attributes][:date_filed]}.reverse!
+        formatted_entries = formatted_entries.sort_by { |entry| entry[:attributes][:date_filed] }.reverse!
         resource = OverviewStruct.new(id, formatted_entries)
         super(resource, options)
       end

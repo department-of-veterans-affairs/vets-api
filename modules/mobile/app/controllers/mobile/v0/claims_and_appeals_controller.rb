@@ -10,8 +10,8 @@ module Mobile
       before_action { authorize :evss, :access? }
 
       def index
-        all_claims_lambda = lambda { claims_service.all[0] }
-        all_appeals_lambda = lambda { appeals_service.get_appeals(@current_user).body['data'] }
+        all_claims_lambda = -> { claims_service.all[0] }
+        all_appeals_lambda = -> { appeals_service.get_appeals(@current_user).body['data'] }
         # results = Parallel.map([all_appeals_lambda, all_claims_lambda], in_threads: 8) do |current_lambda|
         #   current_lambda.call
         # end

@@ -8,8 +8,9 @@ RSpec.describe 'claims and appeals overview', type: :request do
   include JsonSchemaMatchers
 
   describe 'GET /v0/claims-and-appeals-overview' do
-    context '#index (all user claims) is polled' do
+    describe '#index (all user claims) is polled' do
       before { iam_sign_in }
+
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
         VCR.use_cassette('evss/claims/claims') do
           VCR.use_cassette('caseflow/appeals') do
@@ -31,7 +32,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
       end
     end
 
-    context '#index is polled without user sign in' do
+    describe '#index is polled without user sign in' do
       it 'and not user returns a 500 status' do
         VCR.use_cassette('evss/claims/claims') do
           VCR.use_cassette('caseflow/appeals') do
@@ -41,6 +42,5 @@ RSpec.describe 'claims and appeals overview', type: :request do
         end
       end
     end
-    
   end
 end
