@@ -14,7 +14,6 @@ RSpec.describe DMC::FSRService do
       it 'accepts the submission' do
         VCR.use_cassette('dmc/submit_fsr') do
           service = described_class.new
-          byebug
           res = service.submit_financial_status_report(valid_form_data)
           expect(res.status).to eq('Document created successfully and uploaded to File Net.')
         end

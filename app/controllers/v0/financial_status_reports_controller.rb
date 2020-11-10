@@ -32,6 +32,7 @@ module V0
       %i[name amount]
     end
 
+    # rubocop:disable Metrics/MethodLength
     def fsr_form
       params.permit(
         personal_identification: %i[fsr_reason ssn file_number],
@@ -118,6 +119,7 @@ module V0
         ]
       ).to_hash
     end
+    # rubocop:enable Metrics/MethodLength
 
     def service
       DMC::FSRService.new
