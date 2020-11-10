@@ -140,6 +140,29 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
+      describe 'flashes' do
+        context 'when an incorrect type is passed for flashes' do
+          it 'returns errors explaining the failure' do
+            params = json_data
+            params['data']['attributes']['veteran']['flashes'] = ['invalidType']
+            post path, params: params.to_json, headers: headers
+            expect(response.status).to eq(422)
+            expect(JSON.parse(response.body)['errors'].size).to eq(1)
+          end
+        end
+
+        context 'when correct types are passed for flashes' do
+          it 'returns a successful status' do
+            VCR.use_cassette('evss/claims/claims') do
+              params = json_data
+              params['data']['attributes']['veteran']['flashes'] = %w[Hardship POW]
+              post path, params: params.to_json, headers: headers
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+      end
+
       it 'requires international postal code when address type is international' do
         params = json_data
         mailing_address = params['data']['attributes']['veteran']['currentMailingAddress']

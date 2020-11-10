@@ -25,6 +25,7 @@ class SavedClaim::DependencyClaim < SavedClaim
     report_divorce
     add_child
     report_stepchild_not_in_household
+    report_marriage_of_child_under18
     child_marriage
     not_attending_school
     add_spouse
@@ -91,7 +92,7 @@ class SavedClaim::DependencyClaim < SavedClaim
   end
 
   def upload_to_vbms(path)
-    uploader = ClaimsApi::VbmsUploader.new(
+    uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['ssn'],
       doc_type: '148'

@@ -582,6 +582,10 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v5655_expected) do
     {
+      'personalIdentification' => {
+        'sSN' => user.ssn.last(4),
+        'fileNumber' => '7890'
+      },
       'personalData' => {
         'fullName' => full_name,
         'address' => address,
@@ -637,7 +641,7 @@ RSpec.describe FormProfile, type: :model do
         'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
+        'country' => 'US',
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhone' => us_phone,
@@ -830,6 +834,12 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with a user that can prefill financial status report' do
+      before do
+        allow_any_instance_of(BGS::PeopleService).to(
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        )
+      end
+
       it 'returns a prefilled 5655 form' do
         expect_prefilled('5655')
       end

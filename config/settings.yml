@@ -332,7 +332,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  timeout: 20
+  timeout: 40
 
 vic:
   url: https://some.fakesite.com
@@ -351,7 +351,7 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
-  unsuccessful_report_enabled: false
+  report_enabled: false
   location:
     prefix: http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
@@ -368,6 +368,7 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
+  report_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
@@ -438,6 +439,7 @@ maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
   services:
+    carma: P6XLE0T
     appeals: P9S4RFU
     arcgis: P45YBFA
     dslogon: P9DJJAV
@@ -534,7 +536,7 @@ flipper:
     - shefai.nayak@thoughtworks.com
     - jacob.gacek@thoughtworks.com
     - paul.phillips@thoughtworks.com
-    - marknunemaker@thoughtworks.com
+    - mnunemak@thoughtworks.com
     - hshin@thoughtworks.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
@@ -558,9 +560,9 @@ va_mobile:
 
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
-  mock: true
-  cert_path: config/certs/vetsgov-localhost.crt
-  key_path: config/certs/vetsgov-localhost.key
+  mock: false
+  key_path: /srv/vets-api/secret/health-quest.key
+  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
 
 lighthouse:
