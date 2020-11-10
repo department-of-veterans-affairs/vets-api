@@ -11,8 +11,13 @@ module Salesforce
         faraday.use :breakers
         faraday.request :url_encoded
         faraday.response :json
+        faraday.response :betamocks if mock_enabled?
         faraday.adapter Faraday.default_adapter
       end
+    end
+
+    def mock_enabled?
+      false
     end
   end
 end
