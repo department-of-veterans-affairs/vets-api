@@ -8,7 +8,7 @@ require 'va_forms/version'
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = 'va_forms'
-  s.version     = VAForms::VERSION
+  s.version     = VaForms::VERSION
   s.authors     = ['Charley Stran']
   s.email       = ['charley.stran@oddball.io']
   s.homepage    = 'https://api.va.gov/services/va_forms/docs/v0'
