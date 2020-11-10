@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'debts/letter_downloader'
+require 'dmc/debt_letter_downloader'
 
 def stub_debt_letters(method)
   let!(:letter_downloader) do
