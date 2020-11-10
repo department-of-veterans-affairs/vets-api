@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'rake'
+require_relative '../../../lib/apps_api/directory_application_creator'
 
 module AppsApi
   class DirectoryLoader
@@ -9,7 +10,7 @@ module AppsApi
     include SentryLogging
 
     def perform
-      Rake::Task['apps_api:create_applications'].execute
+      AppsApi::DirectoryApplicationCreator.new.call
     end
   end
 end
