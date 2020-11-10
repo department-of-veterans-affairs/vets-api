@@ -360,13 +360,13 @@ module EMIS
 
       # Military service branch codes mapped to HCA schema values
       HCA_SERVICE_BRANCHES = {
-        'F' => 'air force',
         'A' => 'army',
         'C' => 'coast guard',
+        'F' => 'air force',
+        'H' => 'usphs',
         'M' => 'marine corps',
         'N' => 'navy',
-        'O' => 'noaa',
-        'H' => 'usphs'
+        'O' => 'noaa'
       }.freeze
 
       # Personnel category codes
