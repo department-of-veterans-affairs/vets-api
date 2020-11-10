@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require 'dmc/responses/dmc_response'
-
 module DMC
-  class DebtsResponse < DMC::Response
+  class DebtsResponse
     attr_reader :debts
 
     def initialize(res)

@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/debtletter/letterdetails/get
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/financial-status-report/formtopdf
     body:
       encoding: UTF-8
-      string: '{"fileNumber":""}'
+      string: '{"bad":"data"}'
     headers:
       Accept:
       - application/json
@@ -29,13 +29,12 @@ http_interactions:
       Content-Length:
       - '30'
       Date:
-      - Wed, 27 May 2020 20:04:17 GMT
+      - Tue, 10 Nov 2020 21:41:28 GMT
     body:
       encoding: UTF-8
       string: |-
         {
           "message": "Bad request"
         }
-    http_version: null
-  recorded_at: Wed, 27 May 2020 20:04:16 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Tue, 10 Nov 2020 21:41:29 GMT
+recorded_with: VCR 6.0.0

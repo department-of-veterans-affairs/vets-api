@@ -1,21 +1,19 @@
 # frozen_string_literal: true
 
-require 'common/client/base'
+require 'dmc/base_service'
 require 'dmc/fsr_configuration'
-require 'dmc/responses/dmc_response'
+require 'dmc/responses/fsr_response'
 
 module DMC
-  class FSRService < Common::Client::Base
-
-    include Common::Client::Concerns::Monitoring
-
+  class FSRService < DMC::BaseService
     configuration DMC::FSRConfiguration
-
     STATSD_KEY_PREFIX = 'api.dmc'
 
     def submit_financial_status_report(form)
-      form = camelize(form)
-      DMC::Response(perform(:post, 'formtopdf', form).body)
+      with_monitoring_and_error_handling do
+        form = camelize(form)
+        DMC::FSRResponse.new(perform(:post, 'formtopdf', form).body)
+      end
     end
 
     private
