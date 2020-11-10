@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+  },
+  "properties": {
+    "data": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "claimsAndAppeals": {
+              "description": "Array of all user claims and appeals for mobile",
+              "items": {
+                "type": "hash"
+              },
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "attributes": {
+                  "properties": {
+                    "subtype": {
+                      "type": "string"
+                    },
+                    "completed": {
+                      "type": "boolean"
+                    },
+                    "dateFiled": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "type": "object"
+}
