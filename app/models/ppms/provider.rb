@@ -44,7 +44,7 @@ class PPMS::Provider < Common::Base
     new_attr[:main_phone] ||= new_attr.delete(:main_phone)
     new_attr[:phone] ||= new_attr.delete(:main_phone)
     new_attr[:provider_type] ||= 'GroupPracticeOrAgency'
-    
+
     new_attr = cleanup_specialties(new_attr)
 
     self.attributes = new_attr

@@ -10,7 +10,7 @@ vcr_options = {
 }
 
 RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vcr: vcr_options do
-  [ [ 0, false ], [ 1, false ], [ 1, true ] ].each do |(client_version, skip_round_trips)|
+  [[0, false], [1, false], [1, true]].each do |(client_version, skip_round_trips)|
     context "Facilities::PPMS::V#{client_version}::Client, Skip Extra Round Trips [#{skip_round_trips}]" do
       before do
         Flipper.enable(:facility_locator_ppms_use_v1_client, client_version == 1)
@@ -214,113 +214,103 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             end
           end
 
-          if skip_round_trips
-            it 'returns a results from the provider_locator' do
+          it 'returns a results from the provider_locator' do
             get '/v1/facilities/ccp', params: params
 
             bod = JSON.parse(response.body)
-
-            expect(bod['data']).to include(
-              {
-                'id' => '1386050060',
-                'type' => 'provider',
-                'attributes' => {
-                  'acc_new_patients' => 'true',
-                  'address' => {
-                    'street' => '1831 E Queen Creek Rd Ste 119',
-                    'city' => 'Chandler',
-                    'state' => 'AZ',
-                    'zip' => '85286'
+            if skip_round_trips
+              expect(bod['data']).to include(
+                {
+                  'id' => '1386050060',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'true',
+                    'address' => {
+                      'street' => '1831 E Queen Creek Rd Ste 119',
+                      'city' => 'Chandler',
+                      'state' => 'AZ',
+                      'zip' => '85286'
+                    },
+                    'caresite_phone' => '4809172300',
+                    'email' => nil,
+                    'fax' => nil,
+                    'gender' => 'Male',
+                    'lat' => 33.262403,
+                    'long' => -111.808538,
+                    'name' => 'OBryant, Steven',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1386050060'
                   },
-                  'caresite_phone' => '4809172300',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'Male',
-                  'lat' => 33.262403,
-                  'long' => -111.808538,
-                  'name' => 'OBryant, Steven',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'unique_id' => '1386050060'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
+                  'relationships' => {
+                    'specialties' => {
+                      'data' => []
+                    }
                   }
                 }
-              }
-            )
-            expect(bod['included']).to match([])
+              )
+              expect(bod['included']).to match([])
+            else
+              expect(bod['data']).to include(
+                {
+                  'id' => '1386050060',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'true',
+                    'address' => {
+                      'street' => '1831 E Queen Creek Rd Ste 119',
+                      'city' => 'Chandler',
+                      'state' => 'AZ',
+                      'zip' => '85286'
+                    },
+                    'caresite_phone' => '4809172300',
+                    'email' => 'Klloyd@facaaz.com',
+                    'fax' => nil,
+                    'gender' => 'Male',
+                    'lat' => 33.262403,
+                    'long' => -111.808538,
+                    'name' => 'OBryant, Steven',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1386050060'
+                  },
+                  'relationships' => {
+                    'specialties' => {
+                      'data' => [
+                        {
+                          'id' => '213E00000X',
+                          'type' => 'specialty'
+                        }
+                      ]
+                    }
+                  }
+                }
+              )
+              expect(bod['included']).to include(
+                {
+                  'id' => '213E00000X',
+                  'type' => 'specialty',
+                  'attributes' => {
+                    'classification' => 'Podiatrist',
+                    'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+                    'name' => 'Podiatrist',
+                    'specialization' => nil,
+                    'specialty_code' => '213E00000X',
+                    'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
+                                               '(D.P.M.) degree, licensed by the state, and practicing within the ' \
+                                               'scope of that license. Podiatrists diagnose and treat foot diseases ' \
+                                               'and deformities. They perform medical, surgical and other operative ' \
+                                               'procedures, prescribe corrective devices and prescribe and ' \
+                                               'administer drugs and physical therapy.'
+                  }
+                }
+              )
+            end
 
             expect(response).to be_successful
           end
-          else
-            it 'returns a results from the provider_locator' do
-            get '/v1/facilities/ccp', params: params
-
-            bod = JSON.parse(response.body)
-
-            expect(bod['data']).to include(
-              {
-                'id' => '1386050060',
-                'type' => 'provider',
-                'attributes' => {
-                  'acc_new_patients' => 'true',
-                  'address' => {
-                    'street' => '1831 E Queen Creek Rd Ste 119',
-                    'city' => 'Chandler',
-                    'state' => 'AZ',
-                    'zip' => '85286'
-                  },
-                  'caresite_phone' => '4809172300',
-                  'email' => 'Klloyd@facaaz.com',
-                  'fax' => nil,
-                  'gender' => 'Male',
-                  'lat' => 33.262403,
-                  'long' => -111.808538,
-                  'name' => 'OBryant, Steven',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'unique_id' => '1386050060'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => [
-                      {
-                        'id' => '213E00000X',
-                        'type' => 'specialty'
-                      }
-                    ]
-                  }
-                }
-              }
-            )
-            expect(bod['included']).to include(
-              {
-                'id' => '213E00000X',
-                'type' => 'specialty',
-                'attributes' => {
-                  'classification' => 'Podiatrist',
-                  'grouping' => 'Podiatric Medicine & Surgery Service Providers',
-                  'name' => 'Podiatrist',
-                  'specialization' => nil,
-                  'specialty_code' => '213E00000X',
-                  'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
-                                             '(D.P.M.) degree, licensed by the state, and practicing within the ' \
-                                             'scope of that license. Podiatrists diagnose and treat foot diseases ' \
-                                             'and deformities. They perform medical, surgical and other operative ' \
-                                             'procedures, prescribe corrective devices and prescribe and administer ' \
-                                             'drugs and physical therapy.'
-                }
-              }
-            )
-
-            expect(response).to be_successful
-          end
-          end
-
         end
 
         context 'type=pharmacy' do
@@ -332,115 +322,110 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             }
           end
 
-          if skip_round_trips
-
           it 'returns results from the pos_locator' do
             get '/v1/facilities/ccp', params: params
 
             bod = JSON.parse(response.body)
-            expect(bod['data']).to include(
-              {
-                'id' => '1972660348',
-                'type' => 'provider',
-                'attributes' =>
-                 {
-                   'acc_new_patients' => 'false',
-                   'address' => {
-                     'street' => '2750 E GERMANN RD',
-                     'city' => 'CHANDLER',
-                     'state' => 'AZ',
-                     'zip' => '85249'
+
+            if skip_round_trips
+
+              expect(bod['data']).to include(
+                {
+                  'id' => '1972660348',
+                  'type' => 'provider',
+                  'attributes' =>
+                   {
+                     'acc_new_patients' => 'false',
+                     'address' => {
+                       'street' => '2750 E GERMANN RD',
+                       'city' => 'CHANDLER',
+                       'state' => 'AZ',
+                       'zip' => '85249'
+                     },
+                     'caresite_phone' => '4808122942',
+                     'email' => nil,
+                     'fax' => nil,
+                     'gender' => 'NotSpecified',
+                     'lat' => 33.281291,
+                     'long' => -111.793486,
+                     'name' => 'WAL-MART',
+                     'phone' => nil,
+                     'pos_codes' => nil,
+                     'pref_contact' => nil,
+                     'unique_id' => '1972660348'
                    },
-                   'caresite_phone' => '4808122942',
-                   'email' => nil,
-                   'fax' => nil,
-                   'gender' => 'NotSpecified',
-                   'lat' => 33.281291,
-                   'long' => -111.793486,
-                   'name' => 'WAL-MART',
-                   'phone' => nil,
-                   'pos_codes' => nil,
-                   'pref_contact' => nil,
-                   'unique_id' => '1972660348'
-                 },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
+                  'relationships' => {
+                    'specialties' => {
+                      'data' => []
+                    }
                   }
                 }
-              }
-            )
-            
-            expect(bod['included']).to match([])
-            expect(response).to be_successful
-          end
+              )
 
-          else
+              expect(bod['included']).to match([])
 
-          it 'returns results from the pos_locator' do
-            get '/v1/facilities/ccp', params: params
+            else
 
-            bod = JSON.parse(response.body)
-            expect(bod['data']).to include(
-              {
-                'id' => '1972660348',
-                'type' => 'provider',
-                'attributes' =>
-                 {
-                   'acc_new_patients' => 'false',
-                   'address' => {
-                     'street' => '2750 E GERMANN RD',
-                     'city' => 'CHANDLER',
-                     'state' => 'AZ',
-                     'zip' => '85249'
+              expect(bod['data']).to include(
+                {
+                  'id' => '1972660348',
+                  'type' => 'provider',
+                  'attributes' =>
+                   {
+                     'acc_new_patients' => 'false',
+                     'address' => {
+                       'street' => '2750 E GERMANN RD',
+                       'city' => 'CHANDLER',
+                       'state' => 'AZ',
+                       'zip' => '85249'
+                     },
+                     'caresite_phone' => '4808122942',
+                     'email' => 'ENROLLM@WAL-MART.COM',
+                     'fax' => nil,
+                     'gender' => 'NotSpecified',
+                     'lat' => 33.281291,
+                     'long' => -111.793486,
+                     'name' => 'WAL-MART',
+                     'phone' => nil,
+                     'pos_codes' => nil,
+                     'pref_contact' => nil,
+                     'unique_id' => '1972660348'
                    },
-                   'caresite_phone' => '4808122942',
-                   'email' => 'ENROLLM@WAL-MART.COM',
-                   'fax' => nil,
-                   'gender' => 'NotSpecified',
-                   'lat' => 33.281291,
-                   'long' => -111.793486,
-                   'name' => 'WAL-MART',
-                   'phone' => nil,
-                   'pos_codes' => nil,
-                   'pref_contact' => nil,
-                   'unique_id' => '1972660348'
-                 },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => [
-                      {
-                        'id' => '3336C0003X',
-                        'type' => 'specialty'
-                      }
-                    ]
+                  'relationships' => {
+                    'specialties' => {
+                      'data' => [
+                        {
+                          'id' => '3336C0003X',
+                          'type' => 'specialty'
+                        }
+                      ]
+                    }
                   }
                 }
-              }
-            )
+              )
 
-            expect(bod['included'][0]).to match(
-              {
-                'id' => '3336C0003X',
-                'type' => 'specialty',
-                'attributes' => {
-                  'classification' => 'Pharmacy',
-                  'grouping' => 'Suppliers',
-                  'name' => 'Pharmacy - Community/Retail Pharmacy',
-                  'specialization' => 'Community/Retail Pharmacy',
-                  'specialty_code' => '3336C0003X',
-                  'specialty_description' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal ' \
-                    'preparations and/or prescriptions for a local patient population in accordance with federal and ' \
-                    'state law; counsel patients and caregivers (sometimes independent of the dispensing process); ' \
-                    'administer vaccinations; and provide other professional services associated with pharmaceutical ' \
-                    'care such as health screenings, consultative services with other health care providers, ' \
-                    'collaborative practice, disease state management, and education classes.'
+              expect(bod['included'][0]).to match(
+                {
+                  'id' => '3336C0003X',
+                  'type' => 'specialty',
+                  'attributes' => {
+                    'classification' => 'Pharmacy',
+                    'grouping' => 'Suppliers',
+                    'name' => 'Pharmacy - Community/Retail Pharmacy',
+                    'specialization' => 'Community/Retail Pharmacy',
+                    'specialty_code' => '3336C0003X',
+                    'specialty_description' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal ' \
+                      'preparations and/or prescriptions for a local patient population in accordance with federal ' \
+                      'and state law; counsel patients and caregivers (sometimes independent of the dispensing ' \
+                      'process); administer vaccinations; and provide other professional services associated with ' \
+                      'pharmaceutical care such as health screenings, consultative services with other health care ' \
+                      'providers, collaborative practice, disease state management, and education classes.'
+                  }
                 }
-              }
-            )
-            expect(response).to be_successful
-          end
+              )
 
+            end
+            expect(response).to be_successful
           end
         end
 
