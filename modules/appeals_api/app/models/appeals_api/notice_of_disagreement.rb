@@ -91,10 +91,11 @@ module AppealsApi
       :validate_auth_headers_against_schema,
       :validate_form_data_against_schema,
       :validate_claimant_properly_included_or_absent,
-      :validate_that_at_least_one_set_of_contact_info_is_present
+      :validate_that_at_least_one_set_of_contact_info_is_present,
       # At least one must be present ^^^
       # --not enforced at the JSON Schema level.
       # Using JSON Schema's conditional keywords (if, oneOf, anyOf, not, etc) produces fairly unreadable errors.
+      :validate_address
     )
 
     def claimant_name
@@ -161,6 +162,17 @@ module AppealsApi
 
     def add_missing_claimant_info_error(field, attribute_name:)
       errors.add attribute_name, "if any claimant info is present, claimant #{field} must also be present"
+    end
+
+    def validate_address
+      contact_info = veteran_contact_info || claimant_contact_info
+      homeless = contact_info&.dig('homeless')
+      address = contact_info&.dig('address')
+
+      if !homeless && address.nil?
+        errors.add :form_data, "at least one must be included: '/data/attributes/veteran/address', " \
+"'/data/attributes/claimant/address'"
+      end
     end
 
     # Note: This only checks for veteran or claimant *contact info*
