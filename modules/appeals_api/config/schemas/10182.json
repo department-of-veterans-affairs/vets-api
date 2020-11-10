@@ -51,7 +51,7 @@
         "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail" },
         "representativesName": { "type": "string" }
       },
-      "required": [ "homeless", "address", "phone", "emailAddressText" ]
+      "required": [ "homeless", "phone", "emailAddressText" ]
     },
 
 

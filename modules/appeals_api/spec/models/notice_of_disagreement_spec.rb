@@ -52,7 +52,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         end
 
         it do
-          expect(notice_of_disagreement.errors.count).to be 1
+          expect(notice_of_disagreement.errors.count).to be 2
           expect(notice_of_disagreement.errors.full_messages.first).to eq('Form data at least one must be included: ' \
 "'/data/attributes/veteran', '/data/attributes/claimant'")
         end
@@ -101,6 +101,34 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
           expect(notice_of_disagreement.errors.count).to be 1
           expect(notice_of_disagreement.errors.full_messages.first).to eq('Form data if any claimant info is present,' \
 ' claimant contact info (data/attributes/claimant) must also be present')
+        end
+      end
+    end
+
+    describe '#validate_address' do
+      context 'when homeless is true' do
+        before do
+          notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = true
+          notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
+          notice_of_disagreement.valid?
+        end
+
+        it { expect(notice_of_disagreement.errors.count).to be 0 }
+      end
+
+      context 'when homeless is false' do
+        before do
+          notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = false
+          notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
+          notice_of_disagreement.valid?
+        end
+
+        it do
+          expect(notice_of_disagreement.errors.count).to be 1
+          expect(notice_of_disagreement.errors.full_messages.first).to eq(
+            "Form data at least one must be included: '/data/attributes/veteran/address', " \
+                "'/data/attributes/claimant/address'"
+          )
         end
       end
     end
