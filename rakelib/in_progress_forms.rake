@@ -9,7 +9,7 @@ namespace :form_progress do
     puts data
   end
 
-  desc 'The coouts of last page a user completed before validation error'
+  desc 'The counts of last page a user completed before validation error'
   # bundle exec rake form_progress:error_url[21-526EZ,2020-10-06,2020-11-06]
   task :error_url, %i[form_id start_date end_date] => [:environment] do |_, args|
     forms = forms_with_args(args)
@@ -18,7 +18,7 @@ namespace :form_progress do
     puts data
   end
 
-  desc 'Validation erros for a return_url'
+  desc 'Validation errors for a return_url'
   # bundle exec rake form_progress:errors_for_return_url[21-526EZ,2020-10-06,2020-11-06,/review-and-submit]
   task :errors_for_return_url, %i[form_id start_date end_date return_url] => [:environment] do |_, args|
     forms = forms_with_args(args)
