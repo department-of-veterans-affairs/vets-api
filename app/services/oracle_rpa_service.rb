@@ -47,16 +47,32 @@ class OracleRPAService
       if value === 'IL'
         value = 'Illinois'
       end
+      if field['fieldName'].include? 'date_of_birth'
+        temp_value = value.split('-')
+        value = temp_value[1] + '-' + temp_value[2] + '-' + temp_value[0]
+      end
+      if field['fieldName'].include? 'e_o_d'
+        temp_value = value.split('-')
+        value = temp_value[1] + '-' + temp_value[2] + '-' + temp_value[0]
+      end
+      if field['fieldName'].include? 'released_from_duty'
+        temp_value = value.split('-')
+        value = temp_value[1] + '-' + temp_value[2] + '-' + temp_value[0]
+      end
       if field['fieldType'] === 'text_field'
         browser.text_field(name: field['fieldName']).set value
-        if field['fieldName'] === 'Incident.CustomFields.c.incomingemail'
+        if field['fieldName'].include? 'incomingemail'
           browser.send_keys :tab
           browser.text_field(name: 'Incident.CustomFields.c.incomingemail_Validation').set value
         end
       elsif field['fieldType'] === 'select_list'
         browser.select_list(name: field['fieldName']).option(text: value).select
       elsif field['fieldType'] === 'radio'
-        browser.radio(name: field['fieldName'], value: value).set
+        if value === true
+          browser.radio(name: field['fieldName'], value: '1').set
+        else
+          browser.radio(name: field['fieldName'], value: '0').set
+        end
       end
     end
     browser.button(id: 'rn_FormSubmit_58_Button').click
