@@ -87,7 +87,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             expect(bod['data']).to include(
               {
-                'id' => 'ccp_398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
+                'id' => 'ccp_b15b6aeb98d75d1fe64450c412483f9e38d3245a875e071c13ccb6bf44415f4a',
                 'type' => 'cc_provider',
                 'attributes' => {
                   'acc_new_patients' => 'true',
@@ -306,7 +306,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             expect(bod['data']).to include(
               {
-                'id' => 'ccp_398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
+                'id' => 'ccp_b15b6aeb98d75d1fe64450c412483f9e38d3245a875e071c13ccb6bf44415f4a',
                 'type' => 'cc_provider',
                 'attributes' => {
                   'acc_new_patients' => 'true',

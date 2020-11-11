@@ -53,7 +53,7 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
           Latitude: 33.262403,
           Longitude: -111.808538,
           MainPhone: nil,
-          Miles: 1.679,
+          Miles: 1.842,
           OrganizationFax: nil,
           ProviderGender: 'Male',
           ProviderIdentifier: '1386050060',
@@ -71,7 +71,7 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
         expect(r.length).to be 10
         expect(r[0]).to have_attributes(
           ProviderIdentifier: '1609229764',
-          ProviderHexdigest: '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
+          ProviderHexdigest: 'b15b6aeb98d75d1fe64450c412483f9e38d3245a875e071c13ccb6bf44415f4a',
           CareSite: 'Banner Urgent Care Services LLC',
           AddressStreet: '3200 S Gilbert Rd',
           AddressCity: 'Chandler',
@@ -87,7 +87,7 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
           ProviderSpecialties: [],
           Latitude: 33.259952,
           Longitude: -111.790163,
-          Miles: 0.744,
+          Miles: 0.289,
           posCodes: '20'
         )
       end
