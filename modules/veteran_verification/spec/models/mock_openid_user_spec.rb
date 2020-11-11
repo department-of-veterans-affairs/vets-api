@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 require 'rails_helper'
@@ -23,7 +22,7 @@ RSpec.describe MockOpenidUser, type: :model do
   it 'veteran' do
     user = MockOpenidUser.build_from_identity(identity: identity, ttl: some_ttl)
     vet = user.veteran?
-    expect(vet)
+    expect(vet).to eq(true)
   end
 
   context 'for loa3 users' do
