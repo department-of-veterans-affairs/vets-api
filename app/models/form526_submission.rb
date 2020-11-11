@@ -228,6 +228,7 @@ class Form526Submission < ApplicationRecord
   def mvi_profile
     find_profile_response = MVI::Service.new.find_profile user_identity
     raise find_profile_response.error if find_profile_response.error
+
     find_profile_response.profile
   end
 
