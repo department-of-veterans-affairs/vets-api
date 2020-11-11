@@ -1,17 +1,27 @@
 [
   {
-    "schemaKey": "veteranStatus",
+    "schemaKey": "veteranStatus.veteranStatus",
     "fieldName": "Incident.CustomFields.c.vet_status",
     "fieldType": "select_list"
   },
   {
-    "schemaKey": "preferredContactMethod",
-    "fieldName": "Incident.CustomFields.c.form_of_response",
+    "schemaKey": "veteranStatus.isDependent",
+    "fieldName": "Incident.CustomFields.c.inquirer_is_dependent",
+    "fieldType": "radio"
+  },
+  {
+    "schemaKey": "veteranStatus.relationshipToVeteran",
+    "fieldName": "Incident.CustomFields.c.relation_to_vet",
     "fieldType": "select_list"
   },
   {
-    "schemaKey": "fullName.title",
-    "fieldName": "Incident.CustomFields.c.form_of_address",
+    "schemaKey": "veteranStatus.veteranIsDeceased",
+    "fieldName": "Incident.CustomFields.c.vet_dead",
+    "fieldType": "radio"
+  },
+  {
+    "schemaKey": "preferredContactMethod",
+    "fieldName": "Incident.CustomFields.c.form_of_response",
     "fieldType": "select_list"
   },
   {
@@ -22,6 +32,11 @@
   {
     "schemaKey": "fullName.last",
     "fieldName": "Incident.CustomFields.c.last_name",
+    "fieldType": "text_field"
+  },
+  {
+    "schemaKey": "email",
+    "fieldName": "Incident.CustomFields.c.incomingemail",
     "fieldType": "text_field"
   },
   {
@@ -38,5 +53,20 @@
     "schemaKey": "address.postalCode",
     "fieldName": "Incident.CustomFields.c.zipcode",
     "fieldType": "text_field"
+  },
+  {
+    "schemaKey": "veteranInformation.first",
+    "fieldName": "Incident.CustomFields.c.vet_first_name",
+    "fieldType": "text_field"
+  },
+  {
+    "schemaKey": "veteranInformation.last",
+    "fieldName": "Incident.CustomFields.c.vet_last_name",
+    "fieldType": "text_field"
+  },
+  {
+    "schemaKey": "veteranStatus.branchOfService",
+    "fieldName": "Incident.CustomFields.c.service_branch",
+    "fieldType": "select_list"
   }
 ]
