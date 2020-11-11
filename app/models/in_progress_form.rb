@@ -12,10 +12,10 @@ class InProgressForm < ApplicationRecord
   RETURN_URL_SQL = "CAST(metadata -> 'return_url' AS text)"
   scope :has_attempted_submit, -> { where("(metadata -> 'submission' ->> 'has_attempted_submit')::boolean") }
   scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
-  scope :has_error_message,    -> { where("(metadata -> 'submission' -> 'error_message')::text !='false'") }
-
+  scope :has_no_errors,           -> { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
+  scope :has_error_message, -> { where("(metadata -> 'submission' -> 'error_message')::text !='false'") }
   # the double quotes in return_url are part of the value
-  scope :return_url, ->(url)      { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
+  scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
 
   EXPIRES_AFTER = YAML.load_file(Rails.root.join('config', 'in_progress_forms', 'expirations.yml'))
 

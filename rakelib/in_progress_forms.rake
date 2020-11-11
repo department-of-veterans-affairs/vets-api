@@ -18,6 +18,15 @@ namespace :form_progress do
     puts data
   end
 
+  desc 'The counts of last page a user completed before abandoning (wihtout errors)'
+  # bundle exec rake form_progress:abandon_url[21-526EZ,2020-10-06,2020-11-06]
+  task :abandon_url, %i[form_id start_date end_date] => [:environment] do |_, args|
+    forms = forms_with_args(args)
+    data = forms.has_no_errors.select(InProgressForm::RETURN_URL_SQL)
+                .group(InProgressForm::RETURN_URL_SQL).order('count(*)').count
+    puts data
+  end
+
   desc 'Validation errors for a return_url'
   # bundle exec rake form_progress:errors_for_return_url[21-526EZ,2020-10-06,2020-11-06,/review-and-submit]
   task :errors_for_return_url, %i[form_id start_date end_date return_url] => [:environment] do |_, args|
