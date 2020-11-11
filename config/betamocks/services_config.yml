@@ -1,6 +1,19 @@
 ---
 :services:
 
+- :name: 'carma'
+  :base_uri: <%= "#{URI(Settings['salesforce-carma'].url).host}:#{URI(Settings['salesforce-carma'].url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: "/services/oauth2/token"
+    :file_path: "carma/oauth"
+  - :method: :post
+    :path: "/services/apexrest/carma/v1/1010-cg-submissions"
+    :file_path: "carma/create"
+  - :method: :post
+    :path: "/services/data/v47.0/composite/tree/ContentVersion"
+    :file_path: "carma/attachment"
+
 - :name: 'debts'
   :base_uri: <%= "#{URI(Settings.debts.url).host}:#{URI(Settings.debts.url).port}" %>
   :endpoints:

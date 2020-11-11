@@ -80,6 +80,7 @@ salesforce-gibft:
   url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
 salesforce-carma:
+  mock: true
   url: "https://fake-carma.salesforce.com"
   consumer_key: 12345ABC.QQ_1234BBfake
   signing_key_path: "spec/fixtures/carma/privatekey.pem" # A dummy private key used for test suite
