@@ -3,6 +3,9 @@
 require 'emis/mock_veteran_status'
 
 class MockOpenidUser < OpenidUser
+  redis_store REDIS_CONFIG[:openid_user_store][:namespace]
+  redis_ttl REDIS_CONFIG[:openid_user_store][:each_ttl]
+  redis_key :uuid
   delegate :veteran?, to: :mock_veteran_status
   %w[veteran_status military_information payment mock_veteran_status].each do |emis_method|
     define_method(emis_method) do
