@@ -1,5 +1,11 @@
 {
-  "topic": "Policy Questions",
+  "topic": {
+    "levelOne": "Caregiver Support Program",
+    "levelTwo": "VA Supportive Services"
+  },
+  "veteranStatus": {
+    "veteranStatus": "general"
+  },
   "inquiryType": "Question",
   "query": "Some question?",
   "fullName": {

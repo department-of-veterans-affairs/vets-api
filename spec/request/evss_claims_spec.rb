@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/request_decision'
 
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
@@ -14,7 +13,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     it 'returns a 403' do
       sign_in_as(user)
       profile = build(:mvi_profile, edipi: nil)
-      stub_mvi(profile)
+      stub_mpi(profile)
       get '/v0/evss_claims'
       expect(response).to have_http_status(:forbidden)
     end

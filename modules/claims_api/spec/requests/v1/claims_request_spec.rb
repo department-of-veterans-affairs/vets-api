@@ -2,15 +2,12 @@
 
 require 'rails_helper'
 
-require 'evss/request_decision'
-require 'evss/power_of_attorney_verifier'
-
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
   let(:request_headers) do
     {
-      'X-VA-SSN' => '796043735',
+      'X-VA-SSN' => '796-04-3735',
       'X-VA-First-Name' => 'WESLEY',
       'X-VA-Last-Name' => 'FORD',
       'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
@@ -22,7 +19,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   before do
     stub_poa_verification
-    stub_mvi
+    stub_mpi
   end
 
   context 'index' do
@@ -45,11 +42,11 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     context 'with errors' do
-      it 'renders an empty array' do
+      it 'shows a errored Claims not found error message' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims_with_errors') do
             get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
-            expect(JSON.parse(response.body)['data'].length).to eq(0)
+            expect(response.status).to eq(404)
           end
         end
       end
@@ -131,7 +128,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
               '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
               params: nil,
               headers: {
-                'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+                'X-VA-SSN' => '796-04-3735', 'X-VA-First-Name' => 'WESLEY',
                 'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
                 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
                 'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
@@ -155,7 +152,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
               '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
               params: nil,
               headers: {
-                'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+                'X-VA-SSN' => '796-04-3735', 'X-VA-First-Name' => 'WESLEY',
                 'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
                 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
                 'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
@@ -172,8 +169,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
     it 'users the poa verifier when the header is present' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claim') do
-          verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-          allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+          verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+          allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
           get '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers
@@ -186,8 +183,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
   context 'with oauth user and no headers' do
     it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       with_okta_user(scopes) do |auth_header|
-        verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-        allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+        verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+        allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
         VCR.use_cassette('evss/claims/claims') do
           get '/services/claims/v1/claims', params: nil, headers: auth_header
@@ -198,8 +195,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     it 'lists all Claims when camel-inflected', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       with_okta_user(scopes) do |auth_header|
-        verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-        allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+        verifier_stub = instance_double('BGS::PowerOfAttorneyVerifier')
+        allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
         VCR.use_cassette('evss/claims/claims') do
           get '/services/claims/v1/claims', params: nil, headers: auth_header.merge(camel_inflection_header)

@@ -221,6 +221,17 @@ module ClaimsApi
                     end
                   end
                 end
+
+                property :flashes do
+                  key :type, :array
+                  key :description, 'The flashes related to the veteran'
+
+                  items do
+                    key :type, :string
+                    key :example, 'Hardship'
+                    key :enum, ['Hardship', 'Seriously Injured/Very Seriously Injured', 'Terminally Ill', 'Homeless', 'Purple Heart', 'POW', 'Medal of Honor', 'Amyotrophic Lateral Sclerosis', 'Emergency Care']
+                  end
+                end
               end
 
               property :serviceInformation do
@@ -425,6 +436,17 @@ module ClaimsApi
                     key :example, 'PTSD (post traumatic stress disorder)'
                   end
 
+                  property :specialIssues do
+                    key :type, :array
+                    key :description, 'The special issues related to the disability'
+
+                    items do
+                      key :type, :string
+                      key :example, 'ALS'
+                      key :enum, %w[ALS HEPC POW PTSD/1 PTSD/2 PTSD/3 PTSD/4 MST]
+                    end
+                  end
+
                   property :secondaryDisabilities do
                     key :type, :array
                     key :description, 'Identifies the Secondary Service Disability information of the Veteran'
@@ -453,6 +475,17 @@ module ClaimsApi
                         key :type, :string
                         key :description, 'How the veteran got the disability.'
                         key :example, 'Caused by a service-connected disability\\nLengthy description'
+                      end
+
+                      property :specialIssues do
+                        key :type, :array
+                        key :description, 'The special issues related to the disability'
+
+                        items do
+                          key :type, :string
+                          key :example, 'ALS'
+                          key :enum, %w[ALS HEPC POW PTSD/1 PTSD/2 PTSD/3 PTSD/4 MST]
+                        end
                       end
                     end
                   end

@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/983/patient/ICN/1012845331V153043/cancel-appointment
+    body:
+      encoding: UTF-8
+      string: '{"appointmentTime":"11/15/19 20:00:00","clinicId":"408","cancelReason":"whatever","cancelCode":"5","remarks":null,"clinicName":null,"patientIdentifier":{"uniqueId":"1012845331V153043","assigningAuthority":"ICN"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://api.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGVkIjp0cnVlLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiaWRUeXBlIjoiSUNOIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInZlcnNpb24iOjIuMSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sInNzbiI6Ijc5NjA2MTk3NiIsImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNTc5MDMwMzk0LCJzc3QiOjE1NzkwMzA1NzMsInBhdGllbnQiOnsiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJnZW5kZXIiOiJGRU1BTEUiLCJpY24iOiIxMDEyODQ1MzMxVjE1MzA0MyIsImRvYiI6IjE5NTMtMDQtMDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMtMDQtMDEiLCJzc24iOiI3OTYwNjE5NzYifSwiZG9iIjoiMTk1My0wNC0wMSIsInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sInJpZ2h0T2ZBY2Nlc3NBY2NlcHRlZCI6dHJ1ZSwiZXhwIjoxNTc5MDMxNDc0LCJqdGkiOiIxNGE5NTVkZi1jZmQ1LTRiY2MtYTEwMi00YjQ0MTMwMDVlNzYiLCJsb2EiOjJ9.ibFZqltCKkylUGpeu54bJwjlFurqJqCgy0Cslx7zm1Rifc2N1MhTQzzEVPK_QHVTjMphgviDc1se-1XVmCUW4pDJ_YJk0YEdaQvYrYRUqYN4VRWNUQpunSBcWxx3UXa46QWPJQNBWmCa1mwHn1MRQNRdmGvJxODIOXaq9aoboZHJIsZLrf5YD6i3fMbahSsbGLA9c2ZwzeAn4-6ybwATe81NKRsrqe-txMV8X91n24KJx5CKAL1C-HV4ili47JJZD1sESTByM09iTBkLc5MHOLXd0t_-DlLocJDe1l4O0GMysMQJI4EirvK_rUuHeIkxB0nAfkvyEnllKswwS4TvLA
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Tue, 14 Jan 2020 19:36:14 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Content-Length:
+      - '313'
+      Server:
+      - openresty
+    body:
+      encoding: UTF-8
+      string: '{"id":"ca8f7e10-8921-4a75-bf3e-3741343f09a1","traceId":"56242386cbb9c78","code":500,"message":"Could not cancel appointment from VistA Scheduling Service","errorCode":7002,"detail":"400: {\n  \"code\" : 400,\n  \"message\" : \"814 CLINIC_RESTRICTED_TO_PRIVILEGED_USERS:Invalid appointment: APTCRGT^Appt. in PHL GI LIVER FELLOW 1 NOT CANCELLED Access to this clinic is restricted to only privileged users!^1\",\n  \"id\" : \"52c12846-9e2c-4b7d-b2bc-6b421e9a9c55\",\n  \"errorCode\" : 400\n}","meta":{"upstreamErrorSource":"vista-scheduling-service"}}'
+    http_version:
+  recorded_at: Tue, 14 Jan 2020 19:36:14 GMT
+recorded_with: VCR 5.0.0

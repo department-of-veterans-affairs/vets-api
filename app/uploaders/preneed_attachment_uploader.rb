@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class PreneedAttachmentUploader < CarrierWave::Uploader::Base
-  include ValidateFileSize
-  include SetAwsConfig
+  include SetAWSConfig
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 
-  MAX_FILE_SIZE = 25.megabytes
+  def size_range
+    1.byte...25.megabytes
+  end
 
   process(convert: 'pdf', if: :not_pdf?)
 
@@ -24,7 +25,7 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def extension_white_list
+  def extension_whitelist
     %w[pdf jpg jpeg png]
   end
 

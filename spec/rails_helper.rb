@@ -12,7 +12,7 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
-require 'support/mvi/stub_mvi'
+require 'support/mpi/stub_mpi'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
 require 'support/factory_bot'
@@ -68,6 +68,12 @@ module VCR
 end
 
 VCR.configure(&:configure_rspec_metadata!)
+
+VCR.configure do |c|
+  c.before_record(:force_utf8) do |interaction|
+    interaction.response.body.force_encoding('UTF-8')
+  end
+end
 
 ActiveRecord::Migration.maintain_test_schema!
 
@@ -156,7 +162,7 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
+    stub_mpi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
 

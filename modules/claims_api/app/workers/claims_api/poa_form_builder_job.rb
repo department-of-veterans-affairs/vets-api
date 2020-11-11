@@ -2,11 +2,12 @@
 
 require 'sidekiq'
 require 'claims_api/vbms_sidekiq'
+require 'claims_api/power_of_attorney_pdf_constructor'
 
 module ClaimsApi
   class PoaFormBuilderJob
     include Sidekiq::Worker
-    include ClaimsApi::VbmsSidekiq
+    include ClaimsApi::VBMSSidekiq
 
     def perform(power_of_attorney_id)
       power_of_attorney = ClaimsApi::PowerOfAttorney.find power_of_attorney_id

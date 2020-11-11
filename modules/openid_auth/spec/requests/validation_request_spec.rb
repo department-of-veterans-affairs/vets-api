@@ -24,6 +24,24 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       'alg' => 'RS256'
     }]
   end
+  let(:invalid_issuer_jwt) do
+    [{
+      'ver' => 1,
+      'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+      'iss' => 'https://invalid-issuer.org/oauth2/default',
+      'aud' => 'api://default',
+      'iat' => Time.current.utc.to_i,
+      'exp' => Time.current.utc.to_i + 3600,
+      'cid' => '0oa1c01m77heEXUZt2p7',
+      'uid' => '00u1zlqhuo3yLa2Xs2p7',
+      'icn' => '73806470379396828',
+      'scp' => %w[profile email openid veteran_status.read],
+      'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
+    }, {
+      'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
+      'alg' => 'RS256'
+    }]
+  end
   let(:json_api_response) do
     {
       'data' => {
@@ -97,6 +115,32 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+      end
+    end
+  end
+
+  context 'when token is from invalid issuer' do
+    before do
+      allow(JWT).to receive(:decode).and_return(invalid_issuer_jwt)
+    end
+
+    it 'v0 GET returns an unauthorized for bad token', :aggregate_failures do
+      with_okta_configured do
+        get '/internal/auth/v0/validation', params: nil, headers: auth_header
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid issuer'
+      end
+    end
+
+    it 'v1 POST returns an unauthorized for bad token', :aggregate_failures do
+      with_okta_configured do
+        post '/internal/auth/v1/validation', params: nil, headers: auth_header
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid issuer'
       end
     end
   end

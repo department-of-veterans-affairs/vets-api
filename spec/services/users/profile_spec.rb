@@ -178,7 +178,7 @@ RSpec.describe Users::Profile do
     end
 
     context '#va_profile' do
-      context 'when user.mvi is not nil' do
+      context 'when user.mpi is not nil' do
         it 'includes birth_date' do
           expect(va_profile[:birth_date]).to eq(user.va_profile[:birth_date])
         end
@@ -204,7 +204,7 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'when user.mvi is nil' do
+      context 'when user.mpi is nil' do
         let(:user) { build :user }
 
         it 'returns va_profile as null' do
@@ -225,8 +225,8 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'when user.mvi is not found' do
-        before { stub_mvi_not_found }
+      context 'when user.mpi is not found' do
+        before { stub_mpi_not_found }
 
         it 'returns va_profile as null' do
           expect(va_profile).to be_nil
@@ -422,6 +422,20 @@ RSpec.describe Users::Profile do
       it 'returns an array of authorized services', :aggregate_failures do
         expect(subject.services.class).to eq Array
         expect(subject.services).to include 'facilities', 'hca', 'edu-benefits'
+      end
+    end
+
+    context '#session_data' do
+      let(:scaffold_with_ssoe) { Users::Profile.new(user, { ssoe_transactionid: 'a' }).pre_serialize }
+
+      it 'no session object indicates no SSOe authentication' do
+        expect(subject.session)
+          .to eq({ ssoe: false, transactionid: nil })
+      end
+
+      it 'with a transaction in the Session shows a SSOe authentication' do
+        expect(scaffold_with_ssoe.session)
+          .to eq({ ssoe: true, transactionid: 'a' })
       end
     end
   end

@@ -9,6 +9,42 @@ RSpec.describe BGS::Service do
   let(:proc_id) { '3829671' }
   let(:participant_id) { '149456' }
 
+  context 'direct deposit methods' do
+    let(:user_object) { build(:ch33_dd_user) }
+
+    context 'with a user that has no icn' do
+      before do
+        allow(user_object).to receive(:icn).and_return(nil)
+        allow(user_object).to receive(:uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
+      end
+
+      it 'retrieves a users dd eft info' do
+        VCR.use_cassette('bgs/service/find_ch33_dd_eft_no_icn', VCR::MATCH_EVERYTHING) do
+          response = bgs_service.find_ch33_dd_eft
+          expect(response.body[:find_ch33_dd_eft_response][:return][:dposit_acnt_nbr]).to eq('444')
+        end
+      end
+    end
+
+    it 'retrieves a users dd eft info' do
+      VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+        response = bgs_service.find_ch33_dd_eft
+        expect(response.body[:find_ch33_dd_eft_response][:return][:dposit_acnt_nbr]).to eq('123')
+      end
+    end
+
+    it 'updates a users dd eft info' do
+      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+        response = bgs_service.update_ch33_dd_eft(
+          '122239982',
+          '444',
+          true
+        )
+        expect(response.body[:update_ch33_dd_eft_response][:return][:return_message]).to eq('SUCCESS')
+      end
+    end
+  end
+
   describe '#create_proc' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc') do
@@ -22,7 +58,7 @@ RSpec.describe BGS::Service do
   describe '#create_proc_form' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc_form') do
-        response = bgs_service.create_proc_form('21874')
+        response = bgs_service.create_proc_form('21874', '130 - Automated Dependency 686c')
 
         expect(response).to have_key(:comp_id)
       end
@@ -124,6 +160,29 @@ RSpec.describe BGS::Service do
         response = bgs_service.create_phone(proc_id, participant_id, payload)
 
         expect(response).to have_key(:vnp_ptcpnt_phone_id)
+      end
+    end
+  end
+
+  describe '#get_regional_office_by_zip_code' do
+    it 'returns a valid regional office response' do
+      VCR.use_cassette('bgs/service/get_regional_office_by_zip_code') do
+        response = bgs_service.get_regional_office_by_zip_code('19018', 'USA', '', 'CP', '123')
+
+        expect(response).to eq('310')
+      end
+    end
+  end
+
+  describe '#find_regional_offices' do
+    it 'returns a list of regional offices' do
+      VCR.use_cassette('bgs/service/find_regional_offices') do
+        response = bgs_service.find_regional_offices
+
+        expect(response).to be_an_instance_of(Array)
+        # don't want to use an exact match here
+        # in case regional offices get closed or added
+        expect(response.size).to be > 1
       end
     end
   end

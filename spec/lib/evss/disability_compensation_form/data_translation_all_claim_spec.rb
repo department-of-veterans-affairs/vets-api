@@ -7,25 +7,53 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   subject { described_class.new(user, form_content, false) }
 
   let(:form_content) { { 'form526' => {} } }
-  let(:evss_json) { File.read 'spec/support/disability_compensation_form/all_claims_evss_submission.json' }
+
   let(:user) { build(:disabilities_compensation_user) }
 
   before do
     User.create(user)
+    frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
+    Timecop.freeze(frozen_time)
   end
 
+  after { Timecop.return }
+
   describe '#translate' do
-    before do
-      create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
+    context 'all claims' do
+      before do
+        create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
+      end
+
+      let(:form_content) do
+        JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
+      end
+      let(:evss_json) { File.read 'spec/support/disability_compensation_form/all_claims_evss_submission.json' }
+
+      it 'returns correctly formatted json to send to EVSS' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+            expect(subject.translate).to eq JSON.parse(evss_json)
+          end
+        end
+      end
     end
 
-    let(:form_content) do
-      JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
-    end
+    context 'kitchen sink BDD' do
+      before do
+        create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: user.uuid)
+        Timecop.freeze(Date.new(2020, 8, 1))
+      end
 
-    it 'returns correctly formatted json to send to EVSS' do
-      VCR.use_cassette('evss/ppiu/payment_information') do
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+      after { Timecop.return }
+
+      let(:form_content) do
+        JSON.parse(File.read('spec/support/disability_compensation_form/bdd_large_fe_submission.json'))
+      end
+
+      let(:evss_json) { File.read 'spec/support/disability_compensation_form/bdd_evss_submission.json' }
+
+      it 'returns correctly formatted json to send to EVSS' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
           VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
             expect(subject.translate).to eq JSON.parse(evss_json)
           end
@@ -1308,92 +1336,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   end
 
   describe '#application_expiration_date' do
-    let(:past) { Time.zone.now - 1.month }
-    let(:now) { Time.zone.now }
-    let(:future) { Time.zone.now + 1.month }
-
-    context 'when the RAD date is more recent than the application creation date' do
-      before do
-        allow(subject).to receive(:application_create_date).and_return(past)
-        allow(subject).to receive(:rad_date).and_return(now)
-      end
-
-      it 'returns the RAD date + 366 days' do
-        return_date = (now + 366.days).iso8601
-        expect(subject.send(:application_expiration_date)).to eq return_date
-      end
-    end
-
-    context 'when the RAD date does not exist' do
-      before do
-        allow(subject).to receive(:rad_date).and_return(nil)
-      end
-
-      let!(:itf) do
-        EVSS::IntentToFile::IntentToFile.new(
-          'status' => 'active',
-          'type' => 'compensation',
-          'creation_date' => nil,
-          'expiration_date' => nil
-        )
-      end
-
-      context 'when the ITF creation date is nil' do
-        before do
-          allow(subject).to receive(:application_create_date).and_return(now)
-          allow(subject).to receive(:itf).and_return(itf)
-        end
-
-        it 'returns the application creation date + 365 days' do
-          return_date = (now + 365.days).iso8601
-          expect(subject.send(:application_expiration_date)).to eq return_date
-        end
-      end
-
-      context 'when the ITF expiration date is nil' do
-        before do
-          allow(subject).to receive(:application_create_date).and_return(now)
-          itf.creation_date = past
-          allow(subject).to receive(:itf).and_return(itf)
-        end
-
-        it 'returns the application creation date + 365 days' do
-          return_date = (now + 365.days).iso8601
-          expect(subject.send(:application_expiration_date)).to eq return_date
-        end
-      end
-
-      context 'when the ITF creation date is more recent than the application creation date' do
-        before do
-          allow(subject).to receive(:application_create_date).and_return(past)
-          itf.creation_date = now
-          itf.expiration_date = future
-          allow(subject).to receive(:itf).and_return(itf)
-        end
-
-        it 'returns the application creation date + 365 days' do
-          return_date = (past + 365.days).iso8601
-          expect(subject.send(:application_expiration_date)).to eq return_date
-        end
-      end
-
-      context 'when the ITF creation date isolder than the application creation date' do
-        before do
-          allow(subject).to receive(:application_create_date).and_return(now)
-          itf.creation_date = past
-          itf.expiration_date = future
-          allow(subject).to receive(:itf).and_return(itf)
-        end
-
-        it 'returns the application creation date + 365 days' do
-          expect(subject.send(:application_expiration_date)).to eq itf.expiration_date.iso8601
-        end
-      end
+    it 'returns the application creation date + 365 days' do
+      expect(subject.send(:application_expiration_date)).to eq '2021-11-05T18:19:50Z'
     end
   end
 
   describe '#translate_bdd' do
-    today = Time.now.in_time_zone('Central Time (US & Canada)').to_date
+    let(:today) { Time.now.in_time_zone('Central Time (US & Canada)').to_date }
 
     context 'when rad date is > 180 away' do
       let(:form_content) do

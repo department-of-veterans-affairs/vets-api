@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'mvi/service'
+require 'caseflow/configuration'
 
 describe Caseflow::Configuration do
   describe '#app_token' do
@@ -13,6 +13,14 @@ describe Caseflow::Configuration do
   describe '#service_name' do
     it 'has a service name' do
       expect(Caseflow::Configuration.instance.service_name).to eq('CaseflowStatus')
+    end
+  end
+
+  describe '.read_timeout' do
+    context 'when Settings.caseflow.timeout is set' do
+      it 'uses the setting' do
+        expect(Caseflow::Configuration.instance.read_timeout).to eq(40)
+      end
     end
   end
 

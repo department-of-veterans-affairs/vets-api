@@ -6,7 +6,6 @@ require 'saml/post_url_service'
 require 'saml/responses/login'
 require 'saml/responses/logout'
 require 'saml/ssoe_settings_service'
-require 'saml/url_service'
 
 module V1
   class SessionsController < ApplicationController
@@ -130,60 +129,87 @@ module V1
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
-      helper = url_service(user_session_form.saml_uuid)
-      if helper.should_uplevel?
-        render_login('verify', user_session_form.saml_uuid)
+      if url_service.should_uplevel?
+        render_login('verify')
       else
-        redirect_to helper.login_redirect_url
-        login_stats(:success, saml_response)
+        redirect_to url_service.login_redirect_url
+        login_stats(:success)
       end
     end
 
-    def render_login(type, previous_saml_uuid = nil)
-      force = (type != 'custom')
-      helper = url_service(previous_saml_uuid, force)
-      login_url, post_params = login_params(type, helper)
+    def render_login(type)
+      login_url, post_params = login_params(type)
+      tracker = url_service.tracker
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
                                locals: {
                                  url: login_url,
                                  params: post_params,
-                                 id: helper.tracker.uuid,
-                                 authn: helper.tracker.payload_attr(:authn_context),
-                                 type: helper.tracker.payload_attr(:type)
+                                 id: tracker.uuid,
+                                 authn: tracker.payload_attr(:authn_context),
+                                 type: tracker.payload_attr(:type),
+                                 sentrydsn: Settings.sentry.dsn
                                },
                                format: :html
       render body: result, content_type: 'text/html'
-      saml_request_stats(helper.tracker)
+      set_sso_saml_cookie!
+      saml_request_stats
+    end
+
+    def set_sso_saml_cookie!
+      cookies[Settings.ssoe_eauth_cookie.name] = {
+        value: saml_cookie_content.to_json,
+        expires: nil,
+        secure: Settings.ssoe_eauth_cookie.secure,
+        httponly: true,
+        domain: Settings.ssoe_eauth_cookie.domain
+      }
+    end
+
+    def saml_cookie_content
+      ssoe_cookie =  cookies[Settings.ssoe_eauth_cookie.name]
+      transaction_id = if current_user && url_service.should_uplevel? && ssoe_cookie
+                         JSON.parse(ssoe_cookie)['transaction_id']
+                       else
+                         SecureRandom.uuid
+                       end
+
+      {
+        'timestamp' => Time.now.iso8601,
+        'transaction_id' => transaction_id,
+        'saml_request_id' => url_service.tracker&.uuid,
+        'saml_request_query_params' => url_service.query_params
+      }
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
-    def login_params(type, helper)
+    def login_params(type)
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
 
       case type
       when 'signup'
-        helper.signup_url
+        url_service.signup_url
       when 'mhv'
-        helper.mhv_url
+        url_service.mhv_url
       when 'dslogon'
-        helper.dslogon_url
+        url_service.dslogon_url
       when 'idme'
-        helper.idme_url
+        url_service.idme_url
       when 'mfa'
-        helper.mfa_url
+        url_service.mfa_url
       when 'verify'
-        helper.verify_url
+        url_service.verify_url
       when 'custom'
         raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
 
-        helper.custom_url params[:authn]
+        url_service(false).custom_url params[:authn]
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
-    def saml_request_stats(tracker)
+    def saml_request_stats
+      tracker = url_service.tracker
       values = {
         'id' => tracker&.uuid,
         'authn' => tracker&.payload_attr(:authn_context),
@@ -228,16 +254,15 @@ module V1
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
 
-    def login_stats(status, saml_response, error = nil)
-      tracker = url_service(saml_response&.in_response_to).tracker
-      type = tracker.payload_attr(:type)
+    def login_stats(status, error = nil)
+      type = url_service.tracker.payload_attr(:type)
       tags = ["context:#{type}", VERSION_TAG]
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
-        StatsD.measure(STATSD_LOGIN_LATENCY, tracker.age, tags: tags)
+        StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
         tags_and_error_code = tags << "error:#{error.code}"
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
@@ -272,8 +297,8 @@ module V1
     def handle_callback_error(exc, status, response, level = :error, context = {},
                               code = '007', tag = nil)
       log_message_to_sentry(exc.message, level, extra_context: context)
-      redirect_to url_service(response&.in_response_to).login_redirect_url(auth: 'fail', code: code) unless performed?
-      login_stats(:failure, response, exc) unless response.nil?
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: code) unless performed?
+      login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)
       PersonalInformationLog.create(
         error_class: exc,
@@ -303,7 +328,7 @@ module V1
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
-        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
+        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mpi: additional_context)
       end
     end
 
@@ -313,13 +338,12 @@ module V1
       'UNKNOWN'
     end
 
-    def url_service(previous_saml_uuid = nil, force_authn = false)
-      SAML::PostURLService.new(saml_settings(force_authn: force_authn),
-                               session: @session_object,
-                               user: current_user,
-                               params: params,
-                               loa3_context: LOA::IDME_LOA3,
-                               previous_saml_uuid: previous_saml_uuid)
+    def url_service(force_authn = true)
+      @url_service ||= SAML::PostURLService.new(saml_settings(force_authn: force_authn),
+                                                session: @session_object,
+                                                user: current_user,
+                                                params: params,
+                                                loa3_context: LOA::IDME_LOA3)
     end
   end
 end

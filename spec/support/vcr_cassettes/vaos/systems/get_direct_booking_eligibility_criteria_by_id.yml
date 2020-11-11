@@ -16,9 +16,9 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - stubbed_token
+      - eyJhbGciOiJSUzUxMiJ9.eyJsYXN0TmFtZSI6IkxhbmciLCJzdWIiOiI0NTY1NDkxMjU2OTY3MTUzNCIsImF1dGhlbnRpY2F0ZWQiOnRydWUsImF1dGhlbnRpY2F0aW9uQXV0aG9yaXR5IjoiZ292LnZhLnZhb3MiLCJpZFR5cGUiOiJJQ04iLCJnZW5kZXIiOiJNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjEiLCJkYXRlT2ZCaXJ0aCI6IjE5NjAxMjIwIiwidmVyc2lvbiI6Mi4xLCJlZGlwaWQiOiI3OTk1NjkzNjY0Iiwic3NuIjoiNDQ4NTA2MzU0IiwiZmlyc3ROYW1lIjoiTWlubmllIiwibmJmIjoxNjAxNDkxODMzLCJzc3QiOjE2MDE0OTIwMTMsImRvYiI6IjE5NjAxMjIwIiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJNaW5uaWUiLCJsYXN0TmFtZSI6IkxhbmciLCJnZW5kZXIiOiJNQUxFIiwiaWNuIjoiNDU2NTQ5MTI1Njk2NzE1MzQiLCJkb2IiOiIxOTYwLTEyLTIwIiwiZGF0ZU9mQmlydGgiOiIxOTYwLTEyLTIwIiwic3NuIjoiNDQ4NTA2MzU0In0sInZhbWYuYXV0aC5yb2xlcyI6WyJ2ZXRlcmFuIl0sImV4cCI6MTYwMTQ5MjkxMywianRpIjoiY2ZjZTMwOTgtOGZkNi00MjZkLWFjMTEtYjY4YjFkYTNjOTEzIiwibG9hIjoyfQ.Dy85otbdWu4ELQ0831QPDdhn0KZFUW0ge3_V0UpeY1YuxVMj7k4K2deiZQYhx3y0O-ouHkLL2x2zrFJg9_vhrqkUc_ga5xhffY-ha_Vlvgpd5lrBwSbGbSREFqmqJTBCSW6Lvigt6-uSoy7M7OofmapBW4SyM7R6kaw2YEctwFFX3t8oC3UCNr3s1TFiNuXLDrH7lAr3tyof5cPvYu_35vyig-UV5K-8UZBXD2G-B2AZ5D9ekvNgQJHZ4s2k9YG4LLgiJ0gwVKLj_b7z0EZZ_1bBXPMEj0FDQmo0vtz3RqYnBiSI-6IkX24DcXvatyVN0tTXiwFzXxyFBN5-HT8k0w
       X-Request-Id:
-      - 7ffd7678-4d3a-4294-9622-01975e17dcce
+      - 67a2a84b-1833-4239-9dd5-c0e6e6c48f0a
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,46 +27,200 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 15 Sep 2020 00:37:04 GMT
+      - Wed, 30 Sep 2020 18:53:33 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '3621'
-      Connection:
-      - keep-alive
-      X-B3-Parentspanid:
-      - f3c30a572c779da6
+      - '4043'
+      Server:
+      - openresty
       X-Vamf-Version:
-      - 1.8.0
-      X-B3-Traceid:
-      - f31342256664ec89
+      - 1.9.0
+      B3:
+      - 1b5e896037754082-0686124fbd03ef6b-0
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - d327d05
-      X-B3-Sampled:
-      - '0'
+      - fc4ff67
       X-Vamf-Timestamp:
-      - '2020-07-21T19:11:13+0000'
+      - '2020-09-22T17:08:57+0000'
       Access-Control-Allow-Origin:
       - "*"
-      X-B3-Spanid:
-      - 3d1ab15d6c6cfdef
       Access-Control-Allow-Methods:
       - GET,OPTIONS
       Access-Control-Max-Age:
       - '3600'
-      Set-Cookie:
-      - TS016f4012=01c16e2d8191d29560b0f0a8c054848dd999eba8d1ba07067a8600e8b30536c427f97aca7213d08b0ddb2881b437dea95dd94067c0bee0276a279bb436853d83388e1fa1b93d42a7a1e3b0b67810bb87850e87e842;
-        Max-Age=900; Path=/
-      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.Dd-a7svHzQzW_lLypcgFMYpTt2nrKjNSe26_-1kujsySOJ0odwWzmsyiQYJKq07Uhpl5p3w40MFdU1SQXsDKSgMJ8oIaBm5STeGvQsh8yBHKBkEFi6grfTZCUBHzCmDUtrQDYGOGz0V790ZrDu-JqUnEW7wQqFIumdsevYmjoTUmxZflza7KRSnLpqnF-_V1ZVlwjuQtVHrbsiJTVJtpNH92m-sZdQU_taFZ9QcPtsHREoS51J3XavPHYPBGYLLvA7JGoHhRsRJhZf1TQjdfCMZbqKoEi3iysi-eqT8mk9HW11b62qY-C8ILyYwdBYObVBtmq8d7SSRhJHzoxIElLQ.75nzXOpWBTv81Q43_MWpHQ._gMgyqUTH1wE2Kx9T8c9Xd4SnKOuvnhvYxbci02f2xm1ZfS7_gnbZHPcY7KgiiMrQCPckkmNBA3TUqfPWAJ0OmfuuXYqPZa-mI1kjFhKJ7RxPFruFSFKbJUFO-KFLAjgWUnwH8gCb9JjBiEzQjIUwQa4lrVrATrVk1V2aZ9bxQRLaVpejCSE7dvPV2e5_GvYx9uWfeDBw0n2v99Qsi4VRwbtjQTlH_P_7kLoqzEwpPRtSc5y7TMnLMBU0dXxMVr62LZsAXtWS78uWCQkioIJOcIbImU06qpliVk-xkHNCsRKP8YwTE4J-C4d_s1fGlfKYm85wKTRoXvvFETMXjj1AwMjIgiQ4KLcFWJXAxLEhOtPRNA7-Y5tmsfw8aA0D9vEcFmm8Pd7tgF5No8RTuR0vp8-3M4UQYiDxKB4o3KdgYz5yA_aLkrIfJQ56LxY6-J6F8ioCsSiw2Cu3-1JOmknsn3vVjd-5m6h9iSV6R4iBKdZk-fq1gkpMCQGGoCcBFkfY8AwRMtT0xTDNsqortylKd7yETTIurKAfCMeyiAAv_fvtKiTl02lI0KcP1sRyLtKn3xtkv_hfqLBxlcB0xRanlXPVBXZStN_YuSdxdX67lNRfrKmC_k2Hxb_KJ_r7epy_vJOkQ0mHk5toBJk776h-k4HKPfXYTFfDHMT6MmwhsAGtHtfQjnWYNhra1KfWr1D_vQy7yxh23-S-qDhWyOn8g.Oh0BWInGcxhZe0OAmcCbQLaAy8xSG7KrQ7VgP5FGNUg;
-        path=/; SameSite=Lax; HttpOnly
-      - vamftimeoutv1=1600131124; SameSite=Lax; path=/
       Strict-Transport-Security:
       - max-age=63072000; includeSubDomains; preload
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        WyB7CiAgImxpbmtzIiA6IFsgewogICAgInRpdGxlIiA6ICJkaXJlY3QtYm9va2luZy1lbGlnaWJpbGl0eS1jcml0ZXJpYSIsCiAgICAiaHJlZiIgOiAiL2ZhY2lsaXRpZXMvdjEvZGlyZWN0LWJvb2tpbmctZWxpZ2liaWxpdHktY3JpdGVyaWEiLAogICAgIm9iamVjdFR5cGUiIDogIkF0b21MaW5rIgogIH0gXSwKICAiaWQiIDogIjY4OCIsCiAgImNyZWF0ZWREYXRlIiA6ICIyMDE5LTAzLTA4VDE1OjM1OjQ5WiIsCiAgImxhc3RNb2RpZmllZERhdGUiIDogIjIwMTgtMTAtMzFUMTY6MTU6MDJaIiwKICAiY3JlYXRlZEJ5IiA6ICJTaGVwYXJkLCBTYW5keSIsCiAgIm1vZGlmaWVkQnkiIDogIkJFTlRULERFWU5FIFIiLAogICJjb3JlU2V0dGluZ3MiIDogWyB7CiAgICAiaWQiIDogIjIwMyIsCiAgICAidHlwZU9mQ2FyZSIgOiAiQXVkaW9sb2d5IiwKICAgICJwYXRpZW50SGlzdG9yeUR1cmF0aW9uIiA6IDAsCiAgICAic3RvcENvZGVzIiA6IFsgewogICAgICAicHJpbWFyeSIgOiAiMjAzIgogICAgfSBdLAogICAgImNhbkNhbmNlbCIgOiB0cnVlLAogICAgInN1Ym1pdHRlZFJlcXVlc3RMaW1pdCIgOiAyLAogICAgImVudGVycHJpc2VTdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMgogIH0sIHsKICAgICJpZCIgOiAiMzIzIiwKICAgICJ0eXBlT2ZDYXJlIiA6ICJQcmltYXJ5IENhcmUiLAogICAgInN0b3BDb2RlcyIgOiBbIHsKICAgICAgInByaW1hcnkiIDogIjMyMiIKICAgIH0sIHsKICAgICAgInByaW1hcnkiIDogIjMyMyIKICAgIH0sIHsKICAgICAgInByaW1hcnkiIDogIjM1MCIKICAgIH0gXSwKICAgICJjYW5DYW5jZWwiIDogdHJ1ZSwKICAgICJzdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMSwKICAgICJlbnRlcnByaXNlU3VibWl0dGVkUmVxdWVzdExpbWl0IiA6IDEKICB9LCB7CiAgICAiaWQiIDogIjQwOCIsCiAgICAidHlwZU9mQ2FyZSIgOiAiT3B0b21ldHJ5IiwKICAgICJwYXRpZW50SGlzdG9yeUR1cmF0aW9uIiA6IDAsCiAgICAic3RvcENvZGVzIiA6IFsgewogICAgICAicHJpbWFyeSIgOiAiNDA4IgogICAgfSBdLAogICAgImNhbkNhbmNlbCIgOiB0cnVlLAogICAgInN1Ym1pdHRlZFJlcXVlc3RMaW1pdCIgOiAyLAogICAgImVudGVycHJpc2VTdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMgogIH0sIHsKICAgICJpZCIgOiAiNTAyIiwKICAgICJ0eXBlT2ZDYXJlIiA6ICJPdXRwYXRpZW50IE1lbnRhbCBIZWFsdGgiLAogICAgInBhdGllbnRIaXN0b3J5RHVyYXRpb24iIDogNzMwLAogICAgInN0b3BDb2RlcyIgOiBbIHsKICAgICAgInByaW1hcnkiIDogIjUwMiIKICAgIH0gXSwKICAgICJjYW5DYW5jZWwiIDogdHJ1ZSwKICAgICJzdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMiwKICAgICJlbnRlcnByaXNlU3VibWl0dGVkUmVxdWVzdExpbWl0IiA6IDIKICB9LCB7CiAgICAiaWQiIDogIjEyMyIsCiAgICAidHlwZU9mQ2FyZSIgOiAiRm9vZCBhbmQgTnV0cml0aW9uIiwKICAgICJwYXRpZW50SGlzdG9yeUR1cmF0aW9uIiA6IDAsCiAgICAic3RvcENvZGVzIiA6IFsgewogICAgICAicHJpbWFyeSIgOiAiMTIzIgogICAgfSwgewogICAgICAicHJpbWFyeSIgOiAiMTI0IgogICAgfSBdLAogICAgImNhbkNhbmNlbCIgOiB0cnVlLAogICAgInN1Ym1pdHRlZFJlcXVlc3RMaW1pdCIgOiAyLAogICAgImVudGVycHJpc2VTdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMgogIH0sIHsKICAgICJpZCIgOiAiMzcyIiwKICAgICJ0eXBlT2ZDYXJlIiA6ICJNT1ZFISBwcm9ncmFtIiwKICAgICJwYXRpZW50SGlzdG9yeUR1cmF0aW9uIiA6IDAsCiAgICAic3RvcENvZGVzIiA6IFsgewogICAgICAicHJpbWFyeSIgOiAiMzcyIgogICAgfSwgewogICAgICAicHJpbWFyeSIgOiAiMzczIgogICAgfSBdLAogICAgImNhbkNhbmNlbCIgOiB0cnVlLAogICAgInN1Ym1pdHRlZFJlcXVlc3RMaW1pdCIgOiAyLAogICAgImVudGVycHJpc2VTdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMgogIH0sIHsKICAgICJpZCIgOiAiMzQ5IiwKICAgICJ0eXBlT2ZDYXJlIiA6ICJDUEFQIENsaW5pYyIsCiAgICAicGF0aWVudEhpc3RvcnlEdXJhdGlvbiIgOiAwLAogICAgInN0b3BDb2RlcyIgOiBbIHsKICAgICAgInByaW1hcnkiIDogIjM0OSIsCiAgICAgICJzZWNvbmRhcnkiIDogIjExNiIKICAgIH0gXSwKICAgICJjYW5DYW5jZWwiIDogdHJ1ZSwKICAgICJzdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMiwKICAgICJlbnRlcnByaXNlU3VibWl0dGVkUmVxdWVzdExpbWl0IiA6IDIKICB9LCB7CiAgICAiaWQiIDogIjE2MCIsCiAgICAidHlwZU9mQ2FyZSIgOiAiQ2xpbmljYWwgUGhhcm1hY3ktUHJpbWFyeSBDYXJlIiwKICAgICJwYXRpZW50SGlzdG9yeUR1cmF0aW9uIiA6IDAsCiAgICAic3RvcENvZGVzIiA6IFsgewogICAgICAicHJpbWFyeSIgOiAiMTYwIiwKICAgICAgInNlY29uZGFyeSIgOiAiMzIzIgogICAgfSBdLAogICAgImNhbkNhbmNlbCIgOiB0cnVlLAogICAgInN1Ym1pdHRlZFJlcXVlc3RMaW1pdCIgOiAyLAogICAgImVudGVycHJpc2VTdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMgogIH0sIHsKICAgICJpZCIgOiAiMTQzIiwKICAgICJ0eXBlT2ZDYXJlIiA6ICJTbGVlcCBNZWRpY2luZSDigJMgSG9tZSBTbGVlcCBUZXN0aW5nIiwKICAgICJwYXRpZW50SGlzdG9yeUR1cmF0aW9uIiA6IDAsCiAgICAic3RvcENvZGVzIiA6IFsgewogICAgICAicHJpbWFyeSIgOiAiMTQzIiwKICAgICAgInNlY29uZGFyeSIgOiAiMTg5IgogICAgfSBdLAogICAgImNhbkNhbmNlbCIgOiB0cnVlLAogICAgInN1Ym1pdHRlZFJlcXVlc3RMaW1pdCIgOiAyLAogICAgImVudGVycHJpc2VTdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMgogIH0sIHsKICAgICJpZCIgOiAiMjExIiwKICAgICJ0eXBlT2ZDYXJlIiA6ICJBbXB1dGF0aW9uIFNlcnZpY2VzIiwKICAgICJwYXRpZW50SGlzdG9yeUR1cmF0aW9uIiA6IDAsCiAgICAic3RvcENvZGVzIiA6IFsgewogICAgICAicHJpbWFyeSIgOiAiMjExIgogICAgfSBdLAogICAgImNhbkNhbmNlbCIgOiB0cnVlLAogICAgInN1Ym1pdHRlZFJlcXVlc3RMaW1pdCIgOiAyLAogICAgImVudGVycHJpc2VTdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMgogIH0sIHsKICAgICJpZCIgOiAiMTI1IiwKICAgICJ0eXBlT2ZDYXJlIiA6ICJTb2NpYWwgV29yayIsCiAgICAicGF0aWVudEhpc3RvcnlEdXJhdGlvbiIgOiAwLAogICAgInN0b3BDb2RlcyIgOiBbIHsKICAgICAgInByaW1hcnkiIDogIjEyNSIsCiAgICAgICJzZWNvbmRhcnkiIDogIjMyMyIKICAgIH0gXSwKICAgICJjYW5DYW5jZWwiIDogdHJ1ZSwKICAgICJzdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMiwKICAgICJlbnRlcnByaXNlU3VibWl0dGVkUmVxdWVzdExpbWl0IiA6IDIKICB9LCB7CiAgICAiaWQiIDogIjQwNyIsCiAgICAidHlwZU9mQ2FyZSIgOiAiT3BodGhhbG1vbG9neSIsCiAgICAicGF0aWVudEhpc3RvcnlEdXJhdGlvbiIgOiAwLAogICAgInN0b3BDb2RlcyIgOiBbIHsKICAgICAgInByaW1hcnkiIDogIjQwNyIKICAgIH0gXSwKICAgICJjYW5DYW5jZWwiIDogdHJ1ZSwKICAgICJzdWJtaXR0ZWRSZXF1ZXN0TGltaXQiIDogMiwKICAgICJlbnRlcnByaXNlU3VibWl0dGVkUmVxdWVzdExpbWl0IiA6IDIKICB9IF0KfSBd
-  recorded_at: Tue, 15 Sep 2020 00:37:04 GMT
+      encoding: UTF-8
+      string: |-
+        [ {
+          "id" : "688",
+          "createdDate" : "2020-09-30T18:53:33Z",
+          "lastModifiedDate" : "2020-09-30T18:53:33Z",
+          "coreSettings" : [ {
+            "id" : "123",
+            "typeOfCare" : "Food and Nutrition",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "123"
+            }, {
+              "primary" : "124"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "125",
+            "typeOfCare" : "Social Work",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "125",
+              "secondary" : "323"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "143",
+            "typeOfCare" : "Sleep Medicine – Home Sleep Testing",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "143",
+              "secondary" : "189"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "160",
+            "typeOfCare" : "Clinical Pharmacy-Primary Care",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "160",
+              "secondary" : "323"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "203",
+            "typeOfCare" : "Audiology",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "203"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "211",
+            "typeOfCare" : "Amputation Services",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "211"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "323",
+            "typeOfCare" : "Primary Care",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "322"
+            }, {
+              "primary" : "323"
+            }, {
+              "primary" : "350"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 1,
+            "enterpriseSubmittedRequestLimit" : 1
+          }, {
+            "id" : "349",
+            "typeOfCare" : "CPAP Clinic",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "349",
+              "secondary" : "116"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "372",
+            "typeOfCare" : "MOVE! program",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "372"
+            }, {
+              "primary" : "373"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "407",
+            "typeOfCare" : "Ophthalmology",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "407"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "408",
+            "typeOfCare" : "Optometry",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "408"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "411",
+            "typeOfCare" : "Podiatry",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "411"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          }, {
+            "id" : "502",
+            "typeOfCare" : "Outpatient Mental Health",
+            "patientHistoryDuration" : 0,
+            "stopCodes" : [ {
+              "primary" : "502",
+              "secondary" : "125"
+            }, {
+              "primary" : "502",
+              "secondary" : "179"
+            }, {
+              "primary" : "502",
+              "secondary" : "185"
+            }, {
+              "primary" : "502",
+              "secondary" : "186"
+            }, {
+              "primary" : "502",
+              "secondary" : "187"
+            }, {
+              "primary" : "502",
+              "secondary" : "509"
+            }, {
+              "primary" : "502",
+              "secondary" : "510"
+            } ],
+            "canCancel" : true,
+            "submittedRequestLimit" : 2,
+            "enterpriseSubmittedRequestLimit" : 2
+          } ]
+        } ]
+  recorded_at: Wed, 30 Sep 2020 18:53:33 GMT
 recorded_with: VCR 6.0.0

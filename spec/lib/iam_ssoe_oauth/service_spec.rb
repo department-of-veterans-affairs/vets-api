@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'common/exceptions'
 require 'iam_ssoe_oauth/service'
 
 describe 'IAMSSOeOAuth::Service' do
@@ -53,6 +52,16 @@ describe 'IAMSSOeOAuth::Service' do
         VCR.use_cassette('iam_ssoe_oauth/introspect_inactive') do
           expect { service.post_introspect('ypXeAwQedpmAy5xFD2u4') }.to raise_error(
             Common::Exceptions::Unauthorized
+          )
+        end
+      end
+    end
+
+    context 'with a 500' do
+      it 'raises a BackendServiceException' do
+        VCR.use_cassette('iam_ssoe_oauth/introspect_500') do
+          expect { service.post_introspect('ypXeAwQedpmAy5xFD2u4') }.to raise_error(
+            Common::Exceptions::BackendServiceException
           )
         end
       end

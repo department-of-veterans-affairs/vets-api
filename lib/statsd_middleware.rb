@@ -10,40 +10,48 @@ class StatsdMiddleware
     0993-edu-benefits
     0994-edu-benefits
     0996-higher-level-review
+    1010cg-application-caregiver-assistance
+    10203-edu-benefits
     1990-edu-benefits
     1990e-edu-benefits
     1990n-edu-benefits
     1995-edu-benefits
+    28-1900-chapter-31
+    28-8832-planning-and-career-guidance
     526EZ-all-claims
-    526EZ-claims-increase
     5490-edu-benefits
     5495-edu-benefits
     686-dependent-status
-    account
+    686C-674
+    ask-a-question
     auth
     beta-enrollment
     burials
-    chapter31-vre
-    chapter36-vre
     claims-status
-    connected-accounts
+    coronavirus-research
+    covid19screen
     dashboard
     dependents-view-dependents
     disability-my-rated-disabilities
     discharge-upgrade-instructions
     facilities
     feedback-tool
+    financial-status-report
     gi
     hca
-    id-card-beta
     letters
+    login-page
+    my-documents
     my-health-account-validation
+    order-form-2346
     pensions
     post-911-gib-status
     pre-need
-    profile-360
+    profile
     proxy-rewrite
     public-outreach-materials
+    questionnaire
+    resources-and-support
     search
     static-pages
     terms-and-conditions
@@ -51,7 +59,9 @@ class StatsdMiddleware
     verify
     veteran-id-card
     veteran-representative
-    vic-v2
+    view-payments
+    yellow-ribbon
+    your-debt
     undefined
   ].freeze
 

@@ -3,11 +3,12 @@
 require 'sentry_logging'
 require_relative 'id_parser'
 require_relative 'historical_icn_parser'
+require_relative 'parser_base'
 
 module MVI
   module Responses
     # Parses a MVI response and returns a MviProfile
-    class ProfileParser
+    class ProfileParser < ParserBase
       include SentryLogging
 
       BODY_XPATH = 'env:Envelope/env:Body/idm:PRPA_IN201306UV02'
@@ -29,13 +30,6 @@ module MVI
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
-      # MVI response code options.
-      EXTERNAL_RESPONSE_CODES = {
-        success: 'AA',
-        failure: 'AR',
-        invalid_request: 'AE'
-      }.freeze
-
       # Creates a new parser instance.
       #
       # @param response [struct Faraday::Env] the Faraday response
@@ -43,27 +37,6 @@ module MVI
       def initialize(response)
         @original_body = locate_element(response.body, BODY_XPATH)
         @code = locate_element(@original_body, CODE_XPATH)
-      end
-
-      # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
-      #
-      # @return [Boolean] has failed or invalid code?
-      def failed_or_invalid?
-        invalid_request? || failed_request?
-      end
-
-      # MVI returns failed if MVI throws an internal error.
-      #
-      # @return [Boolean] has failed
-      def failed_request?
-        EXTERNAL_RESPONSE_CODES[:failure] == @code
-      end
-
-      # MVI returns invalid request if request is malformed.
-      #
-      # @return [Boolean] has invalid request
-      def invalid_request?
-        EXTERNAL_RESPONSE_CODES[:invalid_request] == @code
       end
 
       # MVI returns multiple match warnings if a query returns more than one match.
@@ -116,6 +89,7 @@ module MVI
           vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
           sec_id: parsed_mvi_ids[:sec_id],
           birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
+          birls_ids: parsed_mvi_ids[:birls_ids].map { |id| sanitize_birls_id(id) }.compact,
           vet360_id: parsed_mvi_ids[:vet360_id],
           historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
@@ -152,37 +126,6 @@ module MVI
 
       def get_patient_name(patient)
         locate_element(patient, NAME_XPATH)
-      end
-
-      def sanitize_edipi(edipi)
-        return if edipi.nil?
-
-        # Get rid of invalid values like 'UNK'
-        sanitized_result = edipi.match(/\d{10}/)&.to_s
-        Rails.logger.info "Edipi sanitized was: '#{edipi}' now: '#{sanitized_result}'." unless sanitized_result == edipi
-        sanitized_result
-      end
-
-      def sanitize_participant_id(participant_id)
-        return if participant_id.nil?
-
-        # Get rid of non-digit characters like 'UNK'/'ASKU'
-        sanitized_result = participant_id.match(/\d+/)&.to_s
-        if sanitized_result != participant_id
-          Rails.logger.info "Participant id sanitized, was: '#{participant_id}' now: '#{sanitized_result}'."
-        end
-        sanitized_result
-      end
-
-      def sanitize_birls_id(birls_id)
-        return if birls_id.nil?
-
-        # Get rid of non-digit characters like 'UNK'/'ASKU'
-        sanitized_result = birls_id.match(/\d+/)&.to_s
-        if sanitized_result != birls_id
-          Rails.logger.info "Birls id sanitized, was: '#{birls_id}' now: '#{sanitized_result}'."
-        end
-        sanitized_result
       end
 
       # name can be a hash or an array of hashes with extra unneeded details
@@ -232,12 +175,6 @@ module MVI
           node = oi.nodes.select { |n| n.attributes[:root] == SSN_ROOT_ID }
           return node.first unless node.empty?
         end
-      end
-
-      def locate_element(el, path)
-        return nil unless el
-
-        el.locate(path)&.first
       end
     end
   end

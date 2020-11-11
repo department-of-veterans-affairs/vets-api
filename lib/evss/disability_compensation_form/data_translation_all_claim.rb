@@ -600,49 +600,8 @@ module EVSS
         end
       end
 
-      ###
-      # Date calculations
-      ###
-
       def application_expiration_date
-        return (rad_date + 1.day + 365.days).iso8601 if greater_rad_date?
-        return (application_create_date + 365.days).iso8601 if greater_itf_date?
-
-        itf.expiration_date.iso8601
-      end
-
-      def greater_rad_date?
-        rad_date.present? && rad_date > application_create_date
-      end
-
-      def greater_itf_date?
-        itf.creation_date.nil? || itf.expiration_date.nil? || itf.creation_date > application_create_date
-      end
-
-      def application_create_date
-        # Application create date is the date the user began their application
-        # TODO AEC
-        @acd ||= InProgressForm.where(form_id: [FormProfiles::VA526ez::FORM_ID, FormProfiles::VA526ezbdd::FORM_ID],
-                                      user_uuid: @user.uuid)
-                               .order('updated_at desc')
-                               .first.created_at
-      end
-
-      def rad_date
-        # retrieve the most recent Release from Active Duty (RAD) date
-        return @rd if @rd
-
-        service_episodes = @user.military_information.service_episodes_by_date
-        @rd = Time.zone.parse(service_episodes.first&.end_date.to_s)
-      end
-
-      def itf
-        # retrieve the active intent to file for compensation
-        return @itf if @itf
-
-        service = EVSS::IntentToFile::Service.new(@user)
-        response = service.get_active('compensation')
-        @itf = response.intent_to_file
+        1.year.from_now.iso8601
       end
 
       ###

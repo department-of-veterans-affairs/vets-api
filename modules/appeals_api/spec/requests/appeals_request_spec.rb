@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/auth_headers'
-require 'evss/power_of_attorney_verifier'
 
 RSpec.describe 'Claim Appeals API endpoint', type: :request do
   include SchemaMatchers
@@ -22,12 +20,6 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
         'X-Consumer-Username' => 'TestConsumer',
         'X-VA-User' => 'adhoc.test.user'
       }
-    end
-
-    before do
-      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
-      allow(@verifier_stub).to receive(:verify)
     end
 
     it 'returns a successful response' do
@@ -65,12 +57,6 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
         'X-Consumer-Username' => 'TestConsumer',
         'X-VA-User' => 'adhoc.test.user'
       }
-    end
-
-    before do
-      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
-      allow(@verifier_stub).to receive(:verify)
     end
 
     it 'returns a successful response' do

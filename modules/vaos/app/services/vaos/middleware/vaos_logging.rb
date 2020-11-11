@@ -27,7 +27,7 @@ module VAOS
 
         @app.call(env).on_complete do |response_env|
           log_tags = {
-            jti: jti(env, response_env),
+            jti: jti(env),
             status: response_env.status,
             duration: Time.current - start_time,
             # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
@@ -72,16 +72,23 @@ module VAOS
       # #jti is the value from the JWT key value pair in the response and needed for logging and audit purposes
       #
       # @param env [Faraday::Env] The Request/Response tree object
-      # @param response_env [Faraday::Env::Response] The response part of the tree
       # @return [String] The JTI value or "unknown jti" if a parsing or other error is encountered (failing gracefully)
-      def jti(env, response_env)
+      def jti(env)
         if user_session_request?(env)
-          decode_jwt_no_sig_check(response_env.body)['jti']
+          decode_jwt_no_sig_check(env.body)['jti']
         else
-          decode_jwt_no_sig_check(env.response_headers['X-Vamf-Jwt'])['jti']
+          decode_jwt_no_sig_check(x_vamf_headers(env.request_headers))['jti']
         end
       rescue
         'unknown jti'
+      end
+
+      # #x_vamf_headers identifies which X-Vamf-Header was set and returns the appropriate header value
+      #
+      # @param request_headers The set of request headers
+      # @return [String] the JWT set in the request headers
+      def x_vamf_headers(request_headers)
+        request_headers['X-Vamf-Jwt'] || request_headers['X-VAMF-JWT']
       end
     end
   end

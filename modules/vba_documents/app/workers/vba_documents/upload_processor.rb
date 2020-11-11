@@ -36,6 +36,8 @@ module VBADocuments
         response = submit(metadata, parts)
         process_response(response)
         log_submission(@upload, metadata)
+      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError
+        VBADocuments::UploadSubmission.refresh_statuses!([@upload])
       rescue VBADocuments::UploadError => e
         retry_errors(e, @upload)
       ensure
@@ -70,7 +72,7 @@ module VBADocuments
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
       else
-        map_downstream_error(response.status, response.body, VBADocuments::UploadError)
+        map_error(response.status, response.body, VBADocuments::UploadError)
       end
     end
 

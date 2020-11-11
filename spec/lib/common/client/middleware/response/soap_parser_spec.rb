@@ -75,7 +75,7 @@ describe Common::Client::Middleware::Response::SOAPParser do
         headers: {
           'Content-Type' => 'text/xml'
         },
-        body: File.read('spec/support/mvi/find_candidate_soap_fault.xml')
+        body: File.read('spec/support/mpi/find_candidate_soap_fault.xml')
       )
     end
 

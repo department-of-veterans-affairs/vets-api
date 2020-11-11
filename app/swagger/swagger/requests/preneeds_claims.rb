@@ -153,6 +153,37 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/preneeds/preneed_attachments' do
+        operation :post do
+          extend Swagger::Responses::BadRequestError
+          extend Swagger::Responses::UnprocessableEntityError
+
+          key :description, 'Upload a pdf or image file'
+          key :operationId, 'addPreneedsAttachments'
+          key :tags, %w[benefits_forms]
+
+          parameter do
+            key :name, :preneed_attachments
+            key :in, :body
+            key :description, 'Object containing file name'
+            key :required, true
+
+            schema do
+              key :required, %i[file_data]
+              property :file_data, type: :string, example: 'filename.pdf'
+              property :password, type: :string, example: 'My Password'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is ok'
+            schema do
+              key :'$ref', :UploadSupportingEvidence
+            end
+          end
+        end
+      end
     end
   end
 end

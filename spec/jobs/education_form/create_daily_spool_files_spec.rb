@@ -52,7 +52,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     it 'logs a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
       expect(subject).not_to receive(:write_files)
-      expect(subject.logger).to receive('info').with("Skipping on a Holiday: New Year's Day")
+      expect(subject).to receive('log_info').with("Skipping on a Holiday: New Year's Day")
       expect(subject.perform).to be false
     end
 
@@ -123,7 +123,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'processes the valid messages' do
-        expect(subject).to receive(:log_exception_to_sentry).once
+        expect(subject).to receive(:log_exception_to_sentry).at_least(:once)
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
         expect(Dir[spool_files].count).to eq(2)
       end
@@ -136,7 +136,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       it 'prints a statement and exits', run_at: '2017-02-21 00:00:00 EDT' do
         expect(subject).not_to receive(:write_files)
-        expect(subject.logger).to receive(:info).with('No records to process.')
+        expect(subject).to receive('log_info').with('No records to process.').once
         expect(subject.perform).to be(true)
       end
     end
@@ -212,7 +212,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
 
-      with_settings(Settings.edu.sftp, host: 'localhost', pass: 'test') do
+      key_path = "#{::Rails.root}/spec/fixtures/files/idme_cert.crt" # any readable file will work for this spec
+      with_settings(Settings.edu.sftp, host: 'localhost', key_path: key_path) do
         sftp_session_mock = instance_double('Net::SSH::Connection::Session')
         sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
 

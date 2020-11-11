@@ -48,6 +48,10 @@ class EVSSClaimService
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.final_filename
     EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
+  rescue CarrierWave::IntegrityError => e
+    log_exception_to_sentry(e, nil, nil, 'warn')
+    raise Common::Exceptions::UnprocessableEntity.new(detail: e.message,
+                                                      source: 'EVSSClaimService.upload_document')
   end
 
   private

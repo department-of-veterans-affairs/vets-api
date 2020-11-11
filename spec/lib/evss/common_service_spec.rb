@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'evss/common_service'
-require 'evss/auth_headers'
 
 describe EVSS::CommonService do
   subject { described_class.new(auth_headers) }

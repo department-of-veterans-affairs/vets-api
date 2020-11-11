@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/disability_compensation_auth_headers'
-require 'evss/disability_compensation_form/configuration'
-require 'evss/disability_compensation_form/service'
-require 'common/exceptions'
 
 RSpec.describe 'Disability Claims ', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796043735',
+    { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-VA-EDIPI': '1007697216',
@@ -21,7 +17,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
   before do
     stub_poa_verification
-    stub_mvi
+    stub_mpi
   end
 
   describe '#526' do
@@ -143,6 +139,60 @@ RSpec.describe 'Disability Claims ', type: :request do
           post path, params: params.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
           expect(JSON.parse(response.body)['errors'].size).to eq(2)
+        end
+      end
+
+      describe 'disabilities specialIssues' do
+        context 'when an incorrect type is passed for specialIssues' do
+          it 'returns errors explaining the failure' do
+            with_okta_user(scopes) do |auth_header|
+              params = json_data
+              params['data']['attributes']['disabilities'][0]['specialIssues'] = ['invalidType']
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(422)
+              expect(JSON.parse(response.body)['errors'].size).to eq(1)
+            end
+          end
+        end
+
+        context 'when correct types are passed for specialIssues' do
+          it 'returns a successful status' do
+            VCR.use_cassette('evss/claims/claims') do
+              with_okta_user(scopes) do |auth_header|
+                params = json_data
+                params['data']['attributes']['disabilities'][0]['specialIssues'] = %w[ALS HEPC]
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
+        end
+      end
+
+      describe 'flashes' do
+        context 'when an incorrect type is passed for flashes' do
+          it 'returns errors explaining the failure' do
+            with_okta_user(scopes) do |auth_header|
+              params = json_data
+              params['data']['attributes']['veteran']['flashes'] = ['invalidType']
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(422)
+              expect(JSON.parse(response.body)['errors'].size).to eq(1)
+            end
+          end
+        end
+
+        context 'when correct types are passed for flashes' do
+          it 'returns a successful status' do
+            VCR.use_cassette('evss/claims/claims') do
+              with_okta_user(scopes) do |auth_header|
+                params = json_data
+                params['data']['attributes']['veteran']['flashes'] = %w[Hardship POW]
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
+          end
         end
       end
 
@@ -307,6 +357,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
   describe '#upload_documents' do
     let(:auto_claim) { create(:auto_established_claim) }
+    let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
     let(:binary_params) do
       { 'attachment1': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
         'attachment2': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
@@ -333,6 +384,16 @@ RSpec.describe 'Disability Claims ', type: :request do
             params: base64_params, headers: headers.merge(auth_header))
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
+      end
+    end
+
+    it 'rejects uploading 526 through PUT when autoCestPDFGenerationDisabled is false' do
+      with_okta_user(scopes) do |auth_header|
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        put("/services/claims/v1/forms/526/#{non_auto_claim.id}",
+            params: binary_params, headers: headers.merge(auth_header))
+        non_auto_claim.reload
+        expect(response.status).to eq(422)
       end
     end
 

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Power of Attorney ', type: :request do
   let(:headers) do
-    { 'X-VA-SSN': '796043735',
+    { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-VA-EDIPI': '1007697216',
@@ -17,7 +17,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
   before do
     stub_poa_verification
-    stub_mvi
+    stub_mpi
   end
 
   describe '#2122' do

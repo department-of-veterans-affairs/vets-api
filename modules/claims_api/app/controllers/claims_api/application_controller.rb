@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/mvi_verification'
-require_dependency 'claims_api/concerns/header_validation'
-require_dependency 'claims_api/unsynchronized_evss_claims_service'
-require_dependency 'claims_api/concerns/json_format_validation'
 require 'evss/error_middleware'
-require 'evss/power_of_attorney_verifier'
+require 'bgs/power_of_attorney_verifier'
 
 module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
-    include ClaimsApi::MviVerification
+    include ClaimsApi::MPIVerification
     include ClaimsApi::HeaderValidation
     include ClaimsApi::JsonFormatValidation
 
@@ -17,26 +13,27 @@ module ClaimsApi
     before_action :validate_json_format, if: -> { request.post? }
 
     def show
-      if (pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id]))
-        render json: pending_claim,
-               serializer: ClaimsApi::AutoEstablishedClaimSerializer
-      else
-        fetch_or_error_local_claim_id
-      end
-    rescue EVSS::ErrorMiddleware::EVSSError
+      find_claim
+    rescue => e
+      log_message_to_sentry('Error in claims show',
+                            :warning,
+                            body: e.message)
       render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
              status: :not_found
     end
 
     private
 
-    def fetch_or_error_local_claim_id
+    def find_claim
       claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
+
       if claim && claim.status == 'errored'
         fetch_errored(claim)
+      elsif claim && claim.evss_id.nil?
+        render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
       else
-        claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
-        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+        evss_claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
+        render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
       end
     end
 
@@ -112,14 +109,14 @@ module ClaimsApi
     end
 
     def verify_power_of_attorney
-      verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+      verifier = BGS::PowerOfAttorneyVerifier.new(target_veteran)
       verifier.verify(@current_user)
     end
 
     def veteran_from_headers(with_gender: false)
       vet = ClaimsApi::Veteran.new(
-        uuid: header('X-VA-SSN'),
-        ssn: header('X-VA-SSN'),
+        uuid: header('X-VA-SSN')&.gsub(/[^0-9]/, ''),
+        ssn: header('X-VA-SSN')&.gsub(/[^0-9]/, ''),
         first_name: header('X-VA-First-Name'),
         last_name: header('X-VA-Last-Name'),
         va_profile: ClaimsApi::Veteran.build_profile(header('X-VA-Birth-Date')),
@@ -128,14 +125,12 @@ module ClaimsApi
       vet.loa = if @current_user
                   @current_user.loa
                 else
-                  vet.loa = {
-                    current: header('X-VA-LOA').try(:to_i),
-                    highest: header('X-VA-LOA').try(:to_i)
-                  }
+                  { current: header('X-VA-LOA').try(:to_i), highest: header('X-VA-LOA').try(:to_i) }
                 end
-      vet.mvi_record?
-      vet.gender = header('X-VA-Gender') || vet.mvi.profile&.gender if with_gender
-      vet.edipi = header('X-VA-EDIPI') || vet.mvi.profile&.edipi
+      vet.mpi_record?
+      vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
+      vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
+      vet.participant_id = header('X-VA-PID') || vet.mpi.profile&.participant_id
       vet
     end
   end

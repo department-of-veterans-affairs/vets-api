@@ -27,6 +27,8 @@ describe MVI::Service do
       given_names: %w[Mitchell G],
       vha_facility_ids: [],
       sec_id: '1008714701',
+      birls_id: '796122306',
+      birls_ids: ['796122306'],
       historical_icns: nil,
       icn_with_aaid: icn_with_aaid,
       full_mvi_ids: [
@@ -56,7 +58,7 @@ describe MVI::Service do
       end
 
       it 'runs a proxy add for birls and corp ids' do
-        VCR.use_cassette('mvi/add_person/add_person_success') do
+        VCR.use_cassette('mpi/add_person/add_person_success') do
           response = subject.add_person(user)
           expect(response.status).to eq('OK')
           expect(response.mvi_codes).to have_deep_attributes(mvi_codes)
@@ -64,7 +66,7 @@ describe MVI::Service do
       end
 
       it 'returns no errors' do
-        VCR.use_cassette('mvi/add_person/add_person_success') do
+        VCR.use_cassette('mpi/add_person/add_person_success') do
           response = subject.add_person(user)
 
           expect(response.error).to be_nil
@@ -84,7 +86,7 @@ describe MVI::Service do
       end
 
       it 'runs a proxy add for birls and corp ids' do
-        VCR.use_cassette('mvi/add_person/add_person_already_exists') do
+        VCR.use_cassette('mpi/add_person/add_person_already_exists') do
           response = subject.add_person(user)
           expect(response.status).to eq('OK')
           expect(response.mvi_codes).to have_deep_attributes(mvi_codes)
@@ -92,7 +94,7 @@ describe MVI::Service do
       end
 
       it 'returns no errors' do
-        VCR.use_cassette('mvi/add_person/add_person_success') do
+        VCR.use_cassette('mpi/add_person/add_person_success') do
           response = subject.add_person(user)
 
           expect(response.error).to be_nil
@@ -104,7 +106,7 @@ describe MVI::Service do
       it 'responds with a SERVER_ERROR if request is invalid', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
 
-        VCR.use_cassette('mvi/add_person/add_person_invalid_request') do
+        VCR.use_cassette('mpi/add_person/add_person_invalid_request') do
           response = subject.add_person(user)
           exception = response.error.errors.first
 
@@ -121,7 +123,7 @@ describe MVI::Service do
       it 'responds with a SERVER_ERROR if the user has duplicate keys in the system', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
 
-        VCR.use_cassette('mvi/add_person/add_person_duplicate') do
+        VCR.use_cassette('mpi/add_person/add_person_duplicate') do
           response = subject.add_person(user)
           exception = response.error.errors.first
 
@@ -187,7 +189,7 @@ describe MVI::Service do
       it 'fetches profile when icn has ^NI^200M^USVHA^P' do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
 
-        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           profile = mvi_profile
           profile['search_token'] = 'WSDOC1908201553145951848240311'
           expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'icn')
@@ -200,7 +202,7 @@ describe MVI::Service do
       it 'fetches profile when icn has ^NI' do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI')
 
-        VCR.use_cassette('mvi/find_candidate/valid_icn_ni_only') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_ni_only') do
           profile = mvi_profile
           profile['search_token'] = 'WSDOC1908201553117051423642755'
           response = subject.find_profile(user)
@@ -212,7 +214,7 @@ describe MVI::Service do
       it 'fetches profile when icn is just basic icn' do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111')
 
-        VCR.use_cassette('mvi/find_candidate/valid_icn_without_ni') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_without_ni') do
           profile = mvi_profile
           profile['search_token'] = 'WSDOC1908201553094460697640189'
           response = subject.find_profile(user)
@@ -224,7 +226,7 @@ describe MVI::Service do
       it 'correctly parses vet360 id if it exists', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
         allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
 
-        VCR.use_cassette('mvi/find_candidate/valid_vet360_id') do
+        VCR.use_cassette('mpi/find_candidate/valid_vet360_id') do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile['vet360_id']).to eq('80')
@@ -236,7 +238,7 @@ describe MVI::Service do
         allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
         match = { match_requests_on: %i[method uri headers body] }
-        VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn', match) do
+        VCR.use_cassette('mpi/find_candidate/historical_icns_with_icn', match) do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile['historical_icns']).to eq(
@@ -250,7 +252,7 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('1008710003V120120^NI^200M^USVHA^P')
         allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
-        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('mpi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile['historical_icns']).to eq([])
@@ -260,7 +262,7 @@ describe MVI::Service do
       it 'returns no errors' do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
 
-        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        VCR.use_cassette('mpi/find_candidate/valid_icn_full') do
           response = subject.find_profile(user)
 
           expect(response.error).to be_nil
@@ -273,7 +275,7 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
         expect(subject).to receive(:log_exception_to_sentry)
 
-        VCR.use_cassette('mvi/find_candidate/invalid_icn') do
+        VCR.use_cassette('mpi/find_candidate/invalid_icn') do
           response = subject.find_profile(user)
 
           server_error_502_expectations_for(response)
@@ -284,7 +286,7 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
         expect(subject).to receive(:log_exception_to_sentry)
 
-        VCR.use_cassette('mvi/find_candidate/icn_not_found') do
+        VCR.use_cassette('mpi/find_candidate/icn_not_found') do
           response = subject.find_profile(user)
 
           server_error_502_expectations_for(response)
@@ -308,7 +310,7 @@ describe MVI::Service do
       it 'fetches profile when no mhv_icn exists but dslogon_edipi is present' do
         allow(user).to receive(:dslogon_edipi).and_return('1025062341')
 
-        VCR.use_cassette('mvi/find_candidate/edipi_present') do
+        VCR.use_cassette('mpi/find_candidate/edipi_present') do
           expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'edipi')
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
@@ -335,7 +337,7 @@ describe MVI::Service do
       end
 
       it 'calls the find_profile endpoint with a find candidate message' do
-        VCR.use_cassette('mvi/find_candidate/valid') do
+        VCR.use_cassette('mpi/find_candidate/valid') do
           profile = mvi_profile
           profile['search_token'] = 'WSDOC1908281447208280163390431'
           expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'user_attributes')
@@ -359,7 +361,7 @@ describe MVI::Service do
         it 'fetches historical icns when available', run_at: 'Thu, 29 Aug 2019 13:56:24 GMT' do
           allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
-          VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('mpi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
             response = subject.find_profile(user)
             expect(response.status).to eq('OK')
             expect(response.profile['historical_icns']).to eq(
@@ -383,7 +385,7 @@ describe MVI::Service do
         end
 
         it 'calls the find_profile endpoint with a find candidate message' do
-          VCR.use_cassette('mvi/find_candidate/valid_no_gender') do
+          VCR.use_cassette('mpi/find_candidate/valid_no_gender') do
             profile = mvi_profile
             profile['search_token'] = 'WSDOC1908281514193450364096012'
             response = subject.find_profile(user)
@@ -395,11 +397,11 @@ describe MVI::Service do
 
     context 'when a MVI invalid request response is returned' do
       it 'raises a invalid request error', :aggregate_failures do
-        invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
+        invalid_xml = File.read('spec/support/mpi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_exception_to_sentry)
 
-        VCR.use_cassette('mvi/find_candidate/invalid') do
+        VCR.use_cassette('mpi/find_candidate/invalid') do
           response = subject.find_profile(user)
           server_error_502_expectations_for(response)
         end
@@ -407,7 +409,7 @@ describe MVI::Service do
     end
 
     context 'when a MVI internal system problem response is returned' do
-      let(:body) { File.read('spec/support/mvi/find_candidate_ar_code_database_error_response.xml') }
+      let(:body) { File.read('spec/support/mpi/find_candidate_ar_code_database_error_response.xml') }
 
       it 'raises a invalid request error', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
@@ -440,7 +442,7 @@ describe MVI::Service do
           'MVI find_profile error: SOAP HTTP call failed',
           :warn
         )
-        VCR.use_cassette('mvi/find_candidate/five_hundred') do
+        VCR.use_cassette('mpi/find_candidate/five_hundred') do
           response = subject.find_profile(user)
           server_error_504_expectations_for(response)
         end
@@ -463,7 +465,7 @@ describe MVI::Service do
       end
 
       it 'returns not found, does not log sentry', :aggregate_failures do
-        VCR.use_cassette('mvi/find_candidate/no_subject') do
+        VCR.use_cassette('mpi/find_candidate/no_subject') do
           expect(subject).not_to receive(:log_exception_to_sentry)
           response = subject.find_profile(user)
 
@@ -485,7 +487,7 @@ describe MVI::Service do
         it 'returns not found for COMP2 requests, does not log sentry', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
           allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
-          VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('mpi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
             expect(subject).not_to receive(:log_exception_to_sentry)
             response = subject.find_profile(user)
 
@@ -516,7 +518,7 @@ describe MVI::Service do
             'MVI find_profile error: SOAP service returned internal server error',
             :warn
           )
-          VCR.use_cassette("mvi/find_candidate/#{cassette}") do
+          VCR.use_cassette("mpi/find_candidate/#{cassette}") do
             response = subject.find_profile(user)
 
             server_error_504_expectations_for(response)
@@ -533,7 +535,7 @@ describe MVI::Service do
       it 'raises MVI::Errors::RecordNotFound', :aggregate_failures do
         expect(subject).to receive(:log_exception_to_sentry)
 
-        VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
+        VCR.use_cassette('mpi/find_candidate/failure_multiple_matches') do
           response = subject.find_profile(user)
 
           record_not_found_404_expectations_for(response)
@@ -548,7 +550,7 @@ describe MVI::Service do
         allow(user).to receive(:mhv_icn)
 
         allow(StatsD).to receive(:increment)
-        VCR.use_cassette('mvi/find_candidate/valid') do
+        VCR.use_cassette('mpi/find_candidate/valid') do
           subject.find_profile(user)
         end
         expect(StatsD).to have_received(:increment).with('api.mvi.find_profile.total')
@@ -556,7 +558,7 @@ describe MVI::Service do
 
       it 'logs the request and response data' do
         expect do
-          VCR.use_cassette('mvi/find_candidate/valid') do
+          VCR.use_cassette('mpi/find_candidate/valid') do
             Settings.mvi.pii_logging = true
             subject.find_profile(user)
             Settings.mvi.pii_logging = false
@@ -585,7 +587,7 @@ describe MVI::Service do
 
       it 'increments add_person total' do
         allow(StatsD).to receive(:increment)
-        VCR.use_cassette('mvi/add_person/add_person_success') do
+        VCR.use_cassette('mpi/add_person/add_person_success') do
           subject.add_person(user)
         end
         expect(StatsD).to have_received(:increment).with('api.mvi.add_person.total')

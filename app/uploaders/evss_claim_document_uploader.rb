@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+# Files that will be associated with a previously submitted claim, from the Claim Status tool
 class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
-  include ValidateFileSize
-  include SetAwsConfig
+  include SetAWSConfig
 
-  MAX_FILE_SIZE = 25.megabytes
+  def size_range
+    1.byte...50.megabytes
+  end
 
   version :converted, if: :tiff? do
     process(convert: :jpg)
@@ -53,7 +55,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     store_dir
   end
 
-  def extension_white_list
+  def extension_whitelist
     %w[pdf gif tiff tif jpeg jpg bmp txt]
   end
 

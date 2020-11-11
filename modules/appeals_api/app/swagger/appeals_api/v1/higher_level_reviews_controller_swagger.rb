@@ -135,6 +135,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     end
   end
 
+  # rubocop:disable Metrics/BlockLength
   swagger_path '/higher_level_reviews/contestable_issues/{benefit_type}' do
     operation :get, tags: HLR_TAG do
       key :operationId, 'getContestableIssues'
@@ -142,8 +143,13 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       desc = 'Returns all issues a Veteran could contest in a Higher-Level Review as of the `receiptDate` ' \
         'and bound by `benefitType`. Associate these results when creating new Decision Reviews.'
       key :description, desc
-      parameter name: 'X-VA-SSN', 'in': 'header', required: true, description: 'veteran\'s ssn' do
+      parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
+        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema '$ref': 'X-VA-SSN'
+      end
+      parameter name: 'X-VA-File-Number', 'in': 'header', description: 'veteran\'s file number' do
+        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
+        schema type: :string
       end
       parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
         desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
@@ -154,10 +160,21 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       parameter name: 'benefit_type', 'in': 'path', required: true, description: 'benefit type' do
         schema '$ref': 'hlrCreateBenefitType'
       end
-      key :responses, read_json_from_same_dir['responses_contestable_issues.json']
+
+      responses = read_json_from_same_dir['responses_contestable_issues.json']
+      responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
+        "value": {
+          "errors": [{ "status": 422, "code": 'invalid_benefit_type', "title": 'Invalid Benefit Type',
+                       "detail": 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
+              '"fiduciary", "insurance", "education", "voc_rehab", "loan_guaranty", "vha", "nca"]' }]
+        }
+      }
+      key :responses, responses
+
       security do
         key :apikey, []
       end
     end
   end
+  # rubocop:enable Metrics/BlockLength
 end

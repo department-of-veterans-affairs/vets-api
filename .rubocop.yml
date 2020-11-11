@@ -85,6 +85,8 @@ Rails/Output:
 
 Metrics/MethodLength:
   Max: 20
+  Exclude:
+    - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
 
 Metrics/ClassLength:
   Max: 400
@@ -110,6 +112,7 @@ Metrics/BlockLength:
     - 'config/**/*.rb'
     - 'app/swagger/**/*.rb'
     - 'app/controllers/v0/apidocs_controller.rb'
+    - 'app/controllers/v1/apidocs_controller.rb'
     - 'modules/*/spec/**/*.rb'
     - 'modules/*/app/swagger/**/*.rb'
     - 'modules/*/config/routes.rb'
