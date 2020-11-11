@@ -129,14 +129,20 @@ RSpec.describe V1::SessionsController, type: :controller do
                                            tags: ['context:custom', 'version:v1'], **once)
 
             expect(response).to have_http_status(:ok)
-            expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                  'originating_request_id' => nil, 'type' => 'custom')
+
             expect(SAMLRequestTracker.keys.length).to eq(1)
-            expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
-              .to eq({
-                       type: 'custom',
-                       authn_context: 'myhealthevet'
-                     })
+            tracker = SAMLRequestTracker.find(SAMLRequestTracker.keys[0])
+            expect(tracker.payload[:type]).to eq('custom')
+            expect(tracker.payload[:authn_context]).to eq('myhealthevet')
+            expect(tracker.payload[:transaction_id]).not_to be_nil
+
+            expect_saml_post_form(
+              response.body,
+              'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
+              'originating_request_id' => nil,
+              'type' => 'custom',
+              'transaction_id' => tracker.payload[:transaction_id]
+            )
           end
 
           it 'raises exception when missing authn parameter' do
@@ -547,7 +553,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'redirects to identity proof URL', :aggregate_failures do
           Timecop.freeze(Time.current)
-          expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).twice.and_return(true)
+          expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).once.and_return(true)
           expect_any_instance_of(SAML::PostURLService).to receive(:verify_url).and_return(['http://uplevel', {}])
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
