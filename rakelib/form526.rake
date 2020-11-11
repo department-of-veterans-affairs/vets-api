@@ -29,9 +29,7 @@ namespace :form526 do
       'participant id:', 'workflow complete:', 'form version:'
     )
 
-    submissions = Form526Submission.where(
-      'created_at BETWEEN ? AND ?', start_date.beginning_of_day, end_date.end_of_day
-    )
+    submissions = Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day])
 
     outage_errors = 0
     ancillary_job_errors = Hash.new { |hash, job_class| hash[job_class] = 0 }
