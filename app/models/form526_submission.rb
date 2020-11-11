@@ -76,7 +76,10 @@ class Form526Submission < ApplicationRecord
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   # @return [NilClass] all BIRLS IDs for the veteran have been tried
   #
-  def start_but_use_a_birls_id_that_hasnt_been_tried_yet(extra_content_for_sentry: {}, silence_errors_and_log_to_sentry: false)
+  def start_but_use_a_birls_id_that_hasnt_been_tried_yet(
+    extra_content_for_sentry: {},
+    silence_errors_and_log_to_sentry: false
+  )
     mark_current_birls_id_as_tried
 
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
@@ -94,6 +97,7 @@ class Form526Submission < ApplicationRecord
     # Sidekiq job instance (so no access to the log_exception_to_sentry method). Also, rethrowing the error
     # (and letting it bubble up to Sidekiq) might trigger the current job to retry (which we don't want).
     raise unless silence_errors_and_log_to_sentry
+
     log_exception_to_sentry e, extra_content_for_sentry
   end
 
