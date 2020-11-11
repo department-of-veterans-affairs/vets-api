@@ -32,12 +32,14 @@ class PPMS::ProviderSerializer
   attribute :long, &:longitude
 
   attribute :name do |object|
-    case object.provider_type
-    when /GroupPracticeOrAgency/i
-      [object.care_site, object.name].find(&:present?)
-    else
-      object.provider_name
-    end
+    possible_name =
+      case object.provider_type
+      when /GroupPracticeOrAgency/i
+        object.care_site
+      else
+        object.provider_name
+      end
+    [possible_name, object.name].find(&:present?)
   end
 
   attribute :phone, &:main_phone
