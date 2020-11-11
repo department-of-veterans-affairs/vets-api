@@ -12,7 +12,7 @@ class InProgressForm < ApplicationRecord
   RETURN_URL_SQL = "CAST(metadata -> 'return_url' AS text)"
   scope :has_attempted_submit, -> { where("(metadata -> 'submission' ->> 'has_attempted_submit')::boolean") }
   scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
-  scope :has_error_message,    -> { where("(metadata -> 'submission' -> 'error_message') IS NOT NULL") }
+  scope :has_error_message,    -> { where("(metadata -> 'submission' -> 'error_message')::text !='false'") }
 
   # the double quotes in return_url are part of the value
   scope :return_url, ->(url)      { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
