@@ -76,7 +76,7 @@ class Form526Submission < ApplicationRecord
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   # @return [NilClass] all BIRLS IDs for the veteran have been tried
   #
-  def start_but_use_a_birls_id_that_hasnt_been_tried_yet(extra_content_for_sentry = {})
+  def start_but_use_a_birls_id_that_hasnt_been_tried_yet(extra_content_for_sentry: {}, silence_errors_and_log_to_sentry: false)
     mark_current_birls_id_as_tried
 
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
@@ -87,12 +87,13 @@ class Form526Submission < ApplicationRecord
     save!
     start
   rescue => e
-    # 1) why rescue all errors? 2) why not rethrow the error?
+    # 1) why have the 'silence_errors_and_log_to_sentry' option? (why not rethrow the error?)
     # This method is primarily intended to be triggered by a running Sidekiq job that has hit a dead end
     # (exhausted, or non-retryable error). One of the places this method is called is inside a
     # `sidekiq_retries_exhausted` block. It seems like the value of self for that block won't be the
-    # Sidekiq job instance. Also, rethrowing the error (and letting it bubble up to Sidekiq) might trigger
-    # the current job to retry (which we don't want).
+    # Sidekiq job instance (so no access to the log_exception_to_sentry method). Also, rethrowing the error
+    # (and letting it bubble up to Sidekiq) might trigger the current job to retry (which we don't want).
+    raise unless silence_errors_and_log_to_sentry
     log_exception_to_sentry e, extra_content_for_sentry
   end
 
