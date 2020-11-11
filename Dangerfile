@@ -3,7 +3,7 @@ PR_SIZE = {
   RECOMMENDED_MAXIMUM: 250,
   ABSOLUTE_MAXIMUM:    1000,
 }
-EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/', 'app/swagger']
+EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/', 'app/swagger', 'modules/mobile/docs/index.html']
 
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
 changed_files = git.diff.stats[:files]
