@@ -36,7 +36,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       expect(subject.primary_caregiver.icn).to eq('ABCD1234')
     end
 
-    it 'is can be set to nil' do
+    it 'can be set to nil' do
       subject.primary_caregiver = nil
       expect(subject.primary_caregiver).to eq(nil)
     end
@@ -50,7 +50,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       expect(subject.secondary_caregiver_one.icn).to eq('ABCD1234')
     end
 
-    it 'is can be set to nil' do
+    it 'can be set to nil' do
       subject.secondary_caregiver_one = nil
       expect(subject.secondary_caregiver_one).to eq(nil)
     end
@@ -64,7 +64,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       expect(subject.secondary_caregiver_two.icn).to eq('ABCD1234')
     end
 
-    it 'is can be set to nil' do
+    it 'can be set to nil' do
       subject.secondary_caregiver_two = nil
       expect(subject.secondary_caregiver_two).to eq(nil)
     end

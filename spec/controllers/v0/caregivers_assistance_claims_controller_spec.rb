@@ -87,9 +87,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       expect(res_body['errors'][0]['status']).to eq('422')
       expect(res_body['errors'][1]['title'].split("\n")).to eq(
         [
-          # rubocop:disable Layout/LineLength
-          "Form The property '#/' of type object did not match one or more of the required schemas. The schema specific errors were:",
-          # rubocop:enable Layout/LineLength
+          "Form The property '#/' of type object did not match one or more of the required schemas. The schema specific errors were:", # rubocop:disable Layout/LineLength
           '',
           '- anyOf #0:',
           "    - The property '#/' did not contain a required property of 'primaryCaregiver'",
