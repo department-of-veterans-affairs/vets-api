@@ -273,7 +273,7 @@ paths:
         the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
       operationId: user.getProfile
       security:
-        - Bearer: []
+        - Bearer: [ ]
       parameters:
         - in: header
           name: X-Key-Inflection
@@ -412,7 +412,7 @@ paths:
       description: Updates a user's residential or mailing address
       operationId: user.updateAddress
       security:
-        - Bearer: []
+        - Bearer: [ ]
       parameters:
         - in: header
           name: X-Key-Inflection
@@ -726,7 +726,7 @@ paths:
       description: \[Not implemented\] Returns the status of a user profile update (e.g. address update)
       operationId: user.updateAddress
       security:
-        - Bearer: []
+        - Bearer: [ ]
       parameters:
         - in: header
           name: X-Key-Inflection
@@ -1239,6 +1239,23 @@ components:
             - id
             - attributes
           properties:
+            singleServiceFailure:
+              type: object
+              required:
+                - service
+                - error
+              properties:
+                service:
+                  type: string
+                  example: "claims"
+                  enum:
+                    - claims
+                    - appeals
+                  description: name of service that failed
+                error:
+                  type: object
+                  $ref: "#/components/schemas/Errors"
+
             type:
               type: string
               example: "claimsAndAppealsOverview"
@@ -1261,10 +1278,7 @@ components:
       required:
         - id
         - type
-        - subtype
-        - completed
-        - dateFiled
-        - updatedAt
+        - attributes
       properties:
         id:
           type: string
@@ -1276,20 +1290,28 @@ components:
           enum:
             - claim
             - appeal
-        subtype:
-          type: string
-          example: "Compensation"
-          description: Human readable string for claim or appeal subtype
-        completed:
-          type: boolean
-        dateFiled:
-          type: string
-          format: date
-          example: "2020-01-01"
-        updatedAt:
-          type: string
-          format: date-time
-          example: "2020-01-01T00:00:00.00Z"
+        attributes:
+          type: object
+          required:
+            - subtype
+            - completed
+            - dateFiled
+            - updatedAt
+          properties:
+            subtype:
+              type: string
+              example: "Compensation"
+              description: Human readable string for claim or appeal subtype
+            completed:
+              type: boolean
+            dateFiled:
+              type: string
+              format: date
+              example: "2020-01-01"
+            updatedAt:
+              type: string
+              format: date-time
+              example: "2020-01-01T00:00:00.00Z"
     Appeal:
       required:
         - id
@@ -1962,7 +1984,7 @@ components:
           example: "RESIDENCE/CHOICE"
         addressType:
           type: string
-          enum: ["DOMESTIC", "INTERNATIONAL"]
+          enum: [ "DOMESTIC", "INTERNATIONAL" ]
           example: "DOMESTIC"
         city:
           type: string
