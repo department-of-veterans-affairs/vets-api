@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'emis/mock_veteran_status'
+require 'veteran_verification/mock_veteran_status'
 
 class MockOpenidUser < OpenidUser
   redis_store REDIS_CONFIG[:openid_user_store][:namespace]

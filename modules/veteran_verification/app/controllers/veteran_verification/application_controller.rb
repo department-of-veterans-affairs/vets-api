@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'emis/mock_open_id_user'
+require 'veteran_verification/mock_open_id_user'
 module VeteranVerification
   class ApplicationController < ::OpenidApplicationController
     skip_before_action :set_tags_and_extra_content, raise: false
