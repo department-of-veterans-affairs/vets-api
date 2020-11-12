@@ -75,7 +75,7 @@ VCR.configure do |c|
   end
 end
 
-# ActiveRecord::Migration.maintain_test_schema!
+ActiveRecord::Migration.maintain_test_schema!
 
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
