@@ -63,10 +63,11 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
-debts:
+dmc:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
-  mock: true
+  mock_debts: false
+  mock_fsr: false
   url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
 
 fsr:
@@ -80,6 +81,7 @@ salesforce-gibft:
   url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
 salesforce-carma:
+  mock: true
   url: "https://fake-carma.salesforce.com"
   consumer_key: 12345ABC.QQ_1234BBfake
   signing_key_path: "spec/fixtures/carma/privatekey.pem" # A dummy private key used for test suite
@@ -332,7 +334,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  timeout: 20
+  timeout: 40
 
 vic:
   url: https://some.fakesite.com

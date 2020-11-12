@@ -21,6 +21,181 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+
+  /v0/appointments:
+    get:
+      summary: /v0/appointments
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments
+      operationId: getAppointments
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: datetime
+          description: The start date for the range of appointments in ISO 8601 UTC format
+          example: 2020-10-29T07:00:00.000Z
+        - in: query
+          name: endDate
+          schema:
+            type: datetime
+          description: The end date for the range of appointments in ISO 8601 UTC format
+          example: 2021-11-29T08:00:00.000Z
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointments"
+              examples:
+                VA Appointment:
+                  value:
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: va
+                          status: BOOKED
+                          startTime: 2020-10-29T10:30:00-07:00
+                          minutesDuration: 60
+                          comment: Please arrive 20 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: Blind Rehabilitation Center
+                          location:
+                            name: VA Long Beach Healthcare System
+                            address:
+                              line1: 5901 East 7th Street
+                              line2: Building 166
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90822"
+                            phone:
+                              number: 562-826-8000
+                              extension: "5696"
+                            url: null
+                            code: null
+
+                VA Video Connect Appointment:
+                  value:
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: VA_VIDEO_CONNECT_HOME
+                          status: CANCELLED
+                          startTime: 2020-10-29T10:30:00-07:00
+                          minutesDuration: 60
+                          comment: Please log on 5 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: null
+                          location:
+                            name: null
+                            address: null
+                            phone: null
+                            url: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+                            code: null
+
+                VA Video Connect ATLAS Appointment:
+                  value:
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: VA_VIDEO_CONNECT_ATLAS
+                          status: BOOKED
+                          startTime: 2020-10-29T10:30:00-07:00
+                          minutesDuration: 60
+                          comment: Please log on 5 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: ATLAS Conference Center
+                          location:
+                            name: VA Long Beach Healthcare System
+                            address:
+                              line1: 5901 East 7th Street
+                              line2: Building 165
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90822"
+                            phone:
+                              number: 562-826-8000
+                              extension: null
+                            url: null
+                            code: GL45678
+
+                Community Care Appointment:
+                  value:
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: COMMUNITY_CARE
+                          status: CANCELLED
+                          startTime: 2020-10-29T10:30:00-07:00
+                          minutesDuration: 60
+                          comment: Please arrive 20 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: null
+                          location:
+                            name: Kaiser Shoreline Treatment Center
+                            address:
+                              line1: 191 Argonne Ave
+                              line2: Ste 3
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90803"
+                            phone:
+                              number: 562-434-6008
+                              extension: null
+                            url: null
+                            code: null
+
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   /v0/military-service-history:
     get:
       summary: /v0/military-service-history
@@ -956,6 +1131,137 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    Appointments:
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Appointment"
+
+    Appointment:
+      required:
+        - type
+        - id
+        - attributes
+      properties:
+        type:
+          type: string
+          example: "appointment"
+        id:
+          type: string
+          example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+        attributes:
+          type: object
+          required:
+            - appointmentType
+            - status
+            - startTime
+            - minutesDuration
+            - comment
+            - timeZone
+            - healthcareService
+            - location
+          properties:
+            appointmentType:
+              type: string
+              enum: [COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_ONSITE]
+              example: VA
+            status:
+              type: string
+              enum: [BOOKED, CANCELLED]
+              example: BOOKED
+            startTime:
+              type: datetime
+              example: 2020-10-29T10:30:00-07:00
+            minutesDuration:
+              type: integer
+              example: 60
+            comment:
+              type: string
+              example: Please arrive 20 minutes before the start of your appointment
+            timeZone:
+              type: string
+              enum: [Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York]
+              example: America/Los_Angeles
+            healthcareService:
+              type: string
+              example: Blind Rehabilitation Center
+            location:
+              type: object
+              required:
+                - address
+                - phoneNumber
+                - url
+                - code
+              properties:
+                address:
+                  type: object
+                  required:
+                    - line1
+                    - line2
+                    - line3
+                    - city
+                    - state
+                    - zipCode
+                  properties:
+                    line1:
+                      type: string
+                      example: 5901 East 7th Street
+                    line2:
+                      type: string
+                      example: Building 166
+                    line3:
+                      type: string
+                      example: null
+                    city:
+                      type: string
+                      example: Long Beach
+                    state:
+                      type: string
+                      example: CA
+                    zipCode:
+                      type: string
+                      example: 90822
+                phone:
+                  type: object
+                  required:
+                    - number
+                    - extension
+                  properties:
+                    number:
+                      type: string
+                      example: 562-434-6008
+                    extension:
+                      type: string
+                      example: 1001
+                url:
+                  type: string
+                  example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+                code:
+                  type: string
+                  example: GL32CA
+            practitioner:
+              required:
+                - prefix
+                - firstName
+                - middleName
+                - lastName
+              properties:
+                prefix:
+                  type: string
+                  example: "Dr."
+                firstName:
+                  type: string
+                  example: "John"
+                middleName:
+                  type: string
+                  example: "A."
+                lastName:
+                  type: string
+                  example: "Smith"
+
     UpdatePaymentInfoRequest:
       required:
         - accountNumber
@@ -1215,19 +1521,27 @@ components:
       properties:
         name:
           type: string
-          example: "Commissary Letter"
+          enum:
+            - Commissary Letter
+            - Proof of Service Letter
+            - Proof of Creditable Prescription Drug Coverage Letter
+            - Proof of Minimum Essential Coverage Letter
+            - Service Verification Letter
+            - Civil Service Preference Letter
+            - Benefit Summary Letter
+            - Benefit Verification Letter
         letterType:
           type: string
           enum:
-            - "commissary"
-            - "proof_of_service"
-            - "medicare_partd"
-            - "minimum_essential_coverage"
-            - "service_verification"
-            - "civil_service"
-            - "benefit_summary"
-            - "benefit_verification"
-            - "certificate_of_eligibility"
+            - commissary
+            - proof_of_service
+            - medicare_partd
+            - minimum_essential_coverage
+            - service_verification
+            - civil_service
+            - benefit_summary
+            - benefit_verification
+            - certificate_of_eligibility
     LettersBenficiaryInfo:
       required:
         - data

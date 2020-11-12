@@ -26,6 +26,7 @@ describe MVI::Responses::ProfileParser do
           :mvi_profile_response,
           :address_austin,
           birls_id: nil,
+          birls_ids: [],
           sec_id: nil,
           historical_icns: nil,
           search_token: 'WSDOC1609131753362231779394902'
@@ -45,6 +46,7 @@ describe MVI::Responses::ProfileParser do
             given_names: nil,
             suffix: nil,
             birls_id: nil,
+            birls_ids: [],
             sec_id: nil,
             historical_icns: nil,
             search_token: 'WSDOC1609131753362231779394902'
@@ -64,6 +66,7 @@ describe MVI::Responses::ProfileParser do
             :mvi_profile_response,
             address: nil,
             birls_id: nil,
+            birls_ids: [],
             sec_id: nil,
             historical_icns: nil,
             vet360_id: nil,
@@ -96,6 +99,8 @@ describe MVI::Responses::ProfileParser do
             :mvi_profile_response,
             :missing_attrs,
             :address_austin,
+            birls_id: '796122306',
+            birls_ids: ['796122306'],
             sec_id: '1008714701',
             historical_icns: nil,
             mhv_ids: ['1100792239'],
@@ -211,8 +216,9 @@ describe MVI::Responses::ProfileParser do
         :mvi_profile_response,
         :address_austin,
         historical_icns: nil,
-        birls_id: nil,
         sec_id: nil,
+        birls_id: nil,
+        birls_ids: [],
         search_token: 'WSDOC1609131753362231779394902'
       )
     end
