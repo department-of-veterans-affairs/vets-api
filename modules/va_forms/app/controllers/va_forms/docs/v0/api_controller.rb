@@ -13,7 +13,7 @@ module VaForms
 
         SWAGGERED_CLASSES = [
           VaForms::V0::ControllerSwagger,
-          VaForms::Forms::Form,
+          VaForms::Forms::FormSwagger,
           VaForms::V0::SecuritySchemeSwagger,
           VaForms::V0::SwaggerRoot
         ].freeze

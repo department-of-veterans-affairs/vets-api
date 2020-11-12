@@ -3,6 +3,7 @@
 module ClaimsApi
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
+      david.mazik@va.gov
       michael.bastos@oddball.io
       ryan.link@oddball.io
       christopher.stone@libertyits.com
@@ -11,6 +12,10 @@ module ClaimsApi
       premal.shah@va.gov
       lee.deboom@oddball.io
       dan.hinze@adhocteam.us
+      seth.johnson@gdit.com
+      kayur.shah@gdit.com
+      tim.barto@gdit.com
+      zachary.goldfine@va.gov
     ].freeze
 
     def build(consumer_totals, pending_submissions, unsuccessful_submissions, date_from, date_to)
