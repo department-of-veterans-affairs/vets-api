@@ -108,12 +108,18 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
                                               tags: ["type:#{type}", "context:#{authn}", 'version:v1'], **once)
 
-              expect(response).to have_http_status(:ok)
-              expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                    'originating_request_id' => nil, 'type' => type)
               expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
-                .to eq({ type: type, authn_context: authn })
+              tracker = SAMLRequestTracker.find(SAMLRequestTracker.keys[0])
+              expect(tracker.payload)
+                .to eq({ type: type, authn_context: authn, transaction_id: tracker.payload[:transaction_id] })
+              expect(response).to have_http_status(:ok)
+              expect_saml_post_form(
+                response.body,
+                'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
+                'originating_request_id' => nil,
+                'type' => type,
+                'transaction_id' => tracker.payload[:transaction_id]
+              )
             end
           end
         end
@@ -135,16 +141,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect(tracker.payload[:type]).to eq('custom')
             expect(tracker.payload[:authn_context]).to eq('myhealthevet')
 
-            # => mocked tracker doesn't have transaction_id, need to add it for testing
-            # expect(tracker.payload[:transaction_id]).not_to be_nil
-
             expect_saml_post_form(
               response.body,
               'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
               'originating_request_id' => nil,
-              'type' => 'custom'
-              # => mocked tracker doesn't have transaction_id, need to add it for testing
-              # 'transaction_id' => tracker.payload[:transaction_id]
+              'type' => 'custom',
+              'transaction_id' => tracker.payload[:transaction_id]
             )
           end
 
@@ -171,8 +173,14 @@ RSpec.describe V1::SessionsController, type: :controller do
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['context:signup', 'version:v1'], **once)
             expect(response).to have_http_status(:ok)
-            expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
-                                  'originating_request_id' => nil, 'type' => 'signup')
+            tracker = SAMLRequestTracker.find(SAMLRequestTracker.keys[0])
+            expect_saml_post_form(
+              response.body,
+              'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
+              'originating_request_id' => nil,
+              'type' => 'signup',
+              'transaction_id' => tracker.payload[:transaction_id]
+            )
           end
         end
 
