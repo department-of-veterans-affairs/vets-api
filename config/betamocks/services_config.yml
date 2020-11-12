@@ -14,11 +14,11 @@
     :path: "/services/data/v47.0/composite/tree/ContentVersion"
     :file_path: "carma/attachment"
 
-- :name: 'debts'
-  :base_uri: <%= "#{URI(Settings.debts.url).host}:#{URI(Settings.debts.url).port}" %>
+- :name: 'DMC'
+  :base_uri: <%= "#{URI(Settings.dmc.url).host}:#{URI(Settings.dmc.url).port}" %>
   :endpoints:
   - :method: :post
-    :path: "/api/v1/debtletter/letterdetails/get"
+    :path: "/api/v1/digital-services/debt-letters/get"
     :file_path: "debts/index"
     :cache_multiple_responses:
       :uid_location: body
