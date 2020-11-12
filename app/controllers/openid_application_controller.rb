@@ -33,6 +33,15 @@ class OpenidApplicationController < ApplicationController
   def authenticate_token
     return false if token.blank?
 
+    #issued for a client vs a user
+    if token.is_client_credentials_token?
+      if token.payload["scp"].include?("launch/patient")
+        # TODO fetch launch context
+        # token.payload[:"icn"] = '1234V5678'
+      end
+      return true
+    end
+
     @session = Session.find(token)
     establish_session if @session.nil?
     return false if @session.nil?

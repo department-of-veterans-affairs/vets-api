@@ -64,6 +64,10 @@ class Token
     end
   end
 
+  def is_client_credentials_token?
+    payload["sub"] == payload["cid"]
+  end
+
   def identifiers
     # Here the `sub` field is the same value as the `uuid` field from the original upstream ID.me
     # SAML response. We use this as the primary identifier of the user because, despite openid user
