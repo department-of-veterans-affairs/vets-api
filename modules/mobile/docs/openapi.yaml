@@ -1345,10 +1345,10 @@ components:
                   example: "************6464"
                 accountType:
                   type: string
-                  example: "Savings account"
+                  example: "Savings"
                   enum:
-                    - Savings account
-                    - Checking account
+                    - Savings
+                    - Checking
                 financialInstitutionName:
                   type: string
                   example: "PACIFIC PREMIER BANK"
