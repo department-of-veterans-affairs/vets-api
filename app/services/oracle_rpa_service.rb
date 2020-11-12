@@ -37,15 +37,12 @@ class OracleRPAService
       value = iris_constants.state_mappings[value] if field['fieldName'].include? 'state'
       value = iris_constants.country_mappings[value] if field['fieldName'].include? 'country'
 
-      if %w[date_of_birth e_o_d released_from_duty].any? {|date_field| field['fieldName'].include? date_field}
+      if %w[date_of_birth e_o_d released_from_duty].any? { |date_field| field['fieldName'].include? date_field }
         value = transform_date(value)
       end
       if field['fieldType'] === 'text_field'
         browser.text_field(name: field['fieldName']).set value
-        if field['fieldName'].include? 'email'
-          browser.send_keys :tab
-          browser.text_field(name: field['fieldName'] + '_Validation').set value
-        end
+        validate_email(browser, field, value) if field['fieldName'].include? 'email'
       elsif field['fieldType'] === 'select_list'
         browser.select_list(name: field['fieldName']).option(text: value).select
       elsif field['fieldType'] === 'radio'
@@ -56,12 +53,21 @@ class OracleRPAService
         end
       end
     end
+    submit_form_to_oracle(browser)
+  end
+
+  private
+
+  def validate_email(browser, field, value)
+    browser.send_keys :tab
+    browser.text_field(name: field['fieldName'] + '_Validation').set value
+  end
+
+  def submit_form_to_oracle(browser)
     browser.button(id: 'rn_FormSubmit_58_Button').click
     browser.button(text: 'Finish Submitting Question').click
     browser.element(tag_name: 'b', visible_text: /#[0-9-]*/).inner_text
   end
-
-  private
 
   def set_topic_inquiry_fields(browser)
     topic_labels = get_topics
