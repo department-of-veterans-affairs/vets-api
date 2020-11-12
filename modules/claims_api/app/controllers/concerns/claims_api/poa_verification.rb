@@ -12,6 +12,12 @@ module ClaimsApi
       def verify_power_of_attorney
         verifier = BGS::PowerOfAttorneyVerifier.new(target_veteran)
         verifier.verify(@current_user)
+      rescue => e
+        log_message_to_sentry('PoA Error in claims',
+                              :warning,
+                              body: e.message)
+        render json: { errors: [{ status: 401, detail: "Can't establish Power of Attorney validation." }] },
+               status: :unauthorized
       end
     end
   end
