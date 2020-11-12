@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 namespace :form_progress do
-  desc 'The last page a user completed before leaving the form'
+  desc 'Get the last page a user completed before leaving the form'
   # bundle exec rake form_progress:return_url[21-526EZ,2020-10-06,2020-11-06]
   task :return_url, %i[form_id start_date end_date] => [:environment] do |_, args|
     forms = forms_with_args(args)
@@ -18,7 +18,7 @@ namespace :form_progress do
     puts data
   end
 
-  desc 'The counts of last page a user completed before abandoning (wihtout errors)'
+  desc 'Get counts of last page a user completed before abandoning (without errors)'
   # bundle exec rake form_progress:abandon_url[21-526EZ,2020-10-06,2020-11-06]
   task :abandon_url, %i[form_id start_date end_date] => [:environment] do |_, args|
     forms = forms_with_args(args)
@@ -27,7 +27,7 @@ namespace :form_progress do
     puts data
   end
 
-  desc 'Validation errors for a return_url'
+  desc 'Get validation errors for a given form return_url'
   # bundle exec rake form_progress:errors_for_return_url[21-526EZ,2020-10-06,2020-11-06,/review-and-submit]
   task :errors_for_return_url, %i[form_id start_date end_date return_url] => [:environment] do |_, args|
     forms = forms_with_args(args)
@@ -35,7 +35,7 @@ namespace :form_progress do
     puts data
   end
 
-  desc 'The metadata for users who got an error_message on submission'
+  desc 'Get the metadata for users who got an error_message on submission'
   # bundle exec rake form_progress:error_messages[21-526EZ,2020-10-06,2020-11-06]
   task :error_messages, %i[form_id start_date end_date] => [:environment] do |_, args|
     forms = forms_with_args(args)
