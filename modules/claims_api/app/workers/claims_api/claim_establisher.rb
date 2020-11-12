@@ -52,11 +52,11 @@ module ClaimsApi
 
     def bgs_user(auth_headers)
       user = OpenStruct.new(ssn: auth_headers['va_eauth_pnid'],
-                                   uuid: nil,
-                                   email: nil,
-                                   icn: nil,
-                                   common_name: nil)
-      return user unless auth_headers['va_bgs_authorization'].present?
+                            uuid: nil,
+                            email: nil,
+                            icn: nil,
+                            common_name: nil)
+      return user if auth_headers['va_bgs_authorization'].blank?
 
       bgs_auth_headers = JSON.parse(auth_headers['va_bgs_authorization'])
       user.uuid = bgs_auth_headers['external_uid']

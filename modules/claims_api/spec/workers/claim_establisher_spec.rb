@@ -12,10 +12,8 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user)
-    .add_headers(
-      EVSS::AuthHeaders.new(user).to_h
-    )
-    .merge(BGS::AuthHeaders.new(user).to_h)
+                                           .add_headers(EVSS::AuthHeaders.new(user).to_h)
+                                           .merge(BGS::AuthHeaders.new(user).to_h)
   end
 
   let(:claim) do
