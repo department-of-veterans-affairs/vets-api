@@ -15,6 +15,10 @@ describe EMIS::MockVeteranStatusService do
     Settings.vet_verification.mock_emis_host = 'https://vaausvrsapp81.aac.va.gov'
   end
 
+  after do
+    Settings.vet_verification.mock_emis = false
+  end
+
   describe 'get_veteran_status' do
     context 'with a valid request' do
       it 'calls the get_veteran_status endpoint with a proper emis message' do
