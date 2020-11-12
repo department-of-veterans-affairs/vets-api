@@ -10,7 +10,10 @@ class OracleRPAService
     @claim = claim
   end
 
+  FORM_OF_ADDRESS = 'Dr.'
+
   def submit_form
+    iris_constants = IrisConstants.new
     file = File.read('app/services/iris_fields_mapping.json')
 
     browser = Watir::Browser.new :chrome, args: %w[--no-sandbox --disable-dev-shm-usage]
@@ -21,26 +24,19 @@ class OracleRPAService
     # Inquiry Topic, Type, and Question
     set_topic_inquiry_fields(browser)
 
-    browser.select_list(name: 'Incident.CustomFields.c.form_of_address').option(text: 'Dr.').select
-
+    browser.select_list(name: 'Incident.CustomFields.c.form_of_address').option(text: FORM_OF_ADDRESS).select
 
     JSON.load(file).each do |field|
       value = @claim.parsed_form
       field['schemaKey'].split('.').each do |key|
         value = value[key]
       end
-      if field['fieldName'].include? 'vet_status'
-        value = transform_vet_status(value)
-      end
-      if field['fieldName'].include? 'form_of_response'
-        value = transform_contact_method(value)
-      end
-      if field['fieldName'].include? 'state'
-        value = transform_state(value)
-      end
-      if value === 'USA'
-        value = 'United States'
-      end
+
+      value = iris_constants.vet_status_mappings[value] if field['fieldName'].include? 'vet_status'
+      value = iris_constants.contact_method_mappings[value] if field['fieldName'].include? 'form_of_response'
+      value = iris_constants.state_mappings[value] if field['fieldName'].include? 'state'
+      value = iris_constants.country_mappings[value] if field['fieldName'].include? 'country'
+
       if %w[date_of_birth e_o_d released_from_duty].any? {|date_field| field['fieldName'].include? date_field}
         value = transform_date(value)
       end
@@ -97,84 +93,5 @@ class OracleRPAService
   def transform_date(value)
     temp_value = value.split('-')
     temp_value[1] + '-' + temp_value[2] + '-' + temp_value[0]
-  end
-
-  def transform_vet_status(value)
-    vet_status_mapping = {'dependent' => 'for the Dependent of a Veteran', 'general' => 'General Question (Vet Info Not Needed)', 'vet' => 'for Myself as a Veteran (I am the Vet)', 'behalf of vet' => 'for, about, or on behalf of a Veteran'}
-    vet_status_mapping[value]
-  end
-
-  def transform_contact_method(value)
-    contact_method_mapping = {'email' => 'E-Mail', 'phone' => 'Telephone', 'mail' => 'US Mail'}
-    contact_method_mapping[value]
-  end
-
-  def transform_state(value)
-    state_mapping = {
-      'AL' => 'Alabama',
-      'AK' => 'Alaska',
-      'AZ' => 'Arizona',
-      'AR' => 'Arkansas',
-      'CA' => 'California',
-      'CO' => 'Colorado',
-      'CT' => 'Connecticut',
-      'DE' => 'Delaware',
-      'DC' => 'District Of Columbia',
-      'FL' => 'Florida',
-      'GA' => 'Georgia',
-      'HI' => 'Hawaii',
-      'ID' => 'Idaho',
-      'IL' => 'Illinois',
-      'IN' => 'Indiana',
-      'IA' => 'Iowa',
-      'KS' => 'Kansas',
-      'KY' => 'Kentucky',
-      'LA' => 'Louisiana',
-      'ME' => 'Maine',
-      'MD' => 'Maryland',
-      'MA' => 'Massachusetts',
-      'MI' => 'Michigan',
-      'MN' => 'Minnesota',
-      'MS' => 'Mississippi',
-      'MO' => 'Missouri',
-      'MT' => 'Montana',
-      'NE' => 'Nebraska',
-      'NV' => 'Nevada',
-      'NH' => 'New Hampshire',
-      'NJ' => 'New Jersey',
-      'NM' => 'New Mexico',
-      'NY' => 'New York',
-      'NC' => 'North Carolina',
-      'ND' => 'North Dakota',
-      'OH' => 'Ohio',
-      'OK' => 'Oklahoma',
-      'OR' => 'Oregon',
-      'PA' => 'Pennsylvania',
-      'RI' => 'Rhode Island',
-      'SC' => 'South Carolina',
-      'SD' => 'South Dakota',
-      'TN' => 'Tennessee',
-      'TX' => 'Texas',
-      'UT' => 'Utah',
-      'VT' => 'Vermont',
-      'VA' => 'Virginia',
-      'WA' => 'Washington',
-      'WV' => 'West Virginia',
-      'WI' => 'Wisconsin',
-      'WY' => 'Wyoming',
-      'AS' => 'American Samoa',
-      'AA' => 'Armed Forces Americas (AA)',
-      'AE' => 'Armed Forces Europe (AE)',
-      'AP' => 'Armed Forces Pacific (AP)',
-      'FM' => 'Federated States Of Micronesia',
-      'GU' => 'Guam',
-      'MH' => 'Marshall Islands',
-      'MP' => 'Northern Mariana Islands',
-      'PW' => 'Palau',
-      'PR' => 'Puerto Rico',
-      'VI' => 'Virgin Islands'
-    }
-
-    state_mapping[value]
   end
 end
