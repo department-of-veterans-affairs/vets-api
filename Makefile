@@ -57,6 +57,7 @@ else
 	$(COMPOSE_TEST) build
 endif
 
+
 .PHONY: db
 db:  ## Sets up database and runs migrations
 ifeq ($(ENV_ARG), dev)
@@ -64,6 +65,7 @@ ifeq ($(ENV_ARG), dev)
 else
 	@$(BASH_TEST) $(DB)
 endif
+
 
 .PHONY: lint
 lint:  ## runs the linter
