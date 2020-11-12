@@ -1,3 +1,5 @@
+@Library('va.gov-devops-jenkins-lib@git-api-changed-pr-files') _
+
 dev_branch = 'master'
 staging_branch = 'master'
 main_branch = 'master'
