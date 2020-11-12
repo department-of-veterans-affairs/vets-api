@@ -16,7 +16,6 @@ module V0
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       # claim.send_to_vre
-      binding.pry
       render json: claim
     end
 
@@ -25,21 +24,5 @@ module V0
     def filtered_params
       params.require(:veteran_readiness_employment_claim).permit(:form)
     end
-
-    # def filtered_params
-    #   params.require(:veteran_readiness_employment_claim).permit(
-    #     :use_eva,
-    #     :use_telecounseling,
-    #     :years_of_education,
-    #     :is_moving,
-    #     :main_phone,
-    #     :cell_phone,
-    #     :email,
-    #     :privacy_agreement_accepted,
-    #     veteran_address: {},
-    #     new_address: {},
-    #     appointment_time_preferences: {}
-    #   )
-    # end
   end
 end
