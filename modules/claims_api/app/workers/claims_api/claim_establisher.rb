@@ -3,6 +3,7 @@
 require 'sidekiq'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
+require 'bgs/auth_headers'
 require 'sentry_logging'
 
 module ClaimsApi
@@ -21,8 +22,8 @@ module ClaimsApi
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
       auto_claim.save
 
-      flashes = auto_claim.form_data.dig('veteran', 'flashes')
-      ClaimsApi::FlashUpdater(bgs_user(auth_headers), flashes) if flashes.present?
+      flashes = JSON.parse(form_data).dig('form526', 'veteran', 'flashes')
+      ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes) if flashes.present?
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
