@@ -293,6 +293,9 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.boolean "workflow_complete", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "multiple_birls", comment: "*After* a SubmitForm526 Job fails, a lookup is done to see if the veteran has multiple BIRLS IDs. This field gets set to true if that is the case. If the initial submit job succeeds, this field will remain false whether or not the veteran has multiple BIRLS IDs --so this field cannot technically be used to sum all Form526 veterans that have multiple BIRLS. This field /can/ give us an idea of how often having multiple BIRLS IDs is a problem."
+    t.string "encrypted_birls_ids_tried", comment: "This field keeps track of the BIRLS IDs used when trying to do a SubmitForm526 Job. If a submit job fails, a lookup is done to retrieve all of the veteran's BIRLS IDs. If a BIRLS ID hasn't been used it will be swapped into the auth_headers, and the BIRLS ID that had just been used (when the job had failed), will be added to this array. To know which Form526Submissions have tried (or are trying) reattempts with a different BIRLS ID, search for Submissions where `multiple_birls: true`"
+    t.string "encrypted_birls_ids_tried_iv"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_uuid"], name: "index_form526_submissions_on_user_uuid"
@@ -543,6 +546,7 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.boolean "s3_deleted"
     t.string "consumer_name"
     t.uuid "consumer_id"
+    t.json "uploaded_pdf"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end

@@ -19,8 +19,8 @@ module VBADocuments
     def perform(guid, retries = 0)
       @retries = retries
       @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      # if @upload
-      if true
+      if @upload
+      #  if true
         Rails.logger.info("VBADocuments: Start Processing: #{@upload.inspect}")
         download_and_process
         Rails.logger.info("VBADocuments: Stop Processing: #{@upload.inspect}")
@@ -30,17 +30,17 @@ module VBADocuments
     private
 
     def download_and_process
-      #  tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)# todo put this line back
+      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
       ## mocking out
-        tempfile = File.new('./test_files/209b706f-c290-47b9-bae4-498bd44c7f3d')
+      #   tempfile = File.new('./test_files/209b706f-c290-47b9-bae4-498bd44c7f3d')
       #  tempfile = File.new('./modules/vba_documents/spec/fixtures/valid_multipart_base64_pdf.txt')
       #  tempfile = File.new('./modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob')
       # tempfile = File.new('./modules/vba_documents/spec/fixtures/valid_multipart_pdf.blob')
 
-      timestamp = tempfile.mtime
+      #  timestamp = tempfile.mtime
       begin
-        inspector = VBADocuments::PDFInspector.new(pdf: tempfile.path)
-        parts = inspector.parts
+        parts = VBADocuments::MultipartParser.parse(tempfile.path)
+        inspector = VBADocuments::PDFInspector.new(pdf: parts)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
         update_pdf_metadata(inspector)
