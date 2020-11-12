@@ -90,6 +90,11 @@
     "fieldType": "text_field"
   },
   {
+    "schemaKey": "dependentInformation.email",
+    "fieldName": "Incident.CustomFields.c.dep_incomingemail",
+    "fieldType": "text_field"
+  },
+  {
     "schemaKey": "dependentInformation.address.country",
     "fieldName": "Incident.CustomFields.c.dep_country",
     "fieldType": "select_list"
@@ -127,6 +132,11 @@
   {
     "schemaKey": "veteranInformation.phone",
     "fieldName": "Incident.CustomFields.c.vet_phone",
+    "fieldType": "text_field"
+  },
+  {
+    "schemaKey": "veteranInformation.email",
+    "fieldName": "Incident.CustomFields.c.vet_email",
     "fieldType": "text_field"
   },
   {
