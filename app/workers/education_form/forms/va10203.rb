@@ -19,7 +19,6 @@ module EducationForm::Forms
     end
 
     def receive_text_message
-
       return false if @applicant.receiveTexts.nil?
 
       @applicant.receiveTexts
