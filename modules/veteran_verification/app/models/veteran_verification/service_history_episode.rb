@@ -2,7 +2,7 @@
 
 require 'active_support/core_ext/digest/uuid'
 require 'common/exceptions'
-require 'emis/mock_military_information_v2'
+require 'veteran_verification/mock_military_information_v2'
 module VeteranVerification
   class ServiceHistoryEpisode
     include ActiveModel::Serialization
