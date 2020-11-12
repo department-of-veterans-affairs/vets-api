@@ -18,7 +18,7 @@ task :lint, [:files] => [:environment] do |_, args|
            '--display-cop-names --auto-correct'
          end
 
-  opts += " --force-exclusion" if files.present?
+  opts += ' --force-exclusion' if files.present?
 
   puts 'running rubocop...'
   rubocop_result = ShellCommand.run("rubocop #{opts} --color #{files}")
