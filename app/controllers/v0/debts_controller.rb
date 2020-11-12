@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'debts/service'
+require 'dmc/debts_service'
 
 module V0
   class DebtsController < ApplicationController
@@ -11,7 +11,7 @@ module V0
     private
 
     def service
-      Debts::Service.new(@current_user)
+      DMC::DebtsService.new(@current_user)
     end
   end
 end
