@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'appeals_api/form_schemas'
-require_dependency 'appeals_api/concerns/json_format_validation'
 
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
-  include AppealsApi::Concerns::JsonFormatValidation
+  include AppealsApi::JsonFormatValidation
 
   FORM_NUMBER = '10182'
 
