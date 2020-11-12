@@ -52,9 +52,6 @@ class GIBillFeedback < Common::RedisStore
     end
 
     transformed.merge!(get_user_details)
-    if transformed['social_security_number_last_four'].present?
-      transformed['profile_data']['SSN'] = transformed.delete('social_security_number_last_four')
-    end
 
     transformed['education_details'].tap do |education_details|
       school = education_details['school']
