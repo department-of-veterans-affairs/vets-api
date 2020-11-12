@@ -321,7 +321,7 @@ class User < Common::RedisStore
   end
 
   def flipper_id
-    email || account_uuid
+    email&.downcase || account_uuid
   end
 
   private
