@@ -10,8 +10,7 @@ module ClaimsApi
       before_action :verify_power_of_attorney, if: :header_request?
 
       def verify_power_of_attorney
-        verifier = BGS::PowerOfAttorneyVerifier.new(target_veteran)
-        verifier.verify(@current_user)
+        BGS::PowerOfAttorneyVerifier.new(target_veteran).verify(@current_user)
       end
     end
   end
