@@ -13,7 +13,8 @@ describe HealthQuest::Pgd::Patient::Factory do
   describe '#get_patient' do
     before do
       allow(HealthQuest::SessionService).to receive(:new).with(user).and_return(session_service)
-      allow_any_instance_of(HealthQuest::Pgd::Patient::MapQuery).to receive(:get).with(user.icn).and_return(client_reply)
+      allow_any_instance_of(HealthQuest::Pgd::Patient::MapQuery)
+        .to receive(:get).with(user.icn).and_return(client_reply)
     end
 
     describe '#get_patient' do
