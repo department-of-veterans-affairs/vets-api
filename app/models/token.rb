@@ -64,7 +64,7 @@ class Token
     end
   end
 
-  def is_client_credentials_token?
+  def client_credentials_token?
     payload["sub"] == payload["cid"]
   end
 

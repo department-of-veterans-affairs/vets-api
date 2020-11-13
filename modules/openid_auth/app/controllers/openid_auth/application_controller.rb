@@ -7,7 +7,7 @@ module OpenidAuth
     skip_before_action :set_tags_and_extra_content, raise: false
 
     def validate_user
-      if !token.is_client_credentials_token?
+      if !token.client_credentials_token?
         raise Common::Exceptions::RecordNotFound, @current_user.uuid if @current_user.va_profile_status == 'NOT_FOUND'
         raise Common::Exceptions::BadGateway if @current_user.va_profile_status == 'SERVER_ERROR'
 

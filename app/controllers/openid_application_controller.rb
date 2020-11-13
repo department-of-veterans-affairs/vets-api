@@ -33,9 +33,9 @@ class OpenidApplicationController < ApplicationController
   def authenticate_token
     return false if token.blank?
 
-    #issued for a client vs a user
-    if token.is_client_credentials_token?
-      if token.payload["scp"].include?("launch/patient")
+    # issued for a client vs a user
+    if token.client_credentials_token?
+      if token.payload['scp'].include?('launch/patient')
         # API-3500 will fetch launch context
         # token.payload[:"icn"] = '1234V5678'
       end

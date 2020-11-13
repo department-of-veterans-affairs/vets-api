@@ -44,19 +44,19 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
   let(:client_credentials_jwt) do
     [{
-         'ver' => 1,
-         'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
-         'iss' => 'https://example.com/oauth2/default',
-         'aud' => 'api://default',
-         'iat' => Time.current.utc.to_i,
-         'exp' => Time.current.utc.to_i + 3600,
-         'cid' => '0oa1c01m77heEXUZt2p7',
-         'uid' => '00u1zlqhuo3yLa2Xs2p7',
-         'scp' => %w[profile email launch/patient],
-         'sub' => '0oa1c01m77heEXUZt2p7'
+       'ver' => 1,
+       'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+       'iss' => 'https://example.com/oauth2/default',
+       'aud' => 'api://default',
+       'iat' => Time.current.utc.to_i,
+       'exp' => Time.current.utc.to_i + 3600,
+       'cid' => '0oa1c01m77heEXUZt2p7',
+       'uid' => '00u1zlqhuo3yLa2Xs2p7',
+       'scp' => %w[profile email launch/patient],
+       'sub' => '0oa1c01m77heEXUZt2p7'
      }, {
-         'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
-         'alg' => 'RS256'
+       'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
+       'alg' => 'RS256'
      }]
   end
   let(:json_api_response) do
