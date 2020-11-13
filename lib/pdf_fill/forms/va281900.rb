@@ -260,13 +260,11 @@ module PdfFill
       def format_address(address)
         street2 = address['street2'] || ''
         street3 = address['street3'] || ''
-        city = address['city'] || ''
         state = address['state'] || ''
-        country = address['country'] || ''
 
         address['address_line1'] = address['street'] + ' ' + street2 + ' ' + street3
-        address['address_line2'] = city + ' ' + state + ' ' + address['postal_code']
-        address['address_line3'] = country
+        address['address_line2'] = address['city'] + ' ' + state + ' ' + address['postal_code']
+        address['address_line3'] = address['country']
       end
     end
   end
