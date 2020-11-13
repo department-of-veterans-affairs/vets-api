@@ -25,10 +25,6 @@ features:
     actor_type: cookie_id
     description: >
       Toggles whether COVID Research volunteer submissions will be delivered to genISIS
-  dashboard_show_covid19_alert:
-    actor_type: user
-    description: >
-      Allows for showing a special COVID19 alert on the My VA Dashboard
   dashboard_show_dashboard_2:
     actor_type: user
     enable_in_development: true
