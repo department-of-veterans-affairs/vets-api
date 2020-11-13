@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
     class Vba281900 < FormBase
@@ -267,13 +266,6 @@ module PdfFill
         state = address['state'] || ''
         postal_code = address['postal_code'] || ''
         country = address['country'] || ''
-        line_length = street1.length + street2.length + street3.length
-
-        if line_length > 28
-          #xyz
-        else
-          #address['address_line1'] = street1 + ' ' + street2 + ' ' + street3
-        end
 
         address['address_line1'] = street1 + ' ' + street2 + ' ' + street3
         address['address_line2'] = city + ' ' + state + ' ' + postal_code
