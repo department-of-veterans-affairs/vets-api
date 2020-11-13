@@ -25,7 +25,7 @@ module OpenidAuth
         payload_object.va_identifiers[:icn] = payload_object.try(:icn)
 
         # Client Credentials token will not populate the @current_user, so only fill if not that token type
-        if !token.client_credentials_token? && payload_object[:icn].nil?
+        unless token.client_credentials_token? && !payload_object[:icn].nil?
           payload_object.va_identifiers[:icn] = @current_user.icn
         end
 
