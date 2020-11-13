@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class IrisConstants
+class Constants
 
   def vet_status_mappings
     vet_statuses = {

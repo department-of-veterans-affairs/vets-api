@@ -13,8 +13,8 @@ class OracleRPAService
   FORM_OF_ADDRESS = 'Dr.'
 
   def submit_form
-    iris_constants = IrisConstants.new
-    file = File.read('app/services/iris_fields_mapping.json')
+    iris_constants = Constants.new
+    file = File.read('app/services/fields_mapping.json')
 
     browser = Watir::Browser.new :chrome, args: %w[--no-sandbox --disable-dev-shm-usage]
     browser.goto 'https://iris--tst.custhelp.com/app/ask'
@@ -86,7 +86,11 @@ class OracleRPAService
   def get_topics
     topics = @claim.parsed_form['topic']
     topic_values = []
-    topic_values.append(topics['levelOne'], topics['levelTwo'], topics['levelThree'])
+    if topics.key?('levelThree')
+      topic_values.append(topics['levelOne'], topics['levelTwo'], topics['levelThree'])
+    else
+      topic_values.append(topics['levelOne'], topics['levelTwo'])
+    end
   end
 
   def select_topic(browser, topic_labels)
