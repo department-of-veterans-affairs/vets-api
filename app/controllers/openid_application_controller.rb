@@ -36,7 +36,7 @@ class OpenidApplicationController < ApplicationController
     #issued for a client vs a user
     if token.is_client_credentials_token?
       if token.payload["scp"].include?("launch/patient")
-        # TODO fetch launch context
+        # API-3500 will fetch launch context
         # token.payload[:"icn"] = '1234V5678'
       end
       return true
