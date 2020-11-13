@@ -196,62 +196,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-  /v0/military-service-history:
-    get:
-      summary: /v0/military-service-history
-      description: Returns user's service history
-      operationId: getServiceHistory
-      security:
-        - Bearer: [ ]
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MilitaryHistory"
-        '401':
-          description: Authentication is possible but has failed or not yet been provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '404':
-          description: The requested resource could not be found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '500':
-          description: An internal API error occured.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: An upstream service the API depends on returned an error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '503':
-          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: A response from an upstream service timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
+
   /v0/letters:
     get:
       summary: /v0/letters
@@ -440,6 +385,196 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+
+  /v0/military-service-history:
+    get:
+      summary: /v0/military-service-history
+      description: Returns user's service history
+      operationId: getServiceHistory
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MilitaryHistory"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/payment-information/benfits:
+    get:
+      summary: /v0/payment-information/benfits
+      description: Returns direct deposit payment info
+      operationId: index
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      summary: /v0/payment-information/benfits
+      description: Returns updated direct deposit payment info
+      operationId: update
+      security:
+        - Bearer: [ ]
+      requestBody:
+        description: New direct deposit info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePaymentInfoRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+
   /v0/user:
     get:
       summary: /v0/user
@@ -448,7 +583,7 @@ paths:
         the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
       operationId: user.getProfile
       security:
-        - Bearer: []
+        - Bearer: [ ]
       parameters:
         - in: header
           name: X-Key-Inflection
@@ -587,7 +722,7 @@ paths:
       description: Updates a user's residential or mailing address
       operationId: user.updateAddress
       security:
-        - Bearer: []
+        - Bearer: [ ]
       parameters:
         - in: header
           name: X-Key-Inflection
@@ -623,7 +758,8 @@ paths:
                   data:
                     required:
                       - id
-                      - string
+                      - type
+                      - attributes
                     properties:
                       id:
                         type: string
@@ -724,7 +860,8 @@ paths:
                   data:
                     required:
                       - id
-                      - string
+                      - type
+                      - attributes
                     properties:
                       id:
                         type: string
@@ -828,7 +965,8 @@ paths:
                   data:
                     required:
                       - id
-                      - string
+                      - type
+                      - attributes
                     properties:
                       id:
                         type: string
@@ -895,13 +1033,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/Errors"
 
-  /v0/user/transaction-status:
+  /v0/user/transactions/:transaction_id:
     get:
-      summary: /v0/user/transaction-status/:transactionId
-      description: \[Not implemented\] Returns the status of a user profile update (e.g. address update)
-      operationId: user.updateAddress
+      summary: /v0/user/transactions/:transactionId
+      description: Returns the status of a user profile update (e.g. address update)
+      operationId: user.transaction
       security:
-        - Bearer: []
+        - Bearer: [ ]
       parameters:
         - in: header
           name: X-Key-Inflection
@@ -926,7 +1064,8 @@ paths:
                   data:
                     required:
                       - id
-                      - string
+                      - type
+                      - attributes
                     properties:
                       id:
                         type: string
@@ -946,6 +1085,7 @@ paths:
                             example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
                           transactionStatus:
                             type: string
+                            enum: [ 'REJECTED', 'COMPLETED_SUCCESS', 'COMPLETED_NO_CHANGES_DETECTED', 'COMPLETED_FAILURE' ]
                             example: "COMPLETED_SUCCESS"
                           type:
                             type: string
@@ -964,136 +1104,6 @@ paths:
                 $ref: "#/components/schemas/Errors"
         '408':
           description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '500':
-          description: An internal API error occured.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: An upstream service the API depends on returned an error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '503':
-          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: A response from an upstream service timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-  /v0/payment-information/benfits:
-    get:
-      summary: /v0/payment-information/benfits
-      description: Returns direct deposit payment info
-      operationId: index
-      security:
-        - Bearer: [ ]
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaymentInfo"
-        '401':
-          description: Authentication is possible but has failed or not yet been provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '404':
-          description: The requested resource could not be found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '422':
-          description: Failure in processing entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '500':
-          description: An internal API error occured.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: An upstream service the API depends on returned an error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '503':
-          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: A response from an upstream service timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-    put:
-      summary: /v0/payment-information/benfits
-      description: Returns updated direct deposit payment info
-      operationId: update
-      security:
-        - Bearer: [ ]
-      requestBody:
-        description: New direct deposit info
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdatePaymentInfoRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaymentInfo"
-        '401':
-          description: Authentication is possible but has failed or not yet been provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '404':
-          description: The requested resource could not be found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '422':
-          description: Failure in processing entity
           content:
             application/json:
               schema:
