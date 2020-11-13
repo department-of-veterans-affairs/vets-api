@@ -43,6 +43,10 @@ module VbaDocuments
               key :format, 'date-time'
               key :example, '2018-07-30T17:31:15.958Z'
             end
+
+            property :uploaded_pdf do
+              key :$ref, :PdfUploadAttributes
+            end
           end
         end
       end
