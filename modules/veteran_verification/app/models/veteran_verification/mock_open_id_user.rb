@@ -7,7 +7,7 @@ class MockOpenidUser < OpenidUser
   redis_ttl REDIS_CONFIG[:openid_user_store][:each_ttl]
   redis_key :uuid
   delegate :veteran?, to: :mock_veteran_status
-  %w[veteran_status military_information payment mock_veteran_status].each do |emis_method|
+  %w[mock_veteran_status].each do |emis_method|
     define_method(emis_method) do
       emis_model = instance_variable_get(:"@#{emis_method}")
       return emis_model if emis_model.present?
