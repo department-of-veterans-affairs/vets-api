@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module Debts
-  class Configuration < Common::Client::Configuration::REST
+module DMC
+  class DebtsConfiguration < Common::Client::Configuration::REST
     def self.base_request_headers
       super.merge(
-        'client_id' => Settings.debts.client_id,
-        'client_secret' => Settings.debts.client_secret
+        'client_id' => Settings.dmc.client_id,
+        'client_secret' => Settings.dmc.client_secret
       )
     end
 
@@ -14,7 +14,7 @@ module Debts
     end
 
     def base_path
-      "#{Settings.debts.url}/api/v1/debtletter/"
+      "#{Settings.dmc.url}/api/v1/debtletter/"
     end
 
     def connection
@@ -22,7 +22,7 @@ module Debts
         f.use :breakers
         f.use Faraday::Response::RaiseError
         f.request :json
-        f.response :betamocks if Settings.debts.mock
+        f.response :betamocks if Settings.dmc.mock_debts
         f.response :json
         f.adapter Faraday.default_adapter
       end

@@ -221,6 +221,17 @@ module ClaimsApi
                     end
                   end
                 end
+
+                property :flashes do
+                  key :type, :array
+                  key :description, 'The flashes related to the veteran'
+
+                  items do
+                    key :type, :string
+                    key :example, 'Hardship'
+                    key :enum, ['Hardship', 'Seriously Injured/Very Seriously Injured', 'Terminally Ill', 'Homeless', 'Purple Heart', 'POW', 'Medal of Honor', 'Amyotrophic Lateral Sclerosis', 'Emergency Care']
+                  end
+                end
               end
 
               property :serviceInformation do

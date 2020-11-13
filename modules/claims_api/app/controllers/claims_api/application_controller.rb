@@ -13,12 +13,7 @@ module ClaimsApi
     before_action :validate_json_format, if: -> { request.post? }
 
     def show
-      if (pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id]))
-        render json: pending_claim,
-               serializer: ClaimsApi::AutoEstablishedClaimSerializer
-      else
-        fetch_or_error_local_claim_id
-      end
+      find_claim
     rescue => e
       log_message_to_sentry('Error in claims show',
                             :warning,
@@ -29,13 +24,16 @@ module ClaimsApi
 
     private
 
-    def fetch_or_error_local_claim_id
+    def find_claim
       claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
+
       if claim && claim.status == 'errored'
         fetch_errored(claim)
+      elsif claim && claim.evss_id.nil?
+        render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
       else
-        claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
-        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+        evss_claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
+        render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
       end
     end
 
@@ -134,6 +132,16 @@ module ClaimsApi
       vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
       vet.participant_id = header('X-VA-PID') || vet.mpi.profile&.participant_id
       vet
+    end
+
+    def authenticate_token
+      super
+    rescue => e
+      log_message_to_sentry('Authentication Error in claims',
+                            :warning,
+                            body: e.message)
+      render json: { errors: [{ status: 401, detail: 'User not a valid or authorized Veteran for this end point.' }] },
+             status: :unauthorized
     end
   end
 end
