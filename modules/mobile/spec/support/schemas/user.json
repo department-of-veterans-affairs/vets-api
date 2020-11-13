@@ -47,6 +47,9 @@
                 "lastName": {
                   "type": "string"
                 },
+                "contactEmail": {
+                  "$ref": "email.json"
+                },
                 "signinEmail": {
                   "type": "string"
                 },
