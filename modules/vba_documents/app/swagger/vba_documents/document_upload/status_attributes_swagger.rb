@@ -7,12 +7,12 @@ module VbaDocuments
       swagger_component do
         schema :DocumentUploadStatusAttributes do
           key :required, %i[guid status]
-
+          #todo remove
           property :guid do
             key :description, 'The document upload identifier'
             key :type, :string
             key :format, :uuid
-            key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
+            key :example, 'greg--6d8433c1-cd55-4c24-affd-f592287a7572'
           end
 
           property :status do
@@ -37,7 +37,14 @@ module VbaDocuments
           end
 
           property :updated_at do
-            key :description, 'The last time the submission was updated'
+            key :description, 'The last time the submission was updated at Greg'
+            key :type, :string
+            key :format, 'date-time'
+            key :example, '2018-07-30T17:31:15.958Z'
+          end
+
+          property :Cris do
+            key :description, 'The last time Cris had his lunch'
             key :type, :string
             key :format, 'date-time'
             key :example, '2018-07-30T17:31:15.958Z'

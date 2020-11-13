@@ -8,12 +8,12 @@ module VbaDocuments
         swagger_component do
           schema :DocumentUploadStatusAttributes do
             key :required, %i[guid status]
-
+            #todo remove
             property :guid do
               key :description, 'The document upload identifier'
               key :type, :string
               key :format, :uuid
-              key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
+              key :example, '6d8433c1-cd55-4c24-affd-f592287a7572--matz'
             end
 
             property :status do
@@ -36,12 +36,12 @@ module VbaDocuments
               key :description, 'Human readable error detail. Only present if status = "error"'
               key :type, :string
             end
-
+            #todo remove
             property :updated_at do
               key :description, 'The last time the submission was updated'
               key :type, :string
               key :format, 'date-time'
-              key :example, '2018-07-30T17:31:15.958Z'
+              key :example, '2018-07-30T17:31:15.958Z -- CRIS'
             end
 
             property :uploaded_pdf do
