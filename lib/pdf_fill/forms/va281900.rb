@@ -253,22 +253,19 @@ module PdfFill
       end
 
       def merge_address_helpers
-        # @TODO multiple address lines, foreign address, etc?
         format_address(@form_data['veteran_address'])
         format_address(@form_data['new_address']) if @form_data['is_moving']
       end
 
       def format_address(address)
-        street1 = address['street'] || ''
         street2 = address['street2'] || ''
         street3 = address['street3'] || ''
         city = address['city'] || ''
         state = address['state'] || ''
-        postal_code = address['postal_code'] || ''
         country = address['country'] || ''
 
-        address['address_line1'] = street1 + ' ' + street2 + ' ' + street3
-        address['address_line2'] = city + ' ' + state + ' ' + postal_code
+        address['address_line1'] = address['street'] + ' ' + street2 + ' ' + street3
+        address['address_line2'] = city + ' ' + state + ' ' + address['postal_code']
         address['address_line3'] = country
       end
     end
