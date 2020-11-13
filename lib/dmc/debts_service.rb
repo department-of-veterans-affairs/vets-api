@@ -45,7 +45,7 @@ module DMC
 
     def init_debts
       with_monitoring_and_error_handling do
-        DMC::DebtsResponse.new(perform(:post, 'letterdetails/get', fileNumber: @file_number).body).debts
+        DMC::DebtsResponse.new(perform(:post, 'debt-letter/get', fileNumber: @file_number).body).debts
       end
     end
 

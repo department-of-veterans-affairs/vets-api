@@ -12,7 +12,7 @@ module DMC
     def submit_financial_status_report(form)
       with_monitoring_and_error_handling do
         form = camelize(form)
-        DMC::FSRResponse.new(perform(:post, 'formtopdf', form).body)
+        DMC::FSRResponse.new(perform(:post, 'financial-status-report/formtopdf', form).body)
       end
     end
 
