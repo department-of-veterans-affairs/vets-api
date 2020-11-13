@@ -227,9 +227,9 @@ module VbaDocuments
               end
             end
           end
-
+          #todo remove
           response 200 do
-            key :description, 'Upload status report retrieved successfully'
+            key :description, 'Upload status report retrieved successfully Cris'
             content 'application/json' do
               schema do
                 key :type, :object
