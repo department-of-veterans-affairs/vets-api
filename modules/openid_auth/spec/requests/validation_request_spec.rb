@@ -57,8 +57,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         'sub' => '0oa1c01m77heEXUZt2p7'
       },
       {
-       'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
-       'alg' => 'RS256'
+        'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
+        'alg' => 'RS256'
       }
     ]
   end
