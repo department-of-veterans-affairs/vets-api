@@ -99,7 +99,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data'].size).to eq(1)
-        valid_doc = File.new('modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob')
+        valid_doc = 'modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob'
         inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: false)
         pdf_controller_data = json['data'].first['attributes']['uploaded_pdf']
         pdf_data = VBADocuments::UploadSerializer.scrub_unnecessary_keys(inspector.pdf_data.as_json)

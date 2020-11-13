@@ -15,10 +15,11 @@ module VBADocuments
 
     # If add_file_key is true the file is added to the returned hash as the parent key.
     # Useful for the rake task vba_documents:inspect_pdf
-    # pdf can be a File or the parts result of 'VBADocuments::MultipartParser.parse(tempfile.path)'
+    # pdf can be a String file path or the parts result of 'VBADocuments::MultipartParser.parse(tempfile.path)'
     def initialize(pdf:, add_file_key: false)
-      if pdf.is_a?(File)
+      if pdf.is_a?(String)
         raise ArgumentError, "Invalid file #{pdf}, does not exist!" unless File.exist? pdf
+
         @file = pdf
         @parts = VBADocuments::MultipartParser.parse(@file)
       else
@@ -26,9 +27,9 @@ module VBADocuments
       end
       begin
         @pdf_data = inspect_pdf(add_file_key)
-      rescue => exception
-        Rails.logger.error "Failed to inspect pdf, #{exception.message}.", backtrace: exception.backtrace
-        @pdf_data = {content: {failure: exception.message}}
+      rescue => e
+        Rails.logger.error "Failed to inspect pdf, #{e.message}.", backtrace: e.backtrace
+        @pdf_data = { content: { failure: e.message } }
       end
     end
 

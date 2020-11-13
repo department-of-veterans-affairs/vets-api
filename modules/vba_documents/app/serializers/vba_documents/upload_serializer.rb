@@ -5,7 +5,6 @@ require_dependency 'vba_documents/pdf_inspector'
 
 module VBADocuments
   class UploadSerializer < ActiveModel::Serializer
-
     type 'document_upload'
 
     attributes :guid, :status, :code, :detail, :location, :updated_at, :uploaded_pdf
@@ -29,6 +28,7 @@ module VBADocuments
 
     def uploaded_pdf
       return nil unless object.uploaded_pdf
+
       UploadSerializer.scrub_unnecessary_keys(object.uploaded_pdf)
     end
 

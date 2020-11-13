@@ -271,10 +271,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'sets uploaded pdf data' do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
-        VBADocuments::MultipartParser.parse_file('modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob')
+        file = 'modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob'
+        VBADocuments::MultipartParser.parse_file(file)
       }
-      #      {"source"=>nil, "doc_type"=>"Unknown", "total_documents"=>2, "total_pages"=>2, "content"=>{"page_count"=>1, "dimensions"=>{"height"=>8.5, "width"=>11.0}, "oversized_pdf"=>false
-      #, "attachments"=>[{"page_count"=>1, "dimensions"=>{"height"=>8.5, "width"=>11.0}, "oversized_pdf"=>false}]}}
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       pdf_data = updated.uploaded_pdf
