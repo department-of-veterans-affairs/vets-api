@@ -83,13 +83,19 @@ RSpec.describe 'claims and appeals overview', type: :request do
         VCR.use_cassette('evss/claims/claims_with_errors') do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
-            binding.pry
           end
         end
       end
 
       it 'and appeals service fails, but claims succeeds' do
         VCR.use_cassette('evss/claims/claims') do
+          VCR.use_cassette('caseflow/server_error') do
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
+          end
+        end
+      end
+      it 'both fail in upstream service' do
+        VCR.use_cassette('evss/claims/claims_with_errors') do
           VCR.use_cassette('caseflow/server_error') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
             binding.pry
