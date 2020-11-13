@@ -33,7 +33,7 @@ RSpec.describe 'user', type: :request do
 
       it 'includes the users email' do
         expect(attributes['profile']).to include(
-          'email' => 'va.api.user+idme.008@gmail.com'
+          'signinEmail' => 'va.api.user+idme.008@gmail.com'
         )
       end
 
@@ -46,6 +46,7 @@ RSpec.describe 'user', type: :request do
       it 'includes the expected residential address' do
         expect(attributes['profile']).to include(
           'residentialAddress' => {
+            'id' => 123,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
@@ -64,6 +65,7 @@ RSpec.describe 'user', type: :request do
       it 'includes the expected mailing address' do
         expect(attributes['profile']).to include(
           'mailingAddress' => {
+            'id' => 124,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
