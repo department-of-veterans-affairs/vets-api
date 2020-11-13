@@ -13,12 +13,16 @@ module DMC
       "#{Settings.dmc.url}/api/v1/digital-services/"
     end
 
+    def mock_enabled?
+      false
+    end
+
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |f|
         f.use :breakers
         f.use Faraday::Response::RaiseError
         f.request :json
-        f.response :betamocks if Settings.dmc.send("mock_#{service_name.downcase}")
+        f.response :betamocks if mock_enabled?
         f.response :json
         f.adapter Faraday.default_adapter
       end
