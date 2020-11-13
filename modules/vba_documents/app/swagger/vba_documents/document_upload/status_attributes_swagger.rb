@@ -7,12 +7,11 @@ module VbaDocuments
       swagger_component do
         schema :DocumentUploadStatusAttributes do
           key :required, %i[guid status]
-          #todo remove
           property :guid do
             key :description, 'The document upload identifier'
             key :type, :string
             key :format, :uuid
-            key :example, 'greg--6d8433c1-cd55-4c24-affd-f592287a7572'
+            key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
           end
 
           property :status do
