@@ -217,16 +217,17 @@ module V1
     end
 
     def saml_response_stats(saml_response)
-      relay_state = JSON.parse(params[:RelayState] || '{}')
+      uuid = saml_response.in_response_to
+      tracker = SAMLRequestTracker.find(uuid)
       values = {
-        'id' => saml_response.in_response_to,
+        'id' => uuid,
         'authn' => saml_response.authn_context,
-        'type' => relay_state['type'],
-        'transaction_id' => relay_state['transaction_id']
+        'type' => tracker&.payload_attr(:type),
+        'transaction_id' => tracker&.payload_attr(:transaction_id)
       }
       Rails.logger.info("SSOe: SAML Response => #{values}")
       StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,
-                       tags: ["type:#{relay_state['type']}",
+                       tags: ["type:#{tracker&.payload_attr(:type)}",
                               "context:#{saml_response.authn_context}",
                               VERSION_TAG])
     end

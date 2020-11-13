@@ -171,8 +171,7 @@ module SAML
     def relay_state_params
       rs_params = {
         originating_request_id: RequestStore.store['request_id'],
-        type: type,
-        transaction_id: @tracker.payload[:transaction_id]
+        type: type
       }
       rs_params[:review_instance_slug] = Settings.review_instance_slug unless Settings.review_instance_slug.nil?
       rs_params.to_json
