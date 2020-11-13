@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module Pgd
+  module PatientGeneratedData
     module Patient
       class MapQuery
-        include Pgd::FhirClient
+        include PatientGeneratedData::FhirClient
 
         attr_reader :headers
 

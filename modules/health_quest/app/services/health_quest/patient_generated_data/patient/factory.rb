@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module Pgd
+  module PatientGeneratedData
     module Patient
       class Factory
         attr_reader :session_service, :user, :map_query
@@ -13,7 +13,7 @@ module HealthQuest
         def initialize(user)
           @user = user
           @session_service = HealthQuest::SessionService.new(user)
-          @map_query = Pgd::Patient::MapQuery.build(session_service.headers)
+          @map_query = PatientGeneratedData::Patient::MapQuery.build(session_service.headers)
         end
 
         def get_patient

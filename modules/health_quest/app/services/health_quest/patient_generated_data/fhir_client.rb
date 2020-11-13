@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module Pgd
+  module PatientGeneratedData
     module FhirClient
       def url
         "#{Settings.hqva_mobile.url}/smart-pgd-fhir/v1"

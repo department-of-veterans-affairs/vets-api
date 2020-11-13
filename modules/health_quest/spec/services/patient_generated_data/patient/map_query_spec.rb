@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-describe HealthQuest::Pgd::Patient::MapQuery do
+describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
   subject { described_class }
 
   let(:headers) { { 'Accept' => 'application/json+fhir' } }
 
   describe 'included modules' do
-    it 'includes Pgd::FhirClient' do
-      expect(subject.ancestors).to include(HealthQuest::Pgd::FhirClient)
+    it 'includes PatientGeneratedData::FhirClient' do
+      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FhirClient)
     end
   end
 
@@ -33,7 +33,7 @@ describe HealthQuest::Pgd::Patient::MapQuery do
 
   describe '#get' do
     context 'with valid id' do
-      let(:client) { double('HealthQuest::Pgd::FhirClient') }
+      let(:client) { double('HealthQuest::PatientGeneratedData::FhirClient') }
 
       before do
         allow_any_instance_of(subject).to receive(:client).and_return(client)
