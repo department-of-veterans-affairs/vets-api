@@ -9,9 +9,11 @@ describe EMIS::VeteranStatusService do
   let(:bad_edipi) { '595' }
   let(:missing_edipi) { '1111111111' }
   let(:no_status) { '1005079361' }
+
   before do
     Settings.vet_verification.mock_emis = false
   end
+
   describe 'get_veteran_status' do
     context 'with a valid request' do
       it 'calls the get_veteran_status endpoint with a proper emis message' do

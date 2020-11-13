@@ -20,6 +20,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     after(:context) do
       Settings.vet_verification.mock_emis = false
     end
+
     context 'with valid emis responses' do
       it 'returns the current users service history with one episode' do
         with_okta_user(scopes) do |auth_header|
@@ -140,6 +141,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     before(:context) do
       Settings.vet_verification.mock_emis = false
     end
+
     context 'with valid emis responses' do
       it 'returns the current users service history with one episode' do
         with_okta_user(scopes) do |auth_header|

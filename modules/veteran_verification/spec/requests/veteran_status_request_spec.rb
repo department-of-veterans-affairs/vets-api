@@ -6,6 +6,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
   include SchemaMatchers
 
   let(:scopes) { %w[profile email openid veteran_status.read] }
+
   context 'mock emis' do
     before(:context) do
       Settings.vet_verification.mock_emis = true
@@ -15,6 +16,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     after(:context) do
       Settings.vet_verification.mock_emis = false
     end
+
     context 'with valid emis responses' do
       it 'returns true if the user is a veteran' do
         with_okta_user(scopes) do |auth_header|
@@ -68,10 +70,11 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
   end
 
-  context 'mock emis' do
+  context 'betamocks emis' do
     before(:context) do
       Settings.vet_verification.mock_emis = false
     end
+
     context 'with valid emis responses' do
       it 'returns true if the user is a veteran' do
         with_okta_user(scopes) do |auth_header|
