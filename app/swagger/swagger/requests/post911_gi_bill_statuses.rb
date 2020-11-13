@@ -2,7 +2,7 @@
 
 module Swagger
   module Requests
-    class Post911GiBillStatuses
+    class Post911GIBillStatuses
       include Swagger::Blocks
 
       swagger_path '/v0/post911_gi_bill_status' do
