@@ -479,6 +479,7 @@ search:
 
 flipper:
   admin_user_emails:
+    - adewitt@thoughtworks.com
     - alastair@adhocteam.us
     - anna@adhoc.team
     - bconley@governmentcio.com
@@ -491,33 +492,38 @@ flipper:
     - erik@adhocteam.us
     - filip.fafara@gmail.com
     - grodriguez@governmentcio.com
+    - hshin@thoughtworks.com
     - hughes_dustin@bah.com
+    - jacob.gacek@thoughtworks.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
+    - jennie.mcgibney@va.gov
     - jesse.cohn@adhocteam.us
+    - jlinn@governmentcio.com
     - kabrown@thoughtworks.com
+    - kadams@governmentcio.com
     - kam@adhocteam.us
     - keifer@oddball.io
-    - kadams@governmentcio.com
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
-    - jlinn@governmentcio.com
     - lauren.alexanderson@va.gov
     - lihan@adhocteam.us
     - lindsey.hattamer@oddball.io
+    - lsanchez@governmentcio.com
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
     - mdewey@governmentcio.com
     - micah@adhocteam.us
     - michael.fleet@oddball.io
+    - mnunemak@thoughtworks.com
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - nick.sullivan@adhocteam.us
-    - osanchez@governmentcio.com
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
+    - paul.phillips@thoughtworks.com
     - pherbert@thoughtworks.com
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
@@ -529,17 +535,11 @@ flipper:
     - samara.strauss@va.gov
     - shallie@governmentcio.com
     - shawkey_daniel@bah.com
+    - shefai.nayak@thoughtworks.com
     - sonntag_adam@bah.com
+    - tony.williams@va.gov
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
-    - tony.williams@va.gov
-    - jennie.mcgibney@va.gov
-    - adewitt@thoughtworks.com
-    - shefai.nayak@thoughtworks.com
-    - jacob.gacek@thoughtworks.com
-    - paul.phillips@thoughtworks.com
-    - mnunemak@thoughtworks.com
-    - hshin@thoughtworks.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
