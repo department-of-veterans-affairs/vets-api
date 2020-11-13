@@ -7,9 +7,5 @@ module DMC
     def service_name
       'Debts'
     end
-
-    def mock_enabled?
-      Settings.dmc.mock_debts
-    end
   end
 end

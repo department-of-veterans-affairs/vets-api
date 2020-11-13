@@ -14,7 +14,7 @@ module DMC
     end
 
     def mock_enabled?
-      false
+      Settings.dmc.send("mock_#{service_name.downcase}")
     end
 
     def connection
