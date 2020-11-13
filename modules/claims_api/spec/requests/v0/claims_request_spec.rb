@@ -198,7 +198,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
         it 'returns a bad request response' do
           VCR.use_cassette('evss/claims/claims') do
             get '/services/claims/v0/claims', params: nil, headers: valid_headers.except(header)
-            expect(response).to have_http_status(:bad_request)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
