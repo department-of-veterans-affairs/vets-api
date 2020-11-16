@@ -10,24 +10,22 @@ module Mobile
       before_action { authorize :evss, :access? }
 
       def index
-        all_claims_lambda = -> {
+        all_claims_lambda = lambda {
           begin
             claims_list = claims_service.all_claims
             [].push(claims_list.body['open_claims']).push(claims_list.body['historical_claims']).flatten
-          rescue Exception => ex
-            ex
+          rescue => e
+            e
           end
         }
-        all_appeals_lambda = -> {
+        all_appeals_lambda = lambda {
           begin
             appeals_service.get_appeals(@current_user).body['data']
-          rescue Exception => ex
-            ex
+          rescue => e
+            e
           end
         }
-        results = Parallel.map([all_claims_lambda, all_appeals_lambda], in_threads: 8) do |current_lambda|
-          current_lambda.call
-        end
+        results = Parallel.map([all_claims_lambda, all_appeals_lambda], in_threads: 8, &:call)
         # catch and react to errors some where
         render json: Mobile::V0::ClaimsAndAppealsOverviewSerializer.new(@current_user.id, results[0], results[1])
       end
