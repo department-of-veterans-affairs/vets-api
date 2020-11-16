@@ -3,30 +3,17 @@
 require 'watir'
 require 'selenium-webdriver'
 require 'json'
+require_relative './constants/constants.rb'
 
 # This service submits a form to the existing IRIS Oracle page
 
 module Ask
   module Iris
     class OracleRPAService
+      include Constants
       def initialize(request)
         @request = request
       end
-
-      FORM_OF_ADDRESS = 'Dr.'
-      URI = 'https://iris--tst.custhelp.com/app/ask'
-      FORM_OF_ADDRESS_FIELD_NAME = 'Incident.CustomFields.c.form_of_address'
-      TEXT_FIELD = 'text_field'
-      DROPDOWN = 'select_list'
-      RADIO = 'radio'
-      TOPIC_BUTTON_ID = 'rn_ProductCategoryInput_3_Product_Button'
-      BOLD_TAG = 'b'
-      CONFIRMATION_NUMBER_MATCHER = /#[0-9-]*/.freeze
-      SUBMIT_FORM_BUTTON_ID = 'rn_FormSubmit_58_Button'
-      CONFIRM_SUBMIT_BUTTON_TEXT = 'Finish Submitting Question'
-      MEDICAL_CENTER_DROPDOWN = 'Incident.CustomFields.c.medical_centers'
-      INQUIRY_TYPE_BUTTON_ID = 'rn_ProductCategoryInput_6_Category_Button'
-      QUERY_FIELD_NAME = 'Incident.Threads'
 
       def submit_form
         iris_values = Ask::Iris::Mappers::ContactUsToIrisValues.new
@@ -49,6 +36,7 @@ module Ask
           value = iris_values.contact_method_mappings[value] if field['fieldName'].include? 'form_of_response'
           value = iris_values.state_mappings[value] if field['fieldName'].include? 'state'
           value = iris_values.country_mappings[value] if field['fieldName'].include? 'country'
+
           value = transform_date(value) if date_field? field['fieldName']
 
           if field['fieldType'].eql? TEXT_FIELD
