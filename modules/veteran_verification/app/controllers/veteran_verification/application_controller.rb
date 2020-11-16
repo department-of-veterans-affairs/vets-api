@@ -15,6 +15,9 @@ module VeteranVerification
     def authenticate_token
       return false if token.blank?
 
+      # Not supported for Client Credentials tokens
+      return false if token.client_credentials_token?
+
       @session = Session.find(token)
       establish_session if @session.nil?
       return false if @session.nil?
