@@ -26,7 +26,6 @@ module Mobile
           end
         }
         results = Parallel.map([all_claims_lambda, all_appeals_lambda], in_threads: 8, &:call)
-        # catch and react to errors some where
         render json: Mobile::V0::ClaimsAndAppealsOverviewSerializer.new(@current_user.id, results[0], results[1])
       end
 
