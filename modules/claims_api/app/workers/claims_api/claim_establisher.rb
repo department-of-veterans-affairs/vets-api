@@ -22,7 +22,7 @@ module ClaimsApi
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
       auto_claim.save
 
-      flashes = JSON.parse(form_data).dig('form526', 'veteran', 'flashes')
+      flashes = auto_claim.flashes
       ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes) if flashes.present?
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
