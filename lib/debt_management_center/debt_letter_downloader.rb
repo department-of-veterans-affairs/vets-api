@@ -59,7 +59,7 @@ module DebtManagementCenter
     end
 
     def debts_service
-      DMC::DebtsService.new(@user)
+      DebtManagementCenter::DebtsService.new(@user)
     end
 
     def verify_no_dependent_debts
