@@ -23,18 +23,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
         }
       end
 
-      let(:successful_response_item_twenty) do
-        {
-          'id' => '600100167',
-          'type' => 'claim',
-          'attributes' => {
-            'subtype' => 'Dependency',
-            'completed' => true,
-            'dateFiled' => '2017-04-21'
-          }
-        }
-      end
-
       let(:successful_response_last_item) do
         {
           'id' => '1196201',
@@ -56,7 +44,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
             # check a couple entries to make sure the data is correct
             parsed_response_contents = JSON.parse(response.body)['data']['attributes']['claimsAndAppeals']
             expect(parsed_response_contents[0]).to eq(successful_response_item_zero)
-            expect(parsed_response_contents[20]).to eq(successful_response_item_twenty)
             expect(parsed_response_contents.last).to eq(successful_response_last_item)
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
