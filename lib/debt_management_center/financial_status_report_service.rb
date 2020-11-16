@@ -12,7 +12,9 @@ module DebtManagementCenter
     def submit_financial_status_report(form)
       with_monitoring_and_error_handling do
         form = camelize(form)
-        DebtManagementCenter::FinancialStatusReportResponse.new(perform(:post, 'financial-status-report/formtopdf', form).body)
+        DebtManagementCenter::FinancialStatusReportResponse.new(
+          perform(:post, 'financial-status-report/formtopdf', form).body
+        )
       end
     end
 
