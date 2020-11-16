@@ -42,9 +42,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
     it 'returns an empty list when given an unknown category' do
       VCR.use_cassette('okta/verification-scopes') do
         get '/services/apps/v0/directory/scopes/unknown_category'
-        body = JSON.parse(response.body)
-        expect(response).to have_http_status(:success)
-        expect(body['data']).to be_empty
+        expect(response).to have_http_status(:no_content)
       end
     end
     it '404s when given a null category' do
