@@ -9,13 +9,13 @@ module V0
       def create
         return not_implemented unless Flipper.enabled?(:get_help_ask_form)
 
-        claim = SavedClaim::Ask.new(form: form_submission)
+        request = SavedClaim::Ask.new(form: form_submission)
 
-        service = OracleRPAService.new(claim)
+        service = ::Ask::Iris::OracleRPAService.new(request)
 
         confirmation_number = service.submit_form
 
-        # validate!(claim)
+        # validate!(request)
 
         render json: {
           'confirmationNumber': confirmation_number,
@@ -35,8 +35,8 @@ module V0
         raise
       end
 
-      def validate!(claim)
-        raise Common::Exceptions::ValidationErrors, claim unless claim.valid?
+      def validate!(request)
+        raise Common::Exceptions::ValidationErrors, request unless request.valid?
       end
     end
   end
