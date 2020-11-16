@@ -1239,23 +1239,6 @@ components:
             - id
             - attributes
           properties:
-            singleServiceFailure:
-              type: object
-              required:
-                - service
-                - error
-              properties:
-                service:
-                  type: string
-                  example: "claims"
-                  enum:
-                    - claims
-                    - appeals
-                  description: name of service that failed
-                error:
-                  type: object
-                  $ref: "#/components/schemas/Errors"
-
             type:
               type: string
               example: "claimsAndAppealsOverview"
@@ -1274,6 +1257,12 @@ components:
                     type: object
                     $ref: "#/components/schemas/ClaimsAndAppeals"
                     description: array of all claims and appeals for a given user
+                upstreamServiceErrors:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/ClaimsAndAppealsOverviewErrors"
+                    description: Array info about failing upstream services
     ClaimsAndAppeals:
       required:
         - id
@@ -1312,6 +1301,21 @@ components:
               type: string
               format: date-time
               example: "2020-01-01T00:00:00.00Z"
+    ClaimsAndAppealsOverviewErrors:
+      required:
+        - upstreamService
+        - debugMessages
+      properties:
+        upstreamService:
+          type: string
+          enum:
+            - claims
+            - appeals
+        debugMessages:
+          type: array
+          items:
+            type: object
+            description: Array of objects from failing upstream services. Used for debugging only.
     Appeal:
       required:
         - id
