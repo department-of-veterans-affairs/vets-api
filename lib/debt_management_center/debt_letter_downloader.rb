@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'debts/service'
+require 'debt_management_center/debts_service'
 
-module Debts
-  class LetterDownloader
+module DebtManagementCenter
+  class DebtLetterDownloader
     DEBTS_DOCUMENT_TYPES = %w[
       193
       194
@@ -59,7 +59,7 @@ module Debts
     end
 
     def debts_service
-      Debts::Service.new(@user)
+      DebtManagementCenter::DebtsService.new(@user)
     end
 
     def verify_no_dependent_debts

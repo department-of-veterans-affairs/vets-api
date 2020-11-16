@@ -170,3 +170,8 @@ VAForms::FetchLatest:
   cron: "0 0 * * * America/New_York"
   class: VAForms::FormReloader
   description: "Fetches latest VA Forms"
+
+AppsApi::LoadApplications:
+  in: '1m'
+  class: AppsApi::DirectoryLoader
+  description: "Populates directory_applications table"
