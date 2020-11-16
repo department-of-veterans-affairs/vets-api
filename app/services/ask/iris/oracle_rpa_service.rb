@@ -14,20 +14,30 @@ module Ask
       end
 
       FORM_OF_ADDRESS = 'Dr.'
+      URI = 'https://iris--tst.custhelp.com/app/ask'
+      FORM_OF_ADDRESS_FIELD_NAME = 'Incident.CustomFields.c.form_of_address'
+      TEXT_FIELD = 'text_field'
+      DROPDOWN = 'select_list'
+      RADIO = 'radio'
+      TOPIC_BUTTON_ID = 'rn_ProductCategoryInput_3_Product_Button'
+      BOLD_TAG = 'b'
+      CONFIRMATION_NUMBER_MATCHER = /#[0-9-]*/.freeze
+      SUBMIT_FORM_BUTTON_ID = 'rn_FormSubmit_58_Button'
+      CONFIRM_SUBMIT_BUTTON_TEXT = 'Finish Submitting Question'
+      MEDICAL_CENTER_DROPDOWN = 'Incident.CustomFields.c.medical_centers'
+      INQUIRY_TYPE_BUTTON_ID = 'rn_ProductCategoryInput_6_Category_Button'
+      QUERY_FIELD_NAME = 'Incident.Threads'
 
       def submit_form
-        iris_constants = Ask::Iris::Constants::FieldMappings.new
-        file = File.read('app/services/ask/iris/constants/field_names_mapping.json')
+        iris_values = Ask::Iris::Mappers::ContactUsToIrisValues.new
+        file = File.read('app/services/ask/iris/mappers/contact_us_to_iris_fields.json')
 
-        browser = Watir::Browser.new :chrome, args: %w[--no-sandbox --disable-dev-shm-usage]
-        browser.goto 'https://iris--tst.custhelp.com/app/ask'
-        # Must be resized in order for watir to find fields on the very right side of the form
-        browser.window.resize_to 1024, 728
+        browser = WatirConfig.new(URI)
 
         # Inquiry Topic, Type, and Question
         set_topic_inquiry_fields(browser)
 
-        browser.select_list(name: 'Incident.CustomFields.c.form_of_address').option(text: FORM_OF_ADDRESS).select
+        browser.select_dropdown_by_text(FORM_OF_ADDRESS_FIELD_NAME, FORM_OF_ADDRESS)
 
         JSON.load(file).each do |field|
           value = @request.parsed_form
@@ -35,41 +45,39 @@ module Ask
             value = value[key]
           end
 
-          value = iris_constants.vet_status_mappings[value] if field['fieldName'].include? 'vet_status'
-          value = iris_constants.contact_method_mappings[value] if field['fieldName'].include? 'form_of_response'
-          value = iris_constants.state_mappings[value] if field['fieldName'].include? 'state'
-          value = iris_constants.country_mappings[value] if field['fieldName'].include? 'country'
+          value = iris_values.vet_status_mappings[value] if field['fieldName'].include? 'vet_status'
+          value = iris_values.contact_method_mappings[value] if field['fieldName'].include? 'form_of_response'
+          value = iris_values.state_mappings[value] if field['fieldName'].include? 'state'
+          value = iris_values.country_mappings[value] if field['fieldName'].include? 'country'
+          value = transform_date(value) if date_field? field['fieldName']
 
-          if %w[date_of_birth e_o_d released_from_duty].any? { |date_field| field['fieldName'].include? date_field }
-            value = transform_date(value)
-          end
-          if field['fieldType'] === 'text_field'
-            browser.text_field(name: field['fieldName']).set value
+          if field['fieldType'].eql? TEXT_FIELD
+            browser.set_text_field(field['fieldName'], value)
             validate_email(browser, field, value) if field['fieldName'].include? 'email'
-          elsif field['fieldType'] === 'select_list'
-            browser.select_list(name: field['fieldName']).option(text: value).select
-          elsif field['fieldType'] === 'radio'
-            if value === true
-              browser.radio(name: field['fieldName'], value: '1').set
-            else
-              browser.radio(name: field['fieldName'], value: '0').set
-            end
+          elsif field['fieldType'].eql? DROPDOWN
+            browser.select_dropdown_by_text(field['fieldName'], value)
+          elsif field['fieldType'].eql? RADIO
+            browser.set_yes_no_radio(field['fieldName'], value)
           end
         end
         submit_form_to_oracle(browser)
+        get_confirmation_number(browser)
       end
 
       private
 
       def validate_email(browser, field, value)
-        browser.send_keys :tab
-        browser.text_field(name: field['fieldName'] + '_Validation').set value
+        browser.tab
+        browser.set_text_field((field['fieldName'] + '_Validation'), value)
       end
 
       def submit_form_to_oracle(browser)
-        browser.button(id: 'rn_FormSubmit_58_Button').click
-        browser.button(text: 'Finish Submitting Question').click
-        browser.element(tag_name: 'b', visible_text: /#[0-9-]*/).inner_text
+        browser.click_button_by_id(SUBMIT_FORM_BUTTON_ID)
+        browser.click_button_by_text(CONFIRM_SUBMIT_BUTTON_TEXT)
+      end
+
+      def get_confirmation_number(browser)
+        browser.get_text_from_element(BOLD_TAG, CONFIRMATION_NUMBER_MATCHER)
       end
 
       def set_topic_inquiry_fields(browser)
@@ -77,13 +85,13 @@ module Ask
         select_topic(browser, topic_labels)
 
         if @request.parsed_form['topic']['vaMedicalCenter']
-          browser.select_list(name: 'Incident.CustomFields.c.medical_centers').option(value: @request.parsed_form['topic']['vaMedicalCenter']).select
+          browser.select_dropdown_by_value(MEDICAL_CENTER_DROPDOWN, @request.parsed_form['topic']['vaMedicalCenter'])
         end
 
-        browser.button(id: 'rn_ProductCategoryInput_6_Category_Button').click
-        browser.link(visible_text: @request.parsed_form['inquiryType']).click
+        browser.click_button_by_id(INQUIRY_TYPE_BUTTON_ID)
+        browser.click_link(@request.parsed_form['inquiryType'])
 
-        browser.textarea(name: 'Incident.Threads').set @request.parsed_form['query']
+        browser.set_text_area(QUERY_FIELD_NAME, @request.parsed_form['query'])
       end
 
       def get_topics
@@ -98,14 +106,18 @@ module Ask
 
       def select_topic(browser, topic_labels)
         topic_labels.each do |label|
-          browser.button(id: 'rn_ProductCategoryInput_3_Product_Button').click
-          browser.link(visible_text: label).click
+          browser.click_button_by_id(TOPIC_BUTTON_ID)
+          browser.click_link(label)
         end
       end
 
       def transform_date(value)
         temp_value = value.split('-')
         temp_value[1] + '-' + temp_value[2] + '-' + temp_value[0]
+      end
+
+      def date_field?(field)
+        %w[date_of_birth e_o_d released_from_duty].any? { |date_field| field.include? date_field }
       end
     end
   end
