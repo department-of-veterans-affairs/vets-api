@@ -24,8 +24,8 @@ describe MPI::Responses::IdParser do
       end
 
       it 'finds all BIRLS IDs' do
-        expect(MVI::Responses::IdParser.new.parse(birls_ids)[:birls_ids]).to eq %w[987654321 123456789]
-        expect(MVI::Responses::IdParser.new.parse(birls_ids)[:birls_id]).to eq '987654321'
+        expect(MPI::Responses::IdParser.new.parse(birls_ids)[:birls_ids]).to eq %w[987654321 123456789]
+        expect(MPI::Responses::IdParser.new.parse(birls_ids)[:birls_id]).to eq '987654321'
       end
     end
 
