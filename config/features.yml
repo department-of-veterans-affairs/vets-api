@@ -25,10 +25,6 @@ features:
     actor_type: cookie_id
     description: >
       Toggles whether COVID Research volunteer submissions will be delivered to genISIS
-  dashboard_show_covid19_alert:
-    actor_type: user
-    description: >
-      Allows for showing a special COVID19 alert on the My VA Dashboard
   dashboard_show_dashboard_2:
     actor_type: user
     enable_in_development: true
@@ -138,8 +134,13 @@ features:
       Enables Express Care request flow in VAOS
   va_online_scheduling_flat_facility_page:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables the new VA facility choice page with a flat list
+  va_online_scheduling_provider_selection:
+    actor_type: user
+    description: >
+      Enables the community care provider selection field
   va_global_downtime_notification:
     actor_type: user
     description: >

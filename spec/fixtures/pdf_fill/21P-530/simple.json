@@ -3,7 +3,7 @@
   "veteranSocialSecurityNumber": "111223333",
   "claimantAddress": {
     "city": "Baltimore",
-    "country": "USA",
+    "country": "US",
     "postalCode": "21231",
     "state": "MD",
     "street": "111 Uni Drive"
