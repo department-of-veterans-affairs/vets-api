@@ -26,8 +26,9 @@ module OliveBranchMiddlewareExtension
   VA_KEY_VALUE_PAIR_REGEX = /("[^"]+VA[^"]*"):("[^"]*"|\d+|true|false|null)/.freeze
 
   def duplicate_basic_va_keys!(json)
-    json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do |va_key_value|
-      key, value = va_key_value.split(':')
+    json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do
+      key = $1
+      value = $2
       "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
     end
   end
