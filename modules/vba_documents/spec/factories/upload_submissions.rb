@@ -3,8 +3,8 @@
 FactoryBot.define do
   UPLOADED_PDF_PROPS = {
     source: nil, doc_type: 'Unknown', total_documents: 2, total_pages: 2,
-    content: { page_count: 1, dimensions: { height: 8.5, width: 11.0 }, oversized_pdf: false,
-               attachments: [{ page_count: 1, dimensions: { height: 8.5, width: 11.0 }, oversized_pdf: false }] }
+    content: { page_count: 1, dimensions: { height: 8.5, width: 11.0, oversized_pdf: false },
+               attachments: [{ page_count: 1, dimensions: { height: 8.5, width: 11.0, oversized_pdf: false } }] }
   }.freeze
 
   factory :upload_submission, class: 'VBADocuments::UploadSubmission' do

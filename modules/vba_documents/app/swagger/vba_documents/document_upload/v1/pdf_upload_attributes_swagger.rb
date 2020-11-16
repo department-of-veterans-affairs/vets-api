@@ -7,7 +7,7 @@ module VbaDocuments
         include Swagger::Blocks
         swagger_component do
           schema :PdfUploadAttributes do
-            key :required, %i[total_documents total_pages content dimensions oversized_pdf attachments]
+            key :required, %i[total_documents total_pages content dimensions attachments]
 
             property :total_documents do
               key :description, 'The total number of documents contained in this upload'
@@ -32,12 +32,6 @@ module VbaDocuments
                 key :$ref, :PdfDimensionAttributes
               end
 
-              property :oversized_pdf do
-                key :description, 'Indicates if this is an oversized PDF (greater than 21x21)'
-                key :type, :boolean
-                key :example, 'false'
-              end
-
               property :attachments do
                 key :type, :array
                 items do
@@ -48,11 +42,6 @@ module VbaDocuments
                   end
                   property :dimensions do
                     key :$ref, :PdfDimensionAttributes
-                  end
-                  property :oversized_pdf do
-                    key :description, 'Indicates if this is an oversized PDF (greater than 21x21)'
-                    key :type, :boolean
-                    key :example, 'false'
                   end
                 end
               end

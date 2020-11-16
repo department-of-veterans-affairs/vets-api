@@ -76,8 +76,8 @@ module VBADocuments
 
       # get and set the dimensions
       doc_dim = round_dimensions(parts_content.page_size_inches)
+      doc_dim[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
       data_hash[:dimensions] = doc_dim
-      data_hash[:oversized_pdf] = doc_dim[:height] >= 21 || doc_dim[:width] >= 21
       data_hash
     end
 
