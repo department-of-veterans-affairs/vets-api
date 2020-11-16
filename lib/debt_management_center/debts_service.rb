@@ -10,7 +10,7 @@ module DebtManagementCenter
 
     configuration DebtManagementCenter::DebtsConfiguration
 
-    STATSD_KEY_PREFIX = 'api.debt_management_center'
+    STATSD_KEY_PREFIX = 'api.dmc'
 
     def initialize(user)
       @user = user
