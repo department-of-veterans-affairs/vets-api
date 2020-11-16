@@ -306,4 +306,4 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-      Enables type ahead search functionality on the home page
+      Enables type ahead search functionality
