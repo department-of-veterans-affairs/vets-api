@@ -14,7 +14,7 @@ module DebtManagementCenter
     end
 
     def base_path
-      "#{Settings.dmc.url}/api/v1/digital-services/financial-status-report/"
+      "#{Settings.dmc.url}/api/v1/digital-services/"
     end
 
     def connection
