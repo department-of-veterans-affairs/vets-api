@@ -71,7 +71,7 @@ FactoryBot.define do
     historical_icns { %w[1000123457V123456 1000123458V123456] }
     search_token { 'WSDOC2002071538432741110027956' }
 
-    factory :mvi_profile_response do
+    factory :mpi_profile_response do
       given_names { %w[John William] }
       family_name { 'Smith' }
       suffix { 'Sr' }

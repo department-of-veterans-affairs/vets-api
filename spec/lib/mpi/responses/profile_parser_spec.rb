@@ -23,7 +23,7 @@ describe MPI::Responses::ProfileParser do
     describe '#parse' do
       let(:mvi_profile) do
         build(
-          :mvi_profile_response,
+          :mpi_profile_response,
           :address_austin,
           birls_id: nil,
           birls_ids: [],
@@ -40,7 +40,7 @@ describe MPI::Responses::ProfileParser do
       context 'when name parsing fails' do
         let(:mvi_profile) do
           build(
-            :mvi_profile_response,
+            :mpi_profile_response,
             :address_austin,
             family_name: nil,
             given_names: nil,
@@ -63,7 +63,7 @@ describe MPI::Responses::ProfileParser do
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response_nil_address.xml')) }
         let(:mvi_profile) do
           build(
-            :mvi_profile_response,
+            :mpi_profile_response,
             address: nil,
             birls_id: nil,
             birls_ids: [],
@@ -96,7 +96,7 @@ describe MPI::Responses::ProfileParser do
         let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_attrs_response.xml')) }
         let(:mvi_profile) do
           build(
-            :mvi_profile_response,
+            :mpi_profile_response,
             :missing_attrs,
             :address_austin,
             birls_id: '796122306',
@@ -126,7 +126,7 @@ describe MPI::Responses::ProfileParser do
 
   context 'with no subject element' do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_no_subject_response.xml')) }
-    let(:mvi_profile) { build(:mvi_profile_response, :missing_attrs) }
+    let(:mvi_profile) { build(:mpi_profile_response, :missing_attrs) }
 
     describe '#parse' do
       it 'return nil if the response includes no suject element' do
@@ -183,7 +183,7 @@ describe MPI::Responses::ProfileParser do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_multiple_mhv_response.xml')) }
     let(:mvi_profile) do
       build(
-        :mvi_profile_response,
+        :mpi_profile_response,
         :multiple_mhvids,
         historical_icns: nil,
         icn_with_aaid: icn_with_aaid,
@@ -213,7 +213,7 @@ describe MPI::Responses::ProfileParser do
     let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_response.xml')) }
     let(:mvi_profile) do
       build(
-        :mvi_profile_response,
+        :mpi_profile_response,
         :address_austin,
         historical_icns: nil,
         sec_id: nil,

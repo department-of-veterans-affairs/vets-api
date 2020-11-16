@@ -21,7 +21,7 @@ describe MPI::Service do
 
   let(:mvi_profile) do
     build(
-      :mvi_profile_response,
+      :mpi_profile_response,
       :missing_attrs,
       :address_austin,
       given_names: %w[Mitchell G],
