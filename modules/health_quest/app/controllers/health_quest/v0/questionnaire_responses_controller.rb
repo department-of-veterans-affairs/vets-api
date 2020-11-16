@@ -2,7 +2,7 @@
 
 module HealthQuest
   module V0
-    class PgdQuestionnaireResponsesController < HealthQuest::V0::BaseController
+    class QuestionnaireResponsesController < HealthQuest::V0::BaseController
       def show
         head :ok
       end
