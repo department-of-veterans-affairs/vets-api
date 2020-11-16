@@ -1,6 +1,8 @@
 ### Debugging in Docker, useful for windows developers.
 
-These instructions assume you are using RubyMine, an IDE from JetBrains.
+UNSUPPORTED. These are community-generated steps. YMMV.
+These instructions assume you are using RubyMine, an IDE from JetBrains. If you are using another IDE, like VS code, expect to to work through some issues.
+
 You can get it here:
 https://www.jetbrains.com/ruby/
 
