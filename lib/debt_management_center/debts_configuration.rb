@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module DMC
-  class FSRConfiguration < Common::Client::Configuration::REST
+module DebtManagementCenter
+  class DebtsConfiguration < Common::Client::Configuration::REST
     def self.base_request_headers
       super.merge(
         'client_id' => Settings.dmc.client_id,
@@ -10,11 +10,11 @@ module DMC
     end
 
     def service_name
-      'FSR'
+      'Debts'
     end
 
     def base_path
-      "#{Settings.dmc.url}/api/v1/digital-services/financial-status-report/"
+      "#{Settings.dmc.url}/api/v1/digital-services/"
     end
 
     def connection
@@ -22,7 +22,7 @@ module DMC
         f.use :breakers
         f.use Faraday::Response::RaiseError
         f.request :json
-        f.response :betamocks if Settings.dmc.mock_fsr
+        f.response :betamocks if Settings.dmc.mock_debts
         f.response :json
         f.adapter Faraday.default_adapter
       end

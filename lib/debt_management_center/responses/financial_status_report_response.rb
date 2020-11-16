@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module DMC
-  class FSRResponse
+module DebtManagementCenter
+  class FinancialStatusReportResponse
     def initialize(res)
       @res = res
     end

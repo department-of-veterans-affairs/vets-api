@@ -2,7 +2,7 @@
 
 require 'common/client/base'
 
-module DMC
+module DebtManagementCenter
   class BaseService < Common::Client::Base
     include Common::Client::Concerns::Monitoring
 

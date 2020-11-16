@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'dmc/debt_letter_downloader'
+require 'debt_management_center/debt_letter_downloader'
 
 def stub_debt_letters(method)
   let!(:letter_downloader) do
     letter_downloader = double
-    expect(DMC::DebtLetterDownloader).to receive(:new).and_return(letter_downloader)
+    expect(DebtManagementCenter::DebtLetterDownloader).to receive(:new).and_return(letter_downloader)
     letter_downloader
   end
 

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dmc/fsr_service'
+require 'debt_management_center/financial_status_report_service'
 
-RSpec.describe DMC::FSRService do
+RSpec.describe DebtManagementCenter::FinancialStatusReportService do
   describe '#submit_financial_status_report' do
     let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
     let(:malformed_form_data) do
