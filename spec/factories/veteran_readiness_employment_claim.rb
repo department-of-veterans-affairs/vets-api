@@ -6,40 +6,40 @@ FactoryBot.define do
 
     form {
       {
-        "useEva" => true,
-        "useTelecounseling" => true,
-        "appointmentTimePreferences" => {
-          "morning" => true,
-          "midDay" => true,
-          "afternoon" => false,
-          "other" => false
+        'useEva' => true,
+        'useTelecounseling' => true,
+        'appointmentTimePreferences' => {
+          'morning' => true,
+          'midDay' => true,
+          'afternoon' => false,
+          'other' => false
         },
-        "yearsOfEducation" => "2",
-        "isMoving" => true,
-        "newAddress" => {
-          "country" => "USA",
-          "street" => "1019 Robin Cir",
-          "city" => "Arroyo Grande",
-          "state" => "CA",
-          "postalCode" => "93420"
+        'yearsOfEducation' => '2',
+        'isMoving' => true,
+        'newAddress' => {
+          'country' => 'USA',
+          'street' => '1019 Robin Cir',
+          'city' => 'Arroyo Grande',
+          'state' => 'CA',
+          'postalCode' => '93420'
         },
-        "veteranAddress" => {
-          "country" => "USA",
-          "street" => "9417 Princess Palm",
-          "city" => "Tampa",
-          "state" => "FL",
-          "postalCode" => "33928"
+        'veteranAddress' => {
+          'country' => 'USA',
+          'street' => '9417 Princess Palm',
+          'city' => 'Tampa',
+          'state' => 'FL',
+          'postalCode' => '33928'
         },
-        "mainPhone" => "5555555555",
-        "email" => "cohnjesse@gmail.xom",
-        "veteranInformation" => {
-          "fullName" => {
-            "first" => "Homer",
-            "middle" => "John",
-            "last" => "Simpson"
+        'mainPhone' => '5555555555',
+        'email' => 'cohnjesse@gmail.xom',
+        'veteranInformation' => {
+          'fullName' => {
+            'first' => 'Homer',
+            'middle' => 'John',
+            'last' => 'Simpson'
           },
-          "ssn" => "987456457",
-          "dob" => "1998-01-02"
+          'ssn' => '987456457',
+          'dob' => '1998-01-02'
         }
       }.to_json
     }

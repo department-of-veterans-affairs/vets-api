@@ -19,7 +19,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   describe '#send_to_vre' do
     it 'adds veteran information' do
       faraday_response = double('faraday_connection')
-      allow(faraday_response).to receive(:status) { 200 }
+      allow(faraday_response).to receive(:status).and_return(200)
 
       allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
 

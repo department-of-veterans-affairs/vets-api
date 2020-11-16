@@ -624,3 +624,11 @@ genisis:
   service_path: /COVID19Service
   user: TestUser
   pass: bogus
+
+vre:
+  base_url: ~
+  credentials: ~
+  auth_endpoint: ~
+  ch_31_endpoint: ~
+
+

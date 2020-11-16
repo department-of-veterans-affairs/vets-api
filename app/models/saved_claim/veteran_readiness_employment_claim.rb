@@ -26,13 +26,18 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_vre
-    conn = Faraday.new(url: ENV['TEMP_VRE_CH31_SUBMISSION_DOMAIN'])
+    conn = Faraday.new(url: Settings.vre.base_url)
 
-    conn.post do |req|
-      req.url ENV['TEMP_VRE_CH31_SUBMISSION_ENDPOINT']
+    response = conn.post do |req|
+      req.url Settings.vre.ch_31_endpoint
       req.headers['Authorization'] = "Bearer #{get_token}"
       req.headers['Content-Type'] = 'application/json'
       req.body = format_payload_for_vre
+    end
+
+    if response.success?
+    else
+      JSON.parse(response.body)['ApplicationIntake']
     end
   end
 
@@ -48,7 +53,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     response = service.find_person_by_participant_id
 
     file_number = response[:file_nbr]
-    file_number.blank? ? nil : file_number
+    file_number.presence
   rescue
     nil
   end
@@ -69,7 +74,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         emailAddress: form_data['email'],
         veteranAddress: {
           isForeign: form_data['veteranAddress']['country'] != 'USA',
-          isMilitary: form_data['veteranAddress']['isMilitary'],
+          isMilitary: form_data['veteranAddress']['isMilitary'] || false,
           countryName: form_data['veteranAddress']['country'],
           addressLine1: form_data['veteranAddress']['street'],
           addressLine2: form_data['veteranAddress']['street2'],
@@ -107,7 +112,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def get_token
     conn = Faraday.new(
-      "#{ENV['TEMP_VRE_AUTH_ENDPOINT']}?grant_type=client_credentials",
+      "#{Settings.vre.auth_endpoint}?grant_type=client_credentials",
       headers: { 'Authorization' => "Basic #{ENV['TEMP_VRE_CREDENTIALS']}" }
     )
 
