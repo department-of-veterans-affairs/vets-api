@@ -710,7 +710,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EmailUpdate'
+              $ref: '#/components/schemas/Email'
             example:
               id: 42,
               emailAddress: "person42@example.com"
@@ -1503,7 +1503,7 @@ components:
                   type: string
                   enum:
                     - ios
-                    - android 
+                    - android
                 osVersion:
                   type: string
                   example: "12.1"
@@ -1976,7 +1976,9 @@ components:
                 lastName:
                   type: string
                   example: "Smith"
-                email:
+                contactEmail:
+                  $ref: "#/components/schemas/Email"
+                signinEmail:
                   type: string
                   example: "john.a.smith@domain.com"
                 residentialAddress:
@@ -2001,6 +2003,7 @@ components:
                 - militaryServiceHistory
     Address:
       required:
+        - id
         - addressLine1
         - addressLine2
         - addressLine3
@@ -2014,6 +2017,9 @@ components:
         - zipCode
         - zipCodeSuffix
       properties:
+        id:
+          type: integer
+          example: 157032
         addressLine1:
           type: string
           example: "1493 Martin Luther King Rd"
@@ -2100,7 +2106,7 @@ components:
           type: string, null
           example: "1234"
 
-    EmailUpdate:
+    Email:
       required:
         - id
         - emailAddress
