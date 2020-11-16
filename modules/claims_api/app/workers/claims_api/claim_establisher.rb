@@ -16,13 +16,13 @@ module ClaimsApi
 
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
+      flashes = auto_claim.flashes
 
       response = service(auth_headers).submit_form526(form_data)
       auto_claim.evss_id = response.claim_id
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
       auto_claim.save
 
-      flashes = auto_claim.flashes
       ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes) if flashes.present?
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
