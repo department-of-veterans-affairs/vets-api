@@ -17,7 +17,7 @@ Developers who work with vets-api daily tend to prefer the native setup because 
 - [native setup instructions](docs/setup/native.md) (OSX/Ubuntu)
 - [docker setup instructions](docs/setup/docker.md)
 - [debugging with docker + rubymine on windows](docs/setup/debugging_with_docker_rubymine_windows.md)
-push
+
 1. Setup key & cert for localhost authentication to ID.me:
    - Create a folder in your vets-api directory: `mkdir config/certs`
    - Create an empty key and cert:
