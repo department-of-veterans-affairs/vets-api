@@ -88,7 +88,7 @@ module ClaimsApi
       initial_flashes.push('Homeless') if homelessness.present?
       initial_flashes.push('Terminally Ill') if is_terminally_ill.present? && is_terminally_ill
 
-      initial_flashes.uniq
+      initial_flashes.present? ? initial_flashes.uniq : []
     end
 
     private
