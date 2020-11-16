@@ -32,10 +32,12 @@ module ClaimsApi
         end
       end
 
+      # rubocop:disable Layout/LineLength
       def pdf?(document)
         extension = document.original_filename.split('.').last
         ['application/pdf', 'text/plain', 'application/octet-stream'].include?(document.content_type) && extension.downcase == 'pdf'
       end
+      # rubocop:enable Layout/LineLength
 
       def json_api_page_size_error(document)
         {
