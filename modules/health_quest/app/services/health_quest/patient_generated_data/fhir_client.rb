@@ -2,7 +2,7 @@
 
 module HealthQuest
   module PatientGeneratedData
-    module FhirClient
+    module FHIRClient
       def url
         "#{Settings.hqva_mobile.url}/smart-pgd-fhir/v1"
       end

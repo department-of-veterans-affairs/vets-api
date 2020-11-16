@@ -8,8 +8,8 @@ describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
   let(:headers) { { 'Accept' => 'application/json+fhir' } }
 
   describe 'included modules' do
-    it 'includes PatientGeneratedData::FhirClient' do
-      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FhirClient)
+    it 'includes PatientGeneratedData::FHIRClient' do
+      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRClient)
     end
   end
 
@@ -33,7 +33,7 @@ describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
 
   describe '#get' do
     context 'with valid id' do
-      let(:client) { double('HealthQuest::PatientGeneratedData::FhirClient') }
+      let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
 
       before do
         allow_any_instance_of(subject).to receive(:client).and_return(client)

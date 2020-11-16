@@ -4,7 +4,7 @@ module HealthQuest
   module PatientGeneratedData
     module Patient
       class MapQuery
-        include PatientGeneratedData::FhirClient
+        include PatientGeneratedData::FHIRClient
 
         attr_reader :headers
 

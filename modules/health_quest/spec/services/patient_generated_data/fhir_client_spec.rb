@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::FhirClient do
-  include HealthQuest::PatientGeneratedData::FhirClient
+describe HealthQuest::PatientGeneratedData::FHIRClient do
+  include HealthQuest::PatientGeneratedData::FHIRClient
 
   describe '#accept_headers' do
     it 'has default Accept header' do
