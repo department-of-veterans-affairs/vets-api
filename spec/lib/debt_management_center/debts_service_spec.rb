@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dmc/debts_service'
+require 'debt_management_center/debts_service'
 
-RSpec.describe DMC::DebtsService do
+RSpec.describe DebtManagementCenter::DebtsService do
   let(:file_number) { '796043735' }
   let(:user) { build(:user, :loa3, ssn: file_number) }
   let(:user_no_ssn) { build(:user, :loa3, ssn: '') }
@@ -34,7 +34,7 @@ RSpec.describe DMC::DebtsService do
             )
             expect(Raven).to receive(:tags_context).once.with(external_service: described_class.to_s.underscore)
             expect(Raven).to receive(:extra_context).once.with(
-              url: "#{Settings.dmc.url}/api/v1/debtletter/",
+              url: "#{Settings.dmc.url}/api/v1/digital-services/",
               message: 'the server responded with status 400',
               body: { 'message' => 'Bad request' }
             )
