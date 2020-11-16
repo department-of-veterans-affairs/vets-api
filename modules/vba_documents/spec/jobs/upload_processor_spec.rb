@@ -286,7 +286,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(content).to have_key('page_count')
       expect(content).to have_key('dimensions')
       expect(content).to have_key('attachments')
-      expect(content).to have_key('oversized_pdf')
     end
 
     xit 'sets error status for non-PDF attachment parts' do
