@@ -25,10 +25,6 @@ features:
     actor_type: cookie_id
     description: >
       Toggles whether COVID Research volunteer submissions will be delivered to genISIS
-  dashboard_show_covid19_alert:
-    actor_type: user
-    description: >
-      Allows for showing a special COVID19 alert on the My VA Dashboard
   dashboard_show_dashboard_2:
     actor_type: user
     enable_in_development: true
@@ -286,11 +282,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
-  stem_text_message_question:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Add text message opt-in question to 10203 Personal Information chapter and layout changes
   form_1995_edu_updates:
     actor_type: user
     enable_in_development: true
@@ -301,8 +292,3 @@ features:
     enable_in_development: true
     description: >
       Ask for a password when an encrypted PDF is detected before uploading
-  education_reports_cleanup:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
