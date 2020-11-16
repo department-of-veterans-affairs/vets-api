@@ -34,9 +34,10 @@
         "veteran":           { "$ref": "#/definitions/nodCreateVeteranOrClaimant" },
         "claimant":          { "$ref": "#/definitions/nodCreateVeteranOrClaimant" },
         "boardReviewOption": { "$ref": "#/definitions/nodCreateBoardReviewOption" },
-        "timezone":          { "$ref": "#/definitions/nodCreateTimezone" }
+        "timezone":          { "$ref": "#/definitions/nodCreateTimezone" },
+        "socOptIn":          { "type": "boolean" }
       },
-      "required": [ "boardReviewOption" ]
+      "required": [ "boardReviewOption", "socOptIn" ]
     },
 
 
@@ -50,7 +51,7 @@
         "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail" },
         "representativesName": { "type": "string" }
       },
-      "required": [ "homeless", "address", "phone", "emailAddressText" ]
+      "required": [ "homeless", "phone", "emailAddressText" ]
     },
 
 
