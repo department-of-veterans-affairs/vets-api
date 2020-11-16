@@ -1318,7 +1318,7 @@ paths:
       summary: /v0/claims-and-appeals-overview
       description: Returns info on all user's claims and appeals for mobile overview page
       operationId: index
-    security:
+      security:
         - Bearer: [ ]
       responses:
         '200':
@@ -1506,11 +1506,11 @@ components:
           properties:
             appointmentType:
               type: string
-              enum: [COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_ONSITE]
+              enum: [ COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_ONSITE ]
               example: VA
             status:
               type: string
-              enum: [BOOKED, CANCELLED]
+              enum: [ BOOKED, CANCELLED ]
               example: BOOKED
             startTime:
               type: datetime
@@ -1523,7 +1523,7 @@ components:
               example: Please arrive 20 minutes before the start of your appointment
             timeZone:
               type: string
-              enum: [Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York]
+              enum: [ Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York ]
               example: America/Los_Angeles
             healthcareService:
               type: string
