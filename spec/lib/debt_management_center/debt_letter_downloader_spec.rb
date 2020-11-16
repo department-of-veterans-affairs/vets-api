@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dmc/debt_letter_downloader'
+require 'debt_management_center/debt_letter_downloader'
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
-RSpec.describe DMC::DebtLetterDownloader do
+RSpec.describe DebtManagementCenter::DebtLetterDownloader do
   subject { described_class.new(user) }
 
   let(:file_number) { '796043735' }

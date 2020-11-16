@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dmc/debts_service'
+require 'debt_management_center/debts_service'
 
-RSpec.describe DMC::DebtsService do
+RSpec.describe DebtManagementCenter::DebtsService do
   let(:file_number) { '796043735' }
   let(:user) { build(:user, :loa3, ssn: file_number) }
   let(:user_no_ssn) { build(:user, :loa3, ssn: '') }
