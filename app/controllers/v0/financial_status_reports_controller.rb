@@ -36,6 +36,7 @@ module V0
         personal_identification: %i[fsr_reason ssn file_number],
         personal_data: [
           :telephone_number,
+          :email,
           :date_of_birth,
           :married,
           :ages_of_other_dependents,
