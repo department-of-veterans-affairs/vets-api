@@ -384,10 +384,10 @@ en:
         code: 'CASEFLOWSTATUS502'
         detail: 'Received an invalid response from the upstream server'
         status: 502
-      DEBTS400:
+      DMC400:
         <<: *external_defaults
         title: 'Bad Request'
-        code: 'DEBTS400'
+        code: 'DMC400'
         detail: 'Received a bad request response from the upstream server'
         status: 400
       GI404:
@@ -575,13 +575,25 @@ en:
         title: Not Found
         code: 'HEALTH_QUEST_404'
         detail: 'The resource could not be found'
-        status: 404      
+        status: 404
       HEALTH_QUEST_502:
         <<: *external_defaults
         title: Bad Gateway
         code: 'HEALTH_QUEST_502'
         detail: 'Received an an invalid response from the upstream server'
-        status: 502  
+        status: 502
+      IAM_SSOE_400:
+        <<: *defaults
+        title: Bad Request
+        detail: ~
+        code: IAM_SSOE_400
+        status: 400
+      IAM_SSOE_502:
+        <<: *defaults
+        title: Bad Gateway
+        code: IAM_SSOE_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway

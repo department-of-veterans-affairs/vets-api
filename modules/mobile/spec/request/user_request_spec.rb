@@ -13,7 +13,7 @@ RSpec.describe 'user', type: :request do
     context 'with no upstream errors' do
       before { get '/mobile/v0/user', headers: iam_headers }
 
-      let(:attributes) { JSON.parse(response.body).dig('data', 'attributes') }
+      let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
       it 'returns an ok response' do
         expect(response).to have_http_status(:ok)
@@ -31,15 +31,30 @@ RSpec.describe 'user', type: :request do
         )
       end
 
-      it 'includes the users email' do
+      it 'includes the users sign-in email' do
         expect(attributes['profile']).to include(
-          'email' => 'va.api.user+idme.008@gmail.com'
+          'signinEmail' => 'va.api.user+idme.008@gmail.com'
+        )
+      end
+
+      it 'includes the users contact email id' do
+        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(456)
+      end
+
+      it 'includes the users contact email addrss' do
+        expect(attributes.dig('profile', 'contactEmail', 'emailAddress')).to match(/person\d+@example.com/)
+      end
+
+      it 'includes the users birth date' do
+        expect(attributes['profile']).to include(
+          'birthDate' => '1970-08-12'
         )
       end
 
       it 'includes the expected residential address' do
         expect(attributes['profile']).to include(
           'residentialAddress' => {
+            'id' => 123,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
@@ -58,6 +73,7 @@ RSpec.describe 'user', type: :request do
       it 'includes the expected mailing address' do
         expect(attributes['profile']).to include(
           'mailingAddress' => {
+            'id' => 124,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
@@ -69,6 +85,45 @@ RSpec.describe 'user', type: :request do
             'stateCode' => 'DC',
             'zipCode' => '20011',
             'zipCodeSuffix' => nil
+          }
+        )
+      end
+
+      it 'includes a home phone number' do
+        expect(attributes['profile']['homePhoneNumber']).to include(
+          {
+            'id' => 789,
+            'areaCode' => '303',
+            'countryCode' => '1',
+            'extension' => nil,
+            'phoneNumber' => '5551234',
+            'phoneType' => 'HOME'
+          }
+        )
+      end
+
+      it 'includes a mobile phone number' do
+        expect(attributes['profile']['mobilePhoneNumber']).to include(
+          {
+            'id' => 791,
+            'areaCode' => '303',
+            'countryCode' => '1',
+            'extension' => nil,
+            'phoneNumber' => '5551234',
+            'phoneType' => 'WORK'
+          }
+        )
+      end
+
+      it 'includes a work phone number' do
+        expect(attributes['profile']['workPhoneNumber']).to include(
+          {
+            'id' => 790,
+            'areaCode' => '303',
+            'countryCode' => '1',
+            'extension' => nil,
+            'phoneNumber' => '5551234',
+            'phoneType' => 'MOBILE'
           }
         )
       end
@@ -99,6 +154,20 @@ RSpec.describe 'user', type: :request do
             userProfileUpdate
           ]
         )
+      end
+
+      context 'when user object birth_date is nil' do
+        before do
+          allow_any_instance_of(IAMUserIdentity).to receive(:birth_date).and_return(nil)
+          get '/mobile/v0/user', headers: iam_headers
+        end
+
+        it 'returns a nil birthdate' do
+          expect(response).to have_http_status(:ok)
+          expect(attributes['profile']).to include(
+            'birthDate' => nil
+          )
+        end
       end
 
       context 'with a user who does not have access to evss' do
@@ -146,6 +215,21 @@ RSpec.describe 'user', type: :request do
 
         expect(response).to have_http_status(:internal_server_error)
         expect(response.body).to match_json_schema('errors')
+      end
+    end
+  end
+
+  describe 'GET /mobile/v0/user/logout' do
+    before { iam_sign_in }
+
+    context 'with a 200 response' do
+      before do
+        get '/mobile/v0/user/logout', headers: iam_headers
+      end
+
+      it 'returns an ok response' do
+        puts response.body
+        expect(response).to have_http_status(:ok)
       end
     end
   end

@@ -21,6 +21,181 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+
+  /v0/appointments:
+    get:
+      summary: /v0/appointments
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments
+      operationId: getAppointments
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: datetime
+          description: The start date for the range of appointments in ISO 8601 UTC format
+          example: 2020-10-29T07:00:00.000Z
+        - in: query
+          name: endDate
+          schema:
+            type: datetime
+          description: The end date for the range of appointments in ISO 8601 UTC format
+          example: 2021-11-29T08:00:00.000Z
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointments"
+              examples:
+                VA Appointment:
+                  value:
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: va
+                          status: BOOKED
+                          startTime: 2020-10-29T10:30:00-07:00
+                          minutesDuration: 60
+                          comment: Please arrive 20 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: Blind Rehabilitation Center
+                          location:
+                            name: VA Long Beach Healthcare System
+                            address:
+                              line1: 5901 East 7th Street
+                              line2: Building 166
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90822"
+                            phone:
+                              number: 562-826-8000
+                              extension: "5696"
+                            url: null
+                            code: null
+
+                VA Video Connect Appointment:
+                  value:
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: VA_VIDEO_CONNECT_HOME
+                          status: CANCELLED
+                          startTime: 2020-10-29T10:30:00-07:00
+                          minutesDuration: 60
+                          comment: Please log on 5 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: null
+                          location:
+                            name: null
+                            address: null
+                            phone: null
+                            url: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+                            code: null
+
+                VA Video Connect ATLAS Appointment:
+                  value:
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: VA_VIDEO_CONNECT_ATLAS
+                          status: BOOKED
+                          startTime: 2020-10-29T10:30:00-07:00
+                          minutesDuration: 60
+                          comment: Please log on 5 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: ATLAS Conference Center
+                          location:
+                            name: VA Long Beach Healthcare System
+                            address:
+                              line1: 5901 East 7th Street
+                              line2: Building 165
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90822"
+                            phone:
+                              number: 562-826-8000
+                              extension: null
+                            url: null
+                            code: GL45678
+
+                Community Care Appointment:
+                  value:
+                    data:
+                      - type: appointment
+                        id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+                        attributes:
+                          appointmentType: COMMUNITY_CARE
+                          status: CANCELLED
+                          startTime: 2020-10-29T10:30:00-07:00
+                          minutesDuration: 60
+                          comment: Please arrive 20 minutes before the start of your appointment
+                          timeZone: America/Los_Angeles
+                          healthcareService: null
+                          location:
+                            name: Kaiser Shoreline Treatment Center
+                            address:
+                              line1: 191 Argonne Ave
+                              line2: Ste 3
+                              line3: null
+                              city: Long Beach
+                              state: CA
+                              zipCode: "90803"
+                            phone:
+                              number: 562-434-6008
+                              extension: null
+                            url: null
+                            code: null
+
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   /v0/military-service-history:
     get:
       summary: /v0/military-service-history
@@ -77,11 +252,199 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  /v0/letters:
+    get:
+      summary: /v0/letters
+      description: Returns the list of letter names and types for the given user
+      operationId: letters
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Letters"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/letters/beneficiary:
+    get:
+      summary: /v0/letters/beneficiary
+      description: Returns benefit info and options for the given user with or without a dependent
+      operationId: beneficiary
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LettersBenficiaryInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/letters/{type}/download:
+    post:
+      summary: /v0/letters/{type}/download
+      description: Returns requested letter for download
+      operationId: download
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema:
+            type: string
+          description: letter type
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/letterOptions'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   /v0/user:
     get:
       summary: /v0/user
       description: >
-        \[Partially implemented\] Returns the user profile, including the user's addresses and the services
+        Returns the user profile, including the user's addresses and the services
         the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
       operationId: user.getProfile
       security:
@@ -157,10 +520,71 @@ paths:
               schema:
                 $ref: "#/components/schemas/Errors"
 
-  /v0/user/address:
+  /v0/user/logout:
+    get:
+      summary: /v0/user/logout
+      description: >
+        Logs the user out by revoking their access token from the IAM SSOe OAuth service and destroying the IAM user, user identity, and session objects from Redis.
+      operationId: user.logout
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/addresses:
     put:
-      summary: /v0/user/address
-      description: \[Not implemented\] Returns the user profile
+      summary: /v0/user/addresses
+      description: Updates a user's residential or mailing address
       operationId: user.updateAddress
       security:
         - Bearer: []
@@ -180,15 +604,220 @@ paths:
               $ref: '#/components/schemas/AddressUpdate'
             example:
               validationKey: 0,
+              id: 181513
               addressLine1: "1493 Martin Luther King Rd"
-              addressLine2: "string"
-              addressLine3: "string"
-              addressPou: "RESIDENCE/CHOICE"
-              addressType: "DOMESTIC"
               city: "Fulton"
               countryName: "United States"
+              countryCodeIso3: "USA"
               stateCode: "MS"
               zipCode: "38843"
+              addressType: "DOMESTIC"
+              addressPou: "RESIDENCE/CHOICE"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "asyncTransactionVet360AddressTransactions"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          transactionId:
+                            type: string
+                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                          transactionStatus:
+                            type: string
+                            example: "RECEIVED"
+                          type:
+                            type: string
+                            example: "AsyncTransaction::Vet360::AddressTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/emails:
+    put:
+      summary: /v0/user/emails
+      description: Updates a user's email address
+      operationId: user.updateEmailAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new email address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Email'
+            example:
+              id: 42,
+              emailAddress: "person42@example.com"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "asyncTransactionVet360AddressTransactions"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          transactionId:
+                            type: string
+                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                          transactionStatus:
+                            type: string
+                            example: "RECEIVED"
+                          type:
+                            type: string
+                            example: "AsyncTransaction::Vet360::AddressTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/phones:
+    put:
+      summary: /v0/user/phones
+      description: Updates a user's phone number
+      operationId: user.updatePhoneNumber
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new phone number
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Phone'
+            example:
+              id: 157032
+              areaCode: "704"
+              countryCode: "1"
+              phoneNumber: "7749069"
+              phoneType: "HOME"
       responses:
         '200':
           description: OK
@@ -363,7 +992,327 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-
+  /v0/payment-information/benfits:
+    get:
+      summary: /v0/payment-information/benfits
+      description: Returns direct deposit payment info
+      operationId: index
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      summary: /v0/payment-information/benfits
+      description: Returns updated direct deposit payment info
+      operationId: update
+      security:
+        - Bearer: [ ]
+      requestBody:
+        description: New direct deposit info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePaymentInfoRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentInfo"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/push/register:
+    post:
+      summary: /v0/push/register
+      description: Allows a new app install to register to receive push notifications
+      operationId: register
+      security:
+        - Bearer: [ ]
+      requestBody:
+        description: Device information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushRegistration'
+      responses:
+        '201':
+          description: OK
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/push/prefs:
+    get:
+      summary: /v0/push/prefs
+      description: Get the user's push notification preferences
+      operationId: prefs
+      security:
+        - Bearer: [ ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PushPreferences'
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      summary: /v0/push/prefs
+      description: Set the user's push notification preferences
+      operationId: prefs
+      security:
+        - Bearer: [ ]
+      requestBody:
+        description: Push notification preferences
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PushPreferences'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
 components:
   securitySchemes:
     Bearer:
@@ -373,6 +1322,352 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    Appointments:
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Appointment"
+
+    Appointment:
+      required:
+        - type
+        - id
+        - attributes
+      properties:
+        type:
+          type: string
+          example: "appointment"
+        id:
+          type: string
+          example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+        attributes:
+          type: object
+          required:
+            - appointmentType
+            - status
+            - startTime
+            - minutesDuration
+            - comment
+            - timeZone
+            - healthcareService
+            - location
+          properties:
+            appointmentType:
+              type: string
+              enum: [COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_ONSITE]
+              example: VA
+            status:
+              type: string
+              enum: [BOOKED, CANCELLED]
+              example: BOOKED
+            startTime:
+              type: datetime
+              example: 2020-10-29T10:30:00-07:00
+            minutesDuration:
+              type: integer
+              example: 60
+            comment:
+              type: string
+              example: Please arrive 20 minutes before the start of your appointment
+            timeZone:
+              type: string
+              enum: [Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York]
+              example: America/Los_Angeles
+            healthcareService:
+              type: string
+              example: Blind Rehabilitation Center
+            location:
+              type: object
+              required:
+                - address
+                - phoneNumber
+                - url
+                - code
+              properties:
+                address:
+                  type: object
+                  required:
+                    - line1
+                    - line2
+                    - line3
+                    - city
+                    - state
+                    - zipCode
+                  properties:
+                    line1:
+                      type: string
+                      example: 5901 East 7th Street
+                    line2:
+                      type: string
+                      example: Building 166
+                    line3:
+                      type: string
+                      example: null
+                    city:
+                      type: string
+                      example: Long Beach
+                    state:
+                      type: string
+                      example: CA
+                    zipCode:
+                      type: string
+                      example: 90822
+                phone:
+                  type: object
+                  required:
+                    - number
+                    - extension
+                  properties:
+                    number:
+                      type: string
+                      example: 562-434-6008
+                    extension:
+                      type: string
+                      example: 1001
+                url:
+                  type: string
+                  example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+                code:
+                  type: string
+                  example: GL32CA
+            practitioner:
+              required:
+                - prefix
+                - firstName
+                - middleName
+                - lastName
+              properties:
+                prefix:
+                  type: string
+                  example: "Dr."
+                firstName:
+                  type: string
+                  example: "John"
+                middleName:
+                  type: string
+                  example: "A."
+                lastName:
+                  type: string
+                  example: "Smith"
+
+    UpdatePaymentInfoRequest:
+      required:
+        - accountNumber
+        - accountType
+        - financialInstitutionName
+        - financialInstitutionRoutingNumber
+      properties:
+        accountNumber:
+          type: string
+          example: "12345678901"
+        accountType:
+          type: string
+          example: "Savings"
+          enum:
+            - Savings
+            - Checking
+        financialInstitutionName:
+          type: string
+          example: "PACIFIC PREMIER BANK"
+        financialInstitutionRoutingNumber:
+          type: string
+          example: "021000021"
+    PushRegistration:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "pushRegistration"
+              readOnly: true
+            attributes:
+              type: object
+              required:
+                - deviceToken
+                - osName
+                - osVersion
+              properties:
+                deviceToken:
+                  type: string
+                  example: "740f4707bebcf74f9b7c25d48e3358945f6aa01da5ddb387462c7eaf61bb78ad"
+                osName:
+                  type: string
+                  enum:
+                    - ios
+                    - android
+                osVersion:
+                  type: string
+                  example: "12.1"
+                deviceName:
+                  type: string
+                  example: "Jeff's iPhone"
+    PushPreferences:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "pushPreferences"
+              readOnly: true
+            attributes:
+              type: object
+              properties:
+                pushNotificationTypes:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/PushNotificationType"
+    PushNotificationType:
+      required:
+        - key
+        - enabled
+        - displayName
+      properties:
+        key:
+          type: string
+          example: "appointment_reminders"
+        displayName:
+          type: string
+          example: "Appointment Reminders"
+          readOnly: true
+        enabled:
+          type: boolean
+    PaymentInfo:
+      required:
+        - id
+        - type
+        - attibutes
+      properties:
+        type:
+          type: string
+          example: "paymentInformation"
+        id:
+          type: string
+          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+        attributes:
+          required:
+            - paymentAccount
+            - accountControl
+          properties:
+            accountControl:
+              type: object
+              required:
+                - canUpdateAddress
+                - corpAvailIndicator
+                - corpRecFoundIndicator
+                - hasNoBdnPaymentsIndicator
+                - identityIndicator
+                - indexIndicator
+                - isCompetentIndicator
+                - noFiduciaryAssignedIndicator
+                - notDeceasedIndicator
+              properties:
+                canUpdateAddress:
+                  type: boolean
+                corpAvailIndicator:
+                  type: boolean
+                corpRecFoundIndicator:
+                  type: boolean
+                hasNoBdnPaymentsIndicator:
+                  type: boolean
+                identityIndicator:
+                  type: boolean
+                indexIndicator:
+                  type: boolean
+                isCompetentIndicator:
+                  type: boolean
+                noFiduciaryAssignedIndicator:
+                  type: boolean
+                notDeceasedIndicator:
+                  type: boolean
+            paymentAccount:
+              type: object
+              required:
+                - accountNumber
+                - accountType
+                - financialInstitutionName
+                - financialInstitutionRoutingNumber
+              properties:
+                accountNumber:
+                  type: string
+                  example: "************6464"
+                accountType:
+                  type: string
+                  example: "Savings"
+                  enum:
+                    - Savings
+                    - Checking
+                financialInstitutionName:
+                  type: string
+                  example: "PACIFIC PREMIER BANK"
+                financialInstitutionRoutingNumber:
+                  type: string
+                  example: "948529982"
+    MilitaryHistory:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "militaryInformation"
+            id:
+              type: string
+              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+            attributes:
+              type: object
+              required:
+                - serviceHistory
+              properties:
+                serviceHistory:
+                  type: array
+                  items:
+                    type: object
+                    $ref: "#/components/schemas/ServiceHistory"
+    ServiceHistory:
+      required:
+        - branchOfService
+        - beginDate
+        - endDate
+        - formattedBeginDate
+        - formattedEndDate
+      properties:
+        branchOfService:
+          type: string
+          example: "United States Marine Corps"
+        beginDate:
+          type: string
+          example: "1997-09-17"
+        endDate:
+          type: string
+          example: "2002-12-31"
+        formattedBeginDate:
+          type: string
+          example: "September 17, 1997"
+        formattedEndDate:
+          type: string
+          example: "December 31, 2002"
     Errors:
       required:
         - errors
@@ -396,6 +1691,28 @@ components:
           type: string
         status:
           type: string
+        source:
+          type: string
+        meta:
+          type: object
+          required:
+            - messages
+          properties:
+            messages:
+              type: array
+              items:
+                type: object
+                required:
+                  - key
+                  - severity
+                  - text
+                properties:
+                  key:
+                    type: string
+                  severity:
+                    type: string
+                  text:
+                    type: string
     EVSSAuthError:
       required:
         - errors
@@ -433,7 +1750,7 @@ components:
             message:
               type: string
               example: "Welcome to the mobile API"
-    MilitaryHistory:
+    Letters:
       required:
         - data
       properties:
@@ -446,44 +1763,181 @@ components:
           properties:
             type:
               type: string
-              example: "militaryInformation"
+              example: "letters"
             id:
               type: string
               example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
             attributes:
               type: object
               required:
-                - serviceHistory
+                - letters
               properties:
-                serviceHistory:
+                letters:
                   type: array
                   items:
                     type: object
-                    $ref: "#/components/schemas/ServiceHistory"
-
-    ServiceHistory:
+                    $ref: "#/components/schemas/LettersInfo"
+    LettersInfo:
       required:
-        - branchOfService
-        - beginDate
-        - endDate
-        - formattedBeginDate
-        - formattedEndDate
+        - name
+        - letterType
       properties:
-        branchOfService:
+        name:
           type: string
-          example: "United States Marine Corps"
-        beginDate:
+          enum:
+            - Commissary Letter
+            - Proof of Service Letter
+            - Proof of Creditable Prescription Drug Coverage Letter
+            - Proof of Minimum Essential Coverage Letter
+            - Service Verification Letter
+            - Civil Service Preference Letter
+            - Benefit Summary Letter
+            - Benefit Verification Letter
+        letterType:
           type: string
-          example: "1997-09-17"
-        endDate:
-          type: string
-          example: "2002-12-31"
-        formattedBeginDate:
-          type: string
-          example: "September 17, 1997"
-        formattedEndDate:
-          type: string
-          example: "December 31, 2002"
+          enum:
+            - commissary
+            - proof_of_service
+            - medicare_partd
+            - minimum_essential_coverage
+            - service_verification
+            - civil_service
+            - benefit_summary
+            - benefit_verification
+            - certificate_of_eligibility
+    LettersBenficiaryInfo:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "evssLettersBeneficiaryResponses"
+            id:
+              type: string
+              example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+            attributes:
+              type: object
+              required:
+                - letters
+                - benefitInformation
+              properties:
+                benefitInformation:
+                  type: object
+                  required:
+                    - awardEffectiveDate
+                    - hasChapter35Eligibility
+                    - monthlyAwardAmount
+                    - serviceConnectedPercentage
+                  properties:
+                    awardEffectiveDate:
+                      type: string
+                      example: "2013-06-06T04:00:00.000+00:00"
+                    hasChapter35Eligibility:
+                      type: boolean
+                      example: true
+                    monthlyAwardAmount:
+                      type: number
+                      example: 123
+                    serviceConnectedPercentage:
+                      type: number
+                      example: 2
+                    hasDeathResultOfDisability:
+                      type: boolean
+                      example: false
+                    hasSurvivorsIndemnityCompensationAward:
+                      type: boolean
+                      example: true
+                    hasSurvivorsPensionAward:
+                      type: boolean
+                      example: false
+                    hasAdaptedHousing:
+                      type: boolean
+                      example: true
+                    hasIndividualUnemployabilityGranted:
+                      type: boolean
+                      example: false
+                    hasNonServiceConnectedPension:
+                      type: boolean
+                      example: true
+                    hasServiceConnectedDisabilities:
+                      type: boolean
+                      example: false
+                    hasSpecialMonthlyCompensation:
+                      type: boolean
+                      example: true
+                militaryService:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - branch
+                      - characterOfService
+                      - enteredDate
+                      - releasedDate
+                    properties:
+                      branch:
+                        type: string
+                        example: "Army"
+                      characterOfService:
+                        type: string
+                        enum:
+                          - "HONORABLE"
+                          - "OTHER_THAN_HONORABLE"
+                          - "UNDER_HONORABLE_CONDITIONS"
+                          - "GENERAL"
+                          - "UNCHARACTERIZED"
+                          - "UNCHARACTERIZED_ENTRY_LEVEL"
+                          - "DISHONORABLE"
+                      enteredDate:
+                        type: string
+                        example: "1973-01-01T05:00:00.000+00:00"
+                      releasedDate:
+                        type: string
+                        example: "1977-10-01T04:00:00.000+00:00"
+    letterOptions:
+      type: object
+      required:
+        - militaryService
+        - serviceConnectedDisabilities
+        - serviceConnectedEvaluation
+        - nonServiceConnectedPension
+        - monthlyAward
+        - unemployable
+        - specialMonthlyCompensation
+        - adaptedHousing
+        - chapter35Eligibility
+        - deathResultOfDisability
+        - survivorsAward
+      properties:
+        militaryService:
+          type: boolean
+        serviceConnectedDisabilities:
+          type: boolean
+        serviceConnectedEvaluation:
+          type: boolean
+        nonServiceConnectedPension:
+          type: boolean
+        monthlyAward:
+          type: boolean
+        unemployable:
+          type: boolean
+        specialMonthlyCompensation:
+          type: boolean
+        adaptedHousing:
+          type: boolean
+        chapter35Eligibility:
+          type: boolean
+        deathResultOfDisability:
+          type: boolean
+        survivorsAward:
+          type: boolean
     User:
       required:
         - id
@@ -522,13 +1976,23 @@ components:
                 lastName:
                   type: string
                   example: "Smith"
-                email:
+                contactEmail:
+                  $ref: "#/components/schemas/Email"
+                signinEmail:
                   type: string
                   example: "john.a.smith@domain.com"
-                residential_address:
+                residentialAddress:
                   $ref: "#/components/schemas/Address"
-                mailing_address:
+                mailingAddress:
                   $ref: "#/components/schemas/Address"
+                homePhoneNumber:
+                  $ref: "#/components/schemas/Phone"
+                mobilePhoneNumber:
+                  $ref: "#/components/schemas/Phone"
+                workPhoneNumber:
+                  $ref: "#/components/schemas/Phone"
+                faxPhoneNumber:
+                  $ref: "#/components/schemas/Phone"
             authorizedServices:
               type: array
               items:
@@ -537,9 +2001,9 @@ components:
                 - appeals
                 - directDepositBenefits
                 - militaryServiceHistory
-
     Address:
       required:
+        - id
         - addressLine1
         - addressLine2
         - addressLine3
@@ -553,6 +2017,9 @@ components:
         - zipCode
         - zipCodeSuffix
       properties:
+        id:
+          type: integer
+          example: 157032
         addressLine1:
           type: string
           example: "1493 Martin Luther King Rd"
@@ -639,4 +2106,39 @@ components:
           type: string, null
           example: "1234"
 
+    Email:
+      required:
+        - id
+        - emailAddress
+      properties:
+        id:
+          type: integer
+          example: 42
+        emailAddress:
+          type: string
+          example: "person42@example.com"
 
+    Phone:
+      required:
+        - id
+        - areaCode
+        - countryCode
+        - phoneNumber
+        - phoneType
+      properties:
+        id:
+          type: integer
+          example: 157032
+        areaCode:
+          type: string
+          example: "704"
+        countryCode:
+          type: string
+          example: "1"
+        phoneNumber:
+          type: string
+          example: "7749069"
+        phoneType:
+          type: string
+          enum: [ "HOME", "MOBILE", "WORK" ]
+          example: "HOME"

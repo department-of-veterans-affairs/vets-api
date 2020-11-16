@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_09_11_143406) do
+ActiveRecord::Schema.define(version: 2020_11_06_023750) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -44,6 +44,15 @@ ActiveRecord::Schema.define(version: 2020_09_11_143406) do
     t.datetime "updated_at", null: false
     t.string "code"
     t.string "detail"
+  end
+
+  create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.string "encrypted_auth_headers"
+    t.string "encrypted_auth_headers_iv"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -153,6 +162,20 @@ ActiveRecord::Schema.define(version: 2020_09_11_143406) do
     t.uuid "auto_established_claim_id"
   end
 
+  create_table "directory_applications", force: :cascade do |t|
+    t.string "name"
+    t.string "logo_url"
+    t.string "app_type"
+    t.text "service_categories", default: [], array: true
+    t.text "platforms", default: [], array: true
+    t.string "app_url"
+    t.text "description"
+    t.string "privacy_url"
+    t.string "tos_url"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
     t.integer "code", null: false
     t.string "medical_term", null: false
@@ -259,15 +282,6 @@ ActiveRecord::Schema.define(version: 2020_09_11_143406) do
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
   end
 
-  create_table "form526_opt_ins", id: :serial, force: :cascade do |t|
-    t.string "user_uuid", null: false
-    t.string "encrypted_email", null: false
-    t.string "encrypted_email_iv", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true
-  end
-
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.integer "saved_claim_id", null: false
@@ -279,6 +293,9 @@ ActiveRecord::Schema.define(version: 2020_09_11_143406) do
     t.boolean "workflow_complete", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "multiple_birls", comment: "*After* a SubmitForm526 Job fails, a lookup is done to see if the veteran has multiple BIRLS IDs. This field gets set to true if that is the case. If the initial submit job succeeds, this field will remain false whether or not the veteran has multiple BIRLS IDs --so this field cannot technically be used to sum all Form526 veterans that have multiple BIRLS. This field /can/ give us an idea of how often having multiple BIRLS IDs is a problem."
+    t.string "encrypted_birls_ids_tried", comment: "This field keeps track of the BIRLS IDs used when trying to do a SubmitForm526 Job. If a submit job fails, a lookup is done to retrieve all of the veteran's BIRLS IDs. If a BIRLS ID hasn't been used it will be swapped into the auth_headers, and the BIRLS ID that had just been used (when the job had failed), will be added to this array. To know which Form526Submissions have tried (or are trying) reattempts with a different BIRLS ID, search for Submissions where `multiple_birls: true`"
+    t.string "encrypted_birls_ids_tried_iv"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_uuid"], name: "index_form526_submissions_on_user_uuid"

@@ -59,8 +59,10 @@ module CentralMail
     def self.current_breaker_outage?
       last_cm_outage = Breakers::Outage.find_latest(service: CentralMail::Configuration.instance.breakers_service)
       if last_cm_outage.present? && last_cm_outage.end_time.blank?
-        CentralMail::Service.new.status('').try(:status) != 200
+        return CentralMail::Service.new.status('').try(:status) != 200
       end
+
+      false
     end
   end
 end

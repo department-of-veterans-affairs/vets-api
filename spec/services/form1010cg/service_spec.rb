@@ -1,48 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../support/form1010cg_helpers/build_claim_data_for'
 
 RSpec.describe Form1010cg::Service do
+  include Form1010cgHelpers
+
   let(:subject) { described_class.new build(:caregivers_assistance_claim) }
   let(:default_email_on_mvi_search) { 'no-email@example.com' }
-  let(:build_claim_data_for) do
-    lambda do |form_subject, &mutations|
-      data = {
-        'fullName' => {
-          'first' => Faker::Name.first_name,
-          'last' => Faker::Name.last_name
-        },
-        'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
-        'address' => {
-          'street' => Faker::Address.street_address,
-          'city' => Faker::Address.city,
-          'state' => Faker::Address.state_abbr,
-          'postalCode' => Faker::Address.postcode
-        },
-        'primaryPhoneNumber' => Faker::Number.number(digits: 10).to_s
-      }
-
-      # Required properties for all caregivers
-      data['vetRelationship'] = 'Daughter' if form_subject != :veteran
-
-      # Required properties for :primaryCaregiver
-      data['hasHealthInsurance'] = true if form_subject == :primaryCaregiver
-
-      # Required property for :veteran
-      if form_subject == :veteran
-        data['ssnOrTin'] = Faker::IDNumber.valid.remove('-')
-        data['plannedClinic'] = '568A4'
-      end
-
-      mutations&.call data
-
-      data
-    end
-  end
-
-  def expect_icn_for_veteran_to_return_not_found
-    expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
-  end
 
   describe '::new' do
     it 'requires a claim' do
@@ -74,15 +39,15 @@ RSpec.describe Form1010cg::Service do
   end
 
   describe '#icn_for' do
-    let(:set_ssn) { ->(data) { data['ssnOrTin'] = '111111111' } }
+    let(:set_ssn) { ->(data, _form_subject) { data['ssnOrTin'] = '111111111' } }
 
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -126,8 +91,8 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -171,8 +136,8 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -191,9 +156,9 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
-            'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver, &set_ssn),
+            'secondaryCaregiverOne' => build_claim_data_for(:secondaryCaregiverOne)
           }.to_json
         )
       )
@@ -272,7 +237,7 @@ RSpec.describe Form1010cg::Service do
     context 'when email is provided' do
       it 'will provid that email in the mvi search' do
         veteran_email = 'veteran-email@example.com'
-        veteran_data = build_claim_data_for.call(:veteran) do |data|
+        veteran_data = build_claim_data_for(:veteran) do |data|
           data['email'] = veteran_email
         end
 
@@ -281,7 +246,7 @@ RSpec.describe Form1010cg::Service do
             :caregivers_assistance_claim,
             form: {
               'veteran' => veteran_data,
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+              'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
             }.to_json
           )
         )
@@ -325,10 +290,10 @@ RSpec.describe Form1010cg::Service do
           build(
             :caregivers_assistance_claim,
             form: {
-              'veteran' => build_claim_data_for.call(:veteran),
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
-              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne, &set_ssn),
-              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo, &set_ssn)
+              'veteran' => build_claim_data_for(:veteran),
+              'primaryCaregiver' => build_claim_data_for(:primaryCaregiver, &set_ssn),
+              'secondaryCaregiverOne' => build_claim_data_for(:secondaryCaregiverOne, &set_ssn),
+              'secondaryCaregiverTwo' => build_claim_data_for(:secondaryCaregiverTwo, &set_ssn)
             }.to_json
           )
         )
@@ -372,10 +337,10 @@ RSpec.describe Form1010cg::Service do
             :caregivers_assistance_claim,
             form: {
               # Form subjects with no SSNs
-              'veteran' => build_claim_data_for.call(:veteran),
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver),
-              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne),
-              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo)
+              'veteran' => build_claim_data_for(:veteran),
+              'primaryCaregiver' => build_claim_data_for(:primaryCaregiver),
+              'secondaryCaregiverOne' => build_claim_data_for(:secondaryCaregiverOne),
+              'secondaryCaregiverTwo' => build_claim_data_for(:secondaryCaregiverTwo)
             }.to_json
           )
         )
@@ -417,8 +382,8 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -436,8 +401,8 @@ RSpec.describe Form1010cg::Service do
             build(
               :caregivers_assistance_claim,
               form: {
-                'veteran' => build_claim_data_for.call(:veteran),
-                'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+                'veteran' => build_claim_data_for(:veteran),
+                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
               }.to_json
             )
           )
@@ -469,8 +434,8 @@ RSpec.describe Form1010cg::Service do
             build(
               :caregivers_assistance_claim,
               form: {
-                'veteran' => build_claim_data_for.call(:veteran),
-                'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+                'veteran' => build_claim_data_for(:veteran),
+                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
               }.to_json
             )
           )
@@ -502,8 +467,8 @@ RSpec.describe Form1010cg::Service do
             build(
               :caregivers_assistance_claim,
               form: {
-                'veteran' => build_claim_data_for.call(:veteran),
-                'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+                'veteran' => build_claim_data_for(:veteran),
+                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
               }.to_json
             )
           )
@@ -531,8 +496,8 @@ RSpec.describe Form1010cg::Service do
             build(
               :caregivers_assistance_claim,
               form: {
-                'veteran' => build_claim_data_for.call(:veteran),
-                'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+                'veteran' => build_claim_data_for(:veteran),
+                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
               }.to_json
             )
           )
@@ -561,8 +526,8 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -628,8 +593,7 @@ RSpec.describe Form1010cg::Service do
 
   describe '#assert_veteran_status' do
     it 'will raise error if veteran\'s icn can not be found' do
-      expect_icn_for_veteran_to_return_not_found
-
+      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect { subject.assert_veteran_status }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
@@ -643,7 +607,7 @@ RSpec.describe Form1010cg::Service do
 
   describe '#process_claim!' do
     it 'raises error when ICN not found for veteran' do
-      expect_icn_for_veteran_to_return_not_found
+      expect(subject).to receive(:icn_for).with('veteran').and_return('NOT_FOUND')
       expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 

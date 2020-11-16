@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/file_data'
 require 'json_marshal/marshaller'
 
 module ClaimsApi
@@ -16,6 +15,9 @@ module ClaimsApi
     SUBMITTED = 'submitted'
     ESTABLISHED = 'established'
     ERRORED = 'errored'
+
+    ALL_STATUSES = [PENDING, SUBMITTED, ESTABLISHED, ERRORED].freeze
+
     EVSS_CLAIM_ATTRIBUTES = %i[date_filed min_est_date max_est_date open waiver_submitted
                                documents_needed development_letter_sent decision_letter_sent
                                requested_decision va_representative].freeze
@@ -47,7 +49,7 @@ module ClaimsApi
 
     def self.pending?(id)
       query = where(id: id)
-      query.exists? && query.first.evss_id.nil? ? query.first : false
+      query.exists? ? query.first : false
     end
 
     def self.evss_id_by_token(token)

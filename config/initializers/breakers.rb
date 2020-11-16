@@ -4,7 +4,7 @@ require 'bb/configuration'
 require 'breakers/statsd_plugin'
 require 'caseflow/configuration'
 require 'central_mail/configuration'
-require 'debts/configuration'
+require 'dmc/debts_configuration'
 require 'decision_review/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
@@ -20,6 +20,7 @@ require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
 require 'facilities/bulk_configuration'
 require 'facilities/ppms/v0/configuration'
+require 'facilities/ppms/v1/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
@@ -39,7 +40,7 @@ redis_options = REDIS_CONFIG[:redis].to_h
 redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
 
 services = [
-  Debts::Configuration.instance.breakers_service,
+  DMC::DebtsConfiguration.instance.breakers_service,
   Caseflow::Configuration.instance.breakers_service,
   DecisionReview::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
@@ -60,6 +61,7 @@ services = [
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
   Facilities::PPMS::V0::Configuration.instance.breakers_service,
+  Facilities::PPMS::V1::Configuration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,

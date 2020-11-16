@@ -2,7 +2,7 @@
 
 module VaForms
   module Forms
-    class Form
+    class FormSwagger
       include Swagger::Blocks
 
       swagger_component do

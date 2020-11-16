@@ -29,6 +29,8 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
   private
 
   def process_all_payments(all_payments)
+    all_payments = [all_payments] if all_payments.class == Hash
+
     all_payments.each do |payment|
       if payment.dig(:return_payment, :check_trace_number).present?
         process_return_payment(payment)
@@ -70,10 +72,10 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
   end
 
   def get_payment_method(payment)
-    if payment.dig(:address_eft, :account_number).present?
-      'Direct Deposit'
-    else
-      'Paper Check'
-    end
+    return 'Direct Deposit' if payment.dig(:address_eft, :account_number).present?
+
+    return 'Paper Check' if payment.dig(:check_address, :address_line1).present?
+
+    nil
   end
 end
