@@ -83,24 +83,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         isMoving: form_data['isMoving'],
         mainPhone: form_data['mainPhone'],
         cellPhone: form_data['cellPhone'],
-        emailAddress: form_data['email'],
-        veteranAddress: {
-          isForeign: form_data['veteranAddress']['country'] != 'USA',
-          isMilitary: form_data['veteranAddress']['isMilitary'] || false,
-          countryName: form_data['veteranAddress']['country'],
-          addressLine1: form_data['veteranAddress']['street'],
-          addressLine2: form_data['veteranAddress']['street2'],
-          addressLine3: form_data['veteranAddress']['street3'],
-          city: form_data['veteranAddress']['city'],
-          stateCode: form_data['veteranAddress']['state'],
-          zipCode: form_data['veteranAddress']['postalCode']
-        }
+        emailAddress: form_data['email']
       }
     }
 
+    vre_payload[:data].merge!(veteran_address)
     vre_payload[:data].merge!({ veteranInformation: parsed_form['veteranInformation'] })
     vre_payload[:data].merge!(new_address) if parsed_form['newAddress'].present?
-
     vre_payload.to_json
   end
   # rubocop:enable Metrics/MethodLength
@@ -118,6 +107,24 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         "city": new_address['city'],
         "province": new_address['state'],
         "internationalPostalCode": new_address['postalCode']
+      }
+    }
+  end
+
+  def veteran_address
+    form_data = parsed_form
+
+    {
+      veteranAddress: {
+        isForeign: form_data['veteranAddress']['country'] != 'USA',
+        isMilitary: form_data['veteranAddress']['isMilitary'] || false,
+        countryName: form_data['veteranAddress']['country'],
+        addressLine1: form_data['veteranAddress']['street'],
+        addressLine2: form_data['veteranAddress']['street2'],
+        addressLine3: form_data['veteranAddress']['street3'],
+        city: form_data['veteranAddress']['city'],
+        stateCode: form_data['veteranAddress']['state'],
+        zipCode: form_data['veteranAddress']['postalCode']
       }
     }
   end
