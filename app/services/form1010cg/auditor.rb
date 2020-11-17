@@ -6,6 +6,10 @@ module Form1010cg
 
     STATSD_KEY_PREFIX = 'api.form1010cg'
     LOGGER_PREFIX     = 'Form 10-10CG'
+    LOG_FILTER_REPLACEMENT = "\"#{ActiveSupport::ParameterFilter::FILTERED}\""
+    LOG_FILTER_EXPRESSIONS = [
+      /"veteran_name":({.*?})/
+    ].freeze
 
     def self.metrics
       submission_prefix = STATSD_KEY_PREFIX + '.submission'
@@ -78,7 +82,21 @@ module Form1010cg
     end
 
     def log(message, data_hash = {})
-      Rails.logger.send :info, "[#{LOGGER_PREFIX}] #{message}", data_hash
+      Rails.logger.send :info, "[#{LOGGER_PREFIX}] #{message}", apply_sensitive_data_filters(data_hash)
+    end
+
+    def apply_sensitive_data_filters(data_hash)
+      as_json = JSON(data_hash)
+
+      LOG_FILTER_EXPRESSIONS.each do |filter_expression|
+        as_json = as_json.gsub(filter_expression) { |m| m.gsub(Regexp.last_match(1), LOG_FILTER_REPLACEMENT) }
+      rescue
+        next
+      end
+
+      JSON.parse(as_json, symbolize_names: true)
+    rescue
+      data_hash
     end
   end
 end
