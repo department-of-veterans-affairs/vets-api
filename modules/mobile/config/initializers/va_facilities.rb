@@ -5,7 +5,7 @@
 # include an ISO 8601 Z offset that is not sufficient to determine the time zone
 # see [Time Zone != Offset](https://stackoverflow.com/tags/timezone/info)
 
-Mobile::VA_FACILITY_TIMEZONES = {
+Mobile::VA_FACILITY_TIME_ZONES = {
   'dfn-358' => {
     name: 'MANILA VAMC',
     time_zone: 'Asia/Manila'
