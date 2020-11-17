@@ -13,6 +13,10 @@ module VBMS
 
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
+      claim.persistent_attachments.each do |attachment|
+        claim.upload_to_vbms('tmp' + attachment.file_url)
+      end
+
       claim.upload_pdf
     rescue => e
       send_error_to_sentry(e, claim&.id)
