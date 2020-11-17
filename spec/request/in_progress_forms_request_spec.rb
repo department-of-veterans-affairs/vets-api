@@ -84,19 +84,20 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         end
 
         context 'with the x key inflection header set' do
-          let(:form_data) do
-            { 'view:hasVaMedicalRecords' => true }
-          end
-
           it 'converts the json keys' do
+            form_data = { 'view:hasVaMedicalRecords' => true }
+
             in_progress_form.update(form_data: form_data)
             get v0_in_progress_form_url(in_progress_form.form_id),
                 params: nil,
                 headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
-            expect(response.body).to eq({
-              form_data: form_data,
-              metadata: in_progress_form.metadata
-            }.to_camelback_keys.to_json)
+            body = JSON.parse(response.body)
+            expect(body.keys).to include('formData', 'metadata')
+            # using VA as Va is deprecated, when forms are updated to use VA, this test should reflect that
+            expect(body['formData'].keys).to include('view:hasVaMedicalRecords')
+            expect(body['formData']['view:hasVaMedicalRecords']).to eq form_data['view:hasVaMedicalRecords']
+            expect(body['metadata'])
+              .to eq in_progress_form.metadata.transform_keys { |key| key.underscore.camelize(:lower) }
           end
         end
       end
