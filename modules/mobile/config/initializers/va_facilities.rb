@@ -72,7 +72,7 @@ Mobile::VA_FACILITY_TIMEZONES = {
   'dfn-562' => {
     name: 'ERIE VAMC',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-612' => {
     name: 'NORTHERN CALIFORNIA HCS',
@@ -289,112 +289,112 @@ Mobile::VA_FACILITY_TIMEZONES = {
   'dfn-542' => {
     name: 'COATESVILLE VAMC',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-549' => {
     name: 'NORTH TEXAS HCS',
     time_zone: 'America/Chicago'
-    
+
   },
   'dfn-558' => {
     name: 'DURHAM VAMC',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-565' => {
     name: 'FAYETTEVILLE NC VAMC',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-570' => {
     name: 'CENTRAL CALIFORNIA HCS',
     time_zone: 'America/Los_Angeles'
-    
+
   },
   'dfn-581' => {
     name: 'HUNTINGTON VAMC',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-631' => {
     name: 'VA CNTRL WSTRN MASSCHUSETS HCS',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-673' => {
     name: 'TAMPA VAMC',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-672' => {
     name: 'SAN JUAN VAMC',
     time_zone: 'America/Argentina/San_Juan'
-    
+
   },
   'dfn-740' => {
     name: 'TEXAS VALLEY COASTAL BEND HCS',
     time_zone: 'America/Chicago'
-    
+
   },
   'dfn-463' => {
     name: 'ANCHORAGE VA HCS',
     time_zone: 'America/Anchorage'
-    
+
   },
   'dfn-501' => {
     name: 'NEW MEXICO HCS',
     time_zone: 'America/Denver'
-    
+
   },
   'dfn-515' => {
     name: 'BATTLE CREEK VAMC',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-568' => {
     name: 'BLACK HILLS HCS',
     time_zone: 'America/Denver'
-    
+
   },
   'dfn-580' => {
     name: 'HOUSTON VAMC',
     time_zone: 'America/Chicago'
-    
+
   },
   'dfn-619' => {
     name: 'CENTRAL ALABAMA HCS',
     time_zone: 'America/Chicago'
-    
+
   },
   'dfn-654' => {
     name: 'SIERRA NEVADA HCS',
     time_zone: 'America/Los_Angeles'
-    
+
   },
   'dfn-663' => {
     name: 'PUGET SOUND HCS',
     time_zone: 'America/Los_Angeles'
-    
+
   },
   'dfn-676' => {
     name: 'TOMAH VAMC',
     time_zone: 'America/Chicago'
-    
+
   },
   'dfn-679' => {
     name: 'TUSCALOOSA',
     time_zone: 'America/Chicago'
-    
+
   },
   'dfn-402' => {
     name: 'VA MAINE HCS',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-520' => {
     name: 'BILOXI VAMC',
     time_zone: 'America/Chicago'
-    
+
   },
   'dfn-649' => {
     name: 'NORTHERN ARIZONA HCS',
@@ -547,7 +547,7 @@ Mobile::VA_FACILITY_TIMEZONES = {
   'dfn-516' => {
     name: 'Bay Pines VA Healthcare System',
     time_zone: 'America/New_York'
-    
+
   },
   'dfn-983' => {
     name: 'CHYSHR-Cheyenne VA Medical Center',
