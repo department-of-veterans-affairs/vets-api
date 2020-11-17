@@ -19,7 +19,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
           sign_in_as(user)
-          form_params = {veteran_readiness_employment_claim: {form: test_form.form}}
+          form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
 
           post(:create, params: form_params)
           expect(response.code).to eq('200')
@@ -30,7 +30,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     context 'visitor' do
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-          form_params = {veteran_readiness_employment_claim: {form: test_form_no_vet_info.form}}
+          form_params = { veteran_readiness_employment_claim: { form: test_form_no_vet_info.form } }
 
           post(:create, params: form_params)
           expect(response.code).to eq('200')
@@ -40,7 +40,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
 
     context 'with invalid params' do
       it 'shows the validation errors' do
-        post(:create, params: {veteran_readiness_employment_claim: {form: {not_valid: 'not valid'}}})
+        post(:create, params: { veteran_readiness_employment_claim: { form: { not_valid: 'not valid' } } })
 
         expect(response.code).to eq('422')
 
