@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
+  include SentryLogging
   FORM = '28-1900'
+  class VREError < StandardError; end
 
   def add_claimant_info(user)
     return if form.blank?
@@ -35,10 +39,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       req.body = format_payload_for_vre
     end
 
-    if response.success?
-    else
-      JSON.parse(response.body)['ApplicationIntake']
-    end
+    response_body = JSON.parse(response.body)
+    return true if response_body['ErrorOccurred'] == false
+
+    raise VREError
+  rescue VREError => e
+    log_exception_to_sentry(
+      e,
+      {
+        intake_id: response_body['ApplicationIntake'],
+        error_message: response_body['ErrorMessage']
+      },
+      { team: 'vfs-ebenefits' }
+    )
   end
 
   # SavedClaims require regional_office to be defined
