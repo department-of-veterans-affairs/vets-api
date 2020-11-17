@@ -34,7 +34,6 @@ module BGS
           net_worth_over_limit_ind: net_worth_over_limit_ind
         }
       )
-
     end
 
     private
