@@ -58,7 +58,7 @@ RSpec.describe 'person', type: :request do
         end
       end
 
-      it 'invalidates the cache for the mpi-profile-response Redis key' do
+      it 'invalidates the cache for the mvi-profile-response Redis key' do
         VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
