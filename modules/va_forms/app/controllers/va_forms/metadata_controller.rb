@@ -2,7 +2,7 @@
 
 require 'va_forms/health_checker'
 
-module VAForms
+module VaForms
   class MetadataController < ::ApplicationController
     skip_before_action :verify_authenticity_token
     skip_after_action :set_csrf_header
@@ -34,7 +34,7 @@ module VAForms
     end
 
     def upstream_healthcheck
-      health_checker = VAForms::HealthChecker.new
+      health_checker = VaForms::HealthChecker.new
       time = Time.zone.now.to_formatted_s(:iso8601)
 
       render json: {
@@ -43,7 +43,7 @@ module VAForms
         time: time,
         details: {
           name: 'All upstream services',
-          upstreamServices: VAForms::HealthChecker::SERVICES.map do |service|
+          upstreamServices: VaForms::HealthChecker::SERVICES.map do |service|
                               upstream_service_details(service, health_checker, time)
                             end
         }

@@ -25,7 +25,16 @@ module Vet360
           PersonResponse.from(raw_response)
         end
       rescue Common::Client::Errors::ClientError => e
-        return PersonResponse.new(404, person: nil) if e.status == 404
+        if e.status == 404
+          log_exception_to_sentry(
+            e,
+            { vet360_id: @user.vet360_id },
+            { vet360: :person_not_found },
+            :warning
+          )
+
+          return PersonResponse.new(404, person: nil)
+        end
 
         handle_error(e)
       rescue => e

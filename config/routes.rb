@@ -29,6 +29,7 @@ Rails.application.routes.draw do
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
+    resources :financial_status_reports, only: :create
     resources :education_career_counseling_claims, only: :create
 
     resources :letters, only: [:index] do
@@ -331,7 +332,7 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VAForms::Engine, at: '/va_forms'
+    mount VaForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end

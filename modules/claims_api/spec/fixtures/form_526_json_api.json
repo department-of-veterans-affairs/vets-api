@@ -3,6 +3,7 @@
     "type": "form/526",
     "attributes": {
       "veteran": {
+        "flashes": ["Hardship", "Homeless"],
         "currentlyVAEmployee": false,
         "currentMailingAddress": {
           "city": "Portland",
