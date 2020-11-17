@@ -11,6 +11,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     return if form.blank?
 
     updated_form = parsed_form
+    birth_date = user.birth_date.respond_to?(:str) ? user.birth_date : user.birth_date.strftime('%Y-%m-%d')
 
     updated_form['veteranInformation'] = {
       'fullName' => {
@@ -23,7 +24,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       'pid' => user.participant_id,
       'edipi' => user.edipi,
       'vet360ID' => user.vet360_id,
-      'dob' => user.birth_date
+      'dob' => birth_date
     }
 
     update(form: updated_form.to_json)
