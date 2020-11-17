@@ -10,23 +10,23 @@ module Mobile
           va_video_connect_gfe: 'VA_VIDEO_CONNECT_GFE',
           va_video_connect_home: 'VA_VIDEO_CONNECT_HOME'
         }.freeze
-        
+
         CANCELLED_STATUS = [
           'CANCELLED BY CLINIC & AUTO RE-BOOK',
           'CANCELLED BY CLINIC',
           'CANCELLED BY PATIENT & AUTO-REBOOK',
           'CANCELLED BY PATIENT'
         ].freeze
-        
+
         FUTURE_HIDDEN = %w[NO-SHOW DELETED].freeze
-        
+
         FUTURE_HIDDEN_STATUS = [
           'ACT REQ/CHECKED IN',
           'ACT REQ/CHECKED OUT'
         ].freeze
-        
+
         PAST_HIDDEN = %w[FUTURE DELETED null <null> Deleted].freeze
-        
+
         PAST_HIDDEN_STATUS = [
           'ACTION REQUIRED',
           'INPATIENT APPOINTMENT',
@@ -40,24 +40,24 @@ module Mobile
           'NO-SHOW',
           'NON-COUNT'
         ].freeze
-        
+
         STATUSES = {
           booked: 'BOOKED',
           cancelled: 'CANCELLED'
-        }
-        
+        }.freeze
+
         VIDEO_GFE_FLAG = 'MOBILE_GFE'
-        
+
         def parse(appointments)
           facilities = Set.new
-          
+
           appointments_list = appointments.dig('data', 'appointmentList')
           appointments_list.map do |appointment_hash|
             facility_id = appointment_hash['facilityId']
             facilities.add(facility_id) if facility_id
             details, type = parse_by_appointment_type(appointment_hash)
             start_date = get_start_date(appointment_hash)
-            
+
             {
               appointment_type: type,
               comment: comment(details, type),
@@ -71,85 +71,85 @@ module Mobile
             }
           end
         end
-        
+
         private
-        
+
         def get_status(details, type, start_date)
           status = va?(type) ? details['currentStatus'] : details.dig('status', 'code')
           return nil if should_hide_status?(start_date.past?, status)
           return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
-          
+
           STATUSES[:booked]
         end
-        
+
         def should_hide_status?(is_past, status)
           is_past && PAST_HIDDEN_STATUS.include?(status) || !is_past && FUTURE_HIDDEN_STATUS.include?(status)
         end
-        
+
         def get_start_date(appointment_hash)
           DateTime.parse(appointment_hash['startDate'])
         end
-        
+
         def parse_by_appointment_type(appointment)
           return [appointment['vdsAppointments']&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
-          
+
           [appointment['vvsAppointments']&.first, get_video_type(appointment)]
         end
-        
+
         def get_video_type(appointment)
           return APPOINTMENT_TYPES[:va_video_connect_atlas] if video_atlas?(appointment)
           return APPOINTMENT_TYPES[:va_video_connect_gfe] if video_gfe?(appointment)
-          
+
           APPOINTMENT_TYPES[:va_video_connect_home]
         end
-        
+
         def video_atlas?(appointment)
           return false unless appointment['vvsAppointments']
-          
+
           appointment['vvsAppointments'].first['tasInfo'].present?
         end
-        
+
         def video_gfe?(appointment)
           return false unless appointment['vvsAppointments']
-          
+
           appointment['vvsAppointments'].first['appointmentKind'] == VIDEO_GFE_FLAG
         end
-        
+
         def comment(details, type)
           va?(type) ? details['bookingNote'] : details['instructionsTitle']
         end
-        
+
         def on_site?(appointment)
           appointment['vdsAppointments']&.size&.positive?
         end
-        
+
         def va?(type)
           type == APPOINTMENT_TYPES[:va]
         end
-        
+
         def healthcare_service(details, type)
           va?(type) ? details.dig('clinic', 'name') : video_healthcare_service(details)
         end
-        
+
         def video_healthcare_service(details)
           providers = details['providers']
           return nil unless providers
-          
+
           provider = if providers.is_a?(Array)
                        details.dig('providers')
                      else
                        details.dig('providers', 'provider')
                      end
           return nil unless provider
-          
+
           provider.first.dig('location', 'facility', 'name')
         end
-        
+
         def minutes_duration(details, type)
           minutes_string = va?(type) ? details['appointmentLength'] : details['duration']
           minutes_string&.to_i
         end
-        
+
         def get_location(details, type, facility_id)
           facility = Mobile::VA_FACILITY_TIMEZONES["dfn-#{facility_id}"]
           location = {
@@ -159,7 +159,7 @@ module Mobile
             url: nil,
             code: nil
           }
-          
+
           case type
           when APPOINTMENT_TYPES[:va_video_connect_home]
             location_home(details, location)
@@ -171,13 +171,13 @@ module Mobile
             location
           end
         end
-        
+
         def location_home(details, location)
           location[:url] = details.dig('providers', 'provider').first.dig('virtualMeetingRoom', 'url')
           location[:code] = details.dig('providers', 'provider').first.dig('virtualMeetingRoom', 'pin')
           location
         end
-        
+
         def location_atlas(details, location)
           address = details.dig('tasInfo', 'address')
           location[:address] = {
@@ -190,16 +190,17 @@ module Mobile
           location[:code] = details.dig('tasInfo', 'confirmationCode')
           location
         end
-        
+
         def location_gfe(details, location)
           location[:url] = details['providers'].first.dig('virtualMeetingRoom', 'url')
           location[:code] = details['providers'].first.dig('virtualMeetingRoom', 'pin')
           location
         end
-        
+
         def get_time_zone(facility_id)
           facility = Mobile::VA_FACILITY_TIMEZONES["dfn-#{facility_id}"]
           return nil unless facility
+
           facility[:time_zone] if facility
         end
       end
