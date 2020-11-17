@@ -37,27 +37,27 @@ module CARMA
       end
 
       def primary_caregiver=(pc_metadata_hash)
-        @primary_caregiver  = if pc_metadata_hash.nil? # rubocop:disable Layout/SpaceAroundOperators, Layout/ExtraSpacing
-                                nil
-                              else
-                                Caregiver.new(pc_metadata_hash)
-                              end
+        @primary_caregiver = if pc_metadata_hash.nil?
+                               nil
+                             else
+                               Caregiver.new(pc_metadata_hash)
+                             end
       end
 
       def secondary_caregiver_one=(sc_one_metadata_hash)
-        @secondary_caregiver_one  = if sc_one_metadata_hash.nil? # rubocop:disable Layout/SpaceAroundOperators
-                                      nil
-                                    else
-                                      Caregiver.new(sc_one_metadata_hash)
-                                    end
+        @secondary_caregiver_one = if sc_one_metadata_hash.nil?
+                                     nil
+                                   else
+                                     Caregiver.new(sc_one_metadata_hash)
+                                   end
       end
 
       def secondary_caregiver_two=(sc_two_metadata_hash)
-        @secondary_caregiver_two  = if sc_two_metadata_hash.nil? # rubocop:disable Layout/SpaceAroundOperators
-                                      nil
-                                    else
-                                      Caregiver.new(sc_two_metadata_hash)
-                                    end
+        @secondary_caregiver_two = if sc_two_metadata_hash.nil?
+                                     nil
+                                   else
+                                     Caregiver.new(sc_two_metadata_hash)
+                                   end
       end
     end
   end
