@@ -32,6 +32,13 @@ module AppsApi
       end
       swagger_path 'directory/scopes/{service_category}' do
         operation :get do
+          parameter do
+            key :name, :service_category
+            key :in, :path
+            key :description, 'The service category an application belongs to'
+            key :required, true
+            key :type, :string
+          end
           key :summary, 'Scopes'
           key :description, 'Returns all scopes currently available to a given service category'
           key :operationId, 'getScopes'
