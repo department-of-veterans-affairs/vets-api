@@ -213,7 +213,7 @@ module EducationForm
       # Atlanta is to be excluded from FYTD reports after the 2017 fiscal year
       return true if fiscal_year > 2017 && region == :southern
       # St. Louis is to be excluded from FYTD reports after the 2020 fiscal year
-      return true if fiscal_year > 2020 && region == :central && Flipper.enabled?(:education_reports_cleanup)
+      return true if fiscal_year > 2020 && region == :central
 
       false
     end

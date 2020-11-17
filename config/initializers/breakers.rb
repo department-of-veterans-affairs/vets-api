@@ -4,7 +4,7 @@ require 'bb/configuration'
 require 'breakers/statsd_plugin'
 require 'caseflow/configuration'
 require 'central_mail/configuration'
-require 'dmc/debts_configuration'
+require 'debt_management_center/debts_configuration'
 require 'decision_review/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
@@ -40,7 +40,7 @@ redis_options = REDIS_CONFIG[:redis].to_h
 redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
 
 services = [
-  DMC::DebtsConfiguration.instance.breakers_service,
+  DebtManagementCenter::DebtsConfiguration.instance.breakers_service,
   Caseflow::Configuration.instance.breakers_service,
   DecisionReview::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,

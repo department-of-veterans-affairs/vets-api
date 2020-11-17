@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DMC
+module DebtManagementCenter
   class DebtsResponse
     attr_reader :debts
 
@@ -16,7 +16,7 @@ module DMC
     private
 
     def validate_response_against_schema(response)
-      schema_path = Rails.root.join('lib', 'dmc', 'schemas', 'debts.json').to_s
+      schema_path = Rails.root.join('lib', 'debt_management_center', 'schemas', 'debts.json').to_s
       JSON::Validator.validate!(schema_path, response, strict: false)
     end
   end
