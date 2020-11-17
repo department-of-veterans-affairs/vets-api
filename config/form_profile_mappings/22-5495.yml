@@ -1,5 +1,0 @@
-relativeDateOfBirth: [identity_information, date_of_birth]
-relativeFullName: [identity_information, full_name]
-relativeSocialSecurityNumber: [identity_information, ssn]
-toursOfDuty: [military_information, tours_of_duty]
-currentlyActiveDuty: [military_information, currently_active_duty]

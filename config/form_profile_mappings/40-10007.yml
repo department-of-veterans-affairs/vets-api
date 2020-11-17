@@ -1,8 +1,0 @@
-application:
-  claimant:
-    address: [contact_information, address]
-    dateOfBirth: [identity_information, date_of_birth]
-    name: [identity_information, full_name]
-    ssn: [identity_information, hyphenated_ssn]
-    email: [contact_information, email]
-    phoneNumber: [contact_information, us_phone]

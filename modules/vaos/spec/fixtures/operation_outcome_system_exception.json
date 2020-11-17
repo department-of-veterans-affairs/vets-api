@@ -1,1 +1,0 @@
-{"resourceType":"Organization","id":"987654","text":{"status":"generated","div":"<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>undefined method 'to_ary' for \"hello\":String</p></div>"},"issue":[{"severity":"error","code":"500","details":"undefined method 'to_ary' for \"hello\":String"}]}
