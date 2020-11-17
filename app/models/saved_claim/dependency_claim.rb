@@ -81,7 +81,7 @@ class SavedClaim::DependencyClaim < SavedClaim
     []
   end
 
-  # Run after a claim is saved, this processes any files that are present
+  # Run after a claim is saved, this processes any files/supporting documents that are present
   def process_attachments!
     supporting_documents = parsed_form.dig('dependents_application', 'supporting_documents')
     if supporting_documents
