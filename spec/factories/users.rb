@@ -276,7 +276,7 @@ FactoryBot.define do
       after(:build) do
         stub_mpi(
           build(
-            :mpi_profile_response,
+            :mvi_profile_response,
             edipi: '1007697216',
             birls_id: '796043735',
             participant_id: '600061742',
