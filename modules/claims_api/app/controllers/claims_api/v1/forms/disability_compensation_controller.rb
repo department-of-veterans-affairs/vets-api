@@ -26,6 +26,7 @@ module ClaimsApi
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
+            flashes: form_attributes.dig('veteran', 'flashes'),
             source: source_name
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
