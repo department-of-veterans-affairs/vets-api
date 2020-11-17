@@ -10,7 +10,7 @@ RSpec.describe 'health_quest questionnaire_responses', type: :request do
     sign_in_as(current_user)
   end
 
-  describe 'GET questionnaire responses' do
+  describe 'GET questionnaire response' do
     context 'loa1 user' do
       let(:current_user) { build(:user, :loa1) }
 
@@ -34,6 +34,24 @@ RSpec.describe 'health_quest questionnaire_responses', type: :request do
         get "/health_quest/v0/questionnaire_responses/#{questionnaire_responses_id}"
 
         expect(response).to have_http_status(:ok)
+      end
+    end
+  end
+
+  describe 'GET all questionnaire responses' do
+    context 'loa1 user' do
+      let(:current_user) { build(:user, :loa1) }
+
+      it 'has forbidden status' do
+        get '/health_quest/v0/questionnaire_responses'
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'has access denied message' do
+        get '/health_quest/v0/questionnaire_responses'
+
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq(access_denied_message)
       end
     end
   end
