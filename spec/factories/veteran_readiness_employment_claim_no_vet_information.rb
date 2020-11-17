@@ -12,7 +12,7 @@ FactoryBot.define do
         isMoving: false,
         mainPhone: '5555555555',
         cellPhone: '3333333333',
-        email: 'cohnjesse@gmail.xom',
+        email: 'test@gmail.xom',
         veteranAddress: {
           isMilitary: true,
           country: 'USA',

@@ -31,7 +31,7 @@ FactoryBot.define do
           'postalCode' => '33928'
         },
         'mainPhone' => '5555555555',
-        'email' => 'cohnjesse@gmail.xom',
+        'email' => 'test@gmail.xom',
         'veteranInformation' => {
           'fullName' => {
             'first' => 'Homer',

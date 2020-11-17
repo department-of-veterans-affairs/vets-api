@@ -60,7 +60,7 @@ http_interactions:
     uri: https://fake_url.com/fake/endpoint
     body:
       encoding: UTF-8
-      string: '{"data":{"educationLevel":"2","useEva":null,"useTelecounseling":true,"meetingTime":"morning","isMoving":true,"mainPhone":"5555555555","cellPhone":null,"emailAddress":"cohnjesse@gmail.xom","veteranAddress":{"isForeign":false,"isMilitary":false,"countryName":"USA","addressLine1":"9417
+      string: '{"data":{"educationLevel":"2","useEva":null,"useTelecounseling":true,"meetingTime":"morning","isMoving":true,"mainPhone":"5555555555","cellPhone":null,"emailAddress":"test@gmail.xom","veteranAddress":{"isForeign":false,"isMilitary":false,"countryName":"USA","addressLine1":"9417
         Princess Palm","addressLine2":null,"addressLine3":null,"city":"Tampa","stateCode":"FL","zipCode":"33928"},"veteranInformation":{"fullName":{"first":"Homer","middle":"John","last":"Simpson"},"ssn":"987456457","dob":"1998-01-02"},"newAddress":{"isForeign":false,"isMilitary":null,"countryName":"USA","addressLine1":"1019
         Robin Cir","addressLine2":null,"addressLine3":null,"city":"Arroyo Grande","province":"CA","internationalPostalCode":"93420"}}}'
     headers:

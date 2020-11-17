@@ -17,8 +17,8 @@ FactoryBot.define do
         ssn: '796104437',
         dateOfBirth: '1950-10-04',
         claimantPhoneNumber: '5555555555',
-        claimantEmailAddress: 'cohnjesse@gmail.xom',
-        claimantConfirmEmailAddress: 'cohnjesse@gmail.xom',
+        claimantEmailAddress: 'test@gmail.xom',
+        claimantConfirmEmailAddress: 'test@gmail.xom',
         format: 'json',
         controller: 'v0/education_career_counseling_claims',
         action: 'create',
@@ -32,8 +32,8 @@ FactoryBot.define do
             zipCode: '33928'
           },
           claimantPhoneNumber: '5555555555',
-          claimantEmailAddress: 'cohnjesse@gmail.xom',
-          claimantConfirmEmailAddress: 'cohnjesse@gmail.xom'
+          claimantEmailAddress: 'test@gmail.xom',
+          claimantConfirmEmailAddress: 'test@gmail.xom'
         },
         veteranFullName: {
           first: 'MARK', middle: 'WEBB', last: 'WEBB'
