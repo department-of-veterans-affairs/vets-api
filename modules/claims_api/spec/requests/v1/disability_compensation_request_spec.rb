@@ -67,7 +67,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'sets the flashes' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
-          post path, params: data, headers: headers
+          post path, params: data, headers: headers.merge(auth_header)
           token = JSON.parse(response.body)['data']['attributes']['token']
           aec = ClaimsApi::AutoEstablishedClaim.find(token)
           expect(aec.flashes).to eq(%w[Hardship POW])
