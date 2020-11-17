@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Dictionary of facility names and time zones by facility id
+# This data currently is unavailable via API and although appointment times include an ISO 8601 Z offset
+# that is not sufficient to determine the time zone see [Time Zone != Offset](https://stackoverflow.com/tags/timezone/info)
+
 Mobile::VA_FACILITY_TIMEZONES = {
   'dfn-358' => {
     name: 'MANILA VAMC',
