@@ -42,7 +42,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
-            parsed_response_contents = JSON.parse(response.body)['data']['attributes']['claimsAndAppeals']
+            parsed_response_contents = response.parsed_body.dig('data', 'attributes', 'claimsAndAppeals')
             expect(parsed_response_contents[0]).to eq(successful_response_item_zero)
             expect(parsed_response_contents.last).to eq(successful_response_last_item)
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
@@ -93,7 +93,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
         VCR.use_cassette('evss/claims/claims_with_errors') do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
-            response_attributes = JSON.parse(response.body)['data']['attributes']
+            response_attributes = response.parsed_body.dig('data', 'attributes')
             expect(response).to have_http_status(:ok)
             expect(response_attributes['claimsAndAppeals']).not_to be_empty
             expect(response_attributes['claimsAndAppeals'][0]).to eq(claims_failure_response_item_zero)
@@ -107,7 +107,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
         VCR.use_cassette('evss/claims/claims') do
           VCR.use_cassette('caseflow/server_error') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
-            response_attributes = JSON.parse(response.body)['data']['attributes']
+            response_attributes = response.parsed_body.dig('data', 'attributes')
             expect(response).to have_http_status(:ok)
             expect(response_attributes['claimsAndAppeals']).not_to be_empty
             expect(response_attributes['claimsAndAppeals'][0]).to eq(appeals_failure_response_item_zero)
@@ -120,7 +120,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
         VCR.use_cassette('evss/claims/claims_with_errors') do
           VCR.use_cassette('caseflow/server_error') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
-            response_attributes = JSON.parse(response.body)['data']['attributes']
+            response_attributes = response.parsed_body.dig('data', 'attributes')
             expect(response).to have_http_status(:ok)
             expect(response_attributes['claimsAndAppeals']).to be_empty
             expect(response_attributes['upstreamServiceErrors'].length).to eq(2)

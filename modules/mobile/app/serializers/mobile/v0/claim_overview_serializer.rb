@@ -17,7 +17,7 @@ module Mobile
         claim['claim_status'] != 'PEND'
       end
       attribute :date_filed do |claim|
-        Date.strptime(claim['date'], '%m/%d/%Y').strftime('%Y-%m-%d')
+        Date.strptime(claim['date'], '%m/%d/%Y').iso8601
       end
     end
   end

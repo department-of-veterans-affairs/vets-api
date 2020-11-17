@@ -13,7 +13,7 @@ module Mobile
         all_claims_lambda = lambda {
           begin
             claims_list = claims_service.all_claims
-            [].push(claims_list.body['open_claims']).push(claims_list.body['historical_claims']).flatten
+            claims_list.body['open_claims'].push(*claims_list.body['historical_claims']).flatten
           rescue => e
             e
           end
@@ -25,7 +25,7 @@ module Mobile
             e
           end
         }
-        results = Parallel.map([all_claims_lambda, all_appeals_lambda], in_threads: 8, &:call)
+        results = Parallel.map([all_claims_lambda, all_appeals_lambda], in_threads: 2, &:call)
         render json: Mobile::V0::ClaimsAndAppealsOverviewSerializer.new(@current_user.id, results[0], results[1])
       end
 
