@@ -84,3 +84,10 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+vre:
+  base_url: https://fake_url.com
+  credentials: fake_auth
+  auth_endpoint: https://fake_url.com/auth/oauth/token
+  ch_31_endpoint: /fake/endpoint
+  

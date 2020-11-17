@@ -47,7 +47,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     log_exception_to_sentry(
       e,
       {
-        intake_id: response_body['ApplicationIntake'],
         error_message: response_body['ErrorMessage']
       },
       { team: 'vfs-ebenefits' }
