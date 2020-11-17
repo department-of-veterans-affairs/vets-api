@@ -85,7 +85,6 @@ module VAOS
     end
 
     def get_appointments_base_url(type)
-      puts user.icn
       if type == 'va'
         "/appointments/v1/patients/#{user.icn}/appointments"
       else

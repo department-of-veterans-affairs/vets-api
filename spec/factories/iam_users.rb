@@ -36,7 +36,6 @@ FactoryBot.define do
       stub_mpi(
         build(
           :mvi_profile,
-          icn: '24811694708759028',
           edipi: '1005079124',
           birls_id: '796121200',
           participant_id: '796121200',
@@ -56,7 +55,6 @@ FactoryBot.define do
         stub_mpi(
           build(
             :mvi_profile,
-            icn: '24811694708759028',
             edipi: nil,
             birls_id: '796121200',
             participant_id: '796121200',
