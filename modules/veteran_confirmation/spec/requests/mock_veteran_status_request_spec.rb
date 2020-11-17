@@ -2,10 +2,15 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
+RSpec.describe 'Mock Veteran Status API endpoint', type: :request, skip_emis: true do
   include SchemaMatchers
 
-  before do
+  before(:context) do
+    Settings.vet_verification.mock_emis = true
+    Settings.vet_verification.mock_emis_host = 'https://vaausvrsapp81.aac.va.gov'
+  end
+
+  after(:context) do
     Settings.vet_verification.mock_emis = false
   end
 

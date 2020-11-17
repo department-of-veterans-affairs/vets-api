@@ -5,6 +5,10 @@ require 'rails_helper'
 require 'mpi/models/mvi_profile'
 require 'mpi/attr_service'
 
+before do
+  Settings.vet_verification.mock_emis = false
+end
+
 RSpec.describe VeteranConfirmation::StatusService do
   describe '.get_by_attributes' do
     let(:valid_attributes) do
