@@ -1,4 +1,4 @@
-GIT
+GIT-CRIS
   remote: https://github.com/corgibytes/ruby-debug-ide
   revision: e1ed54c9b8a6da4f365da1fcf95fdd0e01c2c362
   branch: feature-add-fixed-port-range
