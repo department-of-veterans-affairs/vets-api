@@ -4,7 +4,6 @@ module V0
   class VeteranReadinessEmploymentClaimsController < ClaimsBaseController
     def create
       load_user
-
       claim = SavedClaim::VeteranReadinessEmploymentClaim.new(form: filtered_params[:form])
       claim.add_claimant_info(current_user) if current_user
 
@@ -24,6 +23,10 @@ module V0
 
     def filtered_params
       params.require(:veteran_readiness_employment_claim).permit(:form)
+    end
+
+    def short_name
+      'veteran_readiness_employment_claim'
     end
   end
 end
