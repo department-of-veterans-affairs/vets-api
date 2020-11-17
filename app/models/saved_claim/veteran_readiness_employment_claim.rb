@@ -70,7 +70,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     nil
   end
 
-  # rubocop:disable Metrics/MethodLength
   def format_payload_for_vre
     form_data = parsed_form
 
@@ -92,7 +91,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     vre_payload[:data].merge!(new_address) if parsed_form['newAddress'].present?
     vre_payload.to_json
   end
-  # rubocop:enable Metrics/MethodLength
 
   def new_address
     new_address = parsed_form['newAddress']
