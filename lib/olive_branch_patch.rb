@@ -23,14 +23,18 @@ module OliveBranchMiddlewareExtension
 
   private
 
+  # key and value are each a match group
   VA_KEY_VALUE_PAIR_REGEX = /("[^"]+VA[^"]*"):("[^"]*"|\d+|true|false|null)/.freeze
 
   def duplicate_basic_va_keys!(json)
+    # rubocop:disable Style/PerlBackrefs
+    # gsub with a block explicitly sets backrefs correctly https://ruby-doc.org/core-2.6.6/String.html#method-i-gsub
     json.gsub!(VA_KEY_VALUE_PAIR_REGEX) do
       key = $1
       value = $2
       "#{key}:#{value}, #{key.gsub('VA', 'Va')}:#{value}"
     end
+    # rubocop:enable Style/PerlBackrefs
   end
 
   VA_KEY_COLLECTION_REGEX = /("[^"]+VA[^"]*"):({|\[)/.freeze
