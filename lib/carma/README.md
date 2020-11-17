@@ -4,7 +4,7 @@ CARMA (Caregiver Record Management Application)
 ## Description
 CARMA is a Salesforce application that the VA's Caregivers Program uses to track and process 10-10CG submissions.
 
-This library is used to submit valid, online, 10-10CG submissions (CaregiversAssistanceClaim) to CARMA. It includes an http client and models that map to the CARMA domain.
+This library is used to submit valid, online, 10-10CG submissions (CaregiversAssistanceClaim) to CARMA. It includes an HTTP client and models that map to the CARMA domain.
 
 ## Design
 
