@@ -1,7 +1,7 @@
 # Warn if a pull request is too big
 PR_SIZE = {
-  RECOMMENDED_MAXIMUM: 250,
-  ABSOLUTE_MAXIMUM:    1000,
+  RECOMMENDED_MAXIMUM: 200,
+  ABSOLUTE_MAXIMUM:    800,
 }
 EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/', 'app/swagger', 'modules/mobile/docs/']
 
@@ -10,7 +10,16 @@ changed_files = git.diff.stats[:files]
 
 excluded_changed_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
 filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
-lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertions] + changes[:deletions]) }
+
+# ignores whitespace for the purpose of determining lines of code changed
+changes = `git diff -w --stat`.split("\n")
+lines_of_code = changes.sum(0) do |change|
+  if change == changes.last || EXCLUSIONS.any? { |exclusion| change.match(exclusion) }
+    0
+  else
+    change.match(/\|\s+(\d+)/)[1].to_i
+  end
+end
 
 if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
   file_summary = <<~HTML
