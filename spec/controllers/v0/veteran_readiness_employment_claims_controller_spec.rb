@@ -10,10 +10,6 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     build(:veteran_readiness_employment_claimm_no_vet_information)
   end
 
-  # let(:test_form) do
-  #   build(:education_career_counseling_claim)
-  # end
-
   describe 'POST create' do
     context 'logged in user' do
       it 'validates successfully' do
