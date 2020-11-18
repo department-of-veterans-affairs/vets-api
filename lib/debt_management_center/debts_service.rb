@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'dmc/base_service'
-require 'dmc/debts_configuration'
-require 'dmc/responses/debts_response'
+require 'debt_management_center/base_service'
+require 'debt_management_center/debts_configuration'
+require 'debt_management_center/responses/debts_response'
 
-module DMC
-  class DebtsService < DMC::BaseService
+module DebtManagementCenter
+  class DebtsService < DebtManagementCenter::BaseService
     attr_reader :file_number
 
-    configuration DMC::DebtsConfiguration
+    configuration DebtManagementCenter::DebtsConfiguration
 
     STATSD_KEY_PREFIX = 'api.dmc'
 
@@ -45,7 +45,7 @@ module DMC
 
     def init_debts
       with_monitoring_and_error_handling do
-        DMC::DebtsResponse.new(perform(:post, 'letterdetails/get', fileNumber: @file_number).body).debts
+        DebtManagementCenter::DebtsResponse.new(perform(:post, 'debt-letter/get', fileNumber: @file_number).body).debts
       end
     end
 

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'dmc/debts_service'
+require 'debt_management_center/debts_service'
 
-module DMC
+module DebtManagementCenter
   class DebtLetterDownloader
     DEBTS_DOCUMENT_TYPES = %w[
       193
@@ -59,7 +59,7 @@ module DMC
     end
 
     def debts_service
-      DMC::DebtsService.new(@user)
+      DebtManagementCenter::DebtsService.new(@user)
     end
 
     def verify_no_dependent_debts
