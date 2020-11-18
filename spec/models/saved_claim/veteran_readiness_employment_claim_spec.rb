@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
-  let(:claim) { create(:veteran_readiness_employment_claimm_no_vet_information) }
-  let(:moving_claim) { create(:veteran_readiness_employment_claimm) }
+  let(:claim) { create(:veteran_readiness_employment_claim_no_vet_information) }
+  let(:moving_claim) { create(:veteran_readiness_employment_claim) }
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
   let(:new_address_hash) do
     {
