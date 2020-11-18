@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/corgibytes/ruby-debug-ide
+  revision: e1ed54c9b8a6da4f365da1fcf95fdd0e01c2c362
+  branch: feature-add-fixed-port-range
+  specs:
+    ruby-debug-ide (0.7.2)
+      rake (>= 0.8.1)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/active_model_serializers
   revision: 19015caa80227e5ae5d62179129edcaa43fb3d9d
   branch: master
@@ -312,6 +320,9 @@ GEM
     date_validator (0.9.0)
       activemodel
       activesupport
+    debase (0.2.4.1)
+      debase-ruby_core_source (>= 0.10.2)
+    debase-ruby_core_source (0.10.11)
     deep_merge (1.2.1)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
@@ -929,6 +940,7 @@ DEPENDENCIES
   danger
   database_cleaner
   date_validator
+  debase
   dry-struct
   dry-types
   factory_bot_rails (> 5)
@@ -1011,6 +1023,7 @@ DEPENDENCIES
   rubocop-rails
   rubocop-rspec
   rubocop-thread_safety
+  ruby-debug-ide!
   ruby-saml
   rubyzip (>= 1.3.0)
   savon
