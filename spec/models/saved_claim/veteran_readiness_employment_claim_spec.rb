@@ -36,7 +36,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         people_service_object = double('people_service')
         allow(people_service_object).to receive(:find_person_by_participant_id)
         allow(BGS::PeopleService).to receive(:new) { people_service_object }
-        # expect(people_service_object).to receive(:find_person_by_particpant_id).and_raise(StandardError)
 
         claim.add_claimant_info(user_object)
         expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
