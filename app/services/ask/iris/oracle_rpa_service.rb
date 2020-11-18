@@ -9,7 +9,6 @@ require_relative './constants/constants.rb'
 module Ask
   module Iris
     class OracleRPAService
-      include Constants
       def initialize(request)
         @request = request
       end
@@ -17,37 +16,25 @@ module Ask
       def submit_form
         @field_list = Ask::Iris::Mappers::ToOracle::FIELD_LIST
 
-        browser = WatirConfig.new(URI)
+        browser = WatirConfig.new(Constants::URI)
 
         # Inquiry Topic, Type, and Question
         set_topic_inquiry_fields(browser)
 
-        browser.select_dropdown_by_text(FORM_OF_ADDRESS_FIELD_NAME, FORM_OF_ADDRESS)
+        browser.select_dropdown_by_text(Constants::FORM_OF_ADDRESS_FIELD_NAME, Constants::FORM_OF_ADDRESS)
 
         @field_list.each do |field|
           parsed_form = @request.parsed_form
           value = read_value_for_field(field, parsed_form)
 
           transformed_value = field.transform(value)
-          set_field_value(browser, field, transformed_value)
-
+          field.enter_into_form browser, transformed_value
         end
         submit_form_to_oracle(browser)
         get_confirmation_number(browser)
       end
 
       private
-
-      def set_field_value(browser, field, value)
-        if field.field_type.eql? TEXT_FIELD
-          browser.set_text_field(field.field_name, value)
-          validate_email(browser, field, value) if field.field_name.include? 'email'
-        elsif field.field_type.eql? DROPDOWN
-          browser.select_dropdown_by_text(field.field_name, value)
-        elsif field.field_type.eql? RADIO
-          browser.set_yes_no_radio(field.field_name, value)
-        end
-      end
 
       def read_value_for_field(field, value)
         field.schema_key.split('.').each do |key|
@@ -62,12 +49,12 @@ module Ask
       end
 
       def submit_form_to_oracle(browser)
-        browser.click_button_by_id(SUBMIT_FORM_BUTTON_ID)
-        browser.click_button_by_text(CONFIRM_SUBMIT_BUTTON_TEXT)
+        browser.click_button_by_id(Constants::SUBMIT_FORM_BUTTON_ID)
+        browser.click_button_by_text(Constants::CONFIRM_SUBMIT_BUTTON_TEXT)
       end
 
       def get_confirmation_number(browser)
-        browser.get_text_from_element(BOLD_TAG, CONFIRMATION_NUMBER_MATCHER)
+        browser.get_text_from_element(Constants::BOLD_TAG, Constants::CONFIRMATION_NUMBER_MATCHER)
       end
 
       def set_topic_inquiry_fields(browser)
@@ -75,13 +62,13 @@ module Ask
         select_topic(browser, topic_labels)
 
         if @request.parsed_form['topic']['vaMedicalCenter']
-          browser.select_dropdown_by_value(MEDICAL_CENTER_DROPDOWN, @request.parsed_form['topic']['vaMedicalCenter'])
+          browser.select_dropdown_by_value(Constants::MEDICAL_CENTER_DROPDOWN, @request.parsed_form['topic']['vaMedicalCenter'])
         end
 
-        browser.click_button_by_id(INQUIRY_TYPE_BUTTON_ID)
+        browser.click_button_by_id(Constants::INQUIRY_TYPE_BUTTON_ID)
         browser.click_link(@request.parsed_form['inquiryType'])
 
-        browser.set_text_area(QUERY_FIELD_NAME, @request.parsed_form['query'])
+        browser.set_text_area(Constants::QUERY_FIELD_NAME, @request.parsed_form['query'])
       end
 
       def get_topics
@@ -96,7 +83,7 @@ module Ask
 
       def select_topic(browser, topic_labels)
         topic_labels.each do |label|
-          browser.click_button_by_id(TOPIC_BUTTON_ID)
+          browser.click_button_by_id(Constants::TOPIC_BUTTON_ID)
           browser.click_link(label)
         end
       end
