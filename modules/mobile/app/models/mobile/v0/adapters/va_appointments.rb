@@ -199,9 +199,7 @@ module Mobile
 
         def get_time_zone(facility_id)
           facility = Mobile::VA_FACILITY_TIMEZONES["dfn-#{facility_id}"]
-          return nil unless facility
-
-          facility[:time_zone] if facility
+          facility ? facility[:time_zone] : nil
         end
       end
     end
