@@ -194,21 +194,25 @@ module EVSS
       ###
 
       def translate_service_info
-        {
+        service_info = {
           'serviceInformation' => {
             'servicePeriods' => translate_service_periods,
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
             'servedInCombatZone' => input_form['servedInCombatZonePost911'],
-            'alternateNames' => translate_names,
-            'separationLocationName' => input_form.dig('serviceInformation',
-                                                       'separationLocation',
-                                                       'separationLocationName'),
-            'separationLocationCode' => input_form.dig('serviceInformation',
-                                                       'separationLocation',
-                                                       'separationLocationCode')
+            'alternateNames' => translate_names
           }.compact
         }
+
+        if bdd_qualified?
+          service_info['serviceInformation']['separationLocationName'] = input_form.dig('serviceInformation',
+                                                                                        'separationLocation',
+                                                                                        'separationLocationName')
+          service_info['serviceInformation']['separationLocationCode'] = input_form.dig('serviceInformation',
+                                                                                        'separationLocation',
+                                                                                        'separationLocationCode')
+        end
+        service_info
       end
 
       def translate_service_periods
