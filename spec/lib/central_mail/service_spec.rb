@@ -5,6 +5,7 @@ require 'central_mail/service'
 require 'securerandom'
 
 RSpec.describe CentralMail::Service do
+
   let(:service) { described_class.new }
 
   describe '#status' do
@@ -57,6 +58,7 @@ RSpec.describe CentralMail::Service do
     end
 
     context 'with incomplete metadata' do
+
       let :valid_metadata do
         get_fixture('pension/metadata')
       end
@@ -72,31 +74,26 @@ RSpec.describe CentralMail::Service do
         end
       end
 
-      # it "Returns a 412 error where the zip code is invalid" do
-      #   key = 'zipCode'
-      #   VCR.use_cassette(
-      #     "central_mail/bad_metadata_invalid_#{key}_#{vendor}2",
-      #     match_requests_on: [multipart_request_matcher, :method, :uri]
-      #   ) do
-
-      #     metadata = valid_metadata.clone
-      #     metadata[key] = '0000'
-      #     response = described_class.new.upload(
-      #       metadata: metadata.to_json,
-      #       document: Faraday::UploadIO.new(
-      #           'spec/fixtures/pension/form.pdf',
-      #           Mime[:pdf].to_s
-      #       ),
-      #       attachment1: Faraday::UploadIO.new(
-      #           'spec/fixtures/pension/attachment.pdf',
-      #           Mime[:pdf].to_s
-      #       )
-      #   )
-      #   body = response.body
-      #   uuid = 'bd71f985-9bad-45c2-8b63-d052f544c27d'
-      #   expect(body).to eq("Metadata Field Error - Invalid #{key} [uuid: #{uuid}] ") #space at the end is very important
-      #   expect(response.status).to eq(412)
-      # end
+      let :response_helper do
+        ->(metadata, key, missing_key = true) do
+          response = described_class.new.upload(
+              metadata: metadata.to_json,
+              document: Faraday::UploadIO.new(
+                  'spec/fixtures/pension/form.pdf',
+                  Mime[:pdf].to_s
+              ),
+              attachment1: Faraday::UploadIO.new(
+                  'spec/fixtures/pension/attachment.pdf',
+                  Mime[:pdf].to_s
+              )
+          )
+          body = response.body
+          uuid = 'bd71f985-9bad-45c2-8b63-d052f544c27d'
+          missing = missing_key ? 'Missing' : 'Invalid'
+          expect(body.strip).to eq("Metadata Field Error - #{missing} #{key} [uuid: #{uuid}]")
+          expect(response.status).to eq(412)
+        end
+      end
 
       %w{veteranFirstName veteranLastName fileNumber zipCode}.each do |key|
         it "Returns a 412 error with no #{key}" do
@@ -106,24 +103,9 @@ RSpec.describe CentralMail::Service do
           ) do
 
             metadata = valid_metadata.except(key)
-            response = described_class.new.upload(
-                metadata: metadata.to_json,
-                document: Faraday::UploadIO.new(
-                    'spec/fixtures/pension/form.pdf',
-                    Mime[:pdf].to_s
-                ),
-                attachment1: Faraday::UploadIO.new(
-                    'spec/fixtures/pension/attachment.pdf',
-                    Mime[:pdf].to_s
-                )
-            )
-            body = response.body
-            uuid = 'bd71f985-9bad-45c2-8b63-d052f544c27d'
-            expect(body).to eq("Metadata Field Error - Missing #{key} [uuid: #{uuid}] ") #space at the end is very important
-            expect(response.status).to eq(412)
+            response_helper.call(metadata, key)
           end
         end
-
         if key.eql?('zipCode')
           it "Returns a 412 error with invalid #{key}" do
             VCR.use_cassette(
@@ -131,59 +113,12 @@ RSpec.describe CentralMail::Service do
                 match_requests_on: [multipart_request_matcher, :method, :uri]
             ) do
 
-              metadata = valid_metadata.clone
+              metadata = valid_metadata.deep_dup
               metadata[key] = 'abcd'
-              response = described_class.new.upload(
-                  metadata: metadata.to_json,
-                  document: Faraday::UploadIO.new(
-                      'spec/fixtures/pension/form.pdf',
-                      Mime[:pdf].to_s
-                  ),
-                  attachment1: Faraday::UploadIO.new(
-                      'spec/fixtures/pension/attachment.pdf',
-                      Mime[:pdf].to_s
-                  )
-              )
-              body = response.body
-              uuid = 'bd71f985-9bad-45c2-8b63-d052f544c27d'
-              expect(body).to eq("Metadata Field Error - Invalid #{key} [uuid: #{uuid}] ") #space at the end is very important
-              expect(response.status).to eq(412)
+              response_helper.call(metadata, key, false)
             end
           end
         end
-
-
-        # let :vcr_recording do
-        #   lambda do |config_key|
-        #     VCR.use_cassette(
-        #       "central_mail/bad_metadata_no_#{config_key}",
-        #       match_requests_on: [multipart_request_matcher, :method, :uri]
-        #     ) do
-
-        #       metadata = valid_metadata.except(config_key)
-        #       response = described_class.new.upload(
-        #         metadata: metadata.to_json,
-        #         document: Faraday::UploadIO.new(
-        #             'spec/fixtures/pension/form.pdf',
-        #             Mime[:pdf].to_s
-        #         ),
-        #         attachment1: Faraday::UploadIO.new(
-        #             'spec/fixtures/pension/attachment.pdf',
-        #             Mime[:pdf].to_s
-        #         )
-        #     )
-        #     return response.body
-        #   end
-        # end
-
-        # it 'Returns a 412 error with no veteranLastName' do
-        #   puts 'i am here'
-        #   uuid = 'bd71f985-9bad-45c2-8b63-d052f544c27d'
-        #   body = vcr_recording.call('veteranLastName')
-        #   expect(body).to eq("Metadata Field Error - Missing veteranLasterName [uuid: #{uuid}] ") #space at the end is very important
-        #   expect(response.status).to eq(412)
-        # end
-
       end
 
       it 'uploads a file' do
@@ -218,3 +153,4 @@ RSpec.describe CentralMail::Service do
     end
   end
 end
+
