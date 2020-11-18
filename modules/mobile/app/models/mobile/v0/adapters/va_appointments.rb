@@ -74,6 +74,10 @@ module Mobile
 
         private
 
+        def comment(details, type)
+          va?(type) ? details['bookingNote'] : details['instructionsTitle']
+        end
+
         def get_status(details, type, start_date)
           status = va?(type) ? details['currentStatus'] : details.dig('status', 'code')
           return nil if should_hide_status?(start_date.past?, status)
@@ -82,72 +86,8 @@ module Mobile
           STATUSES[:booked]
         end
 
-        def should_hide_status?(is_past, status)
-          is_past && PAST_HIDDEN_STATUS.include?(status) || !is_past && FUTURE_HIDDEN_STATUS.include?(status)
-        end
-
         def get_start_date(appointment_hash)
           DateTime.parse(appointment_hash['startDate'])
-        end
-
-        def parse_by_appointment_type(appointment)
-          return [appointment['vdsAppointments']&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
-
-          [appointment['vvsAppointments']&.first, get_video_type(appointment)]
-        end
-
-        def get_video_type(appointment)
-          return APPOINTMENT_TYPES[:va_video_connect_atlas] if video_atlas?(appointment)
-          return APPOINTMENT_TYPES[:va_video_connect_gfe] if video_gfe?(appointment)
-
-          APPOINTMENT_TYPES[:va_video_connect_home]
-        end
-
-        def video_atlas?(appointment)
-          return false unless appointment['vvsAppointments']
-
-          appointment['vvsAppointments'].first['tasInfo'].present?
-        end
-
-        def video_gfe?(appointment)
-          return false unless appointment['vvsAppointments']
-
-          appointment['vvsAppointments'].first['appointmentKind'] == VIDEO_GFE_FLAG
-        end
-
-        def comment(details, type)
-          va?(type) ? details['bookingNote'] : details['instructionsTitle']
-        end
-
-        def on_site?(appointment)
-          appointment['vdsAppointments']&.size&.positive?
-        end
-
-        def va?(type)
-          type == APPOINTMENT_TYPES[:va]
-        end
-
-        def healthcare_service(details, type)
-          va?(type) ? details.dig('clinic', 'name') : video_healthcare_service(details)
-        end
-
-        def video_healthcare_service(details)
-          providers = details['providers']
-          return nil unless providers
-
-          provider = if providers.is_a?(Array)
-                       details.dig('providers')
-                     else
-                       details.dig('providers', 'provider')
-                     end
-          return nil unless provider
-
-          provider.first.dig('location', 'facility', 'name')
-        end
-
-        def minutes_duration(details, type)
-          minutes_string = va?(type) ? details['appointmentLength'] : details['duration']
-          minutes_string&.to_i
         end
 
         def get_location(details, type, facility_id)
@@ -170,6 +110,22 @@ module Mobile
           else
             location
           end
+        end
+
+        def get_time_zone(facility_id)
+          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
+          facility ? facility[:time_zone] : nil
+        end
+
+        def get_video_type(appointment)
+          return APPOINTMENT_TYPES[:va_video_connect_atlas] if video_atlas?(appointment)
+          return APPOINTMENT_TYPES[:va_video_connect_gfe] if video_gfe?(appointment)
+
+          APPOINTMENT_TYPES[:va_video_connect_home]
+        end
+
+        def healthcare_service(details, type)
+          va?(type) ? details.dig('clinic', 'name') : video_healthcare_service(details)
         end
 
         def location_home(details, location)
@@ -197,9 +153,53 @@ module Mobile
           location
         end
 
-        def get_time_zone(facility_id)
-          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
-          facility ? facility[:time_zone] : nil
+        def minutes_duration(details, type)
+          minutes_string = va?(type) ? details['appointmentLength'] : details['duration']
+          minutes_string&.to_i
+        end
+
+        def on_site?(appointment)
+          appointment['vdsAppointments']&.size&.positive?
+        end
+
+        def parse_by_appointment_type(appointment)
+          return [appointment['vdsAppointments']&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
+
+          [appointment['vvsAppointments']&.first, get_video_type(appointment)]
+        end
+
+        def should_hide_status?(is_past, status)
+          is_past && PAST_HIDDEN_STATUS.include?(status) || !is_past && FUTURE_HIDDEN_STATUS.include?(status)
+        end
+
+        def va?(type)
+          type == APPOINTMENT_TYPES[:va]
+        end
+
+        def video_atlas?(appointment)
+          return false unless appointment['vvsAppointments']
+
+          appointment['vvsAppointments'].first['tasInfo'].present?
+        end
+
+        def video_gfe?(appointment)
+          return false unless appointment['vvsAppointments']
+
+          appointment['vvsAppointments'].first['appointmentKind'] == VIDEO_GFE_FLAG
+        end
+
+        def video_healthcare_service(details)
+          providers = details['providers']
+          return nil unless providers
+
+          provider = if providers.is_a?(Array)
+                       details.dig('providers')
+                     else
+                       details.dig('providers', 'provider')
+                     end
+          return nil unless provider
+
+          provider.first.dig('location', 'facility', 'name')
         end
       end
     end
