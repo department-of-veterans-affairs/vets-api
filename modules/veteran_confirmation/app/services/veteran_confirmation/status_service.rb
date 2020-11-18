@@ -15,9 +15,9 @@ module VeteranConfirmation
       raise mvi_resp.error unless mvi_resp.ok?
 
       emis_resp = if Settings.vet_verification.mock_emis
-               EMIS::MockVeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
-             else
-               EMIS::VeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
+                    EMIS::MockVeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
+                  else
+                    EMIS::VeteranStatusService.new.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
              end
       return NOT_CONFIRMED if emis_resp.error?
 
