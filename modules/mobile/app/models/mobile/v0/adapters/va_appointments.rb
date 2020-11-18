@@ -151,7 +151,7 @@ module Mobile
         end
 
         def get_location(details, type, facility_id)
-          facility = Mobile::VA_FACILITY_TIMEZONES["dfn-#{facility_id}"]
+          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
           location = {
             name: facility ? facility[:name] : nil,
             address: nil,
@@ -198,7 +198,7 @@ module Mobile
         end
 
         def get_time_zone(facility_id)
-          facility = Mobile::VA_FACILITY_TIMEZONES["dfn-#{facility_id}"]
+          facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
           facility ? facility[:time_zone] : nil
         end
       end
