@@ -271,7 +271,7 @@ RSpec.describe ApplicationController, type: :controller do
         )
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
-          uuid: user.uuid,
+          id: user.uuid,
           authn_context: user.authn_context,
           loa: user.loa,
           mhv_icn: user.mhv_icn
