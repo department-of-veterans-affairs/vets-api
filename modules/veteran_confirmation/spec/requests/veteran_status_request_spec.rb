@@ -161,8 +161,6 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
   end
 
-
-
   context 'betamocks emis' do
     before(:context) do
       Settings.vet_verification.mock_emis = false
