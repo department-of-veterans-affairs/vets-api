@@ -4,6 +4,7 @@
 class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
   include SetAWSConfig
+  include ValidateEvssFileSize
 
   def size_range
     1.byte...150.megabytes
