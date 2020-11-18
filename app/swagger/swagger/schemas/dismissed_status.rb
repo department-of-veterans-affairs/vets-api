@@ -18,7 +18,7 @@ module Swagger
             property :status,
                      type: :string,
                      example: 'pending_mt',
-                     enum: ::Notification.subjects.keys.sort
+                     enum: ::Notification.statuses.keys.sort
             property :status_effective_at, type: :string, example: '2019-02-25T01:22:00.000Z'
             property :read_at, type: :string, example: '2019-02-26T21:20:50.151Z'
           end
