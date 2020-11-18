@@ -1,7 +1,7 @@
 # Warn if a pull request is too big
 PR_SIZE = {
   RECOMMENDED_MAXIMUM: 200,
-  ABSOLUTE_MAXIMUM:    800,
+  ABSOLUTE_MAXIMUM:    500,
 }
 EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/', 'app/swagger', 'modules/mobile/docs/']
 
@@ -48,10 +48,10 @@ if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
   footer = 'Big PRs are difficult to review, often become stale, and cause delays.'
 
   if lines_of_code > PR_SIZE[:ABSOLUTE_MAXIMUM]
-    msg = "This PR changes `#{lines_of_code}` LoC. In order to ensure each PR receives the proper attention it deserves, those exceeding `#{PR_SIZE[:ABSOLUTE_MAXIMUM]}` will not be reviewed, nor will they be allowed to merge. Please break this PR up into smaller ones. If you have reason to believe that this PR should be granted an exception, please see the [Code Review Guidelines FAQ](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/code_review_guidelines.md#faq).\n"
+    msg = "This PR changes `#{lines_of_code}` LoC (not counting whitespace changes). In order to ensure each PR receives the proper attention it deserves, those exceeding `#{PR_SIZE[:ABSOLUTE_MAXIMUM]}` will not be reviewed, nor will they be allowed to merge. Please break this PR up into smaller ones. If you have reason to believe that this PR should be granted an exception, please see the [Code Review Guidelines FAQ](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/code_review_guidelines.md#faq).\n"
     fail(msg + file_summary + footer) 
   else
-    msg = "This PR changes `#{lines_of_code}` LoC. In order to ensure each PR receives the proper attention it deserves, we recommend not exceeding `#{PR_SIZE[:RECOMMENDED_MAXIMUM]}`. Expect some delays getting reviews.\n"
+    msg = "This PR changes `#{lines_of_code}` LoC (not counting whitespace changes). In order to ensure each PR receives the proper attention it deserves, we recommend not exceeding `#{PR_SIZE[:RECOMMENDED_MAXIMUM]}`. Expect some delays getting reviews.\n"
     warn(msg + file_summary + footer)
   end
 end
