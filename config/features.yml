@@ -307,3 +307,7 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
+  view_payment_history:
+    actor_type: user
+    description: >
+      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
