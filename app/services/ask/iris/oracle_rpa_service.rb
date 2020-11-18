@@ -6,7 +6,6 @@ require 'json'
 require_relative './constants/constants.rb'
 
 # This service submits a form to the existing IRIS Oracle page
-
 module Ask
   module Iris
     class OracleRPAService
@@ -16,8 +15,7 @@ module Ask
       end
 
       def submit_form
-        iris_values = Ask::Iris::Mappers::ContactUsToIrisValues.new
-        file = File.read('app/services/ask/iris/mappers/contact_us_to_iris_fields.json')
+        @field_list = Ask::Iris::Mappers::ToOracle::FIELD_LIST
 
         browser = WatirConfig.new(URI)
 
@@ -26,27 +24,13 @@ module Ask
 
         browser.select_dropdown_by_text(FORM_OF_ADDRESS_FIELD_NAME, FORM_OF_ADDRESS)
 
-        JSON.load(file).each do |field|
-          value = @request.parsed_form
-          field['schemaKey'].split('.').each do |key|
-            value = value[key]
-          end
+        @field_list.each do |field|
+          parsed_form = @request.parsed_form
+          value = read_value_for_field(field, parsed_form)
 
-          value = iris_values.vet_status_mappings[value] if field['fieldName'].include? 'vet_status'
-          value = iris_values.contact_method_mappings[value] if field['fieldName'].include? 'form_of_response'
-          value = iris_values.state_mappings[value] if field['fieldName'].include? 'state'
-          value = iris_values.country_mappings[value] if field['fieldName'].include? 'country'
+          transformed_value = field.transform(value)
+          set_field_value(browser, field, transformed_value)
 
-          value = transform_date(value) if date_field? field['fieldName']
-
-          if field['fieldType'].eql? TEXT_FIELD
-            browser.set_text_field(field['fieldName'], value)
-            validate_email(browser, field, value) if field['fieldName'].include? 'email'
-          elsif field['fieldType'].eql? DROPDOWN
-            browser.select_dropdown_by_text(field['fieldName'], value)
-          elsif field['fieldType'].eql? RADIO
-            browser.set_yes_no_radio(field['fieldName'], value)
-          end
         end
         submit_form_to_oracle(browser)
         get_confirmation_number(browser)
@@ -54,9 +38,27 @@ module Ask
 
       private
 
+      def set_field_value(browser, field, value)
+        if field.field_type.eql? TEXT_FIELD
+          browser.set_text_field(field.field_name, value)
+          validate_email(browser, field, value) if field.field_name.include? 'email'
+        elsif field.field_type.eql? DROPDOWN
+          browser.select_dropdown_by_text(field.field_name, value)
+        elsif field.field_type.eql? RADIO
+          browser.set_yes_no_radio(field.field_name, value)
+        end
+      end
+
+      def read_value_for_field(field, value)
+        field.schema_key.split('.').each do |key|
+          value = value[key]
+        end
+        value
+      end
+
       def validate_email(browser, field, value)
         browser.tab
-        browser.set_text_field((field['fieldName'] + '_Validation'), value)
+        browser.set_text_field((field.field_name + '_Validation'), value)
       end
 
       def submit_form_to_oracle(browser)
@@ -97,15 +99,6 @@ module Ask
           browser.click_button_by_id(TOPIC_BUTTON_ID)
           browser.click_link(label)
         end
-      end
-
-      def transform_date(value)
-        temp_value = value.split('-')
-        temp_value[1] + '-' + temp_value[2] + '-' + temp_value[0]
-      end
-
-      def date_field?(field)
-        %w[date_of_birth e_o_d released_from_duty].any? { |date_field| field.include? date_field }
       end
     end
   end
