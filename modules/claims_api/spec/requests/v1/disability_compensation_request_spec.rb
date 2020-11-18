@@ -70,7 +70,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           post path, params: data, headers: headers.merge(auth_header)
           token = JSON.parse(response.body)['data']['attributes']['token']
           aec = ClaimsApi::AutoEstablishedClaim.find(token)
-          expect(aec.flashes).to eq(%w[Hardship POW])
+          expect(aec.flashes).to eq(%w[Hardship Homeless])
         end
       end
     end
