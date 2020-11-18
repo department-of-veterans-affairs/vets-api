@@ -15,6 +15,17 @@ module SAML
                               message
                             end
       end
+
+      def status_detail
+        @status_detail ||= begin
+          node = REXML::XPath.first(
+            @document,
+            '/p:Response/p:Status/p:StatusDetail',
+            { 'p' => PROTOCOL }
+          )
+          node.nil? ? nil : node.each_element_with_text.join(', ')
+        end
+      end
     end
   end
 end

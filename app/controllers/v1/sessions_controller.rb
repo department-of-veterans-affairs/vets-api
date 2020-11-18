@@ -292,7 +292,12 @@ module V1
     # rubocop:disable Metrics/ParameterLists
     def handle_callback_error(exc, status, response, level = :error, context = {},
                               code = '007', tag = nil)
-      log_message_to_sentry(exc.message, level, extra_context: context)
+      message = exc.message
+      # replaces bundled Sentry error message with specific XML messages
+      if response.normalized_errors.count > 1 && (detail_message = response.status_detail)
+        message = detail_message
+      end
+      log_message_to_sentry(message, level, extra_context: context)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)
