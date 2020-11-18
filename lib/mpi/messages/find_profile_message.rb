@@ -4,7 +4,7 @@ require_relative 'find_profile_message_helpers'
 
 module MPI
   module Messages
-    # Builds an MVI SOAP XML message.
+    # Builds an MPI SOAP XML message.
     #
     # = Usage
     # Call the .build passing in the candidate's given and family names, birth_date, and ssn.
