@@ -10,12 +10,13 @@ module ClaimsApi
       before_action :verify_power_of_attorney, if: :header_request?
 
       def verify_power_of_attorney
-        BGS::PowerOfAttorneyVerifier.new(target_veteran).verify(@current_user)
+        logged_in_representative_user = @current_user
+        target_veteran_to_be_verified = BGS::PowerOfAttorneyVerifier.new(target_veteran)
+        target_veteran_to_be_verified.verify(logged_in_representative_user)
+        true
       rescue => e
-        log_message_to_sentry('PoA Error in claims',
-                              :warning,
-                              body: e.message)
-        raise Common::Exceptions::Unauthorized, detail: 'Cannot at this time establish Power of Attorney validation'
+        log_message_to_sentry('PoA claims', :warning, body: e.message)
+        raise Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end
     end
   end
