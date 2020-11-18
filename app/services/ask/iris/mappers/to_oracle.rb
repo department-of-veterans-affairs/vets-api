@@ -14,7 +14,15 @@ module Ask
 
       class DropdownField
         def self.set_value(browser, field_name, value)
+          return if value.nil?
+
           browser.select_dropdown_by_text(field_name, value)
+        end
+      end
+
+      class TextAreaField
+        def self.set_value(browser, field_name, value)
+          browser.set_text_area(field_name, value)
         end
       end
 
@@ -34,9 +42,8 @@ module Ask
 
       class OracleCustomDropdownField
         def self.set_value(browser, field_name, value)
-          if value.nil?
-            return
-          end
+          return if value.nil?
+
           browser.click_button_by_id(field_name)
           browser.click_link(value)
         end
@@ -85,6 +92,16 @@ module Ask
             "schemaKey": 'topic.levelThree',
             "fieldName": 'rn_ProductCategoryInput_3_Product_Button',
             "fieldType": OracleCustomDropdownField
+          },
+          {
+            "schemaKey": 'topic.vaMedicalCenter',
+            "fieldName": 'Incident.CustomFields.c.medical_centers',
+            "fieldType": DropdownField
+          },
+          {
+            "schemaKey": 'query',
+            "fieldName": 'Incident.Threads',
+            "fieldType": TextAreaField
           },
           {
             "schemaKey": 'inquiryType',
