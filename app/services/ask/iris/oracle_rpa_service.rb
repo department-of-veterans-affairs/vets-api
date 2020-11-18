@@ -43,6 +43,7 @@ module Ask
         value
       end
 
+      # unused, can be deleted
       def validate_email(browser, field, value)
         browser.tab
         browser.set_text_field((field.field_name + '_Validation'), value)
@@ -58,15 +59,10 @@ module Ask
       end
 
       def set_topic_inquiry_fields(browser)
-        topic_labels = get_topics
-        select_topic(browser, topic_labels)
 
         if @request.parsed_form['topic']['vaMedicalCenter']
           browser.select_dropdown_by_value(Constants::MEDICAL_CENTER_DROPDOWN, @request.parsed_form['topic']['vaMedicalCenter'])
         end
-
-        browser.click_button_by_id(Constants::INQUIRY_TYPE_BUTTON_ID)
-        browser.click_link(@request.parsed_form['inquiryType'])
 
         browser.set_text_area(Constants::QUERY_FIELD_NAME, @request.parsed_form['query'])
       end
