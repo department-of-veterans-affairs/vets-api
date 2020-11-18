@@ -43,39 +43,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     end
   end
 
-  describe '#send_to_vre' do
-    let(:faraday_response) { double('faraday_connection') }
-
-    context 'successful submission' do
-      it 'successfully sends to VRE' do
-        allow(faraday_response).to receive(:body).and_return('{"ErrorOccurred":false,"ApplicationIntake":"12345"}')
-        allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
-
-        response = claim.send_to_vre
-        expect(response).to eq(true)
-      end
-
-      it 'adds a new address if the user is moving within 30 days' do
-        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-          expect(moving_claim).to receive(:new_address) { new_address_hash }
-
-          moving_claim.send_to_vre
-        end
-      end
-
-      it 'does not successfully send to VRE' do
-        allow(faraday_response).to receive(:body).and_return(
-          '{"ErrorOccurred":true,"ErrorMessage":"bad stuff happened"}'
-        )
-
-        allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
-        expect(claim).to receive(:log_exception_to_sentry)
-
-        claim.send_to_vre
-      end
-    end
-  end
-
   describe '#regional_office' do
     it 'returns an empty array' do
       expect(claim.regional_office).to be_empty
