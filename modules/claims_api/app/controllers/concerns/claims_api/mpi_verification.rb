@@ -8,11 +8,11 @@ module ClaimsApi
       before_action :verify_mpi
 
       def verify_mpi
-        raise "MPI user not found: #{target_veteran.mpi&.response&.error&.inspect}" unless target_veteran.mpi_record?
+        raise 'MPI user not found' unless target_veteran.mpi_record?
       rescue => e
         log_message_to_sentry('MPIError in claims',
                               :warning,
-                              body: e.message)
+                              body: target_veteran.mpi&.response&.error&.inspect || e.message)
         render json: { errors: [{ status: 400, detail: 'Not enough Veteran information, functionality limited.' }] },
                status: :bad_request
       end
