@@ -6,7 +6,7 @@ require 'emis/service'
 require 'evss/service'
 require 'gibft/service'
 require 'iam_ssoe_oauth/session_manager'
-require 'mvi/service'
+require 'mpi/service'
 require 'saml/errors'
 require 'saml/responses/base'
 require 'saml/user'
@@ -105,8 +105,8 @@ StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
 StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
 
 # init  mvi
-StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
-StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
+StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
+StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
 
 # init Vet360
 Vet360::Exceptions::Parser.instance.known_keys.each do |key|
