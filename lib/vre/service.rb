@@ -4,8 +4,8 @@ module VRE
   class Service
     def get_token
       conn = Faraday.new(
-        "#{Settings.vre.auth_endpoint}?grant_type=client_credentials",
-        headers: { 'Authorization' => Settings.vre.credentials }
+        "#{Settings.veteran_readiness_and_education.auth_endpoint}?grant_type=client_credentials",
+        headers: { 'Authorization' => Settings.veteran_readiness_and_education.credentials }
       )
 
       request = conn.post
@@ -14,10 +14,10 @@ module VRE
     end
 
     def send_to_vre(payload, exception)
-      conn = Faraday.new(url: Settings.vre.base_url)
+      conn = Faraday.new(url: Settings.veteran_readiness_and_education.base_url)
 
       response = conn.post do |req|
-        req.url Settings.vre.ch_31_endpoint
+        req.url Settings.veteran_readiness_and_education.ch_31_endpoint
         req.headers['Authorization'] = "Bearer #{get_token}"
         req.headers['Content-Type'] = 'application/json'
         req.body = payload
