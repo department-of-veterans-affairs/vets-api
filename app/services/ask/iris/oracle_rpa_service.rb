@@ -9,22 +9,22 @@ require_relative './constants/constants.rb'
 module Ask
   module Iris
     class OracleRPAService
-      def initialize(request)
-        @request = request
-      end
+      # def initialize(request)
+      #   @request = request
+      # end
 
-      def submit_form
-        @field_list = Ask::Iris::Mappers::ToOracle::FIELD_LIST
+      def submit_form(form)
+        # @field_list = Ask::Iris::Mappers::ToOracle::FIELD_LIST
 
         browser = WatirConfig.new(Constants::URI)
 
         browser.select_dropdown_by_text(Constants::FORM_OF_ADDRESS_FIELD_NAME, Constants::FORM_OF_ADDRESS)
 
-        @field_list.each do |field|
-          parsed_form = @request.parsed_form
-          value = read_value_for_field(field, parsed_form)
+        form.fields.each do |field|
+          # parsed_form = @request.parsed_form
+          # value = read_value_for_field(field, parsed_form)
 
-          transformed_value = field.transform(value)
+          transformed_value = field.transform(field.value)
           field.enter_into_form browser, transformed_value
         end
         submit_form_to_oracle(browser)

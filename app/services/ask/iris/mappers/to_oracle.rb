@@ -6,6 +6,29 @@ require_relative '../constants/countries.rb'
 module Ask
   module Iris
     module Mappers
+      class OracleForm
+        attr_reader :fields
+
+        def initialize
+          @fields = ToOracle::FIELD_LIST
+        end
+
+        def parse(request)
+          @fields.each do |field|
+            field.value = read_value_for_field(field, request.parsed_form)
+          end
+        end
+
+        private
+
+        def read_value_for_field(field, value)
+          field.schema_key.split('.').each do |key|
+            value = value[key]
+          end
+          value
+        end
+      end
+
       class TextField
         def self.set_value(browser, field_name, value)
           browser.set_text_field(field_name, value)
@@ -51,13 +74,14 @@ module Ask
 
       class ToOracle
         class Field
-          attr_accessor :schema_key, :field_type, :field_name
+          attr_accessor :schema_key, :field_type, :field_name, :value
 
           def initialize(properties)
             @schema_key = properties[:schemaKey]
             @field_name = properties[:fieldName]
             @field_type = properties[:fieldType]
             @transform = properties[:transform]
+            @value = nil
           end
 
           def transform(value)
