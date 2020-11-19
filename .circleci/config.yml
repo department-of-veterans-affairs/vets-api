@@ -5,11 +5,14 @@
 
   # Pipeline params are needed for API v2 in order to
   # trigger a conditional verification task workflow via webhook from the pact broker
-  # Triggering a specific job via v1.1 of the Circle API is being depreciated
+  # Triggering a specific job via v1.1 of the Circle API is being deprecated
   parameters:
     verify_stable_pacts:
       type: boolean
       default: false
+    consumer_branch:
+      type: string
+      default: ""
     consumer_name:
       type: string
       default: ""
@@ -56,6 +59,17 @@
       <<: *defaults
       steps:
         - add_pact_broker_artifact
+    notify_pact_consumers:
+      <<: *defaults
+      steps:
+        - run:
+            name: Notify Pact consumers to check verification status
+            command: |
+              curl -L -X POST \
+                   -u "${CIRCLE_TOKEN}:" \
+                   -H 'Content-Type: application/json' \
+                   -d '{"branch":"<< pipeline.parameters.consumer_branch >>","parameters":{"check_deployability":true}}' \
+                   https://circleci.com/api/v2/project/github/department-of-veterans-affairs/vets-website/pipeline
     bundle_audit:
       <<: *defaults
       steps:
@@ -131,7 +145,9 @@
       when: << pipeline.parameters.verify_stable_pacts >>
       jobs:
         - verify_pacts
-        - pact_broker_artifact
+        - notify_pact_consumers:
+            requires:
+              - verify_pacts
 
   commands:
     checkout_and_install:
