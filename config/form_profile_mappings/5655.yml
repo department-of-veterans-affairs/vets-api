@@ -7,5 +7,7 @@ personalData:
   phone: [contact_information, us_phone]
   dateOfBirth: [identity_information, date_of_birth]
 income:
-  name: [va_awards_composite, name]
-  amount: [va_awards_composite, amount]
+- veteranOrSpouse: [va_awards_composite, veteran_or_spouse] 
+  otherIncome:
+    name: [va_awards_composite, name]
+    amount: [va_awards_composite, amount]

@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 module DebtManagementCenter
-  class VaAwards
+  class VaAwardsComposite
     include Virtus.model
     attribute :name, String
     attribute :amount, String
+    attribute :veteran_or_spouse, String
   end
 end
 
 class FormProfiles::VA5655 < FormProfile
+  attribute :va_awards_composite, DebtManagementCenter::VaAwardsComposite
+
   def metadata
     {
       version: 0,
@@ -34,9 +37,10 @@ class FormProfiles::VA5655 < FormProfile
   def init_va_awards
     awards = BGS::AwardsService.new(user)
 
-    DebtManagementCenter::VaAwards.new(
+    DebtManagementCenter::VaAwardsComposite.new(
       name: 'VA Benefits',
-      amount: awards.gross_amount
+      amount: awards.gross_amount,
+      veteran_or_spouse: 'VETERAN'
     )
   end
 end
