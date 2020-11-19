@@ -6,8 +6,8 @@ require 'common/models/redis_store'
 require 'evss/auth_headers'
 require 'evss/common_service'
 require 'evss/pciu/service'
-require 'mvi/messages/find_profile_message'
-require 'mvi/service'
+require 'mpi/messages/find_profile_message'
+require 'mpi/service'
 require 'saml/user'
 
 class User < Common::RedisStore
