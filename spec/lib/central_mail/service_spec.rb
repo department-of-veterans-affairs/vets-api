@@ -89,8 +89,22 @@ RSpec.describe CentralMail::Service do
       end
     end
 
+    let :upload_file_only do
+      ->(metadata, document_path) do
+        response = described_class.new.upload(
+            metadata: metadata.to_json,
+            document: Faraday::UploadIO.new(
+                document_path,
+                Mime[:pdf].to_s
+            )
+        )
+        response
+      end
+    end
+
     valid_doc = 'spec/fixtures/vba_documents/form.pdf'
     valid_attach = 'spec/fixtures/vba_documents/attachment.pdf'
+    locked_pdf = 'spec/fixtures/vba_documents/locked.pdf'
 
     let :response_helper do
       ->(metadata, key, missing_key = true) do
@@ -104,7 +118,7 @@ RSpec.describe CentralMail::Service do
 
     context 'with missing metadata' do
       %w{veteranFirstName veteranLastName fileNumber zipCode}.each do |key|
-        it "Returns a 412 error when no #{key} is present" do
+        xit "Returns a 412 error when no #{key} is present" do
           VCR.use_cassette(
               "central_mail/bad_metadata_no_#{key}_#{vendor}",
               match_requests_on: [multipart_request_matcher, :method, :uri]
@@ -119,7 +133,7 @@ RSpec.describe CentralMail::Service do
 
     context 'with invalid metadata' do
       %w{veteranFirstName veteranLastName fileNumber zipCode}.each do |key|
-        it "Returns a 412 error when #{key} is blank" do
+        xit "Returns a 412 error when #{key} is blank" do
           VCR.use_cassette(
               "central_mail/bad_metadata_blank_#{key}_#{vendor}",
               match_requests_on: [multipart_request_matcher, :method, :uri]
@@ -131,7 +145,7 @@ RSpec.describe CentralMail::Service do
           end
         end
         if ['zipCode'].include?(key)
-          it "Returns a 412 error when #{key} is invalid" do
+          xit "Returns a 412 error when #{key} is invalid" do
             VCR.use_cassette(
                 "central_mail/bad_metadata_invalid_#{key}_#{vendor}",
                 match_requests_on: [multipart_request_matcher, :method, :uri]
@@ -149,7 +163,7 @@ RSpec.describe CentralMail::Service do
     end
 
     context 'with a valid file and metadata' do
-      it "upload succeeds with unique uuid" do
+      xit "upload succeeds with unique uuid" do
         VCR.use_cassette(
             "central_mail/upload_#{vendor}",
             match_requests_on: [multipart_request_matcher, :method, :uri]
@@ -164,7 +178,7 @@ RSpec.describe CentralMail::Service do
         end
       end
 
-      it "upload fails when uuid was uploaded previously" do
+      xit "upload fails when uuid was uploaded previously" do
         VCR.use_cassette(
             "central_mail/upload_duplicate_#{vendor}",
             match_requests_on: [multipart_request_matcher, :method, :uri]
@@ -173,6 +187,23 @@ RSpec.describe CentralMail::Service do
           response = upload_file.call(valid_metadata, valid_doc, valid_attach)
           expect(response.body.strip).to eq("Document already uploaded with uuid  [uuid: #{valid_metadata['uuid']}]")
           expect(response.status).to eq(400)
+        end
+      end
+    end
+
+    context 'with a locked pdf' do
+      it "upload fails with status 422" do
+        VCR.use_cassette(
+            "central_mail/upload_locked_#{vendor}",
+            match_requests_on: [multipart_request_matcher, :method, :uri]
+        ) do
+
+          metadata = valid_metadata.deep_dup
+          uuid = SecureRandom.uuid
+          metadata['uuid'] = uuid
+          response = upload_file.call(metadata, locked_pdf, valid_attach)
+          expect(response.body.strip).to eq("password-protected pdf  [uuid: #{uuid}]")
+          expect(response.status).to eq(422)
         end
       end
     end
