@@ -57,46 +57,54 @@ RSpec.describe CentralMail::Service do
       end
     end
 
-    context 'with incomplete metadata' do
+    let :valid_metadata do
+      get_fixture('vba_documents/metadata')
+    end
 
-      let :valid_metadata do
-        get_fixture('pension/metadata')
+    let :vendor do
+      'GDIT'
+    end
+
+    let :multipart_request_matcher do
+      lambda do |r1, r2|
+        [r1, r2].each { |r| normalized_multipart_request(r) }
+        expect(r1.headers).to eq(r2.headers)
       end
+    end
 
-      let :vendor do
-        'GDIT'
+    let :upload_file do
+      ->(metadata, document_path, attachment_path) do
+        response = described_class.new.upload(
+            metadata: metadata.to_json,
+            document: Faraday::UploadIO.new(
+                document_path,
+                Mime[:pdf].to_s
+            ),
+            attachment1: Faraday::UploadIO.new(
+                attachment_path,
+                Mime[:pdf].to_s
+            )
+        )
+        response
       end
+    end
 
-      let :multipart_request_matcher do
-        lambda do |r1, r2|
-          [r1, r2].each { |r| normalized_multipart_request(r) }
-          expect(r1.headers).to eq(r2.headers)
-        end
+    valid_doc = 'spec/fixtures/vba_documents/form.pdf'
+    valid_attach = 'spec/fixtures/vba_documents/attachment.pdf'
+
+    let :response_helper do
+      ->(metadata, key, missing_key = true) do
+        response = upload_file.call(metadata, valid_doc, valid_attach)
+        uuid = metadata['uuid']
+        missing = missing_key ? 'Missing' : 'Invalid'
+        expect(response.body.strip).to eq("Metadata Field Error - #{missing} #{key} [uuid: #{uuid}]")
+        expect(response.status).to eq(412)
       end
+    end
 
-      let :response_helper do
-        ->(metadata, key, missing_key = true) do
-          response = described_class.new.upload(
-              metadata: metadata.to_json,
-              document: Faraday::UploadIO.new(
-                  'spec/fixtures/pension/form.pdf',
-                  Mime[:pdf].to_s
-              ),
-              attachment1: Faraday::UploadIO.new(
-                  'spec/fixtures/pension/attachment.pdf',
-                  Mime[:pdf].to_s
-              )
-          )
-          body = response.body
-          uuid = 'bd71f985-9bad-45c2-8b63-d052f544c27d'
-          missing = missing_key ? 'Missing' : 'Invalid'
-          expect(body.strip).to eq("Metadata Field Error - #{missing} #{key} [uuid: #{uuid}]")
-          expect(response.status).to eq(412)
-        end
-      end
-
+    context 'with missing metadata' do
       %w{veteranFirstName veteranLastName fileNumber zipCode}.each do |key|
-        it "Returns a 412 error with no #{key}" do
+        it "Returns a 412 error when no #{key} is present" do
           VCR.use_cassette(
               "central_mail/bad_metadata_no_#{key}_#{vendor}",
               match_requests_on: [multipart_request_matcher, :method, :uri]
@@ -106,51 +114,67 @@ RSpec.describe CentralMail::Service do
             response_helper.call(metadata, key)
           end
         end
-        if key.eql?('zipCode')
-          it "Returns a 412 error with invalid #{key}" do
+      end
+    end
+
+    context 'with invalid metadata' do
+      %w{veteranFirstName veteranLastName fileNumber zipCode}.each do |key|
+        it "Returns a 412 error when #{key} is blank" do
+          VCR.use_cassette(
+              "central_mail/bad_metadata_blank_#{key}_#{vendor}",
+              match_requests_on: [multipart_request_matcher, :method, :uri]
+          ) do
+
+            metadata = valid_metadata.deep_dup
+            metadata[key] = ''
+            response_helper.call(metadata, key)
+          end
+        end
+        if ['zipCode'].include?(key)
+          it "Returns a 412 error when #{key} is invalid" do
             VCR.use_cassette(
                 "central_mail/bad_metadata_invalid_#{key}_#{vendor}",
                 match_requests_on: [multipart_request_matcher, :method, :uri]
             ) do
 
               metadata = valid_metadata.deep_dup
-              metadata[key] = 'abcd'
+              uuid = SecureRandom.uuid
+              metadata['uuid'] = uuid
+              metadata[key] = 'invalid_data'
               response_helper.call(metadata, key, false)
             end
           end
         end
       end
+    end
 
-      it 'uploads a file' do
-        multipart_request_matcher = lambda do |r1, r2|
-          [r1, r2].each { |r| normalized_multipart_request(r) }
-          expect(r1.headers).to eq(r2.headers)
-        end
-
-        # SecureRandom.uuid
-
+    context 'with a valid file and metadata' do
+      it "upload succeeds with unique uuid" do
         VCR.use_cassette(
-            'central_mail/upload',
+            "central_mail/upload_#{vendor}",
             match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
-          response = described_class.new.upload(
-              metadata: get_fixture('pension/metadata').to_json,
-              document: Faraday::UploadIO.new(
-                  'spec/fixtures/pension/form.pdf',
-                  Mime[:pdf].to_s
-              ),
-              attachment1: Faraday::UploadIO.new(
-                  'spec/fixtures/pension/attachment.pdf',
-                  Mime[:pdf].to_s
-              )
-          )
-          body = response.body
-          expect(body).to eq('Request was received successfully  [uuid: bd71f985-9bad-45c2-8b63-d052f544c27d] ')
 
+          metadata = valid_metadata.deep_dup
+          uuid = SecureRandom.uuid
+          metadata['uuid'] = uuid
+          response = upload_file.call(metadata, valid_doc, valid_attach)
+          expect(response.body.strip).to eq("Request was received successfully  [uuid: #{uuid}]")
           expect(response.status).to eq(200)
+        end
+      end
+
+      it "upload fails when uuid was uploaded previously" do
+        VCR.use_cassette(
+            "central_mail/upload_duplicate_#{vendor}",
+            match_requests_on: [multipart_request_matcher, :method, :uri]
+        ) do
+
+          response = upload_file.call(valid_metadata, valid_doc, valid_attach)
+          expect(response.body.strip).to eq("Document already uploaded with uuid  [uuid: #{valid_metadata['uuid']}]")
+          expect(response.status).to eq(400)
         end
       end
     end
   end
 end
-
