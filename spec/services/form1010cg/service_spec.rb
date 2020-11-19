@@ -697,7 +697,8 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'returns false when PDF generation fails' do
-      claim = build(:caregivers_assistance_claim)
+      carma_case_id = 'aB9350000000TjICAU'
+      claim         = build(:caregivers_assistance_claim)
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
@@ -706,18 +707,27 @@ RSpec.describe Form1010cg::Service do
 
       subject = described_class.new(claim, submission)
 
-      expect(subject.claim).to receive(:to_pdf).and_raise('pdf generation failure')
+      error = StandardError.new('Something went wrong')
+
+      expect(subject.claim).to receive(:to_pdf).and_raise(error)
+      expect(subject).to receive(:log_exception_to_sentry).with(
+        error,
+        claim_guid: claim.guid,
+        carma_case_id: carma_case_id
+      )
+
       expect(CARMA::Models::Attachments).not_to receive(:new)
 
       expect(subject.submit_attachment).to eq(false)
     end
 
     it 'returns false when building Attachments fails' do
-      file_path = 'tmp/my_file.pdf'
-      claim     = build(:caregivers_assistance_claim)
+      carma_case_id     = 'aB9350000000TjICAU'
+      file_path         = 'tmp/my_file.pdf'
+      claim             = build(:caregivers_assistance_claim)
 
       submission = Form1010cg::Submission.new(
-        carma_case_id: 'aB9350000000TjICAU',
+        carma_case_id: carma_case_id,
         submitted_at: '2020-06-26 13:30:59'
       )
 
@@ -725,7 +735,14 @@ RSpec.describe Form1010cg::Service do
 
       expect(subject.claim).to receive(:to_pdf).and_return(file_path)
 
-      expect(CARMA::Models::Attachments).to receive(:new).and_raise('failure')
+      error = StandardError.new('Something went wrong')
+
+      expect(CARMA::Models::Attachments).to receive(:new).and_raise(error)
+      expect(subject).to receive(:log_exception_to_sentry).with(
+        error,
+        claim_guid: claim.guid,
+        carma_case_id: carma_case_id
+      )
 
       expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
@@ -734,13 +751,14 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'returns false when adding an attachment fails' do
+      carma_case_id     = 'aB9350000000TjICAU'
       document_type     = '10-10CG'
       file_path         = 'tmp/my_file.pdf'
       carma_attachment  = double
       claim             = build(:caregivers_assistance_claim)
 
       submission = Form1010cg::Submission.new(
-        carma_case_id: 'aB9350000000TjICAU',
+        carma_case_id: carma_case_id,
         submitted_at: '2020-06-26 13:30:59'
       )
 
@@ -756,7 +774,14 @@ RSpec.describe Form1010cg::Service do
         carma_attachment
       )
 
-      expect(carma_attachment).to receive(:add).with(document_type, file_path).and_raise('failure')
+      error = StandardError.new('Something went wrong')
+
+      expect(carma_attachment).to receive(:add).with(document_type, file_path).and_raise(error)
+      expect(subject).to receive(:log_exception_to_sentry).with(
+        error,
+        claim_guid: claim.guid,
+        carma_case_id: carma_case_id
+      )
 
       expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
@@ -765,13 +790,14 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'returns false when submission fails' do
+      carma_case_id     = 'aB9350000000TjICAU'
       document_type     = '10-10CG'
       file_path         = 'tmp/my_file.pdf'
       carma_attachment  = double
       claim             = build(:caregivers_assistance_claim)
 
       submission = Form1010cg::Submission.new(
-        carma_case_id: 'aB9350000000TjICAU',
+        carma_case_id: carma_case_id,
         submitted_at: '2020-06-26 13:30:59'
       )
 
@@ -788,7 +814,15 @@ RSpec.describe Form1010cg::Service do
       )
 
       expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
-      expect(carma_attachment).to receive(:submit!).and_raise('bad request')
+
+      error = StandardError.new('Something went wrong')
+
+      expect(carma_attachment).to receive(:submit!).and_raise(error)
+      expect(subject).to receive(:log_exception_to_sentry).with(
+        error,
+        claim_guid: claim.guid,
+        carma_case_id: carma_case_id
+      )
 
       expect(File).to receive(:exist?).with(file_path).and_return(true)
       expect(File).to receive(:delete).with(file_path)
@@ -797,13 +831,14 @@ RSpec.describe Form1010cg::Service do
     end
 
     it 'returns false when file is deleted from another source' do
+      carma_case_id     = 'aB9350000000TjICAU'
       document_type     = '10-10CG'
       file_path         = 'tmp/my_file.pdf'
       carma_attachment  = double
       claim             = build(:caregivers_assistance_claim)
 
       submission = Form1010cg::Submission.new(
-        carma_case_id: 'aB9350000000TjICAU',
+        carma_case_id: carma_case_id,
         submitted_at: '2020-06-26 13:30:59'
       )
 
@@ -820,7 +855,15 @@ RSpec.describe Form1010cg::Service do
       )
 
       expect(carma_attachment).to receive(:add).with(document_type, file_path).and_return(carma_attachment)
-      expect(carma_attachment).to receive(:submit!).and_raise('bad request')
+
+      error = StandardError.new('Something went wrong')
+
+      expect(carma_attachment).to receive(:submit!).and_raise(error)
+      expect(subject).to receive(:log_exception_to_sentry).with(
+        error,
+        claim_guid: claim.guid,
+        carma_case_id: carma_case_id
+      )
 
       expect(File).to receive(:exist?).with(file_path).and_return(false)
       expect(File).not_to receive(:delete).with(file_path)

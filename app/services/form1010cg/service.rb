@@ -12,6 +12,8 @@ module Form1010cg
     class InvalidVeteranStatus < StandardError
     end
 
+    include SentryLogging
+
     attr_accessor :claim, # SavedClaim::CaregiversAssistanceClaim
                   :submission # Form1010cg::Submission
 
@@ -64,15 +66,13 @@ module Form1010cg
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
     # @return [Boolean]
-    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity
+    def submit_attachment # rubocop:disable Metrics/CyclomaticComplexity
       raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
       raise 'submission already has attachments'  if  submission.attachments.any?
 
-      file_path = begin
-                    claim.to_pdf(sign: true)
-                  rescue
-                    return false
-                  end
+      file_path = safe_generate_pdf
+
+      return false unless file_path
 
       begin
         carma_attachments = CARMA::Models::Attachments.new(
@@ -85,7 +85,7 @@ module Form1010cg
 
         carma_attachments.submit!(carma_client)
         submission.attachments = carma_attachments.to_hash
-      rescue
+      rescue => e
         # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
         # sending to CARMA is just the submission, itself, as a PDF. This is to follow the current
         # conventions of CARMA: every case has the PDF of the submission attached.
@@ -96,6 +96,7 @@ module Form1010cg
         #
         # If we made it this far, there is a submission that exists in CARMA.
         # So the user should get a sucessful response, whether attachments reach CARMA or not.
+        log_exception_to_sentry(e, claim_guid: claim.guid, carma_case_id: submission.carma_case_id)
         File.delete(file_path) if File.exist?(file_path)
         return false
       end
@@ -205,6 +206,13 @@ module Form1010cg
 
     def emis_service
       @emis_service ||= EMIS::VeteranStatusService.new
+    end
+
+    def safe_generate_pdf
+      claim.to_pdf(sign: true)
+    rescue => e
+      log_exception_to_sentry(e, claim_guid: claim.guid, carma_case_id: submission.carma_case_id)
+      false
     end
 
     def log_mpi_search_result(form_subject, result)
