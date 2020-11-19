@@ -56,6 +56,17 @@
       <<: *defaults
       steps:
         - add_pact_broker_artifact
+    notify_pact_consumers:
+      <<: *defaults
+      steps;
+        - run:
+            name: Notify Pact consumers to check verification status
+            command: |
+              curl --request POST \
+                   --url https://circleci.com/api/v2/project/github/department-of-veterans-affairs/vets-website/pipeline \
+                   --user "${CIRCLE_TOKEN}:"
+                   --header 'Content-Type: application/json' \
+                   --data '{"branch":"<< pipeline.parameters.consumer_branch >>","parameters":{"check_deployability":true}}'
     bundle_audit:
       <<: *defaults
       steps:
@@ -131,7 +142,7 @@
       when: << pipeline.parameters.verify_stable_pacts >>
       jobs:
         - verify_pacts
-        - pact_broker_artifact
+        - notify_pact_consumers
 
   commands:
     checkout_and_install:
