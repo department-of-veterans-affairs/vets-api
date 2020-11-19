@@ -24,8 +24,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
 
       it 'does not call SendSchoolCertifyingOfficialsEmail' do
-        expect { instance.after_submit(user) }.to
-        change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
+        expect { instance.after_submit(user) }
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
     end
 
@@ -39,8 +39,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
 
       it 'does not call SendSchoolCertifyingOfficialsEmail' do
-        expect { instance.after_submit(nil) }.to
-        change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
+        expect { instance.after_submit(nil) }
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
     end
 
@@ -56,8 +56,8 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
 
       it 'calls SendSchoolCertifyingOfficialsEmail' do
-        expect { instance.after_submit(user) }.to
-        change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(1)
+        expect { instance.after_submit(user) }
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(1)
       end
 
       it 'calls StemApplicantConfirmationMailer' do
