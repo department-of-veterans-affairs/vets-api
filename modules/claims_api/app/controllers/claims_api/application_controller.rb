@@ -141,6 +141,8 @@ module ClaimsApi
     def authenticate_token
       super
     rescue => e
+      raise e if e.message == 'Token Validation Error'
+
       log_message_to_sentry('Authentication Error in claims',
                             :warning,
                             body: e.message)

@@ -96,7 +96,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             expect(response.body).to eq({
               form_data: form_data,
               metadata: in_progress_form.metadata
-            }.to_camelback_keys.to_json)
+            }.deep_transform_keys { |key| key.to_s.underscore.camelize(:lower) }.to_json)
           end
         end
       end
