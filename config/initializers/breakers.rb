@@ -4,7 +4,7 @@ require 'bb/configuration'
 require 'breakers/statsd_plugin'
 require 'caseflow/configuration'
 require 'central_mail/configuration'
-require 'debts/configuration'
+require 'debt_management_center/debts_configuration'
 require 'decision_review/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
@@ -25,7 +25,7 @@ require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
 require 'mhv_ac/configuration'
-require 'mvi/configuration'
+require 'mpi/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
@@ -40,7 +40,7 @@ redis_options = REDIS_CONFIG[:redis].to_h
 redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
 
 services = [
-  Debts::Configuration.instance.breakers_service,
+  DebtManagementCenter::DebtsConfiguration.instance.breakers_service,
   Caseflow::Configuration.instance.breakers_service,
   DecisionReview::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
@@ -65,7 +65,7 @@ services = [
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,
-  MVI::Configuration.instance.breakers_service,
+  MPI::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
   Vet360::ContactInformation::Configuration.instance.breakers_service,

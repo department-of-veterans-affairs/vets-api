@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'appeals_api/form_schemas'
-require_dependency 'appeals_api/concerns/json_format_validation'
 
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
@@ -10,13 +9,22 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
-  before_action :new_notice_of_disagreement, only: %i[validate]
+  before_action :new_notice_of_disagreement, only: %i[create validate]
 
   HEADERS = JSON.parse(
     File.read(
       AppealsApi::Engine.root.join('config/schemas/10182_headers.json')
     )
   )['definitions']['nodCreateHeadersRoot']['properties'].keys
+
+  def create
+    if @notice_of_disagreement.save
+      AppealsApi::NoticeOfDisagreementPdfSubmitJob.perform_async(@notice_of_disagreement.id)
+      render_notice_of_disagreement
+    else
+      render_model_errors
+    end
+  end
 
   def validate
     if @notice_of_disagreement.valid?
@@ -52,5 +60,9 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   def render_model_errors
     errors = @notice_of_disagreement.errors.to_a.map { |error| { status: 422, detail: error } }
     render json: { errors: errors }, status: 422
+  end
+
+  def render_notice_of_disagreement
+    render json: AppealsApi::NoticeOfDisagreementSerializer.new(@notice_of_disagreement).serializable_hash
   end
 end

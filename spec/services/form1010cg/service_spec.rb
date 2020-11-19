@@ -75,7 +75,7 @@ RSpec.describe Form1010cg::Service do
         :user_identity
       )
 
-      expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+      expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
         :user_identity
       ).and_return(
         double(status: 'OK', profile: double(icn: :ICN_123))
@@ -120,7 +120,7 @@ RSpec.describe Form1010cg::Service do
         :user_identity
       )
 
-      expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+      expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
         :user_identity
       ).and_return(
         double(status: 'NOT_FOUND', error: double)
@@ -144,7 +144,7 @@ RSpec.describe Form1010cg::Service do
 
       # This should skip the MPI search and not build a UserIdentity
       expect(UserIdentity).not_to receive(:new)
-      expect_any_instance_of(MVI::Service).not_to receive(:find_profile)
+      expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
 
       result = subject.icn_for('primaryCaregiver')
 
@@ -203,7 +203,7 @@ RSpec.describe Form1010cg::Service do
         :veteran_user_identity
       )
 
-      expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+      expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
         :veteran_user_identity
       ).and_return(
         double(status: 'OK', profile: double(icn: :CACHED_VALUE))
@@ -215,7 +215,7 @@ RSpec.describe Form1010cg::Service do
         :pc_user_identity
       )
 
-      expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+      expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
         :pc_user_identity
       ).and_return(
         double(status: 'NOT_FOUND', error: double)
@@ -272,7 +272,7 @@ RSpec.describe Form1010cg::Service do
           :user_identity
         )
 
-        expect_any_instance_of(MVI::Service).to receive(:find_profile).with(
+        expect_any_instance_of(MPI::Service).to receive(:find_profile).with(
           :user_identity
         ).and_return(
           double(status: 'OK', profile: double(icn: :ICN_123))
@@ -301,7 +301,7 @@ RSpec.describe Form1010cg::Service do
 
       it 'will log the result of a successful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
-          expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+          expect_any_instance_of(MPI::Service).to receive(:find_profile).and_return(
             double(status: 'OK', profile: double(icn: :ICN_123))
           )
 
@@ -317,7 +317,7 @@ RSpec.describe Form1010cg::Service do
 
       it 'will log the result of a unsuccessful search' do
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
-          expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+          expect_any_instance_of(MPI::Service).to receive(:find_profile).and_return(
             double(status: 'NOT_FOUND', error: double)
           )
 
@@ -358,7 +358,7 @@ RSpec.describe Form1010cg::Service do
       end
 
       it 'will not log the search result when reading from cache' do
-        expect_any_instance_of(MVI::Service).to receive(:find_profile).and_return(
+        expect_any_instance_of(MPI::Service).to receive(:find_profile).and_return(
           double(status: 'OK', profile: double(icn: :ICN_123))
         )
 

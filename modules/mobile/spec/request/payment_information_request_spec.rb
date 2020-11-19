@@ -27,7 +27,7 @@ RSpec.describe 'payment_information', type: :request do
             'notDeceasedIndicator' => true
           },
           'paymentAccount' => {
-            'accountType' => 'Checking account',
+            'accountType' => 'Checking',
             'financialInstitutionName' => 'Comerica',
             'accountNumber' => '*********1234',
             'financialInstitutionRoutingNumber' => '042102115'
@@ -91,7 +91,7 @@ RSpec.describe 'payment_information', type: :request do
               'notDeceasedIndicator' => true
             },
             'paymentAccount' => {
-              'accountType' => 'Checking account',
+              'accountType' => 'Checking',
               'financialInstitutionName' => 'Bank of EVSS',
               'accountNumber' => '****5678',
               'financialInstitutionRoutingNumber' => '021000021'
