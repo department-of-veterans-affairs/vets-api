@@ -4,7 +4,6 @@ module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
     skip_before_action :authenticate
-    skip_before_action :verify_authenticity_token
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
@@ -66,8 +65,7 @@ module V0
     def backend_service_outage
       auditor.record(
         :submission_failure_client_qualification,
-        claim_guid: @claim.guid,
-        veteran_name: @claim.veteran_data['fullName']
+        claim_guid: @claim.guid
       )
 
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
