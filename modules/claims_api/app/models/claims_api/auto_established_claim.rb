@@ -82,17 +82,6 @@ module ClaimsApi
       @uploader ||= ClaimsApi::SupportingDocumentUploader.new(id)
     end
 
-    def flashes
-      initial_flashes = JSON.parse(to_internal).dig('form526', 'veteran', 'flashes')
-      homelessness = JSON.parse(to_internal).dig('form526', 'veteran', 'homelessness')
-      is_terminally_ill = JSON.parse(to_internal).dig('form526', 'veteran', 'isTerminallyIll')
-
-      initial_flashes.push('Homeless') if homelessness.present?
-      initial_flashes.push('Terminally Ill') if is_terminally_ill.present? && is_terminally_ill
-
-      initial_flashes.present? ? initial_flashes.uniq : []
-    end
-
     private
 
     def log_flashes
