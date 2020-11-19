@@ -12,12 +12,41 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
 
   before(:all) do
     @data = fixture_to_s 'valid_10182.json'
+    @minimum_valid_data = fixture_to_s 'valid_10182_minimum.json'
     @invalid_data = fixture_to_s 'invalid_10182.json'
     @headers = fixture_as_json 'valid_10182_headers.json'
     @minimum_required_headers = fixture_as_json 'valid_10182_headers_minimum.json'
   end
 
   let(:parsed) { JSON.parse(response.body) }
+
+  describe '#create' do
+    let(:path) { base_path 'notice_of_disagreements' }
+
+    context 'creates an NOD and persists the data' do
+      it 'with all headers' do
+        post(path, params: @data, headers: @headers)
+        expect(parsed['data']['type']).to eq('noticeOfDisagreement')
+      end
+
+      it 'with the minimum required headers' do
+        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        expect(parsed['data']['type']).to eq('noticeOfDisagreement')
+      end
+
+      it 'fails when a required header is missing' do
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to be_an Array
+      end
+    end
+
+    it 'create the job to build the PDF' do
+      expect { post(path, params: @data, headers: @headers) }.to(
+        change(AppealsApi::NoticeOfDisagreementPdfSubmitJob.jobs, :size).by(1)
+      )
+    end
+  end
 
   describe '#validate' do
     let(:path) { base_path 'notice_of_disagreements/validate' }

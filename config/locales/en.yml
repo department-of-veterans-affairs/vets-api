@@ -37,25 +37,25 @@ en:
     messages:
       # begin carrierwave messages
       # from carrierwave https://github.com/carrierwaveuploader/carrierwave/blob/master/lib/carrierwave/locale/en.yml
-      carrierwave_processing_error: failed to be processed
-      carrierwave_integrity_error: is not of an allowed file type
-      carrierwave_download_error: could not be downloaded
-      extension_whitelist_error: "You are not allowed to upload %{extension} files, allowed types: %{allowed_types}"
+      carrierwave_processing_error: We couldn’t process your file.
+      carrierwave_integrity_error: We couldn’t upload your file because it’s not one of the allowed file types.
+      carrierwave_download_error: We couldn’t download your file.
+      extension_whitelist_error: "You can’t upload %{extension} files. The allowed file types are: %{allowed_types}"
       # extension_blacklist_error: "You are not allowed to upload %{extension} files, prohibited types: %{prohibited_types}"
-      content_type_whitelist_error: "You are not allowed to upload %{content_type} files"
+      content_type_whitelist_error: "You can’t upload %{content_type} files. The allowed file types are: %{allowed_types}"
       #content_type_blacklist_error: "You are not allowed to upload %{content_type} files"
       # rmagick_processing_error: "Failed to manipulate with rmagick, maybe it is not an image?"
       # mini_magick_processing_error: "Failed to manipulate with MiniMagick, maybe it is not an image? Original Error: %{e}"
-      min_size_error: "File size should be greater than %{min_size}"
-      max_size_error: "File size should be less than %{max_size}"
+      min_size_error: "We couldn’t upload your file because it’s too small. File size needs to be greater than %{min_size}"
+      max_size_error: "We couldn’t upload your file because it’s too large. File size needs to be less than %{max_size}"
       # end carrierwave messages
 
       uploads:
-        document_type_unknown:  'Must use a known document type'
-        encrypted: 'PDF must not be encrypted'
-        malformed_pdf: 'PDF is malformed'
-        ascii_encoded: 'Cannot read file encoding. Text files must be ASCII encoded.'
+        document_type_unknown:  'We couldn’t upload your file because it’s not a known document type.'
+        encrypted: 'We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again'
+        malformed_pdf: 'We couldn’t upload your PDF because the file is corrupted'
+        ascii_encoded: "We couldn’t upload your file because we can’t read its characters. Text files must be ASCII-encoded."
         pdf:
-          locked: PDF must not be encrypted or locked. Please re-save it without a password
-          invalid: PDF is not able to be opened. Try re-saving or re-uploading it.
-          incorrect_password: We're sorry, we were unable to unlock this PDF.
+          locked: We couldn’t upload your PDF because it’s encrypted. Save your file without a password and try uploading it again.
+          invalid: We couldn’t open your PDF. Please save it and try uploading it again.
+          incorrect_password: We can’t unlock your PDF. Save your file without a password and try uploading it again.
