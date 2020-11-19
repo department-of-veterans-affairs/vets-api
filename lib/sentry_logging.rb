@@ -64,19 +64,6 @@ module SentryLogging
 
   private
 
-  def client_error?(va_exception_errors)
-    va_exception_errors.present? &&
-      va_exception_errors.detect { |h| client_error_status?(h[:status]) || evss_503?(h[:code], h[:status]) }.present?
-  end
-
-  def client_error_status?(status)
-    (400..499).cover?(status.to_i)
-  end
-
-  def evss_503?(code, status)
-    (code == 'EVSS503' && status.to_i == 503)
-  end
-
   def set_raven_metadata(extra_context, tags_context)
     Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
     Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
