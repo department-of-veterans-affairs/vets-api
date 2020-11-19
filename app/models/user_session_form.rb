@@ -117,7 +117,7 @@ class UserSessionForm
   end
 
   def mvi_context
-    latest_outage = MVI::Configuration.instance.breakers_service.latest_outage
+    latest_outage = MPI::Configuration.instance.breakers_service.latest_outage
     if latest_outage && !latest_outage.ended?
       'breakers is closed for MVI'
     else

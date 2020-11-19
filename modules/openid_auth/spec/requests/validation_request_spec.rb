@@ -42,6 +42,26 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       'alg' => 'RS256'
     }]
   end
+  let(:client_credentials_jwt) do
+    [
+      {
+        'ver' => 1,
+        'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'iss' => 'https://example.com/oauth2/default',
+        'aud' => 'api://default',
+        'iat' => Time.current.utc.to_i,
+        'exp' => Time.current.utc.to_i + 3600,
+        'cid' => '0oa1c01m77heEXUZt2p7',
+        'uid' => '00u1zlqhuo3yLa2Xs2p7',
+        'scp' => %w[profile email launch/patient],
+        'sub' => '0oa1c01m77heEXUZt2p7'
+      },
+      {
+        'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
+        'alg' => 'RS256'
+      }
+    ]
+  end
   let(:json_api_response) do
     {
       'data' => {
@@ -209,6 +229,30 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
         expect(response).to have_http_status(:bad_gateway)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '502'
+      end
+    end
+  end
+
+  context 'with client credentials jwt' do
+    before do
+      allow(JWT).to receive(:decode).and_return(client_credentials_jwt)
+    end
+
+    it 'v0 GET returns true if the user is a veteran' do
+      with_okta_configured do
+        get '/internal/auth/v0/validation', params: nil, headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
+      end
+    end
+
+    it 'v1 POST returns true if the user is a veteran' do
+      with_okta_configured do
+        post '/internal/auth/v1/validation', params: nil, headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
       end
     end
   end
