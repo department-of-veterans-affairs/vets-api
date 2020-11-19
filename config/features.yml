@@ -137,6 +137,11 @@ features:
     enable_in_development: true
     description: >
       Enables the new VA facility choice page with a flat list
+  va_online_scheduling_flat_facility_page_sacramento:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
   va_online_scheduling_provider_selection:
     actor_type: user
     description: >
@@ -292,3 +297,13 @@ features:
     enable_in_development: true
     description: >
       Ask for a password when an encrypted PDF is detected before uploading
+  education_reports_cleanup:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
+  search_typeahead_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables type ahead search functionality
