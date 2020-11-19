@@ -16,7 +16,7 @@ module HealthQuest
           @headers = headers
         end
 
-        def get(options = {})
+        def search(options = {})
           client.search(dstu2_model, search_options(options))
         end
 

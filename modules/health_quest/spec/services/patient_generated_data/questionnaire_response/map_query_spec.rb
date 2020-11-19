@@ -31,8 +31,8 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
     end
   end
 
-  describe '#get' do
-    context 'with valid id' do
+  describe '#search' do
+    context 'with valid options' do
       let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
       let(:options) do
         {
@@ -49,7 +49,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
       it 'returns an instance of Reply' do
         expect(client).to receive(:search).with(FHIR::DSTU2::QuestionnaireResponse, options).exactly(1).time
 
-        subject.build(headers).get(author: '123')
+        subject.build(headers).search(author: '123')
       end
     end
   end

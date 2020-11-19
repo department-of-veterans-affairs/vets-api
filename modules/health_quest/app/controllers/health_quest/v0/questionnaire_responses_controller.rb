@@ -6,7 +6,7 @@ module HealthQuest
       def index
         factory = HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(current_user)
 
-        render json: factory.all.response[:body]
+        render json: factory.search.response[:body]
       end
 
       def show

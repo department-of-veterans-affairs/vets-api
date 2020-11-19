@@ -13,7 +13,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
   before do
     allow(HealthQuest::SessionService).to receive(:new).with(user).and_return(session_service)
     allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
-      .to receive(:get).with({ author: user.icn }).and_return(client_reply)
+      .to receive(:search).with({ author: user.icn }).and_return(client_reply)
   end
 
   describe 'object initialization' do
@@ -32,9 +32,9 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
     end
   end
 
-  describe '#all' do
+  describe '#search' do
     it 'returns a ClientReply' do
-      expect(subject.new(user).all).to eq(client_reply)
+      expect(subject.new(user).search).to eq(client_reply)
     end
   end
 end

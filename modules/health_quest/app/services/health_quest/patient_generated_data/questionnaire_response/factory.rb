@@ -16,8 +16,8 @@ module HealthQuest
           @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.headers)
         end
 
-        def all
-          map_query.get(author: user.icn)
+        def search
+          map_query.search(author: user.icn)
         end
       end
     end

@@ -69,7 +69,7 @@ RSpec.describe 'health_quest questionnaire_responses', type: :request do
         sign_in_as(current_user)
         allow(HealthQuest::SessionService).to receive(:new).with(anything).and_return(session_service)
         allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
-          .to receive(:get).with(anything).and_return(client_reply)
+          .to receive(:search).with(anything).and_return(client_reply)
       end
 
       it 'returns a FHIR bundle' do
