@@ -2,7 +2,7 @@
 
 module Ask
   module Iris
-    module Mappers
+    module Oracle
       class Field
         attr_accessor :schema_key, :field_type, :field_name, :value
 

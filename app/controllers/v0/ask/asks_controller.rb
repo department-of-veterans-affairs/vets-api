@@ -11,7 +11,7 @@ module V0
 
         request = SavedClaim::Ask.new(form: form_submission)
 
-        oracle_form = ::Ask::Iris::Mappers::OracleForm.new request
+        oracle_form = ::Ask::Iris::Oracle::OracleForm.new request
 
         confirmation_number = ::Ask::Iris::OracleRPAService.new.submit_form(oracle_form)
 

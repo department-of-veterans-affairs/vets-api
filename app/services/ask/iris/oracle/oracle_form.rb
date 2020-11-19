@@ -2,7 +2,7 @@
 
 module Ask
   module Iris
-    module Mappers
+    module Oracle
       class OracleForm
         attr_reader :fields
 
@@ -20,7 +20,7 @@ module Ask
         end
 
         def make_field_list
-          field_list = ::Ask::Iris::Oracle::FIELD_LIST
+          field_list = FIELD_LIST
           field_list.map do |field_properties|
             Field.new(field_properties)
           end
