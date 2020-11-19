@@ -5,7 +5,7 @@ module Ask
                 attr_reader :fields
         
                 def initialize(request)
-                  @fields = ToOracle::FIELD_LIST
+                  @fields = make_field_list
                   parse(request)
                 end
         
@@ -15,6 +15,13 @@ module Ask
                   @fields.each do |field|
                     field.value = read_value_for_field(field, request.parsed_form)
                   end
+                end
+
+                def make_field_list()
+                    field_list = ::Ask::Iris::Oracle::FIELD_LIST
+                    field_list.map do |field_properties|
+                        Field.new(field_properties)
+                    end
                 end
         
                 def read_value_for_field(field, value)
