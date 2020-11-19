@@ -24,7 +24,8 @@ module BGSDependents
         marage_trmntn_city_nm: dependent[:divorce_city],
         marage_trmntn_type_cd: dependent[:marriage_termination_type_code],
         mthly_support_from_vet_amt: dependent[:living_expenses_paid_amount],
-        child_prevly_married_ind: dependent[:child_prevly_married_ind]
+        child_prevly_married_ind: dependent[:child_prevly_married_ind],
+        dep_has_income_ind: dependent[:dep_has_income_ind]
       }
     end
   end
