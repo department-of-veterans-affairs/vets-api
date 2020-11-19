@@ -14,14 +14,18 @@ module Ask
           @value = nil
         end
 
+        def enter_into_form(browser)
+          transformed_value = transform @value
+
+          @field_type.set_value browser, @field_name, transformed_value
+        end
+
+        private
+         
         def transform(value)
           return value if @transform.nil?
 
           @transform.call(value)
-        end
-
-        def enter_into_form(browser, value)
-          @field_type.set_value browser, @field_name, value
         end
       end
     end
