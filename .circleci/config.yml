@@ -65,11 +65,11 @@
         - run:
             name: Notify Pact consumers to check verification status
             command: |
-              curl --request POST \
-                   --url https://circleci.com/api/v2/project/github/department-of-veterans-affairs/vets-website/pipeline \
-                   --user "${CIRCLE_TOKEN}:" \
-                   --header 'Content-Type: application/json' \
-                   --data '{"branch":"<< pipeline.parameters.consumer_branch >>","parameters":{"check_deployability":true}}'
+              curl -L -X POST \
+                   -u "${CIRCLE_TOKEN}:" \
+                   -H 'Content-Type: application/json' \
+                   -d '{"branch":"<< pipeline.parameters.consumer_branch >>","parameters":{"check_deployability":true}}' \
+                   https://circleci.com/api/v2/project/github/department-of-veterans-affairs/vets-website/pipeline
     bundle_audit:
       <<: *defaults
       steps:
