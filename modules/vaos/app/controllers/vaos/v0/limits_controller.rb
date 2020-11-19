@@ -15,10 +15,10 @@ module VAOS
 
       private
 
-      def url_params
-        params[:facility_ids].is_a?(Array) ? params.permit(facility_ids: []) : params.permit(:facility_ids)
-        params
-      end
+      # def url_params
+      #   params[:facility_ids].is_a?(Array) ? params.permit(facility_ids: []) : params.permit(:facility_ids)
+      #   params
+      # end
 
       def systems_service
         VAOS::SystemsService.new(current_user)
