@@ -13,11 +13,17 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
 
   let(:valid_doc) { get_fixture('valid_doc.pdf') }
+  let(:locked_doc) { get_fixture('locked.pdf') }
   let(:non_pdf_doc) { get_fixture('valid_metadata.json') }
 
   let(:valid_parts) do
     { 'metadata' => valid_metadata,
       'content' => valid_doc }
+  end
+
+  let(:valid_parts_but_locked) do
+    { 'metadata' => valid_metadata,
+      'content' => locked_doc }
   end
 
   let(:valid_parts_attachment) do
@@ -225,7 +231,16 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.detail).to eq('Missing required keys: fileNumber')
     end
 
-    it 'sets error status for out-of-spec JSON metadata' do
+    it 'sets error status for locked pdf' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_but_locked }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC103')
+      expect(updated.detail).to eq('Invalid PDF content, part content')
+    end
+
+    xit 'sets error status for out-of-spec JSON metadata' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { invalid_parts_nonstring }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
