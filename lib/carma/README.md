@@ -45,7 +45,7 @@ submission    = CARMA::Models::Submission.from_claim(
                   }
                 )
 
-submission.submit!(carma_client) 
+submission.submit!(carma_client)
 
 attachments = CARMA::Models::Attachments.new(
   submission.carma_case_id,
