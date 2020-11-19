@@ -22,4 +22,3 @@ module Ask
     end
   end
 end
-
