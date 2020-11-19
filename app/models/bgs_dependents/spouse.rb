@@ -26,6 +26,8 @@ module BGSDependents
     #   @return [String] Y/N indicates whether the person has ever been married
     # @!attribute martl_status_type_cd
     #   @return [String] marital status type: Married, Divorced, Widowed, Separated, Never Married
+    # @!attribute spouse_income
+    #   @return [String] did this spouse have income in the last 365 days
     #
     attribute :ssn, String
     attribute :first, String
@@ -38,6 +40,7 @@ module BGSDependents
     attribute :va_file_number, String
     attribute :ever_married_ind, String
     attribute :martl_status_type_cd, String
+    attribute :spouse_income, String
 
     def initialize(dependents_application)
       @dependents_application = dependents_application
@@ -67,7 +70,8 @@ module BGSDependents
         ever_married_ind: 'Y',
         martl_status_type_cd: marital_status,
         vet_ind: spouse_is_veteran,
-        address: spouse_address
+        address: spouse_address,
+        spouse_income: @dependents_application['does_live_with_spouse']['spouse_income'] ? 'Y' : 'N'
       }.merge(@spouse_information['full_name'])
 
       spouse_info.merge!({ 'va_file_number': @spouse_information['va_file_number'] }) if spouse_is_veteran == 'Y'
