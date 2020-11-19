@@ -3,7 +3,6 @@
 require 'watir'
 require 'selenium-webdriver'
 require 'json'
-require_relative './constants/constants.rb'
 
 # This service submits a form to the existing IRIS Oracle page
 module Ask
@@ -12,13 +11,14 @@ module Ask
       # def initialize(request)
       #   @request = request
       # end
+      include Constants::Constants
 
       def submit_form(form)
         # @field_list = Ask::Iris::Mappers::ToOracle::FIELD_LIST
 
-        browser = WatirConfig.new(Constants::URI)
+        browser = WatirConfig.new(URI)
 
-        browser.select_dropdown_by_text(Constants::FORM_OF_ADDRESS_FIELD_NAME, Constants::FORM_OF_ADDRESS)
+        browser.select_dropdown_by_text(FORM_OF_ADDRESS_FIELD_NAME, FORM_OF_ADDRESS)
 
         form.fields.each do |field|
           # parsed_form = @request.parsed_form
@@ -41,12 +41,12 @@ module Ask
       end
 
       def submit_form_to_oracle(browser)
-        browser.click_button_by_id(Constants::SUBMIT_FORM_BUTTON_ID)
-        browser.click_button_by_text(Constants::CONFIRM_SUBMIT_BUTTON_TEXT)
+        browser.click_button_by_id(SUBMIT_FORM_BUTTON_ID)
+        browser.click_button_by_text(CONFIRM_SUBMIT_BUTTON_TEXT)
       end
 
       def get_confirmation_number(browser)
-        browser.get_text_from_element(Constants::BOLD_TAG, Constants::CONFIRMATION_NUMBER_MATCHER)
+        browser.get_text_from_element(BOLD_TAG, CONFIRMATION_NUMBER_MATCHER)
       end
     end
   end
