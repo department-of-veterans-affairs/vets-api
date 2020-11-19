@@ -4,8 +4,11 @@ module VAOS
   module V0
     class LimitsController < VAOS::V0::BaseController
       def index
+        binding.pry
+        puts params
         response = systems_service.get_facility_limits(
-          facility_id,
+          facility_id,  
+        #facility_ids: url_params[:facility_ids],
           type_of_care_id
         )
 
@@ -13,6 +16,11 @@ module VAOS
       end
 
       private
+
+      def url_params
+        params[:facility_ids].is_a?(Array) ? params.permit(facility_ids: []) : params.permit(:facility_ids)
+        params
+      end
 
       def systems_service
         VAOS::SystemsService.new(current_user)
