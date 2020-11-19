@@ -286,7 +286,11 @@ features:
   show_chapter_36:
     actor_type: user
     description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 for
+  view_payment_history:
+    actor_type: user
+    description: >
+      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
   form_1995_edu_updates:
     actor_type: user
     enable_in_development: true
@@ -307,7 +311,3 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
-  view_payment_history:
-    actor_type: user
-    description: >
-      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
