@@ -2,7 +2,7 @@
 
 module Ask
   module Iris
-    module Countries
+    module Constants
       COUNTRIES = {
         'USA' => 'United States',
         'AFG' => 'Afghanistan',

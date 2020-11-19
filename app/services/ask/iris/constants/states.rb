@@ -2,7 +2,7 @@
 
 module Ask
   module Iris
-    module States
+    module Constants
       STATES = {
         'AL' => 'Alabama',
         'AK' => 'Alaska',

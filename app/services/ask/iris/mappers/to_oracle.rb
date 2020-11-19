@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../constants/states.rb'
-require_relative '../constants/countries.rb'
-
 module Ask
   module Iris
     module Mappers
@@ -334,11 +331,11 @@ module Ask
         ].freeze
 
         def self.transform_country(value)
-          Countries::COUNTRIES[value]
+          ::Ask::Iris::Constants::COUNTRIES[value]
         end
 
         def self.transform_state(value)
-          States::STATES[value]
+          ::Ask::Iris::Constants::STATES[value]
         end
 
         def self.transform_date(value)
