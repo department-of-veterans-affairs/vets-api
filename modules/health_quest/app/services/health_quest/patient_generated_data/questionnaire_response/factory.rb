@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module HealthQuest
   module PatientGeneratedData
     module QuestionnaireResponse
       class Factory
+        extend Forwardable
+
         attr_reader :session_service, :user, :map_query
+
+        def_delegator :@map_query, :get
 
         def self.manufacture(user)
           new(user)

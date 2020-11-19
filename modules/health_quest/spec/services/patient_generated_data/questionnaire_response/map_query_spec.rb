@@ -61,4 +61,21 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
       expect(subject.new({}).search_options(author: 'abc')).to eq(options)
     end
   end
+
+  describe '#get' do
+    context 'with valid id' do
+      let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
+      let(:id) { 'faae134c-9c7b-49d7-8161-10e314da4de1' }
+
+      before do
+        allow_any_instance_of(subject).to receive(:client).and_return(client)
+      end
+
+      it 'returns an instance of Reply' do
+        expect(client).to receive(:read).with(FHIR::DSTU2::QuestionnaireResponse, id).exactly(1).time
+
+        subject.build(headers).get(id)
+      end
+    end
+  end
 end
