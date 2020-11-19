@@ -22,6 +22,10 @@ module ClaimsApi
              status: :not_found
     end
 
+    def fetch_aud
+      Settings.oidc.isolated_audience.claims
+    end
+
     private
 
     def find_claim
@@ -137,6 +141,8 @@ module ClaimsApi
     def authenticate_token
       super
     rescue => e
+      raise e if e.message == 'Token Validation Error'
+
       log_message_to_sentry('Authentication Error in claims',
                             :warning,
                             body: e.message)

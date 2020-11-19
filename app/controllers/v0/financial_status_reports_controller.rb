@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'dmc/fsr_service'
+require 'debt_management_center/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
@@ -120,7 +120,7 @@ module V0
     # rubocop:enable Metrics/MethodLength
 
     def service
-      DMC::FSRService.new
+      DebtManagementCenter::FinancialStatusReportService.new
     end
   end
 end
