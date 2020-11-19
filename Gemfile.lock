@@ -42,9 +42,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 45b6d06bfb29765bbf241a2994936e922f359a75
+  revision: 05f0ed20453a3952ed90f76ad7d20c80ea56e417
   specs:
-    bgs_ext (0.15.1)
+    bgs_ext (0.16.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
