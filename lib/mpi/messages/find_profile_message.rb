@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'find_profile_message_fields'
 require_relative 'find_profile_message_helpers'
 
 module MPI
@@ -38,8 +39,11 @@ module MPI
       end
 
       def required_fields_present?(profile)
-        raise ArgumentError, 'required keys are missing' unless REQUIRED_FIELDS.all? { |k| profile.key?(k) }
-        raise ArgumentError, 'required values are missing' unless REQUIRED_FIELDS.all? { |k| profile[k].present? }
+        fields = FindProfileMessageFields.new(profile)
+        fields.validate
+
+        raise ArgumentError, 'required keys are missing' if fields.missing_keys
+        raise ArgumentError, 'required values are missing' if fields.missing_values
       end
 
       private

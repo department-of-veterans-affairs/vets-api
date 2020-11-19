@@ -153,4 +153,26 @@ describe MPI::Messages::FindProfileMessage do
       end
     end
   end
+
+  describe '#required_fields_present?' do
+    subject { described_class.new(profile) }
+
+    let(:missing_keys) { ':given_names, :last_name, :birth_date, :ssn' }
+
+    context 'missing keys' do
+      let(:profile) { {} }
+
+      it 'raises with list of missing keys' do
+        expect { subject }.to raise_error('required keys are missing')
+      end
+    end
+
+    context 'missing values' do
+      let(:profile) { { given_names: nil, last_name: '', birth_date: nil, ssn: '' } }
+
+      it 'raises with list of keys for missing values' do
+        expect { subject }.to raise_error('required values are missing')
+      end
+    end
+  end
 end
