@@ -32,7 +32,7 @@ class FormProfiles::VA5655 < FormProfile
   end
 
   def init_va_awards
-    awards = BGS::AwardsService.new(@current_user)
+    awards = BGS::AwardsService.new(user)
 
     DebtManagementCenter::VaAwards.new(
       name: 'VA Benefits',
