@@ -286,7 +286,7 @@ features:
   show_chapter_36:
     actor_type: user
     description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 for
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E Chapter 36 form
   view_payment_history:
     actor_type: user
     description: >
