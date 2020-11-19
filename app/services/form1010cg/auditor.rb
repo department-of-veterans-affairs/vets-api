@@ -82,7 +82,6 @@ module Form1010cg
       Rails.logger.send :info, "[#{LOGGER_PREFIX}] #{message}", deep_apply_filter(context_hash)
     end
 
-    # rubocop:disable Metrics/PerceivedComplexity
     def deep_apply_filter(value)
       if value.is_a?(Array)
         value.map { |v| deep_apply_filter(v) }
@@ -97,11 +96,6 @@ module Form1010cg
       else
         value
       end
-    rescue
-      # Since this method is for the purpose of logging, we don't want exceptions to propagate and
-      # prevent an API response.
-      value
     end
-    # rubocop:enable Metrics/PerceivedComplexity
   end
 end
