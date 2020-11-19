@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/debtletter/letterdetails/get
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/debt-letter/get
     body:
       encoding: UTF-8
       string: '{"fileNumber":"796043735"}'
@@ -29,7 +29,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Thu, 24 Sep 2020 17:35:26 GMT
+      - Fri, 13 Nov 2020 17:14:44 GMT
     body:
       encoding: UTF-8
       string: "[\n  {\n    \"fileNumber\": \"796043735\",\n    \"payeeNumber\": \"00\",\n
@@ -91,5 +91,5 @@ http_interactions:
         \     {\n        \"date\": \"07/19/2018\",\n        \"letterCode\": \"100\",\n
         \       \"description\": \"First Demand Letter - Inactive Benefits - Due Process\"\n
         \     }\n    ]\n  }\n]"
-  recorded_at: Thu, 24 Sep 2020 17:35:26 GMT
+  recorded_at: Fri, 13 Nov 2020 17:14:45 GMT
 recorded_with: VCR 6.0.0

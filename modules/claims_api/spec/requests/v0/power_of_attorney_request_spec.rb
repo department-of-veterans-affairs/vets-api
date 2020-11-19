@@ -45,7 +45,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     it 'returns a unsuccessful response without mpi' do
       allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
       post path, params: data, headers: headers
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
     end
 
     it 'sets the source' do
