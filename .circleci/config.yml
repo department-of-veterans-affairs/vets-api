@@ -58,7 +58,7 @@
         - add_pact_broker_artifact
     notify_pact_consumers:
       <<: *defaults
-      steps;
+      steps:
         - run:
             name: Notify Pact consumers to check verification status
             command: |
