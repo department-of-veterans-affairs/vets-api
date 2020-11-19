@@ -15,9 +15,7 @@ module V0
 
         oracle_form.parse(request)
 
-        confirmation_number = ::Ask::Iris::OracleRPAService.submit_form(oracle_form)
-
-        # confirmation_number = service.submit_form
+        confirmation_number = ::Ask::Iris::OracleRPAService.new.submit_form(oracle_form)
 
         # validate!(request)
 
