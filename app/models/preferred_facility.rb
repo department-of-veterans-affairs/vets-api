@@ -11,9 +11,14 @@ class PreferredFacility < ApplicationRecord
   private
 
   def set_account
-    self.account = user.account if account.blank?
+    self.account = user.account if account.blank? && user.present?
   end
 
   def facility_code_included_in_user_list
+    return true if user.blank?
+
+    unless user.va_treatment_facility_ids.include?(facility_code)
+      errors[:facility_code] << "must be included in user's va treatment facilities list"
+    end
   end
 end

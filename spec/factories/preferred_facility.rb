@@ -6,6 +6,9 @@ FactoryBot.define do
     user { create(:user, :loa3) }
 
     after(:build) do |preferred_facility|
+      allow(preferred_facility.user).to receive(:va_treatment_facility_ids).and_return(
+        %w[983 688]
+      )
     end
   end
 end
