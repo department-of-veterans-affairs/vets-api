@@ -51,6 +51,13 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(aec.source).to eq('TestConsumer')
     end
 
+    it 'sets the flashes' do
+      post path, params: data, headers: headers
+      token = JSON.parse(response.body)['data']['attributes']['token']
+      aec = ClaimsApi::AutoEstablishedClaim.find(token)
+      expect(aec.flashes).to eq(%w[Hardship Homeless])
+    end
+
     it 'builds the auth headers' do
       auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
       expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).once { auth_header_stub })
