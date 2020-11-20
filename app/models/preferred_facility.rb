@@ -6,7 +6,13 @@ class PreferredFacility < ApplicationRecord
   validates(:user, presence: true, on: :create)
   validate(:facility_code_included_in_user_list, on: :create)
 
+  before_validation(:set_account, on: :create)
+
   private
+
+  def set_account
+    self.account = user.account if account.blank?
+  end
 
   def facility_code_included_in_user_list
   end
