@@ -12,7 +12,7 @@ module VAOS
 
           Raven.extra_context(vamf_status: env.status, vamf_body: env.body, vamf_url: env.url)
           case env.status
-          when 400, 409
+          when 400
             raise Common::Exceptions::BackendServiceException.new(
               'VAOS_400',
               response_values(env.url, env.body, env.status),
@@ -27,6 +27,12 @@ module VAOS
           when 404
             raise Common::Exceptions::BackendServiceException.new(
               'VAOS_404',
+              response_values(env.url, env.body, env.status),
+              env.status, env.body
+            )
+          when 409
+            raise Common::Exceptions::BackendServiceException.new(
+              'VAOS_409A',
               response_values(env.url, env.body, env.status),
               env.status, env.body
             )
