@@ -7,13 +7,6 @@ class StemApplicantConfirmationMailer < TransactionalEmailMailer
   GA_LABEL = 'stem-applicant-confirmation-10203-submission-notification'
   TEMPLATE = 'stem_applicant_confirmation'
 
-  STAGING_RECIPIENTS = %w[
-    Delli-Gatti_Michael@bah.com
-    roth_matthew@bah.com
-    shawkey_daniel@bah.com
-    sonntag_adam@bah.com
-  ].freeze
-
   def first_and_last_name
     return '' if @applicant.veteranFullName.nil?
 
