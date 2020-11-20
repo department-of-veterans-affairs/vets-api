@@ -10,7 +10,8 @@
         <th><%= status %> | </th>
         <% end %>
         <th>totals | </th>
-        <th>errored rate</th>
+        <th>errored rate | </th>
+        <th>percentage with flashes</th>
     </tr>
   </thead>
   <tbody>
@@ -22,6 +23,7 @@
         <% end %>
         <td><%= consumer.values.first[:totals] %></td>
         <td><%= consumer.values.first[:error_rate] %></td>
+        <td><%= consumer.values.first[:percentage_with_flashes] %></td>
       </tr>
     <% end if @consumer_totals %>
   </tbody>
@@ -34,3 +36,22 @@
 
 <h2> Unsuccessful count: <%= @unsuccessful_submissions.count %></h2>
 <%= render partial: 'submission_table', locals: {claims: @unsuccessful_submissions } %>
+
+<table>
+  <thead>
+    <tr>
+        <th>flash</th>
+        <th>count</th>
+        <th>percentage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @flash_statistics.each do |statistic| %>
+      <tr>
+        <td><%= statistic[:flash] %></td>
+        <td><%= statistic[:count] %></td>
+        <td><%= statistic[:percentage] %></td>
+      </tr>
+    <% end if @flash_statistics %>
+  </tbody>
+</table>

@@ -18,10 +18,11 @@ module ClaimsApi
       zachary.goldfine@va.gov
     ].freeze
 
-    def build(consumer_totals, pending_submissions, unsuccessful_submissions, date_from, date_to)
-      @consumer_totals = consumer_totals
-      @pending_submissions = pending_submissions
-      @unsuccessful_submissions = unsuccessful_submissions
+    def build(date_from, date_to, data)
+      @consumer_totals = data[:consumer_totals]
+      @pending_submissions = data[:pending_submissions]
+      @unsuccessful_submissions = data[:unsuccessful_submissions]
+      @flash_statistics = data[:flash_statistics]
       @date_from = date_from
       @date_to = date_to
 
