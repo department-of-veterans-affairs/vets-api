@@ -5,7 +5,6 @@ module BGS
     def get_awards
       @service.awards.find_award_by_participant_id(@user.participant_id)
     rescue => e
-      byebug
       report_error(e)
     end
 
