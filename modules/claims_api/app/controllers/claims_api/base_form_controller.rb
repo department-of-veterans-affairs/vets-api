@@ -46,6 +46,17 @@ module ClaimsApi
       evss_headers
     end
 
+    def flashes
+      initial_flashes = form_attributes.dig('veteran', 'flashes')
+      homelessness = form_attributes.dig('veteran', 'homelessness')
+      is_terminally_ill = form_attributes.dig('veteran', 'isTerminallyIll')
+
+      initial_flashes.push('Homeless') if homelessness.present?
+      initial_flashes.push('Terminally Ill') if is_terminally_ill.present? && is_terminally_ill
+
+      initial_flashes.present? ? initial_flashes.uniq : []
+    end
+
     def documents
       document_keys = params.keys.select { |key| key.include? 'attachment' }
       params.slice(*document_keys).values.map do |document|
