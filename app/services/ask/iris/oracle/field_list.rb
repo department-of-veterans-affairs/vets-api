@@ -18,6 +18,16 @@ module Ask
 
       FIELD_LIST = [
         {
+          schemaKey: 'query',
+          fieldName: 'Incident.Threads',
+          fieldType: FieldTypes::TextAreaField
+        },
+        {
+          schemaKey: 'inquiryType',
+          fieldName: 'rn_ProductCategoryInput_6_Category_Button',
+          fieldType: FieldTypes::OracleCustomDropdownField
+        },
+        {
           schemaKey: 'topic.levelOne',
           fieldName: 'rn_ProductCategoryInput_3_Product_Button',
           fieldType: FieldTypes::OracleCustomDropdownField
@@ -36,16 +46,6 @@ module Ask
           schemaKey: 'topic.vaMedicalCenter',
           fieldName: 'Incident.CustomFields.c.medical_centers',
           fieldType: FieldTypes::DropdownField
-        },
-        {
-          schemaKey: 'query',
-          fieldName: 'Incident.Threads',
-          fieldType: FieldTypes::TextAreaField
-        },
-        {
-          schemaKey: 'inquiryType',
-          fieldName: 'rn_ProductCategoryInput_6_Category_Button',
-          fieldType: FieldTypes::OracleCustomDropdownField
         },
         {
           schemaKey: 'veteranStatus.veteranStatus',
@@ -99,6 +99,12 @@ module Ask
           schemaKey: 'fullName.suffix',
           fieldName: 'Incident.CustomFields.c.suffix_menu',
           fieldType: FieldTypes::DropdownField
+        },
+        {
+          schemaKey: '',
+          fieldName: 'Incident.CustomFields.c.form_of_address',
+          fieldType: FieldTypes::DropdownField,
+          transform: ->(_value) { 'Dr.' }
         },
         {
           schemaKey: 'email',

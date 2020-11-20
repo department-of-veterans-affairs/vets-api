@@ -13,8 +13,6 @@ module Ask
       def submit_form(form)
         browser = WatirConfig.new(URI)
 
-        browser.select_dropdown_by_text(FORM_OF_ADDRESS_FIELD_NAME, FORM_OF_ADDRESS)
-
         form.fields.each do |field|
           field.enter_into_form browser
         end

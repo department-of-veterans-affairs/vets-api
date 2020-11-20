@@ -21,7 +21,7 @@ module Ask
         end
 
         private
-         
+
         def transform(value)
           return value if @transform.nil?
 
