@@ -6,8 +6,8 @@ module Mobile
       class ClaimsOverviewErrors
         def parse(error, failed_service)
           {
-              service: failed_service,
-              errors: defined?(error.details) ? error.details : error.errors.to_json
+            service: failed_service,
+            error_details: defined?(error.details) ? error.details : error.errors.to_json
           }
         end
       end

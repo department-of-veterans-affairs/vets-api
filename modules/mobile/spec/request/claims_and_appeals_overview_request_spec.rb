@@ -48,6 +48,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response).to have_http_status(:multi_status)
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
       end
@@ -59,6 +60,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response).to have_http_status(:multi_status)
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('appeals')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
       end
@@ -71,6 +73,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(2)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
             expect(response.parsed_body.dig('meta', 'errors')[1]['service']).to eq('appeals')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
       end
