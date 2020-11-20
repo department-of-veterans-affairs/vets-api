@@ -14,6 +14,7 @@ module VAOS
           when 400, 409
             error_400(env.body)
           when 403
+            binding.pry
             raise Common::Exceptions::BackendServiceException.new('VAOS_403', source: self.class)
           when 404
             raise Common::Exceptions::BackendServiceException.new('VAOS_404', source: self.class)
