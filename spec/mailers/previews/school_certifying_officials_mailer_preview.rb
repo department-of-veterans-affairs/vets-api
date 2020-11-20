@@ -19,7 +19,7 @@ class SchoolCertifyingOfficialsMailerPreview < ActionMailer::Preview
     return [] if institution.blank?
 
     scos = institution[:versioned_school_certifying_officials]
-    EducationForm::SendSCOEmail.sco_emails(scos)
+    EducationForm::SendSchoolCertifyingOfficialsEmail.sco_emails(scos)
   end
 
   def fake_applicant
