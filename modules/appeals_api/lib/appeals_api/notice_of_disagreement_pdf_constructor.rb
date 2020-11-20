@@ -40,9 +40,9 @@ module AppealsApi
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[0]": nod_pdf_options.homeless? ? 1 : 'Off', # Homeless
         "F[0].Page_1[0].PreferredPhoneNumber[0]": nod_pdf_options.phone,
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]":
-            nod_pdf_options.board_review_option == 'direct' ? 1 : 'Off',
+            nod_pdf_options.board_review_option == 'direct_review' ? 1 : 'Off',
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[2]":
-            nod_pdf_options.board_review_option == 'evidence' ? 1 : 'Off',
+            nod_pdf_options.board_review_option == 'evidence_submission' ? 1 : 'Off',
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[3]":
             nod_pdf_options.board_review_option == 'hearing' ? 1 : 'Off',
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[4]":

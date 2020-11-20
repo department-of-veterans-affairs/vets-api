@@ -95,7 +95,8 @@ module AppealsApi
       # At least one must be present ^^^
       # --not enforced at the JSON Schema level.
       # Using JSON Schema's conditional keywords (if, oneOf, anyOf, not, etc) produces fairly unreadable errors.
-      :validate_address
+      :validate_address,
+      :validate_hearing_type_selection
     )
 
     def claimant_name
@@ -116,6 +117,14 @@ module AppealsApi
 
     def consumer_name
       auth_headers&.dig('X-Consumer-Username')
+    end
+
+    def board_review_option
+      form_data&.dig('data', 'attributes', 'boardReviewOption')
+    end
+
+    def hearing_type
+      form_data&.dig('data', 'attributes', 'hearingTypePreference')
     end
 
     private
@@ -161,7 +170,33 @@ module AppealsApi
     end
 
     def add_missing_claimant_info_error(field, attribute_name:)
-      errors.add attribute_name, "if any claimant info is present, claimant #{field} must also be present"
+      errors.add attribute_name, I18n.t('appeals_api.errors.claimant_info', field: field)
+    end
+
+    def validate_hearing_type_selection
+      return if board_review_hearing_selected? && includes_hearing_type?
+
+      if hearing_type_missing?
+        errors.add :form_data, I18n.t('appeals_api.errors.hearing_type_preference_missing')
+      elsif unexpected_hearing_type_inclusion?
+        errors.add :form_data, I18n.t('appeals_api.errors.hearing_type_preference_inclusion')
+      end
+    end
+
+    def board_review_hearing_selected?
+      board_review_option == 'hearing'
+    end
+
+    def includes_hearing_type?
+      hearing_type.present?
+    end
+
+    def hearing_type_missing?
+      board_review_hearing_selected? && !includes_hearing_type?
+    end
+
+    def unexpected_hearing_type_inclusion?
+      !board_review_hearing_selected? && includes_hearing_type?
     end
 
     def validate_address
@@ -169,10 +204,7 @@ module AppealsApi
       homeless = contact_info&.dig('homeless')
       address = contact_info&.dig('address')
 
-      if !homeless && address.nil?
-        errors.add :form_data, "at least one must be included: '/data/attributes/veteran/address', " \
-"'/data/attributes/claimant/address'"
-      end
+      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') if !homeless && address.nil?
     end
 
     # Note: This only checks for veteran or claimant *contact info*
@@ -181,7 +213,7 @@ module AppealsApi
     def validate_that_at_least_one_set_of_contact_info_is_present
       return if veteran_contact_info.present? || claimant_contact_info.present?
 
-      errors.add :form_data, "at least one must be included: '/data/attributes/veteran', '/data/attributes/claimant'"
+      errors.add :form_data, I18n.t('appeals_api.errors.contact_info_presence')
     end
 
     def birth_date(who)
