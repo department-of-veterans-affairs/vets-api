@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_18_233113) do
+ActiveRecord::Schema.define(version: 2020_11_20_203004) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -436,6 +436,14 @@ ActiveRecord::Schema.define(version: 2020_11_18_233113) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_preferences_on_code", unique: true
+  end
+
+  create_table "preferred_facilities", force: :cascade do |t|
+    t.string "facility_code", null: false
+    t.integer "account_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["facility_code", "account_id"], name: "index_preferred_facilities_on_facility_code_and_account_id", unique: true
   end
 
   create_table "preneed_submissions", id: :serial, force: :cascade do |t|
