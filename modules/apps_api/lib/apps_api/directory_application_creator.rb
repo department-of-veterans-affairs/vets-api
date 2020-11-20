@@ -26,7 +26,7 @@ module AppsApi
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = %w[IOS Android]
-        app.app_url = 'https://ice.ibluebutton.com'
+        app.app_url = 'https://ibluebutton.com'
         app.description =
           'iBlueButton places your VA medical information securely onto your phone or '\
           'tablet, assembled into an interactive health record, with personalized safety '\
