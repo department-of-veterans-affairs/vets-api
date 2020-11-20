@@ -16,6 +16,16 @@ module Common
         i18n_data[:title]
       end
 
+      # This determines how the exception should get logged to Sentry
+      # in adddition to available types from Sentry: 'warn', 'info', 'error' there is 'none' to not log to Sentry at all
+      def sentry_type
+        i18n_data[:sentry_type].presence || 'error'
+      end
+
+      def log_to_sentry?
+        sentry_type != 'none'
+      end
+
       private
 
       def i18n_key

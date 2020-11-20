@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/debtletter/letterdetails/get
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/debt-letter/get
     body:
       encoding: UTF-8
       string: '{"fileNumber":""}'
@@ -16,7 +16,7 @@ http_interactions:
       Client-Id:
       - 0be3d60e3983438199f192b6e723a6f0
       Client-Secret:
-      - "<DEBTS_TOKEN>"
+      - "<DMC_TOKEN>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -29,7 +29,7 @@ http_interactions:
       Content-Length:
       - '30'
       Date:
-      - Wed, 27 May 2020 20:04:17 GMT
+      - Fri, 13 Nov 2020 17:10:22 GMT
     body:
       encoding: UTF-8
       string: |-
@@ -37,5 +37,5 @@ http_interactions:
           "message": "Bad request"
         }
     http_version: null
-  recorded_at: Wed, 27 May 2020 20:04:16 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 13 Nov 2020 17:10:23 GMT
+recorded_with: VCR 6.0.0

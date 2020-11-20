@@ -25,10 +25,6 @@ features:
     actor_type: cookie_id
     description: >
       Toggles whether COVID Research volunteer submissions will be delivered to genISIS
-  dashboard_show_covid19_alert:
-    actor_type: user
-    description: >
-      Allows for showing a special COVID19 alert on the My VA Dashboard
   dashboard_show_dashboard_2:
     actor_type: user
     enable_in_development: true
@@ -138,8 +134,18 @@ features:
       Enables Express Care request flow in VAOS
   va_online_scheduling_flat_facility_page:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables the new VA facility choice page with a flat list
+  va_online_scheduling_flat_facility_page_sacramento:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
+  va_online_scheduling_provider_selection:
+    actor_type: user
+    description: >
+      Enables the community care provider selection field
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -286,11 +292,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
-  stem_text_message_question:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Add text message opt-in question to 10203 Personal Information chapter and layout changes
   form_1995_edu_updates:
     actor_type: user
     enable_in_development: true
@@ -306,3 +307,8 @@ features:
     enable_in_development: true
     description: >
       Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
+  search_typeahead_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables type ahead search functionality

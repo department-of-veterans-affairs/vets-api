@@ -17,6 +17,18 @@ describe MPI::Responses::IdParser do
       end
     end
 
+    context 'BIRLS' do
+      let(:birls_ids) do
+        [correlation_id('987654321^PI^200BRLS^USVBA^A'),
+         correlation_id('123456789^PI^200BRLS^USVBA^A')]
+      end
+
+      it 'finds all BIRLS IDs' do
+        expect(MPI::Responses::IdParser.new.parse(birls_ids)[:birls_ids]).to eq %w[987654321 123456789]
+        expect(MPI::Responses::IdParser.new.parse(birls_ids)[:birls_id]).to eq '987654321'
+      end
+    end
+
     context 'icn_with_aaid' do
       let(:non_icn_id) { 'TKIP123456^PI^200IP^USVHA^A' }
 

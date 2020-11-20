@@ -36,7 +36,7 @@ namespace :redis do
       patient_non_mhv = 0
       addressees = 0
 
-      namespace = 'mvi-profile-response'
+      namespace = 'mpi-profile-response'
       redis = Redis.current
       redis.scan_each(match: "#{namespace}:*") do |key|
         resp = Oj.load(redis.get(key))[:response]

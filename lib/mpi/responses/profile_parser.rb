@@ -89,6 +89,7 @@ module MPI
           vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
           sec_id: parsed_mvi_ids[:sec_id],
           birls_id: sanitize_birls_id(parsed_mvi_ids[:birls_id]),
+          birls_ids: parsed_mvi_ids[:birls_ids].map { |id| sanitize_birls_id(id) }.compact,
           vet360_id: parsed_mvi_ids[:vet360_id],
           historical_icns: MPI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],

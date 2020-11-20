@@ -168,16 +168,9 @@ module V1
     end
 
     def saml_cookie_content
-      ssoe_cookie =  cookies[Settings.ssoe_eauth_cookie.name]
-      transaction_id = if current_user && url_service.should_uplevel? && ssoe_cookie
-                         JSON.parse(ssoe_cookie)['transaction_id']
-                       else
-                         SecureRandom.uuid
-                       end
-
       {
         'timestamp' => Time.now.iso8601,
-        'transaction_id' => transaction_id,
+        'transaction_id' => url_service.tracker&.payload_attr(:transaction_id),
         'saml_request_id' => url_service.tracker&.uuid,
         'saml_request_query_params' => url_service.query_params
       }
@@ -213,7 +206,8 @@ module V1
       values = {
         'id' => tracker&.uuid,
         'authn' => tracker&.payload_attr(:authn_context),
-        'type' => tracker&.payload_attr(:type)
+        'type' => tracker&.payload_attr(:type),
+        'transaction_id' => tracker&.payload_attr(:transaction_id)
       }
       Rails.logger.info("SSOe: SAML Request => #{values}")
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
@@ -223,15 +217,17 @@ module V1
     end
 
     def saml_response_stats(saml_response)
-      type = JSON.parse(params[:RelayState] || '{}')['type']
+      uuid = saml_response.in_response_to
+      tracker = SAMLRequestTracker.find(uuid)
       values = {
-        'id' => saml_response.in_response_to,
+        'id' => uuid,
         'authn' => saml_response.authn_context,
-        'type' => type
+        'type' => tracker&.payload_attr(:type),
+        'transaction_id' => tracker&.payload_attr(:transaction_id)
       }
       Rails.logger.info("SSOe: SAML Response => #{values}")
       StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,
-                       tags: ["type:#{type}",
+                       tags: ["type:#{tracker&.payload_attr(:type)}",
                               "context:#{saml_response.authn_context}",
                               VERSION_TAG])
     end
@@ -328,7 +324,7 @@ module V1
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
-        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
+        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mpi: additional_context)
       end
     end
 
