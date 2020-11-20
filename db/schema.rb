@@ -130,6 +130,7 @@ ActiveRecord::Schema.define(version: 2020_11_18_233113) do
     t.string "encrypted_evss_response"
     t.string "encrypted_evss_response_iv"
     t.string "flashes", default: [], array: true
+    t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
