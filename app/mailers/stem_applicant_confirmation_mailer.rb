@@ -44,10 +44,7 @@ class StemApplicantConfirmationMailer < TransactionalEmailMailer
     @applicant = claim.open_struct_form
     @claim = claim
 
-    opt = {}
-    opt[:bcc] = STAGING_RECIPIENTS.clone if FeatureFlipper.staging_email?
-
-    super([@applicant.email], ga_client_id, opt)
+    super([@applicant.email], ga_client_id, {})
   end
 
   private

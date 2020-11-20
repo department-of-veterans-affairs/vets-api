@@ -16,8 +16,6 @@ class SchoolCertifyingOfficialsMailer < TransactionalEmailMailer
 
   def build(applicant, recipients, ga_client_id)
     @applicant = applicant
-    opt = { cc: applicant.email }
-    opt[:bcc] = STAGING_RECIPIENTS.clone if FeatureFlipper.staging_email?
-    super(recipients, ga_client_id, opt)
+    super(recipients, ga_client_id, {})
   end
 end
