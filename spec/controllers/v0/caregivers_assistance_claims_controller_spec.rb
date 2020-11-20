@@ -191,8 +191,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
-          claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          claim_guid: claim.guid
         )
 
         post :create, params: params
@@ -247,8 +246,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
-          claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          claim_guid: claim.guid
         )
 
         invalid_veteran_status_response = post :create, params: params
