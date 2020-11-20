@@ -14,6 +14,7 @@ RSpec.describe 'VAOS::V0::LimitsController', type: :request do
       let(:user) { FactoryBot.create(:user, :vaos) }
 
       it 'returns something' do
+        #
         # get '/vaos/v0/facilities/limits?type_of_care_id=1toc&facility_id[]=1&facility_id[]=2'
         get '/vaos/v0/facilities/123/limits?type_of_care_id=1toc'
       end
