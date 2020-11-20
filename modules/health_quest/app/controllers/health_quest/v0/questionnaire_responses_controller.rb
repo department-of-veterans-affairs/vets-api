@@ -3,14 +3,21 @@
 module HealthQuest
   module V0
     class QuestionnaireResponsesController < HealthQuest::V0::BaseController
-      def index
-        factory = HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(current_user)
+      before_action :factory
 
-        render json: factory.all.response[:body]
+      def index
+        render json: @factory.search.response[:body]
       end
 
       def show
-        head :ok
+        render json: @factory.get(params[:id]).response[:body]
+      end
+
+      private
+
+      def factory
+        @factory =
+          HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(current_user)
       end
     end
   end
