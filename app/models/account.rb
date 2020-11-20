@@ -15,6 +15,7 @@ class Account < ApplicationRecord
 
   has_many :user_preferences, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :preferred_facilities, dependent: :destroy, inverse_of: :account
 
   validates :uuid, presence: true, uniqueness: true
   validates :idme_uuid, uniqueness: true
