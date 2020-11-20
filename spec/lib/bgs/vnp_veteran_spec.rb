@@ -56,7 +56,8 @@ RSpec.describe BGS::VnpVeteran do
             address_zip_code: '21122',
             type: 'veteran',
             benefit_claim_type_end_product: '139',
-            location_id: '343'
+            location_id: '343',
+            net_worth_over_limit_ind: 'N'
           )
         end
       end

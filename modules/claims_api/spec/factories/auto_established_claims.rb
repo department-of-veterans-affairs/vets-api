@@ -11,6 +11,7 @@ FactoryBot.define do
       json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_json_api.json"))
       json['data']['attributes']
     end
+    flashes { form_data.dig('veteran', 'flashes') }
 
     trait :status_established do
       status { 'established' }
