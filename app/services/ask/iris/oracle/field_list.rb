@@ -96,6 +96,11 @@ module Ask
           fieldType: FieldTypes::TextField
         },
         {
+          schemaKey: 'fullName.suffix',
+          fieldName: 'Incident.CustomFields.c.suffix_menu',
+          fieldType: FieldTypes::DropdownField
+        },
+        {
           schemaKey: 'email',
           fieldName: 'Incident.CustomFields.c.incomingemail',
           fieldType: FieldTypes::EmailField
