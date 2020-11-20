@@ -28,6 +28,8 @@ module Ask
 
         def read_value_for_field(field, value)
           field.schema_key.split('.').each do |key|
+            raise "missing path #{field.schema_key}" if value.nil?
+
             value = value[key]
           end
           value

@@ -23,7 +23,7 @@ RSpec.describe V0::Ask::AsksController, type: :controller do
       context 'enabled' do
         context 'when form is valid' do
           it 'returns 201 CREATED with confirmationNumber and dateSubmitted' do
-            form_data = get_fixture('ask/minimal').to_json
+            form_data = get_fixture('ask/maximal').to_json
             params = { inquiry: { form: form_data } }
             inquiry = build(:ask, form: form_data)
 
