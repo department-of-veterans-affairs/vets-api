@@ -79,10 +79,52 @@ describe Mobile::V0::Appointments::Service do
           }
         )
       end
+
+      it 'increments the VAOS and Mobile success metrics' do
+        expect(StatsD).to receive(:increment).once.with(
+          'api.external_http_request.VAOS.success',
+          1,
+          { tags: [
+            'endpoint:/appointments/v1/patients/xxx/appointments',
+            'method:get'
+          ] }
+        )
+        expect(StatsD).to receive(:increment).once.with(
+          'api.external_http_request.VAOS.success',
+          1,
+          { tags: [
+            'endpoint:/var/VeteranAppointmentRequestService/v4/rest'\
+'/direct-scheduling/patient/ICN/xxx/booked-cc-appointments',
+            'method:get'
+          ] }
+        )
+        expect(StatsD).to receive(:increment).once.with(
+          'mobile.appointments.get_appointments.success',
+          { no_prefix: false, prefix: nil, sample_rate: nil, tags: nil }
+        )
+        VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+            service.get_appointments(start_date, end_date, false)
+          end
+        end
+      end
     end
 
     context 'when va fails but cc succeeds' do
-      it 'raises a backend service exception' do
+      it 'does not return partial results and instead raises a backend service exception' do
+        expect(StatsD).to receive(:increment).once.with(
+          'api.external_http_request.VAOS.success',
+          1,
+          { tags: [
+            'endpoint:/var/VeteranAppointmentRequestService/v4/rest'\
+'/direct-scheduling/patient/ICN/xxx/booked-cc-appointments',
+            'method:get'
+          ] }
+        )
+        expect(StatsD).to receive(:increment).once.with(
+          'mobile.appointments.get_appointments.failure',
+          { no_prefix: false, prefix: nil, sample_rate: nil, tags: nil }
+        )
         VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
             expect(Rails.logger).to receive(:error).with('mobile get va appointments call failed')
@@ -96,7 +138,21 @@ describe Mobile::V0::Appointments::Service do
     end
 
     context 'when va succeeds but cc fails' do
-      it 'raises a backend service exception' do
+      it 'does not return partial results and instead raises a backend service exception' do
+        expect(StatsD).to receive(:increment).once.with(
+          'api.external_http_request.VAOS.success',
+          1,
+          {
+            tags: [
+              'endpoint:/appointments/v1/patients/xxx/appointments',
+              'method:get'
+            ]
+          }
+        )
+        expect(StatsD).to receive(:increment).once.with(
+          'mobile.appointments.get_appointments.failure',
+          { no_prefix: false, prefix: nil, sample_rate: nil, tags: nil }
+        )
         VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
             expect(Rails.logger).to receive(:error).with('mobile get community care appointments call failed')
@@ -111,6 +167,12 @@ describe Mobile::V0::Appointments::Service do
 
     context 'when both fail' do
       it 'raises a backend service exception' do
+        # VAOS uses success and total rather than success failure
+        # so only the statsd call for mobile, added via the gem's meta programming, will fire
+        expect(StatsD).to receive(:increment).once.with(
+          'mobile.appointments.get_appointments.failure',
+          { no_prefix: false, prefix: nil, sample_rate: nil, tags: nil }
+        )
         VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
             expect(Rails.logger).to receive(:error).with('mobile get community care appointments call failed')
