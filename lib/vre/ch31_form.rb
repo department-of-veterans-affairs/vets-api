@@ -6,8 +6,8 @@ require 'sentry_logging'
 module VRE
   class Ch31Form < Service
     include SentryLogging
-    class VRECH31Error < StandardError
-    end
+
+    # The Ch31Form class is the means by which the Ch31 aka 28-1900 form is submitted to VR&E
 
     def initialize(user, claim)
       @user = user
@@ -15,8 +15,12 @@ module VRE
       @parsed_form = @claim.parsed_form
     end
 
+    # Submits prepared data derived from VeteranReadinessEmploymentClaim#form
+    #
+    # @return [Hash] the student's address
+    #
     def submit
-      send_to_vre(format_payload_for_vre, VRECH31Error)
+      send_to_vre(payload: format_payload_for_vre)
     end
 
     private

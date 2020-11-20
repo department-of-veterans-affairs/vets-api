@@ -626,7 +626,7 @@ genisis:
   user: TestUser
   pass: bogus
 
-veteran_readiness_and_education:
+veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
   auth_endpoint: ~

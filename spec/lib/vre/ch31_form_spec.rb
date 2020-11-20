@@ -24,36 +24,34 @@ RSpec.describe VRE::Ch31Form do
   end
 
   describe '#submit' do
-    describe '#send_to_vre' do
-      let(:faraday_response) { double('faraday_connection') }
+    let(:faraday_response) { double('faraday_connection') }
 
-      context 'successful submission' do
-        it 'successfully sends to VRE' do
-          allow(faraday_response).to receive(:body).and_return('{"ErrorOccurred":false,"ApplicationIntake":"12345"}')
-          allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
+    context 'with a successful submission' do
+      it 'successfully sends to VRE' do
+        allow(faraday_response).to receive(:body).and_return('{"ErrorOccurred":false,"ApplicationIntake":"12345"}')
+        allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
 
-          response = service.submit
-          expect(response).to eq(true)
-        end
+        response = service.submit
+        expect(response).to eq(true)
+      end
 
-        it 'adds a new address if the user is moving within 30 days' do
-          VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-            expect(service).to receive(:new_address) { new_address_hash }
-
-            service.submit
-          end
-        end
-
-        it 'does not successfully send to VRE' do
-          allow(faraday_response).to receive(:body).and_return(
-            '{"ErrorOccurred":true,"ErrorMessage":"bad stuff happened"}'
-          )
-
-          allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
-          expect(service).to receive(:log_exception_to_sentry)
+      it 'adds a new address if the user is moving within 30 days' do
+        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          expect(service).to receive(:new_address) { new_address_hash }
 
           service.submit
         end
+      end
+
+      it 'does not successfully send to VRE' do
+        allow(faraday_response).to receive(:body).and_return(
+          '{"ErrorOccurred":true,"ErrorMessage":"bad stuff happened"}'
+        )
+
+        allow_any_instance_of(Faraday::Connection).to receive(:post) { faraday_response }
+        expect(service).to receive(:log_exception_to_sentry)
+
+        service.submit
       end
     end
   end
