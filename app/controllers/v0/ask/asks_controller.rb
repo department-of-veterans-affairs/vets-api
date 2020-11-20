@@ -11,11 +11,11 @@ module V0
 
         request = SavedClaim::Ask.new(form: form_submission)
 
+        validate!(request)
+
         oracle_form = ::Ask::Iris::Oracle::OracleForm.new request
 
-        confirmation_number = ::Ask::Iris::OracleRPAService.new.submit_form(oracle_form)
-
-        # validate!(request)
+        confirmation_number = ::Ask::Iris::OracleRPAService.submit_form(oracle_form)
 
         render json: {
           'confirmationNumber': confirmation_number,

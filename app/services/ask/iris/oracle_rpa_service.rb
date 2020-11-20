@@ -10,7 +10,7 @@ module Ask
     class OracleRPAService
       include Constants::Constants
 
-      def submit_form(form)
+      def self.submit_form(form)
         browser = WatirConfig.new(URI)
 
         form.fields.each do |field|
@@ -22,12 +22,12 @@ module Ask
 
       private
 
-      def submit_form_to_oracle(browser)
+      def self.submit_form_to_oracle(browser)
         browser.click_button_by_id(SUBMIT_FORM_BUTTON_ID)
         browser.click_button_by_text(CONFIRM_SUBMIT_BUTTON_TEXT)
       end
 
-      def get_confirmation_number(browser)
+      def self.get_confirmation_number(browser)
         browser.get_text_from_element(BOLD_TAG, CONFIRMATION_NUMBER_MATCHER)
       end
     end

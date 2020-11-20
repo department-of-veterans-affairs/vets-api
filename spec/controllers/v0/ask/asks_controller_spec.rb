@@ -25,21 +25,23 @@ RSpec.describe V0::Ask::AsksController, type: :controller do
           it 'returns 201 CREATED with confirmationNumber and dateSubmitted' do
             form_data = get_fixture('ask/minimal').to_json
             params = { inquiry: { form: form_data } }
-            claim = build(:ask, form: form_data)
+            inquiry = build(:ask, form: form_data)
 
             expect(SavedClaim::Ask).to receive(:new).with(
               form: form_data
             ).and_return(
-              claim
+              inquiry
             )
 
             expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
 
+            expect(::Ask::Iris::OracleRPAService).to receive(:submit_form).and_return('0000-0000-0000')
+
             post :create, params: params
 
-            expect(response).to have_http_status(:created)
-
             expect(JSON.parse(response.body)).to include('confirmationNumber', 'dateSubmitted')
+
+            expect(response).to have_http_status(:created)
           end
         end
 
