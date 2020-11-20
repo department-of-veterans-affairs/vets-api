@@ -11,5 +11,13 @@ RSpec.describe PreferredFacility, type: :model do
     it 'validates presence of facility_code' do
       expect_attr_invalid(preferred_facility, :facility_code, "can't be blank")
     end
+
+    it 'validates presence of facility_code' do
+      expect_attr_invalid(preferred_facility, :user, "can't be blank")
+    end
+
+    it 'validates facility_code in user list' do
+      build(:preferred_facility)
+    end
   end
 end
