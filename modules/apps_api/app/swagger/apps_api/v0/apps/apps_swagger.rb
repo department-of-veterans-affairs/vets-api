@@ -59,6 +59,24 @@ module AppsApi
             key :example, 'https://www.example.com/tos'
           end
         end
+        schema :Scopes do
+          key :description, I18n.t('apps_api.endpoint_descriptions.scopes')
+          property :name do
+            key :description, I18n.t('apps_api.field_descriptions.scope_name')
+            key :type, :string
+            key :example, 'launch/patient'
+          end
+          property :description do
+            key :description, I18n.t('apps_api.field_descriptions.scope_description')
+            key :type, :string
+            key :example, 'Your unique VA ID number, called the integration control number or ICN. It is used across VA programs and links your information to you.'
+          end
+          property :display_name do
+            key :description, I18n.t('apps_api.field_descriptions.display_name')
+            key :type, :string
+            key :example, 'Patient ID'
+          end
+        end
       end
     end
   end
