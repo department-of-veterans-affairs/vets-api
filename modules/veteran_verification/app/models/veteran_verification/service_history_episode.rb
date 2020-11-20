@@ -20,6 +20,7 @@ module VeteranVerification
     attribute :separation_reason, String
 
     def self.emis_service
+      Rails.logger.info("Settings.vet_verification.mock_emis: #{Settings.vet_verification.mock_emis}")
       if Settings.vet_verification.mock_emis == true
         EMISRedis::MockMilitaryInformationV2
       else
