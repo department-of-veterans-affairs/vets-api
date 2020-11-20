@@ -1395,38 +1395,23 @@ components:
     ClaimsAndAppealsOverview:
       required:
         - data
+        - meta
       properties:
         data:
-          type: object
-          required:
-            - type
-            - id
-            - attributes
+          type: array
+          items:
+            type: object
+            $ref: "#/components/schemas/ClaimsAndAppeals"
+        meta:
           properties:
-            type:
-              type: string
-              example: "claimsAndAppealsOverview"
-            id:
-              type: string
-              example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
-              description: Non-PII User UUID
-            attributes:
-              type: object
-              required:
-                - claimsAndAppeals
-              properties:
-                claimsAndAppeals:
-                  type: array
-                  items:
-                    type: object
-                    $ref: "#/components/schemas/ClaimsAndAppeals"
-                    description: array of all claims and appeals for a given user
-                upstreamServiceErrors:
-                  type: array
-                  items:
-                    type: object
-                    $ref: "#/components/schemas/ClaimsAndAppealsOverviewErrors"
-                    description: Array info about failing upstream services
+            errors:
+              type: array
+              items:
+                type: array
+                items:
+                  type: object
+                  $ref: "#/components/schemas/ClaimsAndAppealsOverviewErrors"
+                  description: Array info about failing upstream services
     ClaimsAndAppeals:
       required:
         - id
@@ -1467,19 +1452,22 @@ components:
               example: "2020-01-01T00:00:00.00Z"
     ClaimsAndAppealsOverviewErrors:
       required:
-        - upstreamService
-        - debugMessages
+        - service
+        - errorDetails
       properties:
-        upstreamService:
+        service:
           type: string
           enum:
             - claims
             - appeals
-        debugMessages:
+        errorDetails:
           type: array
           items:
-            type: object
-            description: Array of objects from failing upstream services. Used for debugging only.
+            type: array
+            description: Array of arrays from failing upstream services. Used for debugging only.
+            items:
+              type: object
+              description: error details object from failing upstream service. Used for debugging only.
     Appointment:
       required:
         - type
