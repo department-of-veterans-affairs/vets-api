@@ -59,17 +59,13 @@
       <<: *defaults
       steps:
         - add_pact_broker_artifact
-    notify_pact_consumers:
+    verify_pacts_and_notify_consumers:
       <<: *defaults
       steps:
-        - run:
-            name: Notify Pact consumers to check verification status
-            command: |
-              curl -L -X POST \
-                   -u "${CIRCLE_TOKEN}:" \
-                   -H 'Content-Type: application/json' \
-                   -d '{"branch":"<< pipeline.parameters.consumer_branch >>","parameters":{"check_deployability":true}}' \
-                   https://circleci.com/api/v2/project/github/department-of-veterans-affairs/vets-website/pipeline
+        - checkout_and_install
+        - setup_test_db
+        - verify_stable_pacts
+        - notify_pact_consumers
     bundle_audit:
       <<: *defaults
       steps:
@@ -144,10 +140,7 @@
     pact_verification:
       when: << pipeline.parameters.verify_stable_pacts >>
       jobs:
-        - verify_pacts
-        - notify_pact_consumers:
-            requires:
-              - verify_pacts
+        - verify_pacts_and_notify_consumers
 
   commands:
     checkout_and_install:
@@ -183,6 +176,17 @@
             - run:
                 name: Verify stable pacts
                 command: bundle exec rake pact:verify
+    notify_pact_consumers:
+        steps:
+            - run:
+                name: Notify Pact consumers to check verification status
+                command: |
+                  curl -L -X POST \
+                       -u "${CIRCLE_TOKEN}:" \
+                       -H 'Content-Type: application/json' \
+                       -d '{"branch":"<< pipeline.parameters.consumer_branch >>","parameters":{"check_deployability":true}}' \
+                       https://circleci.com/api/v2/project/github/department-of-veterans-affairs/vets-website/pipeline
+                when: always
     add_pact_broker_artifact:
         steps:
             - run:
