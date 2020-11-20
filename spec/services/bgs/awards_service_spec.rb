@@ -16,7 +16,7 @@ RSpec.describe BGS::AwardsService do
       end
     end
 
-    context 'without a valid participant id' do
+    context 'BGS does not return a response' do
       it 'does not return rewards amounts' do
         service = BGS::AwardsService.new(user)
         response = service.get_awards
