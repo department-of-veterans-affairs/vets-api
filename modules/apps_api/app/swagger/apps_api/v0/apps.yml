@@ -3,18 +3,13 @@ info:
   version: 0.0.1
   title: Apps
   description: |
-    The Applications Api provides a list of applications
+    The Applications Api provides a list of applications and provides an endpoint to see what consent scopes an application will request.
 
     ## Design
 
     ### Authorization and Access
 
     This API is available publically without an API Key.
-
-    1. Client Request: GET https://sandbox-api.va.gov/services/apps/v0/directory
-
-    2. Service Response: A JSON API object with a list of all applications available
-
 
   termsOfService: 'https://developer.va.gov/terms-of-service'
   contact:
@@ -54,14 +49,42 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/App"
-                  meta:
-                    type: object
-                    properties:
-                      count:
-                        type: number
-                        description: 'Counter used for pagination'
-                        example: 1
-
+                  #meta:
+                    #type: object
+                    #properties:
+                      #count:
+                        #type: number
+                        #description: 'Counter used for pagination'
+                        #example: 1
+  /directory/scopes/{service_category}:
+    get:
+      parameters:
+        - in: path
+          name: service_category
+          required: true
+          schema:
+            type: string
+          description: the service category of an application
+      tags:
+        - apps
+      summary: Retrieve the scopes an application of a given service category will request
+      operationId: getScopes
+      responses:
+        '200':
+          description: Scopes retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Scope"
+        '204':
+          description: There are no scopes given for that category
 components:
   schemas:
     App:
@@ -114,3 +137,18 @@ components:
           type: string
           description: The Applications Terms of Service
           example: 'https://www.example.com/tos'
+    Scope:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the scope in Okta.
+          example: 'patient/Condition.read'
+        displayName:
+          type: string
+          description: The name of the scope as it would be displayed to users.
+          example: 'Health conditions and diagnoses'
+        description:
+          type: string
+          description: A description of the scope.
+          example: 'A list of any conditions that impact your health.'

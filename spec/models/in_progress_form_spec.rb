@@ -39,4 +39,20 @@ RSpec.describe InProgressForm, type: :model do
       expect(in_progress_form.form_data).to eq(form_data.to_json)
     end
   end
+
+  describe 'scopes' do
+    let!(:first_record) do
+      create(:in_progress_form, metadata: { submission: { has_attempted_submit: true,
+                                                          errors: 'foo',
+                                                          error_message: 'bar' } })
+    end
+    let!(:second_record) { create(:in_progress_form, metadata: { submission: { has_attempted_submit: false } }) }
+
+    it 'includes records within scope' do
+      expect(described_class.has_attempted_submit).to include(first_record)
+      expect(described_class.has_errors).to include(first_record)
+      expect(described_class.has_error_message).to include(first_record)
+      expect(described_class.has_no_errors).to include(second_record)
+    end
+  end
 end

@@ -2303,8 +2303,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       before do
         # vet360_id appears in the API request URI so we need it to match the cassette
         allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-          MVI::Responses::FindProfileResponse.new(
-            status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+          MPI::Responses::FindProfileResponse.new(
+            status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
             profile: build(:mvi_profile, vet360_id: '1')
           )
         )
@@ -2441,8 +2441,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'when MVI returns an unexpected response body' do
       it 'supports returning a custom 502 response' do
-        allow_any_instance_of(MVI::Models::MviProfile).to receive(:gender).and_return(nil)
-        allow_any_instance_of(MVI::Models::MviProfile).to receive(:birth_date).and_return(nil)
+        allow_any_instance_of(MPI::Models::MviProfile).to receive(:gender).and_return(nil)
+        allow_any_instance_of(MPI::Models::MviProfile).to receive(:birth_date).and_return(nil)
 
         VCR.use_cassette('mpi/find_candidate/missing_birthday_and_gender') do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 502, headers)
@@ -2810,6 +2810,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports posting contact us form data' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
+
           expect(subject).to validate(
             :post,
             '/v0/ask/asks',
@@ -2819,10 +2821,29 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports validating posted contact us form data' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
+
           expect(subject).to validate(
             :post,
             '/v0/ask/asks',
             422,
+            headers.merge(
+              '_data' => {
+                'inquiry' => {
+                  'form' => {}.to_json
+                }
+              }
+            )
+          )
+        end
+
+        it 'supports 501 when feature is disabled' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(false)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/ask/asks',
+            501,
             headers.merge(
               '_data' => {
                 'inquiry' => {
