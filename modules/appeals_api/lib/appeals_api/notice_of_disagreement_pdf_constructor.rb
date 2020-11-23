@@ -18,13 +18,16 @@ module AppealsApi
       '10182'
     end
 
+    def nod_pdf_options
+      @nod_pdf_options ||= AppealsApi::NoticeOfDisagreementPdfOptions.new(@appeal)
+    end
+
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/AbcSize
     def pdf_options
       return @pdf_options if @pdf_options
-
-      nod_pdf_options = AppealsApi::NoticeOfDisagreementPdfOptions.new(@appeal)
 
       options = {
         "F[0].Page_1[0].VeteransFirstName[0]": nod_pdf_options.veteran_name,
@@ -36,16 +39,14 @@ module AppealsApi
         "F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]": nod_pdf_options.address,
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[0]": nod_pdf_options.homeless? ? 1 : 'Off', # Homeless
         "F[0].Page_1[0].PreferredPhoneNumber[0]": nod_pdf_options.phone,
-        "F[0].Page_1[0].PreferredE_MailAddress[0]": nod_pdf_options.email,
-        "F[0].Page_1[0].PreferredE_MailAddress[1]": nod_pdf_options.representatives_name, # Representatives name
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]":
-              nod_pdf_options.board_review_option == 'direct' ? 1 : 'Off',
+            nod_pdf_options.board_review_option == 'direct' ? 1 : 'Off',
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[2]":
-              nod_pdf_options.board_review_option == 'evidence' ? 1 : 'Off',
+            nod_pdf_options.board_review_option == 'evidence' ? 1 : 'Off',
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[3]":
-              nod_pdf_options.board_review_option == 'hearing' ? 1 : 'Off',
+            nod_pdf_options.board_review_option == 'hearing' ? 1 : 'Off',
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[4]":
-              nod_pdf_options.contestable_issues.size > 5 ? 1 : 'Off', # Additional pages checkbox
+            nod_pdf_options.contestable_issues.size > 5 ? 1 : 'Off', # Additional pages checkbox
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[5]": nod_pdf_options.soc_opt_in? ? 1 : 'Off', # soc
         "F[0].Page_1[0].SignatureOfClaimant_AuthorizedRepresentative[0]": nod_pdf_options.signature, # Signature
         "F[0].Page_1[0].DateSigned[2]": nod_pdf_options.date_signed
@@ -70,5 +71,21 @@ module AppealsApi
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/AbcSize
+
+    def insert_email_and_representative_name(pdf_template)
+      pdftk = PdfForms.new(Settings.binaries.pdftk)
+      temp_file = "#{::Common::FileHelpers.random_file_path}.pdf"
+      output_path = pdf_template + '-final.pdf'
+
+      Prawn::Document.generate(temp_file) do |pdf|
+        pdf.draw_text nod_pdf_options.email, at: [146, 493]
+        pdf.draw_text nod_pdf_options.representatives_name, at: [350, 493]
+        2.times { pdf.start_new_page } # temp file and pdf template must have same num of pages for pdftk.multistamp
+      end
+
+      pdftk.multistamp(pdf_template, temp_file, output_path)
+      output_path
+    end
   end
 end
