@@ -92,15 +92,14 @@ class OpenidApplicationController < ApplicationController
 
   def fetch_smart_launch_context
     response = RestClient.get(Settings.oidc.smart_launch_url,
-                              {:Authorization => 'Bearer ' + token.token_string})
+                              { Authorization: 'Bearer ' + token.token_string })
     unless response.nil? || response.code != 200
       json_response = JSON.parse(response.body)
       json_response['launch']
     end
-
   rescue => e
-      log_message_to_sentry('Error retrieving smart launch context for OIDC token', :error)
-      return nil
+    log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
+    nil
   end
 
   attr_reader :current_user, :session, :scopes
