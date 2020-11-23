@@ -3,7 +3,7 @@
 class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   def build
     to = Time.zone.now
-    from = Time.at(0)
+    from = Time.at(0).utc
 
     ClaimsApi::UnsuccessfulReportMailer.build(from, to, consumer_totals: totals,
                                                         pending_submissions: pending,
@@ -19,7 +19,7 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
                                           source: 'GDIT',
                                           status: 'errored',
                                           evss_response: nil,
-                                          created_at: Time.at(0),
+                                          created_at: Time.at(0).utc,
                                           updated_at: Time.zone.now)
     ]
   end
