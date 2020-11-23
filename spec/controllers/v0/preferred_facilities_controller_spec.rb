@@ -18,6 +18,7 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
 
     it 'lists a users preferred facilities' do
       get(:index)
+      binding.pry; fail
     end
   end
 end
