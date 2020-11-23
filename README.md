@@ -99,6 +99,10 @@ Each deploy is available here:
 
 https://dev-api.va.gov/v0/status
 
+Additional deployment details can be found here:
+
+[native setup instructions](docs/deployment/information.md)
+
 ## API request key formatting
 
 When sending HTTP requests use the `X-Key-Inflection` request header to specify
