@@ -26,20 +26,26 @@ module ClaimsApi
       @date_from = date_from
       @date_to = date_to
 
-      path = ClaimsApi::Engine.root.join(
-        'app',
-        'views',
-        'claims_api',
-        'unsuccessful_report_mailer',
-        'unsuccessful_report.html.erb'
-      )
       template = File.read(path)
       body = ERB.new(template).result(binding)
 
       mail(
         to: RECIPIENTS,
         subject: 'Benefits Claims Unsuccessful Submission Report',
+        content_type: 'text/html',
         body: body
+      )
+    end
+
+    private
+
+    def path
+      ClaimsApi::Engine.root.join(
+        'app',
+        'views',
+        'claims_api',
+        'unsuccessful_report_mailer',
+        'unsuccessful_report.html.erb'
       )
     end
   end
