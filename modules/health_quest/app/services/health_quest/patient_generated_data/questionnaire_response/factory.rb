@@ -8,7 +8,7 @@ module HealthQuest
       class Factory
         extend Forwardable
 
-        attr_reader :session_service, :user, :map_query
+        attr_reader :session_service, :user, :map_query, :options_builder
 
         def_delegator :@map_query, :get
 
@@ -20,10 +20,13 @@ module HealthQuest
           @user = user
           @session_service = HealthQuest::SessionService.new(user)
           @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.headers)
+          @options_builder = OptionsBuilder
         end
 
-        def search
-          map_query.search(author: user.icn)
+        def search(filters)
+          with_options = options_builder.manufacture(user, filters).to_hash
+
+          map_query.search(with_options)
         end
       end
     end
