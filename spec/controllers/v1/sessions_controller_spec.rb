@@ -691,6 +691,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'logs status_detail message to sentry' do
           expect(controller).to receive(:log_message_to_sentry)
+          # add status_detail error specific test here
           post(:saml_callback)
         end
       end
