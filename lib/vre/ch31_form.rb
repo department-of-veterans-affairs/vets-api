@@ -31,26 +31,11 @@ module VRE
 
       response_body
     rescue Ch31Error => e
-      log_exception_to_sentry(
-        e,
-        {
-          intake_id: response_body['ApplicationIntake'],
-          error_message: response_body['ErrorMessage']
-        },
-        { team: 'vfs-ebenefits' }
-      )
+      process_ch_31_error(e)
 
       response_body
     rescue Ch31NilClaimError => e
-      log_exception_to_sentry(
-        e,
-        {
-          icn: @user.icn
-        },
-        { team: 'vfs-ebenefits' }
-      )
-
-      {'error_occurred' => true, 'error_message' => 'Claim cannot be null'}
+      process_nil_claim_error(e)
     end
 
     private
@@ -115,6 +100,29 @@ module VRE
           "internationalPostalCode": new_address['postalCode']
         }
       }
+    end
+
+    def process_ch_31_error(e)
+      log_exception_to_sentry(
+        e,
+        {
+          intake_id: response_body['ApplicationIntake'],
+          error_message: response_body['ErrorMessage']
+        },
+        { team: 'vfs-ebenefits' }
+      )
+    end
+
+    def process_nil_claim_error(e)
+      log_exception_to_sentry(
+        e,
+        {
+          icn: @user.icn
+        },
+        { team: 'vfs-ebenefits' }
+      )
+
+      { 'error_occurred' => true, 'error_message' => 'Claim cannot be null' }
     end
   end
 end
