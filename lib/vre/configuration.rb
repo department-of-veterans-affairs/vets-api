@@ -4,21 +4,15 @@ require 'common/client/configuration/rest'
 
 module VRE
   class Configuration < Common::Client::Configuration::REST
-    # def connection
-    #   @conn ||= Faraday.new(base_path, headers: request_headers request: request_options) do |faraday|
-    #     faraday.use :breakers
-    #     faraday.use Faraday::Response::RaiseError
-    #     faraday.response :betamocks if mock_enabled?
-    #     faraday.response :snakecase, symbolize: false
-    #     faraday.response :json, content_type: /\bjson/
-    #     faraday.adapter Faraday.default_adapter
-    #   end
-    # end
-
-    def request_headers
-      {
-        'Authorization': "Bearer #{get_token}"
-      }.freeze
+    def connection
+      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
+        faraday.use :breakers
+        faraday.use Faraday::Response::RaiseError
+        faraday.response :betamocks if mock_enabled?
+        faraday.response :snakecase, symbolize: false
+        faraday.response :json, content_type: /\bjson/
+        faraday.adapter Faraday.default_adapter
+      end
     end
 
     def mock_enabled?

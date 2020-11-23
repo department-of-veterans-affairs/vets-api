@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'service'
-require 'sentry_logging'
 
 module VRE
-  class Ch31Form < Service
-    include SentryLogging
+  class Ch31Form < VRE::Service
+    configuration VRE::Configuration
+    STATSD_KEY_PREFIX = 'api.vre'
 
     # The Ch31Form class is the means by which the Ch31 aka 28-1900 form is submitted to VR&E
 
@@ -20,7 +20,9 @@ module VRE
     # @return [Hash] the student's address
     #
     def submit
-      send_to_vre(payload: format_payload_for_vre)
+      response = send_to_vre(payload: format_payload_for_vre)
+
+      response.body
     end
 
     private
