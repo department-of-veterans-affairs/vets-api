@@ -31,8 +31,13 @@ RSpec.describe 'Connected Applications API endpoint', type: :request do
     it 'returns no app after deleting an app' do
       with_okta_configured do
         VCR.use_cassette('okta/return_no_app') do
+          # get the list of apps
+          get '/v0/profile/connected_applications'
+          expect(response).to have_http_status(:ok)
+          # delete the list of apps
           delete '/v0/profile/connected_applications/0oa2ey2m6kEL2897N2p7'
           expect(response).to have_http_status(:no_content)
+          # get the list again, but should be empty
           get '/v0/profile/connected_applications'
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)

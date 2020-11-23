@@ -1,20 +1,19 @@
 ---
 http_interactions:
+# initial request for getting all apps
 - request:
     method: get
-    uri: https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Faraday v0.17.0
+      - Faraday v0.9.2
       Content-Type:
       - application/json
       Accept:
       - application/json
-      Authorization:
-      - SSWS <OKTA_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -23,79 +22,60 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 03 Nov 2020 22:39:01 GMT
-      Content-Type:
-      - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
+      - Wed, 07 Nov 2018 14:57:37 GMT
       Server:
       - nginx
       Public-Key-Pins-Report-Only:
       - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
         pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
-        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      Content-Type:
+      - application/json;charset=UTF-8
       Vary:
       - Accept-Encoding
       X-Okta-Request-Id:
-      - X6HcBatSrB3W68x2BOeIZQAADng
-      X-Xss-Protection:
-      - '0'
+      - W@L9YcrI2BDv@Fqf0Z4K3QAACh8
       P3p:
       - CP="HONK"
       X-Rate-Limit-Limit:
-      - '1000'
+      - '2000'
       X-Rate-Limit-Remaining:
-      - '999'
+      - '1999'
       X-Rate-Limit-Reset:
-      - '1604443201'
+      - '1541602717'
       Cache-Control:
       - no-cache, no-store
       Pragma:
       - no-cache
       Expires:
       - '0'
-      Content-Security-Policy-Report-Only:
-      - 'default-src ''self'' *.oktacdn.com deptva-eval.okta.com; connect-src ''self''
-        *.oktacdn.com *.mixpanel.com *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
-        deptva-eval.okta.com deptva-eval-admin.okta.com deptva-eval.kerberos.okta.com
-        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
-        ''self'' *.oktacdn.com; style-src ''unsafe-inline'' ''self'' *.oktacdn.com
-        app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com;
-        frame-src ''self'' login.okta.com deptva-eval.okta.com deptva-eval-admin.okta.com;
-        img-src ''self'' *.oktacdn.com deptva-eval.okta.com *.tiles.mapbox.com *.mapbox.com
-        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
-        data: blob:; font-src data: ''self'' *.oktacdn.com fonts.gstatic.com; report-uri
-        https://okta.report-uri.com/r/d/csp/reportOnly; report-to csp-report'
-      Report-To:
-      - '{"group":"csp-report","max_age":31536000,"endpoints":[{"url":"https://okta.report-uri.com/r/d/csp/reportOnly"}],"include_subdomains":true}'
       X-Content-Type-Options:
       - nosniff
       Strict-Transport-Security:
-      - max-age=315360000; includeSubDomains
+      - max-age=315360000
       Set-Cookie:
-      - JSESSIONID=F5FE453C3A7BD34E0345834100B9A987; Path=/; Secure; HttpOnly
+      - JSESSIONID=01E3218EE36B90D5B8E01C9EE7C90802; Path=/; HttpOnly
       - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      Transfer-Encoding:
+      - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"id":"00u2fqgvbyT23TZNm2p7","status":"ACTIVE","created":"2018-10-31T16:57:53.000Z","activated":"2018-10-31T16:57:54.000Z","statusChanged":"2018-10-31T16:57:54.000Z","lastLogin":"2018-11-07T14:54:39.000Z","lastUpdated":"2019-02-20T00:57:40.000Z","<EE_PASS>Changed":null,"type":{"id":"oty1bpuo75x4e9uHl2p7"},"profile":{"last_login_type":"urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport","firstName":null,"lastName":null,"idme_loa":"3","mobilePhone":null,"secondEmail":null,"login":"1847a3eb4b904102882e24e4ddf12ff3","email":"arteal@oddball.io","loa":3},"credentials":{"provider":{"type":"FEDERATION","name":"FEDERATION"}},"_links":{"suspend":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/suspend","method":"POST"},"schema":{"href":"https://deptva-eval.okta.com/api/v1/meta/schemas/user/osc1bpuo75x4e9uHl2p7"},"resetPassword":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/reset_<EE_PASS>","method":"POST"},"changeRecoveryQuestion":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/credentials/change_recovery_question","method":"POST"},"self":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7"},"type":{"href":"https://deptva-eval.okta.com/api/v1/meta/types/user/oty1bpuo75x4e9uHl2p7"},"deactivate":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/deactivate","method":"POST"}}}'
-  recorded_at: Tue, 03 Nov 2020 22:39:01 GMT
+      string: '{"id":"00u2fqgvbyT23TZNm2p7","status":"ACTIVE","created":"2018-10-31T16:57:53.000Z","activated":"2018-10-31T16:57:54.000Z","statusChanged":"2018-10-31T16:57:54.000Z","lastLogin":"2018-11-07T14:54:39.000Z","lastUpdated":"2018-11-07T14:54:39.000Z","passwordChanged":null,"profile":{"firstName":"Alex","lastName":"Teal","gender":"M","mobilePhone":null,"dob":"1989-11-02","secondEmail":null,"middleName":"R","login":"1847a3eb4b904102882e24e4ddf12ff3","email":"arteal@oddball.io","ssn":"111111111","loa":3},"credentials":{"provider":{"type":"FEDERATION","name":"FEDERATION"}},"_links":{"suspend":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/suspend","method":"POST"},"resetPassword":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/reset_password","method":"POST"},"changeRecoveryQuestion":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/credentials/change_recovery_question","method":"POST"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7"},"deactivate":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/deactivate","method":"POST"}}}'
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:37 GMT
 - request:
     method: get
-    uri: https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Faraday v0.17.0
+      - Faraday v0.9.2
       Content-Type:
       - application/json
       Accept:
       - application/json
-      Authorization:
-      - SSWS <OKTA_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -104,25 +84,19 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 03 Nov 2020 22:39:02 GMT
-      Content-Type:
-      - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
+      - Wed, 07 Nov 2018 14:57:38 GMT
       Server:
       - nginx
       Public-Key-Pins-Report-Only:
       - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
         pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
-        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      Content-Type:
+      - application/json;charset=UTF-8
       Vary:
       - Accept-Encoding
       X-Okta-Request-Id:
-      - X6HcBt2b24iseOlek1CEPwAAEYI
-      X-Xss-Protection:
-      - '0'
+      - W@L9Yk4vZR@KRh0Cnu7jqQAAFeg
       P3p:
       - CP="HONK"
       X-Rate-Limit-Limit:
@@ -130,53 +104,44 @@ http_interactions:
       X-Rate-Limit-Remaining:
       - '599'
       X-Rate-Limit-Reset:
-      - '1604443202'
+      - '1541602718'
       Cache-Control:
       - no-cache, no-store
       Pragma:
       - no-cache
       Expires:
       - '0'
-      Content-Security-Policy-Report-Only:
-      - 'default-src ''self'' *.oktacdn.com deptva-eval.okta.com; connect-src ''self''
-        *.oktacdn.com *.mixpanel.com *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
-        deptva-eval.okta.com deptva-eval-admin.okta.com deptva-eval.kerberos.okta.com
-        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
-        ''self'' *.oktacdn.com; style-src ''unsafe-inline'' ''self'' *.oktacdn.com
-        app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com;
-        frame-src ''self'' login.okta.com deptva-eval.okta.com deptva-eval-admin.okta.com;
-        img-src ''self'' *.oktacdn.com deptva-eval.okta.com *.tiles.mapbox.com *.mapbox.com
-        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
-        data: blob:; font-src data: ''self'' *.oktacdn.com fonts.gstatic.com; report-uri
-        https://okta.report-uri.com/r/d/csp/reportOnly; report-to csp-report'
-      Report-To:
-      - '{"group":"csp-report","max_age":31536000,"endpoints":[{"url":"https://okta.report-uri.com/r/d/csp/reportOnly"}],"include_subdomains":true}'
       X-Content-Type-Options:
       - nosniff
       Strict-Transport-Security:
-      - max-age=315360000; includeSubDomains
+      - max-age=315360000
       Set-Cookie:
-      - JSESSIONID=B6BFCCB7C2E79563A99EA78D0A234A8E; Path=/; Secure; HttpOnly
+      - JSESSIONID=69CF00FD74D2167AB8FD1500ACCD3B3E; Path=/; HttpOnly
       - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      Transfer-Encoding:
+      - chunked
     body:
       encoding: ASCII-8BIT
-      string: "[]"
-  recorded_at: Tue, 03 Nov 2020 22:39:02 GMT
+      string: '[{"id":"oag3dzngxKSR76uXj2p6","status":"ACTIVE","created":"2018-11-07T14:54:42.000Z","lastUpdated":"2018-11-07T14:54:42.000Z","issuer":"https://example.com/oauth2/default","clientId":"0oa2ey2m6kEL2897N2p7","userId":"00u2fqgvbyT23TZNm2p7","scopeId":"scp2bvhy20aJcLgHy2p7","_links":{"app":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"authorizationServer":{"href":"https://example.com/api/v1/authorizationServers/default","title":"default"},"scope":{"href":"https://example.com/api/v1/authorizationServers/default/scopes/scp2bvhy20aJcLgHy2p7","title":"Disability
+        Rating"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3dzngxKSR76uXj2p6","hints":{"allow":["GET","DELETE"]}},"client":{"href":"https://example.com/oauth2/v1/clients/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"user":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7","title":"Alex
+        Teal"}}},{"id":"oag3dzngyS4R7zSGp2p6","status":"ACTIVE","created":"2018-11-07T14:54:42.000Z","lastUpdated":"2018-11-07T14:54:42.000Z","issuer":"https://example.com/oauth2/default","clientId":"0oa2ey2m6kEL2897N2p7","userId":"00u2fqgvbyT23TZNm2p7","scopeId":"scp2bvhy3jLMtDLif2p7","_links":{"app":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"authorizationServer":{"href":"https://example.com/api/v1/authorizationServers/default","title":"default"},"scope":{"href":"https://example.com/api/v1/authorizationServers/default/scopes/scp2bvhy3jLMtDLif2p7","title":"Military
+        Service History"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3dzngyS4R7zSGp2p6","hints":{"allow":["GET","DELETE"]}},"client":{"href":"https://example.com/oauth2/v1/clients/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"user":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7","title":"Alex
+        Teal"}}}]'
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:38 GMT
 - request:
     method: get
-    uri: https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants
+    uri: https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7
     body:
       encoding: US-ASCII
       string: ''
     headers:
       User-Agent:
-      - Faraday v0.17.0
+      - Faraday v0.9.2
       Content-Type:
       - application/json
       Accept:
       - application/json
-      Authorization:
-      - SSWS <OKTA_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -185,25 +150,206 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 03 Nov 2020 22:39:02 GMT
-      Content-Type:
-      - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
+      - Wed, 07 Nov 2018 14:31:37 GMT
       Server:
       - nginx
       Public-Key-Pins-Report-Only:
       - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
         pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
-        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      Content-Type:
+      - application/json;charset=UTF-8
       Vary:
       - Accept-Encoding
       X-Okta-Request-Id:
-      - X6HcBj6sb70LCFhx1F6s@wAAFGw
-      X-Xss-Protection:
+      - W@L3SZlAdtEUSK4ez2vm1AAAAb4
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '500'
+      X-Rate-Limit-Remaining:
+      - '499'
+      X-Rate-Limit-Reset:
+      - '1541601157'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
       - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000
+      Set-Cookie:
+      - JSESSIONID=8D7BBFB4438A3C88796CC84BD49DD815; Path=/; HttpOnly
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"id":"0oa2ey2m6kEL2897N2p7","name":"oidc_client","label":"TestGrantRevoke","status":"ACTIVE","lastUpdated":"2018-10-29T13:04:08.000Z","created":"2018-10-29T13:04:08.000Z","accessibility":{"selfService":false,"errorRedirectUrl":null,"loginRedirectUrl":null},"visibility":{"autoSubmitToolbar":false,"hide":{"iOS":true,"web":true},"appLinks":{"oidc_client_link":true}},"features":[],"signOnMode":"OPENID_CONNECT","credentials":{"userNameTemplate":{"template":"${source.login}","type":"BUILT_IN"},"signing":{"kid":"FKHfbEAUXleNQzw0de1ci1qSRZqz4hQx2QbOMC163TQ"},"oauthClient":{"autoKeyRotation":true,"client_id":"0oa2ey2m6kEL2897N2p7","token_endpoint_auth_method":"none"}},"settings":{"app":{},"notifications":{"vpn":{"network":{"connection":"DISABLED"},"message":null,"helpUrl":null}},"oauthClient":{"client_uri":null,"logo_uri":null,"redirect_uris":["http://localhost:8080/implicit/callback"],"response_types":["id_token","token"],"grant_types":["implicit"],"application_type":"browser","consent_method":"REQUIRED"}},"_links":{"appLinks":[{"name":"oidc_client_link","href":"https://example.com/home/oidc_client/0oa2ey2m6kEL2897N2p7/aln177a159h7Zf52X0g8","type":"text/html"}],"groups":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7/groups"},"logo":[{"name":"medium","href":"https://ok6static.oktacdn.com/assets/img/logos/default.6770228fb0dab49a1695ef440a5279bb.png","type":"image/png"}],"users":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7/users"},"deactivate":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7/lifecycle/deactivate"}}}'
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:31:37 GMT
+# delete request for deleting all apps
+- request:
+    method: get
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Nov 2018 14:57:37 GMT
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      Content-Type:
+      - application/json;charset=UTF-8
+      Vary:
+      - Accept-Encoding
+      X-Okta-Request-Id:
+      - W@L9YcrI2BDv@Fqf0Z4K3QAACh8
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '2000'
+      X-Rate-Limit-Remaining:
+      - '1999'
+      X-Rate-Limit-Reset:
+      - '1541602717'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000
+      Set-Cookie:
+      - JSESSIONID=01E3218EE36B90D5B8E01C9EE7C90802; Path=/; HttpOnly
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"id":"00u2fqgvbyT23TZNm2p7","status":"ACTIVE","created":"2018-10-31T16:57:53.000Z","activated":"2018-10-31T16:57:54.000Z","statusChanged":"2018-10-31T16:57:54.000Z","lastLogin":"2018-11-07T14:54:39.000Z","lastUpdated":"2018-11-07T14:54:39.000Z","passwordChanged":null,"profile":{"firstName":"Alex","lastName":"Teal","gender":"M","mobilePhone":null,"dob":"1989-11-02","secondEmail":null,"middleName":"R","login":"1847a3eb4b904102882e24e4ddf12ff3","email":"arteal@oddball.io","ssn":"111111111","loa":3},"credentials":{"provider":{"type":"FEDERATION","name":"FEDERATION"}},"_links":{"suspend":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/suspend","method":"POST"},"resetPassword":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/reset_password","method":"POST"},"changeRecoveryQuestion":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/credentials/change_recovery_question","method":"POST"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7"},"deactivate":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/deactivate","method":"POST"}}}'
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:37 GMT
+- request:
+    method: get
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Nov 2018 14:57:38 GMT
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      Content-Type:
+      - application/json;charset=UTF-8
+      Vary:
+      - Accept-Encoding
+      X-Okta-Request-Id:
+      - W@L9Yk4vZR@KRh0Cnu7jqQAAFeg
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '600'
+      X-Rate-Limit-Remaining:
+      - '599'
+      X-Rate-Limit-Reset:
+      - '1541602718'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000
+      Set-Cookie:
+      - JSESSIONID=69CF00FD74D2167AB8FD1500ACCD3B3E; Path=/; HttpOnly
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"id":"oag3dzngxKSR76uXj2p6","status":"ACTIVE","created":"2018-11-07T14:54:42.000Z","lastUpdated":"2018-11-07T14:54:42.000Z","issuer":"https://example.com/oauth2/default","clientId":"0oa2ey2m6kEL2897N2p7","userId":"00u2fqgvbyT23TZNm2p7","scopeId":"scp2bvhy20aJcLgHy2p7","_links":{"app":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"authorizationServer":{"href":"https://example.com/api/v1/authorizationServers/default","title":"default"},"scope":{"href":"https://example.com/api/v1/authorizationServers/default/scopes/scp2bvhy20aJcLgHy2p7","title":"Disability
+        Rating"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3dzngxKSR76uXj2p6","hints":{"allow":["GET","DELETE"]}},"client":{"href":"https://example.com/oauth2/v1/clients/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"user":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7","title":"Alex
+        Teal"}}},{"id":"oag3dzngyS4R7zSGp2p6","status":"ACTIVE","created":"2018-11-07T14:54:42.000Z","lastUpdated":"2018-11-07T14:54:42.000Z","issuer":"https://example.com/oauth2/default","clientId":"0oa2ey2m6kEL2897N2p7","userId":"00u2fqgvbyT23TZNm2p7","scopeId":"scp2bvhy3jLMtDLif2p7","_links":{"app":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"authorizationServer":{"href":"https://example.com/api/v1/authorizationServers/default","title":"default"},"scope":{"href":"https://example.com/api/v1/authorizationServers/default/scopes/scp2bvhy3jLMtDLif2p7","title":"Military
+        Service History"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3dzngyS4R7zSGp2p6","hints":{"allow":["GET","DELETE"]}},"client":{"href":"https://example.com/oauth2/v1/clients/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"user":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7","title":"Alex
+        Teal"}}}]'
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:38 GMT
+- request:
+    method: delete
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3dzngxKSR76uXj2p6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Date:
+      - Wed, 07 Nov 2018 14:57:48 GMT
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      X-Okta-Request-Id:
+      - W@L9bISLwRX0xWLYefSKHgAAAew
       P3p:
       - CP="HONK"
       X-Rate-Limit-Limit:
@@ -211,36 +357,210 @@ http_interactions:
       X-Rate-Limit-Remaining:
       - '598'
       X-Rate-Limit-Reset:
-      - '1604443202'
+      - '1541602718'
       Cache-Control:
       - no-cache, no-store
       Pragma:
       - no-cache
       Expires:
       - '0'
-      Content-Security-Policy-Report-Only:
-      - 'default-src ''self'' *.oktacdn.com deptva-eval.okta.com; connect-src ''self''
-        *.oktacdn.com *.mixpanel.com *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
-        deptva-eval.okta.com deptva-eval-admin.okta.com deptva-eval.kerberos.okta.com
-        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
-        ''self'' *.oktacdn.com; style-src ''unsafe-inline'' ''self'' *.oktacdn.com
-        app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com;
-        frame-src ''self'' login.okta.com deptva-eval.okta.com deptva-eval-admin.okta.com;
-        img-src ''self'' *.oktacdn.com deptva-eval.okta.com *.tiles.mapbox.com *.mapbox.com
-        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
-        data: blob:; font-src data: ''self'' *.oktacdn.com fonts.gstatic.com; report-uri
-        https://okta.report-uri.com/r/d/csp/reportOnly; report-to csp-report'
-      Report-To:
-      - '{"group":"csp-report","max_age":31536000,"endpoints":[{"url":"https://okta.report-uri.com/r/d/csp/reportOnly"}],"include_subdomains":true}'
+      X-Okta-Backend:
+      - ok6-apiapp01b.aue2p.internal
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=315360000
+      Set-Cookie:
+      - JSESSIONID=1C0000CE61996018F5A4A002E3F4AC4C; Path=/; HttpOnly
+      - JSESSIONID=1C0000CE61996018F5A4A002E3F4AC4C; Path=/; Secure
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:48 GMT
+- request:
+    method: delete
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3dzngyS4R7zSGp2p6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 204
+      message: No Content
+    headers:
+      Date:
+      - Wed, 07 Nov 2018 14:57:56 GMT
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      X-Okta-Request-Id:
+      - W@L9dKHklkVdt41EjVTYagAAAFg
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '600'
+      X-Rate-Limit-Remaining:
+      - '597'
+      X-Rate-Limit-Reset:
+      - '1541602718'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Okta-Backend:
+      - ok6-apiapp05b.aue2p.internal
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=315360000
+      Set-Cookie:
+      - JSESSIONID=92CBD406726E781ABA01D7CCB0DB343E; Path=/; HttpOnly
+      - JSESSIONID=92CBD406726E781ABA01D7CCB0DB343E; Path=/; Secure
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:56 GMT
+# final call to get all apps
+- request:
+    method: get
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Nov 2018 14:57:37 GMT
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      Content-Type:
+      - application/json;charset=UTF-8
+      Vary:
+      - Accept-Encoding
+      X-Okta-Request-Id:
+      - W@L9YcrI2BDv@Fqf0Z4K3QAACh8
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '2000'
+      X-Rate-Limit-Remaining:
+      - '1999'
+      X-Rate-Limit-Reset:
+      - '1541602717'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
       X-Content-Type-Options:
       - nosniff
       Strict-Transport-Security:
-      - max-age=315360000; includeSubDomains
+      - max-age=315360000
       Set-Cookie:
-      - JSESSIONID=976BBE420064F702126B0A9CB7554193; Path=/; Secure; HttpOnly
+      - JSESSIONID=01E3218EE36B90D5B8E01C9EE7C90802; Path=/; HttpOnly
       - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      Transfer-Encoding:
+      - chunked
     body:
       encoding: ASCII-8BIT
-      string: "[]"
-  recorded_at: Tue, 03 Nov 2020 22:39:02 GMT
-recorded_with: VCR 6.0.0
+      string: '{"id":"00u2fqgvbyT23TZNm2p7","status":"ACTIVE","created":"2018-10-31T16:57:53.000Z","activated":"2018-10-31T16:57:54.000Z","statusChanged":"2018-10-31T16:57:54.000Z","lastLogin":"2018-11-07T14:54:39.000Z","lastUpdated":"2018-11-07T14:54:39.000Z","passwordChanged":null,"profile":{"firstName":"Alex","lastName":"Teal","gender":"M","mobilePhone":null,"dob":"1989-11-02","secondEmail":null,"middleName":"R","login":"1847a3eb4b904102882e24e4ddf12ff3","email":"arteal@oddball.io","ssn":"111111111","loa":3},"credentials":{"provider":{"type":"FEDERATION","name":"FEDERATION"}},"_links":{"suspend":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/suspend","method":"POST"},"resetPassword":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/reset_password","method":"POST"},"changeRecoveryQuestion":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/credentials/change_recovery_question","method":"POST"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7"},"deactivate":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/deactivate","method":"POST"}}}'
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:37 GMT
+- request:
+    method: get
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Nov 2018 14:57:38 GMT
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.io/r/default/hpkp/reportOnly"
+      Content-Type:
+      - application/json;charset=UTF-8
+      Vary:
+      - Accept-Encoding
+      X-Okta-Request-Id:
+      - W@L9Yk4vZR@KRh0Cnu7jqQAAFeg
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '600'
+      X-Rate-Limit-Remaining:
+      - '599'
+      X-Rate-Limit-Reset:
+      - '1541602718'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000
+      Set-Cookie:
+      - JSESSIONID=69CF00FD74D2167AB8FD1500ACCD3B3E; Path=/; HttpOnly
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '[]'
+    http_version: 
+  recorded_at: Wed, 07 Nov 2018 14:57:38 GMT
+recorded_with: VCR 3.0.3
