@@ -129,6 +129,8 @@ ActiveRecord::Schema.define(version: 2020_11_18_233113) do
     t.string "encrypted_file_data_iv"
     t.string "encrypted_evss_response"
     t.string "encrypted_evss_response_iv"
+    t.string "encrypted_bgs_flash_responses"
+    t.string "encrypted_bgs_flash_responses_iv"
     t.string "flashes", default: [], array: true
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
   end
