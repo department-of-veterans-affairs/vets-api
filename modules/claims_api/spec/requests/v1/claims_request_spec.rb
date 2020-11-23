@@ -117,13 +117,14 @@ RSpec.describe 'EVSS Claims management', type: :request do
                  auth_headers: { some: 'data' },
                  evss_id: 600_118_851,
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+          expect_any_instance_of(ClaimsApi::UnsynchronizedEVSSClaimService).to receive(:update_from_remote)
+            .and_raise(StandardError.new('no claim found'))
           VCR.use_cassette('evss/claims/claim') do
             get(
               '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
               params: nil, headers: request_headers.merge(auth_header)
             )
-
-            # TODO: What is the expectation at this point...?
+            expect(response.code.to_i).to eq(404)
           end
         end
       end
