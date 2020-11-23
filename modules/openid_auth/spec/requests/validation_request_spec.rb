@@ -64,8 +64,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
   let(:launch_response) do
     instance_double(RestClient::Response,
-                    code: 200,
-                            body: {launch: '73806470379396828'}.to_json)
+                      code: 200,
+                      body: { launch: '73806470379396828' }.to_json)
   end
   let(:failed_launch_response) do
     instance_double(RestClient::Response,

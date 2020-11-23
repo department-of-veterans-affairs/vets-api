@@ -36,9 +36,7 @@ class OpenidApplicationController < ApplicationController
 
     # issued for a client vs a user
     if token.client_credentials_token?
-      if token.payload['scp'].include?('launch/patient')
-        token.payload[:icn] = fetch_smart_launch_context
-      end
+      token.payload[:icn] = fetch_smart_launch_context if token.payload['scp'].include?('launch/patient')
       return true
     end
 
