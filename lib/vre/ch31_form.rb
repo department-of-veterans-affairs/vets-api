@@ -26,9 +26,9 @@ module VRE
       response = send_to_vre(payload: format_payload_for_vre)
       response_body = response.body
 
-      return response_body
-
       raise Ch31Error if response_body['error_occurred'] == true
+
+      response_body
     rescue Ch31Error => e
       log_exception_to_sentry(
         e,

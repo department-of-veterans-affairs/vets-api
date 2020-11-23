@@ -11,7 +11,7 @@ module VRE
       with_monitoring do
         conn = Faraday.new(
           "#{Settings.veteran_readiness_and_employment.auth_endpoint}?grant_type=client_credentials",
-          headers: {'Authorization' => "Basic #{Settings.veteran_readiness_and_employment.credentials}"}
+          headers: { 'Authorization' => "Basic #{Settings.veteran_readiness_and_employment.credentials}" }
         )
 
         request = conn.post
@@ -19,6 +19,7 @@ module VRE
       end
     end
 
+    # rubocop:disable Layout/LineLength
     def send_to_vre(payload:)
       with_monitoring do
         perform(
@@ -29,6 +30,7 @@ module VRE
         ) # see lib/common/client/base.rb#L94
       end
     end
+    # rubocop:enable Layout/LineLength
 
     def request_headers
       {

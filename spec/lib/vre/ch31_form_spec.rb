@@ -25,14 +25,14 @@ RSpec.describe VRE::Ch31Form do
 
   describe '#submit' do
     let(:faraday_response) { double('faraday_connection') }
-    before(:each) do
+
+    before do
       allow(faraday_response).to receive(:env)
     end
 
     context 'with a successful submission' do
       it 'successfully sends to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-
           response = service.submit
           expect(response['error_occurred']).to eq(false)
         end
