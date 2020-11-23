@@ -33,21 +33,6 @@ RSpec.describe SchoolCertifyingOfficialsMailer, type: [:mailer] do
       it 'includes school student id' do
         expect(subject.body.raw_source).to include("Student's school ID number: #{applicant.schoolStudentId}")
       end
-      it 'includes email' do
-        expect(subject.body.raw_source).to include("cc: #{applicant.email}")
-      end
-    end
-
-    context 'when sending staging emails' do
-      before do
-        expect(FeatureFlipper).to receive(:staging_email?).twice.and_return(true)
-      end
-
-      it 'includes recipients' do
-        described_class.build(applicant, recipients, ga_client_id).deliver_now
-
-        expect(subject.bcc).to eq(SchoolCertifyingOfficialsMailer::STAGING_RECIPIENTS)
-      end
     end
   end
 end
