@@ -1776,7 +1776,7 @@ en:
         <<: *external_defaults
         code: 'VETEXT_400'
         detail: The request to the upstream service was malformed and could not be processed
-        status: 500
+        status: 400
       VETEXT_502:
         <<: *external_defaults
         code: 'VETEXT_502'

@@ -34,7 +34,7 @@ module VEText
           osVersion: os_version,
           deviceName: device_name || os_name
         }.to_json,
-        { 'Content-Type' => 'content-type: application/json' }
+        { 'Content-Type' => 'application/json' }
       )
       response.body
     rescue Common::Client::Errors::ClientError => e
@@ -45,10 +45,10 @@ module VEText
 
     def remap_error(e)
       case e.status
-      when 400
-        raise Common::Exceptions::BackendServiceException.new('VETEXT_400', { detail: e.body[:error] }, 400, e.body)
-      when 500
-        raise Common::Exceptions::BackendServiceException.new('VETEXT_502', {}, 500)
+      when 400..499
+        raise Common::Exceptions::BackendServiceException.new('VETEXT_400', { detail: e.body[:error] }, e.status, e.body)
+      when 500..599
+        raise Common::Exceptions::BackendServiceException.new('VETEXT_502', {}, e.status)
       else
         raise e
       end
