@@ -31,7 +31,7 @@ module VRE
 
       response_body
     rescue Ch31Error => e
-      process_ch_31_error(e)
+      process_ch_31_error(e, response_body)
 
       response_body
     rescue Ch31NilClaimError => e
@@ -102,7 +102,7 @@ module VRE
       }
     end
 
-    def process_ch_31_error(e)
+    def process_ch_31_error(e, response_body)
       log_exception_to_sentry(
         e,
         {
