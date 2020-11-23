@@ -161,6 +161,9 @@ modules_appeals_api:
 vre_counseling:
   prefill: true
 
+vre_readiness:
+  prefill: true
+
 # Settings for EVSS
 evss:
   prefill: true

@@ -101,7 +101,8 @@ class FormProfile
     decision_review: ['20-0996'],
     mdot: ['MDOT'],
     fsr: ['5655'],
-    vre_counseling: ['28-8832']
+    vre_counseling: ['28-8832'],
+    vre_readiness: ['28-1900'],
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -126,7 +127,8 @@ class FormProfile
     'MDOT' => ::FormProfiles::MDOT,
     '22-10203' => ::FormProfiles::VA10203,
     '5655' => ::FormProfiles::VA5655,
-    '28-8832' => ::FormProfiles::VA288832
+    '28-8832' => ::FormProfiles::VA288832,
+    '28-1900' => ::FormProfiles::VA281900
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze

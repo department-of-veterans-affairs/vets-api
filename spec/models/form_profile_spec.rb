@@ -744,6 +744,21 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v28_1900_expected) do
+    {
+      'contactInformation' => {
+        'addressLine1' => street_check[:street],
+        'addressLine2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'stateCode' => user.va_profile[:address][:state],
+        'countryName' => user.va_profile[:address][:country],
+        'zipCode' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'mainPhone' => us_phone,
+      'email' => user.pciu_email
+    }
+  end
+
   describe '#pciu_us_phone' do
     def self.test_pciu_us_phone(primary, expected)
       it "returns #{expected}" do
@@ -1046,6 +1061,7 @@ RSpec.describe FormProfile, type: :model do
           FEEDBACK-TOOL
           686C-674
           28-8832
+          28-1900
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
