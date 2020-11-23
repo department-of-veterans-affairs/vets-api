@@ -16,6 +16,9 @@
     consumer_name:
       type: string
       default: ""
+    consumer_workflow:
+      type: string
+      default: ""
     consumer_version_tags:
       type: string
       default: ""
@@ -184,8 +187,8 @@
                   curl -L -X POST \
                        -u "${CIRCLE_TOKEN}:" \
                        -H 'Content-Type: application/json' \
-                       -d '{"branch":"<< pipeline.parameters.consumer_branch >>","parameters":{"check_deployability":true}}' \
-                       https://circleci.com/api/v2/project/github/department-of-veterans-affairs/vets-website/pipeline
+                       -d '{"parameters":{"from_failed":true}}' \
+                       https://circleci.com/api/v2/workflow/<< pipeline.parameters.consumer_workflow >>/rerun
                 when: always
     add_pact_broker_artifact:
         steps:
