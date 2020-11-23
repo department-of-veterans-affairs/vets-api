@@ -18,7 +18,17 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
 
     it 'lists a users preferred facilities' do
       get(:index)
-      binding.pry; fail
+
+      expect(
+        JSON.parse(response.body)['data'].map do |preferred_facility_data|
+          preferred_facility_data['attributes']
+        end
+      ).to eq(
+        [
+          { 'facility_code' => '983' },
+          { 'facility_code' => '688' },
+        ]
+      )
     end
   end
 end
