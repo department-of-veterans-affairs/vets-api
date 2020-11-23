@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
-module DebtManagementCenter
-  class VaAwardsComposite
-    include Virtus.model
-    attribute :name, String
-    attribute :amount, String
-    attribute :veteran_or_spouse, String
-  end
-end
+require 'debt_management_center/models/va_awards_composite'
 
+##
+# Form Profile for VA Form 5655, the Financial Status Report Form
+#
 class FormProfiles::VA5655 < FormProfile
   attribute :va_awards_composite, DebtManagementCenter::VaAwardsComposite
 
+  ##
+  # Overrides the FormProfile metadata method, to provide frontend with usable metadata
+  #
+  # @return [Hash]
+  #
   def metadata
     {
       version: 0,
@@ -20,6 +21,11 @@ class FormProfiles::VA5655 < FormProfile
     }
   end
 
+  ##
+  # Overrides the FormProfile prefill method to initialize @va_awards_composite
+  #
+  # @return [Hash]
+  #
   def prefill
     @va_awards_composite = init_va_awards
     super
