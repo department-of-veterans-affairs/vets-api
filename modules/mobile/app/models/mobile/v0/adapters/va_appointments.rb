@@ -3,6 +3,13 @@
 module Mobile
   module V0
     module Adapters
+      # VA Appointments come in various shapes and sizes. This class adapts
+      # VA on-site, video connect, video connect atlas, and video connect with
+      # a GFE to a common schema.
+      #
+      # @example create a new instance and parse incoming data
+      #   Mobile::V0::Adapters::VAAppointments.new.parse(appointments)
+      #
       class VAAppointments
         APPOINTMENT_TYPES = {
           va: 'VA',
@@ -48,6 +55,13 @@ module Mobile
 
         VIDEO_GFE_FLAG = 'MOBILE_GFE'
 
+        # Takes a result set of VA appointments from the appointments web service
+        # and returns the set adapted to a common schema.
+        #
+        # @appointments Hash a list of various VA appointment types
+        #
+        # @return Hash the adapted list
+        #
         def parse(appointments)
           facilities = Set.new
 
