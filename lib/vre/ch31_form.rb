@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 require_relative 'service'
+require_relative 'errors/ch31_error'
 require 'sentry_logging'
 
 module VRE
-  class Ch31Form < Service
+  class Ch31Form < VRE::Service
     include SentryLogging
-    class VRECH31Error < StandardError
-    end
+    configuration VRE::Configuration
+    STATSD_KEY_PREFIX = 'api.vre'
+
+    # The Ch31Form class is the means by which the Ch31 aka 28-1900 form is submitted to VR&E
 
     def initialize(user, claim)
       @user = user
@@ -15,8 +18,28 @@ module VRE
       @parsed_form = @claim.parsed_form
     end
 
+    # Submits prepared data derived from VeteranReadinessEmploymentClaim#form
+    #
+    # @return [Hash] the student's address
+    #
     def submit
-      send_to_vre(format_payload_for_vre, VRECH31Error)
+      response = send_to_vre(payload: format_payload_for_vre)
+      response_body = response.body
+
+      raise Ch31Error if response_body['error_occurred'] == true
+
+      response_body
+    rescue Ch31Error => e
+      log_exception_to_sentry(
+        e,
+        {
+          intake_id: response_body['ApplicationIntake'],
+          error_message: response_body['ErrorMessage']
+        },
+        { team: 'vfs-ebenefits' }
+      )
+
+      response_body
     end
 
     private

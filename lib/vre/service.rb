@@ -1,41 +1,41 @@
 # frozen_string_literal: true
 
+require 'vre/configuration'
+require 'common/client/base'
+
 module VRE
-  class Service
+  class Service < Common::Client::Base
+    include Common::Client::Concerns::Monitoring
+
     def get_token
-      conn = Faraday.new(
-        "#{Settings.veteran_readiness_and_education.auth_endpoint}?grant_type=client_credentials",
-        headers: { 'Authorization' => Settings.veteran_readiness_and_education.credentials }
-      )
+      with_monitoring do
+        conn = Faraday.new(
+          "#{Settings.veteran_readiness_and_employment.auth_endpoint}?grant_type=client_credentials",
+          headers: { 'Authorization' => "Basic #{Settings.veteran_readiness_and_employment.credentials}" }
+        )
 
-      request = conn.post
-
-      JSON.parse(request.body)['access_token']
+        request = conn.post
+        JSON.parse(request.body)['access_token']
+      end
     end
 
-    def send_to_vre(payload, exception)
-      conn = Faraday.new(url: Settings.veteran_readiness_and_education.base_url)
-
-      response = conn.post do |req|
-        req.url Settings.veteran_readiness_and_education.ch_31_endpoint
-        req.headers['Authorization'] = "Bearer #{get_token}"
-        req.headers['Content-Type'] = 'application/json'
-        req.body = payload
+    # rubocop:disable Layout/LineLength
+    def send_to_vre(payload:)
+      with_monitoring do
+        perform(
+          :post,
+          "#{Settings.veteran_readiness_and_employment.base_url}#{Settings.veteran_readiness_and_employment.ch_31_endpoint}",
+          payload,
+          request_headers
+        ) # see lib/common/client/base.rb#L94
       end
+    end
+    # rubocop:enable Layout/LineLength
 
-      response_body = JSON.parse(response.body)
-      return true if response_body['ErrorOccurred'] == false
-
-      raise exception
-    rescue exception => e
-      log_exception_to_sentry(
-        e,
-        {
-          intake_id: response_body['ApplicationIntake'],
-          error_message: response_body['ErrorMessage']
-        },
-        { team: 'vfs-ebenefits' }
-      )
+    def request_headers
+      {
+        'Authorization': "Bearer #{get_token}"
+      }
     end
   end
 end
