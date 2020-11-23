@@ -320,7 +320,15 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'serviceInformation' => {
-              'servicePeriods' => []
+              'servicePeriods' => [
+                {
+                  'dateRange' => {
+                    'from' => '1980-02-05',
+                    'to' => '1990-01-02'
+                  },
+                  'serviceBranch' => 'Air Force'
+                }
+              ]
             },
             'servedInCombatZonePost911' => true
           }
@@ -329,7 +337,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
-          'servicePeriods' => [],
+          'servicePeriods' => [
+            {
+              'serviceBranch' => 'Air Force',
+              'activeDutyBeginDate' => '1980-02-05',
+              'activeDutyEndDate' => '1990-01-02'
+            }
+          ],
           'servedInCombatZone' => true
         }
       end
@@ -372,7 +386,15 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'serviceInformation' => {
-              'servicePeriods' => [],
+              'servicePeriods' => [
+                {
+                  'dateRange' => {
+                    'from' => '1980-02-05',
+                    'to' => '2021-04-02'
+                  },
+                  'serviceBranch' => 'Air Force'
+                }
+              ],
               'separationLocation' => {
                 'separationLocationCode' => '98283',
                 'separationLocationName' => 'AF Academy'
@@ -384,7 +406,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
-          'servicePeriods' => [],
+          'servicePeriods' => [
+            {
+              'serviceBranch' => 'Air Force',
+              'activeDutyBeginDate' => '1980-02-05',
+              'activeDutyEndDate' => '2021-04-02'
+            }
+          ],
           'separationLocationCode' => '98283',
           'separationLocationName' => 'AF Academy'
         }
@@ -396,7 +424,15 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'serviceInformation' => {
-              'servicePeriods' => []
+              'servicePeriods' => [
+                {
+                  'dateRange' => {
+                    'from' => '1980-02-05',
+                    'to' => '1990-01-02'
+                  },
+                  'serviceBranch' => 'Air Force'
+                }
+              ]
             },
             'confinements' => [
               {
@@ -410,7 +446,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
-          'servicePeriods' => [],
+          'servicePeriods' => [
+            {
+              'serviceBranch' => 'Air Force',
+              'activeDutyBeginDate' => '1980-02-05',
+              'activeDutyEndDate' => '1990-01-02'
+            }
+          ],
           'confinements' => [
             {
               'confinementBeginDate' => '1984-01-31',
@@ -426,7 +468,15 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'serviceInformation' => {
-              'servicePeriods' => [],
+              'servicePeriods' => [
+                {
+                  'dateRange' => {
+                    'from' => '1980-02-05',
+                    'to' => '1990-01-02'
+                  },
+                  'serviceBranch' => 'Air Force'
+                }
+              ],
               'reservesNationalGuardService' => {
                 'obligationTermOfServiceDateRange' => {
                   'from' => '2000-01-04',
@@ -448,7 +498,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
-          'servicePeriods' => [],
+          'servicePeriods' => [
+            {
+              'serviceBranch' => 'Air Force',
+              'activeDutyBeginDate' => '1980-02-05',
+              'activeDutyEndDate' => '1990-01-02'
+            }
+          ],
           'reservesNationalGuardService' => {
             'obligationTermOfServiceFromDate' => '2000-01-04',
             'obligationTermOfServiceToDate' => '2004-01-04',
@@ -472,7 +528,15 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'serviceInformation' => {
-              'servicePeriods' => []
+              'servicePeriods' => [
+                {
+                  'dateRange' => {
+                    'from' => '1980-02-05',
+                    'to' => '1990-01-02'
+                  },
+                  'serviceBranch' => 'Air Force'
+                }
+              ]
             },
             'alternateNames' => [
               {
@@ -487,7 +551,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
       it 'translates the data correctly' do
         expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
-          'servicePeriods' => [],
+          'servicePeriods' => [
+            {
+              'serviceBranch' => 'Air Force',
+              'activeDutyBeginDate' => '1980-02-05',
+              'activeDutyEndDate' => '1990-01-02'
+            }
+          ],
           'alternateNames' => [
             {
               'firstName' => 'Steve',
