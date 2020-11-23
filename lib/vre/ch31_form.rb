@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 require_relative 'service'
+require_relative 'errors/ch31_error'
+require 'sentry_logging'
 
 module VRE
   class Ch31Form < VRE::Service
+    include SentryLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.vre'
 
@@ -21,8 +24,22 @@ module VRE
     #
     def submit
       response = send_to_vre(payload: format_payload_for_vre)
+      response_body = response.body
 
-      response.body
+      return response_body
+
+      raise Ch31Error if response_body['error_occurred'] == true
+    rescue Ch31Error => e
+      log_exception_to_sentry(
+        e,
+        {
+          intake_id: response_body['ApplicationIntake'],
+          error_message: response_body['ErrorMessage']
+        },
+        { team: 'vfs-ebenefits' }
+      )
+
+      response_body
     end
 
     private

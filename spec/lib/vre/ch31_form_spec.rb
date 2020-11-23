@@ -32,10 +32,8 @@ RSpec.describe VRE::Ch31Form do
     context 'with a successful submission' do
       it 'successfully sends to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-          # allow_any_instance_of(Faraday::Env).to receive(:body) { "{\"ErrorOccurred\":false,\"ApplicationIntake\":\"12345\"}" }
 
           response = service.submit
-
           expect(response['error_occurred']).to eq(false)
         end
       end
