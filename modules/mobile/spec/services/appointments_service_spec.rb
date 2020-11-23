@@ -99,7 +99,7 @@ describe Mobile::V0::Appointments::Service do
           ] }
         )
         expect(StatsD).to receive(:increment).once.with(
-          'mobile.appointments.get_appointments.success',
+          'mobile.appointments.service.get_appointments.success',
           { no_prefix: false, prefix: nil, sample_rate: nil, tags: nil }
         )
         VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
@@ -122,7 +122,7 @@ describe Mobile::V0::Appointments::Service do
           ] }
         )
         expect(StatsD).to receive(:increment).once.with(
-          'mobile.appointments.get_appointments.failure',
+          'mobile.appointments.service.get_appointments.failure',
           { no_prefix: false, prefix: nil, sample_rate: nil, tags: nil }
         )
         VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
@@ -150,7 +150,7 @@ describe Mobile::V0::Appointments::Service do
           }
         )
         expect(StatsD).to receive(:increment).once.with(
-          'mobile.appointments.get_appointments.failure',
+          'mobile.appointments.service.get_appointments.failure',
           { no_prefix: false, prefix: nil, sample_rate: nil, tags: nil }
         )
         VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
@@ -170,7 +170,7 @@ describe Mobile::V0::Appointments::Service do
         # VAOS uses success and total rather than success failure
         # so only the statsd call for mobile, added via the gem's meta programming, will fire
         expect(StatsD).to receive(:increment).once.with(
-          'mobile.appointments.get_appointments.failure',
+          'mobile.appointments.service.get_appointments.failure',
           { no_prefix: false, prefix: nil, sample_rate: nil, tags: nil }
         )
         VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
