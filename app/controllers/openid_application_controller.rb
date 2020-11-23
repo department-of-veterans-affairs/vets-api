@@ -91,8 +91,8 @@ class OpenidApplicationController < ApplicationController
   end
 
   def fetch_smart_launch_context
-    response = RestClient.get Settings.oidc.smart_launch_url,
-                              {:Authorization => 'Bearer ' + token.token_string}
+    response = RestClient.get(Settings.oidc.smart_launch_url,
+                              {:Authorization => 'Bearer ' + token.token_string})
     unless response.nil? || response.code != 200
       json_response = JSON.parse(response.body)
       json_response['launch']

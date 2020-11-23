@@ -62,6 +62,12 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       }
     ]
   end
+  let(:launch_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                            body: {'launch' => '1234V5678'
+                    }.to_json)
+  end
   let(:json_api_response) do
     {
       'data' => {
@@ -236,6 +242,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'with client credentials jwt' do
     before do
       allow(JWT).to receive(:decode).and_return(client_credentials_jwt)
+      allow(RestClient).to receive(:get).and_return(launch_response)
     end
 
     it 'v0 GET returns true if the user is a veteran' do
