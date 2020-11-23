@@ -18,12 +18,12 @@ module MPI
       end
 
       def valid?
-        !(@missing_keys || @missing_values)
+        @missing_keys.blank? && @missing_values.blank?
       end
 
       def validate
-        @missing_keys = !REQUIRED_FIELDS.all? { |k| @profile.key?(k) }
-        @missing_values = !REQUIRED_FIELDS.all? { |k| @profile[k].present? }
+        @missing_keys = REQUIRED_FIELDS - @profile.keys
+        @missing_values = REQUIRED_FIELDS.select { |key| @profile[key].nil? || @profile[key].blank? }
       end
     end
   end

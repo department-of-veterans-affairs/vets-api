@@ -42,8 +42,10 @@ module MPI
         fields = FindProfileMessageFields.new(profile)
         fields.validate
 
-        raise ArgumentError, 'required keys are missing' if fields.missing_keys
-        raise ArgumentError, 'required values are missing' if fields.missing_values
+        raise ArgumentError, "required keys are missing: #{fields.missing_keys}" if fields.missing_keys.present?
+        if fields.missing_values.present?
+          raise ArgumentError, "required values are missing for keys: #{fields.missing_values}"
+        end
       end
 
       private

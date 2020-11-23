@@ -163,7 +163,7 @@ describe MPI::Messages::FindProfileMessage do
       let(:profile) { {} }
 
       it 'raises with list of missing keys' do
-        expect { subject }.to raise_error('required keys are missing')
+        expect { subject }.to raise_error(/#{missing_keys}/)
       end
     end
 
@@ -171,7 +171,7 @@ describe MPI::Messages::FindProfileMessage do
       let(:profile) { { given_names: nil, last_name: '', birth_date: nil, ssn: '' } }
 
       it 'raises with list of keys for missing values' do
-        expect { subject }.to raise_error('required values are missing')
+        expect { subject }.to raise_error(/#{missing_keys}/)
       end
     end
   end
