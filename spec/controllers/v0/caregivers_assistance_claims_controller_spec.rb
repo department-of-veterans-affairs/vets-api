@@ -85,8 +85,15 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       )
       expect(res_body['errors'][0]['code']).to eq('100')
       expect(res_body['errors'][0]['status']).to eq('422')
-      expect(res_body['errors'][1]['title']).to include(
-        "did not contain a required property of 'primaryCaregiver'"
+      expect(res_body['errors'][1]['title'].split("\n")).to eq(
+        [
+          "Form The property '#/' of type object did not match one or more of the required schemas. The schema specific errors were:", # rubocop:disable Layout/LineLength
+          '',
+          '- anyOf #0:',
+          "    - The property '#/' did not contain a required property of 'primaryCaregiver'",
+          '- anyOf #1:',
+          "    - The property '#/' did not contain a required property of 'secondaryCaregiverOne'"
+        ]
       )
       expect(res_body['errors'][1]['code']).to eq('100')
       expect(res_body['errors'][1]['status']).to eq('422')
@@ -191,8 +198,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
-          claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          claim_guid: claim.guid
         )
 
         post :create, params: params
@@ -247,8 +253,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
-          claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          claim_guid: claim.guid
         )
 
         invalid_veteran_status_response = post :create, params: params
