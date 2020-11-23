@@ -105,13 +105,19 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('received')
     end
 
-    it 'sets error for file part size exceeding 100MB' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
-      allow(File).to receive(:size).and_return(100_000_001)
-      described_class.new.perform(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC106')
+    context 'with pdf size too large' do
+      {'sets error status for file content size exceeding 100MB' => :valid_parts,
+       'sets error for file part size exceeding 100MB' => :valid_parts_attachment
+      }.each_pair do |k, v|
+        it 'sets error for file part size exceeding 100MB' do
+          allow(VBADocuments::MultipartParser).to receive(:parse) { self.send v }
+          allow(File).to receive(:size).and_return(100_000_001)
+          described_class.new.perform(upload.guid)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.status).to eq('error')
+          expect(updated.code).to eq('DOC106')
+        end
+      end
     end
 
     it 'sets error status for invalid multipart format' do
