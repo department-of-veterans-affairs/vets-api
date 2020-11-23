@@ -127,7 +127,7 @@ describe MPI::Messages::FindProfileMessage do
             last_name: 'Smith',
             birth_date: Time.new(1980, 1, 1).utc
           )
-        end.to raise_error(ArgumentError, 'required keys are missing')
+        end.to raise_error(ArgumentError, 'required keys are missing: [:ssn]')
       end
 
       it 'throws an argument error for empty value' do
@@ -138,7 +138,7 @@ describe MPI::Messages::FindProfileMessage do
             birth_date: Time.new(1980, 1, 1).utc,
             ssn: rand.to_s[2..11]
           )
-        end.to raise_error(ArgumentError, 'required values are missing')
+        end.to raise_error(ArgumentError, 'required values are missing for keys: [:last_name]')
       end
 
       it 'throws an argument error for nil value' do
@@ -149,7 +149,7 @@ describe MPI::Messages::FindProfileMessage do
             birth_date: Time.new(1980, 1, 1).utc,
             ssn: rand.to_s[2..11]
           )
-        end.to raise_error(ArgumentError, 'required values are missing')
+        end.to raise_error(ArgumentError, 'required values are missing for keys: [:last_name]')
       end
     end
   end

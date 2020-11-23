@@ -13,7 +13,7 @@ describe MPI::Messages::FindProfileMessageFields do
       subject.validate
     end
 
-    context 'missing keys and values' do
+    context 'with missing keys and values' do
       let(:profile) { {} }
 
       its(:valid?) { is_expected.to be(false) }
@@ -21,7 +21,7 @@ describe MPI::Messages::FindProfileMessageFields do
       its(:missing_values) { is_expected.to match_array(missing_keys) }
     end
 
-    context 'missing values' do
+    context 'with missing values' do
       let(:profile) { { given_names: nil, last_name: '', birth_date: nil, ssn: '' } }
 
       its(:valid?) { is_expected.to be(false) }
@@ -29,7 +29,7 @@ describe MPI::Messages::FindProfileMessageFields do
       its(:missing_values) { is_expected.to match_array(missing_keys) }
     end
 
-    context 'valid-ish' do
+    context 'with required attributes' do
       let(:profile) { { given_names: 'Homer', last_name: 'Simpson', birth_date: '01/01/1972', ssn: '123-45-6789' } }
 
       its(:valid?) { is_expected.to be(true) }
