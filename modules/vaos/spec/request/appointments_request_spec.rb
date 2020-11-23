@@ -258,7 +258,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
             post '/vaos/v0/appointments', params: request_body
 
-            expect(response).to have_http_status(:bad_request)
+            expect(response).to have_http_status(:conflict)
             expect(JSON.parse(response.body)['errors'].first['detail'])
               .to eq(error_detail)
           end
