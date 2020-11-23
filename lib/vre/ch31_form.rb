@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'service'
-require_relative 'errors/ch31_error'
+require_relative 'errors/ch31_errors'
 require 'sentry_logging'
 
 module VRE
@@ -15,7 +15,6 @@ module VRE
     def initialize(user, claim)
       @user = user
       @claim = claim
-      @parsed_form = @claim.parsed_form
     end
 
     # Submits prepared data derived from VeteranReadinessEmploymentClaim#form
@@ -23,6 +22,8 @@ module VRE
     # @return [Hash] the student's address
     #
     def submit
+      raise Ch31NilClaimError if @claim.nil?
+
       response = send_to_vre(payload: format_payload_for_vre)
       response_body = response.body
 
@@ -40,12 +41,22 @@ module VRE
       )
 
       response_body
+    rescue Ch31NilClaimError => e
+      log_exception_to_sentry(
+        e,
+        {
+          icn: @user.icn
+        },
+        { team: 'vfs-ebenefits' }
+      )
+
+      {'error_occurred' => true, 'error_message' => 'Claim cannot be null'}
     end
 
     private
 
     def format_payload_for_vre
-      form_data = @parsed_form
+      form_data = claim_form_hash
 
       vre_payload = {
         data: {
@@ -61,8 +72,8 @@ module VRE
       }
 
       vre_payload[:data].merge!(veteran_address(form_data))
-      vre_payload[:data].merge!({ veteranInformation: @parsed_form['veteranInformation'] })
-      vre_payload[:data].merge!(new_address) if @parsed_form['newAddress'].present?
+      vre_payload[:data].merge!({ veteranInformation: claim_form_hash['veteranInformation'] })
+      vre_payload[:data].merge!(new_address) if claim_form_hash['newAddress'].present?
 
       vre_payload.to_json
     end
@@ -85,8 +96,12 @@ module VRE
       }
     end
 
+    def claim_form_hash
+      @claim.parsed_form
+    end
+
     def new_address
-      new_address = @parsed_form['newAddress']
+      new_address = claim_form_hash['newAddress']
       {
         "newAddress": {
           "isForeign": new_address['country'] != 'USA',
