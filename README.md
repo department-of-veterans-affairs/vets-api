@@ -101,7 +101,7 @@ https://dev-api.va.gov/v0/status
 
 Additional deployment details can be found here:
 
-[native setup instructions](docs/deployment/information.md)
+[additional deployment details](docs/deployment/information.md)
 
 ## API request key formatting
 
