@@ -60,6 +60,7 @@ RSpec.describe VRE::Ch31Form do
         it 'handles nil claim' do
           VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
             nil_claim_service = VRE::Ch31Form.new(user, nil)
+            expect(nil_claim_service).to receive(:log_exception_to_sentry)
 
             response = nil_claim_service.submit
 
