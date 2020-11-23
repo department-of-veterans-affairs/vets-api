@@ -98,6 +98,9 @@ class OpenidApplicationController < ApplicationController
       json_response['launch']
     end
 
+  rescue => e
+      log_message_to_sentry('Error retrieving smart launch context for OIDC token', :error)
+      return nil
   end
 
   attr_reader :current_user, :session, :scopes
