@@ -1773,12 +1773,12 @@ en:
         code: VANOTIFY_500
         status: 500
       VETEXT_400:
-        <<: *defaults
+        <<: *external_defaults
         code: 'VETEXT_400'
         detail: The request to the upstream service was malformed and could not be processed
         status: 500
       VETEXT_502:
-        <<: *defaults
+        <<: *external_defaults
         code: 'VETEXT_502'
         detail: Received an an invalid response from the upstream server
         status: 502
