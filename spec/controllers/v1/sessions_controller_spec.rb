@@ -678,6 +678,23 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
       end
 
+      context 'when saml response error contains status_detail' do
+        status_detail_xml = '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">'\
+        '</samlp:StatusCode>'\
+        '<samlp:StatusDetail>'\
+        '<fim:FIMStatusDetail MessageID="could_not_perform_token_exchange"></fim:FIMStatusDetail>'\
+        '</samlp:StatusDetail>'\
+
+        before do
+          allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_detail_error(status_detail_xml))
+        end
+
+        it 'logs status_detail message to sentry' do
+          expect(controller).to receive(:log_message_to_sentry)
+          post(:saml_callback)
+        end
+      end
+
       context 'when saml response contains multiple errors (known or otherwise)' do
         let(:multi_error_uuid) { '2222' }
 

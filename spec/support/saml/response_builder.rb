@@ -137,6 +137,15 @@ module SAML
       )
     end
 
+    def saml_response_detail_error(status_detail_xml)
+      build_invalid_saml_response(
+        status_message: 'test error message',
+        in_response_to: uuid,
+        decrypted_document: document_status_detail(status_detail_xml),
+        errors: %w[test1 test2 test3]
+      )
+    end
+
     def document_partial(authn_context = '')
       REXML::Document.new(
         <<-XML
@@ -149,6 +158,23 @@ module SAML
               </saml:AuthnContext>
             </saml:AuthnStatement>
           </saml:Assertion>
+        </samlp:Response>
+        XML
+      )
+    end
+
+    def document_status_detail(status = '')
+      REXML::Document.new(
+        <<-XML
+        <samlp:Response
+          xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+          xmlns:fim="urn:ibm:names:ITFIM:saml"
+          xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+          xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" Destination="https://api.va.gov/v1/sessions/callback" ID="FIMRSP_9bbcd6a3-0175-10e5-8532-9199cd4142f8" InResponseTo="_a9ea0b44-5b5d-40dd-ae46-de5dafa71983" IssueInstant="2020-11-06T04:07:25Z" Version="2.0">
+          <saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://eauth.va.gov/isam/sps/saml20idp/saml20</saml:Issuer>
+          <samlp:Status>
+            #{status}
+          </samlp:Status>
         </samlp:Response>
         XML
       )
