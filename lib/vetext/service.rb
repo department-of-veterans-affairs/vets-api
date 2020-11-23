@@ -9,7 +9,7 @@ module VEText
   class Service < Common::Client::Base
     configuration VEText::Configuration
 
-    REGISTER_PATH = '/api/vetext/pub/push/endpoint'
+    REGISTER_PATH = '/api/vetext/pub/mobile/push/endpoint'
 
     # Register a user's mobile device with the push notification service.
     #

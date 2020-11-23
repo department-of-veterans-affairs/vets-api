@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: put
-      uri: https://vetext1.r01.med.va.gov/api/vetext/pub/push/endpoint
+      uri: https://vetext1.r01.med.va.gov/api/vetext/pub/mobile/push/endpoint
       body:
         encoding: UTF-8
         string: '{appSid: "6fad4beff16e4e3aa9ca45cce5fd1716", token: "9bad7c63574f75f46944c6436a01b7c41c0776d6f061aa46b0884cdd93bb6959", icn: "1011568236", os: "ios"}'
