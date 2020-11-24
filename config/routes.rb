@@ -302,9 +302,7 @@ Rails.application.routes.draw do
     end
 
     namespace :messages do
-      scope 'inquiries' do
-        get '/', to: 'inquiries#index'
-      end
+      resources :inquiries, only: [:index]
     end
   end
 
