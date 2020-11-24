@@ -6,6 +6,8 @@ module V0
     skip_before_action :authenticate
     skip_before_action :verify_authenticity_token
 
+    before_action :log_config, only: :index
+
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
     def index
@@ -88,6 +90,10 @@ module V0
 
     def auditor
       Form1010cg::Auditor.instance
+    end
+
+    def log_config
+      Rails.logger.info "Settings['salesforce-carma'].url: #{Settings['salesforce-carma'].url}"
     end
   end
 end
