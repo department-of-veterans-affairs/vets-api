@@ -57,7 +57,7 @@ RSpec.describe BGS::VnpVeteran do
             type: 'veteran',
             benefit_claim_type_end_product: '139',
             location_id: '343',
-            net_worth_over_limit_ind: 'N'
+            net_worth_over_limit_ind: 'Y'
           )
         end
       end
