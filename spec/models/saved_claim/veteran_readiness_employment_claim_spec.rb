@@ -42,6 +42,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       end
     end
   end
+
   describe '#send_to_vre' do
     let(:faraday_response) { double('faraday_connection') }
 
@@ -74,6 +75,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       end
     end
   end
+
   describe '#regional_office' do
     it 'returns an empty array' do
       expect(claim.regional_office).to be_empty

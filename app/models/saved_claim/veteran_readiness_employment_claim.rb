@@ -22,7 +22,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       'pid' => user.participant_id,
       'edipi' => user.edipi,
       'vet360ID' => user.vet360_id,
-      'dob' => user.birth_date
+      'dob' => parsed_date(user.birth_date)
     }
 
     update(form: updated_form.to_json)
