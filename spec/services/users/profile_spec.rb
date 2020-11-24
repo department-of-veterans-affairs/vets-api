@@ -248,7 +248,7 @@ RSpec.describe Users::Profile do
     end
 
     context '#veteran_status' do
-      context 'when a veteran status is succesfully returned' do
+      context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
           expect(veteran_status[:is_veteran]).to eq(user.veteran?)
         end

@@ -8,6 +8,9 @@ module ClaimsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_flash_responses, key: Settings.db_encryption_key,
+                                         marshal: true,
+                                         marshaler: JsonMarshal::Marshaller)
 
     after_create :log_flashes
 
