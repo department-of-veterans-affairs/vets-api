@@ -538,6 +538,7 @@ flipper:
     - shawkey_daniel@bah.com
     - shefai.nayak@thoughtworks.com
     - sonntag_adam@bah.com
+    - ssuddath@governmentcio.com
     - tony.williams@va.gov
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
@@ -626,7 +627,7 @@ genisis:
   user: TestUser
   pass: bogus
 
-vre:
+veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
   auth_endpoint: ~

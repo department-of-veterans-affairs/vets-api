@@ -10,7 +10,7 @@ module AppsApi
 
       def index
         render json: {
-          data: DirectoryApplication.all
+          data: DirectoryApplication.order('LOWER(name)')
         }
       end
 

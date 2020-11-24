@@ -5,7 +5,6 @@ require 'sentry_logging'
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
   FORM = '28-1900'
-  class VREError < StandardError; end
 
   def add_claimant_info(user)
     return if form.blank?
@@ -23,34 +22,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       'pid' => user.participant_id,
       'edipi' => user.edipi,
       'vet360ID' => user.vet360_id,
-      'dob' => parsed_date(user.birth_date)
+      'dob' => user.birth_date
     }
 
     update(form: updated_form.to_json)
-  end
-
-  def send_to_vre
-    conn = Faraday.new(url: Settings.vre.base_url)
-
-    response = conn.post do |req|
-      req.url Settings.vre.ch_31_endpoint
-      req.headers['Authorization'] = "Bearer #{get_token}"
-      req.headers['Content-Type'] = 'application/json'
-      req.body = format_payload_for_vre
-    end
-
-    response_body = JSON.parse(response.body)
-    return true if response_body['ErrorOccurred'] == false
-
-    raise VREError
-  rescue VREError => e
-    log_exception_to_sentry(
-      e,
-      {
-        error_message: response_body['ErrorMessage']
-      },
-      { team: 'vfs-ebenefits' }
-    )
   end
 
   # SavedClaims require regional_office to be defined
@@ -63,7 +38,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def veteran_va_file_number(user)
     service = BGS::PeopleService.new(user)
     response = service.find_person_by_participant_id
-
     file_number = response[:file_nbr]
     file_number.presence
   rescue
@@ -131,16 +105,5 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     date.strftime('%Y-%m-%d')
   rescue
     date
-  end
-
-  def get_token
-    conn = Faraday.new(
-      "#{Settings.vre.auth_endpoint}?grant_type=client_credentials",
-      headers: { 'Authorization' => "Basic #{ENV['TEMP_VRE_CREDENTIALS']}" }
-    )
-
-    request = conn.post
-
-    JSON.parse(request.body)['access_token']
   end
 end

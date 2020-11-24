@@ -23,8 +23,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(false)
       end
 
-      it 'does not call SendSCOEmail' do
-        expect { instance.after_submit(user) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+      it 'does not call SendSchoolCertifyingOfficialsEmail' do
+        expect { instance.after_submit(user) }
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
     end
 
@@ -37,8 +38,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
-      it 'does not call SendSCOEmail' do
-        expect { instance.after_submit(nil) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+      it 'does not call SendSchoolCertifyingOfficialsEmail' do
+        expect { instance.after_submit(nil) }
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
     end
 
@@ -53,8 +55,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
-      it 'calls SendSCOEmail' do
-        expect { instance.after_submit(user) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(1)
+      it 'calls SendSchoolCertifyingOfficialsEmail' do
+        expect { instance.after_submit(user) }
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(1)
       end
 
       it 'calls StemApplicantConfirmationMailer' do
@@ -74,9 +77,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
-      it 'does not call SendSCOEmail' do
+      it 'does not call SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(user) }
-          .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
 
       it 'calls StemApplicantConfirmationMailer' do
@@ -98,9 +101,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
-      it 'does not call SendSCOEmail' do
+      it 'does not call SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(user) }
-          .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
 
       it 'calls StemApplicantConfirmationMailer' do
