@@ -47,7 +47,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'successful submission' do
       it 'successfully sends to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-
           response = claim.send_to_vre(user_object)
           expect(response['error_occurred']).to eq(false)
         end
