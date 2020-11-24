@@ -8,6 +8,9 @@ AppsApi::Engine.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     get 'directory/scopes/:category', to: 'directory#scopes'
     resources :directory, only: %i[index]
+
+    post '/notification/connect', to: 'notification#connect'
+    post '/notification/disconnect', to: 'notification#disconnect'
   end
   namespace :docs do
     namespace :v0 do
