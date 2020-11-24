@@ -45,7 +45,7 @@ module VRE
       vre_payload = {
         data: {
           educationLevel: form_data['yearsOfEducation'],
-          useEva: form_data['use_eva'],
+          useEva: form_data['useEva'],
           useTelecounseling: form_data['useTelecounseling'],
           meetingTime: form_data['appointmentTimePreferences'].key(true),
           isMoving: form_data['isMoving'],

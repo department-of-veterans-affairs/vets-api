@@ -7,11 +7,11 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
   let(:user) { create(:evss_user) }
 
   let(:test_form_no_vet_info) do
-    build(:veteran_readiness_employment_claimm_no_vet_information)
+    build(:veteran_readiness_employment_claim_no_vet_information)
   end
 
   let(:test_form) do
-    build(:veteran_readiness_employment_claimm)
+    build(:veteran_readiness_employment_claim)
   end
 
   describe 'POST create' do

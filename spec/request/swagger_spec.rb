@@ -2929,7 +2929,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             headers.merge(
               '_data' => {
                 'veteran_readiness_employment_claim' => {
-                  form: build(:veteran_readiness_employment_claimm_no_vet_information).form
+                  form: build(:veteran_readiness_employment_claim_no_vet_information).form
                 }
               }
             )
