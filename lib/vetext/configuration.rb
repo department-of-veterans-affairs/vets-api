@@ -34,6 +34,8 @@ module VEText
       ) do |conn|
         conn.basic_auth(Settings.vetext.user, Settings.vetext.pass)
         conn.use :breakers
+        conn.request :json
+        
         conn.use Faraday::Response::RaiseError
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/

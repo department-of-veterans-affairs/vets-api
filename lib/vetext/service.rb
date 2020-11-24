@@ -25,16 +25,14 @@ module VEText
     def register(app_sid, device_token, icn, os_name, os_version, device_name = nil)
       response = perform(
         :put,
-        REGISTER_PATH,
-        {
+        REGISTER_PATH, {
           appSid: app_sid,
           token: device_token,
           icn: icn,
           os: os_name,
           osVersion: os_version,
           deviceName: device_name || os_name
-        }.to_json,
-        { 'Content-Type' => 'application/json' }
+        }
       )
       response.body
     rescue Common::Client::Errors::ClientError => e
