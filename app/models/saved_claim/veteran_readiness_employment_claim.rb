@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require 'vre/ch31_form'
 
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
@@ -29,7 +30,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_vre(user)
-    service = VRE::Ch31Form(user: user, claim: self)
+    service = VRE::Ch31Form.new(user: user, claim: self)
 
     service.submit
   end
@@ -48,24 +49,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     file_number.presence
   rescue
     nil
-  end
-
-  def veteran_address
-    form_data = parsed_form
-
-    {
-      veteranAddress: {
-        isForeign: form_data['veteranAddress']['country'] != 'USA',
-        isMilitary: form_data['veteranAddress']['isMilitary'] || false,
-        countryName: form_data['veteranAddress']['country'],
-        addressLine1: form_data['veteranAddress']['street'],
-        addressLine2: form_data['veteranAddress']['street2'],
-        addressLine3: form_data['veteranAddress']['street3'],
-        city: form_data['veteranAddress']['city'],
-        stateCode: form_data['veteranAddress']['state'],
-        zipCode: form_data['veteranAddress']['postalCode']
-      }
-    }
   end
 
   def parsed_date(date)
