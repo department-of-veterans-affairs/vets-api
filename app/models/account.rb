@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/concerns/active_record_cache_aside'
-require 'mvi/service'
+require 'mpi/service'
 require 'sentry_logging'
 
 # Account's purpose is to correlate unique identifiers, and to

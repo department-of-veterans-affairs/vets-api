@@ -434,12 +434,12 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe '#mvi_profile' do
+  describe '#mpi_profile' do
     before { Settings.mvi.edipi_search = true }
 
     it 'looks up the veteran' do
       VCR.use_cassette('mpi/find_candidate/valid') do
-        expect(subject.send(:mvi_profile)).to be_truthy
+        expect(subject.send(:mpi_profile)).to be_truthy
       end
     end
   end

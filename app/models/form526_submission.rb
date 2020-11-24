@@ -227,11 +227,11 @@ class Form526Submission < ApplicationRecord
   end
 
   def all_birls_ids_for_veteran
-    mvi_profile.birls_ids
+    mpi_profile.birls_ids
   end
 
-  def mvi_profile
-    find_profile_response = MVI::Service.new.find_profile user_identity
+  def mpi_profile
+    find_profile_response = MPI::Service.new.find_profile user_identity
     raise find_profile_response.error if find_profile_response.error
 
     find_profile_response.profile
