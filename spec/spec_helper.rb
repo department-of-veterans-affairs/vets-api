@@ -11,6 +11,7 @@ require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/okta_users_helpers'
 require 'pundit/rspec'
+require 'rspec/its'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
