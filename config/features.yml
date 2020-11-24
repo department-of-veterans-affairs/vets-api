@@ -235,6 +235,11 @@ features:
     enable_in_development: true
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
+  get_help_messages:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables secure messaging
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     enable_in_development: true

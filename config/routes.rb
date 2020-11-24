@@ -300,6 +300,10 @@ Rails.application.routes.draw do
     namespace :ask do
       resource :asks, only: :create
     end
+
+    namespace :messages do
+      resource :inquiries, only: :index
+    end
   end
 
   namespace :v1, defaults: { format: 'json' } do
