@@ -2,7 +2,7 @@
 
 module ClaimsApi
   class AutoEstablishedClaimSerializer < EVSSClaimDetailSerializer
-    attributes :token, :status, :evss_id
+    attributes :token, :status, :evss_id, :flashes
 
     type :claims_api_claim
 

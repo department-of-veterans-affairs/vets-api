@@ -65,8 +65,7 @@ module V0
     def backend_service_outage
       auditor.record(
         :submission_failure_client_qualification,
-        claim_guid: @claim.guid,
-        veteran_name: @claim.veteran_data['fullName']
+        claim_guid: @claim.guid
       )
 
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')

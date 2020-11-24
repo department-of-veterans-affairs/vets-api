@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'dmc/debt_letter_downloader'
+require 'debt_management_center/debt_letter_downloader'
 
 module V0
   class DebtLettersController < ApplicationController
@@ -19,7 +19,7 @@ module V0
     private
 
     def service
-      @service ||= DMC::DebtLetterDownloader.new(@current_user)
+      @service ||= DebtManagementCenter::DebtLetterDownloader.new(@current_user)
     end
   end
 end
