@@ -9,6 +9,8 @@ module ClaimsApi
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
+    after_create :log_flashes
+
     has_many :supporting_documents, dependent: :destroy
 
     PENDING = 'pending'
@@ -81,6 +83,10 @@ module ClaimsApi
     end
 
     private
+
+    def log_flashes
+      Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following flashes - #{flashes}") if flashes.present?
+    end
 
     def remove_encrypted_fields
       if status == ESTABLISHED

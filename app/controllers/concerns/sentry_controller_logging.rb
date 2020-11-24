@@ -20,7 +20,7 @@ module SentryControllerLogging
 
   def user_context
     {
-      uuid: current_user&.uuid,
+      id: current_user&.uuid,
       authn_context: current_user&.authn_context,
       loa: current_user&.loa,
       mhv_icn: current_user&.mhv_icn

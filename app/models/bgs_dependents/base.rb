@@ -52,7 +52,8 @@ module BGSDependents
         living_expenses_paid_amount: optional_fields[:living_expenses_paid],
         child_prevly_married_ind: optional_fields[:child_prevly_married_ind],
         guardian_particpant_id: optional_fields[:guardian_particpant_id],
-        type: optional_fields[:type]
+        type: optional_fields[:type],
+        dep_has_income_ind: optional_fields[:dep_has_income_ind]
       }
     end
 

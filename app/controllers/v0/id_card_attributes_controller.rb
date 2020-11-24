@@ -19,7 +19,7 @@ module V0
     private
 
     def skip_sentry_exception_types
-      super + [Common::Exceptions::Forbidden, ::VIC::IDCardAttributeError]
+      super + [::VIC::IDCardAttributeError]
     end
 
     def authorize

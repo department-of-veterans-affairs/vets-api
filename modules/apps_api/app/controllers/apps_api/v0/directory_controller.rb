@@ -9,18 +9,22 @@ module AppsApi
       skip_before_action(:authenticate)
 
       def index
-        apps = DirectoryApplication.all
         render json: {
-          data: apps
+          data: DirectoryApplication.order('LOWER(name)')
         }
       end
 
       def scopes
         directory_service = Okta::DirectoryService.new
         parsed_scopes = directory_service.scopes(params[:category])
-        render json: {
-          data: parsed_scopes
-        }
+        if parsed_scopes.any? do
+          render json: {
+            data: parsed_scopes
+          }
+           rescue
+             head :no_content
+        end
+        end
       end
     end
   end
