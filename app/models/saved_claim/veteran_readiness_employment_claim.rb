@@ -50,23 +50,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     nil
   end
 
-  def new_address
-    new_address = parsed_form['newAddress']
-    {
-      "newAddress": {
-        "isForeign": new_address['country'] != 'USA',
-        "isMilitary": new_address['isMilitary'],
-        "countryName": new_address['country'],
-        "addressLine1": new_address['street'],
-        "addressLine2": new_address['street2'],
-        "addressLine3": new_address['street3'],
-        "city": new_address['city'],
-        "province": new_address['state'],
-        "internationalPostalCode": new_address['postalCode']
-      }
-    }
-  end
-
   def veteran_address
     form_data = parsed_form
 
