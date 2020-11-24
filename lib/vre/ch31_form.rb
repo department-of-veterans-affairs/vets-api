@@ -11,7 +11,7 @@ module VRE
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.vre'
 
-    def initialize(user, claim)
+    def initialize(user:, claim:)
       @user = user
       @claim = claim
     end

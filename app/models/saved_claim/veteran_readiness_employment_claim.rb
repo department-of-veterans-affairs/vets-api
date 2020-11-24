@@ -28,6 +28,12 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     update(form: updated_form.to_json)
   end
 
+  def send_to_vre(user)
+    service = VRE::Ch31Form(user: user, claim: self)
+
+    service.submit
+  end
+
   # SavedClaims require regional_office to be defined
   def regional_office
     []
@@ -42,28 +48,6 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     file_number.presence
   rescue
     nil
-  end
-
-  def format_payload_for_vre
-    form_data = parsed_form
-
-    vre_payload = {
-      data: {
-        educationLevel: form_data['yearsOfEducation'],
-        useEva: form_data['use_eva'],
-        useTelecounseling: form_data['useTelecounseling'],
-        meetingTime: form_data['appointmentTimePreferences'].key(true),
-        isMoving: form_data['isMoving'],
-        mainPhone: form_data['mainPhone'],
-        cellPhone: form_data['cellPhone'],
-        emailAddress: form_data['email']
-      }
-    }
-
-    vre_payload[:data].merge!(veteran_address)
-    vre_payload[:data].merge!({ veteranInformation: parsed_form['veteranInformation'] })
-    vre_payload[:data].merge!(new_address) if parsed_form['newAddress'].present?
-    vre_payload.to_json
   end
 
   def new_address

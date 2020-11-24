@@ -6,7 +6,7 @@ require 'vre/ch31_form'
 RSpec.describe VRE::Ch31Form do
   let(:claim) { create(:veteran_readiness_employment_claim) }
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
-  let(:service) { VRE::Ch31Form.new(user, claim) }
+  let(:service) { VRE::Ch31Form.new(user: user, claim: claim) }
   let(:new_address_hash) do
     {
       newAddress: {
@@ -60,7 +60,7 @@ RSpec.describe VRE::Ch31Form do
 
       it 'handles nil claim' do
         VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
-          nil_claim_service = VRE::Ch31Form.new(user, nil)
+          nil_claim_service = VRE::Ch31Form.new(user: user, claim: nil)
           expect(nil_claim_service).to receive(:log_exception_to_sentry)
 
           response = nil_claim_service.submit

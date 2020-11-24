@@ -14,7 +14,7 @@ module V0
       end
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-      claim.send_to_vre
+      claim.send_to_vre(current_user)
       render json: claim
     end
 
