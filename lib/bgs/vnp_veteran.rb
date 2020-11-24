@@ -22,7 +22,6 @@ module BGS
       location_id = get_location_id(address[:zip_prefix_nbr], address[:cntry_nm], '')
       bgs_service.create_person(person_params)
       bgs_service.create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
-      net_worth_over_limit_ind = @payload['dependents_application']['household_income'] ? 'Y' : 'N'
       veteran.veteran_response(
         participant,
         address,
@@ -36,6 +35,12 @@ module BGS
     end
 
     private
+
+    def net_worth_over_limit_ind
+      return nil if @payload['dependents_application']['household_income'].nil?
+
+      @payload['dependents_application']['household_income'] ? 'Y' : 'N'
+    end
 
     def get_location_id(zip, country, province)
       # find the regional office number closest to the Veteran's zip code

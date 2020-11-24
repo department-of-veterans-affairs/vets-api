@@ -93,7 +93,7 @@ module BGSDependents
         place_of_birth_city: @child_info.dig('place_of_birth', 'city'),
         reason_marriage_ended: @child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
         ever_married_ind: marriage_indicator,
-        child_income: @child_info['child_income'] ? 'Y' : 'N'
+        child_income: child_income
       }.merge(@child_info['full_name'])
     end
 
@@ -103,6 +103,12 @@ module BGSDependents
 
     def marriage_indicator
       @child_info.dig('previously_married') == 'Yes' ? 'Y' : 'N'
+    end
+
+    def child_income
+      return nil if @child_info['child_income'].nil?
+
+      @child_info['child_income'] ? 'Y' : 'N'
     end
   end
 end

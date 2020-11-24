@@ -71,9 +71,8 @@ module BGSDependents
         martl_status_type_cd: marital_status,
         vet_ind: spouse_is_veteran,
         address: spouse_address,
-        spouse_income: @dependents_application['does_live_with_spouse']['spouse_income'] ? 'Y' : 'N'
+        spouse_income: spouse_income
       }.merge(@spouse_information['full_name'])
-
       spouse_info.merge!({ 'va_file_number': @spouse_information['va_file_number'] }) if spouse_is_veteran == 'Y'
 
       spouse_info
@@ -97,6 +96,12 @@ module BGSDependents
         lives_with_vet: @dependents_application['does_live_with_spouse']['spouse_does_live_with_veteran'],
         alt_address: @dependents_application.dig('does_live_with_spouse', 'address')
       )
+    end
+
+    def spouse_income
+      return nil if @dependents_application['does_live_with_spouse']['spouse_income'].nil?
+
+      @dependents_application['does_live_with_spouse']['spouse_income'] ? 'Y' : 'N'
     end
   end
 end
