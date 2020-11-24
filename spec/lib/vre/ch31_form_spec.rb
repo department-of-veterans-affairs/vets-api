@@ -45,27 +45,27 @@ RSpec.describe VRE::Ch31Form do
           service.submit
         end
       end
+    end
 
-      context 'with an unsuccessful submission' do
-        it 'does not successfully send to VRE' do
-          VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
-            expect(service).to receive(:log_exception_to_sentry)
+    context 'with an unsuccessful submission' do
+      it 'does not successfully send to VRE' do
+        VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
+          expect(service).to receive(:log_exception_to_sentry)
 
-            response = service.submit
+          response = service.submit
 
-            expect(response['error_occurred']).to eq(true)
-          end
+          expect(response['error_occurred']).to eq(true)
         end
+      end
 
-        it 'handles nil claim' do
-          VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
-            nil_claim_service = VRE::Ch31Form.new(user, nil)
-            expect(nil_claim_service).to receive(:log_exception_to_sentry)
+      it 'handles nil claim' do
+        VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
+          nil_claim_service = VRE::Ch31Form.new(user, nil)
+          expect(nil_claim_service).to receive(:log_exception_to_sentry)
 
-            response = nil_claim_service.submit
+          response = nil_claim_service.submit
 
-            expect(response['error_occurred']).to eq(true)
-          end
+          expect(response['error_occurred']).to eq(true)
         end
       end
     end

@@ -3,10 +3,15 @@
 require 'vre/configuration'
 require 'common/client/base'
 
+# The VRE::Service class is where we keep VRE related endpoint calls and common methods
 module VRE
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
 
+    # Makes call to VRE and retrieves a token. Token is valid for 3 minutes so we just fire this on every api call
+    #
+    # @return [Hash] the student's address
+    #
     def get_token
       with_monitoring do
         conn = Faraday.new(
@@ -19,23 +24,27 @@ module VRE
       end
     end
 
-    # rubocop:disable Layout/LineLength
     def send_to_vre(payload:)
       with_monitoring do
         perform(
           :post,
-          "#{Settings.veteran_readiness_and_employment.base_url}#{Settings.veteran_readiness_and_employment.ch_31_endpoint}",
+          end_point,
           payload,
           request_headers
         ) # see lib/common/client/base.rb#L94
       end
     end
-    # rubocop:enable Layout/LineLength
 
     def request_headers
       {
         'Authorization': "Bearer #{get_token}"
       }
+    end
+
+    private
+
+    def end_point
+      "#{Settings.veteran_readiness_and_employment.base_url}#{Settings.veteran_readiness_and_employment.ch_31_endpoint}"
     end
   end
 end

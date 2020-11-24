@@ -4,13 +4,12 @@ require_relative 'service'
 require_relative 'errors/ch31_errors'
 require 'sentry_logging'
 
+# The Ch31Form class is the means by which the Ch31 aka 28-1900 form is submitted to VR&E
 module VRE
   class Ch31Form < VRE::Service
     include SentryLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.vre'
-
-    # The Ch31Form class is the means by which the Ch31 aka 28-1900 form is submitted to VR&E
 
     def initialize(user, claim)
       @user = user
