@@ -30,11 +30,11 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
     end
   end
 
-  describe '#appointment_reference' do
+  describe '#subject_reference' do
     let(:filters) { { appointment_id: '123' }.with_indifferent_access }
 
     it 'has an appointment reference link' do
-      expect(options_builder.appointment_reference)
+      expect(options_builder.subject_reference)
         .to eq("#{Settings.hqva_mobile.url}/appointments/v1/patients/1008596379V859838/Appointment/123")
     end
   end
