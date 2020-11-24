@@ -23,7 +23,7 @@ module AppealsApi
       pdf_path = pdf_constructor.fill_pdf
       # notice_of_disagreement.update!(status: 'submitting')
       notice_of_disagreement = NoticeOfDisagreement.find notice_of_disagreement_id
-      inserted_text_pdf = pdf_constructor.insert_email_and_representative_name(pdf_path)
+      inserted_text_pdf = pdf_constructor.insert_manual_fields(pdf_path)
       pdf_constructor.stamp_pdf(inserted_text_pdf, notice_of_disagreement.consumer_name)
     end
   end
