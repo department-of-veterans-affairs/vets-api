@@ -7,5 +7,11 @@ module V0
         json: current_user.account.preferred_facilities
       )
     end
+
+    def destroy
+      render(
+        json: current_user.account.preferred_facilities.find(params[:id]).destroy!
+      )
+    end
   end
 end
