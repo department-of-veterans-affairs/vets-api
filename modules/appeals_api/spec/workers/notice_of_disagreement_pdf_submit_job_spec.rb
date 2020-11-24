@@ -38,26 +38,17 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
 
   context 'pdf extra content verification' do
     let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+    let(:rep_name) { notice_of_disagreement.form_data.dig 'data', 'attributes', 'veteran', 'representativesName' }
+    let(:extra_issue) { notice_of_disagreement.form_data['included'].last.dig('attributes', 'issue') }
 
-    # We need to revisit how we're doing content verification. At minimum we need to re-generate the expected PDF
-    # in the docker container. This spec will be commented out do it's intermittent failures until a new solution
-    # is implemented.
-    # it 'generates the expected pdf' do
-    #   Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-    #   path = described_class.new.generate_pdf(notice_of_disagreement.id)
-    #   expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_10182_extra.pdf')
-    #   generated_pdf_md5 = Digest::MD5.digest(File.read(path))
-    #   expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
-    #   File.delete(path) if File.exist?(path)
-    #   expect(generated_pdf_md5).to eq(expected_pdf_md5)
-    #   Timecop.return
-    # end
-    #
-    it 'generates the correct number of pages' do
+    it 'generates pdf with expected content' do
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      path = described_class.new.generate_pdf(notice_of_disagreement.id)
-      expect(PdfInfo::Metadata.read(path).pages).to eq(4)
-      File.delete(path) if File.exist?(path)
+      generated_pdf = described_class.new.generate_pdf(notice_of_disagreement.id)
+      reader = PDF::Reader.new(generated_pdf)
+      expect(reader.pages.size).to eq 4
+      expect(reader.pages.first.text).to include rep_name
+      expect(reader.pages[3].text).to include extra_issue
+      File.delete(generated_pdf) if File.exist?(generated_pdf)
       Timecop.return
     end
   end
