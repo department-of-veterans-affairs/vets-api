@@ -9,7 +9,7 @@ module AppsApi
         app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs01ca0lwp7cApBuM297'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = ['IOS']
+        app.platforms = ['iOS']
         app.app_url = 'https://www.apple.com/ios/health/'
         app.description =
           'With the Apple Health app, you can see all your health records — such as '\
@@ -25,7 +25,7 @@ module AppsApi
         app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofxnUUHtF1i297'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = %w[IOS Android]
+        app.platforms = %w[iOS Android]
         app.app_url = 'https://ibluebutton.com'
         app.description =
           'iBlueButton places your VA medical information securely onto your phone or '\
@@ -73,7 +73,7 @@ module AppsApi
         app.logo_url = 'https://ok5static.oktacdn.com/fs/bcg/4/gfs5hrv23wAozhWis297'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = %w[Web IOS Android]
+        app.platforms = %w[Web iOS Android]
         app.app_url = 'https://onerecord.com'
         app.description =
           'OneRecord is a consumer facing application that enables the user to access and aggregate their medical '\
