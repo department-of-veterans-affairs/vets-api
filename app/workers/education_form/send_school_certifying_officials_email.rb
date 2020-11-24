@@ -3,7 +3,7 @@
 require 'evss/gi_bill_status/service'
 
 module EducationForm
-  class SendSCOEmail
+  class SendSchoolCertifyingOfficialsEmail
     include Sidekiq::Worker
 
     def perform(user_uuid, claim_id)
@@ -97,7 +97,7 @@ module EducationForm
 
     def recipients
       scos = @institution[:versioned_school_certifying_officials]
-      EducationForm::SendSCOEmail.sco_emails(scos)
+      EducationForm::SendSchoolCertifyingOfficialsEmail.sco_emails(scos)
     end
 
     def stats_key

@@ -5,11 +5,11 @@
 module AppsApi
   class DirectoryApplicationCreator
     def call
-      DirectoryApplication.find_or_create_by!(name: 'Apple Health') do |app|
+      DirectoryApplication.find_or_initialize_by(name: 'Apple Health').tap do |app|
         app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs01ca0lwp7cApBuM297'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = ['IOS']
+        app.platforms = ['iOS']
         app.app_url = 'https://www.apple.com/ios/health/'
         app.description =
           'With the Apple Health app, you can see all your health records — such as '\
@@ -19,13 +19,14 @@ module AppsApi
           'is encrypted and protected with the user’s iPhone passcode, Touch ID or Face ID.'
         app.privacy_url = 'https://www.apple.com/legal/privacy/'
         app.tos_url = 'https://www.apple.com/legal/sla/'
+        app.save
       end
-      DirectoryApplication.find_or_create_by!(name: 'iBlueButton') do |app|
+      DirectoryApplication.find_or_initialize_by(name: 'iBlueButton').tap do |app|
         app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofxnUUHtF1i297'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = %w[IOS Android]
-        app.app_url = 'https://ice.ibluebutton.com'
+        app.platforms = %w[iOS Android]
+        app.app_url = 'https://ibluebutton.com'
         app.description =
           'iBlueButton places your VA medical information securely onto your phone or '\
           'tablet, assembled into an interactive health record, with personalized safety '\
@@ -34,8 +35,9 @@ module AppsApi
           'has been a VA Blue Button health partner since 2012 and is available to Veterans free of charge.'
         app.privacy_url = 'https://ice.ibluebutton.com/docs/ibb/privacy_policy.html'
         app.tos_url = 'https://ice.ibluebutton.com/docs/ibb/eula.html'
+        app.save
       end
-      DirectoryApplication.find_or_create_by!(name: 'MyLinks') do |app|
+      DirectoryApplication.find_or_initialize_by(name: 'MyLinks').tap do |app|
         app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofptWwE5ruy297'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
@@ -49,8 +51,9 @@ module AppsApi
           'and images, connect devices, and keep a journal. MyLinks is accessible from any mobile device.'
         app.privacy_url = 'https://mylinks.com/privacypolicy'
         app.tos_url = 'https://mylinks.com/termsofservice'
+        app.save
       end
-      DirectoryApplication.find_or_create_by!(name: 'Clinical Trial Selector') do |app|
+      DirectoryApplication.find_or_initialize_by(name: 'Clinical Trial Selector').tap do |app|
         app.logo_url = 'https://cts.girlscomputingleague.org/static/img/CTS-white-100.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
@@ -64,12 +67,13 @@ module AppsApi
           'values from the EHR to automatically find eligible trials.'
         app.privacy_url = 'https://cts.girlscomputingleague.org/generalprivacypolicy.html'
         app.tos_url = 'https://cts.girlscomputingleague.org/generaltermsofuse.html'
+        app.save
       end
-      DirectoryApplication.find_or_create_by!(name: 'OneRecord') do |app|
+      DirectoryApplication.find_or_initialize_by(name: 'OneRecord').tap do |app|
         app.logo_url = 'https://ok5static.oktacdn.com/fs/bcg/4/gfs5hrv23wAozhWis297'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = %w[Web IOS Android]
+        app.platforms = %w[Web iOS Android]
         app.app_url = 'https://onerecord.com'
         app.description =
           'OneRecord is a consumer facing application that enables the user to access and aggregate their medical '\
@@ -84,6 +88,7 @@ module AppsApi
           'OneRecord is focused on women with chronic illnesses.'
         app.privacy_url = 'https://onerecord.com/privacy'
         app.tos_url = 'https://onerecord.com/terms'
+        app.save
       end
     end
   end

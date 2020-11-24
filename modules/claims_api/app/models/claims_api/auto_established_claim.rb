@@ -8,6 +8,9 @@ module ClaimsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_flash_responses, key: Settings.db_encryption_key,
+                                         marshal: true,
+                                         marshaler: JsonMarshal::Marshaller)
 
     after_create :log_flashes
 
@@ -80,17 +83,6 @@ module ClaimsApi
 
     def uploader
       @uploader ||= ClaimsApi::SupportingDocumentUploader.new(id)
-    end
-
-    def flashes
-      initial_flashes = JSON.parse(to_internal).dig('form526', 'veteran', 'flashes')
-      homelessness = JSON.parse(to_internal).dig('form526', 'veteran', 'homelessness')
-      is_terminally_ill = JSON.parse(to_internal).dig('form526', 'veteran', 'isTerminallyIll')
-
-      initial_flashes.push('Homeless') if homelessness.present?
-      initial_flashes.push('Terminally Ill') if is_terminally_ill.present? && is_terminally_ill
-
-      initial_flashes.present? ? initial_flashes.uniq : []
     end
 
     private
