@@ -6,16 +6,25 @@ module Ask
       class OracleForm
         attr_reader :fields
 
-        def initialize(request)
+        def initialize(form_data)
           @fields = make_field_list
-          parse(request)
+          parse(form_data)
+        end
+
+        def self.read_value_for_field(field, value)
+          field.schema_key.split('.').each do |key|
+            raise "missing path #{field.schema_key}" if value.nil?
+
+            value = value[key]
+          end
+          value
         end
 
         private
 
-        def parse(request)
+        def parse(form_data)
           @fields.each do |field|
-            field.value = read_value_for_field(field, request.parsed_form)
+            field.value = read_value_for_field(field, form_data)
           end
         end
 
@@ -24,15 +33,6 @@ module Ask
           field_list.map do |field_properties|
             Field.new(field_properties)
           end
-        end
-
-        def read_value_for_field(field, value)
-          field.schema_key.split('.').each do |key|
-            raise "missing path #{field.schema_key}" if value.nil?
-
-            value = value[key]
-          end
-          value
         end
       end
     end
