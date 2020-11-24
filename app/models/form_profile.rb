@@ -102,7 +102,7 @@ class FormProfile
     mdot: ['MDOT'],
     fsr: ['5655'],
     vre_counseling: ['28-8832'],
-    vre_readiness: ['28-1900'],
+    vre_readiness: ['28-1900']
   }.freeze
 
   FORM_ID_TO_CLASS = {
