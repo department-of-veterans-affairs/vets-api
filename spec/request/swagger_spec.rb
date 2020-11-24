@@ -817,11 +817,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           200,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+          headers.update(
+            '_data' => {
+              'supporting_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+              }
             }
-          }
+          )
         )
       end
 
@@ -830,7 +832,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           400,
-          ''
+          headers
         )
       end
 
@@ -839,11 +841,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           422,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+          headers.update(
+            '_data' => {
+              'supporting_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+              }
             }
-          }
+          )
         )
       end
     end
