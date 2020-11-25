@@ -415,6 +415,7 @@ oidc:
     claims: ~
   base_api_url: https://example.com
   base_api_token: ~
+  smart_launch_url: ~
 
 sentry:
   dsn: ~

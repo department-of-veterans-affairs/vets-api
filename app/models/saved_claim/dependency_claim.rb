@@ -81,6 +81,25 @@ class SavedClaim::DependencyClaim < SavedClaim
     []
   end
 
+  # Run after a claim is saved, this processes any files/supporting documents that are present
+  def process_attachments!
+    supporting_documents = parsed_form.dig('dependents_application', 'supporting_documents')
+    if supporting_documents
+      files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmation_code'] })
+      files.find_each { |f| f.update(saved_claim_id: id) }
+    end
+  end
+
+  def upload_to_vbms(path, doc_type: '148')
+    uploader = ClaimsApi::VBMSUploader.new(
+      filepath: path,
+      file_number: parsed_form['veteran_information']['ssn'],
+      doc_type: doc_type
+    )
+
+    uploader.upload!
+  end
+
   private
 
   def partitioned_686_674_params
@@ -89,15 +108,5 @@ class SavedClaim::DependencyClaim < SavedClaim
     college_student_data = dependent_data['dependents_application'].extract!(*STUDENT_ATTENDING_COLLEGE_KEYS)
 
     { college_student_data: college_student_data, dependent_data: dependent_data }
-  end
-
-  def upload_to_vbms(path)
-    uploader = ClaimsApi::VBMSUploader.new(
-      filepath: path,
-      file_number: parsed_form['veteran_information']['ssn'],
-      doc_type: '148'
-    )
-
-    uploader.upload!
   end
 end

@@ -62,6 +62,15 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       }
     ]
   end
+  let(:launch_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { launch: '73806470379396828' }.to_json)
+  end
+  let(:failed_launch_response) do
+    instance_double(RestClient::Response,
+                    code: 401)
+  end
   let(:json_api_response) do
     {
       'data' => {
@@ -236,15 +245,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'with client credentials jwt' do
     before do
       allow(JWT).to receive(:decode).and_return(client_credentials_jwt)
-    end
-
-    it 'v0 GET returns true if the user is a veteran' do
-      with_okta_configured do
-        get '/internal/auth/v0/validation', params: nil, headers: auth_header
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
-      end
+      allow(RestClient).to receive(:get).and_return(launch_response)
     end
 
     it 'v1 POST returns true if the user is a veteran' do
@@ -253,6 +254,24 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['va_identifiers']['icn']).to eq('73806470379396828')
+      end
+    end
+  end
+
+  context 'with client credentials jwt and failed launch lookup' do
+    before do
+      allow(JWT).to receive(:decode).and_return(client_credentials_jwt)
+      allow(RestClient).to receive(:get).and_return(failed_launch_response)
+    end
+
+    it 'v1 POST returns true if the user is a veteran' do
+      with_okta_configured do
+        post '/internal/auth/v1/validation', params: nil, headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['va_identifiers']['icn']).to eq(nil)
       end
     end
   end
