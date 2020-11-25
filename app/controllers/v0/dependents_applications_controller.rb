@@ -11,6 +11,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
 
+      claim.process_attachments!
       dependent_service.submit_686c_form(claim)
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
@@ -47,7 +48,8 @@ module V0
         :report_marriage_of_child_under18,
         :report_child18_or_older_is_not_attending_school,
         'view:selectable686_options': {},
-        dependents_application: {}
+        dependents_application: {},
+        supporting_documents: []
       )
     end
 

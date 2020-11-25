@@ -43,6 +43,25 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     end
   end
 
+  describe '#send_to_vre' do
+    context 'successful submission' do
+      it 'successfully sends to VRE' do
+        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          response = claim.send_to_vre(user_object)
+          expect(response['error_occurred']).to eq(false)
+        end
+      end
+
+      it 'does not successfully send to VRE' do
+        VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
+          response = claim.send_to_vre(user_object)
+
+          expect(response['error_occurred']).to eq(true)
+        end
+      end
+    end
+  end
+
   describe '#regional_office' do
     it 'returns an empty array' do
       expect(claim.regional_office).to be_empty
