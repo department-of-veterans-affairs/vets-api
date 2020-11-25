@@ -2937,7 +2937,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'throws and error when adding veteran readiness employment claim' do
+      it 'throws an error when adding veteran readiness employment claim' do
         expect(subject).to validate(
           :post,
           '/v0/veteran_readiness_employment_claims',
