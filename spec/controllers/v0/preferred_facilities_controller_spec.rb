@@ -51,4 +51,31 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
       expect(PreferredFacility.exists?(id)).to eq(false)
     end
   end
+
+  describe '#create' do
+    let(:facility_code) { '405HK' }
+
+    before do
+      allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(
+        %w[983 688] + [facility_code]
+      )
+    end
+
+    it 'creates a preferred facility' do
+      post(
+        :create,
+        params: {
+          preferred_facility: {
+            facility_code: facility_code
+          }
+        }
+      )
+
+      expect(response.ok?).to eq(true)
+
+      preferred_facility = PreferredFacility.last
+      expect(preferred_facility.facility_code).to eq(facility_code)
+      expect(preferred_facility.account).to eq(user.account)
+    end
+  end
 end
