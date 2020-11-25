@@ -57,11 +57,11 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
 
     before do
       allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(
-        %w[983 688] + [facility_code]
+        %w[983 688 405HK]
       )
     end
 
-    it 'creates a preferred facility' do
+    subject do
       post(
         :create,
         params: {
@@ -70,12 +70,29 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
           }
         }
       )
+    end
+
+    it 'creates a preferred facility' do
+      subject
 
       expect(response.ok?).to eq(true)
 
       preferred_facility = PreferredFacility.last
       expect(preferred_facility.facility_code).to eq(facility_code)
       expect(preferred_facility.account).to eq(user.account)
+    end
+
+    context 'with invalid params' do
+      let(:facility_code) { 'foo' }
+
+      it 'returns a validation error' do
+        subject
+
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+          "facility-code - must be included in user's va treatment facilities list"
+        )
+      end
     end
   end
 end
