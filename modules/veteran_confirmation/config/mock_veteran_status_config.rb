@@ -3,9 +3,15 @@
 require 'common/client/configuration/soap'
 
 module EMIS
-  class MockVeteranStatusConfig < VeteranStatusConfiguration
+  class MockVeteranStatusConfig < Configuration
     def base_path
-      URI.parse(Settings.vet_verification.mock_emis_host + Settings.emis.veteran_status_url).to_s
+      emis_url = URI.parse(Settings.vet_verification.mock_emis_host + Settings.emis.veteran_status_url).to_s
+      Rails.logger.info("Mock-emis URL: #{emis_url}")
+      emis_url
+    end
+
+    def service_name
+      'MockVeteranStatusService'
     end
   end
 end
