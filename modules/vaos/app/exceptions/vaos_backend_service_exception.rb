@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 module VAOS
   module Exceptions
-    class VAOSBackendServiceException < Common::Exceptions::BackendServiceException
+    class BackendServiceException < Common::Exceptions::BackendServiceException
       # rubocop:disable Style/MutableConstant, Style/CaseEquality
       VAOS_ERRORS = {
         400 => 'VAOS_400',
@@ -19,8 +19,8 @@ module VAOS
       def initialize(env)
         @env = env
         status = env.status == 500 && /APTCRGT/.match?(env.body) ? 400 : env.status
-        super(VAOS_ERRORS.select { |status_code| status_code === status }.values.first,
-          response_values, status, env.body)
+        key = lookup_key(status)
+        super(key, response_values, env.status, env.body)
       end
 
       def response_values
@@ -31,6 +31,10 @@ module VAOS
       end
 
       private
+
+      def lookup_key(status)
+        VAOS_ERRORS.select { |status_code| status_code === status }.values.first
+      end
 
       def detail(body)
         parsed = JSON.parse(body)

@@ -8,7 +8,7 @@ module VAOS
           return if env.success?
 
           Raven.extra_context(vamf_status: env.status, vamf_body: env.body, vamf_url: env.url)
-          raise VAOS::Exceptions::VAOSBackendServiceException, env
+          raise VAOS::Exceptions::BackendServiceException, env
         end
       end
     end
