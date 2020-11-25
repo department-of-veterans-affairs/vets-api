@@ -6,10 +6,10 @@ RSpec.describe 'Ask::Iris::Oracle::OracleForm' do
   context 'oracle form' do
     it 'read_value_for_fields' do
       first_name_field = Ask::Iris::Oracle::Field.new({
-                                                        schemaKey: 'fullName.first',
+                                                        schemaKey: 'fullName.first'
                                                       })
 
-      form_data = {"fullName"=>{"first" => "Jane"}}
+      form_data = { 'fullName' => { 'first' => 'Jane' } }
 
       return_value = Ask::Iris::Oracle::OracleForm.read_value_for_field(first_name_field, form_data)
 
@@ -18,10 +18,10 @@ RSpec.describe 'Ask::Iris::Oracle::OracleForm' do
 
     it 'read_value_for_fields' do
       first_name_field = Ask::Iris::Oracle::Field.new({
-                                                          schemaKey: 'dependentInformation.address.country',
+                                                        schemaKey: 'dependentInformation.address.country'
                                                       })
 
-      form_data = {"dependentInformation"=>{"address" =>{"country"=>"USA"}}}
+      form_data = { 'dependentInformation' => { 'address' => { 'country' => 'USA' } } }
 
       return_value = Ask::Iris::Oracle::OracleForm.read_value_for_field(first_name_field, form_data)
 

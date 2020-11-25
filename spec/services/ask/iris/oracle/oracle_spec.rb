@@ -7,7 +7,6 @@ RSpec.describe 'Ask::Iris::Oracle' do
   context 'when condition' do
     field_list = Ask::Iris::Oracle::FIELD_LIST
     it 'transforms vet statuses' do
-
       expect(field_list[6][:transform].call('dependent')).to eql('for the Dependent of a Veteran')
       expect(field_list[6][:transform].call('vet')).to eql('for Myself as a Veteran (I am the Vet)')
       expect(field_list[6][:transform].call('general')).to eql('General Question (Vet Info Not Needed)')
