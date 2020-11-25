@@ -61,7 +61,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     end
 
     it 'has a offset of -4 hours' do
-      expect(booked_cc[:start_date].utc_offset).to eq(-14_400)
+      expect(booked_cc[:start_date].utc_offset).to eq(-14_400)g
     end
 
     it 'has a booked status' do
