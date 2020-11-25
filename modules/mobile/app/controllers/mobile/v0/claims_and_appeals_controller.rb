@@ -28,9 +28,9 @@ module Mobile
             [Mobile::V0::Adapters::ClaimsOverviewErrors.new.parse(e, 'appeals'), false]
           end
         }
-        results = Parallel.map([get_all_claims, get_all_appeals], in_threads: 2, &:call)
-        status_code = parse_claims(results[0], full_list = [], error_list = [])
-        status_code = parse_appeals(results[1], full_list, error_list, status_code)
+        claims_result, appeals_result = Parallel.map([get_all_claims, get_all_appeals], in_threads: 2, &:call)
+        status_code = parse_claims(claims_result, full_list = [], error_list = [])
+        status_code = parse_appeals(appeals_result, full_list, error_list, status_code)
         adapted_full_list = serialize_list(full_list.flatten)
         render json: { data: adapted_full_list, meta: { errors: error_list } }, status: status_code
       end
@@ -64,7 +64,6 @@ module Mobile
       def serialize_list(full_list)
         adapted_full_list = full_list.map { |entry| Mobile::V0::Adapters::ClaimsOverview.new.parse(entry) }
         adapted_full_list = adapted_full_list.sort_by { |entry| entry[:date_filed] }.reverse!
-        adapted_full_list = adapted_full_list.map { |entry| Mobile::V0::ClaimOverview.new(entry) }
         adapted_full_list.map do |entry|
           JSON.parse(Mobile::V0::ClaimOverviewSerializer.new(entry).serialized_json)['data']
         end
