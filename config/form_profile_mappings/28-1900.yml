@@ -1,4 +1,4 @@
-contactInformation: [contact_information, address]
+veteranAddress: [contact_information, address]
 mainPhone: [contact_information, home_phone]
 cellPhone: [contact_information, mobile_phone]
 email: [contact_information, email]
