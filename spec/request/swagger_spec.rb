@@ -2919,6 +2919,40 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'veteran readiness employment claims' do
+      it 'supports adding veteran readiness employment claim' do
+        VCR.use_cassette('veteran_readiness_employment/send_to_vre') do
+          expect(subject).to validate(
+            :post,
+            '/v0/veteran_readiness_employment_claims',
+            200,
+            headers.merge(
+              '_data' => {
+                'veteran_readiness_employment_claim' => {
+                  form: build(:veteran_readiness_employment_claim_no_vet_information).form
+                }
+              }
+            )
+          )
+        end
+      end
+
+      it 'throws an error when adding veteran readiness employment claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/veteran_readiness_employment_claims',
+          422,
+          headers.merge(
+            '_data' => {
+              'veteran_readiness_employment_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
+    end
+
     describe 'va file number' do
       it 'supports checking if a user has a veteran number' do
         expect(subject).to validate(:get, '/v0/profile/valid_va_file_number', 401)
