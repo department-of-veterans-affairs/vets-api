@@ -4,6 +4,7 @@ class PreferredFacility < ApplicationRecord
 
   validates(:account, :facility_code, presence: true)
   validates(:user, presence: true, on: :create)
+  validates(:facility_code, uniqueness: { scope: :account_id })
   validate(:facility_code_included_in_user_list, on: :create)
 
   before_validation(:set_account, on: :create)
