@@ -24,7 +24,7 @@ module Ask
 
         def parse(form_data)
           @fields.each do |field|
-            field.value = read_value_for_field(field, form_data)
+            field.value = self.class.read_value_for_field(field, form_data)
           end
         end
 

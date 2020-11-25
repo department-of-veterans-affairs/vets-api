@@ -1,10 +1,9 @@
 {
     "inquiryType": "Question",
     "topic": {
-      "levelOne": "Health & Medical Issues & Services",
-      "levelTwo": "Prosthetics, Med Devices & Sensory Aids",
-      "levelThree": "Eyeglasses",
-      "vaMedicalCenter": "405GC"
+      "levelOne": "Burial & Memorial Benefits (NCA)",
+      "levelTwo": "Burial Benefits",
+      "levelThree": "Compensation Request"
     },
     "query": "Some question?",
     "fullName": {
@@ -26,7 +25,7 @@
       "veteranStatus": "dependent",
       "isDependent": false,
       "relationshipToVeteran": "Daughter",
-      "veteranIsDeceased": true,
+      "veteranIsDeceased": false,
       "dateOfDeath": "2000-06-04"
     },
     "dependentInformation": {
@@ -47,8 +46,14 @@
       "first": "Walker",
       "last": "Texas",
       "address": {
-        "country": "USA"
-      }
+        "street": "401 Doppler Ave",
+        "city": "Cleveland",
+        "country": "USA",
+        "state": "OH",
+        "postalCode": "41014"
+      },
+      "phone": "5554248008",
+      "email":"wtexas@fake.email"
     },
     "veteranServiceInformation": {
       "dateOfBirth": "1980-02-02",
