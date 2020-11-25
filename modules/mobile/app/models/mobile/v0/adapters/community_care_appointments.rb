@@ -3,12 +3,11 @@
 module Mobile
   module V0
     module Adapters
-      # VA Appointments come in various shapes and sizes. This class adapts
-      # VA on-site, video connect, video connect atlas, and video connect with
-      # a GFE to a common schema.
+      # This class adapts Community Care appointments to a common schema that
+      # is shared with the VA appointment types.
       #
       # @example create a new instance and parse incoming data
-      #   Mobile::V0::Adapters::VAAppointments.new.parse(appointments)
+      #   Mobile::V0::Adapters::CommunityCareAppointments.new.parse(appointments)
       #
       class CommunityCareAppointments
         BOOKED_STATUS = 'BOOKED'
@@ -30,12 +29,12 @@ module Mobile
           'PST' => 'America/Los_Angeles'
         }.freeze
 
-        # Takes a result set of VA appointments from the appointments web service
-        # and returns the set adapted to a common schema.
+        # Takes a result set of Community Care appointments from the appointments web
+        # service and returns the set adapted to a common schema.
         #
-        # @appointments Hash a list of various VA appointment types
+        # @appointments Hash a list of various Community Care appointment types
         #
-        # @return Hash the adapted list
+        # @return Array<Mobile::V0::Appointment> the adapted list of appointment models
         #
         def parse(appointments)
           appointments_list = appointments['bookedAppointmentCollections'].first['bookedCCAppointments']
