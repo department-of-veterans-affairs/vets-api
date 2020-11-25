@@ -9,7 +9,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
   end
 
   it 'returns a list of appointments at the expected size' do
-    expect(adapted_appointments.size).to eq(26)
+    expect(adapted_appointments.size).to eq(17)
   end
 
   context 'with a booked CC appointment' do
@@ -61,7 +61,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     end
 
     it 'has a offset of -4 hours' do
-      expect(booked_cc[:start_date].utc_offset).to eq(-14_400)g
+      expect(booked_cc[:start_date].utc_offset).to eq(-14_400)
     end
 
     it 'has a booked status' do
