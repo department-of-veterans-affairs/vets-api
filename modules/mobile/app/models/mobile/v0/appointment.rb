@@ -4,6 +4,12 @@ require 'common/models/resource'
 
 module Mobile
   module V0
+    # Model that can be populated by either Community Care or the four
+    # VA appointment types
+    #
+    # @example create a new instance and parse incoming data
+    #   Mobile::V0::Adapters::Appointment.new(appointment_hash)
+    #
     class Appointment < Common::Resource
       APPOINTMENT_TYPE = Types::String.enum(
         'COMMUNITY_CARE',
