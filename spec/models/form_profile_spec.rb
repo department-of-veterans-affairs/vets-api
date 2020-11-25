@@ -755,7 +755,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v28_1900_expected) do
     {
-      'contactInformation' => {
+      'veteranAddress' => {
         'addressLine1' => street_check[:street],
         'addressLine2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
