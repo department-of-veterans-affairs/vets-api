@@ -22,7 +22,7 @@ module Mobile
           'CST' => 'America/Chicago',
           'EDT' => 'America/New_York',
           'EST' => 'America/New_York',
-          'HST' => 'America/Honolulu',
+          'HST' => 'Pacific/Honolulu',
           'MDT' => 'America/Denver',
           'MST' => 'America/Denver',
           'PHST' => 'Asia/Manila',
@@ -42,7 +42,8 @@ module Mobile
 
           appointments_list.map do |appointment_hash|
             location = get_location(appointment_hash['providerPractice'], appointment_hash['address'])
-            {
+
+            adapted_hash = {
               appointment_type: COMMUNITY_CARE_TYPE,
               comment: appointment_hash['instructionsToVeteran'],
               facility_id: nil, # not a VA location
@@ -53,6 +54,8 @@ module Mobile
               status: BOOKED_STATUS,
               time_zone: get_time_zone(appointment_hash['timeZone'], location.dig(:address, :state))
             }
+
+            Mobile::V0::Appointment.new(adapted_hash)
           end
         end
 
@@ -62,11 +65,18 @@ module Mobile
           {
             name: name,
             address: {
-              line1: address['street'],
+              street: address['street'],
               city: address['city'],
               state: address['state'],
               zip_code: address['zipCode']
-            }
+            },
+            phone: {
+              area_code: nil,
+              number: nil,
+              extension: nil
+            },
+            url: nil,
+            code: nil
           }
         end
 

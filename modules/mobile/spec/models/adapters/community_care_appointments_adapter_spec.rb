@@ -20,15 +20,22 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     end
 
     it 'has a location with a name and address' do
-      expect(booked_cc[:location]).to eq(
+      expect(booked_cc[:location].to_h).to eq(
         {
           name: 'Atlantic Medical Care',
           address: {
-            line1: '123 Main Street',
+            street: "123 Main Street",
             city: 'Orlando',
             state: 'FL',
             zip_code: '32826'
-          }
+          },
+          phone: {
+            area_code: nil,
+            number: nil,
+            extension: nil
+          },
+          url: nil,
+          code: nil
         }
       )
     end
@@ -154,7 +161,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     let(:booked_cc) { adapted_appointments[8] }
 
     it 'has the correct tz database timezone' do
-      expect(booked_cc[:time_zone]).to eq('America/Honolulu')
+      expect(booked_cc[:time_zone]).to eq('Pacific/Honolulu')
     end
 
     it 'has a offset of -10 hours' do
