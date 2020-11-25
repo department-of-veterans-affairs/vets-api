@@ -24,7 +24,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
         {
           name: 'Atlantic Medical Care',
           address: {
-            street: "123 Main Street",
+            street: '123 Main Street',
             city: 'Orlando',
             state: 'FL',
             zip_code: '32826'
