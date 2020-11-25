@@ -4,13 +4,13 @@ module V0
   class PreferredFacilitiesController < ApplicationController
     def index
       render(
-        json: current_user.account.preferred_facilities
+        json: current_user_preferred_facilities
       )
     end
 
     def destroy
       render(
-        json: current_user.account.preferred_facilities.find(params[:id]).destroy!
+        json: current_user_preferred_facilities.find(params[:id]).destroy!
       )
     end
 
@@ -26,6 +26,12 @@ module V0
       else
         raise Common::Exceptions::ValidationErrors, preferred_facility
       end
+    end
+
+    private
+
+    def current_user_preferred_facilities
+      current_user.account.preferred_facilities
     end
   end
 end
