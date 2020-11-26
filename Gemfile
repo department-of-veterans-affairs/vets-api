@@ -170,6 +170,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
   gem 'rspec-instrumentation-matcher'
+  gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rubocop', require: false
   gem 'rubocop-rails'

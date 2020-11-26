@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     resources :debt_letters, only: %i[index show]
     resources :financial_status_reports, only: :create
     resources :education_career_counseling_claims, only: :create
+    resources :veteran_readiness_employment_claims, only: :create
 
     resources :preferred_facilities, only: %i[index create destroy]
 
