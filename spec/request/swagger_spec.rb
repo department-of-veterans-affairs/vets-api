@@ -433,10 +433,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:headers) do
         { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
       end
-
-      before do
-        create(:preferred_facility, user: user)
-      end
+      let!(:preferred_facility) { create(:preferred_facility, user: user) }
 
       context 'preferred facilities index' do
         it 'validates the route' do
@@ -445,6 +442,19 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             '/v0/preferred_facilities',
             200,
             headers
+          )
+        end
+      end
+
+      context 'preferred_facilities destroy' do
+        it 'validates the route' do
+          expect(subject).to validate(
+            :delete,
+            '/v0/preferred_facilities/{id}',
+            200,
+            headers.merge(
+              'id' => preferred_facility.id
+            )
           )
         end
       end
