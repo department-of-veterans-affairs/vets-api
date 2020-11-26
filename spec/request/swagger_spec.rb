@@ -428,6 +428,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    context 'preferred facilities' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+
+      before do
+        create(:preferred_facility, user: user)
+      end
+
+      context 'preferred facilities index' do
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/preferred_facilities',
+            200,
+            headers
+          )
+        end
+      end
+    end
+
     context 'HCA tests' do
       let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
