@@ -127,6 +127,10 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'hearingTypePreference')
     end
 
+    def valid_hearing_type?
+      board_review_hearing_selected? && includes_hearing_type?
+    end
+
     private
 
     def validate_auth_headers_against_schema

@@ -38,6 +38,10 @@ module AppealsApi
       dob 'Claimant'
     end
 
+    def hearing_type
+      return @notice_of_disagreement.hearing_type if @notice_of_disagreement.valid_hearing_type?
+    end
+
     def contact_info
       @notice_of_disagreement.veteran_contact_info || @notice_of_disagreement.claimant_contact_info
     end
