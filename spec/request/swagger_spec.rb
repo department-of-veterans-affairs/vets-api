@@ -435,6 +435,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
       let!(:preferred_facility) { create(:preferred_facility, user: user) }
 
+      it 'validates unauthorized routes' do
+        expect(subject).to validate(:get, '/v0/preferred_facilities', 401)
+        expect(subject).to validate(:delete, '/v0/preferred_facilities/{id}', 401, 'id' => 1)
+        expect(subject).to validate(:post, '/v0/preferred_facilities', 401)
+      end
+
       context 'preferred facilities index' do
         it 'validates the route' do
           expect(subject).to validate(
