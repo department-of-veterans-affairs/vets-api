@@ -458,6 +458,27 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           )
         end
       end
+
+      context 'preferred_facilities create' do
+        it 'validates the route' do
+          allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(
+            %w[983 688]
+          )
+
+          expect(subject).to validate(
+            :post,
+            '/v0/preferred_facilities',
+            200,
+            headers.merge(
+              '_data' => {
+                preferred_facility: {
+                  facility_code: '688'
+                }
+              }
+            )
+          )
+        end
+      end
     end
 
     context 'HCA tests' do

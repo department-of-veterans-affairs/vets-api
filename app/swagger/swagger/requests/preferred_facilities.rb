@@ -28,6 +28,27 @@ module Swagger
             end
           end
         end
+
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, "Create a preferred facility for a user"
+          key :operationId, 'createPreferredFacility'
+
+          response 200 do
+            key :description, "the created preferred facility"
+
+            schema do
+              property :data, type: :object do
+                property :id, type: :string
+                property :type, type: :string
+                property :attributes, type: :object do
+                  property :facility_code, type: :string
+                end
+              end
+            end
+          end
+        end
       end
 
       swagger_path '/v0/preferred_facilities/{id}' do
