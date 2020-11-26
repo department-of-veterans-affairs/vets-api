@@ -29,18 +29,12 @@ module BGS
           va_file_number: @va_file_number,
           claim_type_end_product: claim_type_end_product,
           location_id: location_id,
-          net_worth_over_limit_ind: net_worth_over_limit_ind
+          net_worth_over_limit_ind: veteran.formatted_boolean(@payload['dependents_application']['household_income'])
         }
       )
     end
 
     private
-
-    def net_worth_over_limit_ind
-      return nil if @payload['dependents_application']['household_income'].nil?
-
-      @payload['dependents_application']['household_income'] ? 'Y' : 'N'
-    end
 
     def get_location_id(zip, country, province)
       # find the regional office number closest to the Veteran's zip code
