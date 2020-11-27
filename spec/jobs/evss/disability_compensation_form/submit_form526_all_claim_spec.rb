@@ -85,6 +85,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
+    context 'with a 503 error' do
+      it 'runs the retryable_error_handler and raises a ServiceUnavailableException' do
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::Service).to receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+
+        subject.perform_async(submission.id)
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+        expect(Form526JobStatus).to receive(:upsert).twice
+        expect(Rails.logger).to receive(:error).once
+        expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+      end
+    end
+
     context 'with a breakers outage' do
       it 'runs the retryable_error_handler and raises a gateway timeout' do
         EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
