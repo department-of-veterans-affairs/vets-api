@@ -46,10 +46,11 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
       generated_pdf = described_class.new.generate_pdf(notice_of_disagreement.id)
       reader = PDF::Reader.new(generated_pdf)
-      expect(reader.pages.size).to eq 4
+      expect(reader.pages.size).to eq 5
       expect(reader.pages.first.text).to include email
       expect(reader.pages.first.text).to include rep_name
-      expect(reader.pages[3].text).to include extra_issue
+      expect(reader.pages[3].text).to include 'Hearing type requested: Central office'
+      expect(reader.pages[4].text).to include extra_issue
       File.delete(generated_pdf) if File.exist?(generated_pdf)
       Timecop.return
     end
