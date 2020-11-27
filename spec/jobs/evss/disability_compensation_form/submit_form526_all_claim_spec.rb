@@ -24,6 +24,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
              saved_claim_id: saved_claim.id)
     end
 
+    def expect_retryable_error(error_class)
+      subject.perform_async(submission.id)
+      expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+      expect(Form526JobStatus).to receive(:upsert).twice
+      expect(Rails.logger).to receive(:error).once
+      expect { described_class.drain }.to raise_error(error_class)
+    end
+
     context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do
@@ -89,22 +97,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       it 'runs the retryable_error_handler and raises a ServiceUnavailableException' do
         expect_any_instance_of(EVSS::DisabilityCompensationForm::Service).to receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
 
-        subject.perform_async(submission.id)
-        expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
-        expect(Form526JobStatus).to receive(:upsert).twice
-        expect(Rails.logger).to receive(:error).once
-        expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+        expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
       end
     end
 
     context 'with a breakers outage' do
       it 'runs the retryable_error_handler and raises a gateway timeout' do
         EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
-        subject.perform_async(submission.id)
-        expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
-        expect(Form526JobStatus).to receive(:upsert).twice
-        expect(Rails.logger).to receive(:error).once
-        expect { described_class.drain }.to raise_error(Breakers::OutageException)
+
+        expect_retryable_error(Breakers::OutageException)
       end
     end
 
@@ -133,10 +134,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with an upstream service error' do
       it 'sets the transaction to "retrying"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_err_msg') do
-          subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
-          expect(Form526JobStatus).to receive(:upsert).twice
-          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
+          expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceException)
         end
       end
     end
