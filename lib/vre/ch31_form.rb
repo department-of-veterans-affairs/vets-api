@@ -10,7 +10,7 @@ module VRE
     include SentryLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.vre'
-    SENTRY_TAG = { team: 'vfs-ebenefits' }
+    SENTRY_TAG = { team: 'vfs-ebenefits' }.freeze
 
     def initialize(user:, claim:)
       @user = user
@@ -32,7 +32,7 @@ module VRE
       log_message_to_sentry(
         'Temp message for testing',
         :warn,
-        {application_intake_id: response_body['application_intake']},
+        { application_intake_id: response_body['application_intake'] },
         SENTRY_TAG
       )
       response_body
