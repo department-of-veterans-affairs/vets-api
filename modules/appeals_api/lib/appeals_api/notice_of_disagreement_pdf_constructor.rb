@@ -30,6 +30,7 @@ module AppealsApi
       return @pdf_options if @pdf_options
 
       options = {
+        additional_pages: [],
         "F[0].Page_1[0].VeteransFirstName[0]": nod_pdf_options.veteran_name,
         "F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": nod_pdf_options.veteran_ssn,
         "F[0].Page_1[0].VAFileNumber[0]": nod_pdf_options.veteran_file_number,
@@ -57,6 +58,7 @@ module AppealsApi
         options[:"F[0].Page_1[0].Percentage2[#{index}]"] = issue['attributes']['decisionDate']
       end
 
+      insert_administrative_page(options)
       insert_extra_issues_page(options) if nod_pdf_options.contestable_issues.size > 5
 
       @pdf_options = options
@@ -65,6 +67,25 @@ module AppealsApi
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/AbcSize
+
+    # TODO: Remove this override by refactoring BasePdfConstructor & HigherLevelReviewPdfConstructor to use
+    #       `additional_pages` key in this manner instead of `additional_page` key
+    def merge_page(temp_path, output_path)
+      return temp_path if pdf_options[:additional_pages].blank?
+
+      rand_path = "#{Common::FileHelpers.random_file_path}.pdf"
+      Prawn::Document.generate(rand_path) do |pdf|
+        pdf_options[:additional_pages].each_with_index do |txt, index|
+          pdf.start_new_page unless index.zero?
+          pdf.text txt, inline_format: true
+        end
+      end
+      pdf = CombinePDF.load(temp_path) << CombinePDF.load(rand_path)
+      pdf.save output_path
+      File.delete temp_path if File.exist? temp_path
+      File.delete rand_path if File.exist? rand_path
+      output_path
+    end
 
     def stamp_pdf(pdf_path, consumer_name)
       stamped_path = super
@@ -99,14 +120,19 @@ module AppealsApi
       output_path
     end
 
+    def insert_administrative_page(pdf_options)
+      return if nod_pdf_options.hearing_type_preference.blank?
+
+      pdf_options[:additional_pages] << "Hearing type requested: #{nod_pdf_options.hearing_type_preference.humanize}"
+    end
+
     def insert_extra_issues_page(pdf_options)
+      lines = []
       # The first five issues are given space on the form, so drop them.
-      # Reverse the order since :additional_page pdf options tends to write to the page in reverse order.
-      # e.g. without the reversal, [6,7,8] would place Issue 8 at top of the page.
-      nod_pdf_options.contestable_issues.drop(5).reverse.each do |issue|
-        text = "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
-        pdf_options[:additional_page] = "#{text}\n#{pdf_options[:additional_page]}"
+      nod_pdf_options.contestable_issues.drop(5).each do |issue|
+        lines << "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
       end
+      pdf_options[:additional_pages] << lines.join("\n")
     end
   end
 end
