@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_06_023750) do
+ActiveRecord::Schema.define(version: 2020_11_23_000822) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -129,6 +129,10 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.string "encrypted_file_data_iv"
     t.string "encrypted_evss_response"
     t.string "encrypted_evss_response_iv"
+    t.string "encrypted_bgs_flash_responses"
+    t.string "encrypted_bgs_flash_responses_iv"
+    t.string "flashes", default: [], array: true
+    t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -546,6 +550,7 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.boolean "s3_deleted"
     t.string "consumer_name"
     t.uuid "consumer_id"
+    t.json "uploaded_pdf"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end

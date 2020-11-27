@@ -168,6 +168,11 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
+  form526_confirmation_email_show_copy:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Shows vets-website content to inform veterans to expect a form526 confirmation email. Owned by va-notify team.
   va_view_dependents_access:
     actor_type: user
     description: >
@@ -286,7 +291,11 @@ features:
   show_chapter_36:
     actor_type: user
     description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E Chapter 36 form
+  view_payment_history:
+    actor_type: user
+    description: >
+      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
   form_1995_edu_updates:
     actor_type: user
     enable_in_development: true
@@ -297,3 +306,13 @@ features:
     enable_in_development: true
     description: >
       Ask for a password when an encrypted PDF is detected before uploading
+  education_reports_cleanup:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
+  search_typeahead_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables type ahead search functionality

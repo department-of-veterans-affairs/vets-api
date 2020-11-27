@@ -22,6 +22,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  # rubocop:disable Layout/LineLength
   describe 'validations' do
     describe '#validate_that_at_least_one_set_of_contact_info_is_present' do
       context 'when veteran is present and claimant is not' do
@@ -53,8 +54,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it do
           expect(notice_of_disagreement.errors.count).to be 2
-          expect(notice_of_disagreement.errors.full_messages.first).to eq('Form data at least one must be included: ' \
-"'/data/attributes/veteran', '/data/attributes/claimant'")
+          expect(notice_of_disagreement.errors.full_messages.first).to eq(
+            "Form data at least one must be included: '/data/attributes/veteran', '/data/attributes/claimant'"
+          )
         end
       end
     end
@@ -74,8 +76,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq('Auth headers if any claimant info is' \
-' present, claimant name must also be present')
+          expect(notice_of_disagreement.errors.full_messages.first).to eq(
+            'Auth headers if any claimant info is present, claimant name must also be present'
+          )
         end
       end
 
@@ -86,8 +89,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq('Auth headers if any claimant info is' \
-' present, claimant birth date must also be present')
+          expect(notice_of_disagreement.errors.full_messages.first).to eq(
+            'Auth headers if any claimant info is present, claimant birth date must also be present'
+          )
         end
       end
 
@@ -99,8 +103,9 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq('Form data if any claimant info is present,' \
-' claimant contact info (data/attributes/claimant) must also be present')
+          expect(notice_of_disagreement.errors.full_messages.first).to eq(
+            'Form data if any claimant info is present, claimant contact info (data/attributes/claimant) must also be present'
+          )
         end
       end
     end
@@ -126,13 +131,60 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         it do
           expect(notice_of_disagreement.errors.count).to be 1
           expect(notice_of_disagreement.errors.full_messages.first).to eq(
-            "Form data at least one must be included: '/data/attributes/veteran/address', " \
-                "'/data/attributes/claimant/address'"
+            "Form data at least one must be included: '/data/attributes/veteran/address', '/data/attributes/claimant/address'"
           )
         end
       end
     end
+
+    describe '#validate_hearing_type_selection' do
+      context "when board review option 'hearing' selected" do
+        context 'when hearing type provided' do
+          before do
+            notice_of_disagreement.valid?
+          end
+
+          it 'does not throw an error' do
+            expect(notice_of_disagreement.errors.count).to be 0
+          end
+        end
+
+        context 'when hearing type missing' do
+          before do
+            form_data['data']['attributes'].delete('hearingTypePreference')
+            notice_of_disagreement.valid?
+          end
+
+          it 'throws an error' do
+            expect(notice_of_disagreement.errors.count).to be 1
+            expect(notice_of_disagreement.errors.full_messages.first).to eq(
+              "Form data if '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
+            )
+          end
+        end
+      end
+
+      context "when board review option 'direct_review' or 'evidence_submission' is selected" do
+        let(:form_data) { fixture_as_json 'valid_10182_minimum.json' }
+        let(:auth_headers) { headers_without_claimant(default_auth_headers) }
+
+        context 'when hearing type provided' do
+          before do
+            notice_of_disagreement.form_data['data']['attributes']['hearingTypePreference'] = 'video_conference'
+            notice_of_disagreement.valid?
+          end
+
+          it 'throws an error' do
+            expect(notice_of_disagreement.errors.count).to be 1
+            expect(notice_of_disagreement.errors.full_messages.first).to eq(
+              "Form data if '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
+            )
+          end
+        end
+      end
+    end
   end
+  # rubocop:enable Layout/LineLength
 
   describe '10182 schema' do
     context 'missing addressLine1' do
@@ -142,6 +194,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
             'type' => default_form_data['data']['type'],
             'attributes' => {
               'boardReviewOption' => default_form_data['data']['attributes']['boardReviewOption'],
+              'hearingTypePreference' => default_form_data['data']['attributes']['hearingTypePreference'],
               'socOptIn' => default_form_data['data']['attributes']['socOptIn'],
               'veteran' => {
                 'homeless' => default_form_data['data']['attributes']['veteran']['homeless'],
