@@ -66,6 +66,16 @@ module AppealsApi
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/AbcSize
 
+    def stamp_pdf(pdf_path, consumer_name)
+      stamped_path = super
+      CentralMail::DatestampPdf.new(stamped_path).run(
+        text: "#{nod_pdf_options.veteran_last_name} - #{nod_pdf_options.veteran_safe_ssn}",
+        x: 5,
+        y: 775,
+        text_only: true
+      )
+    end
+
     # For inserting items into the pdf that require special insertion (e.g. where fields cannot hold enough text)
     def insert_manual_fields(pdf_template)
       pdftk = PdfForms.new(Settings.binaries.pdftk)
