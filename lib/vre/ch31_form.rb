@@ -10,6 +10,7 @@ module VRE
     include SentryLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.vre'
+    SENTRY_TAG = { team: 'vfs-ebenefits' }
 
     def initialize(user:, claim:)
       @user = user
@@ -28,6 +29,12 @@ module VRE
 
       raise Ch31Error if response_body['error_occurred'] == true
 
+      log_message_to_sentry(
+        'Temp message for testing',
+        :warn,
+        {application_intake_id: response_body['application_intake']},
+        SENTRY_TAG
+      )
       response_body
     rescue Ch31Error => e
       process_ch_31_error(e, response_body)
@@ -108,7 +115,7 @@ module VRE
           intake_id: response_body['ApplicationIntake'],
           error_message: response_body['ErrorMessage']
         },
-        { team: 'vfs-ebenefits' }
+        SENTRY_TAG
       )
     end
 
@@ -118,7 +125,7 @@ module VRE
         {
           icn: @user.icn
         },
-        { team: 'vfs-ebenefits' }
+        SENTRY_TAG
       )
 
       { 'error_occurred' => true, 'error_message' => 'Claim cannot be null' }
