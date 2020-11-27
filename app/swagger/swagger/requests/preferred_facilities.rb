@@ -35,6 +35,24 @@ module Swagger
           key :description, "Create a preferred facility for a user"
           key :operationId, 'createPreferredFacility'
 
+          parameter do
+            key :name, :preferred_facility
+            key :in, :body
+            key :description, 'Preferred Facility data'
+            key :required, true
+
+            schema do
+              key :type, :object
+              key :required, %i[preferred_facility]
+
+              property :preferred_facility, type: :object do
+                key :required, %i[facility_code]
+
+                property :facility_code, type: :string
+              end
+            end
+          end
+
           response 200 do
             key :description, "the created preferred facility"
 
