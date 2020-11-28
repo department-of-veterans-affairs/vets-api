@@ -194,6 +194,50 @@ en:
         detail: "No query params are allowed for this route"
         code: 400
         status: 400
+      detailed_schema_errors:
+        <<: *validation_errors # Fallbacks for missing translations
+        data_type:
+          <<: *defaults
+          title: Invalid data type
+          detail: Expected %{data_type} data
+          code: 150
+          status: 422
+        enum:
+          <<: *defaults
+          title: Invalid option
+          detail: "'%{value}' is not an available option"
+          code: 151
+          status: 422
+        length:
+          <<: *defaults
+          title: Invalid length
+          detail: "'%{value}' did not fit within the defined length limits"
+          code: 152
+          status: 422
+        pattern:
+          <<: *defaults
+          title: Invalid format
+          detail: "'%{value}' did not match the defined format"
+          code: 153
+          status: 422
+        range:
+          <<: *defaults
+          title: Value outside range
+          detail: "'%{value}' is outside the defined range"
+          code: 154
+          status: 422
+        required:
+          <<: *defaults
+          title: Missing required fields
+          detail: One or more expected fields were not found
+          code: 155
+          status: 422
+        schema:
+          <<: *defaults
+          title: Schema mismatch
+          detail: Unknown data provided
+          code: 156
+          status: 422
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services

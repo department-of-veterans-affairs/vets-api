@@ -3,12 +3,11 @@
     "type": "invalidType",
     "attributes": {
       "veteran": {
-        "homeless": false,
+        "homeless": "false",
         "representativesName": "Tony Danza"
       },
       "boardReviewOption": "hearing",
-      "timezone": "America/Chicago",
-      "socOptIn": false
+      "timezone": "America/Chicago"
     }
   },
   "included": [

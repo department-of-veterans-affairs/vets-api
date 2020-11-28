@@ -79,15 +79,17 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
     render_model_errors unless @notice_of_disagreement.validate
   end
 
+  # Follows JSON API v1.0 error object standard (https://jsonapi.org/format/1.0/#error-objects)
   def render_model_errors
     render json: model_errors_to_json_api, status: MODEL_ERROR_STATUS
   end
 
   def model_errors_to_json_api
-    errors = @notice_of_disagreement.errors.to_a.map do |error|
-      { status: MODEL_ERROR_STATUS, detail: error }
+    errors = @notice_of_disagreement.errors.to_h.map do |source, data|
+      data = I18n.t('common.exceptions.validation_errors').deep_merge data
+      data[:source] = { pointer: source.to_s }
+      data
     end
-
     { errors: errors }
   end
 
