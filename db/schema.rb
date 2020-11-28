@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_18_233113) do
+ActiveRecord::Schema.define(version: 2020_11_23_000822) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -550,6 +550,7 @@ ActiveRecord::Schema.define(version: 2020_11_18_233113) do
     t.boolean "s3_deleted"
     t.string "consumer_name"
     t.uuid "consumer_id"
+    t.json "uploaded_pdf"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end

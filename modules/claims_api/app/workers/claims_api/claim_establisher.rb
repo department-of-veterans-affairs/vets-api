@@ -23,7 +23,7 @@ module ClaimsApi
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
       auto_claim.save
 
-      ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes) if flashes.present?
+      queue_flash_updater(auth_headers, flashes, auto_claim_id) if flashes.present?
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
@@ -37,6 +37,10 @@ module ClaimsApi
     end
 
     private
+
+    def queue_flash_updater(auth_headers, flashes, auto_claim_id)
+      ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes, auto_claim_id: auto_claim_id)
+    end
 
     def service(auth_headers)
       if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
