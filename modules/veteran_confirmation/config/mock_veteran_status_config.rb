@@ -9,9 +9,5 @@ module EMIS
       Rails.logger.info("Mock-emis URL: #{emis_url}")
       emis_url
     end
-
-    def service_name
-      'MockVeteranStatusService'
-    end
   end
 end
