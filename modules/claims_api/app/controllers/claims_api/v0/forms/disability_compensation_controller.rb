@@ -25,7 +25,9 @@ module ClaimsApi
             flashes: flashes,
             source: source_name
           )
-          auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
+          unless auto_claim.id
+            auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5, source: source_name)
+          end
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
@@ -46,12 +48,6 @@ module ClaimsApi
 
         def validate_form_526
           super
-        end
-
-        private
-
-        def source_name
-          request.headers['X-Consumer-Username']
         end
       end
     end
