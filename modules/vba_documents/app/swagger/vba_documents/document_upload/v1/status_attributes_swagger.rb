@@ -8,7 +8,6 @@ module VbaDocuments
         swagger_component do
           schema :DocumentUploadStatusAttributes do
             key :required, %i[guid status]
-
             property :guid do
               key :description, 'The document upload identifier'
               key :type, :string
@@ -36,12 +35,15 @@ module VbaDocuments
               key :description, 'Human readable error detail. Only present if status = "error"'
               key :type, :string
             end
-
             property :updated_at do
               key :description, 'The last time the submission was updated'
               key :type, :string
               key :format, 'date-time'
               key :example, '2018-07-30T17:31:15.958Z'
+            end
+
+            property :uploaded_pdf do
+              key :$ref, :PdfUploadAttributes
             end
           end
         end

@@ -227,7 +227,6 @@ module VbaDocuments
               end
             end
           end
-
           response 200 do
             key :description, 'Upload status report retrieved successfully'
             content 'application/json' do
