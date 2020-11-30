@@ -6,8 +6,9 @@ AppsApi::Engine.routes.draw do
   match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
 
   namespace :v0, defaults: { format: 'json' } do
-    get 'directory/scopes/:category', to: 'directory#scopes'
-    resources :directory, only: %i[index]
+    get 'directory', to: 'directory#index'
+    get 'directory/scopes/:category', to: 'directory#scopes', as: 'scopes', defaults: { category: 'unknown_category' }
+    get 'directory/:name', to: 'directory#show'
   end
   namespace :docs do
     namespace :v0 do
