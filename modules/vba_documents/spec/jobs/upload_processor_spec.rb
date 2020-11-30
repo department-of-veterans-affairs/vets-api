@@ -109,9 +109,18 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       {'sets error status for file content size exceeding 100MB' => :valid_parts,
        'sets error for file part size exceeding 100MB' => :valid_parts_attachment
       }.each_pair do |k, v|
+        Thread.current[:context] = v
         it 'sets error for file part size exceeding 100MB' do
           allow(VBADocuments::MultipartParser).to receive(:parse) { self.send v }
-          allow(File).to receive(:size).and_return(100_000_001)
+          allow(File).to receive(:size) do
+            r_val = 100_000_001
+            if (Thread.current[:checking_attachment] && v.eql?(:valid_parts_attachment))
+              r_val = 100_000_001
+            else
+              r_val = 1 if v.eql?(:valid_parts_attachment)
+            end
+            r_val
+          end
           described_class.new.perform(upload.guid)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.status).to eq('error')

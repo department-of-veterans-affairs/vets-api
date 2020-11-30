@@ -131,7 +131,9 @@ module VBADocuments
       attachment_names.each_with_index do |att, i|
         att_info = get_hash_and_pages(parts[att], att)
         validate_page_size(att_info)
+        Thread.current[:checking_attachment] = true #used during unit test only, see upload_processor_spec.rb
         check_size(parts[att])
+        Thread.current[:checking_attachment] = false
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
