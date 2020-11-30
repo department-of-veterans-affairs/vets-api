@@ -133,7 +133,6 @@ end
 
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
-  gem 'awrence'
   gem 'fakeredis'
   gem 'pact', require: false
   gem 'pact-mock_service', require: false
@@ -171,6 +170,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
   gem 'rspec-instrumentation-matcher'
+  gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
