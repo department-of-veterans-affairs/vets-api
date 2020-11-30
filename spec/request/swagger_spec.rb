@@ -817,11 +817,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           200,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+          headers.update(
+            '_data' => {
+              'supporting_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+              }
             }
-          }
+          )
         )
       end
 
@@ -830,7 +832,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           400,
-          ''
+          headers
         )
       end
 
@@ -839,11 +841,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           422,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+          headers.update(
+            '_data' => {
+              'supporting_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+              }
             }
-          }
+          )
         )
       end
     end
@@ -2911,6 +2915,40 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           headers.merge(
             '_data' => {
               'education_career_counseling_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
+    end
+
+    describe 'veteran readiness employment claims' do
+      it 'supports adding veteran readiness employment claim' do
+        VCR.use_cassette('veteran_readiness_employment/send_to_vre') do
+          expect(subject).to validate(
+            :post,
+            '/v0/veteran_readiness_employment_claims',
+            200,
+            headers.merge(
+              '_data' => {
+                'veteran_readiness_employment_claim' => {
+                  form: build(:veteran_readiness_employment_claim_no_vet_information).form
+                }
+              }
+            )
+          )
+        end
+      end
+
+      it 'throws an error when adding veteran readiness employment claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/veteran_readiness_employment_claims',
+          422,
+          headers.merge(
+            '_data' => {
+              'veteran_readiness_employment_claim' => {
                 'invalid-form' => { invalid: true }.to_json
               }
             }

@@ -28,10 +28,20 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
       }
     ]
   end
+  let(:flash_statistics) do
+    [
+      { flash: 'POW', count: 1, percentage: '50.0%' },
+      { flash: 'Homeless', count: 1, percentage: '50.0%' },
+      { flash: 'Terminally Ill', count: 1, percentage: '50.0%' }
+    ]
+  end
 
   describe '#build' do
     subject do
-      described_class.build(totals, [errored_upload], [uploaded_upload], 7.days.ago, Time.zone.now).deliver_now
+      described_class.build(7.days.ago, Time.zone.now, consumer_totals: totals,
+                                                       unsuccessful_submissions: [errored_upload],
+                                                       pending_submissions: [uploaded_upload],
+                                                       flash_statistics: flash_statistics).deliver_now
     end
 
     it 'sends the email' do

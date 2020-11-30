@@ -23,7 +23,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     claim
   end
 
-  it 'submits succesfully' do
+  it 'submits successfully' do
     expect do
       subject.perform_async(claim.id)
     end.to change(subject.jobs, :size).by(1)
