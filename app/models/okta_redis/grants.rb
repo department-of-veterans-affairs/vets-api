@@ -45,6 +45,7 @@ module OktaRedis
     private
 
     def okta_response
+      @activity_log << 'Get okta response including grants'
       response = do_cached_with(key: cache_key) do
         @activity_log << 'Fetch new response'
         grants_response = service.grants(@user.okta_profile.id)
