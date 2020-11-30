@@ -2,6 +2,8 @@
 
 require_dependency 'vba_documents/multipart_parser'
 require_dependency 'vba_documents/payload_manager'
+require_dependency 'vba_documents/pdf_inspector'
+
 require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_info'
@@ -28,10 +30,13 @@ module VBADocuments
 
     def download_and_process
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
+
       begin
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
+        inspector = VBADocuments::PDFInspector.new(pdf: parts)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
+        update_pdf_metadata(inspector)
         metadata = perfect_metadata(parts, timestamp)
         response = submit(metadata, parts)
         process_response(response)
@@ -44,6 +49,10 @@ module VBADocuments
         tempfile.close
         close_part_files(parts) if parts.present?
       end
+    end
+
+    def update_pdf_metadata(inspector)
+      @upload.update(uploaded_pdf: inspector.pdf_data)
     end
 
     def close_part_files(parts)

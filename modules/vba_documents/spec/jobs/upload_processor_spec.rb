@@ -269,6 +269,25 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
+    it 'sets uploaded pdf data' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        file = 'modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob'
+        VBADocuments::MultipartParser.parse_file(file)
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      pdf_data = updated.uploaded_pdf
+      expect(pdf_data).to be_a(Hash)
+      expect(pdf_data).to have_key('doc_type')
+      expect(pdf_data).to have_key('total_documents')
+      expect(pdf_data).to have_key('total_pages')
+      expect(pdf_data).to have_key('content')
+      content = pdf_data['content']
+      expect(content).to have_key('page_count')
+      expect(content).to have_key('dimensions')
+      expect(content).to have_key('attachments')
+    end
+
     xit 'sets error status for non-PDF attachment parts' do
     end
 
