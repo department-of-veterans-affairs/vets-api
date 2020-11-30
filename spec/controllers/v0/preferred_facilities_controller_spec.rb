@@ -4,15 +4,14 @@ require 'rails_helper'
 
 RSpec.describe V0::PreferredFacilitiesController, type: :controller do
   let(:user) { create(:user, :loa3, :accountable) }
-
-  before do
-    sign_in_as(user)
-  end
-
   let!(:preferred_facility1) { create(:preferred_facility) }
   let!(:preferred_facility2) { create(:preferred_facility, user: user) }
   let!(:preferred_facility3) do
     create(:preferred_facility, facility_code: '688', user: user)
+  end
+
+  before do
+    sign_in_as(user)
   end
 
   describe '#index' do
@@ -26,7 +25,7 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
       ).to eq(
         [
           { 'facility_code' => '983' },
-          { 'facility_code' => '688' },
+          { 'facility_code' => '688' }
         ]
       )
     end
@@ -53,14 +52,6 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
   end
 
   describe '#create' do
-    let(:facility_code) { '405HK' }
-
-    before do
-      allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(
-        %w[983 688 405HK]
-      )
-    end
-
     subject do
       post(
         :create,
@@ -69,6 +60,14 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
             facility_code: facility_code
           }
         }
+      )
+    end
+
+    let(:facility_code) { '405HK' }
+
+    before do
+      allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(
+        %w[983 688 405HK]
       )
     end
 

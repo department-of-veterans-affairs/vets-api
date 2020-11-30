@@ -32,7 +32,7 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, "Create a preferred facility for a user"
+          key :description, 'Create a preferred facility for a user'
           key :operationId, 'createPreferredFacility'
 
           parameter do
@@ -54,7 +54,7 @@ module Swagger
           end
 
           response 200 do
-            key :description, "the created preferred facility"
+            key :description, 'the created preferred facility'
 
             schema do
               property :data, type: :object do
@@ -77,7 +77,7 @@ module Swagger
           key :operationId, 'deletePreferredFacility'
 
           response 200 do
-            key :description, "the destroyed preferred facility"
+            key :description, 'the destroyed preferred facility'
 
             schema do
               property :data, type: :object do

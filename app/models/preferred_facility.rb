@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 class PreferredFacility < ApplicationRecord
   attr_accessor :user
+
   belongs_to :account, inverse_of: :preferred_facilities
 
   validates(:account, :facility_code, presence: true)
