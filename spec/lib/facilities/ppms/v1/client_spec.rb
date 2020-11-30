@@ -13,8 +13,9 @@ vcr_options = {
 RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options do
   let(:params) do
     {
-      address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-      bbox: [-112.54, 32.53, -111.04, 34.03]
+      latitude: 33.28,
+      longitude: -111.79,
+      radius: 104
     }.with_indifferent_access
   end
 

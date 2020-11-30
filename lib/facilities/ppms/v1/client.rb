@@ -135,7 +135,14 @@ module Facilities
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
 
-          cnr = center_and_radius(params[:bbox])
+          cnr = {}
+          if [:latitude, :longitude, :radius].all? { |k| params.has_key?(k) }
+            cnr[:latitude] = params[:latitude]
+            cnr[:longitude] = params[:longitude]
+            cnr[:radius] = params[:radius]
+          else
+            cnr = center_and_radius(params[:bbox])
+          end
 
           {
             address: [cnr[:latitude], cnr[:longitude]].join(','),
