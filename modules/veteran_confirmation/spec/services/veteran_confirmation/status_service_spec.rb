@@ -62,7 +62,11 @@ RSpec.describe VeteranConfirmation::StatusService do
 
     let(:emis_error) { EMIS::Responses::ErrorResponse.new('Failed in eMIS') }
 
-    context 'when passed valid attributes' do
+    context 'when betamocks emis passed valid attributes' do
+      before(:context) do
+        Settings.vet_verification.mock_emis = false
+      end
+
       it 'confirms veteran status for persons with a title38 status of V1' do
         expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
           .and_return(mvi_profile)
@@ -106,6 +110,67 @@ RSpec.describe VeteranConfirmation::StatusService do
           .and_return(mvi_profile)
 
         expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status)
+          .and_return(emis_error)
+
+        result = subject.get_by_attributes(valid_attributes)
+
+        expect(result).to eq('not confirmed')
+      end
+    end
+
+    context 'when mock-emis passed valid attributes' do
+      before(:context) do
+        Settings.vet_verification.mock_emis = true
+        Settings.vet_verification.mock_emis_host = 'https://vaausvrsapp81.aac.va.gov'
+      end
+
+      after(:context) do
+        Settings.vet_verification.mock_emis = false
+      end
+
+      it 'confirms veteran status for persons with a title38 status of V1' do
+        expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
+          .and_return(mvi_profile)
+        expect_any_instance_of(EMIS::MockVeteranStatusService).to receive(:get_veteran_status)
+          .and_return(veteran_status_response)
+
+        result = subject.get_by_attributes(valid_attributes)
+        expect(result).to eq('confirmed')
+      end
+
+      it 'does not confirm for title38 status codes other than V1' do
+        expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
+          .and_return(mvi_profile)
+        expect_any_instance_of(EMIS::MockVeteranStatusService).to receive(:get_veteran_status)
+          .and_return(non_veteran_status_response)
+
+        result = subject.get_by_attributes(valid_attributes)
+        expect(result).to eq('not confirmed')
+      end
+
+      it 'raises an exception if MVI returns a server error' do
+        expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
+          .and_return(server_error_mvi_profile)
+
+        expect do
+          subject.get_by_attributes(valid_attributes)
+        end.to raise_error(MPI::Errors::ServiceError)
+      end
+
+      it 'does not confirm if a profile is not found in MVI' do
+        expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
+          .and_return(not_found_mvi_profile)
+
+        result = subject.get_by_attributes(valid_attributes)
+
+        expect(result).to eq('not confirmed')
+      end
+
+      it 'does not confirm if EMIS returns an error response' do
+        expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
+          .and_return(mvi_profile)
+
+        expect_any_instance_of(EMIS::MockVeteranStatusService).to receive(:get_veteran_status)
           .and_return(emis_error)
 
         result = subject.get_by_attributes(valid_attributes)

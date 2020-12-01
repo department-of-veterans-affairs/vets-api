@@ -10,8 +10,16 @@ module AppealsApi
       name 'Veteran'
     end
 
+    def veteran_last_name
+      last_name 'Veteran'
+    end
+
     def veteran_ssn
       header_field_as_string 'X-VA-Veteran-SSN'
+    end
+
+    def veteran_safe_ssn
+      header_field_as_string('X-VA-Veteran-SSN').last(4)
     end
 
     def veteran_file_number
@@ -28,6 +36,10 @@ module AppealsApi
 
     def claimant_dob
       dob 'Claimant'
+    end
+
+    def hearing_type_preference
+      @notice_of_disagreement.hearing_type_preference
     end
 
     def contact_info

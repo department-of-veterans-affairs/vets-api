@@ -3,10 +3,6 @@
 module FormAttachmentCreate
   extend ActiveSupport::Concern
 
-  included do
-    skip_before_action(:authenticate, raise: false)
-  end
-
   def create
     form_attachment_model = self.class::FORM_ATTACHMENT_MODEL
     form_attachment = form_attachment_model.new
