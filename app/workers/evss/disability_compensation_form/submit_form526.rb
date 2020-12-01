@@ -33,8 +33,8 @@ module EVSS
           response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout,
-        Breakers::OutageException,
-        EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
+             Breakers::OutageException,
+             EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
         retryable_error_handler(e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         # retry submitting the form for specific upstream errors

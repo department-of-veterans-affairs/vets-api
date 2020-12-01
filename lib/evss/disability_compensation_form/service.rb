@@ -74,6 +74,7 @@ module EVSS
         if error.is_a?(Common::Client::Errors::ClientError) && error.status == 503
           raise EVSS::DisabilityCompensationForm::ServiceUnavailableException
         end
+
         # Common::Client::Errors::ClientError is raised from Common::Client::Base#request after it rescues
         # Faraday::ClientError.  EVSS::ErrorMiddleware::EVSSError is raised from EVSS::ErrorMiddleware when
         # there is a 200-response with an error message in the body
