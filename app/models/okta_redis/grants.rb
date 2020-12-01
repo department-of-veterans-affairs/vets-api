@@ -9,12 +9,11 @@ module OktaRedis
     CLASS_NAME = 'GrantsService'
 
     def all
-      okta_response.body
+      @all_grants ||= service.grants(@user.okta_profile.id).body
     end
 
     def delete_grants(grant_ids)
       grant_ids.map { |grant| delete_grant(grant) }
-      OktaRedis::Grants.delete(cache_key)
       true
     end
 
@@ -26,15 +25,6 @@ module OktaRedis
         raise 'Unable to delete grant'
       end
       delete_response
-    end
-
-    private
-
-    def okta_response
-      do_cached_with(key: cache_key) do
-        grants_response = service.grants(@user.okta_profile.id)
-        grants_response.success? ? grants_response : []
-      end
     end
   end
 end
