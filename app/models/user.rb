@@ -90,7 +90,7 @@ class User < Common::RedisStore
   end
 
   def birth_date
-    identity.birth_date || (mhv_icn.present? ? mpi&.profile&.birth_date : nil)
+    identity.birth_date || (mhv_icn.present? ? mpi&.profile&.birth_date&.to_date&.to_s : nil)
   end
 
   def zip
