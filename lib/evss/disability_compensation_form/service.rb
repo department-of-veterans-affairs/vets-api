@@ -70,10 +70,14 @@ module EVSS
 
       private
 
-      def handle_error(error)
+      def handle_service_unavailable_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status == 503
           raise EVSS::DisabilityCompensationForm::ServiceUnavailableException
         end
+      end
+
+      def handle_error(error)
+        handle_service_unavailable_error(error)
 
         # Common::Client::Errors::ClientError is raised from Common::Client::Base#request after it rescues
         # Faraday::ClientError.  EVSS::ErrorMiddleware::EVSSError is raised from EVSS::ErrorMiddleware when

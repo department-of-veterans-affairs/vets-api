@@ -53,7 +53,7 @@ describe EVSS::DisabilityCompensationForm::Service do
 
     context 'with a 503 error' do
       it 'raises a service unavailable exception' do
-        expect(subject).to receive(:perform).and_raise(
+        expect_any_instance_of(described_class).to receive(:perform).and_raise(
           Common::Client::Errors::ClientError.new(
             'the server responded with status 503',
             503,
