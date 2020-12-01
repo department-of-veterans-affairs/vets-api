@@ -284,7 +284,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches birth_date from MVI' do
-          expect(user.birth_date).to be(user.va_profile.birth_date)
+          expect(user.birth_date).to eq(user.va_profile.birth_date.to_date.to_s)
         end
 
         it 'fetches zip from MVI' do
