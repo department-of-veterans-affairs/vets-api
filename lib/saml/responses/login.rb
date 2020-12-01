@@ -19,7 +19,7 @@ module SAML
       def status_detail
         @status_detail ||= begin
           node = REXML::XPath.first(
-            @document,
+            decrypted_document || document,
             '/p:Response/p:Status/p:StatusDetail',
             { 'p' => PROTOCOL }
           )

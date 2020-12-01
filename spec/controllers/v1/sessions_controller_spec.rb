@@ -691,7 +691,27 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'logs status_detail message to sentry' do
           expect(controller).to receive(:log_message_to_sentry)
-          # add status_detail error specific test here
+            .with(
+              "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>",
+              :error,
+              extra_context: [
+                { code: '007',
+                  tag: :unknown,
+                  short_message: 'Other SAML Response Error(s)',
+                  level: :error,
+                  full_message: 'Test1' },
+                { code: '007',
+                  tag: :unknown,
+                  short_message: 'Other SAML Response Error(s)',
+                  level: :error,
+                  full_message: 'Test2' },
+                { code: '007',
+                  tag: :unknown,
+                  short_message: 'Other SAML Response Error(s)',
+                  level: :error,
+                  full_message: 'Test3' }
+              ]
+            )
           post(:saml_callback)
         end
       end

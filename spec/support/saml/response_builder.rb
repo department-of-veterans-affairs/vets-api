@@ -139,10 +139,10 @@ module SAML
 
     def saml_response_detail_error(status_detail_xml)
       build_invalid_saml_response(
-        status_message: 'test error message',
+        status_message: 'Status Detail Error Message',
         in_response_to: uuid,
         decrypted_document: document_status_detail(status_detail_xml),
-        errors: %w[test1 test2 test3]
+        errors: %w[Test1 Test2 Test3]
       )
     end
 
