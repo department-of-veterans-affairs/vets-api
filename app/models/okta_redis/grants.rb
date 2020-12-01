@@ -13,20 +13,19 @@ module OktaRedis
     end
 
     def delete_grants(grant_ids)
-      success = grant_ids.reduce(true) { |memo, grant| delete_grant(grant) && memo }
-      OktaRedis::Grants.delete(cache_key) if success
-      success
+      grant_ids.map { |grant| delete_grant(grant) }
+      OktaRedis::Grants.delete(cache_key)
+      true
     end
 
     def delete_grant(grant_id)
       delete_response = service.delete_grant(@user.okta_profile.id, grant_id)
-      if delete_response.success?
-        true
-      else
+      unless delete_response.success?
         log_message_to_sentry("Error deleting grant #{grant_id}", :error,
                               body: delete_response.body)
         raise 'Unable to delete grant'
       end
+      delete_response
     end
 
     private
