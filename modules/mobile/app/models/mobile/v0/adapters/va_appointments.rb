@@ -72,7 +72,7 @@ module Mobile
             details, type = parse_by_appointment_type(appointment_hash)
             start_date = get_start_date(appointment_hash)
 
-            {
+            adapted_hash = {
               appointment_type: type,
               comment: comment(details, type),
               facility_id: facility_id,
@@ -83,6 +83,8 @@ module Mobile
               status: get_status(details, type, start_date),
               time_zone: get_time_zone(facility_id)
             }
+
+            Mobile::V0::Appointment.new(adapted_hash)
           end
         end
 
@@ -108,12 +110,25 @@ module Mobile
           facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
           location = {
             name: facility ? facility[:name] : nil,
-            address: nil,
-            phone: nil,
+            address: {
+              street: nil,
+              city: nil,
+              state: nil,
+              zip_code: nil
+            },
+            phone: {
+              area_code: nil,
+              number: nil,
+              extension: nil
+            },
             url: nil,
             code: nil
           }
 
+          location_by_type(details, location, type)
+        end
+
+        def location_by_type(details, location, type)
           case type
           when APPOINTMENT_TYPES[:va_video_connect_home]
             location_home(details, location)
