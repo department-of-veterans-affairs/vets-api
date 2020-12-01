@@ -13,16 +13,13 @@ module BGS
       @va_file_number = @payload['veteran_information']['va_file_number']
     end
 
-    # rubocop:disable Metrics/MethodLength
     def create
       participant = bgs_service.create_participant(@proc_id, @user.participant_id)
       claim_type_end_product = bgs_service.find_benefit_claim_type_increment(@claim_type)
-      person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
-      address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
-      address = bgs_service.create_address(address_params)
+      address = create_address(participant)
       regional_office_number = get_regional_office(address[:zip_prefix_nbr], address[:cntry_nm], '')
       location_id = get_location_id(regional_office_number)
-      bgs_service.create_person(person_params)
+      create_person(participant)
       bgs_service.create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
       net_worth_over_limit_ind = @payload['dependents_application']['household_income'] ? 'Y' : 'N'
       veteran.veteran_response(
@@ -37,9 +34,18 @@ module BGS
         }
       )
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
+
+    def create_person(participant)
+      person_params = veteran.create_person_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
+      bgs_service.create_person(person_params)
+    end
+
+    def create_address(participant)
+      address_params = veteran.create_address_params(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
+      bgs_service.create_address(address_params)
+    end
 
     def get_regional_office(zip, country, province)
       # find the regional office number closest to the Veteran's zip code
