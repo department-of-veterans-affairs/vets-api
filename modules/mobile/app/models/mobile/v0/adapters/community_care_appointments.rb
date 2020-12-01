@@ -13,22 +13,6 @@ module Mobile
         BOOKED_STATUS = 'BOOKED'
         COMMUNITY_CARE_TYPE = 'COMMUNITY_CARE'
 
-        TIME_ZONE_MAP = {
-          'AKST' => 'America/Anchorage',
-          'AKDT' => 'America/Anchorage',
-          'AST' => 'America/Argentina/San_Juan',
-          'CDT' => 'America/Chicago',
-          'CST' => 'America/Chicago',
-          'EDT' => 'America/New_York',
-          'EST' => 'America/New_York',
-          'HST' => 'Pacific/Honolulu',
-          'MDT' => 'America/Denver',
-          'MST' => 'America/Denver',
-          'PHST' => 'Asia/Manila',
-          'PDT' => 'America/Los_Angeles',
-          'PST' => 'America/Los_Angeles'
-        }.freeze
-
         # Takes a result set of Community Care appointments from the appointments web
         # service and returns the set adapted to a common schema.
         #
@@ -99,7 +83,7 @@ module Mobile
           # is provided at the Navajo Nation VA or at US Government VA clinics (non Nation zip codes)
           return 'America/Phoenix' if state == 'AZ'
 
-          TIME_ZONE_MAP[time_zone.split[1]]
+          Mobile::VA_TZ_DATABASE_NAMES_BY_SCHEDULE[time_zone.split[1]]
         end
       end
     end
