@@ -11,22 +11,34 @@ vcr_options = {
 
 RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vcr: vcr_options do
   [0, 1].each do |client_version|
+
     context "Facilities::PPMS::V#{client_version}::Client" do
       before do
         Flipper.enable(:facility_locator_ppms_use_v1_client, client_version == 1)
       end
 
+      let(:params) do
+        case client_version
+        when 0
+          {
+            address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
+            bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+            type: 'provider',
+            specialties: ['213E00000X']
+          }
+        when 1
+          {
+            latitude: 33.28,
+            longitude: -111.79,
+            radius: 104,
+            type: 'provider',
+            specialties: ['213E00000X']
+          }
+        end
+      end
+
       describe '#index' do
         context 'Missing Provider', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_missing_provider') do
-          let(:params) do
-            {
-              address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-              bbox: ['-112.54', '32.53', '-111.04', '34.03'],
-              type: 'provider',
-              specialties: ['213E00000X']
-            }
-          end
-
           it 'gracefully handles ppms provider lookup failures' do
             get '/v1/facilities/ccp', params: params
 
@@ -69,15 +81,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
         end
 
         context 'type=provider' do
-          let(:params) do
-            {
-              address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-              bbox: ['-112.54', '32.53', '-111.04', '34.03'],
-              type: 'provider',
-              specialties: ['213E00000X']
-            }
-          end
-
           context 'specialties=261QU0200X' do
             let(:params) do
               {
