@@ -11,6 +11,19 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
     end
   end
 
+  describe '#get /services/apps/v0/directory/:name' do
+    it 'returns a single application' do
+      get '/services/apps/v0/directory/Apple%20Health'
+      body = JSON.parse(response.body)
+      expect(body.length).to be(1)
+    end
+    it 'returns an app when passing the :name param' do
+      get '/services/apps/v0/directory/iBlueButton'
+      body = JSON.parse(response.body)
+      expect(body).not_to be_empty
+    end
+  end
+
   describe '#get /services/apps/v0/directory/scopes/:category' do
     it 'returns a populated list of health scopes' do
       VCR.use_cassette('okta/health-scopes') do
@@ -45,10 +58,10 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
         expect(response).to have_http_status(:no_content)
       end
     end
-    it '404s when given a null category' do
+    it '204s when given a null category' do
       VCR.use_cassette('okta/verification-scopes') do
-        get '/services/apps/v0/directory/scopes/'
-        expect(response).to have_http_status(:not_found)
+        get '/services/apps/v0/directory/scopes'
+        expect(response).to have_http_status(:no_content)
       end
     end
   end
