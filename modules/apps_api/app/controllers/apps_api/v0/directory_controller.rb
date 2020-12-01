@@ -14,6 +14,13 @@ module AppsApi
         }
       end
 
+      def show
+        app = DirectoryApplication.find_by(name: params[:id])
+        render json: {
+          data: app
+        }
+      end
+
       def scopes
         directory_service = Okta::DirectoryService.new
         parsed_scopes = directory_service.scopes(params[:category])
