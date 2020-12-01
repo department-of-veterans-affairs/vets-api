@@ -40,8 +40,6 @@ RSpec.describe CentralMail::Service do
               34656d73-7c31-456d-9c49-2024fff1cd47
               4a25588c-9200-4405-a2fd-97f0b0fdf790
               f7725cce-a76e-4d80-ab20-01c63acfcb87
-              gregger1-asdf-asdf-asdf-asdfasdfasdf
-              bowmandd-asdf-asdf-asdf-asdfasdfasdf
             ]
 
           if vendor.eql?('GCIO')
@@ -49,8 +47,6 @@ RSpec.describe CentralMail::Service do
               a8c29dbc-a0a6-4177-ae57-fc6143ec7edb,
               b2b677e3-a6c1-4d07-ae7d-e013d60bec43,
               84bb3df3-c090-44a7-aa0d-76e9ab97eab0
-              gregger1-asdf-asdf-asdf-asdfasdfasdf
-              bowmandd-asdf-asdf-asdf-asdfasdfasdf
             ]
           end
 
@@ -82,6 +78,13 @@ RSpec.describe CentralMail::Service do
         metadata = get_fixture('vba_documents/metadata')
         metadata['uuid'] = @uuid if set_uuid
         metadata
+      end
+    end
+
+    let :regex_match_expectation do
+      ->(message) do
+        uuid_regex = '\[uuid:\s[\w]{8}-[\w]{4}-[\w]{4}-[\w]{4}-[\w]{12}\]'
+        "#{message}\s+#{uuid_regex}"
       end
     end
 
@@ -123,7 +126,9 @@ RSpec.describe CentralMail::Service do
       ->(metadata, key, missing_key = true) do
         response = upload_form.call(metadata, valid_doc)
         missing = missing_key ? 'Missing' : 'Invalid'
-        expect(response.body.strip).to eq("Metadata Field Error - #{missing} #{key} [uuid: #{metadata['uuid']}]")
+        msg = "Metadata Field Error - #{missing} #{key}"
+        regex_match = regex_match_expectation.call(msg)
+        expect(response.body.strip).to match(regex_match)
         expect(response.status).to eq(412)
       end
     end
@@ -200,7 +205,9 @@ RSpec.describe CentralMail::Service do
           metadata = valid_metadata.call
           metadata['numberAttachments'] = 11
           response = upload_form.call(metadata, valid_doc)
-          expect(response.body.strip).to eq("Mismatched attachments and numbers  [uuid: #{metadata['uuid']}]")
+          msg = 'Mismatched attachments and numbers'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(409)
         end
       end
@@ -212,11 +219,15 @@ RSpec.describe CentralMail::Service do
         ) do
 
           metadata = valid_metadata.call.deep_dup
-          metadata['numberPages1'] = 11
-          metadata['ahash1'] = "attachment_hash"
+          metadata['numberPages1'] = 1
+          metadata['ahash1'] = "attachment_hash1"
+          metadata['numberPages2'] = 11
+          metadata['ahash2'] = "attachment_hash2"
 
-          response = upload_form.call(metadata.freeze, valid_doc, valid_attach)
-          expect(response.body.strip).to eq("Mismatched attachments and numbers  [uuid: #{metadata['uuid']}]")
+          response = upload_form.call(metadata.freeze, valid_doc, valid_attach, valid_attach)
+          msg = 'Mismatched attachments and numbers'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(409)
         end
       end
@@ -231,7 +242,9 @@ RSpec.describe CentralMail::Service do
 
           metadata = valid_metadata.call
           response = upload_form.call(metadata, valid_doc)
-          expect(response.body.strip).to eq("Request was received successfully  [uuid: #{metadata['uuid']}]")
+          msg = 'Request was received successfully'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(200)
         end
       end
@@ -244,7 +257,9 @@ RSpec.describe CentralMail::Service do
 
           metadata = valid_metadata.call
           response = upload_form.call(metadata, valid_doc, valid_attach)
-          expect(response.body.strip).to eq("Request was received successfully  [uuid: #{metadata['uuid']}]")
+          msg = 'Request was received successfully'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(200)
         end
       end
@@ -256,8 +271,10 @@ RSpec.describe CentralMail::Service do
         ) do
 
           metadata = valid_metadata.call
-          response = upload_form.call(metadata, valid_doc, valid_attach)
-          expect(response.body.strip).to eq("Request was received successfully  [uuid: #{metadata['uuid']}]")
+          response = upload_form.call(metadata, valid_doc, valid_attach, valid_attach)
+          msg = 'Request was received successfully'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(200)
         end
       end
@@ -278,7 +295,9 @@ RSpec.describe CentralMail::Service do
           metadata = valid_metadata.call
           metadata['uuid'] = uuid
           response = upload_form.call(metadata, valid_doc, valid_attach)
-          expect(response.body.strip).to eq("Document already uploaded with uuid  [uuid: #{metadata['uuid']}]")
+          msg = 'Document already uploaded with uuid'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(400)
         end
       end
@@ -293,7 +312,9 @@ RSpec.describe CentralMail::Service do
 
           metadata = valid_metadata.call
           response = upload_form.call(metadata, locked_pdf)
-          expect(response.body.strip).to eq("password-protected pdf  [uuid: #{metadata['uuid']}]")
+          msg = 'password-protected pdf'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(422)
         end
       end
@@ -306,43 +327,51 @@ RSpec.describe CentralMail::Service do
 
           metadata = valid_metadata.call
           response = upload_form.call(metadata, valid_doc, locked_pdf)
-          expect(response.body.strip).to eq("password-protected PDF [ locked.pdf ]  [uuid: #{metadata['uuid']}]")
+          msg = 'password-protected PDF \[ locked.pdf \]'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(422)
         end
       end
     end
 
-    # todo these upload successfully to GDIT
-    context 'with an oversized pdf' do
-      let :oversized_pdf do
-        'spec/fixtures/vba_documents/22x18.pdf'
-      end
-
-      xit "upload fails with over-sized main form" do
-        VCR.use_cassette(
-            "central_mail/upload_oversized_mainform_#{vendor}",
-            match_requests_on: [multipart_request_matcher, :method, :uri]
-        ) do
-
-          metadata = valid_metadata
-          response = upload_form.call(metadata, oversized_pdf, valid_attach)
-          expect(response.body.strip).to eq("password-protected pdf  [uuid: #{metadata['uuid']}]") # do not know the message GDIT returns
-          expect(response.status).to eq(422)
-        end
-      end
-
-      xit "upload fails with over-sized attachment" do
-        VCR.use_cassette(
-            "central_mail/upload_oversized_attachment_#{vendor}",
-            match_requests_on: [multipart_request_matcher, :method, :uri]
-        ) do
-
-          metadata = valid_metadata
-          response = upload_form.call(metadata, valid_doc, oversized_pdf)
-          expect(response.body.strip).to eq("password-protected PDF [ locked.pdf ]  [uuid: #{metadata['uuid']}]") # do not know the message GDIT returns
-          expect(response.status).to eq(422)
-        end
-      end
-    end
+  # these upload successfully to GDIT
+  #   context 'with an oversized pdf' do
+  #     let :oversized_pdf do
+  #       'spec/fixtures/vba_documents/22x18.pdf'
+  #     end
+  #
+  #     xit "upload fails with over-sized main form" do
+  #       VCR.use_cassette(
+  #           "central_mail/upload_oversized_mainform_#{vendor}",
+  #           match_requests_on: [multipart_request_matcher, :method, :uri]
+  #       ) do
+  #
+  #         metadata = valid_metadata
+  #         response = upload_form.call(metadata, oversized_pdf, valid_attach)
+  #           msg = 'password-protected PDF \[ locked.pdf \]'
+  #           regex_match = regex_match_expectation.call(msg)
+  #           expect(response.body.strip).to match(regex_match)
+  #         expect(response.body.strip).to eq("password-protected pdf  [uuid: #{metadata['uuid']}]") # do not know the message GDIT returns
+  #         expect(response.status).to eq(422)
+  #       end
+  #     end
+  #
+  #     xit "upload fails with over-sized attachment" do
+  #       VCR.use_cassette(
+  #           "central_mail/upload_oversized_attachment_#{vendor}",
+  #           match_requests_on: [multipart_request_matcher, :method, :uri]
+  #       ) do
+  #
+  #         metadata = valid_metadata
+  #         response = upload_form.call(metadata, valid_doc, oversized_pdf)
+  #         expect(response.body.strip).to eq("password-protected PDF [ locked.pdf ]  [uuid: #{metadata['uuid']}]") # do not know the message GDIT returns
+  #           msg = 'password-protected PDF \[ locked.pdf \]'
+  #           regex_match = regex_match_expectation.call(msg)
+  #           expect(response.body.strip).to match(regex_match)
+  #         expect(response.status).to eq(422)
+  #       end
+  #     end
+  #   end
   end
 end
