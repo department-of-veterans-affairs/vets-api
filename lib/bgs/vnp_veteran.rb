@@ -43,7 +43,7 @@ module BGS
 
     def get_regional_office(zip, country, province)
       # find the regional office number closest to the Veteran's zip code
-      regional_office_number = bgs_service.get_regional_office_by_zip_code(
+      bgs_service.get_regional_office_by_zip_code(
         zip, country, province, 'CP', @user.ssn
       )
     end
