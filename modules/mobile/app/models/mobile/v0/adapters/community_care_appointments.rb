@@ -63,14 +63,6 @@ module Mobile
           }
         end
 
-        def get_status(details, type, start_date)
-          status = va?(type) ? details['currentStatus'] : details.dig('status', 'code')
-          return nil if should_hide_status?(start_date.past?, status)
-          return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
-
-          STATUSES[:booked]
-        end
-
         def get_start_date(appointment_time, time_zone)
           time_zone_split = time_zone.split
           offset = time_zone_split.size > 1 ? time_zone_split[0] : '+00:00'
