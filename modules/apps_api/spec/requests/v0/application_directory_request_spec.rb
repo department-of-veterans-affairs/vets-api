@@ -61,8 +61,6 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
     it '204s when given a null category' do
       VCR.use_cassette('okta/verification-scopes') do
         get '/services/apps/v0/directory/scopes'
-        expect(response).to have_http_status(:found)
-        follow_redirect!
         expect(response).to have_http_status(:no_content)
       end
     end
