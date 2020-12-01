@@ -39,6 +39,15 @@ module HealthQuest
         def get_patient
           map_query.get(user.icn)
         end
+
+        ##
+        # Create a patient resource from the logged in user
+        #
+        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        #
+        def create_patient
+          map_query.create(user)
+        end
       end
     end
   end

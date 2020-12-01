@@ -38,6 +38,18 @@ module HealthQuest
         end
 
         ##
+        # Create a patient resource from the logged in user.
+        #
+        # @param user [User] the logged in user.
+        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        #
+        def create(user)
+          patient = Resource.manufacture(user).prepare
+
+          client.create(patient)
+        end
+
+        ##
         # Returns the FHIR::DSTU2::Patient class object
         #
         # @return [FHIR::DSTU2::Patient]
