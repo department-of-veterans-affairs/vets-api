@@ -1,0 +1,100 @@
+# betamocks:
+# For NATIVE installation
+# The relative path to department-of-veterans-affairs/vets-api-mockdata
+# cache_dir: ../vets-api-mockdata
+
+binaries:
+  # you can specify a full path in settings.local.yml if necessary
+  pdfinfo: pdfinfo
+  pdftk: pdftk
+  clamdscan: ./bin/fake_clamdscan
+saml:
+  authn_requests_signed: false
+redis:
+  host: localhost
+  port: 6379
+  app_data:
+    url: redis://redis:6379
+    # secondary_url: redis://localhost:6378
+  sidekiq:
+    url: redis://redis:6379
+
+lighthouse:
+  api_key: xHW64KnC5zJn9Rlj9I99ZzJs5MzT14eX
+  facilities:
+    url: https://sandbox-api.va.gov
+    api_key: xHW64KnC5zJn9Rlj9I99ZzJs5MzT14eX
+
+forms:
+  url: https://sandbox-api.va.gov/services/va_forms/v0/
+  mock: false
+
+va_forms:
+  drupal_username: api
+  drupal_password: drupal8
+  drupal_url: https://prod.cms.va.gov
+
+database_url: 'postgis://postgres:password@postgres:5432/vets_api_development?pool=4'
+test_database_url: 'postgis://postgres:password@postgres:5432/vets_api_test?pool=4'
+docker_debugging:
+  set_up_db: false
+  hang_around: false
+  #socks_url: socks://localhost:2001
+  #socks_url: socks://172.17.0.1:2001
+  #above should work when the host machine is linux
+  socks_url: socks5h://host.docker.internal:2001
+  #socks_url: socks://host.docker.internal:2001
+  #above should work when the host machine is windows/mac
+
+oidc:
+  auth_server_metadata_url: https://dev-api.va.gov/oauth2/.well-known/openid-configuration
+  issuer: https://deptva-eval.okta.com/oauth2/default
+  issuer_prefix: https://deptva-eval.okta.com/oauth2
+  audience: api://default
+  isolated_audience:
+    default: api://default
+    veteran_verification: https://sandbox-api.va.gov/services/veteran_verification
+  base_api_token: 00nf9J5yDsdebpGPdhl6OeD1f6vUMMrL_hBLwTLK_w
+  base_api_url: https://deptva-eval.okta.com/
+
+central_mail:
+  upload:
+    enabled: true
+    host: "icmhs-api-test.csrarad.com"
+    token: "qoriuqxvnxc20582zxm01598"
+
+# GovCIO
+#    host: "govcloud_uat.domaonline.com/EmmsAPI"
+#    context: "EmmsAPI"
+#    token: "17c29a5fde3e472397e99e97ef14d607"
+#  https://test2.domaonline.com/EmmsAPI/vadocument/ping
+
+
+# GDIT
+#    host: "icmhs-api-test.csrarad.com"
+#    token: "qoriuqxvnxc20582zxm01598"
+
+
+# Settings for VBA Document upload service module
+vba_documents:
+  enable_download_endpoint: true
+  unsuccessful_report_enabled: false
+  location:
+    prefix: https://bucket.s3.region.amazonaws.com
+    replacement: https://sandbox-api.va.gov/services_user_content/vba_documents
+#  s3:
+#    enabled: false
+#    aws_access_key_id: "aws_access_key_id"
+#    aws_secret_access_key: "aws_secret_access_key"
+#    region: "region"
+#    bucket: "bucket"
+#  sns:
+#    topic_arns:
+#      - vetsgov-arn
+#      - vagov-arn
+
+# For CORS requests; separate multiple origins with a comma
+#web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://localhost:8000,null
+
+#virtual_hosts: [www.example.com] # Safe host names for RSPEC
+virtual_hosts: [127.0.0.1,localhost,www.example.com] # Safe host names - running and debug locally

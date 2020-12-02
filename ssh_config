@@ -1,0 +1,160 @@
+### Upstream, check for updates if something isn't or stopped working
+### https://github.com/department-of-veterans-affairs/devops/blob/master/ssh/config
+
+### Jumpbox configuration.
+Host vetsgov-dev-jumpbox-govwest-1b
+    HostName ec2-52-222-32-121.us-gov-west-1.compute.amazonaws.com
+    User dsva
+    ForwardAgent yes
+Host vetsgov-staging-jumpbox-govwest-1b
+    HostName ec2-52-222-68-193.us-gov-west-1.compute.amazonaws.com
+    User dsva
+    ForwardAgent yes
+Host dsva-vetsgov-utility-jumpbox-1b
+  HostName ec2-52-222-35-133.us-gov-west-1.compute.amazonaws.com
+  User dsva
+  ForwardAgent yes
+Host dsva-vetsgov-utility-jumpbox-1a
+  HostName ec2-52-222-123-83.us-gov-west-1.compute.amazonaws.com
+  User dsva
+  ForwardAgent yes
+
+### Access to SOCKS proxy from public internet, by way of dev jumpbox
+Host socks
+   HostName 172.31.2.171
+   ProxyCommand ssh -l dsva -A 52.222.32.121 -i ~/.ssh/id_rsa_vagov -W %h:%p
+   User socks
+
+### Host aliases that maps CIDR blocks to through their jumpbox bastion.
+### Use netcat (nc) as a lightweight ssh proxy.
+
+# Dev network.
+Host ip-172-30-0-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-1-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-2-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-3-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-4-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-5-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-6-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-7-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+
+# Staging network.
+Host ip-172-30-16-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-17-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-18-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-19-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-20-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-21-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-22-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-172-30-23-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+
+# Utility network
+Host ip-172-31-0-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1a nc %h %p
+  User dsva
+Host ip-172-31-1-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1a nc %h %p
+  User dsva
+Host ip-172-31-2-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1b nc %h %p
+  User dsva
+Host ip-172-31-3-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1b nc %h %p
+  User dsva
+Host ip-172-31-4-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1a nc %h %p
+  User dsva
+Host ip-172-31-5-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1a nc %h %p
+  User dsva
+Host ip-172-31-6-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1b nc %h %p
+  User dsva
+Host ip-172-31-7-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1b nc %h %p
+  User dsva
+Host ip-172-31-8-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1a nc %h %p
+  User dsva
+Host ip-172-31-9-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1a nc %h %p
+  User dsva
+Host ip-172-31-10-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1b nc %h %p
+  User dsva
+Host ip-172-31-11-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1b nc %h %p
+  User dsva
+
+# VAEC Dev
+Host ip-10-247-96-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-10-247-97-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc %h %p
+  User dsva
+
+# VAEC Sandbox
+Host ip-10-247-182-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+
+# VAEC Staging
+Host ip-10-247-34-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+Host ip-10-247-35-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc %h %p
+  User dsva
+
+# VAEC Utility
+Host ip-10-247-91-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh dsva-vetsgov-utility-jumpbox-1b nc %h %p
+  User dsva
+
+# DVP Dev
+Host ip-10-247-130-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-dev-jumpbox-govwest-1b nc -w 120 %h %p
+  User dsva
+
+# DVP Staging
+Host ip-10-247-176-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc -w 120 %h %p
+  User dsva
+
+# DVP Sandbox
+Host ip-10-247-177-*.us-gov-west-1.compute.internal
+  ProxyCommand  ssh vetsgov-staging-jumpbox-govwest-1b nc -w 120 %h %p
+  User dsva

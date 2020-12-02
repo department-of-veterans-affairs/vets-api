@@ -243,6 +243,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC103')
     end
 
+    #todo blow me away Greg
     it 'sets error status for missing JSON metadata' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { invalid_parts_missing }
       described_class.new.perform(upload.guid)
@@ -251,7 +252,28 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC102')
       expect(updated.detail).to eq('Missing required keys: fileNumber')
     end
-
+    # CentralMail::Utilities::REQUIRED_KEYS
+    context 'with missing JSON metadata' do
+      CentralMail::Utilities::REQUIRED_KEYS.each do |key|
+        it "sets error status for missing JSON metadata #{key}" do
+          allow(VBADocuments::MultipartParser).to receive(:parse) {
+            v = valid_parts
+            puts "b4 #{v['metadata']} for key #{key}, my class is #{v['metadata'].class}"
+            hash =  JSON.parse v['metadata']
+            hash.delete(key)
+            puts "after #{hash} for key #{key} "
+            v['metadata'] = hash.to_json
+            puts "class is #{hash.to_json.class}"
+            v
+          }
+          described_class.new.perform(upload.guid)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.status).to eq('error')
+          expect(updated.code).to eq('DOC102')
+          expect(updated.detail).to eq("Missing required keys: #{key}")
+        end
+      end
+    end
 
 
     context 'with locked pdf' do

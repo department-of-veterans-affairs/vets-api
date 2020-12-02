@@ -1,0 +1,446 @@
+                                              Prefix Verb                      URI Pattern                                                                  Controller#Action
+                                                     OPTIONS                   /v0/*path(.:format)                                                          application#cors_preflight
+                                                     OPTIONS                   /services/*path(.:format)                                                    application#cors_preflight
+                                       saml_metadata GET                       /saml/metadata(.:format)                                                     saml#metadata
+                                         saml_logout GET                       /auth/saml/logout(.:format)                                                  v0/sessions#saml_logout_callback
+                                  auth_saml_callback POST                      /auth/saml/callback(.:format)                                                v0/sessions#saml_callback {:module=>"v0"}
+                                                     GET                       /sessions/:type/new(.:format)                                                v0/sessions#new
+                                v1_sessions_metadata GET                       /v1/sessions/metadata(.:format)                                              v1/sessions#metadata
+                                v1_sessions_callback POST                      /v1/sessions/callback(.:format)                                              v1/sessions#saml_callback {:module=>"v1"}
+                                                     GET                       /v1/sessions/:type/new(.:format)                                             v1/sessions#new
+                             v1_sessions_ssoe_logout GET                       /v1/sessions/ssoe_logout(.:format)                                           v1/sessions#ssoe_slo_callback
+                                   v1_sessions_trace GET                       /v1/sessions/trace(.:format)                                                 v1/sessions#tracker
+                                     v0_appointments GET                       /v0/appointments(.:format)                                                   v0/appointments#index {:format=>"json"}
+                                v0_in_progress_forms GET                       /v0/in_progress_forms(.:format)                                              v0/in_progress_forms#index {:format=>"json"}
+                                 v0_in_progress_form GET                       /v0/in_progress_forms/:id(.:format)                                          v0/in_progress_forms#show {:format=>"json"}
+                                                     PATCH                     /v0/in_progress_forms/:id(.:format)                                          v0/in_progress_forms#update {:format=>"json"}
+                                                     PUT                       /v0/in_progress_forms/:id(.:format)                                          v0/in_progress_forms#update {:format=>"json"}
+                                                     DELETE                    /v0/in_progress_forms/:id(.:format)                                          v0/in_progress_forms#destroy {:format=>"json"}
+                                  v0_claim_documents POST                      /v0/claim_documents(.:format)                                                v0/claim_documents#create {:format=>"json"}
+                                v0_claim_attachments POST                      /v0/claim_attachments(.:format)                                              v0/claim_documents#create {:format=>"json"}
+                                            v0_debts GET                       /v0/debts(.:format)                                                          v0/debts#index {:format=>"json"}
+                                     v0_debt_letters GET                       /v0/debt_letters(.:format)                                                   v0/debt_letters#index {:format=>"json"}
+                                      v0_debt_letter GET                       /v0/debt_letters/:id(.:format)                                               v0/debt_letters#show {:format=>"json"}
+               v0_education_career_counseling_claims POST                      /v0/education_career_counseling_claims(.:format)                             v0/education_career_counseling_claims#create {:format=>"json"}
+                              beneficiary_v0_letters GET                       /v0/letters/beneficiary(.:format)                                            v0/letters#beneficiary {:format=>"json"}
+                                                     POST                      /v0/letters/:id(.:format)                                                    v0/letters#download {:format=>"json"}
+                                          v0_letters GET                       /v0/letters(.:format)                                                        v0/letters#index {:format=>"json"}
+  rated_disabilities_v0_disability_compensation_form GET                       /v0/disability_compensation_form/rated_disabilities(.:format)                v0/disability_compensation_forms#rated_disabilities {:format=>"json"}
+         rating_info_v0_disability_compensation_form GET                       /v0/disability_compensation_form/rating_info(.:format)                       v0/disability_compensation_forms#rating_info {:format=>"json"}
+   submission_status_v0_disability_compensation_form GET                       /v0/disability_compensation_form/submission_status/:job_id(.:format)         v0/disability_compensation_forms#submission_status {:format=>"json"}
+    submit_all_claim_v0_disability_compensation_form POST                      /v0/disability_compensation_form/submit_all_claim(.:format)                  v0/disability_compensation_forms#submit_all_claim {:format=>"json"}
+suggested_conditions_v0_disability_compensation_form GET                       /v0/disability_compensation_form/suggested_conditions(.:format)              v0/disability_compensation_forms#suggested_conditions {:format=>"json"}
+    user_submissions_v0_disability_compensation_form GET                       /v0/disability_compensation_form/user_submissions(.:format)                  v0/disability_compensation_forms#user_submissions {:format=>"json"}
+separation_locations_v0_disability_compensation_form GET                       /v0/disability_compensation_form/separation_locations(.:format)              v0/disability_compensation_forms#separation_locations {:format=>"json"}
+                                                  v0 POST                      /v0/mvi_users/:id(.:format)                                                  v0/mpi_users#submit {:format=>"json"}
+                       v0_upload_supporting_evidence POST                      /v0/upload_supporting_evidence(.:format)                                     v0/upload_supporting_evidences#create {:format=>"json"}
+                           saml_callback_v0_sessions POST                      /v0/sessions/saml_callback(.:format)                                         v0/sessions#saml_callback {:format=>"json"}
+                       saml_slo_callback_v0_sessions POST                      /v0/sessions/saml_slo_callback(.:format)                                     v0/sessions#saml_slo_callback {:format=>"json"}
+                                             v0_user GET                       /v0/user(.:format)                                                           v0/users#show {:format=>"json"}
+                           v0_post911_gi_bill_status GET                       /v0/post911_gi_bill_status(.:format)                                         v0/post911_gi_bill_statuses#show {:format=>"json"}
+                                 v0_vso_appointments POST                      /v0/vso_appointments(.:format)                                               v0/vso_appointments#create {:format=>"json"}
+              form_type_v0_education_benefits_claims POST                      /v0/education_benefits_claims/:form_type(.:format)                           v0/education_benefits_claims#create {:format=>"json"}
+                        v0_education_benefits_claims POST                      /v0/education_benefits_claims(.:format)                                      v0/education_benefits_claims#create {:format=>"json"}
+             healthcheck_v0_health_care_applications GET                       /v0/health_care_applications/healthcheck(.:format)                           v0/health_care_applications#healthcheck {:format=>"json"}
+       enrollment_status_v0_health_care_applications GET                       /v0/health_care_applications/enrollment_status(.:format)                     v0/health_care_applications#enrollment_status {:format=>"json"}
+                         v0_health_care_applications POST                      /v0/health_care_applications(.:format)                                       v0/health_care_applications#create {:format=>"json"}
+                          v0_health_care_application GET                       /v0/health_care_applications/:id(.:format)                                   v0/health_care_applications#show {:format=>"json"}
+                                  v0_hca_attachments POST                      /v0/hca_attachments(.:format)                                                v0/hca_attachments#create {:format=>"json"}
+                     v0_caregivers_assistance_claims POST                      /v0/caregivers_assistance_claims(.:format)                                   v0/caregivers_assistance_claims#create {:format=>"json"}
+        v0_caregivers_assistance_claims_download_pdf POST                      /v0/caregivers_assistance_claims/download_pdf(.:format)                      v0/caregivers_assistance_claims#download_pdf {:format=>"json"}
+        disability_rating_v0_dependents_applications GET                       /v0/dependents_applications/disability_rating(.:format)                      v0/dependents_applications#disability_rating {:format=>"json"}
+                          v0_dependents_applications POST                      /v0/dependents_applications(.:format)                                        v0/dependents_applications#create {:format=>"json"}
+                           v0_dependents_application GET                       /v0/dependents_applications/:id(.:format)                                    v0/dependents_applications#show {:format=>"json"}
+                                   v0_pension_claims POST                      /v0/pension_claims(.:format)                                                 v0/pension_claims#create {:format=>"json"}
+                                    v0_pension_claim GET                       /v0/pension_claims/:id(.:format)                                             v0/pension_claims#show {:format=>"json"}
+                                    v0_burial_claims POST                      /v0/burial_claims(.:format)                                                  v0/burial_claims#create {:format=>"json"}
+                                     v0_burial_claim GET                       /v0/burial_claims/:id(.:format)                                              v0/burial_claims#show {:format=>"json"}
+                                    v0_efolder_index GET                       /v0/efolder(.:format)                                                        v0/efolder#index {:format=>"json"}
+                                          v0_efolder GET                       /v0/efolder/:id(.:format)                                                    v0/efolder#show {:format=>"json"}
+                      request_decision_v0_evss_claim POST                      /v0/evss_claims/:id/request_decision(.:format)                               v0/evss_claims#request_decision {:format=>"json"}
+                             v0_evss_claim_documents POST                      /v0/evss_claims/:evss_claim_id/documents(.:format)                           v0/documents#create {:format=>"json"}
+                                      v0_evss_claims GET                       /v0/evss_claims(.:format)                                                    v0/evss_claims#index {:format=>"json"}
+                                       v0_evss_claim GET                       /v0/evss_claims/:id(.:format)                                                v0/evss_claims#show {:format=>"json"}
+                          v0_evss_claims_async_index GET                       /v0/evss_claims_async(.:format)                                              v0/evss_claims_async#index {:format=>"json"}
+                                v0_evss_claims_async GET                       /v0/evss_claims_async/:id(.:format)                                          v0/evss_claims_async#show {:format=>"json"}
+                                   v0_intent_to_file GET                       /v0/intent_to_file(.:format)                                                 v0/intent_to_files#index {:format=>"json"}
+                                                     GET                       /v0/intent_to_file/:type/active(.:format)                                    v0/intent_to_files#active {:format=>"json"}
+                                                     POST                      /v0/intent_to_file/:type(.:format)                                           v0/intent_to_files#submit {:format=>"json"}
+                                          v0_welcome GET                       /v0/welcome(.:format)                                                        v0/example#welcome {:format=>"json"}
+                                          v0_limited GET                       /v0/limited(.:format)                                                        v0/example#limited {:format=>"json"}
+                                           v0_status GET                       /v0/status(.:format)                                                         v0/admin#status {:format=>"json"}
+                         v0_ppiu_payment_information GET                       /v0/ppiu/payment_information(.:format)                                       v0/ppiu#index {:format=>"json"}
+                                                     PUT                       /v0/ppiu/payment_information(.:format)                                       v0/ppiu#update {:format=>"json"}
+                              v0_maintenance_windows GET                       /v0/maintenance_windows(.:format)                                            v0/maintenance_windows#index {:format=>"json"}
+                             active_v0_prescriptions GET                       /v0/prescriptions/active(.:format)                                           v0/prescriptions#index {:format=>:json, :refill_status=>"active"}
+                              refill_v0_prescription PATCH                     /v0/prescriptions/:id/refill(.:format)                                       v0/prescriptions#refill {:format=>:json}
+                           v0_prescription_trackings GET                       /v0/prescriptions/:prescription_id/trackings(.:format)                       v0/trackings#index {:format=>:json}
+                                      v0_preferences GET                       /v0/prescriptions/preferences(.:format)                                      v0/prescription_preferences#show {:format=>:json}
+                                                     PATCH                     /v0/prescriptions/preferences(.:format)                                      v0/prescription_preferences#update {:format=>:json}
+                                                     PUT                       /v0/prescriptions/preferences(.:format)                                      v0/prescription_preferences#update {:format=>:json}
+                                    v0_prescriptions GET                       /v0/prescriptions(.:format)                                                  v0/prescriptions#index {:format=>:json}
+                                     v0_prescription GET                       /v0/prescriptions/:id(.:format)                                              v0/prescriptions#show {:format=>:json}
+                           refresh_v0_health_records GET                       /v0/health_records/refresh(.:format)                                         v0/health_records#refresh {:format=>:json}
+             eligible_data_classes_v0_health_records GET                       /v0/health_records/eligible_data_classes(.:format)                           v0/health_records#eligible_data_classes {:format=>:json}
+                                   v0_health_records GET                       /v0/health_records(.:format)                                                 v0/health_record_contents#show {:format=>:json}
+                                                     POST                      /v0/health_records(.:format)                                                 v0/health_records#create {:format=>:json}
+                                          v0_appeals GET                       /v0/appeals(.:format)                                                        v0/appeals#index {:format=>"json"}
+                             v0_higher_level_reviews GET                       /v0/higher_level_reviews/contestable_issues(/:benefit_type)(.:format)        v0/higher_level_reviews/contestable_issues#index {:format=>"json"}
+                                                     POST                      /v0/higher_level_reviews(.:format)                                           v0/higher_level_reviews#create {:format=>"json"}
+                              v0_higher_level_review GET                       /v0/higher_level_reviews/:id(.:format)                                       v0/higher_level_reviews#show {:format=>"json"}
+                                     v0_triage_teams GET                       /v0/messaging/health/recipients(.:format)                                    v0/triage_teams#index {:format=>:json}
+                                  v0_folder_messages GET                       /v0/messaging/health/folders/:folder_id/messages(.:format)                   v0/messages#index {:format=>:json}
+                                          v0_folders GET                       /v0/messaging/health/folders(.:format)                                       v0/folders#index {:format=>:json}
+                                                     POST                      /v0/messaging/health/folders(.:format)                                       v0/folders#create {:format=>:json}
+                                           v0_folder GET                       /v0/messaging/health/folders/:id(.:format)                                   v0/folders#show {:format=>:json}
+                                                     DELETE                    /v0/messaging/health/folders/:id(.:format)                                   v0/folders#destroy {:format=>:json}
+                                   thread_v0_message GET                       /v0/messaging/health/messages/:id/thread(.:format)                           v0/messages#thread {:format=>:json}
+                              categories_v0_messages GET                       /v0/messaging/health/messages/categories(.:format)                           v0/messages#categories {:format=>:json}
+                                     move_v0_message PATCH                     /v0/messaging/health/messages/:id/move(.:format)                             v0/messages#move {:format=>:json}
+                                    reply_v0_message POST                      /v0/messaging/health/messages/:id/reply(.:format)                            v0/messages#reply {:format=>:json}
+                               v0_message_attachment GET                       /v0/messaging/health/messages/:message_id/attachments/:id(.:format)          v0/attachments#show {:format=>:json}
+                                         v0_messages POST                      /v0/messaging/health/messages(.:format)                                      v0/messages#create {:format=>:json}
+                                          v0_message GET                       /v0/messaging/health/messages/:id(.:format)                                  v0/messages#show {:format=>:json}
+                                                     DELETE                    /v0/messaging/health/messages/:id(.:format)                                  v0/messages#destroy {:format=>:json}
+                      create_reply_v0_message_drafts POST                      /v0/messaging/health/message_drafts/:reply_id/replydraft(.:format)           v0/message_drafts#create_reply_draft {:format=>:json}
+                      update_reply_v0_message_drafts PUT                       /v0/messaging/health/message_drafts/:reply_id/replydraft/:draft_id(.:format) v0/message_drafts#update_reply_draft {:format=>:json}
+                                   v0_message_drafts POST                      /v0/messaging/health/message_drafts(.:format)                                v0/message_drafts#create {:format=>:json}
+                                    v0_message_draft PATCH                     /v0/messaging/health/message_drafts/:id(.:format)                            v0/message_drafts#update {:format=>:json}
+                                                     PUT                       /v0/messaging/health/message_drafts/:id(.:format)                            v0/message_drafts#update {:format=>:json}
+                                                     GET                       /v0/messaging/health/preferences(.:format)                                   v0/messaging_preferences#show {:format=>"json"}
+                                                     PATCH                     /v0/messaging/health/preferences(.:format)                                   v0/messaging_preferences#update {:format=>"json"}
+                                                     PUT                       /v0/messaging/health/preferences(.:format)                                   v0/messaging_preferences#update {:format=>"json"}
+                                         v0_va_index GET                       /v0/facilities/va(.:format)                                                  v0/facilities/va#index {:format=>:json}
+                                               v0_va GET                       /v0/facilities/va/:id(.:format)                                              v0/facilities/va#show {:format=>:json}
+                                        v0_ccp_index GET                       /v0/facilities/ccp(.:format)                                                 v0/facilities/ccp#index {:format=>:json}
+                                              v0_ccp GET                       /v0/facilities/ccp/:id(.:format)                                             v0/facilities/ccp#show {:format=>:json}
+                                        v0_suggested GET                       /v0/facilities/suggested(.:format)                                           v0/facilities/va#suggested {:format=>"json"}
+                                         v0_services GET                       /v0/facilities/services(.:format)                                            v0/facilities/ccp#services {:format=>"json"}
+                              search_v0_institutions GET                       /v0/gi/institutions/search(.:format)                                         v0/gids/institutions#search {:format=>:json}
+                        autocomplete_v0_institutions GET                       /v0/gi/institutions/autocomplete(.:format)                                   v0/gids/institutions#autocomplete {:format=>:json}
+                             children_v0_institution GET                       /v0/gi/institutions/:id/children(.:format)                                   v0/gids/institutions#children {:format=>:json}
+                                      v0_institution GET                       /v0/gi/institutions/:id(.:format)                                            v0/gids/institutions#show {:format=>:json}
+                      search_v0_institution_programs GET                       /v0/gi/institution_programs/search(.:format)                                 v0/gids/institution_programs#search {:format=>:json}
+                autocomplete_v0_institution_programs GET                       /v0/gi/institution_programs/autocomplete(.:format)                           v0/gids/institution_programs#autocomplete {:format=>:json}
+                             v0_institution_programs GET                       /v0/gi/institution_programs(.:format)                                        v0/gids/institution_programs#index {:format=>:json}
+                             v0_calculator_constants GET                       /v0/gi/calculator_constants(.:format)                                        v0/gids/calculator_constants#index {:format=>:json}
+                           v0_yellow_ribbon_programs GET                       /v0/gi/yellow_ribbon_programs(.:format)                                      v0/gids/yellow_ribbon_programs#index {:format=>:json}
+                                     v0_zipcode_rate GET                       /v0/gi/zipcode_rates/:id(.:format)                                           v0/gids/zipcode_rates#show {:format=>:json}
+                                       v0_attributes GET                       /v0/id_card/attributes(.:format)                                             v0/id_card_attributes#show {:format=>"json"}
+                        v0_announcement_subscription POST                      /v0/id_card/announcement_subscription(.:format)                              v0/id_card_announcement_subscription#create {:format=>"json"}
+                                    v0_mdot_supplies POST                      /v0/mdot/supplies(.:format)                                                  v0/mdot/supplies#create {:format=>"json"}
+                              v0_preneeds_cemeteries GET                       /v0/preneeds/cemeteries(.:format)                                            v0/preneeds/cemeteries#index {:format=>:json}
+                                  v0_preneeds_states GET                       /v0/preneeds/states(.:format)                                                v0/preneeds/states#index {:format=>:json}
+                        v0_preneeds_attachment_types GET                       /v0/preneeds/attachment_types(.:format)                                      v0/preneeds/attachment_types#index {:format=>:json}
+                         v0_preneeds_discharge_types GET                       /v0/preneeds/discharge_types(.:format)                                       v0/preneeds/discharge_types#index {:format=>:json}
+                          v0_preneeds_military_ranks GET                       /v0/preneeds/military_ranks(.:format)                                        v0/preneeds/military_ranks#index {:format=>:json}
+               v0_preneeds_branches_of_service_index GET                       /v0/preneeds/branches_of_service(.:format)                                   v0/preneeds/branches_of_service#index {:format=>:json}
+                            v0_preneeds_burial_forms POST                      /v0/preneeds/burial_forms(.:format)                                          v0/preneeds/burial_forms#create {:format=>:json}
+                         new_v0_preneeds_burial_form GET                       /v0/preneeds/burial_forms/new(.:format)                                      v0/preneeds/burial_forms#new {:format=>:json}
+                     v0_preneeds_preneed_attachments POST                      /v0/preneeds/preneed_attachments(.:format)                                   v0/preneeds/preneed_attachments#create {:format=>"json"}
+                    v0_vic_profile_photo_attachments POST                      /v0/vic/profile_photo_attachments(.:format)                                  v0/vic/profile_photo_attachments#create {:format=>"json"}
+                     v0_vic_profile_photo_attachment GET                       /v0/vic/profile_photo_attachments/:id(.:format)                              v0/vic/profile_photo_attachments#show {:format=>"json"}
+         v0_vic_supporting_documentation_attachments POST                      /v0/vic/supporting_documentation_attachments(.:format)                       v0/vic/supporting_documentation_attachments#create {:format=>"json"}
+                                v0_gi_bill_feedbacks POST                      /v0/gi_bill_feedbacks(.:format)                                              v0/gi_bill_feedbacks#create {:format=>"json"}
+                                 v0_gi_bill_feedback GET                       /v0/gi_bill_feedbacks/:id(.:format)                                          v0/gi_bill_feedbacks#show {:format=>"json"}
+                                countries_v0_address GET                       /v0/address/countries(.:format)                                              v0/addresses#countries {:format=>"json"}
+                                   states_v0_address GET                       /v0/address/states(.:format)                                                 v0/addresses#states {:format=>"json"}
+                                          v0_address GET                       /v0/address(.:format)                                                        v0/addresses#show {:format=>"json"}
+                                                     PATCH                     /v0/address(.:format)                                                        v0/addresses#update {:format=>"json"}
+                                                     PUT                       /v0/address(.:format)                                                        v0/addresses#update {:format=>"json"}
+                          v0_profile_alternate_phone GET                       /v0/profile/alternate_phone(.:format)                                        v0/profile/alternate_phones#show {:format=>"json"}
+                                                     POST                      /v0/profile/alternate_phone(.:format)                                        v0/profile/alternate_phones#create {:format=>"json"}
+                                    v0_profile_email GET                       /v0/profile/email(.:format)                                                  v0/profile/emails#show {:format=>"json"}
+                                                     POST                      /v0/profile/email(.:format)                                                  v0/profile/emails#create {:format=>"json"}
+                                v0_profile_full_name GET                       /v0/profile/full_name(.:format)                                              v0/profile/full_names#show {:format=>"json"}
+                     v0_profile_personal_information GET                       /v0/profile/personal_information(.:format)                                   v0/profile/personal_informations#show {:format=>"json"}
+                            v0_profile_primary_phone GET                       /v0/profile/primary_phone(.:format)                                          v0/profile/primary_phones#show {:format=>"json"}
+                                                     POST                      /v0/profile/primary_phone(.:format)                                          v0/profile/primary_phones#create {:format=>"json"}
+                          v0_profile_service_history GET                       /v0/profile/service_history(.:format)                                        v0/profile/service_histories#show {:format=>"json"}
+                   v0_profile_connected_applications GET                       /v0/profile/connected_applications(.:format)                                 v0/profile/connected_applications#index {:format=>"json"}
+                    v0_profile_connected_application DELETE                    /v0/profile/connected_applications/:id(.:format)                             v0/profile/connected_applications#destroy {:format=>"json"}
+                     v0_profile_valid_va_file_number GET                       /v0/profile/valid_va_file_number(.:format)                                   v0/profile/valid_va_file_numbers#show {:format=>"json"}
+                    v0_profile_payment_history_index GET                       /v0/profile/payment_history(.:format)                                        v0/profile/payment_history#index {:format=>"json"}
+                                v0_profile_addresses PATCH                     /v0/profile/addresses(.:format)                                              v0/profile/addresses#update {:format=>"json"}
+                                                     PUT                       /v0/profile/addresses(.:format)                                              v0/profile/addresses#update {:format=>"json"}
+                                                     DELETE                    /v0/profile/addresses(.:format)                                              v0/profile/addresses#destroy {:format=>"json"}
+                                                     POST                      /v0/profile/addresses(.:format)                                              v0/profile/addresses#create {:format=>"json"}
+                          v0_profile_email_addresses PATCH                     /v0/profile/email_addresses(.:format)                                        v0/profile/email_addresses#update {:format=>"json"}
+                                                     PUT                       /v0/profile/email_addresses(.:format)                                        v0/profile/email_addresses#update {:format=>"json"}
+                                                     DELETE                    /v0/profile/email_addresses(.:format)                                        v0/profile/email_addresses#destroy {:format=>"json"}
+                                                     POST                      /v0/profile/email_addresses(.:format)                                        v0/profile/email_addresses#create {:format=>"json"}
+                               v0_profile_telephones PATCH                     /v0/profile/telephones(.:format)                                             v0/profile/telephones#update {:format=>"json"}
+                                                     PUT                       /v0/profile/telephones(.:format)                                             v0/profile/telephones#update {:format=>"json"}
+                                                     DELETE                    /v0/profile/telephones(.:format)                                             v0/profile/telephones#destroy {:format=>"json"}
+                                                     POST                      /v0/profile/telephones(.:format)                                             v0/profile/telephones#create {:format=>"json"}
+                              v0_profile_permissions PATCH                     /v0/profile/permissions(.:format)                                            v0/profile/permissions#update {:format=>"json"}
+                                                     PUT                       /v0/profile/permissions(.:format)                                            v0/profile/permissions#update {:format=>"json"}
+                                                     DELETE                    /v0/profile/permissions(.:format)                                            v0/profile/permissions#destroy {:format=>"json"}
+                                                     POST                      /v0/profile/permissions(.:format)                                            v0/profile/permissions#create {:format=>"json"}
+                 v0_profile_address_validation_index POST                      /v0/profile/address_validation(.:format)                                     v0/profile/address_validation#create {:format=>"json"}
+                     v0_profile_initialize_vet360_id POST                      /v0/profile/initialize_vet360_id(.:format)                                   v0/profile/persons#initialize_vet360_id {:format=>"json"}
+                            v0_profile_person_status GET                       /v0/profile/person/status/:transaction_id(.:format)                          v0/profile/persons#status {:format=>"json"}
+                                          v0_profile GET                       /v0/profile/status/:transaction_id(.:format)                                 v0/profile/transactions#status {:format=>"json"}
+                                   v0_profile_status GET                       /v0/profile/status(.:format)                                                 v0/profile/transactions#statuses {:format=>"json"}
+                       v0_profile_ch33_bank_accounts GET                       /v0/profile/ch33_bank_accounts(.:format)                                     v0/profile/ch33_bank_accounts#index {:format=>"json"}
+                                                     PUT                       /v0/profile/ch33_bank_accounts(.:format)                                     v0/profile/ch33_bank_accounts#update {:format=>"json"}
+                                     v0_search_index GET                       /v0/search(.:format)                                                         v0/search#index {:format=>"json"}
+                                            v0_forms GET                       /v0/forms(.:format)                                                          v0/forms#index {:format=>"json"}
+                          v0_profile_mailing_address GET                       /v0/profile/mailing_address(.:format)                                        v0/addresses#show {:format=>"json"}
+                                                     PUT                       /v0/profile/mailing_address(.:format)                                        v0/addresses#update {:format=>"json"}
+                                 v0_backend_statuses GET                       /v0/backend_statuses(.:format)                                               v0/backend_statuses#index {:format=>"json"}
+                                   v0_backend_status GET                       /v0/backend_statuses/:service(.:format)                                      v0/backend_statuses#show {:format=>"json"}
+                                          v0_apidocs GET                       /v0/apidocs(.:format)                                                        v0/apidocs#index {:format=>"json"}
+                             v0_terms_and_conditions GET                       /v0/terms_and_conditions(.:format)                                           v0/terms_and_conditions#index {:format=>"json"}
+                                                     GET                       /v0/terms_and_conditions/:name/versions/latest(.:format)                     v0/terms_and_conditions#latest {:format=>"json"}
+                                                     GET                       /v0/terms_and_conditions/:name/versions/latest/user_data(.:format)           v0/terms_and_conditions#latest_user_data {:format=>"json"}
+                                                     POST                      /v0/terms_and_conditions/:name/versions/latest/user_data(.:format)           v0/terms_and_conditions#accept_latest {:format=>"json"}
+                              upgrade_v0_mhv_account POST                      /v0/mhv_account/upgrade(.:format)                                            v0/mhv_accounts#upgrade {:format=>"json"}
+                                      v0_mhv_account GET                       /v0/mhv_account(.:format)                                                    v0/mhv_accounts#show {:format=>"json"}
+                                                     POST                      /v0/mhv_account(.:format)                                                    v0/mhv_accounts#create {:format=>"json"}
+                                    v0_notifications POST                      /v0/notifications(.:format)                                                  v0/notifications#create {:format=>"json"}
+                                     v0_notification GET                       /v0/notifications/:subject(.:format)                                         v0/notifications#show {:format=>"json"}
+                                                     PATCH                     /v0/notifications/:subject(.:format)                                         v0/notifications#update {:format=>"json"}
+                                                     PUT                       /v0/notifications/:subject(.:format)                                         v0/notifications#update {:format=>"json"}
+                 v0_notifications_dismissed_statuses POST                      /v0/notifications/dismissed_statuses(.:format)                               v0/notifications/dismissed_statuses#create {:format=>"json"}
+                   v0_notifications_dismissed_status GET                       /v0/notifications/dismissed_statuses/:subject(.:format)                      v0/notifications/dismissed_statuses#show {:format=>"json"}
+                                                     PATCH                     /v0/notifications/dismissed_statuses/:subject(.:format)                      v0/notifications/dismissed_statuses#update {:format=>"json"}
+                                                     PUT                       /v0/notifications/dismissed_statuses/:subject(.:format)                      v0/notifications/dismissed_statuses#update {:format=>"json"}
+                                                     GET                       /v0/user/preferences/choices(.:format)                                       v0/preferences#index {:format=>"json"}
+                                       v0_preference GET                       /v0/user/preferences/choices/:code(.:format)                                 v0/preferences#show {:format=>"json"}
+                                 v0_user_preferences GET                       /v0/user/preferences(.:format)                                               v0/user_preferences#index {:format=>"json"}
+                                                     POST                      /v0/user/preferences(.:format)                                               v0/user_preferences#create {:format=>"json"}
+                                                     DELETE                    /v0/user/preferences/:code/delete_all(.:format)                              v0/user_preferences#delete_all {:format=>"json"}
+                                  v0_feature_toggles GET                       /v0/feature_toggles(.:format)                                                v0/feature_toggles#index {:format=>"json"}
+                               v0_beta_registrations GET                       /v0/beta_registration/profile(.:format)                                      v0/beta_registrations#show {:format=>"json", :feature=>"profile"}
+                                                     DELETE                    /v0/beta_registration/profile(.:format)                                      v0/beta_registrations#destroy {:format=>"json", :feature=>"profile"}
+                                                     POST                      /v0/beta_registration/profile(.:format)                                      v0/beta_registrations#create {:format=>"json", :feature=>"profile"}
+                                                     GET                       /v0/beta_registration/dashboard(.:format)                                    v0/beta_registrations#show {:format=>"json", :feature=>"dashboard"}
+                                                     DELETE                    /v0/beta_registration/dashboard(.:format)                                    v0/beta_registrations#destroy {:format=>"json", :feature=>"dashboard"}
+                                                     POST                      /v0/beta_registration/dashboard(.:format)                                    v0/beta_registrations#create {:format=>"json", :feature=>"dashboard"}
+                                                     GET                       /v0/beta_registration/veteran_id_card(.:format)                              v0/beta_registrations#show {:format=>"json", :feature=>"veteran_id_card"}
+                                                     DELETE                    /v0/beta_registration/veteran_id_card(.:format)                              v0/beta_registrations#destroy {:format=>"json", :feature=>"veteran_id_card"}
+                                                     POST                      /v0/beta_registration/veteran_id_card(.:format)                              v0/beta_registrations#create {:format=>"json", :feature=>"veteran_id_card"}
+                                                     GET                       /v0/beta_registration/all_claims(.:format)                                   v0/beta_registrations#show {:format=>"json", :feature=>"all_claims"}
+                                                     DELETE                    /v0/beta_registration/all_claims(.:format)                                   v0/beta_registrations#destroy {:format=>"json", :feature=>"all_claims"}
+                                                     POST                      /v0/beta_registration/all_claims(.:format)                                   v0/beta_registrations#create {:format=>"json", :feature=>"all_claims"}
+                                                     GET                       /v0/beta_registration/emis_prefill(.:format)                                 v0/beta_registrations#show {:format=>"json", :feature=>"emis_prefill"}
+                                                     DELETE                    /v0/beta_registration/emis_prefill(.:format)                                 v0/beta_registrations#destroy {:format=>"json", :feature=>"emis_prefill"}
+                                                     POST                      /v0/beta_registration/emis_prefill(.:format)                                 v0/beta_registrations#create {:format=>"json", :feature=>"emis_prefill"}
+                       v0_coronavirus_chatbot_tokens POST                      /v0/coronavirus_chatbot/tokens(.:format)                                     v0/coronavirus_chatbot/tokens#create {:format=>"json"}
+                                         v0_ask_asks POST                      /v0/ask/asks(.:format)                                                       v0/ask/asks#create {:format=>"json"}
+                                          v1_apidocs GET                       /v1/apidocs(.:format)                                                        v1/apidocs#index {:format=>"json"}
+                           saml_callback_v1_sessions POST                      /v1/sessions/saml_callback(.:format)                                         v1/sessions#saml_callback {:format=>"json"}
+                       saml_slo_callback_v1_sessions POST                      /v1/sessions/saml_slo_callback(.:format)                                     v1/sessions#saml_slo_callback {:format=>"json"}
+                              v1_facilities_va_index GET                       /v1/facilities/va(.:format)                                                  v1/facilities/va#index {:format=>"json"}
+                                    v1_facilities_va GET                       /v1/facilities/va/:id(.:format)                                              v1/facilities/va#show {:format=>"json"}
+                 specialties_v1_facilities_ccp_index GET                       /v1/facilities/ccp/specialties(.:format)                                     v1/facilities/ccp#specialties {:format=>"json"}
+                             v1_facilities_ccp_index GET                       /v1/facilities/ccp(.:format)                                                 v1/facilities/ccp#index {:format=>"json"}
+                                   v1_facilities_ccp GET                       /v1/facilities/ccp/:id(.:format)                                             v1/facilities/ccp#show {:format=>"json"}
+              urgent_care_v1_facilities_va_ccp_index GET                       /v1/facilities/va_ccp/urgent_care(.:format)                                  v1/facilities/va_ccp#urgent_care {:format=>"json"}
+                                                root GET                       /                                                                            v0/example#index {:module=>"v0"}
+                                         openid_auth                           /internal/auth                                                               OpenidAuth::Engine
+                                            apps_api                           /services/apps                                                               AppsApi::Engine
+                                       vba_documents                           /services/vba_documents                                                      VBADocuments::Engine
+                                         appeals_api                           /services/appeals                                                            AppealsApi::Engine
+                                          claims_api                           /services/claims                                                             ClaimsApi::Engine
+                                             veteran                           /services/veteran                                                            Veteran::Engine
+                                            va_forms                           /services/va_forms                                                           VaForms::Engine
+                                veteran_verification                           /services/veteran_verification                                               VeteranVerification::Engine
+                                veteran_confirmation                           /services/veteran_confirmation                                               VeteranConfirmation::Engine
+                                        health_quest                           /health_quest                                                                HealthQuest::Engine
+                                                vaos                           /vaos                                                                        VAOS::Engine
+                                      covid_research                           /covid-research                                                              CovidResearch::Engine
+                                              mobile                           /mobile                                                                      Mobile::Engine
+                                         sidekiq_web                           /sidekiq                                                                     Sidekiq::Web
+                                                                               /flipper                                                                     Flipper::UI
+                                                     GET|POST|PUT|PATCH|DELETE /*path(.:format)                                                             application#routing_error
+
+Routes for OpenidAuth::Engine:
+                   OPTIONS /v0/*path(.:format)           openid_auth/application#cors_preflight
+     v0_validation GET     /v0/validation(.:format)      openid_auth/v0/validation#index {:format=>"json"}
+       v0_mvi_user GET     /v0/mvi-user(.:format)        openid_auth/v0/mpi_users#show {:format=>"json"}
+                   POST    /v0/mvi-user(.:format)        openid_auth/v0/mpi_users#search {:format=>"json"}
+           v0_okta POST    /v0/okta(.:format)            openid_auth/v0/okta#okta_callback {:format=>"json"}
+     v1_validation POST    /v1/validation(.:format)      openid_auth/v1/validation#index {:format=>"json"}
+docs_v0_validation GET     /docs/v0/validation(.:format) openid_auth/docs/v0/validation#index {:format=>"json"}
+  docs_v0_mvi_user GET     /docs/v0/mvi-user(.:format)   openid_auth/docs/v0/mpi_users#index {:format=>"json"}
+      docs_v0_okta GET     /docs/v0/okta(.:format)       openid_auth/docs/v0/okta#index {:format=>"json"}
+
+Routes for AppsApi::Engine:
+          metadata GET     /metadata(.:format)                      apps_api/metadata#index
+                   OPTIONS /v0/*path(.:format)                      apps_api/application#cors_preflight
+    v0_healthcheck GET     /v0/healthcheck(.:format)                apps_api/metadata#healthcheck
+                v0 GET     /v0/directory/scopes/:category(.:format) apps_api/v0/directory#scopes {:format=>"json"}
+v0_directory_index GET     /v0/directory(.:format)                  apps_api/v0/directory#index {:format=>"json"}
+       docs_v0_api GET     /docs/v0/api(.:format)                   apps_api/docs/v0/api#index
+
+Routes for VBADocuments::Engine:
+                         metadata GET     /metadata(.:format)                       vba_documents/metadata#index
+                   v0_healthcheck GET     /v0/healthcheck(.:format)                 vba_documents/metadata#healthcheck
+                   v1_healthcheck GET     /v1/healthcheck(.:format)                 vba_documents/metadata#healthcheck
+          v0_upstream_healthcheck GET     /v0/upstream_healthcheck(.:format)        vba_documents/metadata#upstream_healthcheck
+          v1_upstream_healthcheck GET     /v1/upstream_healthcheck(.:format)        vba_documents/metadata#upstream_healthcheck
+                                  OPTIONS /v0/*path(.:format)                       vba_documents/application#cors_preflight
+                                  OPTIONS /v1/*path(.:format)                       vba_documents/application#cors_preflight
+               v0_upload_download GET     /v0/uploads/:upload_id/download(.:format) vba_documents/v0/uploads#download {:format=>"json"}
+                        v0_report POST    /v0/uploads/report(.:format)              vba_documents/v0/reports#create {:format=>"json"}
+                       v0_uploads POST    /v0/uploads(.:format)                     vba_documents/v0/uploads#create {:format=>"json"}
+                        v0_upload GET     /v0/uploads/:id(.:format)                 vba_documents/v0/uploads#show {:format=>"json"}
+internal_v0_upload_complete_index POST    /internal/v0/upload_complete(.:format)    vba_documents/internal/v0/upload_complete#create {:format=>"json"}
+               v1_upload_download GET     /v1/uploads/:upload_id/download(.:format) vba_documents/v1/uploads#download {:format=>"json"}
+                        v1_report POST    /v1/uploads/report(.:format)              vba_documents/v1/reports#create {:format=>"json"}
+                       v1_uploads POST    /v1/uploads(.:format)                     vba_documents/v1/uploads#create {:format=>"json"}
+                        v1_upload GET     /v1/uploads/:id(.:format)                 vba_documents/v1/uploads#show {:format=>"json"}
+                docs_v0_api_index GET     /docs/v0/api(.:format)                    vba_documents/docs/v0/api#index
+                docs_v1_api_index GET     /docs/v1/api(.:format)                    vba_documents/docs/v1/api#index
+
+Routes for AppealsApi::Engine:
+                                       appeals_status_metadata GET  /appeals_status/metadata(.:format)                                                     appeals_api/metadata#appeals_status
+                                     decision_reviews_metadata GET  /decision_reviews/metadata(.:format)                                                   appeals_api/metadata#decision_reviews
+                                                v0_healthcheck GET  /v0/healthcheck(.:format)                                                              appeals_api/metadata#healthcheck
+                                                v1_healthcheck GET  /v1/healthcheck(.:format)                                                              appeals_api/metadata#healthcheck
+                                       v0_upstream_healthcheck GET  /v0/upstream_healthcheck(.:format)                                                     appeals_api/metadata#upstream_healthcheck
+                                       v1_upstream_healthcheck GET  /v1/upstream_healthcheck(.:format)                                                     appeals_api/metadata#upstream_healthcheck
+                                                    v0_appeals GET  /v0/appeals(.:format)                                                                  appeals_api/v0/appeals#index
+                      v1_decision_reviews_higher_level_reviews GET  /v1/decision_reviews/higher_level_reviews/contestable_issues(/:benefit_type)(.:format) appeals_api/v1/decision_reviews/higher_level_reviews/contestable_issues#index {:format=>"json"}
+               schema_v1_decision_reviews_higher_level_reviews GET  /v1/decision_reviews/higher_level_reviews/schema(.:format)                             appeals_api/v1/decision_reviews/higher_level_reviews#schema {:format=>"json"}
+             validate_v1_decision_reviews_higher_level_reviews POST /v1/decision_reviews/higher_level_reviews/validate(.:format)                           appeals_api/v1/decision_reviews/higher_level_reviews#validate {:format=>"json"}
+                                                               POST /v1/decision_reviews/higher_level_reviews(.:format)                                    appeals_api/v1/decision_reviews/higher_level_reviews#create {:format=>"json"}
+                       v1_decision_reviews_higher_level_review GET  /v1/decision_reviews/higher_level_reviews/:id(.:format)                                appeals_api/v1/decision_reviews/higher_level_reviews#show {:format=>"json"}
+v1_decision_reviews_notice_of_disagreements_contestable_issues GET  /v1/decision_reviews/notice_of_disagreements/contestable_issues(.:format)              appeals_api/v1/decision_reviews/notice_of_disagreements/contestable_issues#index {:format=>"json"}
+                                             docs_v0_api_index GET  /docs/v0/api(.:format)                                                                 appeals_api/docs/v0/api#index
+                                      docs_v1_decision_reviews GET  /docs/v1/decision_reviews(.:format)                                                    appeals_api/docs/v1/docs#decision_reviews {:format=>"json"}
+
+Routes for ClaimsApi::Engine:
+              metadata GET     /metadata(.:format)                     claims_api/metadata#index
+        v0_healthcheck GET     /v0/healthcheck(.:format)               claims_api/metadata#healthcheck
+        v1_healthcheck GET     /v1/healthcheck(.:format)               claims_api/metadata#healthcheck
+                       OPTIONS /v0/*path(.:format)                     claims_api/application#cors_preflight
+                       OPTIONS /v1/*path(.:format)                     claims_api/application#cors_preflight
+             v0_claims GET     /v0/claims(.:format)                    claims_api/v0/claims#index {:format=>"json"}
+              v0_claim GET     /v0/claims/:id(.:format)                claims_api/v0/claims#show {:format=>"json"}
+          v0_forms_526 GET     /v0/forms/526(.:format)                 claims_api/v0/forms/disability_compensation#schema {:format=>"json"}
+                       POST    /v0/forms/526(.:format)                 claims_api/v0/forms/disability_compensation#submit_form_526 {:format=>"json"}
+              v0_forms PUT     /v0/forms/526/:id(.:format)             claims_api/v0/forms/disability_compensation#upload_form_526 {:format=>"json"}
+ v0_forms_526_validate POST    /v0/forms/526/validate(.:format)        claims_api/v0/forms/disability_compensation#validate_form_526 {:format=>"json"}
+                       POST    /v0/forms/526/:id/attachments(.:format) claims_api/v0/forms/disability_compensation#upload_supporting_documents {:format=>"json"}
+         v0_forms_0966 GET     /v0/forms/0966(.:format)                claims_api/v0/forms/intent_to_file#schema {:format=>"json"}
+                       POST    /v0/forms/0966(.:format)                claims_api/v0/forms/intent_to_file#submit_form_0966 {:format=>"json"}
+  v0_forms_0966_active GET     /v0/forms/0966/active(.:format)         claims_api/v0/forms/intent_to_file#active {:format=>"json"}
+v0_forms_0966_validate POST    /v0/forms/0966/validate(.:format)       claims_api/v0/forms/intent_to_file#validate {:format=>"json"}
+         v0_forms_2122 GET     /v0/forms/2122(.:format)                claims_api/v0/forms/power_of_attorney#schema {:format=>"json"}
+                       POST    /v0/forms/2122(.:format)                claims_api/v0/forms/power_of_attorney#submit_form_2122 {:format=>"json"}
+  v0_forms_2122_active GET     /v0/forms/2122/active(.:format)         claims_api/v0/forms/power_of_attorney#active {:format=>"json"}
+                       PUT     /v0/forms/2122/:id(.:format)            claims_api/v0/forms/power_of_attorney#upload {:format=>"json"}
+                       GET     /v0/forms/2122/:id(.:format)            claims_api/v0/forms/power_of_attorney#status {:format=>"json"}
+v0_forms_2122_validate POST    /v0/forms/2122/validate(.:format)       claims_api/v0/forms/power_of_attorney#validate {:format=>"json"}
+             v1_claims GET     /v1/claims(.:format)                    claims_api/v1/claims#index {:format=>"json"}
+              v1_claim GET     /v1/claims/:id(.:format)                claims_api/v1/claims#show {:format=>"json"}
+          v1_forms_526 GET     /v1/forms/526(.:format)                 claims_api/v1/forms/disability_compensation#schema {:format=>"json"}
+                       POST    /v1/forms/526(.:format)                 claims_api/v1/forms/disability_compensation#submit_form_526 {:format=>"json"}
+              v1_forms PUT     /v1/forms/526/:id(.:format)             claims_api/v1/forms/disability_compensation#upload_form_526 {:format=>"json"}
+ v1_forms_526_validate POST    /v1/forms/526/validate(.:format)        claims_api/v1/forms/disability_compensation#validate_form_526 {:format=>"json"}
+                       POST    /v1/forms/526/:id/attachments(.:format) claims_api/v1/forms/disability_compensation#upload_supporting_documents {:format=>"json"}
+         v1_forms_0966 GET     /v1/forms/0966(.:format)                claims_api/v1/forms/intent_to_file#schema {:format=>"json"}
+                       POST    /v1/forms/0966(.:format)                claims_api/v1/forms/intent_to_file#submit_form_0966 {:format=>"json"}
+  v1_forms_0966_active GET     /v1/forms/0966/active(.:format)         claims_api/v1/forms/intent_to_file#active {:format=>"json"}
+v1_forms_0966_validate POST    /v1/forms/0966/validate(.:format)       claims_api/v1/forms/intent_to_file#validate {:format=>"json"}
+         v1_forms_2122 GET     /v1/forms/2122(.:format)                claims_api/v1/forms/power_of_attorney#schema {:format=>"json"}
+                       POST    /v1/forms/2122(.:format)                claims_api/v1/forms/power_of_attorney#submit_form_2122 {:format=>"json"}
+  v1_forms_2122_active GET     /v1/forms/2122/active(.:format)         claims_api/v1/forms/power_of_attorney#active {:format=>"json"}
+                       PUT     /v1/forms/2122/:id(.:format)            claims_api/v1/forms/power_of_attorney#upload {:format=>"json"}
+                       GET     /v1/forms/2122/:id(.:format)            claims_api/v1/forms/power_of_attorney#status {:format=>"json"}
+v1_forms_2122_validate POST    /v1/forms/2122/validate(.:format)       claims_api/v1/forms/power_of_attorney#validate {:format=>"json"}
+           docs_v0_api GET     /docs/v0/api(.:format)                  claims_api/docs/v0/api#index
+           docs_v1_api GET     /docs/v1/api(.:format)                  claims_api/docs/v1/api#index
+
+Routes for Veteran::Engine:
+                            OPTIONS /v0/*path(.:format)                    veteran/application#cors_preflight
+v0_representatives_find_rep GET     /v0/representatives/find_rep(.:format) veteran/v0/representatives#find_rep {:format=>"json"}
+
+Routes for VaForms::Engine:
+               metadata GET     /metadata(.:format)                va_forms/metadata#index
+                        OPTIONS /v0/*path(.:format)                va_forms/application#cors_preflight
+         v0_healthcheck GET     /v0/healthcheck(.:format)          va_forms/metadata#healthcheck
+v0_upstream_healthcheck GET     /v0/upstream_healthcheck(.:format) va_forms/metadata#upstream_healthcheck
+               v0_forms GET     /v0/forms(.:format)                va_forms/v0/forms#index {:format=>"json"}
+                v0_form GET     /v0/forms/:id(.:format)            va_forms/v0/forms#show {:format=>"json"}
+            docs_v0_api GET     /docs/v0/api(.:format)             va_forms/docs/v0/api#index
+
+Routes for VeteranVerification::Engine:
+                             OPTIONS /v0/*path(.:format)                     veteran_verification/application#cors_preflight
+    v0_service_history_index GET     /v0/service_history(.:format)           veteran_verification/v0/service_history#index
+  v0_disability_rating_index GET     /v0/disability_rating(.:format)         veteran_verification/v0/disability_rating#index
+                     v0_keys GET     /v0/keys(.:format)                      veteran_verification/v0/keys#index
+             v0_health_index GET     /v0/health(.:format)                    veteran_verification/v0/health#index
+                   v0_status GET     /v0/status(.:format)                    veteran_verification/v0/veteran_status#index
+docs_v0_veteran_verification GET     /docs/v0/veteran_verification(.:format) veteran_verification/docs/v0/api#veteran_verification {:format=>"json"}
+
+Routes for VeteranConfirmation::Engine:
+                OPTIONS /v0/*path(.:format)    veteran_confirmation/application#cors_preflight
+v0_health_index GET     /v0/health(.:format)   veteran_confirmation/v0/health#index {:format=>"json"}
+      v0_status POST    /v0/status(.:format)   veteran_confirmation/v0/veteran_status#index {:format=>"json"}
+    docs_v0_api GET     /docs/v0/api(.:format) veteran_confirmation/docs/v0/api#index {:format=>"json"}
+
+Routes for HealthQuest::Engine:
+              v0_appointments GET  /v0/appointments(.:format)                    health_quest/v0/appointments#index {:format=>:json}
+               v0_appointment GET  /v0/appointments/:id(.:format)                health_quest/v0/appointments#show {:format=>:json}
+         v0_pgd_questionnaire GET  /v0/pgd_questionnaires/:id(.:format)          health_quest/v0/pgd_questionnaires#show {:format=>:json}
+v0_pgd_questionnaire_response GET  /v0/pgd_questionnaire_responses/:id(.:format) health_quest/v0/pgd_questionnaire_responses#show {:format=>:json}
+                   v0_apidocs GET  /v0/apidocs(.:format)                         health_quest/v0/apidocs#index {:format=>:json}
+
+Routes for VAOS::Engine:
+                cancel_v0_appointments PUT   /v0/appointments/cancel(.:format)                                   vaos/v0/appointments#cancel {:format=>:json}
+                       v0_appointments GET   /v0/appointments(.:format)                                          vaos/v0/appointments#index {:format=>:json}
+                                       POST  /v0/appointments(.:format)                                          vaos/v0/appointments#create {:format=>:json}
+       v0_appointment_request_messages GET   /v0/appointment_requests/:appointment_request_id/messages(.:format) vaos/v0/messages#index {:format=>:json}
+                                       POST  /v0/appointment_requests/:appointment_request_id/messages(.:format) vaos/v0/messages#create {:format=>:json}
+               v0_appointment_requests GET   /v0/appointment_requests(.:format)                                  vaos/v0/appointment_requests#index {:format=>:json}
+                                       POST  /v0/appointment_requests(.:format)                                  vaos/v0/appointment_requests#create {:format=>:json}
+                v0_appointment_request PATCH /v0/appointment_requests/:id(.:format)                              vaos/v0/appointment_requests#update {:format=>:json}
+                                       PUT   /v0/appointment_requests/:id(.:format)                              vaos/v0/appointment_requests#update {:format=>:json}
+                                    v0 GET   /v0/community_care/eligibility/:service_type(.:format)              vaos/v0/cc_eligibility#show {:format=>:json}
+     v0_community_care_supported_sites GET   /v0/community_care/supported_sites(.:format)                        vaos/v0/cc_supported_sites#index {:format=>:json}
+v0_system_direct_scheduling_facilities GET   /v0/systems/:system_id/direct_scheduling_facilities(.:format)       vaos/v0/direct_scheduling_facilities#index {:format=>:json}
+                  v0_system_pact_index GET   /v0/systems/:system_id/pact(.:format)                               vaos/v0/pact#index {:format=>:json}
+         v0_system_clinic_institutions GET   /v0/systems/:system_id/clinic_institutions(.:format)                vaos/v0/clinic_institutions#index {:format=>:json}
+                            v0_systems GET   /v0/systems(.:format)                                               vaos/v0/systems#index {:format=>:json}
+                   v0_facility_clinics GET   /v0/facilities/:facility_id/clinics(.:format)                       vaos/v0/clinics#index {:format=>:json}
+            v0_facility_cancel_reasons GET   /v0/facilities/:facility_id/cancel_reasons(.:format)                vaos/v0/cancel_reasons#index {:format=>:json}
+    v0_facility_available_appointments GET   /v0/facilities/:facility_id/available_appointments(.:format)        vaos/v0/available_appointments#index {:format=>:json}
+                    v0_facility_limits GET   /v0/facilities/:facility_id/limits(.:format)                        vaos/v0/limits#index {:format=>:json}
+                                       GET   /v0/facilities/:facility_id/visits/:schedule_type(.:format)         vaos/v0/visits#index {:format=>:json}
+                         v0_facilities GET   /v0/facilities(.:format)                                            vaos/v0/facilities#index {:format=>:json}
+                        v0_preferences GET   /v0/preferences(.:format)                                           vaos/v0/preferences#show {:format=>:json}
+                                       PATCH /v0/preferences(.:format)                                           vaos/v0/preferences#update {:format=>:json}
+                                       PUT   /v0/preferences(.:format)                                           vaos/v0/preferences#update {:format=>:json}
+v0_direct_booking_eligibility_criteria GET   /v0/direct_booking_eligibility_criteria(.:format)                   vaos/v0/direct_booking_eligibility_criteria#index {:format=>:json}
+       v0_request_eligibility_criteria GET   /v0/request_eligibility_criteria(.:format)                          vaos/v0/request_eligibility_criteria#index {:format=>:json}
+                            v0_apidocs GET   /v0/apidocs(.:format)                                               vaos/v0/apidocs#index {:format=>:json}
+                        v1_Appointment GET   /v1/Appointment(.:format)                                           vaos/v1/appointments#index {:format=>:json}
+                  v1_HealthcareService GET   /v1/HealthcareService(.:format)                                     vaos/v1/healthcare_services#index {:format=>:json}
+                                    v1 GET   /v1/Location/:id(.:format)                                          vaos/v1/locations#show {:format=>:json}
+                       v1_Organization GET   /v1/Organization(.:format)                                          vaos/v1/organizations#index {:format=>:json}
+                                       GET   /v1/Organization/:id(.:format)                                      vaos/v1/organizations#show {:format=>:json}
+                            v1_Patient GET   /v1/Patient(.:format)                                               vaos/v1/patients#index {:format=>:json}
+                               v1_Slot GET   /v1/Slot(.:format)                                                  vaos/v1/slots#index {:format=>:json}
+                                       POST  /v1/Appointment(.:format)                                           vaos/v1/appointments#create {:format=>:json}
+                                       PUT   /v1/Appointment/:id(.:format)                                       vaos/v1/appointments#update {:format=>:json}
+
+Routes for CovidResearch::Engine:
+volunteer_create POST /volunteer/create(.:format) covid_research/volunteer/submissions#create {:format=>:json}
+
+Routes for Mobile::Engine:
+                                GET  /                                          mobile/discovery#index
+                        v0_user GET  /v0/user(.:format)                         mobile/v0/users#show
+                 v0_user_logout GET  /v0/user/logout(.:format)                  mobile/v0/users#logout
+                     v0_letters GET  /v0/letters(.:format)                      mobile/v0/letters#index
+         v0_letters_beneficiary GET  /v0/letters/beneficiary(.:format)          mobile/v0/letters#beneficiary
+    v0_military_service_history GET  /v0/military-service-history(.:format)     mobile/v0/military_information#get_service_history
+v0_payment_information_benefits GET  /v0/payment-information/benefits(.:format) mobile/v0/payment_information#index
+              v0_user_addresses PUT  /v0/user/addresses(.:format)               mobile/v0/addresses#update
+                 v0_user_emails PUT  /v0/user/emails(.:format)                  mobile/v0/emails#update
+                 v0_user_phones PUT  /v0/user/phones(.:format)                  mobile/v0/phones#update
+                                PUT  /v0/payment-information/benefits(.:format) mobile/v0/payment_information#update
+                             v0 POST /v0/letters/:type/download(.:format)       mobile/v0/letters#download
