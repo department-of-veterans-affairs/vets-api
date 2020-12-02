@@ -340,7 +340,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(controller).to receive(:log_message_to_sentry).with(
             'SSNS DO NOT MATCH!!',
             :warn,
-            identity_compared_with_mvi: {
+            identity_compared_with_mpi: {
               length: [9, 9],
               only_digits: [true, true],
               encoding: %w[UTF-8 UTF-8],
@@ -646,14 +646,14 @@ RSpec.describe V0::SessionsController, type: :controller do
             uuid: login_uuid,
             payload: { type: 'mhv' }
           )
-          MVI::Configuration.instance.breakers_service.begin_forced_outage!
+          MPI::Configuration.instance.breakers_service.begin_forced_outage!
           callback_tags = ['status:success', 'context:myhealthevet', 'version:v0']
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
-          MVI::Configuration.instance.breakers_service.end_forced_outage!
+          MPI::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
 

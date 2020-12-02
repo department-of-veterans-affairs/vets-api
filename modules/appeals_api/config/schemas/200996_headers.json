@@ -13,7 +13,8 @@
         "X-VA-Birth-Date": { "$ref": "#/definitions/X-VA-Birth-Date" },
         "X-VA-File-Number": { "$ref": "#/definitions/X-VA-File-Number" },
         "X-VA-Service-Number": { "$ref": "#/definitions/X-VA-Service-Number" },
-        "X-VA-Insurance-Policy-Number": { "$ref": "#/definitions/X-VA-Insurance-Policy-Number" }
+        "X-VA-Insurance-Policy-Number": { "$ref": "#/definitions/X-VA-Insurance-Policy-Number" },
+        "X-Consumer-Username": { "$ref": "#/definitions/X-Consumer-Username" }
       },
       "additionalProperties": false,
       "required": [
@@ -73,6 +74,12 @@
       "allOf": [
         { "description": "veteran's insurance policy number" },
         { "$ref": "#/definitions/nonBlankStringMaxLength18" }
+      ]
+    },
+    "X-Consumer-Username": {
+      "allOf": [
+        { "description": "Consumer User Name (passed from Kong)" },
+        { "$ref": "#/definitions/nonBlankString" }
       ]
     },
     "nonBlankString": {

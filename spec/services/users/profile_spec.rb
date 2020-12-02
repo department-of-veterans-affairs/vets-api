@@ -226,7 +226,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'when user.mpi is not found' do
-        before { stub_mvi_not_found }
+        before { stub_mpi_not_found }
 
         it 'returns va_profile as null' do
           expect(va_profile).to be_nil
@@ -248,7 +248,7 @@ RSpec.describe Users::Profile do
     end
 
     context '#veteran_status' do
-      context 'when a veteran status is succesfully returned' do
+      context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
           expect(veteran_status[:is_veteran]).to eq(user.veteran?)
         end

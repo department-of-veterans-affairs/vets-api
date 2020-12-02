@@ -112,8 +112,13 @@ RSpec.describe V1::SessionsController, type: :controller do
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                     'originating_request_id' => nil, 'type' => type)
               expect(SAMLRequestTracker.keys.length).to eq(1)
-              expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
-                .to eq({ type: type, authn_context: authn })
+              payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
+              expect(payload)
+                .to eq({
+                         type: type,
+                         authn_context: authn,
+                         transaction_id: payload[:transaction_id]
+                       })
             end
           end
         end
@@ -132,10 +137,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'custom')
             expect(SAMLRequestTracker.keys.length).to eq(1)
-            expect(SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload)
+            payload = SAMLRequestTracker.find(SAMLRequestTracker.keys[0]).payload
+            expect(payload)
               .to eq({
                        type: 'custom',
-                       authn_context: 'myhealthevet'
+                       authn_context: 'myhealthevet',
+                       transaction_id: payload[:transaction_id]
                      })
           end
 
@@ -405,7 +412,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(controller).to receive(:log_message_to_sentry).with(
             'SSNS DO NOT MATCH!!',
             :warn,
-            identity_compared_with_mvi: {
+            identity_compared_with_mpi: {
               length: [9, 9],
               only_digits: [true, true],
               encoding: %w[UTF-8 UTF-8],
@@ -547,7 +554,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'redirects to identity proof URL', :aggregate_failures do
           Timecop.freeze(Time.current)
-          expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).twice.and_return(true)
+          expect_any_instance_of(SAML::PostURLService).to receive(:should_uplevel?).once.and_return(true)
           expect_any_instance_of(SAML::PostURLService).to receive(:verify_url).and_return(['http://uplevel', {}])
           cookie_expiration_time = 30.minutes.from_now.iso8601(0)
 
@@ -730,14 +737,14 @@ RSpec.describe V1::SessionsController, type: :controller do
             uuid: login_uuid,
             payload: { type: 'mhv' }
           )
-          MVI::Configuration.instance.breakers_service.begin_forced_outage!
+          MPI::Configuration.instance.breakers_service.begin_forced_outage!
           callback_tags = ['status:success', 'context:myhealthevet', 'version:v1']
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
-          MVI::Configuration.instance.breakers_service.end_forced_outage!
+          MPI::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
 

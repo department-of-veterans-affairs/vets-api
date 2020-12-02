@@ -29,7 +29,9 @@ Rails.application.routes.draw do
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
+    resources :financial_status_reports, only: :create
     resources :education_career_counseling_claims, only: :create
+    resources :veteran_readiness_employment_claims, only: :create
 
     resources :letters, only: [:index] do
       collection do
@@ -326,6 +328,7 @@ Rails.application.routes.draw do
   end
 
   scope '/services' do
+    mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'

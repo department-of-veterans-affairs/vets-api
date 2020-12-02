@@ -1,5 +1,11 @@
 {
-	"diagnosed":false,
+	"diagnosed":true,
+	"DIAGNOSED_DETAILS":{
+		"DIAGNOSED_DETAILS::SYMPTOMS_ONLY":true,
+		"DIAGNOSED_DETAILS::ANTIBODY_BLOOD_TEST":false,
+		"DIAGNOSED_DETAILS::NASAL_SWAB_TEST_POSITIVE":false,
+		"DIAGNOSED_DETAILS::DIFFERENT_METHOD":true
+	},
 	"closeContactPositive":"UNSURE",
 	"hospitalized":true,
 	"smokeOrVape":false,

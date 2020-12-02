@@ -38,7 +38,7 @@ RSpec.describe User, type: :model do
     let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mpi(mvi_profile)
     end
 
     it 'returns true if user loa3?, and ssns dont match' do
@@ -196,7 +196,7 @@ RSpec.describe User, type: :model do
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
 
         before do
-          stub_mvi(mvi_profile)
+          stub_mpi(mvi_profile)
         end
 
         it 'fetches first_name from IDENTITY' do
@@ -245,7 +245,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mpi(mvi_profile) }
 
         it 'fetches first_name from MVI' do
           expect(user.first_name).to be(user.va_profile.given_names.first)
@@ -284,7 +284,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches birth_date from MVI' do
-          expect(user.birth_date).to be(user.va_profile.birth_date)
+          expect(user.birth_date).to eq(user.va_profile.birth_date.to_date.to_s)
         end
 
         it 'fetches zip from MVI' do
@@ -300,7 +300,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa1, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mpi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be_nil
@@ -335,7 +335,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mpi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be(user.identity.first_name)
@@ -380,7 +380,7 @@ RSpec.describe User, type: :model do
           let(:mvi_profile) { build(:mvi_profile) }
 
           it 'has a mhv correlation id' do
-            stub_mvi(mvi_profile)
+            stub_mpi(mvi_profile)
             expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
             expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.active_mhv_ids.first)
           end
@@ -401,7 +401,7 @@ RSpec.describe User, type: :model do
     let(:user) { build(:user, :loa3) }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mpi(mvi_profile)
     end
 
     around do |example|
@@ -506,7 +506,7 @@ RSpec.describe User, type: :model do
     let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[200MHS 400 741 744]) }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mpi(mvi_profile)
     end
 
     it 'filters out fake vha facility ids that arent in Settings.mhv.facility_range' do

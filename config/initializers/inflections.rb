@@ -32,9 +32,11 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'SSO'
   inflect.acronym 'VAOS'
   inflect.acronym 'VBA'
+  inflect.acronym 'VBMS'
   inflect.acronym 'VC'
   inflect.acronym 'VHA'
   inflect.acronym 'VIC'
+  inflect.acronym 'VRE'
   inflect.acronym 'VSO'
   inflect.uncountable 'terms_and_conditions'
 end

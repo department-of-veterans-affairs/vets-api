@@ -16,6 +16,7 @@ Developers who work with vets-api daily tend to prefer the native setup because 
 
 - [native setup instructions](docs/setup/native.md) (OSX/Ubuntu)
 - [docker setup instructions](docs/setup/docker.md)
+- [debugging with docker + rubymine on windows](docs/setup/debugging_with_docker_rubymine_windows.md)
 
 1. Setup key & cert for localhost authentication to ID.me:
    - Create a folder in your vets-api directory: `mkdir config/certs`
@@ -97,6 +98,10 @@ http://jenkins.vfs.va.gov/job/testing/job/vets-api/job/master/
 Each deploy is available here:
 
 https://dev-api.va.gov/v0/status
+
+Additional deployment details can be found here:
+
+[additional deployment details](docs/deployment/information.md)
 
 ## API request key formatting
 

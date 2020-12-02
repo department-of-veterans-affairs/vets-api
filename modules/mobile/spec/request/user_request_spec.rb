@@ -31,10 +31,18 @@ RSpec.describe 'user', type: :request do
         )
       end
 
-      it 'includes the users email' do
+      it 'includes the users sign-in email' do
         expect(attributes['profile']).to include(
-          'email' => 'va.api.user+idme.008@gmail.com'
+          'signinEmail' => 'va.api.user+idme.008@gmail.com'
         )
+      end
+
+      it 'includes the users contact email id' do
+        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(456)
+      end
+
+      it 'includes the users contact email addrss' do
+        expect(attributes.dig('profile', 'contactEmail', 'emailAddress')).to match(/person\d+@example.com/)
       end
 
       it 'includes the users birth date' do
@@ -46,6 +54,7 @@ RSpec.describe 'user', type: :request do
       it 'includes the expected residential address' do
         expect(attributes['profile']).to include(
           'residentialAddress' => {
+            'id' => 123,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
@@ -64,6 +73,7 @@ RSpec.describe 'user', type: :request do
       it 'includes the expected mailing address' do
         expect(attributes['profile']).to include(
           'mailingAddress' => {
+            'id' => 124,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
@@ -214,61 +224,12 @@ RSpec.describe 'user', type: :request do
 
     context 'with a 200 response' do
       before do
-        VCR.use_cassette('iam_ssoe_oauth/revoke_200') do
-          get '/mobile/v0/user/logout', headers: iam_headers
-        end
+        get '/mobile/v0/user/logout', headers: iam_headers
       end
 
       it 'returns an ok response' do
+        puts response.body
         expect(response).to have_http_status(:ok)
-      end
-    end
-
-    context 'with a 400 response' do
-      before do
-        VCR.use_cassette('iam_ssoe_oauth/revoke_400') do
-          get '/mobile/v0/user/logout', headers: iam_headers
-        end
-      end
-
-      it 'returns a bad_request (400) response' do
-        expect(response).to have_http_status(:bad_request)
-      end
-
-      it 'the response body matches the errors schema' do
-        expect(response.body).to match_json_schema('errors')
-      end
-
-      it 'includes the error details' do
-        expect(response.parsed_body['errors'].first['detail']).to eq(
-          {
-
-            'errorDescription' => 'FBTOAU202E The required parameter: [token] was not found in the request.',
-            'error' => 'invalid_request'
-          }
-        )
-      end
-    end
-
-    context 'with a 500 response' do
-      before do
-        VCR.use_cassette('iam_ssoe_oauth/revoke_500') do
-          get '/mobile/v0/user/logout', headers: iam_headers
-        end
-      end
-
-      it 'returns a bad_gateway (502) response' do
-        expect(response).to have_http_status(:bad_gateway)
-      end
-
-      it 'the response body matches the errors schema' do
-        expect(response.body).to match_json_schema('errors')
-      end
-
-      it 'includes generic error details to avoid leaking data' do
-        expect(response.parsed_body['errors'].first['detail']).to eq(
-          'Received an an invalid response from the upstream server'
-        )
       end
     end
   end

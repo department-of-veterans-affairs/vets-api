@@ -24,6 +24,8 @@ RSpec.describe BGS::DependentService do
     it 'formats vet info using VetInfo class' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
+        allow(claim).to receive(:submittable_686?)
+        allow(claim).to receive(:submittable_674?)
 
         expect(VetInfo).to receive(:new).with(user, a_hash_including(file_nbr: '796043735'))
 
@@ -43,8 +45,10 @@ RSpec.describe BGS::DependentService do
     it 'fires PDF job' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
+        allow(claim).to receive(:submittable_686?)
+        allow(claim).to receive(:submittable_674?)
 
-        expect(VBMS::SubmitDependentsPDFJob).to receive(:perform_async).with(claim.id, vet_info)
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(claim.id, vet_info)
 
         service.submit_686c_form(claim)
       end

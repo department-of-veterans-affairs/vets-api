@@ -2,7 +2,7 @@
 
 module OpenidAuth
   class MPILookupSerializer < ActiveModel::Serializer
-    type 'user-mvi-icn'
+    type 'user-mpi-icn'
 
     def id
       object.profile.icn

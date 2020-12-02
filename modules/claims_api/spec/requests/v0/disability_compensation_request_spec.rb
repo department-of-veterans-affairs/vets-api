@@ -33,10 +33,10 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(parsed['data']['attributes']['status']).to eq('pending')
     end
 
-    it 'returns a unsuccessful response without mvi' do
-      allow_any_instance_of(ClaimsApi::Veteran).to receive(:mvi_record?).and_return(false)
+    it 'returns a unsuccessful response without mpi' do
+      allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
       post path, params: data, headers: headers
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
     end
 
     it 'creates the sidekick job' do
@@ -49,6 +49,13 @@ RSpec.describe 'Disability Claims ', type: :request do
       token = JSON.parse(response.body)['data']['attributes']['token']
       aec = ClaimsApi::AutoEstablishedClaim.find(token)
       expect(aec.source).to eq('TestConsumer')
+    end
+
+    it 'sets the flashes' do
+      post path, params: data, headers: headers
+      token = JSON.parse(response.body)['data']['attributes']['token']
+      aec = ClaimsApi::AutoEstablishedClaim.find(token)
+      expect(aec.flashes).to eq(%w[Hardship Homeless])
     end
 
     it 'builds the auth headers' do
@@ -133,6 +140,29 @@ RSpec.describe 'Disability Claims ', type: :request do
             VCR.use_cassette('evss/claims/claims') do
               params = json_data
               params['data']['attributes']['disabilities'][0]['specialIssues'] = %w[ALS HEPC]
+              post path, params: params.to_json, headers: headers
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+      end
+
+      describe 'flashes' do
+        context 'when an incorrect type is passed for flashes' do
+          it 'returns errors explaining the failure' do
+            params = json_data
+            params['data']['attributes']['veteran']['flashes'] = ['invalidType']
+            post path, params: params.to_json, headers: headers
+            expect(response.status).to eq(422)
+            expect(JSON.parse(response.body)['errors'].size).to eq(1)
+          end
+        end
+
+        context 'when correct types are passed for flashes' do
+          it 'returns a successful status' do
+            VCR.use_cassette('evss/claims/claims') do
+              params = json_data
+              params['data']['attributes']['veteran']['flashes'] = %w[Hardship POW]
               post path, params: params.to_json, headers: headers
               expect(response.status).to eq(200)
             end

@@ -4,7 +4,7 @@
 
 require 'carma/models/submission'
 require 'carma/models/attachments'
-require 'mvi/service'
+require 'mpi/service'
 require 'emis/service'
 
 module Form1010cg
@@ -120,7 +120,7 @@ module Form1010cg
     #     is_veteran: true | false | nil,
     #     icn: String | nil
     #   },
-    #   primaryCaregiver: { icn: String | nil },
+    #   primaryCaregiver?: { icn: String | nil },
     #   secondaryCaregiverOne?: { icn: String | nil },
     #   secondaryCaregiverTwo?: { icn: String | nil }
     # }
@@ -156,7 +156,7 @@ module Form1010cg
         return @cache[:icns][form_subject] = NOT_FOUND
       end
 
-      response = mvi_service.find_profile(build_user_identity_for(form_subject_data))
+      response = mpi_service.find_profile(build_user_identity_for(form_subject_data))
 
       if response.status == 'OK'
         log_mpi_search_result form_subject, :found
@@ -195,8 +195,8 @@ module Form1010cg
 
     private
 
-    def mvi_service
-      @mvi_service ||= MVI::Service.new
+    def mpi_service
+      @mpi_service ||= MPI::Service.new
     end
 
     def carma_client
@@ -215,8 +215,8 @@ module Form1010cg
       )
     end
 
-    # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
-    # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
+    # MPI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
+    # This method will build a valid UserIdentity, so MPI::Service can pluck the name, ssn, dob, and gender.
     #
     # @param form_subject_data [Hash] The data of a specific form subject (ex: claim.parsed_form['veteran'])
     # @return [UserIdentity] A valid UserIdentity for the given form_subject

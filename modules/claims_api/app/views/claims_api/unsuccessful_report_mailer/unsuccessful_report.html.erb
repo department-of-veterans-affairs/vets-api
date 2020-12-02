@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>From <%= @date_from %> -- <%= @date_to %> </h1>
+
+    <h2> Per Consumer Status Counts </h2>
+
+    <table>
+      <thead>
+        <tr>
+            <th>consumer | </th>
+            <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.each do |status| %>
+            <th><%= status %> | </th>
+            <% end %>
+            <th>totals | </th>
+            <th>errored rate | </th>
+            <th>percentage with flashes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @consumer_totals.each do |consumer| %>
+          <tr>
+            <td><%= consumer.keys.first %></td>
+            <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.each do |status| %>
+            <td><%= consumer.values.first[status] || 0 %></td>
+            <% end %>
+            <td><%= consumer.values.first[:totals] %></td>
+            <td><%= consumer.values.first[:error_rate] %></td>
+            <td><%= consumer.values.first[:percentage_with_flashes] %></td>
+          </tr>
+        <% end if @consumer_totals %>
+      </tbody>
+    </table>
+
+    <hr>
+    <table>
+      <thead>
+        <tr>
+            <th>flash | </th>
+            <th>count | </th>
+            <th>percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @flash_statistics.each do |statistic| %>
+          <tr>
+            <td><%= statistic[:flash] %></td>
+            <td><%= statistic[:count] %></td>
+            <td><%= statistic[:percentage] %></td>
+          </tr>
+        <% end if @flash_statistics %>
+      </tbody>
+    </table>
+
+    <hr>
+
+    <h2> Pending Count: <%= @pending_submissions.count %></h2>
+    <%= render partial: 'submission_table', locals: {claims: @pending_submissions} unless @pending_submissions.count.zero? %>
+
+    <hr>
+
+    <h2> Unsuccessful count: <%= @unsuccessful_submissions.count %></h2>
+    <%= render partial: 'submission_table', locals: {claims: @unsuccessful_submissions } %>
+  </body>
+</html>

@@ -269,13 +269,32 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
+    it 'sets uploaded pdf data' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        file = 'modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob'
+        VBADocuments::MultipartParser.parse_file(file)
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      pdf_data = updated.uploaded_pdf
+      expect(pdf_data).to be_a(Hash)
+      expect(pdf_data).to have_key('doc_type')
+      expect(pdf_data).to have_key('total_documents')
+      expect(pdf_data).to have_key('total_pages')
+      expect(pdf_data).to have_key('content')
+      content = pdf_data['content']
+      expect(content).to have_key('page_count')
+      expect(content).to have_key('dimensions')
+      expect(content).to have_key('attachments')
+    end
+
     xit 'sets error status for non-PDF attachment parts' do
     end
 
     xit 'sets error status for unexpected attachment part names' do
     end
 
-    it 'sets error status for downstream zip code validation' do
+    it 'sets error status for upstream zip code validation' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(412)
@@ -297,12 +316,12 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC104')
-      expect(updated.detail).to eq('Downstream status: 412 - Missing ZIP Code. ' \
+      expect(updated.detail).to eq('Upstream status: 412 - Missing ZIP Code. ' \
                                    'ZIP Code must be 5 digits, or 9 digits in XXXXX-XXXX format. ' \
                                    'Specify \'00000\' for non-US addresses.')
     end
 
-    it 'sets error status for downstream server error' do
+    it 'sets error status for upstream server error' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(422)

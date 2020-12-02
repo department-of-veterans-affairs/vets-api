@@ -11,6 +11,7 @@ require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/okta_users_helpers'
 require 'pundit/rspec'
+require 'rspec/its'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -32,6 +33,9 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/search/response.rb'
     add_filter 'lib/vet360/exceptions/builder.rb'
     add_filter 'lib/vet360/response.rb'
+    add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
+    add_filter 'modules/apps_api/app/swagger'
+    add_filter 'modules/apps_api/lib/apps_api/directory_application_creator.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
@@ -47,6 +51,7 @@ unless ENV['NOCOVERAGE']
     add_group 'Swagger', 'app/swagger'
     add_group 'Uploaders', 'app/uploaders'
     add_group 'AppealsApi', 'modules/appeals_api/'
+    add_group 'AppsApi', 'modules/apps_api'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'VBADocuments', 'modules/vba_documents/'
@@ -139,7 +144,7 @@ RSpec.configure do |config|
   # in those modules have explicitly skipped the CSRF protection functionality
   lighthouse_dirs = %r{
     modules/
-    (appeals_api|claims_api|openid_auth|va_forms|vba_documents|
+    (appeals_api|apps_api|claims_api|openid_auth|va_forms|vba_documents|
       veteran|veteran_confirmation|veteran_verification)/
   }x
   config.define_derived_metadata(file_path: lighthouse_dirs) do |metadata|

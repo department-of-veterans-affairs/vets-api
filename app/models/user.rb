@@ -6,8 +6,8 @@ require 'common/models/redis_store'
 require 'evss/auth_headers'
 require 'evss/common_service'
 require 'evss/pciu/service'
-require 'mvi/messages/find_profile_message'
-require 'mvi/service'
+require 'mpi/messages/find_profile_message'
+require 'mpi/service'
 require 'saml/user'
 
 class User < Common::RedisStore
@@ -90,7 +90,7 @@ class User < Common::RedisStore
   end
 
   def birth_date
-    identity.birth_date || (mhv_icn.present? ? mpi&.profile&.birth_date : nil)
+    identity.birth_date || (mhv_icn.present? ? mpi&.profile&.birth_date&.to_date&.to_s : nil)
   end
 
   def zip
@@ -321,7 +321,7 @@ class User < Common::RedisStore
   end
 
   def flipper_id
-    email || account_uuid
+    email&.downcase || account_uuid
   end
 
   private

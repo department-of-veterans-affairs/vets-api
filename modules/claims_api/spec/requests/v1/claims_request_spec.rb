@@ -19,7 +19,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   before do
     stub_poa_verification
-    stub_mvi
+    stub_mpi
   end
 
   context 'index' do
@@ -72,35 +72,60 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
     end
 
-    it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      with_okta_user(scopes) do |auth_header|
-        create(:auto_established_claim,
-               auth_headers: { some: 'data' },
-               evss_id: 600_118_851,
-               id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-        VCR.use_cassette('evss/claims/claim') do
-          get(
-            '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
-            params: nil, headers: request_headers.merge(auth_header)
-          )
-          expect(response).to match_response_schema('claims_api/claim')
+    context 'when source matches' do
+      it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+        with_okta_user(scopes) do |auth_header|
+          create(:auto_established_claim,
+                 source: 'abraham lincoln',
+                 auth_headers: { some: 'data' },
+                 evss_id: 600_118_851,
+                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+          VCR.use_cassette('evss/claims/claim') do
+            get(
+              '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+              params: nil, headers: request_headers.merge(auth_header)
+            )
+            expect(response).to match_response_schema('claims_api/claim')
+          end
+        end
+      end
+
+      it 'shows a single Claim through auto established claims when camel-inflected',
+         run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+        with_okta_user(scopes) do |auth_header|
+          create(:auto_established_claim,
+                 source: 'abraham lincoln',
+                 auth_headers: { some: 'data' },
+                 evss_id: 600_118_851,
+                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+          VCR.use_cassette('evss/claims/claim') do
+            get(
+              '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+              params: nil, headers: request_headers_camel.merge(auth_header)
+            )
+            expect(response).to match_camelized_response_schema('claims_api/claim')
+          end
         end
       end
     end
 
-    it 'shows a single Claim through auto established claims when camel-inflected',
-       run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      with_okta_user(scopes) do |auth_header|
-        create(:auto_established_claim,
-               auth_headers: { some: 'data' },
-               evss_id: 600_118_851,
-               id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-        VCR.use_cassette('evss/claims/claim') do
-          get(
-            '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
-            params: nil, headers: request_headers_camel.merge(auth_header)
-          )
-          expect(response).to match_camelized_response_schema('claims_api/claim')
+    context 'when source does not match' do
+      it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+        with_okta_user(scopes) do |auth_header|
+          create(:auto_established_claim,
+                 source: 'oddball',
+                 auth_headers: { some: 'data' },
+                 evss_id: 600_118_851,
+                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+          expect_any_instance_of(ClaimsApi::UnsynchronizedEVSSClaimService).to receive(:update_from_remote)
+            .and_raise(StandardError.new('no claim found'))
+          VCR.use_cassette('evss/claims/claim') do
+            get(
+              '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+              params: nil, headers: request_headers.merge(auth_header)
+            )
+            expect(response.code.to_i).to eq(404)
+          end
         end
       end
     end
@@ -118,22 +143,15 @@ RSpec.describe 'EVSS Claims management', type: :request do
       it 'shows a single errored Claim with an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         with_okta_user(scopes) do |auth_header|
           create(:auto_established_claim,
+                 source: 'abraham lincoln',
                  auth_headers: auth_header,
                  evss_id: 600_118_851,
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                  status: 'errored',
                  evss_response: { 'messages' => [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }] })
           VCR.use_cassette('evss/claims/claim') do
-            get(
-              '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
-              params: nil,
-              headers: {
-                'X-VA-SSN' => '796-04-3735', 'X-VA-First-Name' => 'WESLEY',
-                'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
-                'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
-                'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
-              }
-            )
+            headers = request_headers.merge(auth_header)
+            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers)
             expect(response.status).to eq(422)
           end
         end
@@ -142,22 +160,15 @@ RSpec.describe 'EVSS Claims management', type: :request do
       it 'shows a single errored Claim without an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         with_okta_user(scopes) do |auth_header|
           create(:auto_established_claim,
+                 source: 'abraham lincoln',
                  auth_headers: auth_header,
                  evss_id: 600_118_851,
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                  status: 'errored',
                  evss_response: nil)
           VCR.use_cassette('evss/claims/claim') do
-            get(
-              '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
-              params: nil,
-              headers: {
-                'X-VA-SSN' => '796-04-3735', 'X-VA-First-Name' => 'WESLEY',
-                'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
-                'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
-                'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
-              }
-            )
+            headers = request_headers.merge(auth_header)
+            get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers)
             expect(response.status).to eq(422)
           end
         end

@@ -9,7 +9,7 @@ RSpec.describe Efolder::Service do
 
   let(:file_number) { '796043735' }
   let(:user) { build(:user, :loa3, ssn: file_number) }
-  let(:vbms_client) { FakeVbms.new }
+  let(:vbms_client) { FakeVBMS.new }
 
   def stub_vbms_client_request(request_name, args, return_val)
     request_double = double

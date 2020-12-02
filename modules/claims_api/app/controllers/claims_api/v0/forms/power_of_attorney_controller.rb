@@ -17,7 +17,8 @@ module ClaimsApi
         before_action :validate_documents_page_size, only: %i[upload]
 
         def submit_form_2122
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5)
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
+                                                                                          source_name: source_name)
           unless power_of_attorney&.status&.in?(%w[submitted pending])
             power_of_attorney = ClaimsApi::PowerOfAttorney.create(
               status: ClaimsApi::PowerOfAttorney::PENDING,
@@ -40,22 +41,25 @@ module ClaimsApi
         end
 
         def upload
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
+                                                                                          source_name: source_name)
           power_of_attorney.set_file_data!(documents.first, params[:doc_type])
           power_of_attorney.status = 'submitted'
           power_of_attorney.save!
           power_of_attorney.reload
-          ClaimsApi::VbmsUploadJob.perform_async(power_of_attorney.id)
+          ClaimsApi::VBMSUploadJob.perform_async(power_of_attorney.id)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         def status
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(id: params[:id])
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
+                                                                                          source_name: source_name)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         def active
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5)
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
+                                                                                          source_name: source_name)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
@@ -74,7 +78,7 @@ module ClaimsApi
 
         def source_data
           {
-            name: request.headers['X-Consumer-Username'],
+            name: source_name,
             icn: Settings.bgs.external_uid,
             email: Settings.bgs.external_key
           }

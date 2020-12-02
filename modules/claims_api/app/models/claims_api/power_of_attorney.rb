@@ -18,6 +18,17 @@ module ClaimsApi
     before_validation :set_md5
     validates :md5, uniqueness: true
 
+    def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil)
+      primary_identifier = {}
+      primary_identifier[:id] = id if id.present?
+      primary_identifier[:header_md5] = header_md5 if header_md5.present?
+      primary_identifier[:md5] = md5 if md5.present?
+      poa = ClaimsApi::PowerOfAttorney.find_by(primary_identifier)
+      return nil if poa.present? && poa.source_data['name'] != source_name
+
+      poa
+    end
+
     def sign_pdf
       signatures = convert_signatures_to_images
       page_1_path = insert_signatures(1, signatures[:veteran], signatures[:representative])
