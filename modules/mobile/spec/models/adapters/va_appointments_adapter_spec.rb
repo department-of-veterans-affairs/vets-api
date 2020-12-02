@@ -24,7 +24,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(booked_va[:facility_id]).to eq('983')
+      expect(booked_va[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -34,7 +34,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a name (address to be filled in by facilities api)' do
       expect(booked_va[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: nil,
             city: nil,
@@ -81,7 +81,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(cancelled_va[:facility_id]).to eq('983')
+      expect(cancelled_va[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -91,7 +91,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a name (address to be filled in by facilities api)' do
       expect(cancelled_va[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: nil,
             city: nil,
@@ -138,7 +138,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_home[:facility_id]).to eq('983')
+      expect(booked_video_home[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -148,7 +148,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a url and code' do
       expect(booked_video_home[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: nil,
             city: nil,
@@ -195,7 +195,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_atlas[:facility_id]).to eq('983')
+      expect(booked_video_atlas[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -205,7 +205,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with an address and a code' do
       expect(booked_video_atlas[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: '114 Dewey Ave',
             city: 'Eureka',
@@ -252,7 +252,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_gfe[:facility_id]).to eq('983')
+      expect(booked_video_gfe[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -262,7 +262,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a url and code' do
       expect(booked_video_gfe[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: nil,
             city: nil,

@@ -66,8 +66,8 @@ module Mobile
           facilities = Set.new
 
           appointments_list = appointments.dig('data', 'appointmentList')
-          appointments_list.map do |appointment_hash|
-            facility_id = appointment_hash['facilityId']
+          appointments = appointments_list.map do |appointment_hash|
+            facility_id = sub_non_prod_id!(appointment_hash['facilityId'])
             facilities.add(facility_id) if facility_id
             details, type = parse_by_appointment_type(appointment_hash)
             start_date = get_start_date(appointment_hash)
@@ -86,9 +86,24 @@ module Mobile
 
             Mobile::V0::Appointment.new(adapted_hash)
           end
+          
+          appointments_with_locations(appointments, facilities)
         end
 
         private
+        
+        def appointments_with_locations(appointments, facilities)
+          puts facilities
+          appointments
+        end
+        
+        def sub_non_prod_id!(id)
+          return id if Settings.hostname == 'www.va.gov'
+          
+          id.sub!('983', '442') if id.start_with?('983')
+          id.sub!('984', '552') if id.start_with?('984')
+          id
+        end
 
         def comment(details, type)
           va?(type) ? details['bookingNote'] : details['instructionsTitle']
