@@ -30,6 +30,7 @@ module AppealsApi
       return @pdf_options if @pdf_options
 
       options = {
+        additional_pages: [],
         "F[0].Page_1[0].VeteransFirstName[0]": nod_pdf_options.veteran_name,
         "F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": nod_pdf_options.veteran_ssn,
         "F[0].Page_1[0].VAFileNumber[0]": nod_pdf_options.veteran_file_number,
@@ -57,6 +58,7 @@ module AppealsApi
         options[:"F[0].Page_1[0].Percentage2[#{index}]"] = issue['attributes']['decisionDate']
       end
 
+      insert_administrative_page(options)
       insert_extra_issues_page(options) if nod_pdf_options.contestable_issues.size > 5
 
       @pdf_options = options
@@ -65,6 +67,35 @@ module AppealsApi
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/AbcSize
+
+    # TODO: Remove this override by refactoring BasePdfConstructor & HigherLevelReviewPdfConstructor to use
+    #       `additional_pages` key in this manner instead of `additional_page` key
+    def merge_page(temp_path, output_path)
+      return temp_path if pdf_options[:additional_pages].blank?
+
+      rand_path = "#{Common::FileHelpers.random_file_path}.pdf"
+      Prawn::Document.generate(rand_path) do |pdf|
+        pdf_options[:additional_pages].each_with_index do |txt, index|
+          pdf.start_new_page unless index.zero?
+          pdf.text txt, inline_format: true
+        end
+      end
+      pdf = CombinePDF.load(temp_path) << CombinePDF.load(rand_path)
+      pdf.save output_path
+      File.delete temp_path if File.exist? temp_path
+      File.delete rand_path if File.exist? rand_path
+      output_path
+    end
+
+    def stamp_pdf(pdf_path, consumer_name)
+      stamped_path = super
+      CentralMail::DatestampPdf.new(stamped_path).run(
+        text: "#{nod_pdf_options.veteran_last_name} - #{nod_pdf_options.veteran_safe_ssn}",
+        x: 5,
+        y: 775,
+        text_only: true
+      )
+    end
 
     # For inserting items into the pdf that require special insertion (e.g. where fields cannot hold enough text)
     def insert_manual_fields(pdf_template)
@@ -75,8 +106,8 @@ module AppealsApi
       Prawn::Document.generate(temp_file) do |pdf|
         text_opts = { overflow: :shrink_to_fit, min_font_size: 8, valign: :bottom }
         pdf.font 'Courier'
-        pdf.text_box nod_pdf_options.email.to_s, text_opts.merge(at: [145, 510], width: 195, height: 20)
-        pdf.text_box nod_pdf_options.representatives_name.to_s, text_opts.merge(at: [350, 510], width: 195, height: 20)
+        pdf.text_box nod_pdf_options.email.to_s, text_opts.merge(at: [145, 512], width: 195, height: 24)
+        pdf.text_box nod_pdf_options.representatives_name.to_s, text_opts.merge(at: [350, 512], width: 195, height: 24)
         nod_pdf_options.contestable_issues.take(5).each_with_index do |issue, index|
           ypos = 288 - (45 * index)
           pdf.text_box issue['attributes']['issue'],
@@ -89,14 +120,19 @@ module AppealsApi
       output_path
     end
 
+    def insert_administrative_page(pdf_options)
+      return if nod_pdf_options.hearing_type_preference.blank?
+
+      pdf_options[:additional_pages] << "Hearing type requested: #{nod_pdf_options.hearing_type_preference.humanize}"
+    end
+
     def insert_extra_issues_page(pdf_options)
+      lines = []
       # The first five issues are given space on the form, so drop them.
-      # Reverse the order since :additional_page pdf options tends to write to the page in reverse order.
-      # e.g. without the reversal, [6,7,8] would place Issue 8 at top of the page.
-      nod_pdf_options.contestable_issues.drop(5).reverse.each do |issue|
-        text = "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
-        pdf_options[:additional_page] = "#{text}\n#{pdf_options[:additional_page]}"
+      nod_pdf_options.contestable_issues.drop(5).each do |issue|
+        lines << "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
       end
+      pdf_options[:additional_pages] << lines.join("\n")
     end
   end
 end

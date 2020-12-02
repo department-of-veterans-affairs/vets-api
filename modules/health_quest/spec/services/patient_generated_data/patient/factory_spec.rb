@@ -13,13 +13,23 @@ describe HealthQuest::PatientGeneratedData::Patient::Factory do
   describe '#get_patient' do
     before do
       allow(HealthQuest::SessionService).to receive(:new).with(user).and_return(session_service)
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
-        .to receive(:get).with(user.icn).and_return(client_reply)
     end
 
     describe '#get_patient' do
       it 'returns a ClientReply' do
+        allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
+          .to receive(:get).with(user.icn).and_return(client_reply)
+
         expect(subject.new(user).get_patient).to eq(client_reply)
+      end
+    end
+
+    describe '#create_patient' do
+      it 'returns a ClientReply' do
+        allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
+          .to receive(:create).with(user).and_return(client_reply)
+
+        expect(subject.new(user).create_patient).to eq(client_reply)
       end
     end
   end

@@ -161,6 +161,9 @@ modules_appeals_api:
 vre_counseling:
   prefill: true
 
+vre_readiness:
+  prefill: true
+
 # Settings for EVSS
 evss:
   prefill: true
@@ -632,4 +635,3 @@ veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
   auth_endpoint: ~
-  ch_31_endpoint: ~

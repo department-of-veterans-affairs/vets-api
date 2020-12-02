@@ -32,11 +32,20 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a location with a name (address to be filled in by facilities api)' do
-      expect(booked_va[:location]).to eq(
+      expect(booked_va[:location].to_h).to eq(
         {
           name: 'CHYSHR-Cheyenne VA Medical Center',
-          address: nil,
-          phone: nil,
+          address: {
+            street: nil,
+            city: nil,
+            state: nil,
+            zip_code: nil
+          },
+          phone: {
+            area_code: nil,
+            number: nil,
+            extension: nil
+          },
           url: nil,
           code: nil
         }
@@ -80,11 +89,20 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a location with a name (address to be filled in by facilities api)' do
-      expect(cancelled_va[:location]).to eq(
+      expect(cancelled_va[:location].to_h).to eq(
         {
           name: 'CHYSHR-Cheyenne VA Medical Center',
-          address: nil,
-          phone: nil,
+          address: {
+            street: nil,
+            city: nil,
+            state: nil,
+            zip_code: nil
+          },
+          phone: {
+            area_code: nil,
+            number: nil,
+            extension: nil
+          },
           url: nil,
           code: nil
         }
@@ -128,11 +146,20 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a location with a url and code' do
-      expect(booked_video_home[:location]).to eq(
+      expect(booked_video_home[:location].to_h).to eq(
         {
           name: 'CHYSHR-Cheyenne VA Medical Center',
-          address: nil,
-          phone: nil,
+          address: {
+            street: nil,
+            city: nil,
+            state: nil,
+            zip_code: nil
+          },
+          phone: {
+            area_code: nil,
+            number: nil,
+            extension: nil
+          },
           url: 'https://care2.evn.va.gov/vvc-app/?name=OG%2Ctesting+adhoc+video+visit&join=1&media=1&escalate=1&conference=VVC2520583@care2.evn.va.gov&pin=5364921#',
           code: '5364921#'
         }
@@ -176,17 +203,20 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a location with an address and a code' do
-      expect(booked_video_atlas[:location]).to eq(
+      expect(booked_video_atlas[:location].to_h).to eq(
         {
           name: 'CHYSHR-Cheyenne VA Medical Center',
           address: {
             street: '114 Dewey Ave',
             city: 'Eureka',
             state: 'MT',
-            zip_code: '59917',
-            country: 'USA'
+            zip_code: '59917'
           },
-          phone: nil,
+          phone: {
+            area_code: nil,
+            number: nil,
+            extension: nil
+          },
           url: nil,
           code: '7VBBCA'
         }
@@ -230,11 +260,20 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a location with a url and code' do
-      expect(booked_video_gfe[:location]).to eq(
+      expect(booked_video_gfe[:location].to_h).to eq(
         {
           name: 'CHYSHR-Cheyenne VA Medical Center',
-          address: nil,
-          phone: nil,
+          address: {
+            street: nil,
+            city: nil,
+            state: nil,
+            zip_code: nil
+          },
+          phone: {
+            area_code: nil,
+            number: nil,
+            extension: nil
+          },
           url: 'https://care2.evn.va.gov/vvc-app/?name=Reddy%2CVilasini&join=1&media=1&escalate=1&conference=VVC1012210@care2.evn.va.gov&pin=3527890#',
           code: '3527890#'
         }
