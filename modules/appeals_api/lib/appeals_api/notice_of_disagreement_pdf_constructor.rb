@@ -106,8 +106,8 @@ module AppealsApi
       Prawn::Document.generate(temp_file) do |pdf|
         text_opts = { overflow: :shrink_to_fit, min_font_size: 8, valign: :bottom }
         pdf.font 'Courier'
-        pdf.text_box nod_pdf_options.email.to_s, text_opts.merge(at: [145, 510], width: 195, height: 20)
-        pdf.text_box nod_pdf_options.representatives_name.to_s, text_opts.merge(at: [350, 510], width: 195, height: 20)
+        pdf.text_box nod_pdf_options.email.to_s, text_opts.merge(at: [145, 512], width: 195, height: 24)
+        pdf.text_box nod_pdf_options.representatives_name.to_s, text_opts.merge(at: [350, 512], width: 195, height: 24)
         nod_pdf_options.contestable_issues.take(5).each_with_index do |issue, index|
           ypos = 288 - (45 * index)
           pdf.text_box issue['attributes']['issue'],
