@@ -136,7 +136,7 @@ module Facilities
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
 
           cnr = {}
-          if [:latitude, :longitude, :radius].all? { |k| params.has_key?(k) }
+          if %i[latitude longitude radius].all? { |k| params.key?(k) }
             cnr[:latitude] = params[:latitude]
             cnr[:longitude] = params[:longitude]
             cnr[:radius] = params[:radius]

@@ -11,7 +11,6 @@ vcr_options = {
 
 RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vcr: vcr_options do
   [0, 1].each do |client_version|
-
     context "Facilities::PPMS::V#{client_version}::Client" do
       before do
         Flipper.enable(:facility_locator_ppms_use_v1_client, client_version == 1)

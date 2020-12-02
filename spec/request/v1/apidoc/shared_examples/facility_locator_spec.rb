@@ -45,7 +45,8 @@ RSpec.shared_examples 'V1 Facility Locator' do
     it { is_expected.to validate(:get, '/v1/facilities/ccp', 200, params) }
   end
 
-  describe 'facilities/ccp lat/long', team: :facilities, vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms') do
+  describe 'facilities/ccp lat/long', team: :facilities,
+                                      vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms') do
     let(:params) do
       {
         '_query_string' => {
