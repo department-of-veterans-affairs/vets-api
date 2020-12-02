@@ -256,7 +256,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
         expect(updated.status).to eq('error')
         expect(updated.code).to eq('DOC102')
-        expect(updated.detail).to eq("Missing required keys: #{key} kma")
+        expect(updated.detail).to eq("Missing required keys: #{key}")
       end
     end
 
