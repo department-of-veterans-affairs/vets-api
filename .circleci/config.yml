@@ -13,10 +13,13 @@
     consumer_branch:
       type: string
       default: ""
+    consumer_job_id:
+      type: string
+      default: ""
     consumer_name:
       type: string
       default: ""
-    consumer_workflow:
+    consumer_workflow_id:
       type: string
       default: ""
     consumer_version_tags:
@@ -182,13 +185,13 @@
     notify_pact_consumers:
         steps:
             - run:
-                name: Notify Pact consumers to check verification status
+                name: Notify Pact consumers to review verification status
                 command: |
                   curl -L -X POST \
                        -u "${CIRCLE_TOKEN}:" \
                        -H 'Content-Type: application/json' \
-                       -d '{"from_failed":true}' \
-                       https://circleci.com/api/v2/workflow/<< pipeline.parameters.consumer_workflow >>/rerun
+                       -d '{"jobs":["<< pipeline.parameters.consumer_job_id >>"]}' \
+                       https://circleci.com/api/v2/workflow/<< pipeline.parameters.consumer_workflow_id >>/rerun
                 when: always
     add_pact_broker_artifact:
         steps:
