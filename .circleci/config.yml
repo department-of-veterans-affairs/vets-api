@@ -13,9 +13,6 @@
     consumer_branch:
       type: string
       default: ""
-    consumer_job_id:
-      type: string
-      default: ""
     consumer_name:
       type: string
       default: ""
@@ -190,7 +187,7 @@
                   curl -L -X POST \
                        -u "${CIRCLE_TOKEN}:" \
                        -H 'Content-Type: application/json' \
-                       -d '{"jobs":["<< pipeline.parameters.consumer_job_id >>"]}' \
+                       -d '{"from_failed":true}' \
                        https://circleci.com/api/v2/workflow/<< pipeline.parameters.consumer_workflow_id >>/rerun
                 when: always
     add_pact_broker_artifact:
