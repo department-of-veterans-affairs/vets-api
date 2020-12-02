@@ -39,20 +39,24 @@ RSpec.describe CentralMail::Service do
           uuids = %w[
               34656d73-7c31-456d-9c49-2024fff1cd47
               4a25588c-9200-4405-a2fd-97f0b0fdf790
+              8ef145ee-3c6a-4215-b39a-af56c0d2c347
               f7725cce-a76e-4d80-ab20-01c63acfcb87
+              ef1a3cc4-0873-4d2e-85c4-2dc7f7257b54
             ]
 
           if vendor.eql?('GCIO')
             uuids = %w[
               a8c29dbc-a0a6-4177-ae57-fc6143ec7edb
               b2b677e3-a6c1-4d07-ae7d-e013d60bec43
+              8ef145ee-3c6a-4215-b39a-af56c0d2c347
               84bb3df3-c090-44a7-aa0d-76e9ab97eab0
+              ef1a3cc4-0873-4d2e-85c4-2dc7f7257b54
             ]
           end
 
           response = described_class.new.status(uuids)
           expect(response.status).to eq(200)
-          expect(JSON.parse(response.body).length).to eq(3)
+          expect(JSON.parse(response.body).length).to eq(5)
         end
       end
     end
@@ -335,43 +339,43 @@ RSpec.describe CentralMail::Service do
       end
     end
 
-  # these upload successfully to GDIT
-  #   context 'with an oversized pdf' do
-  #     let :oversized_pdf do
-  #       'spec/fixtures/vba_documents/22x18.pdf'
-  #     end
-  #
-  #     xit "upload fails with over-sized main form" do
-  #       VCR.use_cassette(
-  #           "central_mail/upload_oversized_mainform_#{vendor}",
-  #           match_requests_on: [multipart_request_matcher, :method, :uri]
-  #       ) do
-  #
-  #         metadata = valid_metadata
-  #         response = upload_form.call(metadata, oversized_pdf, valid_attach)
-  #           msg = 'password-protected PDF \[ locked.pdf \]'
-  #           regex_match = regex_match_expectation.call(msg)
-  #           expect(response.body.strip).to match(regex_match)
-  #         expect(response.body.strip).to eq("password-protected pdf  [uuid: #{metadata['uuid']}]") # do not know the message GDIT returns
-  #         expect(response.status).to eq(422)
-  #       end
-  #     end
-  #
-  #     xit "upload fails with over-sized attachment" do
-  #       VCR.use_cassette(
-  #           "central_mail/upload_oversized_attachment_#{vendor}",
-  #           match_requests_on: [multipart_request_matcher, :method, :uri]
-  #       ) do
-  #
-  #         metadata = valid_metadata
-  #         response = upload_form.call(metadata, valid_doc, oversized_pdf)
-  #         expect(response.body.strip).to eq("password-protected PDF [ locked.pdf ]  [uuid: #{metadata['uuid']}]") # do not know the message GDIT returns
-  #           msg = 'password-protected PDF \[ locked.pdf \]'
-  #           regex_match = regex_match_expectation.call(msg)
-  #           expect(response.body.strip).to match(regex_match)
-  #         expect(response.status).to eq(422)
-  #       end
-  #     end
-  #   end
+    # these upload successfully to GDIT
+    #   context 'with an oversized pdf' do
+    #     let :oversized_pdf do
+    #       'spec/fixtures/vba_documents/22x18.pdf'
+    #     end
+    #
+    #     xit "upload fails with over-sized main form" do
+    #       VCR.use_cassette(
+    #           "central_mail/upload_oversized_mainform_#{vendor}",
+    #           match_requests_on: [multipart_request_matcher, :method, :uri]
+    #       ) do
+    #
+    #         metadata = valid_metadata
+    #         response = upload_form.call(metadata, oversized_pdf, valid_attach)
+    #           msg = 'password-protected PDF \[ locked.pdf \]'
+    #           regex_match = regex_match_expectation.call(msg)
+    #           expect(response.body.strip).to match(regex_match)
+    #         expect(response.body.strip).to eq("password-protected pdf  [uuid: #{metadata['uuid']}]") # do not know the message GDIT returns
+    #         expect(response.status).to eq(422)
+    #       end
+    #     end
+    #
+    #     xit "upload fails with over-sized attachment" do
+    #       VCR.use_cassette(
+    #           "central_mail/upload_oversized_attachment_#{vendor}",
+    #           match_requests_on: [multipart_request_matcher, :method, :uri]
+    #       ) do
+    #
+    #         metadata = valid_metadata
+    #         response = upload_form.call(metadata, valid_doc, oversized_pdf)
+    #         expect(response.body.strip).to eq("password-protected PDF [ locked.pdf ]  [uuid: #{metadata['uuid']}]") # do not know the message GDIT returns
+    #           msg = 'password-protected PDF \[ locked.pdf \]'
+    #           regex_match = regex_match_expectation.call(msg)
+    #           expect(response.body.strip).to match(regex_match)
+    #         expect(response.status).to eq(422)
+    #       end
+    #     end
+    #   end
   end
 end

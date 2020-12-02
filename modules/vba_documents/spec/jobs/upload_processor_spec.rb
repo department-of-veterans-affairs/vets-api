@@ -131,7 +131,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'sets error status for invalid multipart format' do
       allow(VBADocuments::MultipartParser).to receive(:parse)
-        .and_raise(VBADocuments::UploadError.new(code: 'DOC101'))
+                                                  .and_raise(VBADocuments::UploadError.new(code: 'DOC101'))
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
@@ -243,16 +243,22 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC103')
     end
 
-    it 'sets error status for missing JSON metadata' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) { invalid_parts_missing }
-      described_class.new.perform(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Missing required keys: fileNumber')
+    CentralMail::Utilities::REQUIRED_KEYS.each do |key|
+      it "sets error status for missing JSON metadata #{key}" do
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          v = valid_parts
+          hash =  JSON.parse(v['metadata'])
+          hash.delete(key)
+          v['metadata'] = hash.to_json
+          v
+        }
+        described_class.new.perform(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).to eq('error')
+        expect(updated.code).to eq('DOC102')
+        expect(updated.detail).to eq("Missing required keys: #{key}")
+      end
     end
-
-
 
     context 'with locked pdf' do
       {'sets error status for locked pdf attachment' => [:valid_parts_locked_attachment, 'Invalid PDF content, part attachment1'],
@@ -313,6 +319,25 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
+    it 'sets uploaded pdf data' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        file = 'modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob'
+        VBADocuments::MultipartParser.parse_file(file)
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      pdf_data = updated.uploaded_pdf
+      expect(pdf_data).to be_a(Hash)
+      expect(pdf_data).to have_key('doc_type')
+      expect(pdf_data).to have_key('total_documents')
+      expect(pdf_data).to have_key('total_pages')
+      expect(pdf_data).to have_key('content')
+      content = pdf_data['content']
+      expect(content).to have_key('page_count')
+      expect(content).to have_key('dimensions')
+      expect(content).to have_key('attachments')
+    end
+
     xit 'sets error status for non-PDF attachment parts' do
     end
 
@@ -324,7 +349,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(412)
       allow(faraday_response).to receive(:body).and_return(
-        "Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] "
+          "Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] "
       )
       allow(faraday_response).to receive(:success?).and_return(false)
       capture_body = nil
@@ -425,7 +450,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:upload)
-        .and_raise(Common::Exceptions::GatewayTimeout.new)
+                                 .and_raise(Common::Exceptions::GatewayTimeout.new)
       expect { described_class.new.perform(upload.guid) }.not_to raise_error(Common::Exceptions::GatewayTimeout)
       upload.reload
       expect(upload.status).to eq('uploaded')
@@ -435,7 +460,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:upload)
-        .and_raise(Faraday::TimeoutError.new)
+                                 .and_raise(Faraday::TimeoutError.new)
       expect { described_class.new.perform(upload.guid) }.not_to raise_error(Faraday::TimeoutError)
       upload.reload
       expect(upload.status).to eq('uploaded')
