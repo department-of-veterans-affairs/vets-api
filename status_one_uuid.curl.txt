@@ -1,1 +1,0 @@
-curl -X POST -d 'token=%3CPENSIONS_TOKEN%3E&uuid=%5B%2234656d73-7c31-456d-9c49-2024fff1cd47%22%5D' -H 'User-agent: Faraday v0.9.2' -H 'Content-type: application/x-www-form-urlencoded' -H 'Accept-encoding: gzip;q=1.0,deflate;q=0.6,identity;q=0.3' -H 'Accept: */*' https://icmhs-api-test.csrarad.com/VADocument/getStatus
