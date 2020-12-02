@@ -14,7 +14,6 @@ module OktaRedis
 
     def delete_grants(grant_ids)
       grant_ids.map { |grant| delete_grant(grant) }
-      true
     end
 
     def delete_grant(grant_id)
