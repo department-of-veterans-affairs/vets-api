@@ -39,20 +39,24 @@ RSpec.describe CentralMail::Service do
           uuids = %w[
               34656d73-7c31-456d-9c49-2024fff1cd47
               4a25588c-9200-4405-a2fd-97f0b0fdf790
+              greggers-9200-4405-a2fd-97f0b0fdf790
               f7725cce-a76e-4d80-ab20-01c63acfcb87
+              bowmanss-a76e-4d80-ab20-01c63acfcb87
             ]
 
           if vendor.eql?('GCIO')
             uuids = %w[
               a8c29dbc-a0a6-4177-ae57-fc6143ec7edb
               b2b677e3-a6c1-4d07-ae7d-e013d60bec43
+              greggers-a6c1-4d07-ae7d-e013d60bec43
               84bb3df3-c090-44a7-aa0d-76e9ab97eab0
+              bowmanss-c090-44a7-aa0d-76e9ab97eab0
             ]
           end
 
           response = described_class.new.status(uuids)
           expect(response.status).to eq(200)
-          expect(JSON.parse(response.body).length).to eq(3)
+          expect(JSON.parse(response.body).length).to eq(5)
         end
       end
     end
