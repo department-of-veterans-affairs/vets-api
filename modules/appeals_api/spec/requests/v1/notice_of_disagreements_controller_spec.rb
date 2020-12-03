@@ -99,7 +99,6 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     it 'returns an error when given a bad uuid' do
       uuid = 0
       get("#{path}#{uuid}")
-      binding.pry
       expect(response.status).to eq(404)
       expect(parsed['errors']).to be_an Array
       expect(parsed['errors']).not_to be_empty
