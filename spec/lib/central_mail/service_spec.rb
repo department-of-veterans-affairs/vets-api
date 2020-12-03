@@ -65,6 +65,10 @@ RSpec.describe CentralMail::Service do
       @uuid = SecureRandom.uuid
     end
 
+    valid_doc = 'spec/fixtures/vba_documents/form.pdf'
+    valid_attach = 'spec/fixtures/vba_documents/attachment.pdf'
+    locked_pdf = 'spec/fixtures/vba_documents/locked.pdf'
+
     let :multipart_request_matcher do
       lambda do |r1, r2|
         [r1, r2].each { |r| normalized_multipart_request(r) }
@@ -127,10 +131,6 @@ RSpec.describe CentralMail::Service do
       end
     end
 
-    valid_doc = 'spec/fixtures/vba_documents/form.pdf'
-    valid_attach = 'spec/fixtures/vba_documents/attachment.pdf'
-    locked_pdf = 'spec/fixtures/vba_documents/locked.pdf'
-
     context 'with missing metadata' do
       %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|
         it "Returns a 412 error when no #{key} is present" do
@@ -170,7 +170,7 @@ RSpec.describe CentralMail::Service do
           end
         end
 
-        # TODO: this test should be removed as GDIT is not validating...
+        # this test should be removed as GDIT is not validating...
         if 'fileNumber'.eql?(key)
           xit "Returns a 412 error when #{key} is a non-string" do
             VCR.use_cassette(
@@ -318,46 +318,5 @@ RSpec.describe CentralMail::Service do
         end
       end
     end
-
-    # these upload successfully to GDIT
-    #   context 'with an oversized pdf' do
-    #     let :oversized_pdf do
-    #       'spec/fixtures/vba_documents/22x18.pdf'
-    #     end
-    #
-    #     xit "upload fails with over-sized main form" do
-    #       VCR.use_cassette(
-    #           "central_mail/upload_oversized_mainform_#{vendor}",
-    #           match_requests_on: [multipart_request_matcher, :method, :uri]
-    #       ) do
-    #
-    #         metadata = valid_metadata
-    #         response = upload_form.call(metadata, oversized_pdf, valid_attach)
-    #           msg = 'password-protected PDF \[ locked.pdf \]'
-    #           regex_match = regex_match_expectation.call(msg)
-    #           expect(response.body.strip).to match(regex_match)
-    #         expect(response.body.strip).to eq("password-protected pdf  [uuid: #{metadata['uuid']}]")
-    #         # do not know the message GDIT returns
-    #         expect(response.status).to eq(422)
-    #       end
-    #     end
-    #
-    #     xit "upload fails with over-sized attachment" do
-    #       VCR.use_cassette(
-    #           "central_mail/upload_oversized_attachment_#{vendor}",
-    #           match_requests_on: [multipart_request_matcher, :method, :uri]
-    #       ) do
-    #
-    #         metadata = valid_metadata
-    #         response = upload_form.call(metadata, valid_doc, oversized_pdf)
-    #         expect(response.body.strip).to eq("password-protected PDF [ locked.pdf ]  [uuid: #{metadata['uuid']}]")
-    #         # do not know the message GDIT returns
-    #           msg = 'password-protected PDF \[ locked.pdf \]'
-    #           regex_match = regex_match_expectation.call(msg)
-    #           expect(response.body.strip).to match(regex_match)
-    #         expect(response.status).to eq(422)
-    #       end
-    #     end
-    #   end
   end
 end
