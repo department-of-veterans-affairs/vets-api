@@ -35,6 +35,17 @@ module Mobile
         render json: { data: adapted_full_list, meta: { errors: error_list } }, status: status_code
       end
 
+      def get_claim
+        claim = claims_service.find_claim_by_id(param[:id])
+        binding.pry
+      end
+
+      def get_appeal
+        appeals = appeals_service.get_appeals(@current_user).body['data']
+        appeal = appeals.select { |entry| entry.dig('id') == params[:id] }
+        appeal[0]
+      end
+
       private
 
       def parse_claims(claims, full_list, error_list)
