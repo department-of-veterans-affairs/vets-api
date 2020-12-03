@@ -14,7 +14,7 @@ module VAOS
       end
 
       private
-      
+
       def facility_ids
         params.require(:facility_ids)
       end
