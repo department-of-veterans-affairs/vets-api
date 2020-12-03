@@ -10,6 +10,13 @@ module Mobile
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache
 
+      def create
+        write_to_vet360_and_render_transaction!(
+          'address',
+          address_params
+        )
+      end
+      
       def update
         write_to_vet360_and_render_transaction!(
           'address',
