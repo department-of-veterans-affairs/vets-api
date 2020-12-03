@@ -9,7 +9,7 @@ module VBADocuments
     include SetGuid
     include SentryLogging
 
-    validates_uniqueness_of :guid
+    send(:validates_uniqueness_of, :guid)
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
