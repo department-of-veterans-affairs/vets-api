@@ -45,6 +45,7 @@
         "representativesName": "Harry Styles"
       },
       "boardReviewOption": "hearing",
+      "hearingTypePreference": "central_office",
       "timezone": "America/Chicago",
       "socOptIn": false
     }

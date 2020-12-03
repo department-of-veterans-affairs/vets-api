@@ -46,4 +46,20 @@ describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
       end
     end
   end
+
+  describe '#create' do
+    let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
+    let(:user) { double('User', icn: '1008596379V859838', first_name: 'Bob', last_name: 'Smith') }
+    let(:patient) { HealthQuest::PatientGeneratedData::Patient::Resource.manufacture(user).prepare }
+
+    before do
+      allow_any_instance_of(subject).to receive(:client).and_return(client)
+    end
+
+    it 'returns an instance of Reply' do
+      expect(client).to receive(:create).with(patient).exactly(1).time
+
+      subject.build(headers).create(user)
+    end
+  end
 end

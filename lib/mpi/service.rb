@@ -73,11 +73,12 @@ module MPI
     # @return [MPI::Responses::FindProfileResponse] the parsed response from MVI.
     # rubocop:disable Metrics/MethodLength
     def find_profile(user_identity)
+      profile_message = create_profile_message(user_identity)
       with_monitoring do
         measure_info(user_identity) do
           raw_response = perform(
             :post, '',
-            create_profile_message(user_identity),
+            profile_message,
             soapaction: OPERATIONS[:find_profile]
           )
           MPI::Responses::FindProfileResponse.with_parsed_response(raw_response)
@@ -94,7 +95,7 @@ module MPI
       log_message_to_sentry("MVI find_profile error: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue MPI::Errors::Base => e
-      mvi_error_handler(user_identity, e, 'find_profile')
+      mvi_error_handler(user_identity, e, 'find_profile', profile_message)
       if e.is_a?(MPI::Errors::RecordNotFound)
         mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
@@ -146,7 +147,7 @@ module MPI
       )
     end
 
-    def mvi_error_handler(user_identity, error, source = '')
+    def mvi_error_handler(user_identity, error, source = '', request = '')
       case error
       when MPI::Errors::DuplicateRecords
         log_exception_to_sentry(error, nil, nil, 'warn')
@@ -157,7 +158,7 @@ module MPI
         if user_identity.mhv_icn.present?
           log_exception_to_sentry(error, {}, { message: 'Possible RecordNotFound', source: source })
         else
-          log_exception_to_sentry(error, {}, { message: 'MVI Invalid Request', source: source })
+          log_exception_to_sentry(error, {}, { message: 'MVI Invalid Request', source: source, request: request })
         end
       when MPI::Errors::FailedRequestError
         log_exception_to_sentry(error)
