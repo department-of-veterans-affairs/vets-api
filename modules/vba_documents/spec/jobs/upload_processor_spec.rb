@@ -144,7 +144,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Incorrect content-type for metdata part')
+      expect(updated.detail).to eq('Incorrect content-type for metadata part')
     end
 
     it 'sets error status for unparseable JSON metadata part' do
@@ -259,8 +259,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     context 'with locked pdf' do
-      { 'sets error status for locked pdf attachment' => [:valid_parts_locked_attachment, 'Invalid PDF content,
-         part attachment1'],
+      { 'sets error status for locked pdf attachment' => [:valid_parts_locked_attachment,
+                                                          'Invalid PDF content, part attachment1'],
         'sets error status for locked pdf' => [:valid_parts_but_locked, 'Invalid PDF content, part content'] }
         .each_pair do |k, v|
         it k do
