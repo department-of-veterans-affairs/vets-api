@@ -30,6 +30,16 @@ RSpec.describe V0::Messages::InquiriesController, type: :controller do
             expect(response).to have_http_status(:not_implemented)
           end
         end
+
+        context 'enabled' do
+          it 'renders :not_implemented' do
+            expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
+
+            get :index
+
+            expect(response).to have_http_status(:ok)
+          end
+        end
       end
     end
   end
