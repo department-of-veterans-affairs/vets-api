@@ -14,7 +14,7 @@ module V0
               'status': 'OPEN',
               'creationTimestamp': '2020-11-01T14:58:00+01:00',
               'lastActiveTimestamp': '2020-11-04T13:00:00+01:00',
-              '_links': {
+              'links': {
                 'thread': {
                   'href': '/v1/user/{:user-id}/inquiry/000-010'
                 }
@@ -26,7 +26,7 @@ module V0
               'status': 'RESOLVED',
               'creationTimestamp': '2020-10-01T14:03:00+01:00',
               'lastActiveTimestamp': '2020-11-01T09:30:00+01:00',
-              '_links': {
+              'links': {
                 'thread': {
                   'href': '/v1/user/{:user-id}/inquiry/000-011'
                 }
@@ -38,7 +38,7 @@ module V0
               'status': 'CLOSED',
               'creationTimestamp': '2020-06-01T14:34:00+01:00',
               'lastActiveTimestamp': '2020-06-15T18:21:00+01:00',
-              '_links': {
+              'links': {
                 'thread': {
                   'href': '/v1/user/{:user-id}/inquiry/000-012'
                 }
