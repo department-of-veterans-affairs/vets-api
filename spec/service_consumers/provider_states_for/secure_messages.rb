@@ -6,4 +6,8 @@ Pact.provider_states_for 'My Messages' do
       build_user_and_stub_session
     end
   end
+
+  provider_state 'not logged in' do
+    no_op
+  end
 end
