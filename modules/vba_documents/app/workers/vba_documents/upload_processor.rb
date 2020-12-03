@@ -92,7 +92,7 @@ module VBADocuments
       end
       unless parts[META_PART_NAME].is_a?(String)
         raise VBADocuments::UploadError.new(code: 'DOC102',
-                                            detail: 'Incorrect content-type for metdata part')
+                                            detail: 'Incorrect content-type for metadata part')
       end
       unless parts.key?(DOC_PART_NAME)
         raise VBADocuments::UploadError.new(code: 'DOC103',
