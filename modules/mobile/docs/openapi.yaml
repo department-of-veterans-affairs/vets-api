@@ -1327,6 +1327,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ClaimsAndAppealsOverview"
+        '207':
+          description: One of the two upstream services failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimsAndAppealsOverview"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1358,11 +1364,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/Errors"
         '502':
-          description: An upstream service the API depends on returned an error.
+          description: Both upstream services the API depends on returned an error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "#/components/schemas/ClaimsAndAppealsOverviewDoubleFailure"
         '503':
           description: An upstream service is unavailable, or its circuit breaker may have been tripped.
           content:
@@ -1413,10 +1419,6 @@ components:
                   $ref: "#/components/schemas/ClaimsAndAppealsOverviewErrors"
                   description: Array info about failing upstream services
     ClaimsAndAppeals:
-      required:
-        - id
-        - type
-        - attributes
       properties:
         id:
           type: string
@@ -1468,6 +1470,23 @@ components:
             items:
               type: object
               description: error details object from failing upstream service. Used for debugging only.
+    ClaimsAndAppealsOverviewDoubleFailure:
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          type: array
+        meta:
+          properties:
+            errors:
+              type: array
+              items:
+                type: array
+                items:
+                  type: object
+                  $ref: "#/components/schemas/ClaimsAndAppealsOverviewErrors"
+                  description: Array info about failing upstream services
     Appointment:
       required:
         - type
