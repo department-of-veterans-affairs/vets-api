@@ -70,9 +70,9 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
             claim = build(:ask, form: form_data)
 
             expect(SavedClaim::Ask).to receive(:new).with(
-                form: form_data
+              form: form_data
             ).and_return(
-                claim
+              claim
             )
 
             expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
@@ -92,9 +92,9 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
             claim = build(:ask, form: form_data)
 
             expect(SavedClaim::Ask).to receive(:new).with(
-                form: form_data
+              form: form_data
             ).and_return(
-                claim
+              claim
             )
 
             expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
