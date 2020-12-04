@@ -24,9 +24,9 @@ RSpec.describe V0::Ask::InquiriesController, type: :controller do
         context 'disabled' do
           it 'renders :not_implemented' do
             expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(false)
-  
+
             get :index
-  
+
             expect(response).to have_http_status(:not_implemented)
           end
         end
