@@ -1,17 +1,17 @@
-## Running the app with Docker
+# Running the app with Docker
 
-A Makefile provides shortcuts for interacting with the docker images. 
+A Makefile provides shortcuts for interacting with the docker images.
 
-You can see all of the targets and an explanation of what they do with: 
+You can see all of the targets and an explanation of what they do with:
 
-```
+```bash
 make help
 ```
 
-To run vets-api and its redis and postgres dependencies run the following command from within the repo you cloned 
+To run vets-api and its redis and postgres dependencies run the following command from within the repo you cloned
 in the above steps.
 
-```
+```bash
 make up
 ```
 
@@ -23,7 +23,7 @@ they would be when running rails directly.
 The [Makefile](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Makefile) has shortcuts for many common development tasks. You can still run manual [docker-compose commands](https://docs.docker.com/compose/),
 but the following tasks have been aliased to speed development:
 
-### Running tests
+## Running tests
 
 - `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`). Test coverage statistics are in `coverage/index.html` or in [CodeClimate](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/code)
 - `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
