@@ -71,4 +71,8 @@ it is run. This means that any time gems are updated in the Gemfile or Gemfile.l
 it may be necessary to rebuild the `vets_api` image using the
 following command:
 
+- `make down` - Stops all docker services.
+
 - `make rebuild` - Rebuild the `vets_api` image.
+
+- `make docker-clean` - Removes all docker images and volumes associated with vets-api.
