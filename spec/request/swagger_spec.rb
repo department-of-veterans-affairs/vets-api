@@ -2783,7 +2783,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'contact us' do
-      describe 'POST v0/contact_us/asks' do
+      describe 'POST v0/contact_us/inquiries' do
         let(:post_body) do
           {
             inquiry: {
@@ -2818,7 +2818,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/contact_us/asks',
+            '/v0/contact_us/inquiries',
             201,
             headers.merge('_data' => post_body)
           )
@@ -2829,7 +2829,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/contact_us/asks',
+            '/v0/contact_us/inquiries',
             422,
             headers.merge(
               '_data' => {
@@ -2846,7 +2846,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/contact_us/asks',
+            '/v0/contact_us/inquiries',
             501,
             headers.merge(
               '_data' => {

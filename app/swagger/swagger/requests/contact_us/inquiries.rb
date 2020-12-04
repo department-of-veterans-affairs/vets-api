@@ -3,14 +3,14 @@
 module Swagger
   module Requests
     module ContactUs
-      class Asks
+      class Inquiries
         include Swagger::Blocks
 
-        swagger_path '/v0/contact_us/asks' do
+        swagger_path '/v0/contact_us/inquiries' do
           operation :post do
             extend Swagger::Responses::ValidationError
 
-            key :description, 'Submit a message'
+            key :description, 'Create an inquiry'
             key :operationId, 'createsAnInquiry'
             key :tags, %w[contact_us]
 
@@ -19,7 +19,7 @@ module Swagger
             parameter do
               key :name, :body
               key :in, :body
-              key :description, 'The properties to create a get help inquiry'
+              key :description, 'The properties to create an inquiry'
               key :required, true
 
               schema do
@@ -35,12 +35,29 @@ module Swagger
             response 201 do
               key :description, 'Successful inquiry creation'
               schema do
-                key :'$ref', :Asks
+                key :'$ref', :SuccessfulInquiryCreation
               end
             end
 
             response 501 do
               key :description, 'Feature toggled off'
+            end
+          end
+
+          operation :get do
+            extend Swagger::Responses::AuthenticationError
+
+            key :description, 'Get a list of inquiries sent by user'
+            key :operationId, 'getInquiries'
+            key :tags, %w[contact_us]
+
+            parameter :authorization
+
+            response 200 do
+              key :description, 'Response is OK'
+              schema do
+                key :'$ref', :InquiriesList
+              end
             end
           end
         end

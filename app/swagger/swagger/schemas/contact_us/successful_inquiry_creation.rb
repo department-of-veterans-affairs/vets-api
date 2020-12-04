@@ -3,10 +3,10 @@
 module Swagger
   module Schemas
     module ContactUs
-      class Asks
+      class SuccessfulInquiryCreation
         include Swagger::Blocks
 
-        swagger_schema :Asks do
+        swagger_schema :SuccessfulInquiryCreation do
           key :required, %i[confirmationNumber dateSubmitted]
           property :confirmationNumber,
                    type: :string,
