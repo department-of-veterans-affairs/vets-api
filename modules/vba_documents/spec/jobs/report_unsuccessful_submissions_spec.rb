@@ -5,7 +5,9 @@ require 'rails_helper'
 RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
   let(:error_upload) { FactoryBot.create(:upload_submission, :status_error, consumer_name: 'test consumer') }
   let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
-  let(:expired) { FactoryBot.create(:upload_submission, status: 'expired', consumer_name: 'test consumer') }
+  let(:expired) { FactoryBot.create(:upload_submission,
+                                    guid: '8ef145ee-3c6a-4215-b39a-af56c0d2c347',
+                                    status: 'expired', consumer_name: 'test consumer') }
 
   describe '#perform' do
     it 'sends mail' do
