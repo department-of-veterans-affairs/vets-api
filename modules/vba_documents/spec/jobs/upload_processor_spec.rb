@@ -274,7 +274,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    xit 'sets error status for out-of-spec JSON metadata' do
+    it 'sets error status for out-of-spec JSON metadata' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { invalid_parts_nonstring }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
