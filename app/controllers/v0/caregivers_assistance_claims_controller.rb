@@ -4,6 +4,7 @@ module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
     skip_before_action :authenticate
+    skip_before_action :verify_authenticity_token
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
@@ -75,7 +76,7 @@ module V0
     def record_submission_success(submission)
       submission_context = {
         carma_case_id: submission.carma_case_id,
-        attachments: submission.attachments,
+        # attachments: submission.attachments,
         metadata: submission.metadata
       }
 

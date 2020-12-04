@@ -6,6 +6,7 @@ require 'carma/models/submission'
 require 'carma/models/attachments'
 require 'mpi/service'
 require 'emis/service'
+require 'emis/service'
 
 module Form1010cg
   class Service
@@ -52,21 +53,83 @@ module Form1010cg
 
       carma_submission = CARMA::Models::Submission.from_claim(claim, build_metadata).submit!(carma_client)
 
+      # Postgres storage
       @submission = Form1010cg::Submission.new(
+        # claim: claim, # This model reference will create the SavedClaim and Submission in one transaction
         carma_case_id: carma_submission.carma_case_id,
-        submitted_at: carma_submission.submitted_at,
+        accepted_at: carma_submission.submitted_at,
         metadata: carma_submission.request_body['metadata']
       )
 
-      submit_attachment
+      # Redis storage
+      # @submission = Form1010cg::SubmissionStore.new(
+      #   # claim_guid: claim.guid,
+      #   carma_case_id: carma_submission.carma_case_id,
+      #   submitted_at: carma_submission.submitted_at,
+      #   # claim_id: claim.to_json,
+      #   metadata_json: carma_submission.request_body['metadata'].to_json
+      # )
 
+      submit_attachment_async
       submission
+    end
+
+    def submit_attachment_async
+      raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
+      raise 'submission already has attachments'  if  submission.attachments&.any?
+
+      # Associate the claim so it's persisted along with the submission in one transaction
+      submission.claim = claim
+
+      # TODO: Test to ensure the rescues from databse errors too, not just ValidationErrors
+      # Calling #save can still raise database errors
+      # (event if ValidationErrors aren't present i.e. unique index constraint)
+      submission.save!
+      Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
+    rescue => e
+      # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
+      # sending to CARMA is just the submission, itself, as a PDF. This is to follow the current
+      # conventions of CARMA: every case has the PDF of the submission attached.
+      #
+      # Regardless of the reason, we shouldn't raise an error when sending attachments fails.
+      # It's non-critical and we don't want the error to bubble up to the response,
+      # misleading the user to think their claim was not submitted.
+      #
+      # If we made it this far, there is a submission that exists in CARMA.
+      # So the user should get a sucessful response, whether attachments reach CARMA or not.
+      log_attachment_dropped(e)
+      false
     end
 
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
     # @return [Boolean]
-    def submit_attachment # rubocop:disable Metrics/CyclomaticComplexity
+    def submit_attachment!
+      raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
+      raise 'submission already has attachments'  if  submission.attachments&.any?
+
+      file_path = claim.to_pdf
+
+      carma_attachments = CARMA::Models::Attachments.new(
+        submission.carma_case_id,
+        claim.veteran_data['fullName']['first'],
+        claim.veteran_data['fullName']['last']
+      )
+
+      carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
+
+      carma_attachments.submit!(carma_client)
+
+      # In some cases the file will not exist here even though it's generated above.
+      # Check to see the file exists before attempting to delete it, in order to avoid raising an error.
+      File.delete(file_path) if File.exist?(file_path)
+      carma_attachments
+    end
+
+    # Will generate a PDF version of the submission and attach it to the CARMA Case.
+    #
+    # @return [Boolean]
+    def submit_attachment # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
       raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
       raise 'submission already has attachments'  if  submission.attachments.any?
 
@@ -85,7 +148,11 @@ module Form1010cg
 
         carma_attachments.submit!(carma_client)
         submission.attachments = carma_attachments.to_hash
-      rescue => e
+      rescue Common::Client::Errors::Error => e
+        log_exception_to_sentry(e, claim_guid: claim.guid, carma_case_id: submission.carma_case_id)
+        File.delete(file_path) if File.exist?(file_path)
+        return false
+      rescue
         # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
         # sending to CARMA is just the submission, itself, as a PDF. This is to follow the current
         # conventions of CARMA: every case has the PDF of the submission attached.
@@ -96,7 +163,6 @@ module Form1010cg
         #
         # If we made it this far, there is a submission that exists in CARMA.
         # So the user should get a sucessful response, whether attachments reach CARMA or not.
-        log_exception_to_sentry(e, claim_guid: claim.guid, carma_case_id: submission.carma_case_id)
         File.delete(file_path) if File.exist?(file_path)
         return false
       end
@@ -221,6 +287,15 @@ module Form1010cg
         form_subject: form_subject,
         result: result
       )
+    end
+
+    def log_attachment_dropped(error)
+      Form1010cg::Auditor.instance.log_attachment_dropped(
+        claim_guid: claim.guid,
+        carma_case_id: submission.carma_case_id,
+        error: error
+      )
+      log_exception_to_sentry(error)
     end
 
     # MPI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.

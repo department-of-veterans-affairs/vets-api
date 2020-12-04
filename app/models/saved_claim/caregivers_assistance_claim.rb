@@ -5,6 +5,14 @@ require 'pdf_fill/filler'
 class SavedClaim::CaregiversAssistanceClaim < SavedClaim
   FORM = '10-10CG'
 
+  has_one :submission, class_name: 'Form1010cg::Submission',
+                       foreign_key: 'claim_guid',
+                       primary_key: 'guid',
+                       inverse_of: :claim,
+                       dependent: :destroy
+
+  accepts_nested_attributes_for :submission
+
   def process_attachments!
     # Inherited from SavedClaim. Disabling since this claim does not require attachements.
     raise NotImplementedError, 'Not Implemented for Form 10-10CG'
@@ -43,5 +51,11 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
 
   def secondary_caregiver_two_data
     parsed_form['secondaryCaregiverTwo'] unless form.nil?
+  end
+
+  alias _to_json to_json
+
+  def to_json(*_args)
+    _to_json(except: self.class.encrypted_attributes.keys)
   end
 end

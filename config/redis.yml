@@ -111,6 +111,11 @@ development: &defaults
   iam_user_identity:
     namespace: iam-user-identity
     each_ttl: 1800
+  form1010cg_submissions:
+    namespace: form-10-10cg-submissions
+    each_ttl: 2592000 # 30 days (~6,000 submission records)
+    # each_ttl: 1296000 # 15 days (~3,000 submission records)
+    # each_ttl: 1296000 # 10 days (~2,000 submission records)
 
 test:
   <<: *defaults

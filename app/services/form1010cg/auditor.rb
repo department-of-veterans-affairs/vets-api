@@ -33,14 +33,13 @@ module Form1010cg
       increment self.class.metrics.submission.attempt
     end
 
-    def record_submission_success(claim_guid:, carma_case_id:, metadata:, attachments:)
+    def record_submission_success(claim_guid:, carma_case_id:, metadata:)
       increment self.class.metrics.submission.success
       log(
         'Submission Successful',
         claim_guid: claim_guid,
         carma_case_id: carma_case_id,
-        metadata: metadata,
-        attachments: attachments
+        metadata: metadata
       )
     end
 
@@ -69,6 +68,16 @@ module Form1010cg
                      end
 
       log "MPI Profile #{result_label} for #{form_subject.titleize}", claim_guid: claim_guid
+    end
+
+    def log_attachment_dropped(claim_guid:, carma_case_id:, error:)
+      log(
+        'Attachment Dropped',
+        claim_guid: claim_guid,
+        carma_case_id: carma_case_id,
+        error_class: error.try(:class),
+        error_message: error.try(:message)
+      )
     end
 
     private

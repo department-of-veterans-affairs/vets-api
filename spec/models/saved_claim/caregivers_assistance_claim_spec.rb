@@ -3,6 +3,31 @@
 require 'rails_helper'
 
 RSpec.describe SavedClaim::CaregiversAssistanceClaim do
+  # When storing submission data in redis
+  # describe '.encrypted_attributes' do
+  #   it 'has encrypted_attributes' do
+  #     expect(described_class.encrypted_attributes.keys).to eq([:form])
+  #   end
+  # end
+
+  describe '#to_json' do
+    it 'can be generated from json' do
+      subject = described_class.new(form: VetsJsonSchema::EXAMPLES['10-10CG'].to_json)
+      claim_as_json = subject.to_json(except: described_class.encrypted_attributes.keys)
+      new_claim = described_class.new(JSON.parse(claim_as_json))
+
+      model_attributes = subject.attributes.keys
+
+      model_attributes.each do |attribute_key|
+        expect(
+          subject.send(attribute_key.to_sym)
+        ).to eq(
+          new_claim.send(attribute_key.to_sym)
+        )
+      end
+    end
+  end
+
   describe '#to_pdf' do
     let(:claim) do
       build(:caregivers_assistance_claim)
