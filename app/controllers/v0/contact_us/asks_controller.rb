@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  module Ask
+  module ContactUs
     class AsksController < ApplicationController
       skip_before_action :authenticate, only: :create
 

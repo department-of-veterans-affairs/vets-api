@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  module Ask
+  module ContactUs
     class InquiriesController < ApplicationController
       def index
         return not_implemented unless Flipper.enabled?(:get_help_messages)

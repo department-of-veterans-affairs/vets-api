@@ -6,7 +6,7 @@ module Swagger
       class InquiriesList
         include Swagger::Blocks
 
-        swagger_path '/v0/ask/inquiries' do
+        swagger_path '/v0/contact_us/inquiries' do
           operation :get do
             extend Swagger::Responses::AuthenticationError
 

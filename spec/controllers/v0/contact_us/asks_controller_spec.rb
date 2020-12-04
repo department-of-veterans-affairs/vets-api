@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::Ask::AsksController, type: :controller do
+RSpec.describe V0::ContactUs::AsksController, type: :controller do
   describe '#create' do
     def send_create
       post(:create, params: { ask: { form: form } })

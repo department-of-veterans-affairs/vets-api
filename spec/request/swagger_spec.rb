@@ -2783,7 +2783,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'contact us' do
-      describe 'POST v0/ask/asks' do
+      describe 'POST v0/contact_us/asks' do
         let(:post_body) do
           {
             inquiry: {
@@ -2818,7 +2818,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/ask/asks',
+            '/v0/contact_us/asks',
             201,
             headers.merge('_data' => post_body)
           )
@@ -2829,7 +2829,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/ask/asks',
+            '/v0/contact_us/asks',
             422,
             headers.merge(
               '_data' => {
@@ -2846,7 +2846,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/ask/asks',
+            '/v0/contact_us/asks',
             501,
             headers.merge(
               '_data' => {
@@ -2859,7 +2859,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      describe 'GET v0/ask/inquiries' do
+      describe 'GET v0/contact_us/inquiries' do
         context 'logged in' do
           let(:user) { build(:user, :loa3) }
           let(:headers) do
@@ -2869,13 +2869,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           it 'supports getting list of inquiries sent by user' do
             expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
 
-            expect(subject).to validate(:get, '/v0/ask/inquiries', 200, headers)
+            expect(subject).to validate(:get, '/v0/contact_us/inquiries', 200, headers)
           end
         end
 
         context 'not logged in' do
           it 'returns a 401' do
-            expect(subject).to validate(:get, '/v0/ask/inquiries', 401)
+            expect(subject).to validate(:get, '/v0/contact_us/inquiries', 401)
           end
         end
       end

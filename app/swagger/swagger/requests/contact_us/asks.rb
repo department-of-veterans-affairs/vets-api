@@ -6,7 +6,7 @@ module Swagger
       class Asks
         include Swagger::Blocks
 
-        swagger_path '/v0/ask/asks' do
+        swagger_path '/v0/contact_us/asks' do
           operation :post do
             extend Swagger::Responses::ValidationError
 

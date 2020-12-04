@@ -297,7 +297,7 @@ Rails.application.routes.draw do
       resource :tokens, only: :create
     end
 
-    namespace :ask do
+    namespace :contact_us do
       resource :asks, only: :create
       resources :inquiries, only: [:index]
     end

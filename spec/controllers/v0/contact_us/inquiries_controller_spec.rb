@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::Ask::InquiriesController, type: :controller do
+RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
   context 'when not signed in' do
     it 'renders :unauthorized' do
       get :index
