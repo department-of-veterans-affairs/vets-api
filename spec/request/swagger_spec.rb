@@ -2860,15 +2860,23 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       describe 'GET v0/ask/inquiries' do
-        let(:user) { build(:user, :loa3) }
-        let(:headers) do
-          { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+        context 'logged in' do
+          let(:user) { build(:user, :loa3) }
+          let(:headers) do
+            { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+          end
+
+          it 'supports getting list of inquiries sent by user' do
+            expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
+
+            expect(subject).to validate(:get, '/v0/ask/inquiries', 200, headers)
+          end
         end
 
-        it 'supports getting list of inquiries sent by user' do
-          expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
-
-          expect(subject).to validate(:get, '/v0/ask/inquiries', 200, headers)
+        context 'not logged in' do
+          it 'returns a 401' do
+            expect(subject).to validate(:get, '/v0/ask/inquiries', 401)
+          end
         end
       end
     end

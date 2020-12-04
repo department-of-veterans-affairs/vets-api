@@ -8,7 +8,7 @@ module Swagger
 
         swagger_path '/v0/ask/inquiries' do
           operation :get do
-            extend Swagger::Responses::ValidationError
+            extend Swagger::Responses::AuthenticationError
 
             key :description, 'Get a list of inquiries sent by user'
             key :operationId, 'getInquiries'
