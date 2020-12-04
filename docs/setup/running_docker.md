@@ -51,6 +51,7 @@ Creating vetsapi_postgres_1 ... done
 Creating vetsapi_redis_1    ... done
 # then run any command as you would locally e.g.
 root@63aa89d76c17:/src/vets-api# rspec spec/requests/user_request_spec.rb:26
+```
 
 ### Troubleshooting
 
