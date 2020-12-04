@@ -13,7 +13,7 @@ RSpec.describe CentralMail::Service do
       it 'retrieves the status' do
         VCR.use_cassette(
           "central_mail/status_one_uuid_#{vendor}",
-          match_requests_on: %i[body method uri]
+          match_requests_on: %i[ method uri]
         ) do
           # GDIT uuid
           uuid = '34656d73-7c31-456d-9c49-2024fff1cd47'
@@ -31,7 +31,7 @@ RSpec.describe CentralMail::Service do
       it 'retrieves the statuses' do
         VCR.use_cassette(
           "central_mail/status_multiple_uuids_#{vendor}",
-          match_requests_on: %i[body method uri]
+          match_requests_on: %i[ method uri]
         ) do
           # GDIT uuids
           uuids = %w[
