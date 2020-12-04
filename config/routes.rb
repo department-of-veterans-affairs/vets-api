@@ -301,7 +301,6 @@ Rails.application.routes.draw do
       resource :asks, only: :create
       resources :inquiries, only: [:index]
     end
-
   end
 
   namespace :v1, defaults: { format: 'json' } do
