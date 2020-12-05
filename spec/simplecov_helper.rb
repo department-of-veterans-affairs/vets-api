@@ -44,6 +44,7 @@ class SimpleCovHelper
       add_group 'VeteranVerification', 'modules/veteran_verification/'
       add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'VAOS', 'modules/vaos/'
+      add_group 'Vetext', 'modules/vetext'
 
       minimum_coverage(90) unless skip_check_coverage
       refuse_coverage_drop unless skip_check_coverage
