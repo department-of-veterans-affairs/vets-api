@@ -22,13 +22,30 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
       'dateOfBirth' => claimant_birth_date(current_user)
     }
 
-    updated_form['veteranFullName'] = {
-      'first' => current_user.first_name,
-      'middle' => current_user.middle_name || '',
-      'last' => current_user.last_name
-    }
+    # only populate the veteran information with the current user info
+    # if status isVeteran or isActiveDuty
+    if updated_form['status'] == 'isVeteran' || updated_form['status'] == 'isActiveDuty'
+      updated_form['veteranFullName'] = {
+        'first' => current_user.first_name,
+        'middle' => current_user.middle_name || '',
+        'last' => current_user.last_name
+      }
+    end
 
     update(form: updated_form.to_json)
+  end
+
+  def send_to_central_mail!
+    form_copy = parsed_form
+
+    if form_copy['veteranSocialSecurityNumber'].blank?
+      form_copy['veteranSocialSecurityNumber'] =
+        parsed_form['claimantInformation']['ssn'] || parsed_form['claimantInformation']['veteranSocialSecurityNumber']
+    end
+
+    update(form: form_copy.to_json)
+
+    process_attachments!
   end
 
   private
