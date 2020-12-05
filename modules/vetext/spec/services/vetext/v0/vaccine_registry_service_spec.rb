@@ -12,7 +12,7 @@ describe Vetext::V0::VaccineRegistryService do
   describe '#put_vaccine_registry with user' do
     it 'creates a new vaccine registry' do
       VCR.use_cassette('vetext/put_vaccine_registry_with_user', record: :new_episodes) do
-        response = subject.put_vaccine_registry(vaccine_registry.attributes)
+        subject.put_vaccine_registry(vaccine_registry.attributes)
       end
     end
   end
