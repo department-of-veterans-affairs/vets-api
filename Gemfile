@@ -18,11 +18,11 @@ gem 'mobile', path: 'modules/mobile'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_forms', path: 'modules/va_forms'
 gem 'vaos', path: 'modules/vaos'
-gem 'vetext', path: 'modules/vetext'
 gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran', path: 'modules/veteran'
 gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
+gem 'vetext', path: 'modules/vetext'
 
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.7'
