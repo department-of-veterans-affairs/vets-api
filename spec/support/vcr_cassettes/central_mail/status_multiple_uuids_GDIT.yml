@@ -5,7 +5,7 @@ http_interactions:
     uri: https://icmhs-api-test.csrarad.com/VADocument/getStatus
     body:
       encoding: UTF-8
-      string: token=<PENSIONS_TOKEN>&uuid=%5B%2234656d73-7c31-456d-9c49-2024fff1cd47%22%2C%224a25588c-9200-4405-a2fd-97f0b0fdf790%22%2C%228ef145ee-3c6a-4215-b39a-af56c0d2c347%22%2C%22f7725cce-a76e-4d80-ab20-01c63acfcb87%22%2C%22ef1a3cc4-0873-4d2e-85c4-2dc7f7257b54%22%5D
+      string: token=<PENSIONS_TOKEN>&uuid=%5B%2234656d73-7c31-456d-9c49-2024fff1cd47%22%2C%224a25588c-9200-4405-a2fd-97f0b0fdf790%22%2C%22f7725cce-a76e-4d80-ab20-01c63acfcb87%22%5D
     headers:
       User-Agent:
       - Faraday v0.17.0
@@ -21,7 +21,7 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Thu, 03 Dec 2020 22:23:07 GMT
+      - Sun, 06 Dec 2020 18:37:29 GMT
       Server:
       - Apache/2.4.46 (Amazon) OpenSSL/1.0.2k-fips
       Content-Type:
@@ -29,12 +29,12 @@ http_interactions:
       Vary:
       - Accept-Encoding
       Content-Length:
-      - '207'
+      - '204'
     body:
       encoding: ASCII-8BIT
       string: '[[{"uuid":"34656d73-7c31-456d-9c49-2024fff1cd47","status":"Received","errorMessage":"","lastUpdated":"2018-03-20
         16:57:37"}],[{"uuid":"4a25588c-9200-4405-a2fd-97f0b0fdf790","status":"Received","errorMessage":"","lastUpdated":"2018-03-21
-        00:17:19"}],[],[{"uuid":"f7725cce-a76e-4d80-ab20-01c63acfcb87","status":"Received","errorMessage":"","lastUpdated":"2018-03-20
-        17:20:26"}],[]]'
-  recorded_at: Thu, 03 Dec 2020 22:23:13 GMT
+        00:17:19"}],[{"uuid":"f7725cce-a76e-4d80-ab20-01c63acfcb87","status":"Received","errorMessage":"","lastUpdated":"2018-03-20
+        17:20:26"}]]'
+  recorded_at: Sun, 06 Dec 2020 18:37:35 GMT
 recorded_with: VCR 6.0.0

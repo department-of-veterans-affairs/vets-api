@@ -13,7 +13,7 @@ RSpec.describe CentralMail::Service do
       it 'retrieves the status' do
         VCR.use_cassette(
           "central_mail/status_one_uuid_#{vendor}",
-          match_requests_on: %i[method uri]
+          match_requests_on: %i[body method uri]
         ) do
           # GDIT uuid
           uuid = '34656d73-7c31-456d-9c49-2024fff1cd47'
@@ -31,30 +31,26 @@ RSpec.describe CentralMail::Service do
       it 'retrieves the statuses' do
         VCR.use_cassette(
           "central_mail/status_multiple_uuids_#{vendor}",
-          match_requests_on: %i[method uri]
+          match_requests_on: %i[body method uri]
         ) do
           # GDIT uuids
           uuids = %w[
             34656d73-7c31-456d-9c49-2024fff1cd47
             4a25588c-9200-4405-a2fd-97f0b0fdf790
-            8ef145ee-3c6a-4215-b39a-af56c0d2c347
             f7725cce-a76e-4d80-ab20-01c63acfcb87
-            ef1a3cc4-0873-4d2e-85c4-2dc7f7257b54
           ]
 
           if vendor.eql?('GCIO')
             uuids = %w[
               a8c29dbc-a0a6-4177-ae57-fc6143ec7edb
               b2b677e3-a6c1-4d07-ae7d-e013d60bec43
-              8ef145ee-3c6a-4215-b39a-af56c0d2c347
               84bb3df3-c090-44a7-aa0d-76e9ab97eab0
-              ef1a3cc4-0873-4d2e-85c4-2dc7f7257b54
             ]
           end
 
           response = described_class.new.status(uuids)
           expect(response.status).to eq(200)
-          expect(JSON.parse(response.body).length).to eq(5)
+          expect(JSON.parse(response.body).length).to eq(3)
         end
       end
     end
