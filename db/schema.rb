@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_27_195258) do
+ActiveRecord::Schema.define(version: 2020_12_05_223834) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -34,26 +34,14 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 
-  create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "status", default: "pending", null: false
-    t.string "encrypted_form_data"
-    t.string "encrypted_form_data_iv"
-    t.string "encrypted_auth_headers"
-    t.string "encrypted_auth_headers_iv"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "code"
-    t.string "detail"
-  end
-
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "status", default: "pending", null: false
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"
     t.string "encrypted_auth_headers_iv"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "status", default: "pending", null: false
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -96,7 +84,7 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.string "active_status"
     t.string "visn"
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
-    t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
+    t.index ["name"], name: "index_base_facilities_on_name", using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
   end
 
@@ -115,7 +103,7 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.index ["state"], name: "index_central_mail_submissions_on_state"
   end
 
-  create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.string "status"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
@@ -155,16 +143,24 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.string "encrypted_source_data"
     t.string "encrypted_source_data_iv"
     t.string "header_md5"
-    t.string "signature_errors", default: [], array: true
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
-  create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.string "encrypted_file_data", null: false
     t.string "encrypted_file_data_iv", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.uuid "auto_established_claim_id"
+    t.uuid "auto_established_claim_id", null: false
+  end
+
+  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "sid", null: false
+    t.integer "account_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
+    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
 
   create_table "directory_applications", force: :cascade do |t|
@@ -181,6 +177,25 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "disability_compensation_job_statuses", id: :serial, force: :cascade do |t|
+    t.integer "disability_compensation_submission_id", null: false
+    t.string "job_id", null: false
+    t.string "job_class", null: false
+    t.string "status", null: false
+    t.string "error_message"
+    t.datetime "updated_at", null: false
+    t.index ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id"
+    t.index ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true
+  end
+
+  create_table "disability_compensation_submissions", id: :serial, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "disability_compensation_id"
+    t.integer "va526ez_submit_transaction_id"
+    t.boolean "complete", default: false
+  end
+
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
     t.integer "code", null: false
     t.string "medical_term", null: false
@@ -188,8 +203,8 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_disability_contentions_on_code", unique: true
-    t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", opclass: :gin_trgm_ops, using: :gin
-    t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", opclass: :gin_trgm_ops, using: :gin
+    t.index ["lay_term"], name: "index_disability_contentions_on_lay_term", using: :gin
+    t.index ["medical_term"], name: "index_disability_contentions_on_medical_term", using: :gin
   end
 
   create_table "drivetime_bands", force: :cascade do |t|
@@ -201,7 +216,7 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.datetime "updated_at", null: false
     t.integer "min"
     t.integer "max"
-    t.datetime "vssc_extract_date", default: "2001-01-01 00:00:00"
+    t.datetime "vssc_extract_date"
     t.index ["polygon"], name: "index_drivetime_bands_on_polygon", using: :gist
   end
 
@@ -529,14 +544,6 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "valid_pdf", default: false
-    t.text "form_usage"
-    t.text "form_tool_intro"
-    t.string "form_tool_url"
-    t.string "form_type"
-    t.string "language"
-    t.datetime "deleted_at"
-    t.string "related_forms", array: true
-    t.jsonb "benefit_categories"
     t.string "form_details_url"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
