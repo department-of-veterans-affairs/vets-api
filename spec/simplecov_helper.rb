@@ -38,13 +38,13 @@ class SimpleCovHelper
       add_group 'Uploaders', 'app/uploaders'
       add_group 'AppealsApi', 'modules/appeals_api/'
       add_group 'ClaimsApi', 'modules/claims_api/'
+      add_group 'CovidVaccine', 'modules/covid_vaccine/'
       add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'VBADocuments', 'modules/vba_documents/'
       add_group 'Veteran', 'modules/veteran/'
       add_group 'VeteranVerification', 'modules/veteran_verification/'
       add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'VAOS', 'modules/vaos/'
-      add_group 'Vetext', 'modules/vetext'
 
       minimum_coverage(90) unless skip_check_coverage
       refuse_coverage_drop unless skip_check_coverage

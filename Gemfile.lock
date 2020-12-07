@@ -155,12 +155,6 @@ PATH
   specs:
     veteran (0.0.1)
 
-PATH
-  remote: modules/vetext
-  specs:
-    vetext (0.1.0)
-      sidekiq
-
 GEM
   remote: https://rubygems.org/
   remote: https://enterprise.contribsys.com/
@@ -1067,7 +1061,6 @@ DEPENDENCIES
   veteran!
   veteran_confirmation!
   veteran_verification!
-  vetext!
   vets_json_schema!
   virtus
   web-console

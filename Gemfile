@@ -23,7 +23,6 @@ gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran', path: 'modules/veteran'
 gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
-gem 'vetext', path: 'modules/vetext'
 
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.7'
