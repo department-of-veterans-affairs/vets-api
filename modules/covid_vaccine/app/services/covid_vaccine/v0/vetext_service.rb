@@ -4,13 +4,13 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/exceptions'
 
-module Vetext
+module CovidVaccine
   module V0
-    class VaccineRegistryService < Common::Client::Base
+    class VetextService < Common::Client::Base
       include Common::Client::Concerns::Monitoring
       include SentryLogging
 
-      STATSD_KEY_PREFIX = 'api.vetext'
+      STATSD_KEY_PREFIX = 'api.covid_vaccine.vetext'
 
       def put_vaccine_registry(vaccine_registry_attributes)
         with_monitoring do
@@ -47,7 +47,7 @@ module Vetext
       end
 
       def config
-        Vetext::Configuration.instance
+        CovidVaccine::V0::VetextConfiguration.instance
       end
 
       # Set the referrer (Referer header) to distinguish review instance, staging, etc from logs

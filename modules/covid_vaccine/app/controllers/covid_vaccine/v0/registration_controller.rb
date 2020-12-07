@@ -18,18 +18,18 @@ module CovidVaccine
                    # users since we have to perform a speculative MVI lookup for them
                    svc.register(params[:registration], @current_user.account_uuid)
                  end
-        render json: result, serializer: CovidVaccine::RegistrationSubmissionSerializer
+        render json: result, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
       end
 
       def create_unauthenticated
         svc = CovidVaccine::RegistrationService.new
         result = svc.register(params[:registration])
-        render json: result, serializer: CovidVaccine::RegistrationSubmissionSerializer
+        render json: result, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
       end
 
       def show
         submission = CovidVaccine::RegistrationSubmission.for_user(current_user)
-        render json: submission, serializer: CovidVaccine::RegistrationSubmissionSerializer
+        render json: submission, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
       end
     end
   end

@@ -73,7 +73,7 @@ services = [
   Okta::Configuration.instance.breakers_service,
   VAOS::Configuration.instance.breakers_service,
   IAMSSOeOAuth::Configuration.instance.breakers_service,
-  Vetext::Configuration.instance.breakers_service
+  CovidVaccine::V0::VetextConfiguration.instance.breakers_service
 ]
 
 services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
