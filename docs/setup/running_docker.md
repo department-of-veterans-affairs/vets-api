@@ -1,5 +1,7 @@
 # Running the app with Docker
 
+First make sure to follow the common [base setup](../../README.md#Base%20setup).
+
 A Makefile provides shortcuts for interacting with the docker images.
 
 You can see all of the targets and an explanation of what they do with:
