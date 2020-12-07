@@ -2,6 +2,5 @@
 
 module CovidVaccine
   class ApplicationController < ::ApplicationController
-
   end
 end
