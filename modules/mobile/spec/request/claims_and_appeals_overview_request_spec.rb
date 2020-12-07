@@ -20,8 +20,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
             parsed_response_contents = response.parsed_body.dig('data')
             expect(parsed_response_contents[0].dig('type')).to eq('claim')
             expect(parsed_response_contents.last.dig('type')).to eq('appeal')
-            expect(parsed_response_contents[0].dig('attributes', 'dateFiled')).to eq('2017-12-08')
-            expect(parsed_response_contents.last.dig('attributes', 'dateFiled')).to eq('2003-01-06')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end

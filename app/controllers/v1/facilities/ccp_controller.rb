@@ -66,11 +66,14 @@ class V1::Facilities::CcpController < FacilitiesController
   end
 
   def ppms_params
-    params.require(%i[bbox type])
+    params.require(:type)
     params.permit(
       :address,
+      :latitude,
+      :longitude,
       :page,
       :per_page,
+      :radius,
       :type,
       bbox: [],
       specialties: []
