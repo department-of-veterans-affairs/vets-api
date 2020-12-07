@@ -261,7 +261,7 @@ module V1
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
         code = if error
-                 error.code
+                 error.code || '007'
                else
                  '007'
                end
