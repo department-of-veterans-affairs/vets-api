@@ -2,7 +2,7 @@
 
 module CovidVaccine
   class RegistrationService
-    REQUIRED_QUERY_TRAITS = %w[first_name last_name birth_date ssn gender].freeze
+    REQUIRED_QUERY_TRAITS = %w[first_name last_name birth_date ssn].freeze
 
     def register(form_data = {}, account_id = nil)
       attributes = form_attributes(form_data)
