@@ -260,7 +260,11 @@ module V1
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
-        code = error.code || '007'
+        code = if error
+                 error.code
+               else
+                 '007'
+               end
         tags_and_error_code = tags << "error:#{code}"
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
         Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
