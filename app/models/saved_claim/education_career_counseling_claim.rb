@@ -46,7 +46,7 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
       update(form: form_copy.to_json)
     end
 
-    log_message_to_sentry(guid, :warn, {attachment_id: guid}, { team: 'vfs-ebenefits' })
+    log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     process_attachments!
   end
 
