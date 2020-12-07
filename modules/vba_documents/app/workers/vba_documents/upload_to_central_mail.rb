@@ -9,7 +9,8 @@ module VBADocuments
     def perform
       return unless Settings.vba_documents.s3.enabled
 
-      # records = VBADocuments::UploadSubmission.where(status: 'uploaded').order(updated_at: :asc).limit(10) ask BASTOS about this
+      # records = VBADocuments::UploadSubmission.where(status: 'uploaded').order(updated_at: :asc).limit(10)
+      # ask BASTOS about this
       VBADocuments::UploadSubmission.where(status: 'uploaded').find_each(order: :asc) do |upload|
         process(upload)
       end
