@@ -4,7 +4,6 @@ module V0
   module ContactUs
     class InquiriesController < ApplicationController
       skip_before_action :authenticate, only: :create
-      skip_before_action :verify_authenticity_token
 
       def index
         return not_implemented unless Flipper.enabled?(:get_help_messages)
