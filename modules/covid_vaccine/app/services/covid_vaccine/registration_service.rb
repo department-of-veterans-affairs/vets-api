@@ -12,9 +12,9 @@ module CovidVaccine
       submit(attributes, account_id)
     end
 
-    def register_loa3_user(form_data = {}, loa3_user)
+    def register_loa3_user(form_data = {}, user)
       attributes = form_attributes(form_data)
-      attributes.merge!(attributes_from_user(loa3_user))
+      attributes.merge!(attributes_from_user(user))
       attributes.merge!({ authenticated: true }).compact!
       Rails.logger.info("Vetext Payload: #{attributes.to_json}")
       submit(attributes, user.account_uuid)
