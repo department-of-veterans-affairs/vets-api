@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_27_195258) do
+ActiveRecord::Schema.define(version: 2020_12_07_173935) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -273,6 +273,18 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.string "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "form1010cg_submissions", force: :cascade do |t|
+    t.string "carma_case_id", limit: 18, null: false
+    t.datetime "accepted_at", null: false
+    t.string "claim_guid", null: false
+    t.json "metadata"
+    t.json "attachments"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["carma_case_id"], name: "index_form1010cg_submissions_on_carma_case_id", unique: true
+    t.index ["claim_guid"], name: "index_form1010cg_submissions_on_claim_guid", unique: true
   end
 
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
