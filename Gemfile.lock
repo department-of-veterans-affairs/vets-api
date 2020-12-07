@@ -98,6 +98,12 @@ PATH
       sidekiq
 
 PATH
+  remote: modules/covid_vaccine
+  specs:
+    covid_vaccine (0.1.0)
+      sidekiq
+
+PATH
   remote: modules/health_quest
   specs:
     health_quest (0.1.0)
@@ -148,12 +154,6 @@ PATH
   remote: modules/veteran
   specs:
     veteran (0.0.1)
-
-PATH
-  remote: modules/vetext
-  specs:
-    vetext (0.1.0)
-      sidekiq
 
 GEM
   remote: https://rubygems.org/
@@ -944,6 +944,7 @@ DEPENDENCIES
   config
   connect_vbms!
   covid_research!
+  covid_vaccine!
   danger
   database_cleaner
   date_validator
@@ -1060,7 +1061,6 @@ DEPENDENCIES
   veteran!
   veteran_confirmation!
   veteran_verification!
-  vetext!
   vets_json_schema!
   virtus
   web-console

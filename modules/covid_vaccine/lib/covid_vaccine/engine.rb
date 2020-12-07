@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Vetext
+module CovidVaccine
   class Engine < ::Rails::Engine
-    isolate_namespace Vetext
+    isolate_namespace CovidVaccine
     config.generators.api_only = true
 
     initializer 'model_core.factories', after: 'factory_bot.set_factory_paths' do

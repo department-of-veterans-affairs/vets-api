@@ -21,6 +21,10 @@ features:
     actor_type: user
     description: >
       Allows user to access chapter 33 benefits direct deposit view/update APIs
+  covid_vaccine_registration:
+    actor_type: user
+    description: >
+      Toggles availability of covid vaccine registration form frontend and API.
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
