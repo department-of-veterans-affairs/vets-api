@@ -22,19 +22,25 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
 
    - Create a folder in your vets-api directory:
 
-   ```bash
-   mkdir config/certs
-   touch config/certs/vetsgov-localhost.crt
-   touch config/certs/vetsgov-localhost.key
-   ```
+     ```bash
+     mkdir config/certs
+     touch config/certs/vetsgov-localhost.crt
+     touch config/certs/vetsgov-localhost.key
+     ```
 
-   - Disable signed authentication requests:
+   - Copy example configuration file:
 
-   ```yaml
-   # settings.local.yml
-   saml:
-     authn_requests_signed: false
-   ```
+     ```bash
+     cp config/settings.local.yml.example config/settings.local.yml
+     ```
+
+   - Edit `config/settings.local.yml` to disable signed authentication requests:
+
+     ```yaml
+     # settings.local.yml
+     saml:
+       authn_requests_signed: false
+     ```
 
 1. If are developing features that need Sidekiq Enterprise, you must have access to the va.gov-team-sensitive repo and [install the sidekiq enterprise license](https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/engineering/sidekiq-enterprise-setup.md)
 

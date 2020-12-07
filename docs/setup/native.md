@@ -58,12 +58,6 @@ Vets API requires:
 
 We use the `config` gem to manage settings in the application. Local settings for each developer should be managed in your own local `config/settings.local.yml` file, which by default can override the standard configuration _and_ is excluded from source control so the settings can persist.
 
-There is a basic configuration file you can copy as a starting point in the `config` directory:
-
-```bash
-cp config/settings.local.yml.example config/settings.local.yml
-```
-
 This file has the necessary configuration settings for local development as well as comments outlining some additional configuration that some developers may wish to use.
 
 ### Configuring ClamAV antivirus
