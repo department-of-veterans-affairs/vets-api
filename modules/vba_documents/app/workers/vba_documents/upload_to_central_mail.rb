@@ -3,32 +3,23 @@
 require 'sidekiq'
 
 module VBADocuments
-  class UploadScanner
+  class UploadToCentralMail
     include Sidekiq::Worker
 
     def perform
       return unless Settings.vba_documents.s3.enabled
 
-      VBADocuments::UploadSubmission.where(status: 'pending').find_each do |upload|
-        processed = process(upload)
-        expire(upload) unless processed
+      # records = VBADocuments::UploadSubmission.where(status: 'uploaded').order(updated_at: :asc).limit(10) ask BASTOS about this
+      VBADocuments::UploadSubmission.where(status: 'uploaded').find_each(order: :asc) do |upload|
+        process(upload)
       end
     end
 
     private
 
     def process(upload)
-      Rails.logger.info('VBADocuments: Processing: ' + upload.inspect)
-      object = bucket.object(upload.guid)
-      return false unless object.exists?
-
-      upload.update(status: 'uploaded')
-      # VBADocuments::UploadProcessor.perform_async(upload.guid)
-      true
-    end
-
-    def expire(upload)
-      upload.update(status: 'expired') if upload.created_at < Time.zone.now - 20.minutes
+      Rails.logger.info('VBADocuments: Processing Uploads to Central Mail: ' + upload.inspect)
+      VBADocuments::UploadProcessor.perform_async(upload.guid)
     end
 
     def bucket
