@@ -27,7 +27,8 @@ module CovidVaccine
       response = Vetext::V0::VaccineRegistryService.new.put_vaccine_registry(attributes)
       Rails.logger.info("Vetext Response: #{response}")
       CovidVaccine::RegistrationSubmission.create({ sid: response[:sid],
-                                                    account_id: account_id })
+                                                    account_id: account_id,
+                                                    form_data: attributes })
     end
 
     def form_attributes(form_data)
