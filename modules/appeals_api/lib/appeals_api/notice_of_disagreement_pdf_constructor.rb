@@ -100,7 +100,7 @@ module AppealsApi
     # For inserting items into the pdf that require special insertion (e.g. where fields cannot hold enough text)
     def insert_manual_fields(pdf_template)
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      temp_file = "#{::Common::FileHelpers.random_file_path}.pdf"
+      temp_file = "/#{::Common::FileHelpers.random_file_path}.pdf"
       output_path = "#{pdf_template}-final.pdf"
 
       Prawn::Document.generate(temp_file) do |pdf|

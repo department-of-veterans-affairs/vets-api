@@ -23,7 +23,7 @@ module AppealsApi
 
     def fill_pdf
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      temp_path = "#{Rails.root}/tmp/#{appeal.id}"
+      temp_path = "/tmp/#{appeal.id}"
       output_path = temp_path + '-final.pdf'
       pdftk.fill_form(
         "#{PDF_TEMPLATE}/#{self.class.form_title}.pdf",
