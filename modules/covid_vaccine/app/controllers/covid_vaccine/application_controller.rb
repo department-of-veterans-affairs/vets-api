@@ -14,7 +14,7 @@ module CovidVaccine
     end
 
     def authorize
-      raise_access_denied unless @current_user && @current_user.loa3?
+      raise_access_denied unless @current_user&.loa3?
     end
 
     def raise_access_denied

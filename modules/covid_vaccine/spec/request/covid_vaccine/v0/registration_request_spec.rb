@@ -34,7 +34,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       end
 
       it 'returns a 404 route not found' do
-        post "/covid_vaccine/v0/registration", params: { registration: registration_attributes }
+        post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
         expect(response).to have_http_status(:not_found)
       end
     end
@@ -42,7 +42,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
     context 'with an unauthenticated user' do
       it 'returns a sid' do
         VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
-          post "/covid_vaccine/v0/registration", params: { registration: registration_attributes }
+          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
         end
       end
     end
@@ -54,7 +54,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
 
       it 'returns a sid' do
         VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
-          post "/covid_vaccine/v0/registration", params: { registration: registration_attributes }
+          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
         end
       end
     end
@@ -66,7 +66,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
 
       it 'returns a sid' do
         VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
-          post "/covid_vaccine/v0/registration", params: { registration: registration_attributes }
+          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
         end
       end
     end
@@ -75,7 +75,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
   describe 'registration#show' do
     context 'with an unauthenticated user' do
       it 'returns a 403 Unauthorized' do
-        get "/covid_vaccine/v0/registration"
+        get '/covid_vaccine/v0/registration'
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -86,7 +86,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       end
 
       it 'returns a 403 Unauthorized' do
-        get "/covid_vaccine/v0/registration"
+        get '/covid_vaccine/v0/registration'
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -104,7 +104,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
         end
 
         it 'returns a 404 route not found' do
-          get "/covid_vaccine/v0/registration"
+          get '/covid_vaccine/v0/registration'
           expect(response).to have_http_status(:not_found)
         end
       end
