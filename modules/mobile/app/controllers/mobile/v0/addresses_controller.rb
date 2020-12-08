@@ -16,7 +16,7 @@ module Mobile
           address_params
         )
       end
-      
+
       def update
         write_to_vet360_and_render_transaction!(
           'address',
