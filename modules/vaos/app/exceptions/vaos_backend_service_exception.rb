@@ -18,8 +18,7 @@ module VAOS
 
       def initialize(env)
         @env = env
-        status = env.status == 500 && /APTCRGT/.match?(env.body) ? 400 : env.status
-        key = lookup_key(status)
+        key = lookup_key(env.status)
         super(key, response_values, env.status, env.body)
       end
 

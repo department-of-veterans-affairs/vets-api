@@ -39,7 +39,6 @@ describe VAOS::Middleware::Response::Errors do
   let(:env_404) { MyEnv.new(404, 'body', 'url', false) }
   let(:env_409) { MyEnv.new(409, 'body', 'url', false) }
   let(:env_500) { MyEnv.new(500, 'body', 'url', false) }
-  let(:env_500a) { MyEnv.new(500, '814 CLINIC_RESTRICTED_TO_PRIVILEGED_USERS: APTCRGT^Appt.', 'url', false) }
   let(:env_other) { MyEnv.new(401, 'body', 'url', false) }
   let(:env_with_error) { MyEnv.new(400, JSON[error], 'url', false) }
   let(:env_with_errors) { MyEnv.new(400, JSON[errors], 'url', false) }
@@ -112,23 +111,6 @@ describe VAOS::Middleware::Response::Errors do
           expect(e.response_values[:detail]).to equal('body')
           expect(e.response_values[:source][:vamf_url]).to equal('url')
           expect(e.response_values[:source][:vamf_body]).to equal('body')
-          expect(e.response_values[:source][:vamf_status]).to equal(500)
-        }
-      end
-    end
-
-    context 'with a 500 vamf status on cancelled appointments' do
-      it 'raises VAOS_400 error' do
-        err = VAOS::Middleware::Response::Errors.new
-        expect { err.on_complete(env_500a) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
-          expect(e.key).to equal('VAOS_400')
-          expect(e.response_values[:detail]).to equal(
-            '814 CLINIC_RESTRICTED_TO_PRIVILEGED_USERS: APTCRGT^Appt.'
-          )
-          expect(e.response_values[:source][:vamf_url]).to equal('url')
-          expect(e.response_values[:source][:vamf_body]).to equal(
-            '814 CLINIC_RESTRICTED_TO_PRIVILEGED_USERS: APTCRGT^Appt.'
-          )
           expect(e.response_values[:source][:vamf_status]).to equal(500)
         }
       end

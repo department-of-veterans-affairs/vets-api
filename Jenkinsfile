@@ -43,29 +43,29 @@ pipeline {
       }
     }
 
-    stage('Lint Changed Files') {
-      when { changeRequest() }
-      steps {
-        script {
-          files_to_lint = ''
-          try {
-            files_to_lint = getGithubChangedFiles('vets-api', env.CHANGE_ID.toInteger(),
-                              change_types: ['modified', 'added']).join(' ')
-          } catch(IOException e) {
-            echo "WARNING: Unable to fetch changed PR files from Github!"
-            echo "${e}"           
-          }
-        }
-        sh """env=$RAILS_ENV make files='${files_to_lint}' lint"""
-      }
-    }
+    // stage('Lint Changed Files') {
+    //   when { changeRequest() }
+    //   steps {
+    //     script {
+    //       files_to_lint = ''
+    //       try {
+    //         files_to_lint = getGithubChangedFiles('vets-api', env.CHANGE_ID.toInteger(),
+    //                           change_types: ['modified', 'added']).join(' ')
+    //       } catch(IOException e) {
+    //         echo "WARNING: Unable to fetch changed PR files from Github!"
+    //         echo "${e}"           
+    //       }
+    //     }
+    //     sh """env=$RAILS_ENV make files='${files_to_lint}' lint"""
+    //   }
+    // }
 
-    stage('Lint All Files') {
-      when { branch 'master' }
-      steps {
-        sh 'env=$RAILS_ENV make lint'
-      }
-    }
+    // stage('Lint All Files') {
+    //   when { branch 'master' }
+    //   steps {
+    //     sh 'env=$RAILS_ENV make lint'
+    //   }
+    // }
 
     stage('Security Scan') {
       steps {
@@ -73,26 +73,26 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
-      steps {
-        sh 'env=$RAILS_ENV make spec'
-      }
-      post {
-        success {
-          archiveArtifacts artifacts: "coverage/**"
-          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
-          junit 'log/*.xml'
-        }
-      }
-    }
+    // stage('Run tests') {
+    //   steps {
+    //     sh 'env=$RAILS_ENV make spec'
+    //   }
+    //   post {
+    //     success {
+    //       archiveArtifacts artifacts: "coverage/**"
+    //       publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+    //       junit 'log/*.xml'
+    //     }
+    //   }
+    // }
 
-    stage('Run Danger Bot') {
-      steps {
-        withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
-          sh 'env=$RAILS_ENV make danger'
-        }
-      }
-    }
+    // stage('Run Danger Bot') {
+    //   steps {
+    //     withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
+    //       sh 'env=$RAILS_ENV make danger'
+    //     }
+    //   }
+    // }
 
     stage('Review') {
       when { not { branch 'master' } }
