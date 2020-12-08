@@ -5,15 +5,32 @@ module Mobile
     module Profile
       class IncompleteTransaction < StandardError; end
 
+      # Provides a syncronous alternative to the Vet360 async profile updates
+      # so that mobile app can limit the number of HTTP requests needed to perform
+      # a profile update.
+      #
+      # @example save new parameters and wait for a response
+      #   service = Mobile::V0::Profile::SyncUpdateService.new(user)
+      #   response = service.save_and_await_response('address', update_params)
+      #
       class SyncUpdateService
         TRANSACTION_RECEIVED = 'RECEIVED'
         TIMEOUT_SECONDS = 55
 
         def initialize(user)
           @user = user
-          @transaction_id = nil
         end
 
+        # Kicks off an update and polls to check for a complete response.
+        # This method will raise a timeout if it hit 10 retries or the 55s
+        # limit (whichever comes first).
+        #
+        # @resource_type String the resource type to update
+        # @params Hash the new parameters used in the update
+        # @update whether the save is a new write or an update
+        #
+        # @return AsyncTransaction::Vet360::Base the final async transaction status
+        #
         def save_and_await_response(resource_type:, params:, update: true)
           http_method = update ? 'put' : 'post'
           initial_transaction = save!(http_method, resource_type, params)
