@@ -108,13 +108,13 @@ gem 'sentry-raven'
 gem 'shrine'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
+gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
-gem 'zero_downtime_migrations'
 
 group :development do
   gem 'benchmark-ips'

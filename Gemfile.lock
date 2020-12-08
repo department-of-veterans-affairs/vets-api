@@ -846,6 +846,8 @@ GEM
       sprockets (>= 3.0.0)
     staccato (0.5.3)
     statsd-instrument (2.6.0)
+    strong_migrations (0.7.3)
+      activerecord (>= 5)
     super_diff (0.5.1)
       attr_extras (>= 6.2.4)
       diff-lcs
@@ -910,8 +912,6 @@ GEM
       nokogiri (~> 1.5)
     yard (0.9.25)
     zeitwerk (2.4.0)
-    zero_downtime_migrations (0.0.7)
-      activerecord
 
 PLATFORMS
   ruby
@@ -1048,6 +1048,7 @@ DEPENDENCIES
   spring-commands-rspec
   staccato
   statsd-instrument (~> 2.6.0)
+  strong_migrations
   super_diff
   swagger-blocks
   timecop
@@ -1069,7 +1070,6 @@ DEPENDENCIES
   websocket-extensions (>= 0.1.5)
   will_paginate
   yard
-  zero_downtime_migrations
 
 RUBY VERSION
    ruby 2.6.6p146

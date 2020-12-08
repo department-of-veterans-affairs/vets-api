@@ -54,6 +54,8 @@ ActiveRecord::Schema.define(version: 2020_12_05_223834) do
     t.string "encrypted_auth_headers_iv"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "code"
+    t.string "detail"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
