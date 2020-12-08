@@ -164,7 +164,6 @@ RSpec.describe 'address', type: :request do
             'internationalPostalCode' => nil,
             'province' => nil,
             'stateCode' => 'NY',
-            'validationKey' => nil,
             'zipCode' => '11249',
             'zipCodeSuffix' => '3939'
           }
@@ -176,7 +175,8 @@ RSpec.describe 'address', type: :request do
           {
             'confidenceScore' => 100.0,
             'addressType' => 'Domestic',
-            'deliveryPointValidation' => 'UNDELIVERABLE'
+            'deliveryPointValidation' => 'UNDELIVERABLE',
+            'validationKey' => -646_932_106
           }
         )
       end

@@ -32,11 +32,11 @@ module Mobile
         address = Vet360::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
-        response = validation_service.address_suggestions(address).as_json
-        suggested_addresses = response.dig('response', 'addresses').map do |a|
+        response = validation_service.address_suggestions(address).as_json['response']
+        suggested_addresses = response['addresses'].map do |a|
           OpenStruct.new(a['address'].merge(
                            'id' => SecureRandom.uuid,
-                           'meta' => a['address_meta_data']
+                           'meta' => a['address_meta_data'].merge('validation_key' => response['validation_key'])
                          ))
         end
 
