@@ -53,6 +53,7 @@ unless ENV['NOCOVERAGE']
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'

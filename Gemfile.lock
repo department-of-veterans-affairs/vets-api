@@ -98,6 +98,12 @@ PATH
       sidekiq
 
 PATH
+  remote: modules/covid_vaccine
+  specs:
+    covid_vaccine (0.1.0)
+      sidekiq
+
+PATH
   remote: modules/health_quest
   specs:
     health_quest (0.1.0)
@@ -938,6 +944,7 @@ DEPENDENCIES
   config
   connect_vbms!
   covid_research!
+  covid_vaccine!
   danger
   database_cleaner
   date_validator
