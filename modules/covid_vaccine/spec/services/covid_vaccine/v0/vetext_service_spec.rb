@@ -10,7 +10,7 @@ describe CovidVaccine::V0::VetextService do
     {
       vaccine_interest: 'yes',
       authenticated: true,
-      date_vaccine_reeceived: '',
+      date_vaccine_received: '',
       contact: true,
       contact_method: 'phone',
       reason_undecided: '',
@@ -23,10 +23,18 @@ describe CovidVaccine::V0::VetextService do
     }
   end
 
-  describe '#put_vaccine_registry with user' do
-    it 'creates a new vaccine registry' do
-      VCR.use_cassette('vetext/put_vaccine_registry_with_user', record: :new_episodes) do
-        subject.put_vaccine_registry(registry_attributes)
+  describe '#put_vaccine_registry' do
+    it 'creates a new vaccine registry with valid attributes' do
+      VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
+        response = subject.put_vaccine_registry(registry_attributes)
+        expect(response[:sid]).to eq('C4471842B588278B6D160738877782115')
+      end
+    end
+
+    it 'raises a BackendServiceException with invalid attribute' do
+      VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_error', match_requests_on: %i[method uri]) do
+        expect { subject.put_vaccine_registry(date_vaccine_reeceived: '') }
+          .to raise_error(Common::Exceptions::BackendServiceException)
       end
     end
   end

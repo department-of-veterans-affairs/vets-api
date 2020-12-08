@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4476/api/vetext/pub/covid/vaccine/registry
+    body:
+      encoding: UTF-8
+      string: '{"dateVaccineReeceived":""}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Basic YjQ3MDRiZTg3NTliNDg3YmI3MTA5MWU1NzIxMWZiNmI6VmZjaVVlVXljMFNZOGVLV1pRaDB3UT09
+      Referer:
+      - https://review-instance.va.gov
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Tue, 08 Dec 2020 01:08:47 GMT
+      Server:
+      - Apache/2.4.46 (Unix) OpenSSL/1.1.1d
+      Content-Type:
+      - text/html;charset=UTF-8
+      Content-Length:
+      - '141'
+    body:
+      encoding: UTF-8
+      string: Unrecognized field &quot;dateVaccineReeceived&quot; (class gov.va.med.lom.vetext.api.model.CovidVaccineRegistryJson),
+        not marked as ignorable
+  recorded_at: Tue, 08 Dec 2020 01:08:47 GMT
+recorded_with: VCR 6.0.0

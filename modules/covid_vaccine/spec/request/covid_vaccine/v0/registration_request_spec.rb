@@ -40,12 +40,35 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
     end
 
     context 'with an unauthenticated user' do
+      it 'returns a sid' do
+        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
+          post "/covid_vaccine/v0/registration", params: { registration: registration_attributes }
+        end
+      end
     end
 
     context 'with a loa1 user' do
+      before do
+        sign_in_as(loa1_user)
+      end
+
+      it 'returns a sid' do
+        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
+          post "/covid_vaccine/v0/registration", params: { registration: registration_attributes }
+        end
+      end
     end
 
     context 'with a loa3 user' do
+      before do
+        sign_in_as(loa3_user)
+      end
+
+      it 'returns a sid' do
+        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
+          post "/covid_vaccine/v0/registration", params: { registration: registration_attributes }
+        end
+      end
     end
   end
 
