@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4476/api/vetext/pub/covid/vaccine/registry
+    uri: https://something.fake.va.gov/api/vetext/pub/covid/vaccine/registry
     body:
       encoding: UTF-8
       string: '{"dateVaccineReeceived":""}'
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Basic YjQ3MDRiZTg3NTliNDg3YmI3MTA5MWU1NzIxMWZiNmI6VmZjaVVlVXljMFNZOGVLV1pRaDB3UT09
+      - Basic <TOKEN>
       Referer:
       - https://review-instance.va.gov
       Accept-Encoding:
