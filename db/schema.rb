@@ -169,7 +169,7 @@ ActiveRecord::Schema.define(version: 2020_12_05_223834) do
 
   create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
     t.string "sid", null: false
-    t.integer "account_id"
+    t.uuid "account_id"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.datetime "created_at", null: false

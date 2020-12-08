@@ -2,7 +2,7 @@ class AddCovidRegistrationSubmissions < ActiveRecord::Migration[6.0]
   def change
     create_table :covid_vaccine_registration_submissions, id: :serial do |t|
       t.string "sid", null: false
-      t.integer "account_id", null: true
+      t.uuid "account_id", null: true
       t.string "encrypted_form_data"
       t.string "encrypted_form_data_iv"
       t.datetime "created_at", null: false
