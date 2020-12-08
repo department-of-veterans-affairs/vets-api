@@ -9,6 +9,13 @@ RSpec.describe 'address', type: :request do
 
   before { iam_sign_in(user) }
 
+  before(:all) do
+    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
+    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+  end
+
+  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+
   let(:user) { FactoryBot.build(:iam_user) }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
@@ -17,10 +24,14 @@ RSpec.describe 'address', type: :request do
 
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
 
-    context 'with a valid address' do
+    context 'with a valid address that takes two tries to complete' do
       before do
-        VCR.use_cassette('vet360/contact_information/put_address_success') do
-          put '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+        VCR.use_cassette('profile/get_address_status_complete') do
+          VCR.use_cassette('profile/get_address_status_incomplete') do
+            VCR.use_cassette('profile/put_address_initial') do
+              put '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+            end
+          end
         end
       end
 
@@ -34,7 +45,27 @@ RSpec.describe 'address', type: :request do
 
       it 'includes a transaction id' do
         id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
-        expect(id).to eq('63e7792c-887e-4d57-b6ed-801edcae2c2d')
+        expect(id).to eq('1f450c8e-4bb2-4f5d-a5f3-0d907941625a')
+      end
+    end
+
+    context 'when it has not completed within the timeout window (< 60s)' do
+      before do
+        allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService).to receive(:get_elapsed).and_return(61)
+
+        VCR.use_cassette('profile/get_address_status_complete') do
+          VCR.use_cassette('profile/get_address_status_incomplete_2') do
+            VCR.use_cassette('profile/get_address_status_incomplete') do
+              VCR.use_cassette('profile/put_address_initial') do
+                put '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+              end
+            end
+          end
+        end
+      end
+
+      it 'returns a gateway timeout error' do
+        expect(response).to have_http_status(:gateway_timeout)
       end
     end
 
