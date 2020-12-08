@@ -12,6 +12,8 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
           inverse_of: :claim,
           dependent: :destroy
 
+  accepts_nested_attributes_for :submission
+
   def process_attachments!
     # Inherited from SavedClaim. Disabling since this claim does not require attachements.
     raise NotImplementedError, 'Not Implemented for Form 10-10CG'
