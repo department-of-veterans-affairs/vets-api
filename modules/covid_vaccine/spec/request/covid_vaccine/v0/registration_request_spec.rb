@@ -6,7 +6,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
   include SchemaMatchers
 
   let(:loa1_user) { build(:user, :vaos, :loa1) }
-  let(:loa3_user) { build(:user, :vaos) }
+  let(:loa3_user) { build(:user, :vaos, :accountable) }
 
   let(:registration_attributes) do
     {
@@ -109,74 +109,45 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
         end
       end
 
-      context 'feature enabled but no record found' do
-        it 'returns a 404 record not found ' do
-          get "/covid_vaccine/v0/registration"
+      context 'with no previous submission' do
+        it 'renders not found' do
+          get '/covid_vaccine/v0/registration'
           expect(response).to have_http_status(:not_found)
         end
       end
 
-      context 'feature enabled and one record exists' do
-        xit 'returns the record' do
-          get "/covid_vaccine/v0/registration"
-          expect(response).to have_http_status(:success)
+      context 'with a previous submission' do
+        let!(:submission) do
+          create(:covid_vaccine_registration_submission,
+                 account_id: loa3_user.account_uuid)
+        end
+
+        it 'returns the submission record' do
+          get '/covid_vaccine/v0/registration'
+          expect(response).to have_http_status(:ok)
+          body = JSON.parse(response.body)
+          expect(body['data']['id']).to eq(submission.sid)
         end
       end
 
-      context 'feature enabled and multiple records exists' do
-        xit 'returns the last created record' do
-          get "/covid_vaccine/v0/registration"
-          expect(response).to have_http_status(:success)
+      context 'with multiple submissions' do
+        let!(:submission1) do
+          create(:covid_vaccine_registration_submission,
+                 account_id: loa3_user.account_uuid,
+                 created_at: Time.zone.now - 2.minutes)
         end
-      end
-    end
-  end
+        let!(:submission2) do
+          create(:covid_vaccine_registration_submission,
+                 account_id: loa3_user.account_uuid,
+                 created_at: Time.zone.now - 1.minute)
+        end
 
-  describe '#show' do
-    let(:user) { build(:user, :loa3, :accountable) }
-
-    before do
-      sign_in_as(user)
-    end
-
-    context 'with no previous submission' do
-      it 'renders not found' do
-        get '/covid_vaccine/v0/registration'
-        expect(response).to have_http_status(:not_found)
-      end
-    end
-
-    context 'with a previous submission' do
-      let!(:submission) do
-        create(:covid_vaccine_registration_submission,
-               account_id: user.account_uuid)
-      end
-
-      it 'returns the submission record' do
-        get '/covid_vaccine/v0/registration'
-        expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
-        expect(body['data']['id']).to eq(submission.sid)
-      end
-    end
-
-    context 'with multiple submissions' do
-      let!(:submission1) do
-        create(:covid_vaccine_registration_submission,
-               account_id: user.account_uuid,
-               created_at: Time.zone.now - 2.minutes)
-      end
-      let!(:submission2) do
-        create(:covid_vaccine_registration_submission,
-               account_id: user.account_uuid,
-               created_at: Time.zone.now - 1.minute)
-      end
-
-      it 'returns the latest one' do
-        get '/covid_vaccine/v0/registration'
-        expect(response).to have_http_status(:ok)
-        body = JSON.parse(response.body)
-        expect(body['data']['id']).to eq(submission2.sid)
+        it 'returns the latest one' do
+          get '/covid_vaccine/v0/registration'
+          expect(response).to have_http_status(:ok)
+          body = JSON.parse(response.body)
+          expect(body['data']['id']).to eq(submission2.sid)
+        end
       end
     end
   end
