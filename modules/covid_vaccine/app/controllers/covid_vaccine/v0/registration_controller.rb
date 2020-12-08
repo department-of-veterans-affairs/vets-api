@@ -23,7 +23,8 @@ module CovidVaccine
 
       def show
         submission = CovidVaccine::V0::RegistrationSubmission.for_user(current_user).last
-        raise Common::Exceptions::RecordNotFound, 'account_id' unless submission
+        raise Common::Exceptions::RecordNotFound, nil if submission.blank?
+
         render json: submission, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
       end
     end
