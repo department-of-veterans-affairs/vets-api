@@ -11,7 +11,6 @@ Mobile::Engine.routes.draw do
     get '/military-service-history', to: 'military_information#get_service_history'
     get '/payment-information/benefits', to: 'payment_information#index'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
-    post '/user/addresses/validate', to: 'addresses#validate'
     put '/user/addresses', to: 'addresses#update'
     put '/user/emails', to: 'emails#update'
     put '/user/phones', to: 'phones#update'
