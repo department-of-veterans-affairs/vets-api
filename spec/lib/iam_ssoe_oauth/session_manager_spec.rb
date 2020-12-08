@@ -19,6 +19,7 @@ describe 'IAMSSOeOAuth::SessionManager' do
       before do
         VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
           @user = session_manager.find_or_create_user
+          expect(@user.last_signed_in).not_to be_nil
         end
       end
 
