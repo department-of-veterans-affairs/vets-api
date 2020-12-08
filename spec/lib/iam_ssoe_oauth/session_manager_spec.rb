@@ -19,7 +19,6 @@ describe 'IAMSSOeOAuth::SessionManager' do
       before do
         VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
           @user = session_manager.find_or_create_user
-          expect(@user.last_signed_in).not_to be_nil
         end
       end
 
@@ -33,6 +32,10 @@ describe 'IAMSSOeOAuth::SessionManager' do
 
       it 'creates a user identity' do
         expect(@user.identity).not_to be_nil
+      end
+
+      it 'last_signed_in is set and is a time' do
+      expect(@user.last_signed_in).to be_a_kind_of(Time)
       end
     end
   end
