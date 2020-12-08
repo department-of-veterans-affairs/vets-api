@@ -34,6 +34,10 @@ features:
     actor_type: user
     description: >
       Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/" leading to the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration:
+    actor_type: user
+    description: >
+      Toggles availability of covid vaccine form API.
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
