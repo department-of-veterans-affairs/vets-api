@@ -32,14 +32,4 @@ VCR.configure do |c|
       i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
     end
   end
-
-  c.before_record do |i|
-    filtered_auth_header_values = []
-    i.request.headers['Authorization'].each do |auth|
-      binding.pry
-      type, token = auth.split(' ')
-      filtered_auth_header_values << [type, "#{type}_token"]
-    end
-    i.request.headers.update('Authorization' => filtered_auth_header_values)
-  end
 end
