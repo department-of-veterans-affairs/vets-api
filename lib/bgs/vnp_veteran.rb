@@ -21,7 +21,6 @@ module BGS
       location_id = get_location_id(regional_office_number)
       create_person(participant)
       bgs_service.create_phone(@proc_id, participant[:vnp_ptcpnt_id], @veteran_info)
-      net_worth_over_limit_ind = @payload['dependents_application']['household_income'] ? 'Y' : 'N'
       veteran.veteran_response(
         participant,
         address,
@@ -30,7 +29,7 @@ module BGS
           claim_type_end_product: claim_type_end_product,
           regional_office_number: regional_office_number,
           location_id: location_id,
-          net_worth_over_limit_ind: net_worth_over_limit_ind
+          net_worth_over_limit_ind: veteran.formatted_boolean(@payload['dependents_application']['household_income'])
         }
       )
     end
