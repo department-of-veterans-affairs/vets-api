@@ -16,8 +16,7 @@ module CovidVaccine
       end
 
       def connection
-        # TODO: Remove SSL no-verify option!
-        Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }) do |c|
+        Faraday.new(base_path, headers: base_request_headers, request: request_options) do |c|
           c.use :breakers
           c.request :camelcase
           c.request :json
