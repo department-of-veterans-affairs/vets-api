@@ -13,7 +13,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
 
-      claim.process_attachments!
+      claim.send_to_central_mail!
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       clear_saved_form(claim.form_id)

@@ -21,6 +21,11 @@ features:
     actor_type: user
     description: >
       Allows user to access chapter 33 benefits direct deposit view/update APIs
+  ch33_dd_profile:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allows user to access chapter 33 benefits (direct deposit for education) in the front end
   covid_vaccine_registration_frontend:
     actor_type: user
     description: >
