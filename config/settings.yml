@@ -445,6 +445,7 @@ shrine:
 maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
+  service_query_prefix: "External: "
   services:
     carma: P6XLE0T
     appeals: P9S4RFU
