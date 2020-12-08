@@ -2,7 +2,7 @@
 
 module OpenidAuth
   module Docs
-    module V0
+    module V1
       class ValidationController < ApplicationController
         skip_before_action(:authenticate)
 
