@@ -1,22 +1,25 @@
 # frozen_string_literal: true
 
 require_dependency 'mobile/application_controller'
+require 'vet360/address_validation/service'
 
 module Mobile
   module V0
     class AddressesController < ApplicationController
       include Vet360::Writeable
-
+      
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache
-
+      
+      skip_after_action :invalidate_cache, only: [:validation]
+      
       def create
         write_to_vet360_and_render_transaction!(
           'address',
           address_params
         )
       end
-
+      
       def update
         write_to_vet360_and_render_transaction!(
           'address',
@@ -24,9 +27,24 @@ module Mobile
           http_verb: 'put'
         )
       end
-
+      
+      def validate
+        address = Vet360::Models::ValidationAddress.new(address_params)
+        raise Common::Exceptions::ValidationErrors, address unless address.valid?
+        
+        response = validation_service.address_suggestions(address).as_json
+        suggested_addresses = response.dig('response', 'addresses').map do |a|
+          OpenStruct.new(a['address'].merge(
+            'id' => SecureRandom.uuid,
+            'meta' => a['address_meta_data']
+          ))
+        end
+       
+        render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)
+      end
+      
       private
-
+      
       def address_params
         params.permit(
           :address_line1,
@@ -41,8 +59,13 @@ module Mobile
           :province,
           :state_code,
           :validation_key,
-          :zip_code
+          :zip_code,
+          :zip_code_suffix,
         )
+      end
+      
+      def validation_service
+        @service ||= Vet360::AddressValidation::Service.new
       end
     end
   end
