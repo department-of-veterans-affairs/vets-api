@@ -7,8 +7,8 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
 
   has_one :submission,
           class_name: 'Form1010cg::Submission',
-          foreign_key: 'guid',
-          primary_key: 'claim_guid',
+          foreign_key: 'claim_guid',
+          primary_key: 'guid',
           inverse_of: :claim,
           dependent: :destroy
 
