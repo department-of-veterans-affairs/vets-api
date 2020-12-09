@@ -313,11 +313,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an ebenefits link and a link to View Payment History on VA.gov
-  form_1995_edu_updates:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Form updates to bring EDU forms in compliance with latest DEPO patterns and practices
   request_locked_pdf_password:
     actor_type: user
     enable_in_development: true
