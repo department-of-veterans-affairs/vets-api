@@ -10,13 +10,15 @@ module Mobile
 
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache
+      
+      def create
+        transaction = service.save_and_await_response(resource_type: 'telephone', params: phone_params)
+        render json: transaction, serializer: AsyncTransaction::BaseSerializer
+      end
 
       def update
-        write_to_vet360_and_render_transaction!(
-          'telephone',
-          phone_params,
-          http_verb: 'put'
-        )
+        transaction = service.save_and_await_response(resource_type: 'telephone', params: phone_params, update: true)
+        render json: transaction, serializer: AsyncTransaction::BaseSerializer
       end
 
       private

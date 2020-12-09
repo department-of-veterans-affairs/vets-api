@@ -11,17 +11,19 @@ module Mobile
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache
 
+      def create
+        transaction = service.save_and_await_response(resource_type: 'email', params: email_params)
+        render json: transaction, serializer: AsyncTransaction::BaseSerializer
+      end
+      
       def update
-        write_to_vet360_and_render_transaction!(
-          'email',
-          email_address_params,
-          http_verb: 'put'
-        )
+        transaction = service.save_and_await_response(resource_type: 'email', params: email_params, update: true)
+        render json: transaction, serializer: AsyncTransaction::BaseSerializer
       end
 
       private
 
-      def email_address_params
+      def email_params
         params.permit(
           :email_address,
           :effective_start_date,
