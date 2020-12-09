@@ -20,6 +20,9 @@ module ClaimsApi
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
           render json: bgs_response,
                  serializer: ClaimsApi::IntentToFileSerializer
+        rescue Common::Exceptions::Forbidden => e
+          render json: { errors: [{ status: 403, detail: e.errors[0]&.detail }] },
+                 status: :forbidden
         rescue Savon::SOAPFault => e
           error = {
             errors: [
