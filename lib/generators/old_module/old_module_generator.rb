@@ -2,7 +2,7 @@
 
 require 'rails/generators'
 
-class ModuleGenerator < Rails::Generators::NamedBase
+class OldModuleGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('templates', __dir__)
 
   def create_app

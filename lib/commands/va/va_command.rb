@@ -14,8 +14,8 @@ module Va
       end
 
       def perform(type = nil, *args)
-        Rails::Command.invoke :generate, ['module', '--help'] unless type == 'new'
-        ModuleGenerator.start args
+        Rails::Command.invoke :generate, ['old_module', '--help'] unless type == 'new'
+        OldModuleGenerator.start args
       end
     end
   end
