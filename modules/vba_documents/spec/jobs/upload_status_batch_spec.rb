@@ -14,7 +14,7 @@ RSpec.describe VBADocuments::UploadStatusBatch, type: :job do
   end
 
   describe '#perform' do
-    xit 'updates all the statuses' do
+    it 'updates all the statuses' do
       expect(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
