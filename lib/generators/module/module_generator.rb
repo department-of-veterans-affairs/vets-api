@@ -18,7 +18,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     # create gemfile
   end
 
-  #load into gemfile here
+  # load into gemfile here
   # run bundle
   def install
     insert_into_file 'Gemfile', "gem '#{file_name}', path: 'modules/#{file_name}'\n", after: "# Modules\n"
