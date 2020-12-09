@@ -5,17 +5,41 @@ class ModuleGenerator < Rails::Generators::NamedBase
     # create the dir structure here
   end
 
-  def create_and_configure
-    # create engine file
-    # create rakefile
-    # create readme
-    # create bin/rails
+  def create_engine
+  # create engine file
+    path = "modules/#{file_name}/lib"
+    template 'lib/namespace/engine.rb.erb', File.join(path, file_name, 'engine.rb')
+  end
 
-    #spec helper add group
-    # simplecov add group
+  def create_additional_files
+    path = "modules/#{file_name}"
+
+
+    # create rakefile
+    template 'Rakefile.erb', File.join(path, 'Rakefile')
+
+    # create readme
+    template 'README.rdoc.erb', File.join(path, 'README.rdoc')
+
+    # create bin/rails
+     template 'bin/rails.erb', File.join(path, 'bin', 'rails')
+     chmod File.join(path, 'bin', 'rails'), 0o755
+
+
     # /spec/spec_helper
+
     # create gemspec
+     template 'gemspec.erb', File.join(path, "#{file_name}.gemspec")
+
     # create gemfile
+    template 'Gemfile.erb', File.join(path, 'Gemfile')
+
+
+  end
+
+  def update_configurations
+    # spec helper add group
+    # simplecov add group
   end
 
   # load into gemfile here
@@ -27,8 +51,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     run 'bundle install'
 
     puts "\n"
-    puts "\u{1F64C} new va module generated at ./modules/#{file_name}\n\n"
-    puts "\u{1F680} run `rails s` then visit http://localhost:3000/#{file_name}/v0/hello_world to see your new endpoint"
+    puts "\u{1F64C} new module generated at ./modules/#{file_name}\n\n"
     puts "\n"
   end
 end
