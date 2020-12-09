@@ -17,7 +17,17 @@ module Form1010cg
 
     NOT_FOUND = 'NOT_FOUND'
 
-    def self.submit_attachment!(_carma_case_id, _veteran_name, _file_path); end
+    def self.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
+      raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?
+      raise 'invalid document_type' unless CARMA::Models::Attachment::DOCUMENT_TYPES.values.include?(document_type)
+
+      carma_attachments = CARMA::Models::Attachments.new(
+        carma_case_id, veteran_name['first'], veteran_name['last']
+      )
+
+      carma_attachments.add(document_type, file_path)
+      carma_attachments.submit!
+    end
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim

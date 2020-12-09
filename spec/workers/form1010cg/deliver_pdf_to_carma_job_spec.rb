@@ -29,6 +29,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
         expect(Form1010cg::Service).to receive(:submit_attachment!).with(
           submission.carma_case_id,
           claim.veteran_data['fullName'],
+          '10-10CG',
           pdf_file_path
         ).and_return(:submission)
       end

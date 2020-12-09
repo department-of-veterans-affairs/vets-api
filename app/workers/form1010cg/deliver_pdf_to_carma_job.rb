@@ -16,7 +16,7 @@ module Form1010cg
 
       # submit_attachment! does an "upsert" of the document in CARMA,
       # so this job can safely be executed multiple times.
-      Form1010cg::Service.submit_attachment!(submission.carma_case_id, veteran_name, file_path)
+      Form1010cg::Service.submit_attachment!(submission.carma_case_id, veteran_name, '10-10CG', file_path)
       delete_file file_path
       submission.destroy! # destroys the submission and claim
     end
