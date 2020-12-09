@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_27_195258) do
+ActiveRecord::Schema.define(version: 2020_12_07_173935) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -54,6 +54,8 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.string "encrypted_auth_headers_iv"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "code"
+    t.string "detail"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -167,6 +169,18 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.uuid "auto_established_claim_id"
   end
 
+  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "sid", null: false
+    t.uuid "account_id"
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
+    t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
+    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
+  end
+
   create_table "directory_applications", force: :cascade do |t|
     t.string "name"
     t.string "logo_url"
@@ -275,6 +289,18 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "form1010cg_submissions", force: :cascade do |t|
+    t.string "carma_case_id", limit: 18, null: false
+    t.datetime "accepted_at", null: false
+    t.string "claim_guid", null: false
+    t.json "metadata"
+    t.json "attachments"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["carma_case_id"], name: "index_form1010cg_submissions_on_carma_case_id", unique: true
+    t.index ["claim_guid"], name: "index_form1010cg_submissions_on_claim_guid", unique: true
+  end
+
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
     t.integer "form526_submission_id", null: false
     t.string "job_id", null: false
@@ -285,6 +311,15 @@ ActiveRecord::Schema.define(version: 2020_11_27_195258) do
     t.datetime "updated_at", null: false
     t.index ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id"
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
+  end
+
+  create_table "form526_opt_ins", id: :serial, force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.string "encrypted_email", null: false
+    t.string "encrypted_email_iv", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true
   end
 
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
