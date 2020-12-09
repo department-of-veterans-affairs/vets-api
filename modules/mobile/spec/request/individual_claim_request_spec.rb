@@ -15,7 +15,7 @@ RSpec.describe 'individual claim', type: :request do
     end
 
     it 'and a result that matches our schema is successfully returned with the 200 status ', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-      VCR.use_cassette('evss/claims/claim', match_requests_on: %i[uri method body]) do
+      VCR.use_cassette('evss/claims/claim') do
         get '/mobile/v0/claim/600117255', headers: iam_headers
         expect(response).to have_http_status(:ok)
       end

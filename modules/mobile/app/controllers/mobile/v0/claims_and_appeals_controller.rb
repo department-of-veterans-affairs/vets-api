@@ -36,14 +36,14 @@ module Mobile
       end
 
       def get_claim
-        claim = claims_service.find_claim_by_id(param[:id])
-        binding.pry
+        claim = claims_service.find_claim_by_id(params[:id])
+        render json: claim.body
       end
 
       def get_appeal
         appeals = appeals_service.get_appeals(@current_user).body['data']
         appeal = appeals.select { |entry| entry.dig('id') == params[:id] }
-        appeal[0]
+        render json: appeal[0]
       end
 
       private
