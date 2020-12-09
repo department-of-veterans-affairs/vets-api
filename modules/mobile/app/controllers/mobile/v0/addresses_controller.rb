@@ -10,13 +10,13 @@ module Mobile
       
       def create
         render_transaction_to_json(
-          service.save_and_await_response(resource_type: :address, params: params)
+          service.save_and_await_response(resource_type: :address, params: address_params)
         )
       end
       
       def update
         render_transaction_to_json(
-          service.save_and_await_response(resource_type: :address, params: params, update: true)
+          service.save_and_await_response(resource_type: :address, params: address_params, update: true)
         )
       end
       
