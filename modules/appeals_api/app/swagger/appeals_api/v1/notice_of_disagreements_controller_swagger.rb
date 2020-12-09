@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_dependency 'appeals_api/form_schemas'
+
 class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   include Swagger::Blocks
 
@@ -33,6 +35,72 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :responses, read_json_from_same_dir['responses_contestable_issues.json']
       security do
         key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/notice_of_disagreements/schema' do
+    operation :get do
+      key :summary, 'Get Notice of Disagreement JSON Schema'
+      key :operationId, 'getNodJsonSchema'
+      key :description, 'Returns a sample Notice of Disagreements JSON Schema'
+      key :produces, [
+        'application/json'
+      ]
+      key :tags, [
+        'Notice of Disagreements'
+      ]
+
+      security do
+        key :bearer_token, []
+      end
+
+      response 200 do
+        key :description, 'schema response'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :type, :array
+              items do
+                key :type, :object
+                key :description, 'Returning JSON Schema Objects'
+                key :example, AppealsApi::FormSchemas.new.schema('10182')
+              end
+            end
+          end
+        end
+      end
+
+      response :default do
+        key :description, 'unexpected error'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :description, 'Errors with some details for the given request'
+
+                key :required, %i[status detail]
+                property :status do
+                  key :type, :integer
+                  key :format, :int32
+                  key :example, '500'
+                  key :description, 'Standard 500 Response for Server Side issues'
+                end
+
+                property :detail do
+                  key :type, :string
+                  key :example, 'Something went wrong on our end. Try again soon.'
+                  key :description, 'A more detailed message about why an error occured'
+                end
+              end
+            end
+          end
+        end
       end
     end
   end
