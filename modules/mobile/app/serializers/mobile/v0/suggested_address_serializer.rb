@@ -4,7 +4,7 @@ module Mobile
   module V0
     class SuggestedAddressSerializer
       include FastJsonapi::ObjectSerializer
-      
+
       attributes :address_line1
       attributes :address_line2
       attributes :address_line3
@@ -19,7 +19,7 @@ module Mobile
       attributes :zip_code
       attributes :zip_code_suffix
 
-      meta { |address| address.meta }
+      meta(&:meta)
     end
   end
 end

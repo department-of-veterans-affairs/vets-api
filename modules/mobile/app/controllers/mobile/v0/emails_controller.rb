@@ -11,7 +11,7 @@ module Mobile
           service.save_and_await_response(resource_type: :email, params: email_params)
         )
       end
-      
+
       def update
         render_transaction_to_json(
           service.save_and_await_response(resource_type: :email, params: email_params, update: true)

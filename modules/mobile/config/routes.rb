@@ -2,7 +2,7 @@
 
 Mobile::Engine.routes.draw do
   get '/', to: 'discovery#index'
-  
+
   namespace :v0 do
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/letters', to: 'letters#index'

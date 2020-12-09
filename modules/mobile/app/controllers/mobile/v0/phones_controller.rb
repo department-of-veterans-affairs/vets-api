@@ -11,15 +11,15 @@ module Mobile
           service.save_and_await_response(resource_type: :telephone, params: phone_params)
         )
       end
-      
+
       def update
         render_transaction_to_json(
           service.save_and_await_response(resource_type: :telephone, params: phone_params, update: true)
         )
       end
-      
+
       private
-      
+
       def phone_params
         params.permit(
           :id,
