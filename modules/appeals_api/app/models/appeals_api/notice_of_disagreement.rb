@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
+require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
     include SentryLogging
+    include CentralMailStatus
 
     class << self
       def date_from_string(string)
@@ -86,7 +88,6 @@ module AppealsApi
 
     FORM_SCHEMA = load_json_schema '10182'
     AUTH_HEADERS_SCHEMA = load_json_schema '10182_headers'
-    STATUSES = %w[pending].freeze
 
     validates :status, inclusion: { 'in': STATUSES }
     validate(
@@ -100,6 +101,26 @@ module AppealsApi
       :validate_address,
       :validate_hearing_type_selection
     )
+
+    def veteran_first_name
+      header_field_as_string 'X-VA-First-Name'
+    end
+
+    def veteran_last_name
+      header_field_as_string 'X-VA-Last-Name'
+    end
+
+    def ssn
+      header_field_as_string 'X-VA-SSN'
+    end
+
+    def file_number
+      header_field_as_string 'X-VA-File-Number'
+    end
+
+    def zip_code_5
+      veteran_contact_info&.dig('address', 'zipCode5')
+    end
 
     def claimant_name
       name 'Claimant'
@@ -119,6 +140,10 @@ module AppealsApi
 
     def consumer_name
       auth_headers&.dig('X-Consumer-Username')
+    end
+
+    def consumer_id
+      auth_headers&.dig('X-Consumer-ID')
     end
 
     def board_review_option
