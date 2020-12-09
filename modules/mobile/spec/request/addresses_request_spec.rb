@@ -8,6 +8,13 @@ RSpec.describe 'address', type: :request do
   include JsonSchemaMatchers
   
   before { iam_sign_in(user) }
+
+  before(:all) do
+    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
+    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+  end
+
+  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
   
   let(:user) { FactoryBot.build(:iam_user) }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }

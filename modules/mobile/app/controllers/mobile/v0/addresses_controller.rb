@@ -5,26 +5,18 @@ require 'vet360/address_validation/service'
 
 module Mobile
   module V0
-    class AddressesController < ApplicationController
-      include Vet360::Writeable
-      
-      before_action { authorize :vet360, :access? }
-      after_action :invalidate_cache
-      
+    class AddressesController < ProfileBaseController
       skip_after_action :invalidate_cache, only: [:validation]
       
       def create
-        write_to_vet360_and_render_transaction!(
-          'address',
-          address_params
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :address, params: params)
         )
       end
       
       def update
-        write_to_vet360_and_render_transaction!(
-          'address',
-          address_params,
-          http_verb: 'put'
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :address, params: params, update: true)
         )
       end
       
@@ -39,7 +31,7 @@ module Mobile
             'meta' => a['address_meta_data']
           ))
         end
-       
+        
         render json: Mobile::V0::SuggestedAddressSerializer.new(suggested_addresses)
       end
       
@@ -65,7 +57,7 @@ module Mobile
       end
       
       def validation_service
-        @service ||= Vet360::AddressValidation::Service.new
+        Vet360::AddressValidation::Service.new
       end
     end
   end

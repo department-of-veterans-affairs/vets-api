@@ -5,24 +5,21 @@ require 'evss/pciu/service'
 
 module Mobile
   module V0
-    class PhonesController < ApplicationController
-      include Vet360::Writeable
-
-      before_action { authorize :vet360, :access? }
-      after_action :invalidate_cache
-      
+    class PhonesController < ProfileBaseController
       def create
-        transaction = service.save_and_await_response(resource_type: 'telephone', params: phone_params)
-        render json: transaction, serializer: AsyncTransaction::BaseSerializer
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :telephone, params: phone_params)
+        )
       end
-
+      
       def update
-        transaction = service.save_and_await_response(resource_type: 'telephone', params: phone_params, update: true)
-        render json: transaction, serializer: AsyncTransaction::BaseSerializer
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :telephone, params: phone_params, update: true)
+        )
       end
-
+      
       private
-
+      
       def phone_params
         params.permit(
           :id,

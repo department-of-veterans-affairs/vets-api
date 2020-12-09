@@ -14,7 +14,7 @@ module Mobile
           @transaction_id = nil
         end
 
-        def save_and_await_response(resource_type:, params:, update: true)
+        def save_and_await_response(resource_type:, params:, update: false)
           http_method = update ? 'put' : 'post'
           initial_transaction = save!(http_method, resource_type, params)
 

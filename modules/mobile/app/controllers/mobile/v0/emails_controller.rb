@@ -5,20 +5,17 @@ require 'evss/pciu/service'
 
 module Mobile
   module V0
-    class EmailsController < ApplicationController
-      include Vet360::Writeable
-
-      before_action { authorize :vet360, :access? }
-      after_action :invalidate_cache
-
+    class EmailsController < ProfileBaseController
       def create
-        transaction = service.save_and_await_response(resource_type: 'email', params: email_params)
-        render json: transaction, serializer: AsyncTransaction::BaseSerializer
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :email, params: email_params)
+        )
       end
       
       def update
-        transaction = service.save_and_await_response(resource_type: 'email', params: email_params, update: true)
-        render json: transaction, serializer: AsyncTransaction::BaseSerializer
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :email, params: email_params, update: true)
+        )
       end
 
       private
