@@ -54,7 +54,7 @@ module VRE
           educationLevel: form_data['yearsOfEducation'],
           useEva: form_data['useEva'],
           useTelecounseling: form_data['useTelecounseling'],
-          meetingTime: form_data['appointmentTimePreferences'].key(true),
+          meetingTime: form_data['appointmentTimePreferences'],
           isMoving: form_data['isMoving'],
           mainPhone: form_data['mainPhone'],
           cellPhone: form_data['cellPhone'],
