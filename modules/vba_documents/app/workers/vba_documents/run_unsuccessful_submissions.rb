@@ -8,7 +8,7 @@ module VBADocuments
 
     def perform
       guids = VBADocuments::UploadSubmission.where(status: 'uploaded').pluck(:guid)
-      guids.each { |guid| VBADocuments::UploadProcessor.perform_async(guid) }
+      # guids.each { |guid| VBADocuments::UploadProcessor.perform_async(guid) }
     end
   end
 end

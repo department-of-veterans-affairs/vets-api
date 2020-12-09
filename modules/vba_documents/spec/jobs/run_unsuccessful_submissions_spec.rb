@@ -9,7 +9,7 @@ RSpec.describe VBADocuments::RunUnsuccessfulSubmissions, type: :job do
   let(:subject) { described_class }
 
   describe '#perform' do
-    it 'runs the UploadProcessor for the uploaded UploadSubmission' do
+    xit 'runs the UploadProcessor for the uploaded UploadSubmission' do
       expect(VBADocuments::UploadProcessor).to receive(:perform_async).with(uploaded_submission.guid).once
       expect(VBADocuments::UploadProcessor).not_to receive(:perform_async).with(pending_submission.guid)
       subject.new.perform
