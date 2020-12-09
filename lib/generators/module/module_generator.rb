@@ -39,6 +39,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
 
   def update_configurations
     # spec helper add group
+    insert_into_file 'spec/spec_helper', "add_group '#{file_name.constantize}', 'modules/#{file_name}'\n", after: "# Modules\n"
     # simplecov add group
   end
 
