@@ -17,6 +17,8 @@ module Form1010cg
 
     NOT_FOUND = 'NOT_FOUND'
 
+    def self.submit_attachment!(_carma_case_id, _veteran_name, _file_path); end
+
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.

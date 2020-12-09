@@ -9,6 +9,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
 
   describe '#perform' do
     let(:claim_guid) { SecureRandom.uuid }
+    let(:pdf_file_path) { "tmp/pdfs/10-10cg_#{claim_guid}.pdf" }
     let(:claim) { build(:caregivers_assistance_claim, guid: claim_guid) }
     let(:submission) { build(:form1010cg_submission, claim_guid: claim_guid) }
 
@@ -18,8 +19,29 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
     end
 
     after do
-      claim.destroy
-      submission.destroy
+      claim.destroy unless claim.destroyed?
+      submission.destroy unless claim.destroyed?
+    end
+
+    shared_examples 'a successful job' do
+      before do
+        expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:to_pdf).and_return(pdf_file_path)
+        expect(Form1010cg::Service).to receive(:submit_attachment!).with(
+          submission.carma_case_id,
+          claim.veteran_data['fullName'],
+          pdf_file_path
+        ).and_return(:submission)
+      end
+
+      after do
+        expect { submission.reload }.to raise_error(ActiveRecord::RecordNotFound)
+        expect { claim.reload }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      # it 'processes attachment' { subject.perform(claim_guid) }
+      it 'processes attachment' do
+        subject.perform(claim_guid)
+      end
     end
 
     it 'requires a claim_guid' do
@@ -29,8 +51,12 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
     end
 
     context 'when submission is not found' do
+      let(:expected_exception_class) { ActiveRecord::RecordNotFound }
+
+      before { submission.delete } # delete the submission but not the claim
+
       it 'raises error' do
-        expect { subject.perform(SecureRandom.uuid) }.to raise_error(ActiveRecord::RecordNotFound) do |error|
+        expect { subject.perform(SecureRandom.uuid) }.to raise_error(expected_exception_class) do |error|
           expect(error.message).to include('Couldn\'t find Form1010cg::Submission')
         end
       end
@@ -39,9 +65,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
     context 'when claim is not found' do
       let(:expected_exception_class) { described_class::MissingClaimException }
 
-      before do
-        claim.delete # delete the claim but not the submission
-      end
+      before { claim.delete } # delete the claim but not the submission
 
       it 'raises error' do
         expect { subject.perform(claim_guid) }.to raise_error(expected_exception_class) do |error|
@@ -52,8 +76,8 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
 
     context 'when PDF generation fails' do
       let(:pdf_generation_exception) do
-        class MyPdfError < StandardError; end
-        MyPdfError.new('PDF could not be generated')
+        class MyPdfGenerationError < StandardError; end
+        MyPdfGenerationError.new('PDF could not be generated')
       end
 
       before do
@@ -71,7 +95,45 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
       end
     end
 
-    it 'delivers a PDF to carma with the Form1010cg::Service' do
+    it_behaves_like 'a successful job'
+
+    describe 'cleanup' do
+      context 'when PDF is still present' do
+        before do
+          expect(File).to receive(:exist?).with(pdf_file_path).and_return(true)
+        end
+
+        context 'and PDF deletion succeeds' do
+          it_behaves_like 'a successful job' do
+            before do
+              expect(File).to receive(:delete).with(pdf_file_path).and_return(true)
+            end
+          end
+        end
+
+        context 'and PDF deletion fails' do
+          let(:pdf_delete_exception) do
+            class MyPdfDeleteError < StandardError; end
+            MyPdfDeleteError.new('PDF could not be deleted')
+          end
+
+          it_behaves_like 'a successful job' do
+            before do
+              expect(File).to receive(:delete).with(pdf_file_path).and_raise(pdf_delete_exception)
+              expect(Rails.logger).to receive(:error).with(pdf_delete_exception)
+            end
+          end
+        end
+      end
+
+      context 'when PDF is deleted from another source' do
+        it_behaves_like 'a successful job' do
+          before do
+            expect(File).to receive(:exist?).with(pdf_file_path).and_return(false)
+            expect(File).not_to receive(:delete)
+          end
+        end
+      end
     end
   end
 end
