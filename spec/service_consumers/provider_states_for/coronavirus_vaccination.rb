@@ -2,8 +2,17 @@
 
 Pact.provider_states_for 'CoronavirusVaccination' do
 
-  # define multiple provider states as needed for each interaction in the pact 	
-  provider_state 'interaction string' do
+  provider_state 'authenticated user application data' do
+    set_up do
+    end
+
+    tear_down do
+    end
+
+	# no_op - define no_op if a provider state is not necessary
+  end
+
+  provider_state 'unauthenticated user application data' do
     set_up do
     end
 
