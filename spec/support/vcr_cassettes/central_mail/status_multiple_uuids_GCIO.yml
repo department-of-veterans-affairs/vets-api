@@ -5,7 +5,7 @@ http_interactions:
     uri: https://test2.domaonline.com/EmmsAPI/VADocument/getStatus
     body:
       encoding: UTF-8
-      string: token=<PENSIONS_TOKEN>&uuid=%5B%22a8c29dbc-a0a6-4177-ae57-fc6143ec7edb%22%2C%22b2b677e3-a6c1-4d07-ae7d-e013d60bec43%22%2C%228ef145ee-3c6a-4215-b39a-af56c0d2c347%22%2C%2284bb3df3-c090-44a7-aa0d-76e9ab97eab0%22%2C%22ef1a3cc4-0873-4d2e-85c4-2dc7f7257b54%22%5D
+      string: token=<PENSIONS_TOKEN>&uuid=%5B%22a8c29dbc-a0a6-4177-ae57-fc6143ec7edb%22%2C%22b2b677e3-a6c1-4d07-ae7d-e013d60bec43%22%2C%2284bb3df3-c090-44a7-aa0d-76e9ab97eab0%22%5D
     headers:
       User-Agent:
       - Faraday v0.17.0
@@ -25,7 +25,7 @@ http_interactions:
       Pragma:
       - no-cache
       Content-Length:
-      - '396'
+      - '503'
       Content-Type:
       - application/json; charset=utf-8
       Expires:
@@ -57,12 +57,14 @@ http_interactions:
         base-uri https://*.domaonline.com  https://docs.helpscout.net; object-src
         https://*.domaonline.com https://beacon-v2.helpscout.net;'
       Date:
-      - Thu, 03 Dec 2020 22:12:40 GMT
+      - Wed, 09 Dec 2020 14:20:09 GMT
     body:
       encoding: UTF-8
-      string: '[[{"uuid":"a8c29dbc-a0a6-4177-ae57-fc6143ec7edb","status":"Received","errorMessage":"Dave
-        Was Here","lastUpdated":"2020-12-03 13:15:11"}],[{"uuid":"b2b677e3-a6c1-4d07-ae7d-e013d60bec43","status":"Received","errorMessage":null,"lastUpdated":"2020-11-20
+      string: '[[{"uuid":"a8c29dbc-a0a6-4177-ae57-fc6143ec7edb","status":"Error","errorMessage":"Errors:
+        ;ERR-EMMS-FAILED, Attachment List Count Does Not Match Folder File Count,
+        ConfirmationNumber: 40, File: EMMS-GCIO-40.XML;","lastUpdated":"2020-12-05
+        12:59:51"}],[{"uuid":"b2b677e3-a6c1-4d07-ae7d-e013d60bec43","status":"Received","errorMessage":null,"lastUpdated":"2020-11-20
         14:02:37"}],[{"uuid":"84bb3df3-c090-44a7-aa0d-76e9ab97eab0","status":"Received","errorMessage":null,"lastUpdated":"2020-11-20
-        13:55:05"}],[],[]]'
-  recorded_at: Thu, 03 Dec 2020 22:12:46 GMT
+        13:55:05"}]]'
+  recorded_at: Wed, 09 Dec 2020 14:20:14 GMT
 recorded_with: VCR 6.0.0

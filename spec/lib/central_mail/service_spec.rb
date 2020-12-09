@@ -5,7 +5,7 @@ require 'central_mail/service'
 require 'securerandom'
 
 RSpec.describe CentralMail::Service do
-  let(:vendor) { 'GDIT' }
+  let(:vendor) { 'GCIO' }
   let(:service) { described_class.new }
 
   describe '#status' do
