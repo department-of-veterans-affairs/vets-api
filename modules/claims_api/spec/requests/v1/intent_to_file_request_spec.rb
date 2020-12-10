@@ -74,10 +74,6 @@ RSpec.describe 'Intent to file', type: :request do
           expect_any_instance_of(OpenidUser).to receive(:participant_id).and_raise(ArgumentError.new('whatever'))
           data[:data][:attributes] = { type: 'burial' }
           post path, params: data.to_json, headers: headers.merge(auth_header)
-          p '!!!!!!!!!!!!!!!!!!!'
-          p response.status
-          p JSON.parse(response.body)
-          p '!!!!!!!!!!!!!!!!!!!'
           expect(response.status).to eq(403)
         end
       end
