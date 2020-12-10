@@ -48,7 +48,7 @@ RSpec.describe 'address', type: :request do
 
     context 'when it has not completed within the timeout window (< 60s)' do
       before do
-        allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService).to receive(:get_elapsed).and_return(61)
+        allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService).to receive(:seconds_elapsed_since).and_return(61)
 
         VCR.use_cassette('profile/get_address_status_complete') do
           VCR.use_cassette('profile/get_address_status_incomplete_2') do
