@@ -87,7 +87,7 @@ module AppealsApi
           end
         else
           text = "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
-          options[:additional_page] = "#{text}\n#{options[:additional_page]}"
+          options[:additional_pages] = "#{text}\n#{options[:additional_page]}"
         end
       end
       @pdf_options = options
