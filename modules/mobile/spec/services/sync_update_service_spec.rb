@@ -63,7 +63,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
 
     context 'when it has not completed within the timeout window (< 60s)' do
       before do
-        allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService).to receive(:get_elapsed).and_return(61)
+        allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService).to receive(:seconds_elapsed_since).and_return(61)
       end
 
       it 'raises a gateway timeout error' do

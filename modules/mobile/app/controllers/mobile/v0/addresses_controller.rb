@@ -11,7 +11,7 @@ module Mobile
       after_action :invalidate_cache
 
       def update
-        transaction = service.save_and_await_response(resource_type: 'address', params: address_params)
+        transaction = service.save_and_await_response(resource_type: 'address', params: address_params, update: true)
         render json: transaction, serializer: AsyncTransaction::BaseSerializer
       end
 
