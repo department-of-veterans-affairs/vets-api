@@ -5,6 +5,7 @@ require 'evss/disability_compensation_auth_headers'
 require 'evss/disability_compensation_form/form4142'
 require 'evss/disability_compensation_form/service'
 require 'evss/reference_data/service'
+require 'evss/reference_data/response_strategy'
 
 module V0
   class DisabilityCompensationFormsController < ApplicationController
@@ -19,7 +20,7 @@ module V0
 
     def separation_locations
       response = EVSS::ReferenceData::ResponseStrategy.new.cache_or_service(
-          @current_user.uuid,
+          :all_users,
           :get_separation_locations
         ) do
           EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
