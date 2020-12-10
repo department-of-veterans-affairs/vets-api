@@ -103,7 +103,7 @@ module ClaimsApi
         begin
           @current_user.participant_id
         rescue ArgumentError
-          raise Common::Exceptions::Forbidden, detail: "Representative cannot file for type 'burial'"
+          raise ::Common::Exceptions::Forbidden, detail: "Representative cannot file for type 'burial'"
         end
       else
         target_veteran.participant_id
