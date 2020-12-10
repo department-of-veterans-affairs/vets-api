@@ -13,6 +13,7 @@ gem 'appeals_api', path: 'modules/appeals_api'
 gem 'apps_api', path: 'modules/apps_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'covid_research', path: 'modules/covid_research'
+gem 'covid_vaccine', path: 'modules/covid_vaccine'
 gem 'health_quest', path: 'modules/health_quest'
 gem 'mobile', path: 'modules/mobile'
 gem 'openid_auth', path: 'modules/openid_auth'
@@ -24,7 +25,7 @@ gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.5'
+gem 'puma', '~> 4.3.7'
 gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 6.0.2'
 
@@ -107,13 +108,13 @@ gem 'sentry-raven'
 gem 'shrine'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
+gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
-gem 'zero_downtime_migrations'
 
 group :development do
   gem 'benchmark-ips'
