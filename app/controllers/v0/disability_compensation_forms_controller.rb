@@ -20,10 +20,10 @@ module V0
 
     def separation_locations
       response = EVSS::ReferenceData::ResponseStrategy.new.cache_or_service(
-          :all_users,
-          :get_separation_locations
-        ) do
-          EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+        :all_users,
+        :get_separation_locations
+      ) do
+        EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
       end
 
       render json: response, each_serializer: EVSSSeparationLocationSerializer

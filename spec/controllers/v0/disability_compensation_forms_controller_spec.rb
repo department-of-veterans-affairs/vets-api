@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
   let(:user) { build(:user, :loa3) }
+
   before do
     sign_in_as(user)
   end
