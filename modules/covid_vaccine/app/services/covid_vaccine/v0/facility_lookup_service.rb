@@ -5,10 +5,18 @@ require 'lighthouse/facilities/client'
 module CovidVaccine
   module V0
     class FacilityLookupService
+      # List of VA "consolidated" facilities, VAMCs that had their
+      # VistA instances merged and therefore are VAMCs that may have a
+      # longer than 3 digit station ID
+      CONSOLIDATED_FACILITIES = %w[528 528A4 528A5 528A6 528A7 528A8
+                                   549 589 589A4 589A5 589A6 589A7
+                                   620 620A4 626 626A4 636 636A6
+                                   636A8 657 657A4 657A5].freeze
+
       # return a map of attributes including the zipcodes lat/long
       # and the list of n closest health facilities
-      def facilities_for(zipcode, count = 5)
-        zcta_row = ZCTA[zipcode[0...5]]
+      def facilities_for(zipcode)
+        zcta_row = ZCTA[zipcode&.[](0...5)]
         return { zip: nil } if zcta_row.blank?
 
         lat = zcta_row[ZCTA_LAT_HEADER]
@@ -17,7 +25,7 @@ module CovidVaccine
           zip: zipcode,
           zip_lat: lat,
           zip_lng: lng,
-          zip_facilities: nearest_facilities(lat, lng, count)
+          zip_facilities: nearest_facilities(lat, lng)
         }
       end
 
@@ -28,15 +36,29 @@ module CovidVaccine
       # of results is returned based on limitations of the drive-time API,
       # scraps those results and falls back to find the n nearest by distance
       #
-      def nearest_facilities(lat, lng, count)
+      def nearest_facilities(lat, lng)
         client = Lighthouse::Facilities::Client.new
-        result = client.nearby(lat: lat, lng: lng)
-        if result.length >= count
-          result.map { |x| x.id.delete_prefix('vha_') }[0..count - 1]
-        else
-          result = client.get_facilities(lat: lat, long: lng, per_page: count, type: 'health')
-          result.map { |x| x.id.delete_prefix('vha_') }
+        response = client.nearby(lat: lat, lng: lng)
+        result = nearest_vamc(response.map { |x| x.id.delete_prefix('vha_') })
+        if result.blank?
+          # Does not seem feasible that a location would be closer to
+          # 30 clinics than any VAMCs
+          response = client.get_facilities(lat: lat, long: lng,
+                                           per_page: 30, type: 'health')
+          result = nearest_vamc(response.map { |x| x.id.delete_prefix('vha_') })
         end
+        result
+      end
+
+      ## Get the prefix of the provided list up to and including the nearest VAMC,
+      # either a facility with a  sta3n (3-digit numeric) station ID,
+      # or a facility from the consolidated facility list
+      # Returns nil if the provided list does not contain any VAMC
+      def nearest_vamc(facility_ids)
+        idx = facility_ids.find_index { |f| f.length == 3 or CONSOLIDATED_FACILITIES.include?(f) }
+        return nil if idx.nil?
+
+        facility_ids[0..idx]
       end
     end
   end

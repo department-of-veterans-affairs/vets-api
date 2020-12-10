@@ -23,11 +23,7 @@ module Lighthouse
         self.data = parsed_body['data']
         self.meta = parsed_body['meta']
         self.links = parsed_body['links']
-        if meta
-          self.current_page = meta['pagination']['current_page']
-          self.per_page = meta['pagination']['per_page']
-          self.total_entries = meta['pagination']['total_entries']
-        end
+        # This endpoint is not currently responding with a JSONAPI meta element
       end
 
       def facilities
