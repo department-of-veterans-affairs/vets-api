@@ -43,7 +43,8 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       it 'returns a sid' do
         VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
           expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
-            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
+            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
+            .by(1)
             .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
           expect(response).to have_http_status(:created)
           expect(JSON.parse(response.body)['data']['id']).to eq('C4471842B588278B6D160738877782115')
@@ -59,7 +60,8 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       it 'returns a sid' do
         VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
           expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
-            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
+            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
+            .by(1)
             .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
           expect(response).to have_http_status(:created)
           expect(JSON.parse(response.body)['data']['id']).to eq('C4471842B588278B6D160738877782115')
@@ -75,7 +77,8 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       it 'returns a sid' do
         VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
           expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
-            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
+            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
+            .by(1)
             .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
           expect(response).to have_http_status(:created)
           expect(JSON.parse(response.body)['data']['id']).to eq('C4471842B588278B6D160738877782115')
