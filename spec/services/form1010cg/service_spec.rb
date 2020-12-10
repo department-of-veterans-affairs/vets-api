@@ -41,8 +41,8 @@ RSpec.describe Form1010cg::Service do
   describe '::submit_attachment!' do
     let(:carma_case_id) { 'CAS_1234' }
     let(:veteran_name) { { 'first' => 'Jane', 'last' => 'Doe' } }
-    let(:document_type) { 'tmp/10-10cg-uuid-123.pdf' }
-    let(:file_path) { 'tmp/10-10cg-uuid-123.pdf' }
+    let(:document_type) { '10-10CG' }
+    let(:file_path) { 'tmp/pdfs/10-10CG_uuid-123.pdf' }
 
     it 'requires a carma_case_id, veteran_name, document_type, and file_path' do
       expect { described_class.submit_attachment! }.to raise_error(ArgumentError) do |e|
@@ -97,22 +97,42 @@ RSpec.describe Form1010cg::Service do
       end
     end
 
-    # TODO: handle when the CARMA attachments.has_errors
+    describe 'on delivery' do
+      let(:carma_attachments) { double }
 
-    it 'sends file to carma' do
-      carma_attachments = double
+      before do
+        expect(CARMA::Models::Attachments).to receive(
+          :new
+        ).with(
+          carma_case_id, veteran_name['first'], veteran_name['last']
+        ).and_return(carma_attachments)
 
-      expect(CARMA::Models::Attachments).to receive(
-        :new
-      ).with(
-        carma_case_id, veteran_name['first'], veteran_name['last']
-      ).and_return(carma_attachments)
+        expect(carma_attachments).to receive(:add).with('10-10CG', file_path).and_return(carma_attachments)
+      end
 
-      expect(carma_attachments).to receive(:add).with('10-10CG', file_path).and_return(carma_attachments)
-      expect(carma_attachments).to receive(:submit!).and_return(:PROCESSED_ATTACHMENTS)
+      context 'when a client error occures' do
+        before do
+          expect(carma_attachments).to receive(:submit!).and_raise(Faraday::ClientError.new('bad request'))
+        end
 
-      result = described_class.submit_attachment!(carma_case_id, veteran_name, '10-10CG', file_path)
-      expect(result).to eq(:PROCESSED_ATTACHMENTS)
+        it 'raises error' do
+          submission_method = lambda do
+            described_class.submit_attachment!(carma_case_id, veteran_name, '10-10CG', file_path)
+          end
+          expect { submission_method.call }.to raise_error(Faraday::ClientError)
+        end
+      end
+
+      context 'when successful' do
+        before do
+          expect(carma_attachments).to receive(:submit!).and_return(:PROCESSED_ATTACHMENTS)
+        end
+
+        it 'returns attachments payload' do
+          result = described_class.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
+          expect(result).to eq(:PROCESSED_ATTACHMENTS)
+        end
+      end
     end
   end
 
