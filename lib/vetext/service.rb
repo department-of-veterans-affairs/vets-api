@@ -9,7 +9,9 @@ module VEText
   class Service < Common::Client::Base
     configuration VEText::Configuration
 
-    REGISTER_PATH = '/api/vetext/pub/mobile/push/endpoint'
+    BASE_PATH = '/api/vetext/pub/mobile/push'
+    REGISTER_PATH = BASE_PATH + '/endpoint'
+    PREFERENCES_PATH = BASE_PATH + '/preferences/client'
 
     # Register a user's mobile device with the push notification service.
     #
@@ -20,7 +22,7 @@ module VEText
     # @os_version String     the operating system version number from the device
     # @device_name String    (optional) the name of the device
     #
-    # @return Hash           response object, which includes sid
+    # @return Hash           response object, which includes endpoint_sid
     #
     def register(app_sid, device_token, icn, os_name, os_version, device_name = nil)
       response = perform(
@@ -32,6 +34,44 @@ module VEText
           os: os_name,
           osVersion: os_version,
           deviceName: device_name || os_name
+        }
+      )
+      response.body
+    rescue Common::Client::Errors::ClientError => e
+      remap_error(e)
+    end
+
+    # Get preferences for a given user/device.
+    #
+    # @endpoint_sid String    the registration id as returned from `register`
+    #
+    # @return Hash            response object
+    #
+    def get_preferences(endpoint_sid)
+      response = perform(
+        :get,
+        `#{PREFERENCES_PATH}/#{endpoint_sid}`
+      )
+      response.body
+    rescue Common::Client::Errors::ClientError => e
+      remap_error(e)
+    end
+
+    # Set a single preference for a given user/device.
+    #
+    # @endpoint_sid String    the registration id as returned from `register`
+    # @preference_id String   the preference type identifier
+    # @value boolean          true: user wishes to receive this type of push notification
+    #
+    # @return Hash            response object
+    #
+    def set_preference(endpoint_sid, preference_id, value)
+      response = perform(
+        :put,
+        PREFERENCES_PATH, {
+          endpointSid: endpoint_sid,
+          preferenceId: preference_id,
+          value: !!value
         }
       )
       response.body
