@@ -34,7 +34,7 @@ module VBADocuments
           submission.status = request.headers['Status-Override']
           submission.save
         else
-          submission.refresh_status! unless submission.status == 'expired'
+          # submission.refresh_status! unless submission.status == 'expired'
         end
 
         render json: submission,
