@@ -16,7 +16,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
       end
     end
 
-    it 'will used the cached response on the second request' do
+    it 'will use the cached response on the second request' do
       VCR.use_cassette('evss/reference_data/get_intake_sites') do
         2.times do
           get(:separation_locations)
