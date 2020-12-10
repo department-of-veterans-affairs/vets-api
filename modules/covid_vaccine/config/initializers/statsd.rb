@@ -6,3 +6,6 @@ vetext_endpoints.each do |endpoint|
   StatsD.increment("api.vetext.#{endpoint}.total", 0)
   StatsD.increment("api.vetext.#{endpoint}.fail", 0)
 end
+
+StatsD.increment('worker.covid_vaccine_registration_email.error', 0)
+StatsD.increment('worker.covid_vaccine_registration_email.success', 0)
