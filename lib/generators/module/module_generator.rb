@@ -53,7 +53,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
   # run bundle
   def install
     insert_into_file 'Gemfile', "gem '#{file_name}', path: 'modules/#{file_name}'\n", after: "# Modules\n"
-    route "mount #{file_name.capitalize}::Engine, at: '/#{file_name}'"
+    route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
     # Do we want this?
     # append_to_file 'config/settings.yml', "\n#{file_name}:\n  url: 'https://api.va.gov'"
     run 'bundle install'
