@@ -8,7 +8,7 @@ describe CovidVaccine::V0::FacilityLookupService do
   describe '#facilities_for' do
     describe 'with invalid zip codes' do
       it 'returns a default response' do
-        expect(subject.facilities_for('00001')).to include(zip_code: nil)
+        expect(subject.facilities_for('00001')).not_to include(:zip_code)
         expect(subject.facilities_for('00001')).not_to include(:sta3n)
         expect(subject.facilities_for('00001')).not_to include(:sta6a)
       end
@@ -16,7 +16,7 @@ describe CovidVaccine::V0::FacilityLookupService do
 
     describe 'with nil zip code' do
       it 'returns a default response' do
-        expect(subject.facilities_for(nil)).to include(zip_code: nil)
+        expect(subject.facilities_for(nil)).not_to include(:zip_code)
         expect(subject.facilities_for('00001')).not_to include(:sta3n)
         expect(subject.facilities_for('00001')).not_to include(:sta6a)
       end
@@ -76,8 +76,36 @@ describe CovidVaccine::V0::FacilityLookupService do
       end
     end
 
-    context
+    context 'with a timeout error from the facilities API' do
+      it 'returns empty facility info' do
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+        result = subject.facilities_for('97214')
+        expect(result[:zip_code]).to eq '97214'
+        expect(result[:sta3n]).to be_nil
+        expect(result[:sta6a]).to be_nil
+      end
+    end
 
-    0o4330
+    context 'with any error from the facilities nearby API' do
+      it 'returns empty facility info' do
+        allow_any_instance_of(Lighthouse::Facilities::Client).to receive(:nearby)
+          .and_raise(StandardError.new('facilities exception'))
+        result = subject.facilities_for('97214')
+        expect(result[:zip_code]).to eq '97214'
+        expect(result[:sta3n]).to be_nil
+        expect(result[:sta6a]).to be_nil
+      end
+    end
+
+    context 'with any error from the facilities API' do
+      it 'returns empty facility info' do
+        allow_any_instance_of(Lighthouse::Facilities::Client).to receive(:get_facilities)
+          .and_raise(StandardError.new('facilities exception'))
+        result = subject.facilities_for('97214')
+        expect(result[:zip_code]).to eq '97214'
+        expect(result[:sta3n]).to be_nil
+        expect(result[:sta6a]).to be_nil
+      end
+    end
   end
 end

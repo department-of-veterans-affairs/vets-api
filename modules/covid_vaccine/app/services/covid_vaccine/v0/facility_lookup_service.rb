@@ -17,7 +17,7 @@ module CovidVaccine
       # and the list of n closest health facilities
       def facilities_for(zipcode)
         zcta_row = ZCTA[zipcode&.[](0...5)]
-        return { zip_code: nil } if zcta_row.blank?
+        return {} if zcta_row.blank?
 
         lat = zcta_row[ZCTA_LAT_HEADER]
         lng = zcta_row[ZCTA_LON_HEADER]
@@ -55,6 +55,9 @@ module CovidVaccine
           sta3n: sta3n,
           sta6a: sta6a
         }
+      rescue
+        # For now just bail on any exception while getting facilities
+        {}
       end
 
       ## Get the prefix of the provided list up to and including the nearest VAMC,
