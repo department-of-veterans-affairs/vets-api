@@ -18,7 +18,7 @@ module CovidVaccine
                  else
                    svc.register(params[:registration])
                  end
-        render json: result, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
+        render json: result, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer, status: :created
       end
 
       def show
