@@ -327,7 +327,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LettersBenficiaryInfo"
+                $ref: "#/components/schemas/LettersBeneficiaryInfo"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -992,9 +992,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-  /v0/payment-information/benfits:
+  /v0/payment-information/benefits:
     get:
-      summary: /v0/payment-information/benfits
+      summary: /v0/payment-information/benefits
       description: Returns direct deposit payment info
       operationId: index
       security:
@@ -1055,7 +1055,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Errors"
     put:
-      summary: /v0/payment-information/benfits
+      summary: /v0/payment-information/benefits
       description: Returns updated direct deposit payment info
       operationId: update
       security:
@@ -1961,7 +1961,7 @@ components:
             - benefit_summary
             - benefit_verification
             - certificate_of_eligibility
-    LettersBenficiaryInfo:
+    LettersBeneficiaryInfo:
       required:
         - data
       properties:

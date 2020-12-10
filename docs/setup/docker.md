@@ -1,8 +1,11 @@
-### Docker Setup
+# Docker Setup
 
-To start, fetch this code:
+## Docker Desktop (Engine + Compose)
 
-`git clone https://github.com/department-of-veterans-affairs/vets-api.git`
+- [Mac](https://docs.docker.com/docker-for-mac/install/)
+- [Windows](https://docs.docker.com/docker-for-windows/install/)
 
-1. Install [Docker Engine](https://docs.docker.com/engine/install/) and [Docker Compose](https://docs.docker.com/compose/install/) for your platform. We strongly recommend Docker Desktop for [Mac](https://docs.docker.com/engine/install/) or [Windows](https://docs.docker.com/docker-for-windows/install/) users.
+## Linux (Ubuntu)
 
+- [Docker Engine](https://docs.docker.com/engine/install/#server)
+- [Docker Compose](https://docs.docker.com/compose/install/#install-compose-on-linux-systems)

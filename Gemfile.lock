@@ -98,6 +98,12 @@ PATH
       sidekiq
 
 PATH
+  remote: modules/covid_vaccine
+  specs:
+    covid_vaccine (0.1.0)
+      sidekiq
+
+PATH
   remote: modules/health_quest
   specs:
     health_quest (0.1.0)
@@ -640,7 +646,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.6)
-    puma (4.3.5)
+    puma (4.3.7)
       nio4r (~> 2.0)
     puma-plugin-statsd (0.1.0)
       json
@@ -840,6 +846,8 @@ GEM
       sprockets (>= 3.0.0)
     staccato (0.5.3)
     statsd-instrument (2.6.0)
+    strong_migrations (0.7.3)
+      activerecord (>= 5)
     super_diff (0.5.1)
       attr_extras (>= 6.2.4)
       diff-lcs
@@ -904,8 +912,6 @@ GEM
       nokogiri (~> 1.5)
     yard (0.9.25)
     zeitwerk (2.4.0)
-    zero_downtime_migrations (0.0.7)
-      activerecord
 
 PLATFORMS
   ruby
@@ -938,6 +944,7 @@ DEPENDENCIES
   config
   connect_vbms!
   covid_research!
+  covid_vaccine!
   danger
   database_cleaner
   date_validator
@@ -998,7 +1005,7 @@ DEPENDENCIES
   pg
   prawn
   pry-byebug
-  puma (~> 4.3.5)
+  puma (~> 4.3.7)
   puma-plugin-statsd (~> 0.1.0)
   pundit
   rack
@@ -1041,6 +1048,7 @@ DEPENDENCIES
   spring-commands-rspec
   staccato
   statsd-instrument (~> 2.6.0)
+  strong_migrations
   super_diff
   swagger-blocks
   timecop
@@ -1062,7 +1070,6 @@ DEPENDENCIES
   websocket-extensions (>= 0.1.5)
   will_paginate
   yard
-  zero_downtime_migrations
 
 RUBY VERSION
    ruby 2.6.6p146

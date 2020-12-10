@@ -566,6 +566,12 @@ va_mobile:
   key_path: /fake/client/key/path
   timeout: 15
 
+vetext:
+  url: "https://something.fake.va.gov"
+  mock: false
+  token: fake_token
+  timeout: 15
+
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
