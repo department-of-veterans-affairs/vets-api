@@ -27,6 +27,7 @@ module CovidVaccine
         # TODO: error handling
         response = CovidVaccine::V0::VetextService.new.put_vaccine_registry(attributes)
         Rails.logger.info("Vetext Response: #{response}")
+
         CovidVaccine::V0::RegistrationSubmission.create({ sid: response[:sid],
                                                           account_id: account_id,
                                                           form_data: attributes })
@@ -35,10 +36,8 @@ module CovidVaccine
       def form_attributes(form_data)
         {
           vaccine_interest: form_data['vaccine_interest'],
-          date_vaccine_received: form_data['date_vaccine_received'],
-          reason_undecided: form_data['reason_undecided'],
-          contact: form_data['contact_preference'],
-          contact_method: form_data['contact_method'],
+          zip_code: form_data['zip_code'],
+          time_at_zip: form_data['zip_code_details'],
           phone: form_data['phone'],
           email: form_data['email'],
           # Values below this point will get merged over by values
@@ -47,14 +46,6 @@ module CovidVaccine
           last_name: form_data['last_name'],
           date_of_birth: form_data['birth_date'],
           patient_ssn: form_data['ssn']
-        }.merge(facility_attrs(form_data))
-      end
-
-      def facility_attrs(form_data)
-        {
-          # TODO: verify this v questionable logic
-          sta6a: form_data['preferred_facility']&.delete_prefix('vha_'),
-          sta3n: form_data['preferred_facility']&.delete_prefix('vha_')&.slice(0, 3)
         }
       end
 
