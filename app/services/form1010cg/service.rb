@@ -68,9 +68,18 @@ module Form1010cg
         metadata: carma_submission.request_body['metadata']
       )
 
-      submit_attachment
+      submit_attachment_async
 
       submission
+    end
+
+    def submit_attachment_async
+      submission.claim = claim
+      submission.save
+
+      Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
+    rescue => e
+      Rails.logger.error(e)
     end
 
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
