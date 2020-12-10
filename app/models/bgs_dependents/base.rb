@@ -120,5 +120,11 @@ module BGSDependents
         email_addrs_txt: payload['email_address']
       }
     end
+
+    def formatted_boolean(bool_attribute)
+      return nil if bool_attribute.nil?
+
+      bool_attribute ? 'Y' : 'N'
+    end
   end
 end
