@@ -28,6 +28,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     chmod File.join(path, 'bin', 'rails'), 0o755
 
     # /spec/spec_helper
+    # template 'spec/spec_helper.rb.erb', File.join(path, 'spec', 'spec_helper.rb')
 
     # create the routes file
     template 'config/routes.rb.erb', File.join(path, 'config', 'routes.rb')
