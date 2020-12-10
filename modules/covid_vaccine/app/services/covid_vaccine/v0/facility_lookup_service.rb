@@ -17,16 +17,15 @@ module CovidVaccine
       # and the list of n closest health facilities
       def facilities_for(zipcode)
         zcta_row = ZCTA[zipcode&.[](0...5)]
-        return { zip: nil } if zcta_row.blank?
+        return { zip_code: nil } if zcta_row.blank?
 
         lat = zcta_row[ZCTA_LAT_HEADER]
         lng = zcta_row[ZCTA_LON_HEADER]
         {
-          zip: zipcode,
+          zip_code: zipcode,
           zip_lat: lat,
-          zip_lng: lng,
-          zip_facilities: nearest_facilities(lat, lng)
-        }
+          zip_lon: lng,
+        }.merge(nearest_facilities(lat, lng))
       end
 
       private
@@ -39,6 +38,8 @@ module CovidVaccine
       def nearest_facilities(lat, lng)
         client = Lighthouse::Facilities::Client.new
         response = client.nearby(lat: lat, lng: lng)
+        # Work around a bug in /nearby API that returns non-VHA facilities
+        response = response.filter {|x| x.id.start_with?('vha_') }
         result = nearest_vamc(response.map { |x| x.id.delete_prefix('vha_') })
         if result.blank?
           # Does not seem feasible that a location would be closer to
@@ -47,7 +48,13 @@ module CovidVaccine
                                            per_page: 30, type: 'health')
           result = nearest_vamc(response.map { |x| x.id.delete_prefix('vha_') })
         end
-        result
+        sta3n = result.last if result.last.length == 3
+        sta6a = result.first if result.first.length > 3
+        sta6a = result.last if result.last.length > 3
+        { 
+          sta3n: sta3n,
+          sta6a: sta6a
+        }
       end
 
       ## Get the prefix of the provided list up to and including the nearest VAMC,
