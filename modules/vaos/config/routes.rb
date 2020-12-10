@@ -22,7 +22,7 @@ VAOS::Engine.routes.draw do
       resources :limits, only: :index
       get 'visits/:schedule_type', to: 'visits#index'
     end
-    get '/facilities/limits', to: 'limits#index'
+    get '/facilities/limits', to: 'facilities#limits'
     resource :preferences, only: %i[show update]
     resources :direct_booking_eligibility_criteria, only: :index
     resources :request_eligibility_criteria, only: :index
