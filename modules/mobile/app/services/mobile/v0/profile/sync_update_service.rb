@@ -31,7 +31,7 @@ module Mobile
         #
         # @return AsyncTransaction::Vet360::Base the final async transaction status
         #
-        def save_and_await_response(resource_type:, params:, update: true)
+        def save_and_await_response(resource_type:, params:, update: false)
           http_method = update ? 'put' : 'post'
           initial_transaction = save!(http_method, resource_type, params)
 
@@ -62,13 +62,28 @@ module Mobile
 
         def poll_with_backoff
           try = 0
-          start = seconds_since_epoch
+          start = Time.now.utc.to_i
           begin
             yield
           rescue IncompleteTransaction
             # tries 5 times over the first roughly five seconds, then five more times over the next 50s
+            #   +
+            #   |
+            #   |                                                25.6
+            # t |                              12.8
+            # r |                    6.4
+            # i |             3.2
+            # e |        1.6
+            # s |     0.8
+            #   |   0.4
+            #   | 0.2
+            #   |0.1
+            #   +--------------------------------------------------+
+            #   0  1   2   4   7       15         25             50
+            #                     total seconds
+            #
             next_try_seconds = Float(2**try) / 10
-            elapsed = get_elapsed(start)
+            elapsed = seconds_elapsed_since(start)
             log_incomplete(elapsed, next_try_seconds, try)
 
             # raise gateway timeout if we're at try number 10 or if the next retry would fall outside the timeout window
@@ -80,8 +95,8 @@ module Mobile
           end
         end
 
-        def get_elapsed(start)
-          seconds_since_epoch - start
+        def seconds_elapsed_since(start)
+          Time.now.utc.to_i - start
         end
 
         def tries_or_time_exhausted?(sleep_duration, elapsed, try)
@@ -110,10 +125,6 @@ module Mobile
 
         def contact_information_service
           Vet360::ContactInformation::Service.new @user
-        end
-
-        def seconds_since_epoch
-          Time.now.utc.to_i
         end
 
         def raise_timeout_error(elapsed, try)
