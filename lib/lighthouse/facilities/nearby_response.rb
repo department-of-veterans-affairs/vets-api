@@ -31,7 +31,7 @@ module Lighthouse
       end
 
       def facilities
-        facilities = data.map do |facility |
+        data.map do |facility|
           Lighthouse::Facilities::NearbyFacility.new(facility)
         end
       end
