@@ -61,6 +61,7 @@ module IAMSSOeOAuth
 
     def build_user(user_identity)
       user = IAMUser.build_from_user_identity(user_identity)
+      user.last_signed_in = Time.now.utc
       user.save
       user
     end

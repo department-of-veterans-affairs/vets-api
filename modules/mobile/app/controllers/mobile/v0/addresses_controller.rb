@@ -14,18 +14,13 @@ module Mobile
       skip_after_action :invalidate_cache, only: [:validation]
 
       def create
-        write_to_vet360_and_render_transaction!(
-          'address',
-          address_params
-        )
+        transaction = service.save_and_await_response(resource_type: 'address', params: address_params)
+        render json: transaction, serializer: AsyncTransaction::BaseSerializer
       end
 
       def update
-        write_to_vet360_and_render_transaction!(
-          'address',
-          address_params,
-          http_verb: 'put'
-        )
+        transaction = service.save_and_await_response(resource_type: 'address', params: address_params, update: true)
+        render json: transaction, serializer: AsyncTransaction::BaseSerializer
       end
 
       def validate
@@ -62,6 +57,10 @@ module Mobile
           :zip_code,
           :zip_code_suffix
         )
+      end
+
+      def service
+        Mobile::V0::Profile::SyncUpdateService.new(@current_user)
       end
 
       def validation_service

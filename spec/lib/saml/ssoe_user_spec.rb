@@ -112,6 +112,8 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: nil,
+          participant_id: nil,
+          birls_id: nil,
           common_name: nil
         )
       end
@@ -148,6 +150,8 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: nil,
+          participant_id: nil,
+          birls_id: nil,
           common_name: nil
         )
       end
@@ -182,6 +186,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: '1008830476',
+          participant_id: nil,
+          birls_id: nil,
           common_name: 'vets.gov.user+262@example.com'
         )
       end
@@ -217,6 +223,8 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: nil,
+          participant_id: nil,
+          birls_id: nil,
           multifactor: multifactor,
           common_name: nil
         )
@@ -255,6 +263,8 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: '1013183292',
+          participant_id: nil,
+          birls_id: nil,
           multifactor: multifactor,
           common_name: 'alexmac_0@example.com'
         )
@@ -291,6 +301,8 @@ RSpec.describe SAML::User do
             account_type: 'Basic'
           },
           sec_id: nil,
+          birls_id: nil,
+          participant_id: nil,
           multifactor: true,
           common_name: nil
         )
@@ -330,6 +342,8 @@ RSpec.describe SAML::User do
             account_type: 'Premium'
           },
           sec_id: '1012853550',
+          participant_id: nil,
+          birls_id: nil,
           multifactor: multifactor,
           common_name: 'k+tristan@example.com'
         )
@@ -370,6 +384,8 @@ RSpec.describe SAML::User do
             account_type: 'Premium'
           },
           sec_id: '1012853550',
+          participant_id: nil,
+          birls_id: nil,
           multifactor: multifactor,
           common_name: 'k+tristan@example.com'
         )
@@ -647,6 +663,8 @@ RSpec.describe SAML::User do
             account_type: '1'
           },
           sec_id: nil,
+          participant_id: nil,
+          birls_id: nil,
           multifactor: multifactor
         )
       end
@@ -681,6 +699,8 @@ RSpec.describe SAML::User do
             account_type: '2'
           },
           sec_id: '1013173963',
+          participant_id: nil,
+          birls_id: nil,
           multifactor: false,
           common_name: 'iam.tester@example.com'
         )
@@ -721,6 +741,8 @@ RSpec.describe SAML::User do
             account_type: '2'
           },
           sec_id: '0000028007',
+          participant_id: '600043180',
+          birls_id: '796123607',
           multifactor: multifactor,
           common_name: 'dslogon10923109@gmail.com'
         )
@@ -760,6 +782,8 @@ RSpec.describe SAML::User do
             account_type: '2'
           },
           sec_id: '0000028007',
+          participant_id: '600043180',
+          birls_id: '796123607',
           multifactor: multifactor,
           common_name: 'dslogon10923109@gmail.com'
         )
@@ -798,6 +822,8 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: '1012779219',
+          participant_id: nil,
+          birls_id: nil,
           multifactor: multifactor,
           common_name: 'SOFIA MCKIBBENS'
         )
@@ -851,6 +877,8 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: '1013062086',
+          participant_id: nil,
+          birls_id: nil,
           multifactor: multifactor,
           common_name: 'mhvzack@mhv.va.gov'
         )
@@ -889,6 +917,8 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: '1012827134',
+          participant_id: '600152411',
+          birls_id: '666271151',
           multifactor: multifactor,
           common_name: 'vets.gov.user+262@gmail.com'
         )

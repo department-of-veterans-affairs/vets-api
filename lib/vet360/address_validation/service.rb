@@ -31,6 +31,7 @@ module Vet360
             address.address_validation_req.to_json
           )
         rescue => e
+          binding.pry
           handle_error(e)
         end
 
