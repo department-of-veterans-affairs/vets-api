@@ -7,7 +7,7 @@ require '<%= class_name.underscore %>/version'
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |spec|
-  spec.name        = '<%= class_name.downcase %>'
+  spec.name        = '<%= class_name.underscore %>'
   spec.version     = <%= class_name %>::VERSION
   spec.authors     = ['<%= `git config user.name`.squish %>']
   spec.email       = ['<%= `git config user.email`.squish %>']
