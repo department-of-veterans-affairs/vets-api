@@ -33,11 +33,12 @@ module V0
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}", VERSION_TAG])
       Rails.logger.info("SSO_NEW_KEY, tags: #{["context:#{type}", VERSION_TAG]}")
-      url = url_service.send("#{type}_url")
       if type == 'slo'
+        url = url_service.ssoe_slo_url
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
       else
+        url = url_service.send("#{type}_url")
         saml_request_stats
       end
       # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
@@ -92,8 +93,12 @@ module V0
     def authenticate
       return unless action_name == 'new'
 
-      if %w[mfa verify slo].include?(params[:type])
+      if %w[mfa verify].include?(params[:type])
         super
+      elsif params[:type] == 'slo'
+        # load the session object and current user before attempting to destroy
+        load_user
+        reset_session
       else
         reset_session
       end

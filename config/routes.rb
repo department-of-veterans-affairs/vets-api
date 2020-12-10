@@ -299,8 +299,8 @@ Rails.application.routes.draw do
       resource :tokens, only: :create
     end
 
-    namespace :ask do
-      resource :asks, only: :create
+    namespace :contact_us do
+      resources :inquiries, only: %i[index create]
     end
   end
 
@@ -344,6 +344,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
   mount Mobile::Engine, at: '/mobile'
+  mount CovidVaccine::Engine, at: '/covid_vaccine'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

@@ -86,7 +86,9 @@ module AppealsApi
 
     FORM_SCHEMA = load_json_schema '10182'
     AUTH_HEADERS_SCHEMA = load_json_schema '10182_headers'
+    STATUSES = %w[pending].freeze
 
+    validates :status, inclusion: { 'in': STATUSES }
     validate(
       :validate_auth_headers_against_schema,
       :validate_form_data_against_schema,
@@ -123,7 +125,7 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'boardReviewOption')
     end
 
-    def hearing_type
+    def hearing_type_preference
       form_data&.dig('data', 'attributes', 'hearingTypePreference')
     end
 
@@ -174,7 +176,7 @@ module AppealsApi
     end
 
     def validate_hearing_type_selection
-      return if board_review_hearing_selected? && includes_hearing_type?
+      return if board_review_hearing_selected? && includes_hearing_type_preference?
 
       if hearing_type_missing?
         errors.add :form_data, I18n.t('appeals_api.errors.hearing_type_preference_missing')
@@ -187,16 +189,16 @@ module AppealsApi
       board_review_option == 'hearing'
     end
 
-    def includes_hearing_type?
-      hearing_type.present?
+    def includes_hearing_type_preference?
+      hearing_type_preference.present?
     end
 
     def hearing_type_missing?
-      board_review_hearing_selected? && !includes_hearing_type?
+      board_review_hearing_selected? && !includes_hearing_type_preference?
     end
 
     def unexpected_hearing_type_inclusion?
-      !board_review_hearing_selected? && includes_hearing_type?
+      !board_review_hearing_selected? && includes_hearing_type_preference?
     end
 
     def validate_address

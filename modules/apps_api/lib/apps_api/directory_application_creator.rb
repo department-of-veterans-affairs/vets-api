@@ -6,7 +6,7 @@ module AppsApi
   class DirectoryApplicationCreator
     def call
       DirectoryApplication.find_or_initialize_by(name: 'Apple Health').tap do |app|
-        app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs01ca0lwp7cApBuM297'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/AppleHealth+Logo+1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = ['iOS']
@@ -22,7 +22,7 @@ module AppsApi
         app.save
       end
       DirectoryApplication.find_or_initialize_by(name: 'iBlueButton').tap do |app|
-        app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofxnUUHtF1i297'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/iBlueButton+Logo+1024+x+1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = %w[iOS Android]
@@ -38,7 +38,7 @@ module AppsApi
         app.save
       end
       DirectoryApplication.find_or_initialize_by(name: 'MyLinks').tap do |app|
-        app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofptWwE5ruy297'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/MyLinks+Logo+1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = ['Web']
@@ -54,7 +54,7 @@ module AppsApi
         app.save
       end
       DirectoryApplication.find_or_initialize_by(name: 'Clinical Trial Selector').tap do |app|
-        app.logo_url = 'https://cts.girlscomputingleague.org/static/img/CTS-white-100.png'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/CTS+1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = ['Web']
@@ -70,7 +70,7 @@ module AppsApi
         app.save
       end
       DirectoryApplication.find_or_initialize_by(name: 'OneRecord').tap do |app|
-        app.logo_url = 'https://ok5static.oktacdn.com/fs/bcg/4/gfs5hrv23wAozhWis297'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/One+Record1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = %w[Web iOS Android]

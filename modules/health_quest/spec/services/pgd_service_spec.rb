@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../support/health_fixture_helper'
 
-describe HealthQuest::PGDService do
+describe HealthQuest::PatientGeneratedDataService do
   let(:user) { build(:user, :health_quest) }
   let(:subject) { described_class.new(user) }
   let(:returned_data) { { id: '333', text: 'this is the questionnaire', type: :questionnaire } }
