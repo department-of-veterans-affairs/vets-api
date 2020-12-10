@@ -13,10 +13,6 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
       email: user.email,
       zipCode: user.zip,
     )
-
-    # user = build_user_and_stub_session
-    # form = InProgressForm.form_for_user(form_id, user)
-    # form || FactoryBot.create(:hca_in_progress_form, form_id: form_id, user_uuid: user.uuid)
   end
 
   provider_state 'authenticated user sumbits registration data' do
