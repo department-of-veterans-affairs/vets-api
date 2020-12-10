@@ -31,6 +31,7 @@ module CovidVaccine
                                                                    account_id: account_id,
                                                                    form_data: attributes })
         submit_confirmation_email(attributes[:email], record.created_at, response[:sid])
+        record
       end
 
       def submit_confirmation_email(email, date, sid)
