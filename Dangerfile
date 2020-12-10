@@ -12,7 +12,7 @@ excluded_changed_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusi
 filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
 
 # ignores whitespace for the purpose of determining lines of code changed
-changes = `git diff -w --stat`.split("\n")
+changes = `git diff master... -w --stat`.split("\n")
 lines_of_code = changes.sum(0) do |change|
   if change == changes.last || EXCLUSIONS.any? { |exclusion| change.match(exclusion) }
     0
