@@ -34,7 +34,7 @@ module VBADocuments
           submission.status = request.headers['Status-Override']
           submission.save
         else
-          puts 'remove me! The linter wants a line here'
+          Rails.logger.info 'remove me! The linter wants a line here'
           # submission.refresh_status! unless submission.status == 'expired'
         end
 
