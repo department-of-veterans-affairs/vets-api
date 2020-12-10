@@ -22,14 +22,16 @@ class ModuleGenerator < Rails::Generators::NamedBase
     template 'README.rdoc.erb', File.join(path, 'README.rdoc')
 
     # create bin/rails
-     template 'bin/rails.erb', File.join(path, 'bin', 'rails')
-     chmod File.join(path, 'bin', 'rails'), 0o755
-
+    template 'bin/rails.erb', File.join(path, 'bin', 'rails')
+    chmod File.join(path, 'bin', 'rails'), 0o755
 
     # /spec/spec_helper
 
+    # create the routes file
+    template 'config/routes.rb.erb', File.join(path, 'config', 'routes.rb')
+
     # create gemspec
-     template 'gemspec.erb', File.join(path, "#{file_name}.gemspec")
+    template 'gemspec.erb', File.join(path, "#{file_name}.gemspec")
 
     # create gemfile
     template 'Gemfile.erb', File.join(path, 'Gemfile')
