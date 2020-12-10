@@ -78,7 +78,6 @@ describe CovidVaccine::V0::FacilityLookupService do
 
     context
 
-    04330
-
+    0o4330
   end
 end

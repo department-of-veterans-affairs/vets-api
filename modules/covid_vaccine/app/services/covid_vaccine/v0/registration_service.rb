@@ -54,7 +54,7 @@ module CovidVaccine
 
       def facility_attributes(form_data)
         svc = CovidVaccine::V0::FacilityLookupService.new
-        svc.facilities_for(form_data['zip_code']) 
+        svc.facilities_for(form_data['zip_code'])
       end
 
       def attributes_from_user(user)

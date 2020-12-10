@@ -24,7 +24,7 @@ module CovidVaccine
         {
           zip_code: zipcode,
           zip_lat: lat,
-          zip_lon: lng,
+          zip_lon: lng
         }.merge(nearest_facilities(lat, lng))
       end
 
@@ -39,7 +39,7 @@ module CovidVaccine
         client = Lighthouse::Facilities::Client.new
         response = client.nearby(lat: lat, lng: lng)
         # Work around a bug in /nearby API that returns non-VHA facilities
-        response = response.filter {|x| x.id.start_with?('vha_') }
+        response = response.filter { |x| x.id.start_with?('vha_') }
         result = nearest_vamc(response.map { |x| x.id.delete_prefix('vha_') })
         if result.blank?
           # Does not seem feasible that a location would be closer to
@@ -51,7 +51,7 @@ module CovidVaccine
         sta3n = result.last if result.last.length == 3
         sta6a = result.first if result.first.length > 3
         sta6a = result.last if result.last.length > 3
-        { 
+        {
           sta3n: sta3n,
           sta6a: sta6a
         }
