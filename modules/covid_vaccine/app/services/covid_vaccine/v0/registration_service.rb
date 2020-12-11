@@ -7,38 +7,40 @@ module CovidVaccine
 
       def register(form_data, account_id = nil)
         attributes = form_attributes(form_data)
-        attributes.merge!(attributes_from_mpi(form_data))
+        attributes.merge!(attributes_from_mpi(form_data)) if query_traits_present(form_data)
+        attributes.merge!(facility_attributes(form_data))
         attributes.merge!({ authenticated: false }).compact!
-        Rails.logger.info("Vetext Payload: #{attributes.to_json}")
-        submit(attributes, account_id)
+        submit_and_save(attributes, account_id)
       end
 
       def register_loa3_user(form_data, user)
         attributes = form_attributes(form_data)
         attributes.merge!(attributes_from_user(user))
+        attributes.merge!(facility_attributes(form_data))
         attributes.merge!({ authenticated: true }).compact!
-        Rails.logger.info("Vetext Payload: #{attributes.to_json}")
-        submit(attributes, user.account_uuid)
+        submit_and_save(attributes, user.account_uuid)
       end
 
       private
 
-      def submit(attributes, account_id)
+      def submit_and_save(attributes, account_id)
         # TODO: error handling
-        response = CovidVaccine::V0::VetextService.new.put_vaccine_registry(attributes)
+        response = submit(attributes)
         Rails.logger.info("Vetext Response: #{response}")
         CovidVaccine::V0::RegistrationSubmission.create({ sid: response[:sid],
                                                           account_id: account_id,
                                                           form_data: attributes })
       end
 
+      def submit(attributes)
+        CovidVaccine::V0::VetextService.new.put_vaccine_registry(attributes)
+      end
+
       def form_attributes(form_data)
         {
           vaccine_interest: form_data['vaccine_interest'],
-          date_vaccine_received: form_data['date_vaccine_received'],
-          reason_undecided: form_data['reason_undecided'],
-          contact: form_data['contact_preference'],
-          contact_method: form_data['contact_method'],
+          zip_code: form_data['zip_code'],
+          time_at_zip: form_data['zip_code_details'],
           phone: form_data['phone'],
           email: form_data['email'],
           # Values below this point will get merged over by values
@@ -47,15 +49,12 @@ module CovidVaccine
           last_name: form_data['last_name'],
           date_of_birth: form_data['birth_date'],
           patient_ssn: form_data['ssn']
-        }.merge(facility_attrs(form_data))
+        }
       end
 
-      def facility_attrs(form_data)
-        {
-          # TODO: verify this v questionable logic
-          sta6a: form_data['preferred_facility']&.delete_prefix('vha_'),
-          sta3n: form_data['preferred_facility']&.delete_prefix('vha_')&.slice(0, 3)
-        }
+      def facility_attributes(form_data)
+        svc = CovidVaccine::V0::FacilityLookupService.new
+        svc.facilities_for(form_data['zip_code'])
       end
 
       def attributes_from_user(user)
@@ -73,8 +72,6 @@ module CovidVaccine
       end
 
       def attributes_from_mpi(form_data)
-        return {} unless query_traits_present(form_data)
-
         ui = OpenStruct.new(first_name: form_data['first_name'],
                             last_name: form_data['last_name'],
                             birth_date: form_data['birth_date'],
@@ -95,7 +92,6 @@ module CovidVaccine
         else
           {}
         end
-        # TODO: add statsd metrics around MPI queries for both success and fail cases
       end
 
       def query_traits_present(form_data)

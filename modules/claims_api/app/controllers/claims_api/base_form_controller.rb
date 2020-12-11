@@ -88,8 +88,6 @@ module ClaimsApi
     end
 
     def intent_to_file_options
-      participant_claimant_id = form_type == 'burial' ? @current_user.participant_id : target_veteran.participant_id
-
       {
         intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES[form_type],
         participant_claimant_id: form_attributes['participant_claimant_id'] || participant_claimant_id,
@@ -98,6 +96,18 @@ module ClaimsApi
         submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
         ssn: target_veteran.ssn
       }
+    end
+
+    def participant_claimant_id
+      if form_type == 'burial'
+        begin
+          @current_user.participant_id
+        rescue ArgumentError
+          raise ::Common::Exceptions::Forbidden, detail: "Representative cannot file for type 'burial'"
+        end
+      else
+        target_veteran.participant_id
+      end
     end
 
     def received_date
