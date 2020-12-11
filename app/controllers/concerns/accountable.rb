@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# TODO: don't ever merge these changes
+# rubocop:disable Metrics/ModuleLength
 module Accountable
   extend ActiveSupport::Concern
   include SentryLogging
@@ -1694,3 +1696,4 @@ module Accountable
   end
   # rubocop:enable Lint/DuplicateMethods
 end
+# rubocop:enable Metrics/ModuleLength
