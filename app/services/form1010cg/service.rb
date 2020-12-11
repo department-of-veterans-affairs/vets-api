@@ -68,9 +68,21 @@ module Form1010cg
         metadata: carma_submission.request_body['metadata']
       )
 
-      submit_attachment
+      if Flipper.enabled?(:async_10_10_cg_attachments)
+        submit_attachment_async
+      else
+        submit_attachment
+      end
 
       submission
+    end
+
+    def submit_attachment_async
+      submission.claim = claim
+      submission.save
+      submission.attachments_job_id = Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
+    rescue => e
+      Rails.logger.error(e)
     end
 
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
