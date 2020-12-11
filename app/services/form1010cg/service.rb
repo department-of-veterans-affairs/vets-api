@@ -80,8 +80,6 @@ module Form1010cg
     def submit_attachment_async
       submission.claim = claim
       submission.save
-
-      # submission.attachment_job_id = Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
       submission.attachments_job_id = Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
     rescue => e
       Rails.logger.error(e)
