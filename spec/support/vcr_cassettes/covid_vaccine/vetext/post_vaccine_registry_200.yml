@@ -25,7 +25,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 11 Dec 2020 04:53:02 GMT
+      - Fri, 11 Dec 2020 05:11:51 GMT
       Server:
       - Apache/2.4.46 (Unix) OpenSSL/1.1.1d
       Content-Type:
@@ -34,6 +34,6 @@ http_interactions:
       - '46'
     body:
       encoding: UTF-8
-      string: '{"sid":"FA82BF279B8673EDF2160766238295153294"}'
-  recorded_at: Fri, 11 Dec 2020 04:53:03 GMT
+      string: '{"sid":"FA82BF279B8673EDF2160766351113753298"}'
+  recorded_at: Fri, 11 Dec 2020 05:11:51 GMT
 recorded_with: VCR 6.0.0

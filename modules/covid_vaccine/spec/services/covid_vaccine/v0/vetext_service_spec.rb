@@ -25,15 +25,15 @@ describe CovidVaccine::V0::VetextService do
 
   describe '#put_vaccine_registry' do
     it 'creates a new vaccine registry with valid attributes' do
-      VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method path]) do
+      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_200', match_requests_on: %i[method path]) do
         response = subject.put_vaccine_registry(registry_attributes)
-        expect(response[:sid]).to eq('C4471842B588278B6D160738877782115')
+        expect(response[:sid]).to eq('FA82BF279B8673EDF2160766351113753298')
       end
     end
 
     # Need to discuss error handling with VEText developers. This isn't even JSON.
     xit 'raises a BackendServiceException with invalid attribute' do
-      VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_error', match_requests_on: %i[method path]) do
+      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_error', match_requests_on: %i[method path]) do
         expect { subject.put_vaccine_registry(date_vaccine_reeceived: '') }
           .to raise_error(Common::Exceptions::BackendServiceException)
       end
