@@ -17,6 +17,18 @@ module Form1010cg
 
     NOT_FOUND = 'NOT_FOUND'
 
+    def self.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
+      raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?
+      raise 'invalid document_type' unless CARMA::Models::Attachment::DOCUMENT_TYPES.values.include?(document_type)
+
+      carma_attachments = CARMA::Models::Attachments.new(
+        carma_case_id, veteran_name['first'], veteran_name['last']
+      )
+
+      carma_attachments.add(document_type, file_path)
+      carma_attachments.submit!
+    end
+
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
@@ -64,8 +76,9 @@ module Form1010cg
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
     # @return [Boolean]
-    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity
-      raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
+    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      raise 'requires a submission'               if  submission.nil?
+      raise 'requires a processed submission'     if  submission.carma_case_id.blank?
       raise 'submission already has attachments'  if  submission.attachments&.any?
 
       file_path = begin
