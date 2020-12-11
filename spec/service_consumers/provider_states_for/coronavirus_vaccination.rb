@@ -4,15 +4,16 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
   provider_state 'retreives saved registration for authenticated user' do
     user = build_user_and_stub_session
     submission = CovidVaccine::V0::RegistrationSubmission.for_user(user).last
-    submission || FactoryBot.create(
-      :covid_vaccine_registration_submission,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      birthDate: user.birth_date,
-      ssn: user.ssn,
-      email: user.email,
-      zipCode: user.zip,
-    )
+    submission || FactoryBot.create(:covid_vaccine_registration_submission)
+    # submission || FactoryBot.create(
+    #   :covid_vaccine_registration_submission,
+    #   firstName: user.first_name,
+    #   lastName: user.last_name,
+    #   birthDate: user.birth_date,
+    #   ssn: user.ssn,
+    #   email: user.email,
+    #   zipCode: user.zip,
+    # )
   end
 
   provider_state 'authenticated user sumbits registration data' do
