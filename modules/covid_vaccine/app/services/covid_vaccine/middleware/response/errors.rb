@@ -36,7 +36,7 @@ module CovidVaccine
             {
               detail: parse_detail(env.body),
               code: "VETEXT_#{env.status}",
-              source: "#{env.method.upcase}: #{env.url}"
+              source: "#{env.method.upcase}: #{env.url.path}"
             },
             env.status,
             env.body

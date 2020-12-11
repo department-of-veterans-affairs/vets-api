@@ -35,7 +35,7 @@ describe CovidVaccine::V0::VetextService do
       exception_arguments = {
         detail: 'Unrecognized field dateVaccineReeceived',
         code: 'VETEXT_400',
-        source: 'PUT: https://something.fake.va.gov/api/vetext/pub/covid/vaccine/registry'
+        source: 'PUT: /api/vetext/pub/covid/vaccine/registry'
       }
       exception_message = "BackendServiceException: #{exception_arguments}"
       VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_error', match_requests_on: %i[method uri]) do
