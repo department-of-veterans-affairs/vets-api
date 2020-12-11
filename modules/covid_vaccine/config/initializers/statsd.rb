@@ -11,7 +11,7 @@ CovidVaccine::V0::RegistrationService.extend StatsD::Instrument
 CovidVaccine::V0::RegistrationService.statsd_measure :facility_attributes,
                                                      'covid_vaccine.facility_query.measure'
 CovidVaccine::V0::RegistrationService.statsd_count_success :facility_attributes,
-                                                           'covid_vaccine.facility_query' &:present?
+                                                           'covid_vaccine.facility_query', &:present?
 CovidVaccine::V0::RegistrationService.statsd_measure :attributes_from_mpi,
                                                      'covid_vaccine.mpi_query.measure'
 CovidVaccine::V0::RegistrationService.statsd_measure :submit,
