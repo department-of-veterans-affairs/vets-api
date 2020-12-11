@@ -14,6 +14,7 @@ Mobile::Engine.routes.draw do
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
+    post '/user/addresses/validate', to: 'addresses#validate'
     put '/user/addresses', to: 'addresses#update'
     put '/user/emails', to: 'emails#update'
     put '/user/phones', to: 'phones#update'

@@ -11,7 +11,7 @@ module PagerDuty
       include Common::Client::Concerns::Monitoring
 
       # Equivalent to 'External:'
-      QUERY = 'External%3A'
+      QUERY = CGI.escape(Settings.maintenance.service_query_prefix)
       LIMIT = 100
 
       configuration PagerDuty::Configuration
