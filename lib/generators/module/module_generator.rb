@@ -47,20 +47,18 @@ class ModuleGenerator < Rails::Generators::NamedBase
   end
 
   def update_configurations
+    # insert into main app gemfile
+    insert_into_file 'Gemfile', "gem '#{file_name}', path: 'modules/#{file_name}'\n", after: "# Modules\n"
+    route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
+
     # spec helper add group
-    # insert_into_file 'spec/spec_helper.rb', "add_group '#{file_name.constantize}', 'modules/#{file_name}'\n", after: "# Modules\n"
+    #insert_into_file 'spec/spec_helper.rb', "add_group '#{file_name.constantize}', 'modules/#{file_name}'\n", after: "# Modules\n"
 
     # simplecov add group
     # insert_into_file 'spec/simplecov_helper.rb', "add_group '#{file_name.constantize}', 'modules/#{file_name}'\n", after: "# Modules\n"
   end
 
-  # load into gemfile here
-  # run bundle
   def install
-    insert_into_file 'Gemfile', "gem '#{file_name}', path: 'modules/#{file_name}'\n", after: "# Modules\n"
-    route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
-    # Do we want this?
-    # append_to_file 'config/settings.yml', "\n#{file_name}:\n  url: 'https://api.va.gov'"
     run 'bundle install'
 
     puts "\n"
