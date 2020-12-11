@@ -3,7 +3,7 @@ PR_SIZE = {
   RECOMMENDED_MAXIMUM: 200,
   ABSOLUTE_MAXIMUM:    500,
 }
-EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', 'spec/support/vcr_cassettes/', 'app/swagger', 'modules/mobile/docs/']
+EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', '.tsv', 'spec/support/vcr_cassettes/', 'app/swagger', 'modules/mobile/docs/']
 
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
 changed_files = git.diff.stats[:files]
@@ -12,7 +12,7 @@ excluded_changed_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusi
 filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
 
 # ignores whitespace for the purpose of determining lines of code changed
-changes = `git diff -w --stat`.split("\n")
+changes = `git diff master... -w --stat`.split("\n")
 lines_of_code = changes.sum(0) do |change|
   if change == changes.last || EXCLUSIONS.any? { |exclusion| change.match(exclusion) }
     0

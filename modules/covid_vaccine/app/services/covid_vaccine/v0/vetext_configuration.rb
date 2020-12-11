@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require_relative '../middleware/response/errors'
 
 module CovidVaccine
   module V0
@@ -29,6 +30,7 @@ module CovidVaccine
           c.response :betamocks if mock_enabled?
           c.response :snakecase
           c.response :json, content_type: /\bjson$/
+          c.response :vetext_errors
           c.adapter Faraday.default_adapter
         end
       end
