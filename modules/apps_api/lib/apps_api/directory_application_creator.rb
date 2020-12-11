@@ -38,7 +38,7 @@ module AppsApi
         app.save
       end
       DirectoryApplication.find_or_initialize_by(name: 'Coral Health').tap do |app|
-        app.logo_url = ''
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/CoralHealth+1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = %w[iOS Android]
