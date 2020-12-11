@@ -79,7 +79,8 @@
       "required": [
         "confidenceScore",
         "addressType",
-        "deliveryPointValidation"
+        "deliveryPointValidation",
+        "validationKey"
       ],
       "properties": {
         "confidenceScore": {
@@ -90,6 +91,9 @@
         },
         "deliveryPointValidation": {
           "type": "string"
+        },
+        "validationKey": {
+          "type": ["integer", "null"]
         }
       }
     }

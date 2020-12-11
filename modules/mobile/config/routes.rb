@@ -15,6 +15,7 @@ Mobile::Engine.routes.draw do
     get '/user/logout', to: 'users#logout'
     post '/user/addresses/validate', to: 'addresses#validate'
     post '/user/addresses', to: 'addresses#create'
+    post '/user/addresses/validate', to: 'addresses#validate'
     put '/user/addresses', to: 'addresses#update'
     post '/user/emails', to: 'emails#create'
     put '/user/emails', to: 'emails#update'

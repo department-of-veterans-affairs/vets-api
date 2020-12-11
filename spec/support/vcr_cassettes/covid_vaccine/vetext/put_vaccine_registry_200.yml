@@ -1,8 +1,8 @@
 ---
 http_interactions:
 - request:
-    method: put
-    uri: https://something.fake.va.gov/api/vetext/pub/covid/vaccine/registry
+    method: post
+    uri: https://localhost:2002/api/vetext/pub/covid/vaccine/registry
     body:
       encoding: UTF-8
       string: '{"vaccineInterest":"yes","authenticated":true,"dateVaccineReceived":"","contact":true,"contactMethod":"phone","reasonUndecided":"","firstName":"Jane","lastName":"Doe","dateOfBirth":"2/2/1952","phone":"555-555-1234","email":"jane.doe@email.com","patientSsn":"000-00-0022"}'
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Basic <TOKEN>
+      - Basic fake_token
       Referer:
       - https://review-instance.va.gov
       Accept-Encoding:
@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 08 Dec 2020 00:52:57 GMT
+      - Fri, 11 Dec 2020 04:53:02 GMT
       Server:
       - Apache/2.4.46 (Unix) OpenSSL/1.1.1d
       Content-Type:
       - application/json
       Content-Length:
-      - '43'
+      - '46'
     body:
       encoding: UTF-8
-      string: '{"sid":"C4471842B588278B6D160738877782115"}'
-  recorded_at: Tue, 08 Dec 2020 00:52:57 GMT
+      string: '{"sid":"FA82BF279B8673EDF2160766238295153294"}'
+  recorded_at: Fri, 11 Dec 2020 04:53:03 GMT
 recorded_with: VCR 6.0.0

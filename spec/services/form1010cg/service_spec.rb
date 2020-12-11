@@ -38,6 +38,104 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
+  describe '::submit_attachment!' do
+    let(:carma_case_id) { 'CAS_1234' }
+    let(:veteran_name) { { 'first' => 'Jane', 'last' => 'Doe' } }
+    let(:document_type) { '10-10CG' }
+    let(:file_path) { 'tmp/pdfs/10-10CG_uuid-123.pdf' }
+
+    it 'requires a carma_case_id, veteran_name, document_type, and file_path' do
+      expect { described_class.submit_attachment! }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 0, expected 4)')
+      end
+
+      expect { described_class.submit_attachment!(carma_case_id) }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 1, expected 4)')
+      end
+
+      expect { described_class.submit_attachment!(carma_case_id, veteran_name) }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 2, expected 4)')
+      end
+
+      arguments = [carma_case_id, veteran_name, document_type]
+      expect { described_class.submit_attachment!(*arguments) }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 3, expected 4)')
+      end
+    end
+
+    context 'when veteran_name is invalid' do
+      it 'raises error' do
+        expect { described_class.submit_attachment!(carma_case_id, nil, document_type, file_path) }.to raise_error(
+          'invalid veteran_name'
+        )
+
+        expect { described_class.submit_attachment!(carma_case_id, {}, document_type, file_path) }.to raise_error(
+          'invalid veteran_name'
+        )
+
+        arguments = [carma_case_id, { 'fullName' => {} }, document_type, file_path]
+        expect { described_class.submit_attachment!(*arguments) }.to raise_error(
+          'invalid veteran_name'
+        )
+      end
+    end
+
+    context 'when document_type is invalid' do
+      it 'raises error' do
+        expect { described_class.submit_attachment!(carma_case_id, veteran_name, nil, file_path) }.to raise_error(
+          'invalid document_type'
+        )
+
+        expect { described_class.submit_attachment!(carma_case_id, veteran_name, '', file_path) }.to raise_error(
+          'invalid document_type'
+        )
+
+        arguments = [carma_case_id, veteran_name, 'other-doc-type', file_path]
+        expect { described_class.submit_attachment!(*arguments) }.to raise_error(
+          'invalid document_type'
+        )
+      end
+    end
+
+    describe 'on delivery' do
+      let(:carma_attachments) { double }
+
+      before do
+        expect(CARMA::Models::Attachments).to receive(
+          :new
+        ).with(
+          carma_case_id, veteran_name['first'], veteran_name['last']
+        ).and_return(carma_attachments)
+
+        expect(carma_attachments).to receive(:add).with('10-10CG', file_path).and_return(carma_attachments)
+      end
+
+      context 'when a client error occures' do
+        before do
+          expect(carma_attachments).to receive(:submit!).and_raise(Faraday::ClientError.new('bad request'))
+        end
+
+        it 'raises error' do
+          submission_method = lambda do
+            described_class.submit_attachment!(carma_case_id, veteran_name, '10-10CG', file_path)
+          end
+          expect { submission_method.call }.to raise_error(Faraday::ClientError)
+        end
+      end
+
+      context 'when successful' do
+        before do
+          expect(carma_attachments).to receive(:submit!).and_return(:PROCESSED_ATTACHMENTS)
+        end
+
+        it 'returns attachments payload' do
+          result = described_class.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
+          expect(result).to eq(:PROCESSED_ATTACHMENTS)
+        end
+      end
+    end
+  end
+
   describe '#icn_for' do
     let(:set_ssn) { ->(data, _form_subject) { data['ssnOrTin'] = '111111111' } }
 
@@ -616,7 +714,7 @@ RSpec.describe Form1010cg::Service do
         results: {
           carma_case_id: 'aB935000000A9GoCAK',
           submitted_at: DateTime.new,
-          metadata: :REQUEST_METADATA
+          metadata: { 'key' => 'value' }
         }
       }
 
@@ -642,21 +740,23 @@ RSpec.describe Form1010cg::Service do
 
       expect(result).to be_a(Form1010cg::Submission)
       expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
-      expect(result.submitted_at).to eq(expected[:results][:submitted_at])
-      expect(result.metadata).to eq(:REQUEST_METADATA)
+      expect(result.accepted_at).to eq(expected[:results][:submitted_at])
+      expect(result.metadata).to eq(expected[:results][:metadata])
     end
   end
 
   describe '#submit_attachment' do
     context 'raises error' do
-      it 'when claim is not yet processed' do
-        expect { subject.submit_attachment }.to raise_error('requires a processed submission')
+      it 'when submission is not present' do
+        expect { subject.submit_attachment }.to raise_error('requires a submission')
+      end
 
+      it 'when submission is not yet processed' do
         subject.submission = double(carma_case_id: nil)
         expect { subject.submit_attachment }.to raise_error('requires a processed submission')
       end
 
-      it 'if provided submission already has attachments' do
+      it 'when submission already has attachments' do
         subject.submission = double(carma_case_id: 'CAS_1234', attachments: [{ id: 'CAS_qwer' }])
         expect { subject.submit_attachment }.to raise_error('submission already has attachments')
       end
@@ -670,7 +770,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -701,7 +801,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -718,7 +818,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -741,7 +841,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -772,7 +872,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -804,7 +904,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
