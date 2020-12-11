@@ -332,7 +332,7 @@ features:
   allow_online_10_10cg_submissions:
     actor_type: cookie_id
     description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When disabled, this will redirect visitors from the form's home page to the home page (va.gov).
+      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When enabled, this will redirect visitors from the form's page to the home page (va.gov).
   async_10_10_cg_attachments:
     actor_type: cookie_id
     description: >
