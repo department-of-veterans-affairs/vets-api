@@ -1,7 +1,7 @@
 ---
 http_interactions:
 - request:
-    method: put
+    method: post
     uri: https://something.fake.va.gov/api/vetext/pub/covid/vaccine/registry
     body:
       encoding: UTF-8
