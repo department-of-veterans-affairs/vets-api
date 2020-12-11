@@ -58,6 +58,8 @@ class ModuleGenerator < Rails::Generators::NamedBase
     # insert_into_file 'spec/simplecov_helper.rb', "add_group '#{file_name.constantize}', 'modules/#{file_name}'\n", after: "# Modules\n"
   end
 
+  # rubocop:disable Rails/Output
+  # :nocov:
   def install
     run 'bundle install'
 
@@ -65,4 +67,6 @@ class ModuleGenerator < Rails::Generators::NamedBase
     puts "\u{1F64C} new module generated at ./modules/#{file_name}\n\n"
     puts "\n"
   end
+  # :nocov:
+  # rubocop:enable Rails/Output
 end
