@@ -123,7 +123,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     # rubocop:enable Layout/LineLength
 
     context 'verified message' do
-      it 'queues a processor working on the uploaded object-key' do
+      xit 'queues a processor working on the uploaded object-key' do
         with_settings(Settings.vba_documents.sns,
                       'topic_arns' => ['arn:aws:sns:us-west-2:123456789012:MyTopic'],
                       'region' => 'us-gov-west-1') do
