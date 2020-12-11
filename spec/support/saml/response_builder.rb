@@ -24,42 +24,43 @@ module SAML
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
     def build_saml_response(
       authn_context:, level_of_assurance:,
-      attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil
+      attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil, settings: nil
     )
-      verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
+    verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
 
-      if authn_context.present?
-        if authn_context.include?('multifactor') && existing_attributes.present?
-          previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1_VETS
-          create_user_identity(
-            authn_context: previous_context,
-            level_of_assurance: level_of_assurance,
-            attributes: existing_attributes,
-            issuer: issuer
-          )
-        end
-
-        if verifying && existing_attributes.present?
-          previous_context = authn_context.gsub(/_loa3/, '')
-                                          .gsub(%r{loa/3/vets}, 'loa/1/vets')
-                                          .gsub(%r{loa/3}, 'loa/1/vets')
-          create_user_identity(
-            authn_context: previous_context,
-            level_of_assurance: '1',
-            attributes: existing_attributes,
-            issuer: issuer
-          )
-        end
+    if authn_context.present?
+      if authn_context.include?('multifactor') && existing_attributes.present?
+        previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1_VETS
+        create_user_identity(
+          authn_context: previous_context,
+          level_of_assurance: level_of_assurance,
+          attributes: existing_attributes,
+          issuer: issuer
+        )
       end
 
-      saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
-      allow(saml_response).to receive(:issuer_text).and_return(issuer)
-      allow(saml_response).to receive(:assertion_encrypted?).and_return(true)
-      allow(saml_response).to receive(:attributes).and_return(attributes)
-      allow(saml_response).to receive(:validate).and_return(true)
-      allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
-      allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
-      saml_response
+      if verifying && existing_attributes.present?
+        previous_context = authn_context.gsub(/_loa3/, '')
+                                        .gsub(%r{loa/3/vets}, 'loa/1/vets')
+                                        .gsub(%r{loa/3}, 'loa/1/vets')
+        create_user_identity(
+          authn_context: previous_context,
+          level_of_assurance: '1',
+          attributes: existing_attributes,
+          issuer: issuer
+        )
+      end
+    end
+
+    saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
+    allow(saml_response).to receive(:issuer_text).and_return(issuer)
+    allow(saml_response).to receive(:assertion_encrypted?).and_return(true)
+    allow(saml_response).to receive(:attributes).and_return(attributes)
+    allow(saml_response).to receive(:validate).and_return(true)
+    allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
+    allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
+    allow(saml_response).to receive(:settings).and_return(settings)
+    saml_response
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
 

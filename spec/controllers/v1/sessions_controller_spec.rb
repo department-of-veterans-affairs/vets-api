@@ -238,7 +238,8 @@ RSpec.describe V1::SessionsController, type: :controller do
             level_of_assurance: ['3'],
             attributes: invalid_attributes,
             in_response_to: login_uuid,
-            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
+            settings: rubysaml_settings
           )
         end
 
@@ -859,7 +860,8 @@ RSpec.describe V1::SessionsController, type: :controller do
             level_of_assurance: ['3'],
             attributes: saml_attributes,
             existing_attributes: nil,
-            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
+            settings: rubysaml_settings
           )
         end
         let(:saml_user) { SAML::User.new(saml_response) }
@@ -886,7 +888,8 @@ RSpec.describe V1::SessionsController, type: :controller do
             level_of_assurance: ['3'],
             attributes: saml_attributes,
             existing_attributes: nil,
-            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
+            settings: rubysaml_settings
           )
         end
         let(:saml_user) { SAML::User.new(saml_response) }
@@ -913,7 +916,8 @@ RSpec.describe V1::SessionsController, type: :controller do
             level_of_assurance: ['3'],
             attributes: saml_attributes,
             existing_attributes: nil,
-            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
+            settings: rubysaml_settings
           )
         end
         let(:saml_user) { SAML::User.new(saml_response) }

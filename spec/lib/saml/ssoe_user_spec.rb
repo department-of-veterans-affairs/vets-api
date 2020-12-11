@@ -13,6 +13,8 @@ RSpec.describe SAML::User do
     let(:highest_attained_loa) { '1' }
     let(:multifactor) { false }
     let(:existing_saml_attributes) { nil }
+    let(:callback_url) { 'http://http://127.0.0.1:3000/v1/sessions/callback/v1/sessions/callback' }
+    let(:rubysaml_settings) { build(:rubysaml_settings_v1, assertion_consumer_service_url: callback_url) }
 
     let(:saml_response) do
       build_saml_response(
@@ -20,7 +22,8 @@ RSpec.describe SAML::User do
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes,
-        issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+        issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
+        settings: rubysaml_settings
       )
     end
 
@@ -835,15 +838,13 @@ RSpec.describe SAML::User do
                 va_eauth_uid: ['NOT_FOUND'])
         end
 
-        it 'does not validate' do
-          expect { subject.validate! }.to raise_error { |error|
-            expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('User attributes is missing an ID.me UUID')
-            expect(error.identifier).to eq('1012779219V964737')
-          }
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
         end
       end
     end
+
+    # Add new test to have should_raise_idme_uuid_error return true
 
     context 'MHV premium inbound user' do
       let(:authn_context) { SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT }

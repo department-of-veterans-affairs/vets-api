@@ -16,9 +16,10 @@ module SAML
 
       attr_reader :attributes, :authn_context, :warnings
 
-      def initialize(saml_attributes, authn_context)
+      def initialize(saml_attributes, authn_context, saml_settings)
         @attributes = saml_attributes # never default this to {}
         @authn_context = authn_context
+        @saml_settings = saml_settings
         @warnings = []
       end
 
@@ -198,7 +199,7 @@ module SAML
       private
 
       def should_raise_idme_uuid_error
-        is_v1 = caller_locations(5)[0].to_s =~ %r{/controllers/v1}
+        is_v1 = @saml_settings.assertion_consumer_service_url =~ %r{/v1/}
         if !idme_uuid && is_v1 && (@authn_context != INBOUND_AUTHN_CONTEXT)
           true
         else
