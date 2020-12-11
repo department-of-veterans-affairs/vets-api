@@ -747,14 +747,16 @@ RSpec.describe Form1010cg::Service do
 
   describe '#submit_attachment' do
     context 'raises error' do
-      it 'when claim is not yet processed' do
-        expect { subject.submit_attachment }.to raise_error('requires a processed submission')
+      it 'when submission is not present' do
+        expect { subject.submit_attachment }.to raise_error('requires a submission')
+      end
 
+      it 'when submission is not yet processed' do
         subject.submission = double(carma_case_id: nil)
         expect { subject.submit_attachment }.to raise_error('requires a processed submission')
       end
 
-      it 'if provided submission already has attachments' do
+      it 'when submission already has attachments' do
         subject.submission = double(carma_case_id: 'CAS_1234', attachments: [{ id: 'CAS_qwer' }])
         expect { subject.submit_attachment }.to raise_error('submission already has attachments')
       end
