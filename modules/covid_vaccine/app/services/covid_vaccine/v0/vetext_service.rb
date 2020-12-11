@@ -14,7 +14,7 @@ module CovidVaccine
 
       def put_vaccine_registry(vaccine_registry_attributes)
         with_monitoring do
-          response = perform(:put, url, vaccine_registry_attributes, headers)
+          response = perform(:post, url, vaccine_registry_attributes, headers)
           # test success
           # test failures
           response.body

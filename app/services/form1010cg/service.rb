@@ -52,7 +52,7 @@ module Form1010cg
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
-        submitted_at: carma_submission.submitted_at,
+        accepted_at: carma_submission.submitted_at,
         metadata: carma_submission.request_body['metadata']
       )
 
@@ -66,7 +66,7 @@ module Form1010cg
     # @return [Boolean]
     def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity
       raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
-      raise 'submission already has attachments'  if  submission.attachments.any?
+      raise 'submission already has attachments'  if  submission.attachments&.any?
 
       file_path = begin
                     claim.to_pdf(sign: true)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../serializers/covid_vaccine/v0/registration_submission_serializer'
+require_relative '../../../serializers/covid_vaccine/v0/registration_summary_serializer'
 
 module CovidVaccine
   module V0
@@ -18,7 +19,7 @@ module CovidVaccine
                  else
                    svc.register(params[:registration])
                  end
-        render json: result, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer, status: :created
+        render json: result, serializer: CovidVaccine::V0::RegistrationSummarySerializer, status: :created
       end
 
       def show
