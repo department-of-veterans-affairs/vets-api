@@ -26,758 +26,1460 @@ module Accountable
       account: 'cannot_create_unique_account_record'
     )
   end
-  # hey dangerbot, how's it going?
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
-  # comment
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+  x = rand(1..100)
+  y = rand(1..100)
+  z = x ** y
+  value = z / 10000000
+  "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
+  def override_me_to_make_a_dangerbot_alert
+    x = rand(1..100)
+    y = rand(1..100)
+    z = x ** y
+    value = z / 10000000
+    "the value: #{value}"
+  end
 end
