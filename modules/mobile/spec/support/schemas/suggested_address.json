@@ -28,7 +28,6 @@
         "internationalPostalCode",
         "province",
         "stateCode",
-        "validationKey",
         "zipCode",
         "zipCodeSuffix"
       ],
@@ -63,9 +62,6 @@
         "stateCode": {
           "type": ["string", "null"]
         },
-        "validationKey": {
-          "type": ["string", "null"]
-        },
         "zipCode": {
           "type": "string"
         },
@@ -79,8 +75,7 @@
       "required": [
         "confidenceScore",
         "addressType",
-        "deliveryPointValidation",
-        "validationKey"
+        "deliveryPointValidation"
       ],
       "properties": {
         "confidenceScore": {
