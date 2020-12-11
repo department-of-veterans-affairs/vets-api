@@ -5,7 +5,7 @@ http_interactions:
     uri: https://localhost:2002/api/vetext/pub/covid/vaccine/registry
     body:
       encoding: UTF-8
-      string: '{"vaccineInterest":"yes","authenticated":true,"dateVaccineReceived":"","contact":true,"contactMethod":"phone","reasonUndecided":"","firstName":"Jane","lastName":"Doe","dateOfBirth":"2/2/1952","phone":"555-555-1234","email":"jane.doe@email.com","patientSsn":"000-00-0022"}'
+      string: '{"dateVaccineReeceived":""}'
     headers:
       Accept:
       - application/json
@@ -21,19 +21,19 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 500
+      message: Internal Server Error
     headers:
       Date:
-      - Fri, 11 Dec 2020 04:53:02 GMT
+      - Tue, 08 Dec 2020 01:08:47 GMT
       Server:
       - Apache/2.4.46 (Unix) OpenSSL/1.1.1d
       Content-Type:
-      - application/json
+      - text/html;charset=UTF-8
       Content-Length:
-      - '46'
+      - '141'
     body:
       encoding: UTF-8
-      string: '{"sid":"FA82BF279B8673EDF2160766238295153294"}'
-  recorded_at: Fri, 11 Dec 2020 04:53:03 GMT
+      string: All your base are belong to us!!
+  recorded_at: Tue, 08 Dec 2020 01:08:47 GMT
 recorded_with: VCR 6.0.0
