@@ -22,8 +22,6 @@ describe ModuleGenerator do
 
   describe 'create_engine' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_directory_structure }
-
       before(:all) { ModuleGenerator.new(['foo']).create_engine }
       let(:path) { Rails.root.join('modules', 'foo', 'lib') }
 
