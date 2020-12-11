@@ -6,17 +6,15 @@ describe CovidVaccine::V0::RegistrationService do
   subject { described_class.new }
 
   let(:form_data) do
-    { 'vaccine_interest' => 'YES', 'contact_preference' => 'true',
-      'contact_method' => 'email', 'phone' => '650-555-1212',
+    { 'vaccine_interest' => 'INTERESTED', 'phone' => '650-555-1212',
       'email' => 'foo@bar.com', 'first_name' => 'Sean',
       'last_name' => 'Gptestkfive', 'birth_date' => '1972-03-21',
-      'ssn' => '666512797', 'preferred_facility' => 'vha_648' }
+      'ssn' => '666512797', 'zip_code' => '97412', 'zip_code_details' => 'Yes' }
   end
   let(:sparse_form_data) do
-    { 'vaccine_interest' => 'YES', 'contact_preference' => 'true',
-      'contact_method' => 'email', 'phone' => '650-555-1212',
+    { 'vaccine_interest' => 'NOT INTERESTED', 'phone' => '650-555-1212',
       'email' => 'foo@bar.com', 'first_name' => 'Sean',
-      'last_name' => 'Gptestkfive', 'preferred_facility' => 'vha_648' }
+      'last_name' => 'Gptestkfive', 'zip_code' => '97412', 'zip_code_details' => 'Yes' }
   end
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_profile_response) do
@@ -32,11 +30,28 @@ describe CovidVaccine::V0::RegistrationService do
     )
   end
 
-  describe '#register' do
+  vcr_options = { cassette_name: 'covid_vaccine/registration_facilities',
+                  match_requests_on: %i[path query],
+                  record: :new_episodes }
+
+  describe '#register', vcr: vcr_options do
     context 'unauthenticated' do
       it 'coerces input to vetext format' do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .with(hash_including(contact: 'true'))
+          .with(hash_including(:first_name,
+                               :last_name,
+                               :patient_ssn,
+                               :date_of_birth,
+                               :patient_icn,
+                               :phone,
+                               :email,
+                               :zip_code,
+                               :time_at_zip,
+                               :zip_lat,
+                               :zip_lon,
+                               :sta3n,
+                               :sta6a,
+                               :authenticated))
           .and_return({ sid: SecureRandom.uuid })
         expect_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)

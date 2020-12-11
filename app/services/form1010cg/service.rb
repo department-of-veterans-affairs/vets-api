@@ -88,8 +88,9 @@ module Form1010cg
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
     # @return [Boolean]
-    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity
-      raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
+    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      raise 'requires a submission'               if  submission.nil?
+      raise 'requires a processed submission'     if  submission.carma_case_id.blank?
       raise 'submission already has attachments'  if  submission.attachments&.any?
 
       file_path = begin
