@@ -11,7 +11,7 @@ module Form1010cg
 
       raise missing_claim_error if submission.claim.nil?
 
-      file_path = submission.claim.to_pdf
+      file_path = submission.claim.to_pdf(sign: true)
       veteran_name = submission.claim.veteran_data['fullName']
 
       # submit_attachment! does an "upsert" of the document in CARMA,
