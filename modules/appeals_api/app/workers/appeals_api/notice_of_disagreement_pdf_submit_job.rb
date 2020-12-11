@@ -35,7 +35,7 @@ module AppealsApi
         'veteranLastName' => notice_of_disagreement.veteran_last_name,
         'fileNumber' => notice_of_disagreement.file_number.presence || notice_of_disagreement.ssn,
         'zipCode' => notice_of_disagreement.zip_code_5,
-        'source' => "Appeals-NOD-#{notice_of_disagreement.consumer_name}", # TODO: is consumer name a required field?
+        'source' => "Appeals-NOD-#{notice_of_disagreement.consumer_name}",
         'uuid' => notice_of_disagreement.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
         'numberAttachments' => 0,

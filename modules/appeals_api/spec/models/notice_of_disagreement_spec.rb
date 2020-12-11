@@ -45,7 +45,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         it do
           expect(notice_of_disagreement.errors.count).to be 1
           expect(notice_of_disagreement.errors.full_messages.first).to eq(
-            "Form data at least one must be included: '/data/attributes/veteran/address'"
+            "Form data if not homeless, address must be provided: '/data/attributes/veteran/address'"
           )
         end
       end

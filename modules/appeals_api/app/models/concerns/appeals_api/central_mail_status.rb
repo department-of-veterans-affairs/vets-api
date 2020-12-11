@@ -6,7 +6,7 @@ module AppealsApi
   module CentralMailStatus
     extend ActiveSupport::Concern
 
-    STATUSES = %w[pending submitting submitted processing error uploaded received success vbms expired].freeze
+    STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
 
     CENTRAL_MAIL_STATUS_TO_APPEALS_ATTRIBUTES = lambda do
       hash = Hash.new { |_, _| raise ArgumentError, 'Unknown Central Mail status' }
