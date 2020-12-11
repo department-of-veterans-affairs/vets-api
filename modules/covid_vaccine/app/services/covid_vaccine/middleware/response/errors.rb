@@ -15,12 +15,14 @@ module CovidVaccine
           when 400
             parse_error(env, 400)
           when 500..510
+            # All of these errors should be characterized as BAD GATEWAY 502
             parse_error(env, 502)
           else
             raise Common::Exceptions::BackendServiceException, 'VA900'
           end
         end
 
+        # Adds a few additional helpful debugging contexts
         def add_raven_extra_context(env)
           Raven.extra_context(
             original_status: env.status,
@@ -30,6 +32,7 @@ module CovidVaccine
           )
         end
 
+        # attempts to parse the error payload body and raise the generic BackendServiceException
         def parse_error(env, status_to_render)
           raise Common::Exceptions::BackendServiceException.new(
             "VETEXT_#{status_to_render}",
