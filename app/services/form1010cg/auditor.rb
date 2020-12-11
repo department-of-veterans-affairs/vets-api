@@ -34,14 +34,15 @@ module Form1010cg
       increment self.class.metrics.submission.attempt
     end
 
-    def record_submission_success(claim_guid:, carma_case_id:, metadata:, attachments:)
+    def record_submission_success(claim_guid:, carma_case_id:, metadata:, attachments:, attachment_job_id:)
       increment self.class.metrics.submission.success
       log(
         'Submission Successful',
         claim_guid: claim_guid,
         carma_case_id: carma_case_id,
         metadata: metadata,
-        attachments: attachments
+        attachments: attachments,
+        attachment_job_id: attachment_job_id
       )
     end
 

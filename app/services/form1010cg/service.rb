@@ -68,7 +68,11 @@ module Form1010cg
         metadata: carma_submission.request_body['metadata']
       )
 
-      submit_attachment_async
+      if Flipper.enabled?(:async_10_10_cg_attachments, @current_user)
+        submit_attachment_async
+      else
+        submit_attachment
+      end
 
       submission
     end
@@ -77,7 +81,8 @@ module Form1010cg
       submission.claim = claim
       submission.save
 
-      Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
+      # submission.attachment_job_id = Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
+      submission.attachment_job_id = Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
     rescue => e
       Rails.logger.error(e)
     end

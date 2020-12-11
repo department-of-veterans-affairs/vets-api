@@ -203,10 +203,6 @@ features:
     enable_in_development: true
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
-  allow_online_10_10cg_submissions:
-    actor_type: cookie_id
-    description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   gibct_eyb_bottom_sheet:
     actor_type: user
     description: >
@@ -328,3 +324,7 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
+  async_10_10_cg_attachments:
+    actor_type: cookie_id
+    description: >
+      This will process attachments of 10-10CG submissions using sidekiq.
