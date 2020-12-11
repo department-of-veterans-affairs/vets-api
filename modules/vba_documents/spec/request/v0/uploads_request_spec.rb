@@ -127,7 +127,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       get "/services/vba_documents/v0/uploads/#{upload.guid}/download"
       # expect(response.status).to eq(200)
       # expect(response.headers['Content-Type']).to eq('application/zip')
-      expect("Cris").to eq("Cris")
     end
 
     it '200S even with an invalid doc' do
