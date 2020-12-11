@@ -27,9 +27,18 @@ module CovidVaccine
         # TODO: error handling
         response = submit(attributes)
         Rails.logger.info("Vetext Response: #{response}")
-        CovidVaccine::V0::RegistrationSubmission.create({ sid: response[:sid],
-                                                          account_id: account_id,
-                                                          form_data: attributes })
+        record = CovidVaccine::V0::RegistrationSubmission.create({ sid: response[:sid],
+                                                                   account_id: account_id,
+                                                                   form_data: attributes })
+        submit_confirmation_email(attributes[:email], record.created_at, response[:sid])
+        record
+      end
+
+      def submit_confirmation_email(email, date, sid)
+        return if email.empty?
+
+        formatted_date = date.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+        CovidVaccine::RegistrationEmailJob.perform_async(email, formatted_date, sid)
       end
 
       def submit(attributes)
