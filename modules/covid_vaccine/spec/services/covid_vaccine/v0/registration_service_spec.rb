@@ -30,7 +30,11 @@ describe CovidVaccine::V0::RegistrationService do
     )
   end
 
-  describe '#register' do
+  vcr_options = { cassette_name: 'covid_vaccine/registration_facilities',
+                  match_requests_on: %i[path query],
+                  record: :new_episodes }
+
+  describe '#register', vcr: vcr_options do
     context 'unauthenticated' do
       it 'coerces input to vetext format' do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
@@ -43,6 +47,10 @@ describe CovidVaccine::V0::RegistrationService do
                                :email,
                                :zip_code,
                                :time_at_zip,
+                               :zip_lat,
+                               :zip_lon,
+                               :sta3n,
+                               :sta6a,
                                :authenticated))
           .and_return({ sid: SecureRandom.uuid })
         expect_any_instance_of(MPI::Service).to receive(:find_profile)

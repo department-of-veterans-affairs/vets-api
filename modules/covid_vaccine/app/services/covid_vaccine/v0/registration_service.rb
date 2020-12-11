@@ -8,6 +8,7 @@ module CovidVaccine
       def register(form_data, account_id = nil)
         attributes = form_attributes(form_data)
         attributes.merge!(attributes_from_mpi(form_data)) if query_traits_present(form_data)
+        attributes.merge!(facility_attributes(form_data))
         attributes.merge!({ authenticated: false }).compact!
         submit_and_save(attributes, account_id)
       end
@@ -15,6 +16,7 @@ module CovidVaccine
       def register_loa3_user(form_data, user)
         attributes = form_attributes(form_data)
         attributes.merge!(attributes_from_user(user))
+        attributes.merge!(facility_attributes(form_data))
         attributes.merge!({ authenticated: true }).compact!
         submit_and_save(attributes, user.account_uuid)
       end
@@ -48,6 +50,11 @@ module CovidVaccine
           date_of_birth: form_data['birth_date'],
           patient_ssn: form_data['ssn']
         }
+      end
+
+      def facility_attributes(form_data)
+        svc = CovidVaccine::V0::FacilityLookupService.new
+        svc.facilities_for(form_data['zip_code'])
       end
 
       def attributes_from_user(user)

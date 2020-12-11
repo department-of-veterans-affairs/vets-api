@@ -8,6 +8,10 @@ vetext_endpoints.each do |endpoint|
 end
 
 CovidVaccine::V0::RegistrationService.extend StatsD::Instrument
+CovidVaccine::V0::RegistrationService.statsd_measure :facility_attributes,
+                                                     'covid_vaccine.facility_query.measure'
+CovidVaccine::V0::RegistrationService.statsd_count_success :facility_attributes,
+                                                           'covid_vaccine.facility_query', &:present?
 CovidVaccine::V0::RegistrationService.statsd_measure :attributes_from_mpi,
                                                      'covid_vaccine.mpi_query.measure'
 CovidVaccine::V0::RegistrationService.statsd_measure :submit,
@@ -17,6 +21,8 @@ CovidVaccine::V0::RegistrationService.statsd_count_success :attributes_from_mpi,
 CovidVaccine::V0::RegistrationService.statsd_count_success :submit,
                                                            'covid_vaccine.vetext_submit'
 
+StatsD.increment('covid_vaccine.facility_query.success', 0)
+StatsD.increment('covid_vaccine.facility_query.failure', 0)
 StatsD.increment('covid_vaccine.mpi_query.success', 0)
 StatsD.increment('covid_vaccine.mpi_query.failure', 0)
 StatsD.increment('covid_vaccine.vetext_submit.success', 0)
