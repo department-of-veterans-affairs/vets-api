@@ -616,7 +616,12 @@ vanotify:
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+    connection_template: fake_template_id
+    disconnection_template: fake_template_id
   mock: false
+  links:
+    connected_applications: https://www.va.gov/profile/connected-applications
+    password_reset: https://www.va.gov/resources/signing-in-to-vagov/
 
 # Settings to connect to the drupal forms graphql api
 va_forms:

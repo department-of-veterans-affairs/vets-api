@@ -175,3 +175,8 @@ AppsApi::LoadApplications:
   in: '1m'
   class: AppsApi::DirectoryLoader
   description: "Populates directory_applications table"
+
+AppsApi::FetchConnections:
+  every: "60m"
+  class: AppsApi::FetchConnections
+  description: "Fetches and handles notifications for recent application connections and disconnections"

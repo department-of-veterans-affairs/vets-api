@@ -10,8 +10,6 @@ AppsApi::Engine.routes.draw do
     get 'directory/scopes/:category', to: 'directory#scopes', defaults: scope_default
     get 'directory/scopes', to: 'directory#scopes', defaults: scope_default
     resources 'directory', only: %i[index show]
-    post '/notification/connect', to: 'notification#connect'
-    post '/notification/disconnect', to: 'notification#disconnect'
   end
   namespace :docs do
     namespace :v0 do
