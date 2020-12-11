@@ -10,7 +10,8 @@ module CovidVaccine
         attributes.merge!(attributes_from_mpi(form_data)) if query_traits_present(form_data)
         attributes.merge!(facility_attributes(form_data))
         attributes.merge!({ authenticated: false }).compact!
-        submit_and_save(attributes, account_id)
+        user_type = account_id.present? ? 'loa1' : 'unauthenticated'
+        submit_and_save(attributes, account_id, user_type)
       end
 
       def register_loa3_user(form_data, user)
@@ -18,15 +19,16 @@ module CovidVaccine
         attributes.merge!(attributes_from_user(user))
         attributes.merge!(facility_attributes(form_data))
         attributes.merge!({ authenticated: true }).compact!
-        submit_and_save(attributes, user.account_uuid)
+        submit_and_save(attributes, user.account_uuid, 'loa3')
       end
 
       private
 
-      def submit_and_save(attributes, account_id)
+      def submit_and_save(attributes, account_id, user_type = '')
         # TODO: error handling
+        audit_log(attributes, user_type)
         response = submit(attributes)
-        Rails.logger.info("Vetext Response: #{response}")
+        Rails.logger.info("Covid_Vaccine Vetext Response: #{response}")
         record = CovidVaccine::V0::RegistrationSubmission.create({ sid: response[:sid],
                                                                    account_id: account_id,
                                                                    form_data: attributes })
@@ -43,6 +45,21 @@ module CovidVaccine
 
       def submit(attributes)
         CovidVaccine::V0::VetextService.new.put_vaccine_registry(attributes)
+      end
+
+      def audit_log(attributes, user_type)
+        log_attrs = {
+          auth_type: user_type,
+          vaccine_interest: attributes[:vaccine_interest],
+          zip_code: attributes[:zip_code],
+          has_phone: attributes[:phone].present?,
+          has_email: attributes[:email].present?,
+          has_dob: attributes[:date_of_birth].present?,
+          has_ssn: attributes[:patient_ssn].present?,
+          has_icn: attributes[:patient_icn].present?,
+          has_facility: attributes[:sta3n].present? || attributes[:sta6a].present?
+        }
+        Rails.logger.info('Covid_Vaccine Submission', log_attrs)
       end
 
       def form_attributes(form_data)
