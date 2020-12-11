@@ -616,7 +616,7 @@ RSpec.describe Form1010cg::Service do
         results: {
           carma_case_id: 'aB935000000A9GoCAK',
           submitted_at: DateTime.new,
-          metadata: :REQUEST_METADATA
+          metadata: { 'key' => 'value' }
         }
       }
 
@@ -642,8 +642,8 @@ RSpec.describe Form1010cg::Service do
 
       expect(result).to be_a(Form1010cg::Submission)
       expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
-      expect(result.submitted_at).to eq(expected[:results][:submitted_at])
-      expect(result.metadata).to eq(:REQUEST_METADATA)
+      expect(result.accepted_at).to eq(expected[:results][:submitted_at])
+      expect(result.metadata).to eq(expected[:results][:metadata])
     end
   end
 
@@ -670,7 +670,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -701,7 +701,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -718,7 +718,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -741,7 +741,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -772,7 +772,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -804,7 +804,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
