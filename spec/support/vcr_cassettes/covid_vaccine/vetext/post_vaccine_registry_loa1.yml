@@ -5,7 +5,7 @@ http_interactions:
     uri: https://localhost:2002/api/vetext/pub/covid/vaccine/registry
     body:
       encoding: UTF-8
-      string: '{"vaccineInterest":"yes","authenticated":true,"dateVaccineReceived":"","contact":true,"contactMethod":"phone","reasonUndecided":"","firstName":"Jane","lastName":"Doe","dateOfBirth":"2/2/1952","phone":"555-555-1234","email":"jane.doe@email.com","patientSsn":"000-00-0022"}'
+      string: '{"vaccineInterest":"yes","zipCode":"94402","timeAtZip":"yes","phone":"555-555-1234","email":"jane.doe@email.com","firstName":"Lean","lastName":"Bartell","dateOfBirth":"1981-10-26","patientSsn":"715130642","patientIcn":"75233388971184289","authenticated":false}'
     headers:
       Accept:
       - application/json
@@ -25,7 +25,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 11 Dec 2020 04:53:02 GMT
+      - Fri, 11 Dec 2020 05:09:16 GMT
       Server:
       - Apache/2.4.46 (Unix) OpenSSL/1.1.1d
       Content-Type:
@@ -34,6 +34,6 @@ http_interactions:
       - '46'
     body:
       encoding: UTF-8
-      string: '{"sid":"FA82BF279B8673EDF2160766238295153294"}'
-  recorded_at: Fri, 11 Dec 2020 04:53:03 GMT
+      string: '{"sid":"FA82BF279B8673EDF2160766335651453297"}'
+  recorded_at: Fri, 11 Dec 2020 05:09:16 GMT
 recorded_with: VCR 6.0.0
