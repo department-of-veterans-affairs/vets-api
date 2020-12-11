@@ -21,12 +21,16 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       date_of_birth: '2/2/1952',
       phone: '555-555-1234',
       email: 'jane.doe@email.com',
-      patient_ssn: '000-00-0022'
+      ssn: '000-00-0022',
+      zip_code: '94402'
     }
   end
 
   let(:expected_response_attributes) do
     %w[first_name last_name birth_date zip_code zip_code_details phone email vaccine_interest created_at]
+  end
+  let(:summary_response_attributes) do
+    %w[zip_code vaccine_interest created_at]
   end
 
   describe 'registration#create' do
@@ -74,11 +78,10 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
           post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
           expect(response).to have_http_status(:ok)
           body = JSON.parse(response.body)
-          expect(body['data']['attributes']).to include(*expected_response_attributes)
-          expect(body['data']['attributes']).not_to include('ssn', 'patient_ssn')
-          expect(body['data']['attributes']).to include('first_name' => 'Judy',
-                                                        'last_name' => 'Morrison',
-                                                        'email' => 'jane.doe@email.com')
+          expect(body['data']['attributes']).to include(*summary_response_attributes)
+          expect(body['data']['attributes']).not_to include(*(expected_response_attributes
+                                                              - summary_response_attributes))
+          expect(body['data']['attributes']).to include('zip_code' => '94402')
         end
       end
     end
