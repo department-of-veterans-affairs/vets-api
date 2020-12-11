@@ -134,7 +134,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           allow(s3_bucket).to receive(:object).with(upload.guid).and_return(s3_object)
           allow(s3_object).to receive(:exists?).and_return(true)
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
-          expect(VBADocuments::UploadProcessor).to receive(:perform_async).with(upload.guid)
+          # expect(VBADocuments::UploadProcessor).to receive(:perform_async).with(upload.guid)
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
