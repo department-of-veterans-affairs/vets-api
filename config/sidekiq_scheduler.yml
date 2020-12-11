@@ -120,10 +120,10 @@ VBADocuments::UploadRemover:
   class: VBADocuments::UploadRemover
   description: "Clean up submitted documents from S3"
 
-VBADocuments::UploadStatusBatch:
-  every: "60m"
-  class: VBADocuments::UploadStatusBatch
-  description: "Cache Statuses for VBA Documents"
+#VBADocuments::UploadStatusBatch:
+#  every: "60m"
+#  class: VBADocuments::UploadStatusBatch
+#  description: "Cache Statuses for VBA Documents"
 
 VBADocuments::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
@@ -135,10 +135,10 @@ ClaimsApi::ReportUnsuccessfulSubmissions:
   class: ClaimsApi::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful claims submissions"
 
-VBADocuments::RunUnsuccessfulSubmissions:
-  cron: "0 0 23 * * America/New_York"
-  class: VBADocuments::RunUnsuccessfulSubmissions
-  description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
+#VBADocuments::RunUnsuccessfulSubmissions:
+#  cron: "0 0 23 * * America/New_York"
+#  class: VBADocuments::RunUnsuccessfulSubmissions
+#  description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
 AppealsApi::HigherLevelReviewUploadStatusBatch:
   every: "60m"

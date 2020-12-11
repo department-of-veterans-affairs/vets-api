@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: 'https://api.pagerduty.com/services?limit=100&query=External:'
+    uri: https://api.pagerduty.com/services?limit=100&query=External:%20
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Token token=FAKE
+      - Token token=<PD_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
