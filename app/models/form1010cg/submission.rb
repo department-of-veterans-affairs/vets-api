@@ -18,5 +18,7 @@ module Form1010cg
 
     # Allows us to call #save with a nested (and unsaved) claim attached, so both are save simultaneously.
     accepts_nested_attributes_for :claim
+
+    attr_accessor :attachments_job_id
   end
 end
