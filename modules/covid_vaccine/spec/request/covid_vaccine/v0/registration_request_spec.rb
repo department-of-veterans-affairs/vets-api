@@ -56,7 +56,12 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
         expect_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
         VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_unauth', match_requests_on: %i[method path]) do
-          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+          expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
+            .by(1)
+            .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['data']['id']).to eq('FA82BF279B8673EDF2160766335598353296')
         end
       end
     end
@@ -70,8 +75,12 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
         expect_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
         VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_loa1', match_requests_on: %i[method path]) do
-          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
-          expect(response).to have_http_status(:ok)
+          expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
+            .by(1)
+            .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
+          expect(response).to have_http_status(:created)
+          expect(JSON.parse(response.body)['data']['id']).to eq('FA82BF279B8673EDF2160766335651453297')
         end
       end
     end
@@ -83,8 +92,11 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
 
       it 'returns a sid' do
         VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_loa3', match_requests_on: %i[method path]) do
-          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
-          expect(response).to have_http_status(:ok)
+          expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
+            .by(1)
+            .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
+          expect(response).to have_http_status(:created)
           body = JSON.parse(response.body)
           expect(body['data']['attributes']).to include(*summary_response_attributes)
           expect(body['data']['attributes']).not_to include(
