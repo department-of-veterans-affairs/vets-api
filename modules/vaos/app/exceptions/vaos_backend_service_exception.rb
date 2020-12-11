@@ -17,6 +17,7 @@ module VAOS
       VAOS_ERRORS.default = 'VA900'
 
       def initialize(env)
+        binding.pry
         @env = env
         key = lookup_key(env.status)
         super(key, response_values, env.status, env.body)
