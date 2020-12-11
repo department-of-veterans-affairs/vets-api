@@ -13,6 +13,7 @@ RSpec.describe 'individual appeal', type: :request do
     it 'and a result that matches our schema is successfully returned with the 200 status ' do
       VCR.use_cassette('caseflow/appeals') do
         get '/mobile/v0/appeal/3294289', headers: iam_headers
+        binding.pry
         expect(response).to have_http_status(:ok)
       end
     end

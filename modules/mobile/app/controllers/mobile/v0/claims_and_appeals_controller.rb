@@ -32,18 +32,24 @@ module Mobile
         status_code = parse_claims(claims_result, full_list = [], error_list = [])
         status_code = parse_appeals(appeals_result, full_list, error_list, status_code)
         adapted_full_list = serialize_list(full_list.flatten)
-        render json: { data: adapted_full_list, meta: { errors: error_list } }, status: status_code
+        render json: {data: adapted_full_list, meta: {errors: error_list}}, status: status_code
       end
 
       def get_claim
-        claim = claims_service.find_claim_by_id(params[:id])
-        render json: claim.body
+        claim = claims_scope.find_by(evss_id: params[:id])
+        raw_claim = claims_service.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
+        claim.update(data: raw_claim)
+        claim_detail = EVSSClaimDetailSerializer.new(claim)
+        render json: Mobile::V0::ClaimSerializer.new(claim_detail)
       end
 
       def get_appeal
         appeals = appeals_service.get_appeals(@current_user).body['data']
-        appeal = appeals.select { |entry| entry.dig('id') == params[:id] }
-        render json: appeal[0]
+        appeal = appeals.select { |entry| entry.dig('id') == params[:id] }[0]
+        serializable_resource = OpenStruct.new(appeal["attributes"])
+        serializable_resource[:id] = appeal["id"]
+        serializable_resource[:type] = appeal["type"]
+        render json: Mobile::V0::AppealSerializer.new(serializable_resource)
       end
 
       private
