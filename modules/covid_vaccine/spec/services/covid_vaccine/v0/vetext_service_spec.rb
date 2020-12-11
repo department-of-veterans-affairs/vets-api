@@ -38,7 +38,7 @@ describe CovidVaccine::V0::VetextService do
         source: 'POST: /api/vetext/pub/covid/vaccine/registry'
       }
       exception_message = "BackendServiceException: #{exception_arguments}"
-      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_error', match_requests_on: %i[method path]) do
+      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_400', match_requests_on: %i[method path]) do
         expect { subject.put_vaccine_registry(date_vaccine_reeceived: '') }
           .to raise_error(Common::Exceptions::BackendServiceException, exception_message)
       end

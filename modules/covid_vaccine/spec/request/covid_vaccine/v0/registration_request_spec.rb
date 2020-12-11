@@ -55,7 +55,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       let(:registration_attributes) { { date_vaccine_reeceived: '' } }
 
       it 'raises a BackendServiceException' do
-        VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_error', match_requests_on: %i[method path]) do
+        VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_400', match_requests_on: %i[method path]) do
           post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'].first).to eq(
@@ -65,6 +65,26 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
               'code' => 'VETEXT_400',
               'source' => 'POST: /api/vetext/pub/covid/vaccine/registry',
               'status' => '400'
+            }
+          )
+        end
+      end
+    end
+
+    context 'when encountering an Internal Server Error' do
+      let(:registration_attributes) { { date_vaccine_reeceived: '' } }
+
+      it 'raises a BackendServiceException' do
+        VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_500', match_requests_on: %i[method path]) do
+          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+          expect(response).to have_http_status(:bad_gateway)
+          expect(JSON.parse(response.body)['errors'].first).to eq(
+            {
+              'title' => 'Bad Gateway',
+              'detail' => 'All your base are belong to us!!',
+              'code' => 'VETEXT_502',
+              'source' => 'POST: /api/vetext/pub/covid/vaccine/registry',
+              'status' => '502'
             }
           )
         end
