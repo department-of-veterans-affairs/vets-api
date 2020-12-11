@@ -13,9 +13,7 @@ CovidVaccine::V0::RegistrationService.statsd_measure :attributes_from_mpi,
 CovidVaccine::V0::RegistrationService.statsd_measure :submit,
                                                      'covid_vaccine.vetext_submit.measure'
 CovidVaccine::V0::RegistrationService.statsd_count_success :attributes_from_mpi,
-                                                           'covid_vaccine.mpi_query' do |result|
-  result.present?
-end
+                                                           'covid_vaccine.mpi_query', &:present?
 CovidVaccine::V0::RegistrationService.statsd_count_success :submit,
                                                            'covid_vaccine.vetext_submit'
 
