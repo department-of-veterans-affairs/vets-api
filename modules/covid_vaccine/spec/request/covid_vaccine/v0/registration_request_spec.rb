@@ -25,6 +25,10 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
     }
   end
 
+  let(:expected_response_attributes) do
+    %w[first_name last_name birth_date zip_code zip_code_details phone email vaccine_interest created_at]
+  end
+
   describe 'registration#create' do
     context 'feature disabled' do
       around do |example|
@@ -41,7 +45,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
 
     context 'with an unauthenticated user' do
       it 'returns a sid' do
-        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method path]) do
           post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
         end
       end
@@ -53,8 +57,9 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       end
 
       it 'returns a sid' do
-        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method path]) do
           post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+          expect(response).to have_http_status(:ok)
         end
       end
     end
@@ -65,8 +70,15 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       end
 
       it 'returns a sid' do
-        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method path]) do
           post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+          expect(response).to have_http_status(:ok)
+          body = JSON.parse(response.body)
+          expect(body['data']['attributes']).to include(*expected_response_attributes)
+          expect(body['data']['attributes']).not_to include('ssn', 'patient_ssn')
+          expect(body['data']['attributes']).to include('first_name' => 'Judy',
+                                                        'last_name' => 'Morrison',
+                                                        'email' => 'jane.doe@email.com')
         end
       end
     end
@@ -127,6 +139,10 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
           expect(response).to have_http_status(:ok)
           body = JSON.parse(response.body)
           expect(body['data']['id']).to eq(submission.sid)
+          expect(body['data']['attributes']).to include(*expected_response_attributes)
+          expect(body['data']['attributes']).not_to include('ssn', 'patient_ssn')
+          expect(body['data']['attributes']).to include('first_name' => 'Jon',
+                                                        'last_name' => 'Doe')
         end
       end
 
