@@ -186,7 +186,7 @@ module SAML
 
       # Raise any fatal exceptions due to validation issues
       def validate!
-        unless idme_uuid
+        if should_raise_idme_uuid_error
           data = SAML::UserAttributeError::ERRORS[:idme_uuid_missing].merge({ identifier: mhv_icn })
           raise SAML::UserAttributeError, data
         end
@@ -196,6 +196,15 @@ module SAML
       end
 
       private
+
+      def should_raise_idme_uuid_error
+        is_v1 = caller_locations(5)[0].to_s =~ %r{/controllers/v1}
+        if !idme_uuid && is_v1 && (@authn_context != INBOUND_AUTHN_CONTEXT)
+          true
+        else
+          false
+        end
+      end
 
       def mvi_ids
         return @mvi_ids if @mvi_ids
