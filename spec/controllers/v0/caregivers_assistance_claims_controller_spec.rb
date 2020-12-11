@@ -143,7 +143,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       service = double
       submission = double(
         carma_case_id: 'A_123',
-        submitted_at: DateTime.now.iso8601,
+        accepted_at: DateTime.now.iso8601,
         attachments: :attachments_uploaded,
         metadata: :metadata_submitted
       )
@@ -176,7 +176,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       expect(res_body['data']['id']).to eq('')
       expect(res_body['data']['attributes']).to be_present
       expect(res_body['data']['attributes']['confirmation_number']).to eq(submission.carma_case_id)
-      expect(res_body['data']['attributes']['submitted_at']).to eq(submission.submitted_at)
+      expect(res_body['data']['attributes']['submitted_at']).to eq(submission.accepted_at)
     end
 
     context 'when Form1010cg::Service raises InvalidVeteranStatus' do
