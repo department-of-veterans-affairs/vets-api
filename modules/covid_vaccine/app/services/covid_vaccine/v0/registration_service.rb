@@ -9,7 +9,6 @@ module CovidVaccine
         attributes = form_attributes(form_data)
         attributes.merge!(attributes_from_mpi(form_data))
         attributes.merge!({ authenticated: false }).compact!
-        Rails.logger.info("Vetext Payload: #{attributes.to_json}")
         submit(attributes, account_id)
       end
 
@@ -17,7 +16,6 @@ module CovidVaccine
         attributes = form_attributes(form_data)
         attributes.merge!(attributes_from_user(user))
         attributes.merge!({ authenticated: true }).compact!
-        Rails.logger.info("Vetext Payload: #{attributes.to_json}")
         submit(attributes, user.account_uuid)
       end
 
