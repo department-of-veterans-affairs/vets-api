@@ -1,9 +1,20 @@
+# frozen_string_literal: true
+
 # Warn if a pull request is too big
 PR_SIZE = {
   RECOMMENDED_MAXIMUM: 200,
   ABSOLUTE_MAXIMUM:    500,
-}
-EXCLUSIONS = ['Gemfile.lock', '.json', 'spec/fixtures/', '.txt', '.tsv', 'spec/support/vcr_cassettes/', 'app/swagger', 'modules/mobile/docs/']
+}.freeze
+
+EXCLUSIONS = [
+  'Gemfile.lock',
+  '.json',
+  'spec/fixtures/',
+  '.txt', '.tsv', '.csv',
+  'spec/support/vcr_cassettes/',
+  'app/swagger',
+  'modules/mobile/docs/'
+].freeze
 
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
 changed_files = git.diff.stats[:files]
