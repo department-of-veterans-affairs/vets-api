@@ -7,28 +7,31 @@ module CovidVaccine
 
       def register(form_data, account_id = nil)
         attributes = form_attributes(form_data)
-        attributes.merge!(attributes_from_mpi(form_data))
+        attributes.merge!(attributes_from_mpi(form_data)) if query_traits_present(form_data)
         attributes.merge!({ authenticated: false }).compact!
-        submit(attributes, account_id)
+        submit_and_save(attributes, account_id)
       end
 
       def register_loa3_user(form_data, user)
         attributes = form_attributes(form_data)
         attributes.merge!(attributes_from_user(user))
         attributes.merge!({ authenticated: true }).compact!
-        submit(attributes, user.account_uuid)
+        submit_and_save(attributes, user.account_uuid)
       end
 
       private
 
-      def submit(attributes, account_id)
+      def submit_and_save(attributes, account_id)
         # TODO: error handling
-        response = CovidVaccine::V0::VetextService.new.put_vaccine_registry(attributes)
+        response = submit(attributes)
         Rails.logger.info("Vetext Response: #{response}")
-
         CovidVaccine::V0::RegistrationSubmission.create({ sid: response[:sid],
                                                           account_id: account_id,
                                                           form_data: attributes })
+      end
+
+      def submit(attributes)
+        CovidVaccine::V0::VetextService.new.put_vaccine_registry(attributes)
       end
 
       def form_attributes(form_data)
@@ -62,8 +65,6 @@ module CovidVaccine
       end
 
       def attributes_from_mpi(form_data)
-        return {} unless query_traits_present(form_data)
-
         ui = OpenStruct.new(first_name: form_data['first_name'],
                             last_name: form_data['last_name'],
                             birth_date: form_data['birth_date'],
@@ -84,7 +85,6 @@ module CovidVaccine
         else
           {}
         end
-        # TODO: add statsd metrics around MPI queries for both success and fail cases
       end
 
       def query_traits_present(form_data)
