@@ -16,7 +16,9 @@ module CovidVaccine
       def id
         object.sid
       end
-
+      
+      # TODO: Make robust to selecting from raw_form_data or form_data
+      # in case GET is called before submission
       %i[vaccine_interest zip_code phone email first_name last_name].each do |attr|
         define_method attr do
           object.form_data[attr]

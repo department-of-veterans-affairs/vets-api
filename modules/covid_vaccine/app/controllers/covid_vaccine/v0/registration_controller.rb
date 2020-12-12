@@ -9,8 +9,7 @@ module CovidVaccine
       def create
         raw_form_data = params[:registration].merge(attributes_from_user)
         account_id = @current_user&.account_uuid
-        binding.pry
-        record = CovidVaccine::V0::RegistrationSubmission.create({ account_id: account_id,
+        record = CovidVaccine::V0::RegistrationSubmission.create!({ account_id: account_id,
                                                                    raw_form_data: raw_form_data })
 
         CovidVaccine::SubmissionJob.perform_async(record.id, user_type)
