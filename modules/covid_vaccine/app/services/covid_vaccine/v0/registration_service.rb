@@ -5,39 +5,29 @@ module CovidVaccine
     class RegistrationService
       REQUIRED_QUERY_TRAITS = %w[first_name last_name birth_date ssn].freeze
 
-      def register(form_data, account_id = nil)
-        attributes = form_attributes(form_data)
-        attributes.merge!(attributes_from_mpi(form_data)) if query_traits_present(form_data)
-        attributes.merge!(facility_attributes(form_data))
-        attributes.merge!({ authenticated: false }).compact!
-        user_type = account_id.present? ? 'loa1' : 'unauthenticated'
-        submit_and_save(attributes, account_id, user_type)
-      end
-
-      def register_loa3_user(form_data, user)
-        attributes = form_attributes(form_data)
-        attributes.merge!(attributes_from_user(user))
-        attributes.merge!(facility_attributes(form_data))
-        attributes.merge!({ authenticated: true }).compact!
-        submit_and_save(attributes, user.account_uuid, 'loa3')
+      def register(submission, user_type)
+        raw_form_data = submission.raw_form_data
+        vetext_attributes = form_attributes(raw_form_data)
+        vetext_attributes.merge!(attributes_from_mpi(raw_form_data)) if should_query_mpi?(raw_form_data, user_type)
+        vetext_attributes.merge!(facility_attributes(raw_form_data))
+        vetext_attributes.merge!({ authenticated: (user_type == 'loa3') }).compact!
+        submit_and_save(vetext_attributes, submission, user_type)
       end
 
       private
 
-      def submit_and_save(attributes, account_id, user_type = '')
+      def submit_and_save(attributes, submission, user_type)
         # TODO: error handling
         audit_log(attributes, user_type)
         response = submit(attributes)
         Rails.logger.info("Covid_Vaccine Vetext Response: #{response}")
-        record = CovidVaccine::V0::RegistrationSubmission.create({ sid: response[:sid],
-                                                                   account_id: account_id,
-                                                                   form_data: attributes })
-        submit_confirmation_email(attributes[:email], record.created_at, response[:sid])
-        record
+        submission.update!(sid: response[:sid], form_data: attributes)
+        submit_confirmation_email(attributes[:email], submission.created_at, response[:sid])
+        submission
       end
 
       def submit_confirmation_email(email, date, sid)
-        return if email.empty?
+        return if email.blank?
 
         formatted_date = date.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
         CovidVaccine::RegistrationEmailJob.perform_async(email, formatted_date, sid)
@@ -74,27 +64,16 @@ module CovidVaccine
           first_name: form_data['first_name'],
           last_name: form_data['last_name'],
           date_of_birth: form_data['birth_date'],
-          patient_ssn: form_data['ssn']
+          patient_ssn: form_data['ssn'],
+          # This value was only injected from controller if 
+          # user was authenticated at LOA3
+          patient_icn: form_data['icn']
         }
       end
 
       def facility_attributes(form_data)
         svc = CovidVaccine::V0::FacilityLookupService.new
         svc.facilities_for(form_data['zip_code'])
-      end
-
-      def attributes_from_user(user)
-        return {} unless user.loa3?
-
-        {
-          first_name: user.first_name,
-          last_name: user.last_name,
-          date_of_birth: user.birth_date,
-          patient_ssn: user.ssn,
-          patient_icn: user.icn
-          # Not currently supported
-          # zip: user.zip
-        }
       end
 
       def attributes_from_mpi(form_data)
@@ -120,8 +99,10 @@ module CovidVaccine
         end
       end
 
-      def query_traits_present(form_data)
-        (REQUIRED_QUERY_TRAITS & form_data.keys).size == REQUIRED_QUERY_TRAITS.size
+      # if user_type == loa3, then we already had the information from their
+      # authenticated session and added it to the raw form data
+      def should_query_mpi?(form_data, user_type)
+        user_type != 'loa3' && (REQUIRED_QUERY_TRAITS & form_data.keys).size == REQUIRED_QUERY_TRAITS.size
       end
     end
   end

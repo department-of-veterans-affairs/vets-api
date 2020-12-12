@@ -97,8 +97,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
           .and_return(mvi_profile_response)
         VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_unauth', match_requests_on: %i[method path]) do
           expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
-            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
-            .by(1)
+            .to change(CovidVaccine::SubmissionJob.jobs, :size).by(1)
             .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
           expect(response).to have_http_status(:created)
           expect(JSON.parse(response.body)['data']['id']).to eq('FA82BF279B8673EDF2160766335598353296')
@@ -116,8 +115,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
           .and_return(mvi_profile_response)
         VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_loa1', match_requests_on: %i[method path]) do
           expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
-            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
-            .by(1)
+            .to change(CovidVaccine::SubmissionJob.jobs, :size).by(1)
             .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
           expect(response).to have_http_status(:created)
           expect(JSON.parse(response.body)['data']['id']).to eq('FA82BF279B8673EDF2160766335651453297')
@@ -133,8 +131,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       it 'returns a sid' do
         VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_loa3', match_requests_on: %i[method path]) do
           expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
-            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size)
-            .by(1)
+            .to change(CovidVaccine::SubmissionJob.jobs, :size).by(1)
             .and change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
           expect(response).to have_http_status(:created)
           body = JSON.parse(response.body)
@@ -194,7 +191,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
 
       context 'with a previous submission' do
         let!(:submission) do
-          create(:covid_vaccine_registration_submission,
+          create(:covid_vax_registration,
                  account_id: loa3_user.account_uuid)
         end
 
@@ -212,12 +209,12 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
 
       context 'with multiple submissions' do
         let!(:submission1) do
-          create(:covid_vaccine_registration_submission,
+          create(:covid_vax_registration,
                  account_id: loa3_user.account_uuid,
                  created_at: Time.zone.now - 2.minutes)
         end
         let!(:submission2) do
-          create(:covid_vaccine_registration_submission,
+          create(:covid_vax_registration,
                  account_id: loa3_user.account_uuid,
                  created_at: Time.zone.now - 1.minute)
         end
