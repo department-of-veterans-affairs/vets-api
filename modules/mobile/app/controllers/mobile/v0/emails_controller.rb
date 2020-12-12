@@ -5,23 +5,22 @@ require 'evss/pciu/service'
 
 module Mobile
   module V0
-    class EmailsController < ApplicationController
-      include Vet360::Writeable
-
-      before_action { authorize :vet360, :access? }
-      after_action :invalidate_cache
+    class EmailsController < ProfileBaseController
+      def create
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :email, params: email_params)
+        )
+      end
 
       def update
-        write_to_vet360_and_render_transaction!(
-          'email',
-          email_address_params,
-          http_verb: 'put'
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :email, params: email_params, update: true)
         )
       end
 
       private
 
-      def email_address_params
+      def email_params
         params.permit(
           :email_address,
           :effective_start_date,
