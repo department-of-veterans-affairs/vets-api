@@ -1,8 +1,8 @@
 ---
 http_interactions:
 - request:
-    method: put
-    uri: https://something.fake.va.gov/api/vetext/pub/covid/vaccine/registry
+    method: post
+    uri: https://localhost:2002/api/vetext/pub/covid/vaccine/registry
     body:
       encoding: UTF-8
       string: '{"dateVaccineReeceived":""}'
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Authorization:
-      - Basic <TOKEN>
+      - Basic fake_token
       Referer:
       - https://review-instance.va.gov
       Accept-Encoding:

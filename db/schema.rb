@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_08_215916) do
+ActiveRecord::Schema.define(version: 2020_12_11_213957) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -170,12 +170,14 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
   end
 
   create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "sid", null: false
+    t.string "sid"
     t.uuid "account_id"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "encrypted_raw_form_data"
+    t.string "encrypted_raw_form_data_iv"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true

@@ -709,39 +709,68 @@ RSpec.describe Form1010cg::Service do
       expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
-    it 'submits the claim with metadata to carma and returns a Form1010cg::Submission' do
-      expected = {
-        results: {
-          carma_case_id: 'aB935000000A9GoCAK',
-          submitted_at: DateTime.new,
-          metadata: { 'key' => 'value' }
+    context 'when flipper :async_10_10_cg_attachments' do
+      let(:expected) do
+        {
+          results: {
+            carma_case_id: 'aB935000000A9GoCAK',
+            submitted_at: DateTime.new,
+            metadata: { 'key' => 'value' }
+          }
         }
-      }
+      end
 
-      expect(subject).to receive(:assert_veteran_status).and_return(nil)
-      expect(subject).to receive(:build_metadata).and_return(:generated_metadata)
-      expect(CARMA::Models::Submission).to receive(:from_claim).with(subject.claim, :generated_metadata) {
-        carma_submission = double
+      before do
+        expect(subject).to receive(:assert_veteran_status).and_return(nil)
+        expect(subject).to receive(:build_metadata).and_return(:generated_metadata)
+        expect(CARMA::Models::Submission).to receive(:from_claim).with(subject.claim, :generated_metadata) {
+          carma_submission = double
 
-        expect(carma_submission).to receive(:submit!) {
-          expect(carma_submission).to receive(:carma_case_id).and_return(expected[:results][:carma_case_id])
-          expect(carma_submission).to receive(:submitted_at).and_return(expected[:results][:submitted_at])
-          expect(carma_submission).to receive(:request_body).and_return({ 'metadata' => expected[:results][:metadata] })
+          expect(carma_submission).to receive(:submit!) {
+            expect(carma_submission).to receive(:carma_case_id).and_return(expected[:results][:carma_case_id])
+            expect(carma_submission).to receive(:submitted_at).and_return(expected[:results][:submitted_at])
+            expect(carma_submission).to receive(:request_body).and_return(
+              { 'metadata' => expected[:results][:metadata] }
+            )
+
+            carma_submission
+          }
 
           carma_submission
         }
+      end
 
-        carma_submission
-      }
+      context 'is enabled' do
+        before do
+          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(true)
+          expect(subject).to receive(:submit_attachment_async)
+        end
 
-      expect(subject).to receive(:submit_attachment)
+        it 'submits the claim to carma and returns a Form1010cg::Submission' do
+          result = subject.process_claim!
 
-      result = subject.process_claim!
+          expect(result).to be_a(Form1010cg::Submission)
+          expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
+          expect(result.accepted_at).to eq(expected[:results][:submitted_at])
+          expect(result.metadata).to eq(expected[:results][:metadata])
+        end
+      end
 
-      expect(result).to be_a(Form1010cg::Submission)
-      expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
-      expect(result.accepted_at).to eq(expected[:results][:submitted_at])
-      expect(result.metadata).to eq(expected[:results][:metadata])
+      context 'is disabled' do
+        before do
+          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(false)
+          expect(subject).to receive(:submit_attachment)
+        end
+
+        it 'submits the claim to carma and returns a Form1010cg::Submission' do
+          result = subject.process_claim!
+
+          expect(result).to be_a(Form1010cg::Submission)
+          expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
+          expect(result.accepted_at).to eq(expected[:results][:submitted_at])
+          expect(result.metadata).to eq(expected[:results][:metadata])
+        end
+      end
     end
   end
 
