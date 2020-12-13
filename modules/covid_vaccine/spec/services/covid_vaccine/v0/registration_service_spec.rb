@@ -17,9 +17,11 @@ describe CovidVaccine::V0::RegistrationService do
       'last_name' => 'Gptestkfive', 'zip_code' => '97412', 'zip_code_details' => 'Yes' }
   end
   let(:submission) { build(:covid_vax_registration, :unsubmitted) }
-  let(:insufficient_submission) { build(:covid_vax_registration, 
-                                        :unsubmitted, 
-                                        :lacking_pii_traits) }
+  let(:insufficient_submission) do
+    build(:covid_vax_registration,
+          :unsubmitted,
+          :lacking_pii_traits)
+  end
   let(:loa3_submission) { build(:covid_vax_registration, :unsubmitted, :from_loa3) }
 
   let(:mvi_profile) { build(:mvi_profile) }
@@ -67,7 +69,7 @@ describe CovidVaccine::V0::RegistrationService do
 
       it 'passes authenticated attribute as false' do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .with(hash_including(:authenticated => false))
+          .with(hash_including(authenticated: false))
           .and_return({ sid: SecureRandom.uuid })
         expect_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
@@ -142,7 +144,7 @@ describe CovidVaccine::V0::RegistrationService do
       it 'passes authenticated attribute as true' do
         expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .with(hash_including(:authenticated => true))
+          .with(hash_including(authenticated: true))
           .and_return({ sid: SecureRandom.uuid })
         expect { subject.register(loa3_submission, 'loa3') }
           .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
@@ -166,7 +168,7 @@ describe CovidVaccine::V0::RegistrationService do
 
       it 'passes authenticated attribute as false' do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-          .with(hash_including(:authenticated => false))
+          .with(hash_including(authenticated: false))
           .and_return({ sid: SecureRandom.uuid })
         expect_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)

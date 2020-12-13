@@ -21,18 +21,18 @@ FactoryBot.define do
         sta6a: '648GI'
       }
     }
-     
+
     raw_form_data {
       {
-        'vaccine_interest' => 'INTERESTED', 
+        'vaccine_interest' => 'INTERESTED',
         'zip_code' => '97212',
         'zip_code_details' => 'YES',
         'phone' => '808-555-1212',
-        'email' => 'foo@example.com', 
+        'email' => 'foo@example.com',
         'first_name' => 'Jon',
-        'last_name' => 'Doe', 
+        'last_name' => 'Doe',
         'birth_date' => '1900-01-01',
-        'ssn' => '6665123456', 
+        'ssn' => '6665123456'
       }
     }
   end
@@ -49,13 +49,13 @@ FactoryBot.define do
   trait :lacking_pii_traits do
     raw_form_data {
       {
-        'vaccine_interest' => 'INTERESTED', 
+        'vaccine_interest' => 'INTERESTED',
         'zip_code' => '97212',
         'zip_code_details' => 'YES',
         'phone' => '808-555-1212',
-        'email' => 'foo@example.com', 
+        'email' => 'foo@example.com',
         'first_name' => 'Jon',
-        'last_name' => 'Doe', 
+        'last_name' => 'Doe'
       }
     }
   end
@@ -63,19 +63,17 @@ FactoryBot.define do
   trait :from_loa3 do
     raw_form_data {
       {
-        'vaccine_interest' => 'INTERESTED', 
+        'vaccine_interest' => 'INTERESTED',
         'zip_code' => '97212',
         'zip_code_details' => 'YES',
         'phone' => '808-555-1212',
-        'email' => 'foo@example.com', 
+        'email' => 'foo@example.com',
         'first_name' => 'Jonathan',
-        'last_name' => 'Doe-Roe', 
+        'last_name' => 'Doe-Roe',
         'birth_date' => '1900-01-01',
-        'ssn' => '6665123456', 
+        'ssn' => '6665123456',
         'icn' => '123456V123456'
       }
     }
   end
-
 end
-

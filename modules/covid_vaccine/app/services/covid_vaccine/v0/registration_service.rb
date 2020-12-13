@@ -65,7 +65,7 @@ module CovidVaccine
           last_name: form_data['last_name'],
           date_of_birth: form_data['birth_date'],
           patient_ssn: form_data['ssn'],
-          # This value was only injected from controller if 
+          # This value was only injected from controller if
           # user was authenticated at LOA3
           patient_icn: form_data['icn']
         }
