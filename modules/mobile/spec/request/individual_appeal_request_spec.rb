@@ -13,8 +13,14 @@ RSpec.describe 'individual appeal', type: :request do
     it 'and a result that matches our schema is successfully returned with the 200 status ' do
       VCR.use_cassette('caseflow/appeals') do
         get '/mobile/v0/appeal/3294289', headers: iam_headers
-        binding.pry
         expect(response).to have_http_status(:ok)
+      end
+    end
+    it 'and attempting to access a nonexistant appeal returns a 403 wtih an error ' do
+      VCR.use_cassette('caseflow/appeals') do
+        get '/mobile/v0/appeal/1234567', headers: iam_headers
+        expect(response).to have_http_status(:not_found)
+        expect(response.parsed_body.dig("error")).to eq("Appeal 1234567 not found")
       end
     end
   end
