@@ -32,7 +32,7 @@ module Mobile
         status_code = parse_claims(claims_result, full_list = [], error_list = [])
         status_code = parse_appeals(appeals_result, full_list, error_list, status_code)
         adapted_full_list = serialize_list(full_list.flatten)
-        render json: {data: adapted_full_list, meta: {errors: error_list}}, status: status_code
+        render json: { data: adapted_full_list, meta: { errors: error_list } }, status: status_code
       end
 
       def get_claim
@@ -43,7 +43,7 @@ module Mobile
           claim_detail = EVSSClaimDetailSerializer.new(claim)
           render json: Mobile::V0::ClaimSerializer.new(claim_detail)
         else
-          render json: {error: "Claim #{params[:id]} not found"}, status: :not_found
+          render json: { error: "Claim #{params[:id]} not found" }, status: :not_found
         end
       end
 
@@ -51,12 +51,12 @@ module Mobile
         appeals = appeals_service.get_appeals(@current_user).body['data']
         appeal = appeals.select { |entry| entry.dig('id') == params[:id] }[0]
         if appeal
-          serializable_resource = OpenStruct.new(appeal["attributes"])
-          serializable_resource[:id] = appeal["id"]
-          serializable_resource[:type] = appeal["type"]
+          serializable_resource = OpenStruct.new(appeal['attributes'])
+          serializable_resource[:id] = appeal['id']
+          serializable_resource[:type] = appeal['type']
           render json: Mobile::V0::AppealSerializer.new(serializable_resource)
         else
-          render json: {error: "Appeal #{params[:id]} not found"}, status: :not_found
+          render json: { error: "Appeal #{params[:id]} not found" }, status: :not_found
         end
       end
 
