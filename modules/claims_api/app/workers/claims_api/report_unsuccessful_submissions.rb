@@ -33,7 +33,7 @@ module ClaimsApi
           error.evss_response = error.evss_response.gsub(uuid_regex, '%<uuid>')
           error.evss_response = error.evss_response.gsub(/\d{5,}/, '%<number>')
           begin
-            error.evss_response = eval(error.evss_response)
+            error.evss_response = JSON.parse(error.evss_response.gsub('=>', ':'))
           rescue
             # message not guaranteed to be in hash format
           end
