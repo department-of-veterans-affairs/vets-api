@@ -1686,14 +1686,6 @@ module Accountable
     value = z / 10_000_000
     "the value: #{value}"
   end
-
-  def override_me_to_make_a_dangerbot_alert
-    x = rand(1..100)
-    y = rand(1..100)
-    z = x**y
-    value = z / 10_000_000
-    "the value: #{value}"
-  end
   # rubocop:enable Lint/DuplicateMethods
 end
 # rubocop:enable Metrics/ModuleLength
