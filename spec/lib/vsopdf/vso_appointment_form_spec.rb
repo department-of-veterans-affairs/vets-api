@@ -64,7 +64,7 @@ describe VSOAppointmentForm do
     expect(meta[:receiveDt].match(/\A[\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}\Z/).nil?).to eq false
   end
 
-  it 'posts a pdf to central mail' do
+  xit 'posts a pdf to central mail' do
     VCR.use_cassette('vso_appointments/upload') do
       expect(form.send_pdf.status).to eq(200)
     end
