@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'generators/module/module_generator'
 
-describe OldModuleGenerator do
+describe ModuleGenerator do
 
   after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
