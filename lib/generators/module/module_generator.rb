@@ -20,7 +20,6 @@ class ModuleGenerator < Rails::Generators::NamedBase
   def create_additional_files
     path = "modules/#{file_name}"
 
-
     # create rakefile
     template 'Rakefile.erb', File.join(path, 'Rakefile')
 
@@ -42,20 +41,22 @@ class ModuleGenerator < Rails::Generators::NamedBase
 
     # create gemfile
     template 'Gemfile.erb', File.join(path, 'Gemfile')
-
-
   end
 
-  def update_configurations
+  def update_spec_helper
+    # spec helper add group
+    insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}', 'modules/#{file_name}/'\n", after: "# Modules\n"
+  end
+  #
+  def update_simplecov_helper
+    # simplecov add group
+    insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}', 'modules/#{file_name}/'\n", after: "# Modules\n"
+  end
+
+  def update_gemfile
     # insert into main app gemfile
     insert_into_file 'Gemfile', "gem '#{file_name}', path: 'modules/#{file_name}'\n", after: "# Modules\n"
     route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
-
-    # spec helper add group
-    #insert_into_file 'spec/spec_helper.rb', "add_group '#{file_name.constantize}', 'modules/#{file_name}'\n", after: "# Modules\n"
-
-    # simplecov add group
-    # insert_into_file 'spec/simplecov_helper.rb', "add_group '#{file_name.constantize}', 'modules/#{file_name}'\n", after: "# Modules\n"
   end
 
   # rubocop:disable Rails/Output
