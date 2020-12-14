@@ -33,7 +33,7 @@ RSpec.describe V0::VSOAppointmentsController, type: :controller do
       expect(response).to have_http_status(:bad_request)
     end
 
-    xit 'accepts a basic example' do
+    it 'accepts a basic example' do
       VCR.use_cassette('vso_appointments/upload') do
         # fill in everything with junk by default
         payload = {}
