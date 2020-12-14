@@ -4,7 +4,7 @@
 
 require 'carma/models/submission'
 require 'carma/models/attachments'
-require 'mvi/service'
+require 'mpi/service'
 require 'emis/service'
 
 module Form1010cg
@@ -16,6 +16,18 @@ module Form1010cg
                   :submission # Form1010cg::Submission
 
     NOT_FOUND = 'NOT_FOUND'
+
+    def self.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
+      raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?
+      raise 'invalid document_type' unless CARMA::Models::Attachment::DOCUMENT_TYPES.values.include?(document_type)
+
+      carma_attachments = CARMA::Models::Attachments.new(
+        carma_case_id, veteran_name['first'], veteran_name['last']
+      )
+
+      carma_attachments.add(document_type, file_path)
+      carma_attachments.submit!
+    end
 
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
@@ -52,21 +64,34 @@ module Form1010cg
 
       @submission = Form1010cg::Submission.new(
         carma_case_id: carma_submission.carma_case_id,
-        submitted_at: carma_submission.submitted_at,
+        accepted_at: carma_submission.submitted_at,
         metadata: carma_submission.request_body['metadata']
       )
 
-      submit_attachment
+      if Flipper.enabled?(:async_10_10_cg_attachments)
+        submit_attachment_async
+      else
+        submit_attachment
+      end
 
       submission
+    end
+
+    def submit_attachment_async
+      submission.claim = claim
+      submission.save
+      submission.attachments_job_id = Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
+    rescue => e
+      Rails.logger.error(e)
     end
 
     # Will generate a PDF version of the submission and attach it to the CARMA Case.
     #
     # @return [Boolean]
-    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity
-      raise 'requires a processed submission'     if  submission&.carma_case_id.blank?
-      raise 'submission already has attachments'  if  submission.attachments.any?
+    def submit_attachment # rubocop:disable Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      raise 'requires a submission'               if  submission.nil?
+      raise 'requires a processed submission'     if  submission.carma_case_id.blank?
+      raise 'submission already has attachments'  if  submission.attachments&.any?
 
       file_path = begin
                     claim.to_pdf(sign: true)
@@ -120,7 +145,7 @@ module Form1010cg
     #     is_veteran: true | false | nil,
     #     icn: String | nil
     #   },
-    #   primaryCaregiver: { icn: String | nil },
+    #   primaryCaregiver?: { icn: String | nil },
     #   secondaryCaregiverOne?: { icn: String | nil },
     #   secondaryCaregiverTwo?: { icn: String | nil }
     # }
@@ -196,7 +221,7 @@ module Form1010cg
     private
 
     def mpi_service
-      @mpi_service ||= MVI::Service.new
+      @mpi_service ||= MPI::Service.new
     end
 
     def carma_client
@@ -215,8 +240,8 @@ module Form1010cg
       )
     end
 
-    # MVI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
-    # This method will build a valid UserIdentity, so MVI::Service can pluck the name, ssn, dob, and gender.
+    # MPI::Service requires a valid UserIdentity to run a search, but only reads the user's attributes.
+    # This method will build a valid UserIdentity, so MPI::Service can pluck the name, ssn, dob, and gender.
     #
     # @param form_subject_data [Hash] The data of a specific form subject (ex: claim.parsed_form['veteran'])
     # @return [UserIdentity] A valid UserIdentity for the given form_subject

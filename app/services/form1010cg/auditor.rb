@@ -4,8 +4,9 @@ module Form1010cg
   class Auditor
     include Singleton
 
-    STATSD_KEY_PREFIX = 'api.form1010cg'
-    LOGGER_PREFIX     = 'Form 10-10CG'
+    STATSD_KEY_PREFIX   = 'api.form1010cg'
+    LOGGER_PREFIX       = 'Form 10-10CG'
+    LOGGER_FILTER_KEYS  = [:veteran_name].freeze
 
     def self.metrics
       submission_prefix = STATSD_KEY_PREFIX + '.submission'
@@ -33,14 +34,15 @@ module Form1010cg
       increment self.class.metrics.submission.attempt
     end
 
-    def record_submission_success(claim_guid:, carma_case_id:, metadata:, attachments:)
+    def record_submission_success(claim_guid:, carma_case_id:, metadata:, attachments:, attachments_job_id:)
       increment self.class.metrics.submission.success
       log(
         'Submission Successful',
         claim_guid: claim_guid,
         carma_case_id: carma_case_id,
         metadata: metadata,
-        attachments: attachments
+        attachments: attachments,
+        attachments_job_id: attachments_job_id
       )
     end
 
@@ -49,9 +51,9 @@ module Form1010cg
       log 'Submission Failed: invalid data provided by client', claim_guid: claim_guid, errors: errors
     end
 
-    def record_submission_failure_client_qualification(claim_guid:, veteran_name:)
+    def record_submission_failure_client_qualification(claim_guid:)
       increment self.class.metrics.submission.failure.client.qualification
-      log 'Submission Failed: qualifications not met', claim_guid: claim_guid, veteran_name: veteran_name
+      log 'Submission Failed: qualifications not met', claim_guid: claim_guid
     end
 
     def record_pdf_download
@@ -77,8 +79,24 @@ module Form1010cg
       StatsD.increment stat
     end
 
-    def log(message, data_hash = {})
-      Rails.logger.send :info, "[#{LOGGER_PREFIX}] #{message}", data_hash
+    def log(message, context_hash = {})
+      Rails.logger.send :info, "[#{LOGGER_PREFIX}] #{message}", deep_apply_filter(context_hash)
+    end
+
+    def deep_apply_filter(value)
+      if value.is_a?(Array)
+        value.map { |v| deep_apply_filter(v) }
+      elsif value.is_a?(Hash)
+        value.each_with_object({}) do |(key, v), result|
+          result[key] = if LOGGER_FILTER_KEYS.include?(key.to_s) || LOGGER_FILTER_KEYS.include?(key.to_sym)
+                          ActiveSupport::ParameterFilter::FILTERED
+                        else
+                          deep_apply_filter(v)
+                        end
+        end
+      else
+        value
+      end
     end
   end
 end

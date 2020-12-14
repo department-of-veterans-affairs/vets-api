@@ -11,10 +11,17 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
 
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:flashes) { %w[Homeless POW] }
+  let(:claim) { create(:auto_established_claim) }
 
-  it 'submits succesfully' do
+  it 'submits successfully without claim id' do
     expect do
       subject.perform_async(user, flashes)
+    end.to change(subject.jobs, :size).by(1)
+  end
+
+  it 'submits successfully with claim id' do
+    expect do
+      subject.perform_async(user, flashes, auto_claim_id: claim.id)
     end.to change(subject.jobs, :size).by(1)
   end
 
@@ -38,6 +45,16 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
       end
     end
 
-    subject.new.perform(user, flashes)
+    subject.new.perform(user, flashes, auto_claim_id: claim.id)
+  end
+
+  it 'stores multiple bgs exceptions correctly' do
+    flashes.each do |flash_name|
+      expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
+        .with(file_number: user.ssn, flash_name: flash_name).and_raise(BGS::ShareError.new('failed', 500))
+    end
+
+    subject.new.perform(user, flashes, auto_claim_id: claim.id)
+    expect(ClaimsApi::AutoEstablishedClaim.find(claim.id).bgs_flash_responses.count).to eq(flashes.count)
   end
 end

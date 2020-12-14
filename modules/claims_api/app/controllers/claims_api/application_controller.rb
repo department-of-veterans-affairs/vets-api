@@ -22,10 +22,25 @@ module ClaimsApi
              status: :not_found
     end
 
+    def fetch_aud
+      Settings.oidc.isolated_audience.claims
+    end
+
+    protected
+
+    def source_name
+      if v0?
+        request.headers['X-Consumer-Username']
+      else
+        user = header_request? ? @current_user : target_veteran
+        "#{user.first_name} #{user.last_name}"
+      end
+    end
+
     private
 
     def find_claim
-      claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
+      claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
       if claim && claim.status == 'errored'
         fetch_errored(claim)
@@ -33,6 +48,7 @@ module ClaimsApi
         render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
       else
         evss_claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
+        # Note: source doesn't seem to be accessible within a remote evss_claim
         render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
       end
     end
@@ -132,6 +148,18 @@ module ClaimsApi
       vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
       vet.participant_id = header('X-VA-PID') || vet.mpi.profile&.participant_id
       vet
+    end
+
+    def authenticate_token
+      super
+    rescue => e
+      raise e if e.message == 'Token Validation Error'
+
+      log_message_to_sentry('Authentication Error in claims',
+                            :warning,
+                            body: e.message)
+      render json: { errors: [{ status: 401, detail: 'User not a valid or authorized Veteran for this end point.' }] },
+             status: :unauthorized
     end
   end
 end

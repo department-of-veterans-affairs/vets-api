@@ -14,17 +14,14 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
         to = Time.zone.now
         from = to.monday? ? 7.days.ago : 1.day.ago
         expect(ClaimsApi::UnsuccessfulReportMailer).to receive(:build).once.with(
-          [],
-          ClaimsApi::AutoEstablishedClaim.where(
-            created_at: from..to,
-            status: 'pending'
-          ).order(:source, :status),
-          ClaimsApi::AutoEstablishedClaim.where(
-            created_at: from..to,
-            status: 'errored'
-          ).order(:source, :status),
           from,
-          to
+          to,
+          consumer_totals: [],
+          flash_statistics: [],
+          pending_submissions: ClaimsApi::AutoEstablishedClaim.where(created_at: from..to,
+                                                                     status: 'pending').order(:source, :status),
+          unsuccessful_submissions: ClaimsApi::AutoEstablishedClaim.where(created_at: from..to,
+                                                                          status: 'errored').order(:source, :status)
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
                      end)

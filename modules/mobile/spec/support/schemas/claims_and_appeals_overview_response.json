@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+  },
+  "properties": {
+    "data": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "subtype": {
+              "type": "string"
+            },
+            "completed": {
+              "type": "boolean"
+            },
+            "date_filed": {
+              "type": "string"
+            },
+            "updated_at": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "subtype",
+            "completed",
+            "date_filed",
+            "updated_at"
+          ],
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "claims",
+            "appeals"
+          ]
+        }
+      },
+      "type": "array"
+    },
+    "meta": {
+      "properties": {
+        "errors": {
+          "properties": {
+            "service": {
+              "type": "string",
+              "enum": [
+                "claims",
+                "appeals"
+              ]
+            },
+            "errorDetails": {
+              "type": "array"
+            }
+          }
+        },
+        "type": "array"
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "data",
+    "meta"
+  ],
+  "type": "object"
+}

@@ -13,6 +13,7 @@ gem 'appeals_api', path: 'modules/appeals_api'
 gem 'apps_api', path: 'modules/apps_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'covid_research', path: 'modules/covid_research'
+gem 'covid_vaccine', path: 'modules/covid_vaccine'
 gem 'health_quest', path: 'modules/health_quest'
 gem 'mobile', path: 'modules/mobile'
 gem 'openid_auth', path: 'modules/openid_auth'
@@ -24,7 +25,7 @@ gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.5'
+gem 'puma', '~> 4.3.7'
 gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 6.0.2'
 
@@ -55,6 +56,7 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
+gem 'fhir_client', '~> 4.0.4'
 gem 'flipper'
 gem 'flipper-active_record'
 gem 'flipper-active_support_cache_store'
@@ -106,6 +108,7 @@ gem 'sentry-raven'
 gem 'shrine'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
+gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'utf8-cleaner'
@@ -129,12 +132,13 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
+  gem 'debase'
+  gem 'ruby-debug-ide', git: 'https://github.com/corgibytes/ruby-debug-ide', branch: 'feature-add-fixed-port-range'
   gem 'web-console', platforms: :ruby
 end
 
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
-  gem 'awrence'
   gem 'fakeredis'
   gem 'pact', require: false
   gem 'pact-mock_service', require: false
@@ -172,6 +176,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
   gem 'rspec-instrumentation-matcher'
+  gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rubocop', require: false
   gem 'rubocop-rails'

@@ -31,6 +31,38 @@ describe Vet360Redis::ContactInformation do
     Vet360::ContactInformation::PersonResponse.from(raw_response)
   end
 
+  context 'with a 404 from get_person', skip_vet360: true do
+    let(:get_person_calls) { 'once' }
+
+    before do
+      allow(Settings.vet360.contact_information).to receive(:cache_enabled).and_return(true)
+
+      service = double
+      allow(Vet360::ContactInformation::Service).to receive(:new).with(user).and_return(service)
+      expect(service).to receive(:get_person).public_send(
+        get_person_calls
+      ).and_return(
+        Vet360::ContactInformation::PersonResponse.new(404, person: nil)
+      )
+    end
+
+    it 'caches the empty response' do
+      expect(contact_info.email).to eq(nil)
+      expect(contact_info.home_phone).to eq(nil)
+    end
+
+    context 'when the cache is destroyed' do
+      let(:get_person_calls) { 'twice' }
+
+      it 'makes a new request' do
+        expect(contact_info.email).to eq(nil)
+        Vet360Redis::Cache.invalidate(user)
+
+        expect(Vet360Redis::ContactInformation.for_user(user).email).to eq(nil)
+      end
+    end
+  end
+
   describe '.new' do
     it 'creates an instance with user attributes' do
       expect(contact_info.user).to eq(user)

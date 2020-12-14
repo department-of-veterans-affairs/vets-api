@@ -12,9 +12,18 @@ module ClaimsApi
       rescue => e
         log_message_to_sentry('MPIError in claims',
                               :warning,
-                              body: target_veteran.mpi&.response&.error&.inspect || e.message)
-        render json: { errors: [{ status: 404, detail: 'Veteran not found, some functionality may be limited.' }] },
-               status: :not_found
+                              body: inspected_error || e.message)
+
+        render json: { errors: [{ status: 400, detail: 'Not enough Veteran information, functionality limited.' }] },
+               status: :bad_request
+      end
+
+      private
+
+      def inspected_error
+        target_veteran.mpi&.response&.error&.inspect
+      rescue
+        nil
       end
     end
   end

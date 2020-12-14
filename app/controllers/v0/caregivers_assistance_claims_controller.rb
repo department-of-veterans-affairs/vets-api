@@ -65,8 +65,7 @@ module V0
     def backend_service_outage
       auditor.record(
         :submission_failure_client_qualification,
-        claim_guid: @claim.guid,
-        veteran_name: @claim.veteran_data['fullName']
+        claim_guid: @claim.guid
       )
 
       render_errors Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
@@ -75,8 +74,9 @@ module V0
     def record_submission_success(submission)
       submission_context = {
         carma_case_id: submission.carma_case_id,
+        metadata: submission.metadata,
         attachments: submission.attachments,
-        metadata: submission.metadata
+        attachments_job_id: submission.attachments_job_id
       }
 
       auditor.record(:submission_success, claim_guid: @claim.guid, **submission_context)

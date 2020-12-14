@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'veteran_verification/mock_open_id_user'
 module VeteranVerification
   class ApplicationController < ::OpenidApplicationController
     skip_before_action :set_tags_and_extra_content, raise: false
@@ -10,6 +11,24 @@ module VeteranVerification
     # of the original routes assumed request headers would also ask for JSON,
     # so we set that default.
     before_action { set_default_format_to_json }
+
+    def authenticate_token
+      return false if token.blank?
+
+      # Not supported for Client Credentials tokens
+      return false if token.client_credentials_token?
+
+      @session = Session.find(token)
+      establish_session if @session.nil?
+      return false if @session.nil?
+
+      open_id = if Settings.vet_verification.mock_emis
+                  MockOpenidUser
+                else
+                  OpenidUser
+                end
+      @current_user = open_id.find(@session.uuid)
+    end
 
     def set_default_format_to_json
       request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?

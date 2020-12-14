@@ -85,8 +85,15 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       )
       expect(res_body['errors'][0]['code']).to eq('100')
       expect(res_body['errors'][0]['status']).to eq('422')
-      expect(res_body['errors'][1]['title']).to include(
-        "did not contain a required property of 'primaryCaregiver'"
+      expect(res_body['errors'][1]['title'].split("\n")).to eq(
+        [
+          "Form The property '#/' of type object did not match one or more of the required schemas. The schema specific errors were:", # rubocop:disable Layout/LineLength
+          '',
+          '- anyOf #0:',
+          "    - The property '#/' did not contain a required property of 'primaryCaregiver'",
+          '- anyOf #1:',
+          "    - The property '#/' did not contain a required property of 'secondaryCaregiverOne'"
+        ]
       )
       expect(res_body['errors'][1]['code']).to eq('100')
       expect(res_body['errors'][1]['status']).to eq('422')
@@ -129,16 +136,17 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       end
     end
 
-    it 'submits claim with Form1010cg::Service' do
+    it 'submits claim using Form1010cg::Service' do
       claim = build(:caregivers_assistance_claim)
       form_data = claim.form
       params = { caregivers_assistance_claim: { form: form_data } }
       service = double
       submission = double(
         carma_case_id: 'A_123',
-        submitted_at: DateTime.now.iso8601,
+        accepted_at: DateTime.now.iso8601,
+        metadata: :metadata_submitted,
         attachments: :attachments_uploaded,
-        metadata: :metadata_submitted
+        attachments_job_id: '1234abcdef'
       )
 
       expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
@@ -155,8 +163,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         :submission_success,
         claim_guid: claim.guid,
         carma_case_id: submission.carma_case_id,
+        metadata: submission.metadata,
         attachments: submission.attachments,
-        metadata: submission.metadata
+        attachments_job_id: submission.attachments_job_id
       )
 
       post :create, params: params
@@ -169,7 +178,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       expect(res_body['data']['id']).to eq('')
       expect(res_body['data']['attributes']).to be_present
       expect(res_body['data']['attributes']['confirmation_number']).to eq(submission.carma_case_id)
-      expect(res_body['data']['attributes']['submitted_at']).to eq(submission.submitted_at)
+      expect(res_body['data']['attributes']['submitted_at']).to eq(submission.accepted_at)
     end
 
     context 'when Form1010cg::Service raises InvalidVeteranStatus' do
@@ -191,8 +200,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
-          claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          claim_guid: claim.guid
         )
 
         post :create, params: params
@@ -247,8 +255,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
         expect(Form1010cg::Auditor.instance).to receive(:record).with(
           :submission_failure_client_qualification,
-          claim_guid: claim.guid,
-          veteran_name: claim.veteran_data['fullName']
+          claim_guid: claim.guid
         )
 
         invalid_veteran_status_response = post :create, params: params
