@@ -110,7 +110,7 @@ pension_burial:
 central_mail:
   upload:
     enabled: true
-    host: "icmhs-api-test.csrarad.com"
+    host: "test2.domaonline.com/EmmsAPI"
     token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
