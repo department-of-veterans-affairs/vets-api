@@ -15,6 +15,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     path = "modules/#{file_name}/lib"
     template 'lib/namespace/engine.rb.erb', File.join(path, file_name, 'engine.rb')
     template 'lib/namespace/version.rb.erb', File.join(path, file_name, 'version.rb')
+    template 'lib/namespace.rb.erb', File.join(path, "#{file_name}.rb")
   end
 
   def create_additional_files
