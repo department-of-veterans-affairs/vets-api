@@ -15,6 +15,7 @@ module Mobile
       attributes :international_postal_code
       attributes :province
       attributes :state_code
+      attributes :validation_key
       attributes :zip_code
       attributes :zip_code_suffix
 

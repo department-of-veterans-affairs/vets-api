@@ -43,7 +43,7 @@ module CARMA
         }
       end
 
-      def submit!(client)
+      def submit!(client = CARMA::Client::Client.new)
         return response if response
 
         @response = client.upload_attachments(to_request_payload)
