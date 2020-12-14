@@ -44,7 +44,7 @@ module VRE
     private
 
     def end_point
-      "#{Settings.veteran_readiness_and_employment.base_url}/etk/api/endpoints/VaGovIntegration_RePaoDZb/vagov"
+      "#{Settings.veteran_readiness_and_employment.base_url}/etk/api/endpoints/vaGov/new_application"
     end
   end
 end

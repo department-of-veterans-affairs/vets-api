@@ -56,6 +56,7 @@ module MPI
           active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, VA_ROOT_OID)),
           edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^A$/, DOD_ROOT_OID))&.first,
           vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^A$/, VA_ROOT_OID))&.first,
+          idme_id: select_ids(select_extension(ids, /^\w+\^PN\^200VIDM\^USDVA\^A$/, VA_ROOT_OID))&.first,
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, VA_ROOT_OID)),
           cerner_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^C$/, VA_ROOT_OID)),
           cerner_id: select_ids(select_extension(ids, /^\w+\^PI\^200CRNR\^US\w+\^A$/, VA_ROOT_OID))&.first,
@@ -65,6 +66,15 @@ module MPI
         }
         result[:birls_id] = result[:birls_ids].first
         result
+      end
+
+      def parse_string(ids, root_oid = VA_ROOT_OID)
+        return unless ids
+
+        mapped_ids = ids.split('|').map do |id|
+          OpenStruct.new(attributes: { extension: id, root: root_oid })
+        end
+        parse(mapped_ids)
       end
 
       def select_ids_with_extension(ids, pattern, root)

@@ -86,7 +86,9 @@ module AppealsApi
 
     FORM_SCHEMA = load_json_schema '10182'
     AUTH_HEADERS_SCHEMA = load_json_schema '10182_headers'
+    STATUSES = %w[pending].freeze
 
+    validates :status, inclusion: { 'in': STATUSES }
     validate(
       :validate_auth_headers_against_schema,
       :validate_form_data_against_schema,

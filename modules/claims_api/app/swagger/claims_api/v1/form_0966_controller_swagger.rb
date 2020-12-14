@@ -137,7 +137,9 @@ module ClaimsApi
                     property :type do
                       key :type, :string
                       key :example, 'compensation'
-                      key :description, 'Required by JSON API standard'
+                      key :description, 'For type "burial", the request must be made by a valid Veteran Representative.
+                      If the Representative is not a Veteran or a VA employee, this method is currently not available to them,
+                      and they should use the Benefits Intake API as an alternative.'
                       key :enum, %w[
                         compensation
                         burial
@@ -312,7 +314,9 @@ module ClaimsApi
                     property :type do
                       key :type, :string
                       key :example, 'compensation'
-                      key :description, 'Required by JSON API standard'
+                      key :description, 'For type "burial", the request must be made by a valid Veteran Representative.
+                      If the Representative is not a Veteran or a VA employee, this method is currently not available to them,
+                      and they should use the Benefits Intake API as an alternative.'
                       key :enum, %w[
                         compensation
                         burial
