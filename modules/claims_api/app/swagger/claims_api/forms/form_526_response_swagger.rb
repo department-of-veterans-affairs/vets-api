@@ -621,7 +621,7 @@ module ClaimsApi
                     items do
                       key :type, :string
                       key :example, 'ALS'
-                      key :enum, %w[ALS HEPC POW PTSD/1 PTSD/2 PTSD/3 PTSD/4 MST]
+                      key :enum, %w[ALS AOOV ASB GW HEPC HIV MG MST POW PTSD/1 PTSD/2 PTSD/3 RDN SARCO TBI C123]
                     end
                   end
 
@@ -662,7 +662,7 @@ module ClaimsApi
                         items do
                           key :type, :string
                           key :example, 'ALS'
-                          key :enum, %w[ALS HEPC POW PTSD/1 PTSD/2 PTSD/3 PTSD/4 MST]
+                          key :enum, %w[ALS AOOV ASB GW HEPC HIV MG MST POW PTSD/1 PTSD/2 PTSD/3 RDN SARCO TBI C123]
                         end
                       end
                     end

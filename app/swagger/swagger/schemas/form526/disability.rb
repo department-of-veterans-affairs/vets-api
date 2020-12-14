@@ -84,13 +84,21 @@ module Swagger
           property :items, type: :string, enum:
             %w[
               ALS
+              AOOV
+              ASB
+              GW
               HEPC
+              HIV
+              MG
+              MST
               POW
               PTSD/1
               PTSD/2
               PTSD/3
-              PTSD/4
-              MST
+              RDN
+              SARCO
+              TBI
+              C123
             ]
         end
       end
