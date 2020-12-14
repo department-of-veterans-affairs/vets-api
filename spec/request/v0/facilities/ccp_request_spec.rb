@@ -372,42 +372,42 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
       bod = JSON.parse(response.body)
 
       expect(bod).to include(
-        'data' =>               {
-                'id' => 'ccp_1225028293',
-                'type' => 'cc_provider',
-                'attributes' => {
-                  'acc_new_patients' => nil,
-                  'address' => {
-                    'street' => '2 BAYSHORE PLZ',
-                    'city' => 'ATLANTIC HIGHLANDS',
-                    'state' => 'NJ',
-                    'zip' => '07716'
-                  },
-                  'caresite_phone' => nil,
-                  'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
-                  'fax' => nil,
-                  'gender' => nil,
-                  'lat' => 40.409114,
-                  'long' => -74.041849,
-                  'name' => 'BAYSHORE PHARMACY',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'specialty' => [
-                    {
-                      'name' => 'Pharmacy - Community/Retail Pharmacy',
-                      'desc' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal preparations ' \
-                                'and/or prescriptions for a local patient population in accordance with federal and ' \
-                                'state law; counsel patients and caregivers (sometimes independent of the dispensing ' \
-                                'process); administer vaccinations; and provide other professional services '\
-                                'associated with pharmaceutical care such as health screenings, consultative ' \
-                                'services with other health care providers, collaborative practice, disease state ' \
-                                'management, and education classes.'
-                    }
-                  ],
-                  'unique_id' => '1225028293'
-                }
+        'data' => {
+          'id' => 'ccp_1225028293',
+          'type' => 'cc_provider',
+          'attributes' => {
+            'acc_new_patients' => nil,
+            'address' => {
+              'street' => '2 BAYSHORE PLZ',
+              'city' => 'ATLANTIC HIGHLANDS',
+              'state' => 'NJ',
+              'zip' => '07716'
+            },
+            'caresite_phone' => nil,
+            'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
+            'fax' => nil,
+            'gender' => nil,
+            'lat' => 40.409114,
+            'long' => -74.041849,
+            'name' => 'BAYSHORE PHARMACY',
+            'phone' => nil,
+            'pos_codes' => nil,
+            'pref_contact' => nil,
+            'specialty' => [
+              {
+                'name' => 'Pharmacy - Community/Retail Pharmacy',
+                'desc' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal preparations ' \
+                          'and/or prescriptions for a local patient population in accordance with federal and ' \
+                          'state law; counsel patients and caregivers (sometimes independent of the dispensing ' \
+                          'process); administer vaccinations; and provide other professional services '\
+                          'associated with pharmaceutical care such as health screenings, consultative ' \
+                          'services with other health care providers, collaborative practice, disease state ' \
+                          'management, and education classes.'
               }
+            ],
+            'unique_id' => '1225028293'
+          }
+        }
       )
     end
   end

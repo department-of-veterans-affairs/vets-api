@@ -7,7 +7,7 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
   let(:params) do
     {
       address: '58 Leonard Ave, Leonardo, NJ 07737',
-      bbox: [-75.91,38.55,-72.19,42.27]
+      bbox: [-75.91, 38.55, -72.19, 42.27]
     }.with_indifferent_access
   end
 

@@ -20,12 +20,12 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
         when 0
           {
             address: '58 Leonard Ave, Leonardo, NJ 07737',
-            bbox: ['-75.91','38.55','-72.19','42.27'],
+            bbox: ['-75.91', '38.55', '-72.19', '42.27'],
             type: 'provider'
           }
         when 1
           {
-            bbox: ['-75.91','38.55','-72.19','42.27'],
+            bbox: ['-75.91', '38.55', '-72.19', '42.27'],
             latitude: 40.415217,
             longitude: -74.057114,
             radius: 251,
