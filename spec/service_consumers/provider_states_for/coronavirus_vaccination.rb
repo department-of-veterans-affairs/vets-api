@@ -12,7 +12,7 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
     end
   end
 
-  provider_state 'does not retrieve perviously saved submission data for user becase it does not exist' do
+  provider_state 'submission data for user does not exist' do
     set_up do
       user = build_user_and_stub_session
       CovidVaccine::V0::RegistrationSubmission.for_user(user).last
@@ -22,7 +22,7 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
     end
   end
 
-  provider_state 'authenticated user sumbits registration data' do
+  provider_state 'authenticated user submits registration data' do
     set_up do
       build_user_and_stub_session
     end
@@ -31,7 +31,7 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
     end
   end
 
-  provider_state 'unauthenticated user sumbits registration data' do
+  provider_state 'unauthenticated user submits registration data' do
     no_op
   end
 end
