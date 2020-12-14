@@ -28,7 +28,7 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
             bbox: ['-75.91', '38.55', '-72.19', '42.27'],
             latitude: 40.415217,
             longitude: -74.057114,
-            radius: 251,
+            radius: 200,
             type: 'provider'
           }
         end
