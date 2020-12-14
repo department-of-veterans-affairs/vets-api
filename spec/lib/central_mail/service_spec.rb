@@ -5,21 +5,16 @@ require 'central_mail/service'
 require 'securerandom'
 
 RSpec.describe CentralMail::Service do
-  let(:vendor) { 'GCIO' }
   let(:service) { described_class.new }
 
   describe '#status' do
     context 'with one uuid' do
       it 'retrieves the status' do
         VCR.use_cassette(
-          "central_mail/status_one_uuid_#{vendor}",
+          "central_mail/status_one_uuid",
           match_requests_on: %i[method uri]
         ) do
-          # GDIT uuid
-          uuid = '34656d73-7c31-456d-9c49-2024fff1cd47'
-
-          uuid = 'a8c29dbc-a0a6-4177-ae57-fc6143ec7edb' if vendor.eql?('GCIO')
-
+          uuid = 'a8c29dbc-a0a6-4177-ae57-fc6143ec7edb'
           response = described_class.new.status(uuid)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body).length).to eq(1)
@@ -30,23 +25,14 @@ RSpec.describe CentralMail::Service do
     context 'with multiple uuids' do
       it 'retrieves the statuses' do
         VCR.use_cassette(
-          "central_mail/status_multiple_uuids_#{vendor}",
+          "central_mail/status_multiple_uuids",
           match_requests_on: %i[method uri]
         ) do
-          # GDIT uuids
           uuids = %w[
-            34656d73-7c31-456d-9c49-2024fff1cd47
-            4a25588c-9200-4405-a2fd-97f0b0fdf790
-            f7725cce-a76e-4d80-ab20-01c63acfcb87
+            a8c29dbc-a0a6-4177-ae57-fc6143ec7edb
+            b2b677e3-a6c1-4d07-ae7d-e013d60bec43
+            84bb3df3-c090-44a7-aa0d-76e9ab97eab0
           ]
-
-          if vendor.eql?('GCIO')
-            uuids = %w[
-              a8c29dbc-a0a6-4177-ae57-fc6143ec7edb
-              b2b677e3-a6c1-4d07-ae7d-e013d60bec43
-              84bb3df3-c090-44a7-aa0d-76e9ab97eab0
-            ]
-          end
 
           response = described_class.new.status(uuids)
           expect(response.status).to eq(200)
@@ -131,7 +117,7 @@ RSpec.describe CentralMail::Service do
       %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|
         it "Returns a 412 error when no #{key} is present" do
           VCR.use_cassette(
-            "central_mail/bad_metadata_no_#{key}_#{vendor}",
+            "central_mail/bad_metadata_no_#{key}",
             match_requests_on: [multipart_request_matcher, :method, :uri]
           ) do
             metadata = valid_metadata.call
@@ -145,7 +131,7 @@ RSpec.describe CentralMail::Service do
       %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|
         it "Returns a 412 error when #{key} is blank" do
           VCR.use_cassette(
-            "central_mail/bad_metadata_blank_#{key}_#{vendor}",
+            "central_mail/bad_metadata_blank_#{key}",
             match_requests_on: [multipart_request_matcher, :method, :uri]
           ) do
             metadata = valid_metadata.call
@@ -156,29 +142,12 @@ RSpec.describe CentralMail::Service do
         if ['zipCode'].include?(key)
           it "Returns a 412 error when #{key} is invalid" do
             VCR.use_cassette(
-              "central_mail/bad_metadata_invalid_#{key}_#{vendor}",
+              "central_mail/bad_metadata_invalid_#{key}",
               match_requests_on: [multipart_request_matcher, :method, :uri]
             ) do
               metadata = valid_metadata.call
               metadata[key] = 'invalid_data'
               response_helper.call(metadata, key, false)
-            end
-          end
-        end
-
-        # this test should be removed as GDIT is not validating...
-        if 'fileNumber'.eql?(key)
-          xit "Returns a 412 error when #{key} is a non-string" do
-            VCR.use_cassette(
-              "central_mail/bad_metadata_nonstring_#{key}_#{vendor}",
-              match_requests_on: [multipart_request_matcher, :method, :uri]
-            ) do
-              metadata = valid_metadata.call
-              metadata[key] = 123_456_789
-              response = upload_form.call(metadata, valid_doc, valid_attach)
-              msg = 'Metadata Field Error - Error Parsing Metadata - No signature of method: java.lang.Integer.trim()'
-              expect(response.body.strip).to match(/#{msg}/)
-              expect(response.status).to eq(412)
             end
           end
         end
@@ -188,7 +157,7 @@ RSpec.describe CentralMail::Service do
     context 'with a valid upload and invalid attachment numbers metadata' do
       it 'upload fails with main form only' do
         VCR.use_cassette(
-          "central_mail/upload_mismatch_error_#{vendor}",
+          "central_mail/upload_mismatch_error",
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -203,7 +172,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload fails with attachments' do
         VCR.use_cassette(
-          "central_mail/upload_mismatch_error_attach_#{vendor}",
+          "central_mail/upload_mismatch_error_attach",
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call.deep_dup
@@ -224,7 +193,7 @@ RSpec.describe CentralMail::Service do
     context 'with a valid file and metadata' do
       it 'upload succeeds with main form only' do
         VCR.use_cassette(
-          "central_mail/upload_mainform_only_#{vendor}",
+          "central_mail/upload_mainform_only",
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -238,7 +207,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload succeeds with main form and one attachment' do
         VCR.use_cassette(
-          "central_mail/upload_one_attachment_#{vendor}",
+          "central_mail/upload_one_attachment",
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -252,7 +221,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload succeeds with main form and two attachments' do
         VCR.use_cassette(
-          "central_mail/upload_two_attachments_#{vendor}",
+          "central_mail/upload_two_attachments",
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -266,14 +235,10 @@ RSpec.describe CentralMail::Service do
 
       it 'upload fails when uuid was uploaded previously' do
         VCR.use_cassette(
-          "central_mail/upload_duplicate_#{vendor}",
+          "central_mail/upload_duplicate",
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
-          # GDIT uuid
-          uuid = '34656d73-7c31-456d-9c49-2024fff1cd47'
-
-          uuid = 'a8c29dbc-a0a6-4177-ae57-fc6143ec7edb' if vendor.eql?('GCIO')
-
+          uuid = 'a8c29dbc-a0a6-4177-ae57-fc6143ec7edb'
           metadata = valid_metadata.call
           metadata['uuid'] = uuid
           response = upload_form.call(metadata, valid_doc, valid_attach)
@@ -288,7 +253,7 @@ RSpec.describe CentralMail::Service do
     context 'with a locked pdf' do
       it 'upload fails due to locked main form' do
         VCR.use_cassette(
-          "central_mail/upload_locked_main_form_#{vendor}",
+          "central_mail/upload_locked_main_form",
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -302,7 +267,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload fails due to locked attachment' do
         VCR.use_cassette(
-          "central_mail/upload_locked_attachment_#{vendor}",
+          "central_mail/upload_locked_attachment",
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
