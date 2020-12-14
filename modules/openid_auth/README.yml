@@ -21,7 +21,7 @@ info:
 
     Allows a third-party application to request the validated token and VA Identifier ICN for an individual:
 
-    1. Client Request: POST https://api.vets.gov/internal/auth/v1/validation
+    1. Client Request: POST https://api.va.gov/internal/auth/v1/validation
        * Provide the Bearer token as a header: `Authorization: Bearer <token>`
        * Provide a body parameter for appropriate audience for validation
          aud: https://api.va.gov/services/fhir
@@ -85,7 +85,7 @@ components:
         Validated token for internal API providers
       type: object
       properties:
-        ver:
+        id:
           type: string
           description: Valid token JTI
           example: "AT.MAt1vXM4AsglMo7LvOwyQpoUbLWVQEk3Ab3bJfmb4c8"
