@@ -11,7 +11,7 @@ RSpec.describe CentralMail::Service do
     context 'with one uuid' do
       it 'retrieves the status' do
         VCR.use_cassette(
-          "central_mail/status_one_uuid",
+          'central_mail/status_one_uuid',
           match_requests_on: %i[method uri]
         ) do
           uuid = 'a8c29dbc-a0a6-4177-ae57-fc6143ec7edb'
@@ -25,7 +25,7 @@ RSpec.describe CentralMail::Service do
     context 'with multiple uuids' do
       it 'retrieves the statuses' do
         VCR.use_cassette(
-          "central_mail/status_multiple_uuids",
+          'central_mail/status_multiple_uuids',
           match_requests_on: %i[method uri]
         ) do
           uuids = %w[
@@ -157,7 +157,7 @@ RSpec.describe CentralMail::Service do
     context 'with a valid upload and invalid attachment numbers metadata' do
       it 'upload fails with main form only' do
         VCR.use_cassette(
-          "central_mail/upload_mismatch_error",
+          'central_mail/upload_mismatch_error',
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -172,7 +172,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload fails with attachments' do
         VCR.use_cassette(
-          "central_mail/upload_mismatch_error_attach",
+          'central_mail/upload_mismatch_error_attach',
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call.deep_dup
@@ -193,7 +193,7 @@ RSpec.describe CentralMail::Service do
     context 'with a valid file and metadata' do
       it 'upload succeeds with main form only' do
         VCR.use_cassette(
-          "central_mail/upload_mainform_only",
+          'central_mail/upload_mainform_only',
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -207,7 +207,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload succeeds with main form and one attachment' do
         VCR.use_cassette(
-          "central_mail/upload_one_attachment",
+          'central_mail/upload_one_attachment',
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -221,7 +221,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload succeeds with main form and two attachments' do
         VCR.use_cassette(
-          "central_mail/upload_two_attachments",
+          'central_mail/upload_two_attachments',
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -235,7 +235,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload fails when uuid was uploaded previously' do
         VCR.use_cassette(
-          "central_mail/upload_duplicate",
+          'central_mail/upload_duplicate',
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           uuid = 'a8c29dbc-a0a6-4177-ae57-fc6143ec7edb'
@@ -253,7 +253,7 @@ RSpec.describe CentralMail::Service do
     context 'with a locked pdf' do
       it 'upload fails due to locked main form' do
         VCR.use_cassette(
-          "central_mail/upload_locked_main_form",
+          'central_mail/upload_locked_main_form',
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
@@ -267,7 +267,7 @@ RSpec.describe CentralMail::Service do
 
       it 'upload fails due to locked attachment' do
         VCR.use_cassette(
-          "central_mail/upload_locked_attachment",
+          'central_mail/upload_locked_attachment',
           match_requests_on: [multipart_request_matcher, :method, :uri]
         ) do
           metadata = valid_metadata.call
