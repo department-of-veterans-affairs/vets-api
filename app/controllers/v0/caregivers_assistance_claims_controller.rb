@@ -74,8 +74,9 @@ module V0
     def record_submission_success(submission)
       submission_context = {
         carma_case_id: submission.carma_case_id,
+        metadata: submission.metadata,
         attachments: submission.attachments,
-        metadata: submission.metadata
+        attachments_job_id: submission.attachments_job_id
       }
 
       auditor.record(:submission_success, claim_guid: @claim.guid, **submission_context)

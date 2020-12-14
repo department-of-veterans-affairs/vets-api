@@ -30,6 +30,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def send_to_vre(user)
+    prepare_form_data
     service = VRE::Ch31Form.new(user: user, claim: self)
 
     service.submit
@@ -41,6 +42,18 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   private
+
+  def prepare_form_data
+    form_copy = parsed_form
+    appointment_time_preferences = form_copy['appointmentTimePreferences'].map do |key_value|
+      key_value[0] if key_value[1] == true
+    end.compact
+
+    # VRE now needs an array of times
+    form_copy['appointmentTimePreferences'] = appointment_time_preferences
+
+    update(form: form_copy.to_json)
+  end
 
   def veteran_va_file_number(user)
     service = BGS::PeopleService.new(user)
