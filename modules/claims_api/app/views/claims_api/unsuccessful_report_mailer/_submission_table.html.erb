@@ -1,10 +1,7 @@
-<% timestamps = defined?(timestamps) ? timestamps : true %>
-<% ids = defined?(ids) ? ids : true %>
-
 <table>
   <thead>
     <tr>
-      <% if timestamps %>
+      <% if ids %>
         <th>GUID</th>
       <% end %>
       <th>Consumer Name</th>
@@ -19,7 +16,7 @@
   <tbody>
     <% claims.each do |claim| %>
       <tr>
-        <% if timestamps %>
+        <% if ids %>
           <td><%= claim.id %></td>
         <% end %>
         <td><%= claim.source %></td>
