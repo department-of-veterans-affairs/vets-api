@@ -7,19 +7,13 @@ module CovidVaccine
   module V0
     class RegistrationController < CovidVaccine::ApplicationController
       def create
-        svc = CovidVaccine::V0::RegistrationService.new
-        result = if @current_user
-                   if @current_user.loa3?
-                     svc.register_loa3_user(params[:registration], @current_user)
-                   else
-                     # Authenticated-but-LOA1 users are treated equivalently as unauthenticated
-                     # users since we have to perform a speculative MVI lookup for them
-                     svc.register(params[:registration], @current_user.account_uuid)
-                   end
-                 else
-                   svc.register(params[:registration])
-                 end
-        render json: result, serializer: CovidVaccine::V0::RegistrationSummarySerializer, status: :created
+        raw_form_data = params[:registration].merge(attributes_from_user)
+        account_id = @current_user&.account_uuid
+        record = CovidVaccine::V0::RegistrationSubmission.create!({ account_id: account_id,
+                                                                    raw_form_data: raw_form_data })
+
+        CovidVaccine::SubmissionJob.perform_async(record.id, user_type)
+        render json: record, serializer: CovidVaccine::V0::RegistrationSummarySerializer, status: :created
       end
 
       def show
@@ -27,6 +21,29 @@ module CovidVaccine
         raise Common::Exceptions::RecordNotFound, nil if submission.blank?
 
         render json: submission, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
+      end
+
+      private
+
+      # Merge in these attributes from the authenticated user, since
+      # we won't have access to that object from the submission worker
+      def attributes_from_user
+        return {} unless @current_user&.loa3?
+
+        {
+          'first_name' => @current_user.first_name,
+          'last_name' => @current_user.last_name,
+          'birth_date' => @current_user.birth_date,
+          'ssn' => @current_user.ssn,
+          'icn' => @current_user.icn
+        }
+      end
+
+      def user_type
+        return 'unauthenticated' if @current_user.blank?
+        return 'loa3' if @current_user&.loa3?
+
+        'loa1'
       end
     end
   end
