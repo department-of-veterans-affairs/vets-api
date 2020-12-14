@@ -7,6 +7,13 @@ vetext_endpoints.each do |endpoint|
   StatsD.increment("api.vetext.#{endpoint}.fail", 0)
 end
 
+CovidVaccine::SubmissionJob.extend StatsD::Instrument
+CovidVaccine::SubmissionJob.statsd_count_success :perform,
+                                                 'covid_vaccine.submission_job'
+
+StatsD.increment('covid_vaccine.submission_job.success', 0)
+StatsD.increment('covid_vaccine.submission_job.failure', 0)
+
 CovidVaccine::V0::RegistrationService.extend StatsD::Instrument
 CovidVaccine::V0::RegistrationService.statsd_measure :facility_attributes,
                                                      'covid_vaccine.facility_query.measure'
