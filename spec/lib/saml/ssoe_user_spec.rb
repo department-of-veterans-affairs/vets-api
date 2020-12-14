@@ -793,6 +793,24 @@ RSpec.describe SAML::User do
       end
     end
 
+    context 'DSLogon premium user without idme uuid' do
+      let(:authn_context) { 'dslogon' }
+      let(:highest_attained_loa) { '3' }
+      let(:multifactor) { true }
+      let(:saml_attributes) do
+        build(:ssoe_idme_dslogon_level2,
+              va_eauth_uid: ['NOT_FOUND'])
+      end
+
+      it 'does not validate' do
+        expect { subject.validate! }.to raise_error { |error|
+          expect(error).to be_a(SAML::UserAttributeError)
+          expect(error.message).to eq('User attributes is missing an ID.me UUID')
+          expect(error.identifier).to eq('1012740600V714187')
+        }
+      end
+    end
+
     context 'DSLogon premium inbound user' do
       let(:authn_context) { SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT }
       let(:highest_attained_loa) { '3' }
@@ -843,8 +861,6 @@ RSpec.describe SAML::User do
         end
       end
     end
-
-    # Add new test to have should_raise_idme_uuid_error return true
 
     context 'MHV premium inbound user' do
       let(:authn_context) { SAML::UserAttributes::SSOe::INBOUND_AUTHN_CONTEXT }
