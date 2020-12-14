@@ -74,7 +74,10 @@ module V0
       end
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
+      unless performed?
+        redirect_to url_service.login_redirect_url(auth: 'fail',
+                                                   code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE)
+      end
       callback_stats(:failed_unknown)
     ensure
       callback_stats(:total)
@@ -83,7 +86,7 @@ module V0
     private
 
     def auth_error_code(code)
-      if code == '005' && validate_session
+      if code == SAML::Responses::Base::AUTH_TOO_LATE_ERROR_CODE && validate_session
         UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
       else
         code
