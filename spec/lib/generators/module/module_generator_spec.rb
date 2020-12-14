@@ -3,13 +3,13 @@
 require 'rails_helper'
 require 'generators/module/module_generator'
 
-describe ModuleGenerator do
+describe OldModuleGenerator do
 
   after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
   describe 'create_directory_structure' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_directory_structure }
+      before(:all) { OldModuleGenerator.new(['foo']).create_directory_structure }
       let(:path) { Rails.root.join('modules', 'foo', 'app') }
 
       it 'the directories should exist' do
@@ -22,7 +22,7 @@ describe ModuleGenerator do
 
   describe 'create_engine' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_engine }
+      before(:all) { OldModuleGenerator.new(['foo']).create_engine }
       let(:path) { Rails.root.join('modules', 'foo', 'lib') }
 
       it 'creates the engine file' do
@@ -37,7 +37,7 @@ describe ModuleGenerator do
 
   describe 'create_additional_files' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_additional_files }
+      before(:all) { OldModuleGenerator.new(['foo']).create_additional_files }
       let(:path) { Rails.root.join('modules', 'foo') }
 
       it 'creates the rakefile' do

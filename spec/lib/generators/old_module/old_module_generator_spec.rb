@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'generators/module/module_generator'
+require 'generators/module/old_module_generator'
 
-describe ModuleGenerator do
+describe OldModuleGenerator do
   describe 'create_app' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_app }
+      before(:all) { OldModuleGenerator.new(['foo']).create_app }
 
       after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
@@ -40,7 +40,7 @@ describe ModuleGenerator do
 
   describe 'create_lib' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_lib }
+      before(:all) { OldModuleGenerator.new(['foo']).create_lib }
 
       after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
@@ -66,7 +66,7 @@ describe ModuleGenerator do
 
   describe 'create_config' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_config }
+      before(:all) { OldModuleGenerator.new(['foo']).create_config }
 
       after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 

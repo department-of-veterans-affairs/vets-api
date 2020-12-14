@@ -6,7 +6,7 @@ require 'commands/va/va_command'
 describe Va::Command::VaCommand do
   context 'when the new command is called' do
     it 'calls the module generator perform method' do
-      expect(ModuleGenerator).to receive(:start)
+      expect(OldModuleGenerator).to receive(:start)
       subject.perform('new', ['foo'])
     end
 
