@@ -31,7 +31,8 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
             personalisation: {
               'date' => date,
               'confirmation_id' => confirmation_id
-            }
+            },
+            reference: confirmation_id
           }
         )
       described_class.perform_async(email, date, confirmation_id)

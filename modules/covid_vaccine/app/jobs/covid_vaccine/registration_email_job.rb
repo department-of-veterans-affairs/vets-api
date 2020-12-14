@@ -20,7 +20,8 @@ module CovidVaccine
         personalisation: {
           'date' => date,
           'confirmation_id' => confirmation_id
-        }
+        },
+        reference: confirmation_id
       )
       StatsD.increment(STATSD_SUCCESS_NAME)
     rescue => e
