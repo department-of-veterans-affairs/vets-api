@@ -5,7 +5,7 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
     set_up do
       user = build_user_and_stub_session
       submission = CovidVaccine::V0::RegistrationSubmission.for_user(user).last
-      submission || FactoryBot.create(:covid_vaccine_registration_submission)
+      submission || FactoryBot.create(:covid_vax_registration)
     end
 
     tear_down do
