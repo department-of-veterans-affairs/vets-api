@@ -32,6 +32,10 @@ describe OldModuleGenerator do
       it 'creates the version file' do
         expect(File).to exist("#{path}/foo/version.rb")
       end
+
+      it 'creates the module file' do
+        expect(File).to exist("#{path}/foo.rb")
+      end
     end
   end
 
