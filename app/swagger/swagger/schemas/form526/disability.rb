@@ -83,22 +83,157 @@ module Swagger
         swagger_schema :SpecialIssue do
           property :items, type: :string, enum:
             %w[
-              ALS
+              38USC1151
+              AE
+              AVC
+              ANBP
+              ADRL1
+              ADRL2
+              AOIV
               AOOV
+              ASSOI
+              ALS
+              ELIGIBILITY
               ASB
+              AE1
+              ACTRES
+              ARAD
+              BE
+              BRKD1BC
+              BRKINT
+              BPE
+              C123
+              COWC
+              CD
+              CHE
+              CB
+              CDOSV
+              CRD
+              CSRAQRS
+              CSRER
+              CSRE
+              CSRMCS
+              CSRO
+              CSRO25
+              CSRP
+              CSRR
+              DRCI
+              DRCD
+              DRCPD
+              DBQP
+              DBQV
+              DRCEXRCA
+              DRCEXRCD
+              DPFS
+              DRCVENEXRCMD
+              DEEM
+              DFR
+              DOR
+              DEP
+              ECCD
+              EDSP
+              EHCL
+              EHCLLOU
               GW
-              HEPC
+              ES3
+              ESI4
+              FEACS
+              FEARINS
+              FEAP
+              FEAS
+              FECP
+              FDCCFP
+              FDCEFC
+              FEFCI
+              FEFTE
+              FENS
+              FDCNED
+              FERIVF
+              FRDNFD
+              FM
+              FDC
+              GWP
               HIV
-              MG
+              HEPC
+              HA
+              ID
+              JSSRCRQST
+              LH
+              LMR
+              LQR
+              LQRIPR
+              MFH
               MST
+              MSSPA
+              MG
+              NATNLQUALREV
+              NAPN
+              NP
+              NANL
+              NNAPN
+              PTSD/4
+              PUO
               POW
               PTSD/1
               PTSD/2
               PTSD/3
+              ROSI1
+              ROSI2
+              ROSPISTHR
+              ROSPISFOR
+              RSI5
+              RSI6
+              RSI7
+              RSI8
+              RSI9
+              REN
               RDN
+              RRDC
+              RDR1
+              RDR2
+              RFE
+              SSR
+              SHAD
               SARCO
+              SAANP
+              SPECRECRQST
+              S1D
+              S2D
+              S3D
+              TER
+              TMC
+              T1H
+              TOB
+              TC
               TBI
-              C123
+              UV
+              COSI1
+              COSI2
+              VACSPISTHR
+              VACSPISFOR
+              VACSPIS5
+              VACSPIS6
+              VACSPIS7
+              VACSPIS8
+              VACSPIS9
+              VC
+              VD
+              VRD
+              VEN
+              VE
+              VG
+              VDG
+              VH
+              VI
+              VML
+              VM
+              VN
+              VRA
+              VS
+              VEXCLNODIAG
+              VDC
+              WARTAC
+              WT
             ]
         end
       end
