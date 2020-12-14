@@ -43,25 +43,19 @@ class ModuleGenerator < Rails::Generators::NamedBase
     template 'Gemfile.erb', File.join(path, 'Gemfile')
   end
 
-  def update_spec_helper
+  # rubocop:disable Rails/Output
+  # :nocov:
+  def update_and_install
     # spec helper add group
     insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}', 'modules/#{file_name}/'\n", after: "# Modules\n"
-  end
-  #
-  def update_simplecov_helper
+
     # simplecov add group
     insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}', 'modules/#{file_name}/'\n", after: "# Modules\n"
-  end
 
-  def update_gemfile
     # insert into main app gemfile
     insert_into_file 'Gemfile', "gem '#{file_name}', path: 'modules/#{file_name}'\n", after: "# Modules\n"
     route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
-  end
 
-  # rubocop:disable Rails/Output
-  # :nocov:
-  def install
     run 'bundle install'
 
     puts "\n"
