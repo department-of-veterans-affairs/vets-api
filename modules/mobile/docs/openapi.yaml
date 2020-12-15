@@ -1381,6 +1381,132 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  /v0/appeal/{id}:
+    get:
+      summary: /v0/appeal/{id}
+      description: Returns info on all user's claims and appeals for mobile overview page
+      operationId: get_appeal
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Appeal Id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appeal"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  /v0/claim/{id}:
+    get:
+      summary: /v0/claim/{id}
+      description: Returns info on all user's claims and appeals for mobile overview page
+      operationId: get_claim
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Claim Id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appeal"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
 components:
   securitySchemes:
     Bearer:
@@ -1390,6 +1516,227 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
+    Appeal:
+      required:
+        - type
+        - id
+        - attributes
+      properties:
+        type:
+          type: string
+          example: "appeal"
+        id:
+          type: string
+          example: "3294289"
+        attributes:
+          type: object
+          required:
+            - appealIds
+            - active
+            - alerts
+            - aod
+            - aoj
+            - description
+            - docket
+            - events
+            - evidence
+            - incompleteHistory
+            - issues
+            - location
+            - programArea
+            - status
+            - type
+            - updated
+          properties:
+            appealsIds:
+              type: array
+              items:
+                type: string
+            active:
+              type: boolean
+            alerts:
+              type: array
+              items:
+                $ref: "#/components/schemas/AppealAlert"
+            aod:
+              type: boolean
+            aoj:
+              type: string
+              example: "vba"
+              enum:
+                - vba
+                - vha
+                - nca
+                - other
+            description:
+              type: string
+            docket:
+              type: object, null
+              $ref: "#/components/schemas/AppealDocket"
+            events:
+              type: array
+              items:
+                $ref: "#/components/schemas/AppealEvent"
+            evidence:
+              type: array
+              items:
+                $ref: "#/components/schemas/AppealEvidence"
+            incompleteHistory:
+              type: boolean
+            issues:
+              type: array
+              items:
+                $ref: "#/components/schemas/AppealIssue"
+            location:
+              type: string
+              enum:
+                - aoj
+                - bva
+            programArea:
+              type: string
+              enum:
+                - compensation
+                - pension
+                - insurance
+                - loan_guaranty
+                - education
+                - vre
+                - medical
+                - burial
+                - bva
+                - other
+                - multiple
+            status:
+              type: object
+              properties:
+                details:
+                  type: object
+                type:
+                  type: string
+                  enum:
+                    - scheduled_hearing
+                    - pending_hearing_scheduling
+                    - on_docket
+                    - pending_certification_ssoc
+                    - pending_certification
+                    - pending_form9
+                    - pending_soc
+                    - stayed
+                    - at_vso
+                    - bva_development
+                    - decision_in_progress
+                    - bva_decision
+                    - field_grant
+                    - withdrawn
+                    - ftr
+                    - ramp
+                    - death
+                    - reconsideration
+                    - other_close
+                    - remand_ssoc
+                    - remand
+                    - merged
+            type:
+              type: string
+              example: "legacyAppeal"
+            updated:
+              type: string
+              example: "2018-01-19T10:20:42-05:00"
+    AppealDocket:
+      properties:
+        month:
+          type: string
+        docketMonth:
+          type: string
+        front:
+          type: boolean
+        total:
+          type: integer
+        ahead:
+          type: integer
+        ready:
+          type: integer
+        eta:
+          type: string, null
+    AppealEvent:
+      properties:
+        data:
+          type: string
+          example: "2008-04-24"
+        type:
+          type: string
+          enum:
+            - claim_decision
+            - nod
+            - soc
+            - form9
+            - ssoc
+            - certified
+            - hearing_held
+            - hearing_no_show
+            - bva_decision
+            - field_grant
+            - withdrawn
+            - ftr
+            - ramp
+            - death
+            - merged
+            - record_designation
+            - reconsideration
+            - vacated
+            - other_close
+            - cavc_decision
+            - ramp_notice
+            - transcript
+            - remand_return
+            - dro_hearing_held
+            - dro_hearing_cancelled
+            - dro_hearing_no_show
+    AppealAlert:
+      properties:
+        type:
+          type: string
+          enum:
+            - form9_needed
+            - scheduled_hearing
+            - hearing_no_show
+            - held_for_evidence
+            - cavc_option
+            - ramp_eligible
+            - ramp_ineligible
+            - decision_soon
+            - blocked_by_vso
+            - scheduled_dro_hearing
+            - dro_hearing_no_show
+        details:
+          type: object
+    AppealIssue:
+      properties:
+        active:
+          type: boolean
+        description:
+          type: string
+        diagnosticCode:
+          type: string, null
+          example: 8100
+        lastAction:
+          type: string
+          enum:
+            - field_grant
+            - withdrawn
+            - allowed
+            - denied
+            - remand
+            - cavc_remand
+        date:
+          type: string
+          example: "2016-05-03"
+    AppealEvidence:
+      properties:
+        description:
+          type: string
+        data:
+          type: string
     Appointments:
       required:
         - data
