@@ -120,6 +120,22 @@ describe CovidVaccine::V0::RegistrationService do
             .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
         end
       end
+
+      context 'with an unparseable date attribute' do
+        let(:bad_date_submission) do
+          build(:covid_vax_registration,
+                :unsubmitted,
+                :invalid_dob)
+        end
+
+        it 'omits MPI query' do
+          expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+            .and_return({ sid: SecureRandom.uuid })
+          expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
+          expect { subject.register(bad_date_submission, 'unauthenticated') }
+            .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
+        end
+      end
     end
 
     context 'authenticated LOA3' do
