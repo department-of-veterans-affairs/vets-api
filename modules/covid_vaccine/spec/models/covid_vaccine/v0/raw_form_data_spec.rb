@@ -68,7 +68,7 @@ RSpec.describe CovidVaccine::V0::RawFormData, type: :model do
       let(:attributes) { { email: 'jane.doe@email.com', zip_code: '12345-1234',
                            vaccine_interest: 'yes', birth_date: '' } }
 
-      it 'is not valid without the presence of vaccine_interest' do
+      it 'is valid' do
         expect(subject).to be_valid
       end
     end
@@ -79,7 +79,9 @@ RSpec.describe CovidVaccine::V0::RawFormData, type: :model do
 
       it 'is not valid' do
         expect(subject).not_to be_valid
-      end
+        expect(subject.errors.full_messages)
+          .to eq(["Birth date should be in the form yyyy-mm-dd"])
+       end
     end
 
   end

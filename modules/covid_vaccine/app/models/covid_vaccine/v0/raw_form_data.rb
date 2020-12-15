@@ -13,7 +13,7 @@ module CovidVaccine
       validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
       validates :vaccine_interest, presence: true
       validates :zip_code, format: { with: ZIP_REGEX, message: 'should be in the form 12345 or 12345-1234' }
-      validates :birth_date, format: /\A\d{4}-\d{2}-\d{2}\z/, allow_blank: true
+      validates :birth_date, format: { with: /\A\d{4}-\d{2}-\d{2}\z/, message: 'should be in the form yyyy-mm-dd' }, allow_blank: true
 
 
       def initialize(attributes = {})
