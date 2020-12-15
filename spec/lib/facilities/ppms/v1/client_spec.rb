@@ -46,7 +46,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
 
   context 'Legacy Code, BBOX' do
     it 'Calculates the center and radius from bbox param' do
-      bbox = ['-72.60','41.86','-75.5','38.96']
+      bbox = ['-72.60', '41.86', '-75.5', '38.96']
       client = described_class.new
 
       # latitude: 40.415217
@@ -54,10 +54,10 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
       # This method rounds to 2 decimal places and is not accurate enough
 
       expect(client.send(:center_and_radius, bbox)).to eql(
-                                                         latitude: 40.41,
-                                                         longitude: -74.05,
-                                                         radius: 200
-                                                       )
+        latitude: 40.41,
+        longitude: -74.05,
+        radius: 200
+      )
     end
   end
 
