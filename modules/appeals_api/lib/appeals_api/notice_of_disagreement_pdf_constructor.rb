@@ -73,7 +73,7 @@ module AppealsApi
     def merge_page(temp_path, output_path)
       return temp_path if pdf_options[:additional_pages].blank?
 
-      rand_path = "#{Common::FileHelpers.random_file_path}.pdf"
+      rand_path = "/#{Common::FileHelpers.random_file_path}.pdf"
       Prawn::Document.generate(rand_path) do |pdf|
         pdf_options[:additional_pages].each_with_index do |txt, index|
           pdf.start_new_page unless index.zero?
@@ -82,8 +82,6 @@ module AppealsApi
       end
       pdf = CombinePDF.load(temp_path) << CombinePDF.load(rand_path)
       pdf.save output_path
-      File.delete temp_path if File.exist? temp_path
-      File.delete rand_path if File.exist? rand_path
       output_path
     end
 
@@ -100,7 +98,7 @@ module AppealsApi
     # For inserting items into the pdf that require special insertion (e.g. where fields cannot hold enough text)
     def insert_manual_fields(pdf_template)
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      temp_file = "#{::Common::FileHelpers.random_file_path}.pdf"
+      temp_file = "/#{::Common::FileHelpers.random_file_path}.pdf"
       output_path = "#{pdf_template}-final.pdf"
 
       Prawn::Document.generate(temp_file) do |pdf|

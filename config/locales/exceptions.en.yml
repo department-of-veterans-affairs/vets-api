@@ -1737,6 +1737,18 @@ en:
         code: VET360_PERM101
         detail: Permission ID must be null
         status: 400
+      VETEXT_400:
+        <<: *external_defaults
+        title: Bad Request
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
+        code: # deliberately left nil to reference response.body which is unparsable string (not json)
+        status: 400
+      VETEXT_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
+        code: # deliberately left nil to reference response.body which is unparsable string (not json)
+        status: 502
       LIGHTHOUSE_FACILITIES400:
         <<: *external_defaults
         title: Bad Request

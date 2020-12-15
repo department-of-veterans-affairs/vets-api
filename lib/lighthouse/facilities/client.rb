@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require_relative 'nearby_response'
 require_relative 'response'
 require_relative 'configuration'
 
@@ -36,6 +37,22 @@ module Lighthouse
         facilities = Lighthouse::Facilities::Response.new(response.body, response.status).facilities
         facilities.reject!(&:mobile?) if params['exclude_mobile']
         facilities
+      end
+
+      ##
+      # Request a list of nearby facilities based on calculated drive time bands
+      # * Returns only health facilities
+      # * Returns only facilities within a 90-minute drive time
+      # * Does not respect per_page parameter
+      # @param params [Hash] a hash of parameter objects that must include full address or lat and long
+      #   see https://developer.va.gov/explore/facilities/docs/facilities for more options
+      # @example  client.nearby(street_address: '123 Fake Street', city: 'Springfield', state: 'IL', zip: '62703')
+      # @example  client.nearby(lat: 10.54, lng: 180.00)
+      # @return [Array<Lighthouse::Facilities::NearbyFacility>]
+      #
+      def nearby(params)
+        response = perform(:get, '/services/va_facilities/v0/nearby', params)
+        Lighthouse::Facilities::NearbyResponse.new(response.body, response.status).facilities
       end
     end
   end

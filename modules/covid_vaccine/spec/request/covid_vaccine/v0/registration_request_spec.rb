@@ -12,17 +12,29 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
     {
       vaccine_interest: 'yes',
       authenticated: true,
-      date_vaccine_reeceived: '',
-      contact: true,
-      contact_method: 'phone',
-      reason_undecided: '',
       first_name: 'Jane',
       last_name: 'Doe',
-      date_of_birth: '2/2/1952',
+      birth_date: '2/2/1952',
       phone: '555-555-1234',
       email: 'jane.doe@email.com',
-      patient_ssn: '000-00-0022'
+      ssn: '000-00-0022',
+      zip_code: '94402',
+      zip_code_details: 'yes'
     }
+  end
+
+  let(:expected_response_attributes) do
+    %w[first_name last_name birth_date zip_code zip_code_details phone email vaccine_interest created_at]
+  end
+  let(:summary_response_attributes) do
+    %w[zip_code vaccine_interest created_at]
+  end
+  let(:mvi_profile) { build(:mvi_profile) }
+  let(:mvi_profile_response) do
+    MPI::Responses::FindProfileResponse.new(
+      status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+      profile: mvi_profile
+    )
   end
 
   describe 'registration#create' do
@@ -39,35 +51,98 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       end
     end
 
+    context 'when encountering an Internal Server Error' do
+      let(:registration_attributes) { { date_vaccine_reeceived: '' } }
+
+      it 'raises a BackendServiceException' do
+        expect(CovidVaccine::V0::RegistrationSubmission).to receive(:create!)
+          .and_raise(ActiveRecord::RecordInvalid.new(nil))
+        post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+        expect(response).to have_http_status(:internal_server_error)
+        # TODO: Add more thorough expectation
+      end
+    end
+
     context 'with an unauthenticated user' do
-      it 'returns a sid' do
-        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
-          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
-        end
+      around do |example|
+        VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_unauth',
+                         match_requests_on: %i[method path], &example)
+      end
+
+      it 'returns a submission summary' do
+        post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+        expect(response).to have_http_status(:created)
+        body = JSON.parse(response.body)
+        expect(body['data']['id']).to eq('')
+        expect(body['data']['attributes']['created_at']).to be_truthy
+      end
+
+      it 'records the submission for processing' do
+        expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
+      end
+
+      it 'kicks off the processing job' do
+        expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::SubmissionJob.jobs, :size).by(1)
       end
     end
 
     context 'with a loa1 user' do
+      around do |example|
+        VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_loa1',
+                         match_requests_on: %i[method path], &example)
+      end
+
       before do
         sign_in_as(loa1_user)
       end
 
-      it 'returns a sid' do
-        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
-          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
-        end
+      it 'returns a submission_summary' do
+        post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+        expect(response).to have_http_status(:created)
+        body = JSON.parse(response.body)
+        expect(body['data']['id']).to eq('')
+        expect(body['data']['attributes']['created_at']).to be_truthy
+      end
+
+      it 'records the submission for processing' do
+        expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
+      end
+
+      it 'kicks off the processing job' do
+        expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::SubmissionJob.jobs, :size).by(1)
       end
     end
 
     context 'with a loa3 user' do
+      around do |example|
+        VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_loa3',
+                         match_requests_on: %i[method path], &example)
+      end
+
       before do
         sign_in_as(loa3_user)
       end
 
-      it 'returns a sid' do
-        VCR.use_cassette('covid_vaccine/vetext/put_vaccine_registry_200', match_requests_on: %i[method uri]) do
-          post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
-        end
+      it 'returns a submission_summary' do
+        post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+        expect(response).to have_http_status(:created)
+        body = JSON.parse(response.body)
+        expect(body['data']['id']).to eq('')
+        expect(body['data']['attributes']['created_at']).to be_truthy
+      end
+
+      it 'records the submission for processing' do
+        expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::V0::RegistrationSubmission, :count).by(1)
+      end
+
+      it 'kicks off the processing job' do
+        expect { post '/covid_vaccine/v0/registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::SubmissionJob.jobs, :size).by(1)
       end
     end
   end
@@ -116,9 +191,35 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
         end
       end
 
+      context 'before submission is processed' do
+        let!(:submission) do
+          create(:covid_vax_registration, :unsubmitted,
+                 account_id: loa3_user.account_uuid)
+        end
+
+        it 'returns the submission record' do
+          get '/covid_vaccine/v0/registration'
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'returns an empty submission id' do
+          get '/covid_vaccine/v0/registration'
+          expect(response).to have_http_status(:ok)
+          body = JSON.parse(response.body)
+          expect(body['data']['id']).to eq ''
+        end
+
+        it 'returns submitted traits' do
+          get '/covid_vaccine/v0/registration'
+          expect(response).to have_http_status(:ok)
+          body = JSON.parse(response.body)
+          expect(body['data']['attributes']).to include(*expected_response_attributes)
+        end
+      end
+
       context 'with a previous submission' do
         let!(:submission) do
-          create(:covid_vaccine_registration_submission,
+          create(:covid_vax_registration,
                  account_id: loa3_user.account_uuid)
         end
 
@@ -127,17 +228,41 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
           expect(response).to have_http_status(:ok)
           body = JSON.parse(response.body)
           expect(body['data']['id']).to eq(submission.sid)
+          expect(body['data']['attributes']).to include(*expected_response_attributes)
+          expect(body['data']['attributes']).to include('first_name' => 'Jon',
+                                                        'last_name' => 'Doe')
+        end
+
+        it 'omits any sensitive fields' do
+          get '/covid_vaccine/v0/registration'
+          body = JSON.parse(response.body)
+          expect(body['data']['attributes']).not_to include('ssn', 'patient_ssn')
+          expect(body['data']['attributes']).not_to include('icn', 'patient_icn')
+        end
+      end
+
+      context 'with a submission where traits get altered' do
+        let!(:submission) do
+          create(:covid_vax_registration, :from_loa3,
+                 account_id: loa3_user.account_uuid)
+        end
+
+        it 'returns the originally submitted data' do
+          get '/covid_vaccine/v0/registration'
+          body = JSON.parse(response.body)
+          expect(body['data']['attributes']['first_name']).to eq(submission.raw_form_data['first_name'])
+          expect(body['data']['attributes']['first_name']).not_to eq(submission.form_data['first_name'])
         end
       end
 
       context 'with multiple submissions' do
         let!(:submission1) do
-          create(:covid_vaccine_registration_submission,
+          create(:covid_vax_registration,
                  account_id: loa3_user.account_uuid,
                  created_at: Time.zone.now - 2.minutes)
         end
         let!(:submission2) do
-          create(:covid_vaccine_registration_submission,
+          create(:covid_vax_registration,
                  account_id: loa3_user.account_uuid,
                  created_at: Time.zone.now - 1.minute)
         end

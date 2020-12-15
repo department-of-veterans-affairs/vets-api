@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_07_173935) do
+ActiveRecord::Schema.define(version: 2020_12_11_213957) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -170,12 +170,14 @@ ActiveRecord::Schema.define(version: 2020_12_07_173935) do
   end
 
   create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "sid", null: false
+    t.string "sid"
     t.uuid "account_id"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "encrypted_raw_form_data"
+    t.string "encrypted_raw_form_data_iv"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
@@ -292,11 +294,11 @@ ActiveRecord::Schema.define(version: 2020_12_07_173935) do
   create_table "form1010cg_submissions", force: :cascade do |t|
     t.string "carma_case_id", limit: 18, null: false
     t.datetime "accepted_at", null: false
-    t.string "claim_guid", null: false
     t.json "metadata"
     t.json "attachments"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "claim_guid", null: false
     t.index ["carma_case_id"], name: "index_form1010cg_submissions_on_carma_case_id", unique: true
     t.index ["claim_guid"], name: "index_form1010cg_submissions_on_claim_guid", unique: true
   end
@@ -311,15 +313,6 @@ ActiveRecord::Schema.define(version: 2020_12_07_173935) do
     t.datetime "updated_at", null: false
     t.index ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id"
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
-  end
-
-  create_table "form526_opt_ins", id: :serial, force: :cascade do |t|
-    t.string "user_uuid", null: false
-    t.string "encrypted_email", null: false
-    t.string "encrypted_email_iv", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true
   end
 
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
@@ -474,6 +467,14 @@ ActiveRecord::Schema.define(version: 2020_12_07_173935) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_preferences_on_code", unique: true
+  end
+
+  create_table "preferred_facilities", force: :cascade do |t|
+    t.string "facility_code", null: false
+    t.integer "account_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["facility_code", "account_id"], name: "index_preferred_facilities_on_facility_code_and_account_id", unique: true
   end
 
   create_table "preneed_submissions", id: :serial, force: :cascade do |t|
