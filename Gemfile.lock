@@ -209,6 +209,8 @@ GEM
       i18n
     benchmark-ips (2.8.2)
     bindex (0.8.1)
+    bootsnap (1.5.1)
+      msgpack (~> 1.0)
     brakeman (4.9.0)
     breakers (0.4.0)
       faraday (>= 0.7.4, < 0.18)
@@ -501,6 +503,7 @@ GEM
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.14.2)
+    msgpack (1.3.3)
     multi_json (1.15.0)
     multi_xml (0.6.0)
     multipart-post (2.1.1)
@@ -880,6 +883,7 @@ DEPENDENCIES
   benchmark-ips
   betamocks!
   bgs_ext!
+  bootsnap
   brakeman (~> 4.7)
   breakers
   bundler-audit
