@@ -335,7 +335,11 @@ module V1
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
-        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mpi: additional_context)
+        log_message_to_sentry(
+          'SessionsController version:v1 message:SSN from MPI Lookup does not match UserIdentity cache',
+          :warn,
+          identity_compared_with_mpi: additional_context
+        )
       end
     end
 
