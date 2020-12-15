@@ -6,6 +6,8 @@ require_relative '../../../serializers/covid_vaccine/v0/registration_summary_ser
 module CovidVaccine
   module V0
     class RegistrationController < CovidVaccine::ApplicationController
+      include IgnoreNotFound
+
       before_action :validate_raw_form_data, only: :create
 
       def create
