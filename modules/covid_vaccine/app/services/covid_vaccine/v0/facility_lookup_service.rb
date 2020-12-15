@@ -57,6 +57,7 @@ module CovidVaccine
         }
       rescue
         # For now just bail on any exception while getting facilities
+        # TODO Add Sentry logging
         {}
       end
 

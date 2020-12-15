@@ -47,8 +47,8 @@ module AppsApi
           'Coral Health is a free personal healthcare management app that is used to track medications,'\
           ' get medication reminders, consolidate official medical records,'\
           ' and monitor health trends and issues over time.'
-        app.privacy_url = 'https://mycoralhealth.com/privacy-policy.html'
-        app.tos_url = 'https://mycoralhealth.com/terms-of-service.html'
+        app.privacy_url = 'https://mycoralhealth.com/privacy-policy'
+        app.tos_url = 'https://mycoralhealth.com/terms-of-service'
         app.save
       end
 

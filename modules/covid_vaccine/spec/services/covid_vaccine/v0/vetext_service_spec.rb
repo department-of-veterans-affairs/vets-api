@@ -43,5 +43,19 @@ describe CovidVaccine::V0::VetextService do
           .to raise_error(Common::Exceptions::BackendServiceException, exception_message)
       end
     end
+
+    it 'raises a BackendServiceException on a 500 error' do
+      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_500', match_requests_on: %i[method path]) do
+        expect { subject.put_vaccine_registry(registry_attributes) }
+          .to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_502/)
+      end
+    end
+
+    it 'raises a BackendServiceException on a 599 error' do
+      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_599', match_requests_on: %i[method path]) do
+        expect { subject.put_vaccine_registry(registry_attributes) }
+          .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
   end
 end
