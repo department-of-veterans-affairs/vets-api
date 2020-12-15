@@ -7,11 +7,13 @@ class ModuleGenerator < Rails::Generators::NamedBase
 
   def create_directory_structure
     # create the dir structure here
-    %w[controllers models serializers service].each{|dir| FileUtils::mkdir_p "modules/#{file_name}/app/#{dir}" unless Dir.exist?("modules/#{file_name}/app/#{dir}")}
+    %w[controllers models serializers service].each do |dir|
+      FileUtils.mkdir_p "modules/#{file_name}/app/#{dir}" unless Dir.exist?("modules/#{file_name}/app/#{dir}")
+    end
   end
 
   def create_engine
-  # create engine file
+    # create engine file
     path = "modules/#{file_name}/lib"
     template 'lib/namespace/engine.rb.erb', File.join(path, file_name, 'engine.rb')
     template 'lib/namespace/version.rb.erb', File.join(path, file_name, 'version.rb')
