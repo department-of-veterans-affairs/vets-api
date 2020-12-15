@@ -9,6 +9,16 @@ RSpec.describe Form1010cg::Service do
   let(:subject) { described_class.new build(:caregivers_assistance_claim) }
   let(:default_email_on_mvi_search) { 'no-email@example.com' }
 
+  describe '::auditor' do
+    it 'is an instance of Form1010cg::Auditor' do
+      expect(described_class::AUDITOR).to be_an_instance_of(Form1010cg::Auditor)
+    end
+
+    it 'is using Rails.logger' do
+      expect(described_class::AUDITOR.logger).to eq(Rails.logger)
+    end
+  end
+
   describe '::new' do
     it 'requires a claim' do
       expect { described_class.new }.to raise_error do |e|
@@ -403,7 +413,7 @@ RSpec.describe Form1010cg::Service do
             double(status: 'OK', profile: double(icn: :ICN_123))
           )
 
-          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+          expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
             result: :found
@@ -419,7 +429,7 @@ RSpec.describe Form1010cg::Service do
             double(status: 'NOT_FOUND', error: double)
           )
 
-          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+          expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
             result: :not_found
@@ -445,7 +455,7 @@ RSpec.describe Form1010cg::Service do
 
         # Only testing for caregivers, since veteran requires an SSN
         %w[primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
-          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+          expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
             result: :skipped
@@ -461,7 +471,7 @@ RSpec.describe Form1010cg::Service do
         )
 
         # Exception would be raised if this is called more (or less than) than one time
-        expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+        expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
           claim_guid: subject.claim.guid,
           form_subject: 'veteran',
           result: :found

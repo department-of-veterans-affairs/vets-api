@@ -63,7 +63,7 @@ module HealthQuest
         # @param data [Hash] questionnaire answers and appointment data hash.
         # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
         #
-        def create_questionnaire_response(data)
+        def create(data)
           questionnaire_response = Resource.manufacture(data, user).prepare
 
           map_query.create(questionnaire_response)

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://icmhs-api-test.csrarad.com/VADocument/upload
+    uri: https://test2.domaonline.com/VADocument/upload
     body:
       encoding: ASCII-8BIT
       string: !binary |-

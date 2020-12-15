@@ -52,7 +52,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
     end
   end
 
-  describe '#create_questionnaire_response' do
+  describe '#create' do
     let(:data) do
       {
         appointment_id: 'abc123',
@@ -65,7 +65,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
       allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
         .to receive(:create).with(anything).and_return(client_reply)
 
-      expect(subject.new(user).create_questionnaire_response(data)).to eq(client_reply)
+      expect(subject.new(user).create(data)).to eq(client_reply)
     end
   end
 end
