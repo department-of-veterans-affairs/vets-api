@@ -336,6 +336,10 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'verifying' do
         let(:authn_context) { LOA::IDME_LOA3_VETS }
+        let(:version) { 'v0' }
+        let(:expected_ssn_log) do
+          "SessionsController version:#{version} message:SSN from MPI Lookup does not match UserIdentity cache"
+        end
 
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           existing_user = User.find(uuid)
@@ -345,7 +349,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(existing_user.ssn).to eq('796111863')
           allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
           expect(controller).to receive(:log_message_to_sentry).with(
-            'SSNS DO NOT MATCH!!',
+            expected_ssn_log,
             :warn,
             identity_compared_with_mpi: {
               length: [9, 9],
