@@ -173,6 +173,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
         submission.save!
 
         # Create the file contents of the claim to match the request body in the VCR (carma/attachments/upload/201)
+        Dir.mkdir('tmp/pdfs') unless File.exist?('tmp/pdfs')
         File.open(file_path, 'w') { |f| f.write('<PDF_CONTENTS>') }
         expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:to_pdf).and_return(file_path)
       end
