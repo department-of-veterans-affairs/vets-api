@@ -115,7 +115,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         expect(response.status).to eq(404)
       end
     end
-    xit 'returns a 200 with content-type of zip' do
+    it 'returns a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)
       version = instance_double(Aws::S3::ObjectVersion)
       allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
