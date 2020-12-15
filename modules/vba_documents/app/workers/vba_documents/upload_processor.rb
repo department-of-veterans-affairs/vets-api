@@ -92,7 +92,7 @@ module VBADocuments
       end
       unless parts[META_PART_NAME].is_a?(String)
         raise VBADocuments::UploadError.new(code: 'DOC102',
-                                            detail: 'Incorrect content-type for metdata part')
+                                            detail: 'Incorrect content-type for metadata part')
       end
       unless parts.key?(DOC_PART_NAME)
         raise VBADocuments::UploadError.new(code: 'DOC103',
@@ -140,11 +140,17 @@ module VBADocuments
       attachment_names.each_with_index do |att, i|
         att_info = get_hash_and_pages(parts[att], att)
         validate_page_size(att_info)
-        check_size(parts[att])
+        check_attachment_size(parts[att])
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
       metadata
+    end
+
+    def check_attachment_size(att_parts)
+      Thread.current[:checking_attachment] = true # used during unit test only, see upload_processor_spec.rb
+      check_size(att_parts)
+      Thread.current[:checking_attachment] = false
     end
 
     def validate_page_size(doc_info)

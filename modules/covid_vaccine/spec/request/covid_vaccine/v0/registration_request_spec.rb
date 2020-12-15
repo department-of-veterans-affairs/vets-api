@@ -52,7 +52,14 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
     end
 
     context 'when encountering an Internal Server Error' do
-      let(:registration_attributes) { { date_vaccine_reeceived: '' } }
+      let(:registration_attributes) do
+        {
+          vaccine_interest: 'yes',
+          email: 'jane.doe@email.com',
+          zip_code: '94402',
+          date_vaccine_reeceived: ''
+        }
+      end
 
       it 'raises a BackendServiceException' do
         expect(CovidVaccine::V0::RegistrationSubmission).to receive(:create!)
@@ -67,6 +74,45 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       around do |example|
         VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_unauth',
                          match_requests_on: %i[method path], &example)
+      end
+
+      it 'returns errors if form validation fails' do
+        post '/covid_vaccine/v0/registration', params: { registration: {} }
+        expect(response).to have_http_status(:unprocessable_entity)
+        body = JSON.parse(response.body)
+        expect(body).to eq(
+          {
+            'errors' => [
+              {
+                'title' => 'Email is invalid',
+                'detail' => 'email - is invalid',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/email'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => "Vaccine interest can't be blank",
+                'detail' => "vaccine-interest - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/vaccine-interest'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => 'Zip code should be in the form 12345 or 12345-1234',
+                'detail' => 'zip-code - should be in the form 12345 or 12345-1234',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/zip-code'
+                },
+                'status' => '422'
+              }
+            ]
+          }
+        )
       end
 
       it 'returns a submission summary' do
