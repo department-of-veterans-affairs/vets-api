@@ -9,7 +9,13 @@ class InProgressForm < ApplicationRecord
     alias serialize cast
   end
 
-  EXPIRES_AFTER = YAML.load_file(Rails.root.join('config', 'in_progress_forms', 'expirations.yml'))
+  RETURN_URL_SQL = "CAST(metadata -> 'return_url' AS text)"
+  scope :has_attempted_submit, -> { where("(metadata -> 'submission' ->> 'has_attempted_submit')::boolean") }
+  scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
+  scope :has_no_errors,        -> { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
+  scope :has_error_message,    -> { where("(metadata -> 'submission' -> 'error_message')::text !='false'") }
+  # the double quotes in return_url are part of the value
+  scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
 
   attribute :user_uuid, CleanUUID.new
   attr_encrypted :form_data, key: Settings.db_encryption_key
@@ -61,6 +67,11 @@ class InProgressForm < ApplicationRecord
   end
 
   def expires_after
-    EXPIRES_AFTER[form_id]&.days || 60.days
+    @expires_after ||=  case form_id
+                        when '21-526EZ'
+                          1.year
+                        else
+                          60.days
+                        end
   end
 end

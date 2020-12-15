@@ -5,8 +5,7 @@ require 'rails_helper'
 vcr_options = {
   cassette_name: 'facilities/ppms/ppms',
   match_requests_on: %i[path query],
-  allow_playback_repeats: true,
-  record: :new_episodes
+  allow_playback_repeats: true
 }
 
 RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vcr: vcr_options do
@@ -27,44 +26,55 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
         end
       end
 
+      let(:params) do
+        case client_version
+        when 0
+          {
+            address: '58 Leonard Ave, Leonardo, NJ 07737',
+            bbox: ['-75.91', '38.55', '-72.19', '42.27'],
+            type: 'provider',
+            specialties: ['213E00000X']
+          }
+        when 1
+          {
+            latitude: 40.415217,
+            longitude: -74.057114,
+            radius: 200,
+            type: 'provider',
+            specialties: ['213E00000X']
+          }
+        end
+      end
+
       describe '#index' do
         context 'Missing Provider', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_missing_provider') do
-          let(:params) do
-            {
-              address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-              bbox: ['-112.54', '32.53', '-111.04', '34.03'],
-              type: 'provider',
-              specialties: ['213E00000X']
-            }
-          end
-
           it 'gracefully handles ppms provider lookup failures' do
             get '/v1/facilities/ccp', params: params
 
             bod = JSON.parse(response.body)
-            expect(bod['data'][0]).to include(
+            expect(bod['data']).to include(
               {
-                'id' => '1407842941',
+                'id' => '1154383230',
                 'type' => 'provider',
                 'attributes' => {
                   'acc_new_patients' => 'true',
                   'address' => {
-                    'street' => '3195 S Price Rd Ste 148',
-                    'city' => 'Chandler',
-                    'state' => 'AZ',
-                    'zip' => '85248'
+                    'street' => '176 RIVERSIDE AVE',
+                    'city' => 'RED BANK',
+                    'state' => 'NJ',
+                    'zip' => '07701-1063'
                   },
-                  'caresite_phone' => '4807057300',
+                  'caresite_phone' => '732-219-6625',
                   'email' => nil,
                   'fax' => nil,
-                  'gender' => 'Male',
-                  'lat' => 33.258135,
-                  'long' => -111.887927,
-                  'name' => 'Lewis H Freed DPM PC',
+                  'gender' => 'Female',
+                  'lat' => 40.35396,
+                  'long' => -74.07492,
+                  'name' => 'GESUALDI, AMY',
                   'phone' => nil,
                   'pos_codes' => nil,
                   'pref_contact' => nil,
-                  'unique_id' => '1407842941'
+                  'unique_id' => '1154383230'
                 },
                 'relationships' => {
                   'specialties' => {
@@ -77,23 +87,25 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
         end
 
         context 'type=provider' do
-          let(:params) do
-            {
-              address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-              bbox: ['-112.54', '32.53', '-111.04', '34.03'],
-              type: 'provider',
-              specialties: ['213E00000X']
-            }
-          end
-
           context 'specialties=261QU0200X' do
             let(:params) do
-              {
-                address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-                bbox: ['-112.54', '32.53', '-111.04', '34.03'],
-                type: 'provider',
-                specialties: ['261QU0200X']
-              }
+              case client_version
+              when 0
+                {
+                  address: '58 Leonard Ave, Leonardo, NJ 07737',
+                  bbox: ['-75.91', '38.55', '-72.19', '42.27'],
+                  type: 'provider',
+                  specialties: ['261QU0200X']
+                }
+              when 1
+                {
+                  latitude: 40.415217,
+                  longitude: -74.057114,
+                  radius: 200,
+                  type: 'provider',
+                  specialties: ['261QU0200X']
+                }
+              end
             end
 
             it 'returns a results from the pos_locator' do
@@ -101,29 +113,35 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
               bod = JSON.parse(response.body)
 
-              expect(bod['data'][0]).to include(
+              sha256 = if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
+                         'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d'
+                       else
+                         '263e81aab50e1c4ea77e84ff7130473f074036f0f01e86abe5ad4a1864c77cb9'
+                       end
+
+              expect(bod['data']).to include(
                 {
                   'id' => sha256,
                   'type' => 'provider',
                   'attributes' => {
-                    'acc_new_patients' => 'true',
+                    'acc_new_patients' => 'false',
                     'address' => {
-                      'street' => '3200 S Gilbert Rd',
-                      'city' => 'Chandler',
-                      'state' => 'AZ',
-                      'zip' => '85286'
+                      'street' => '5024 5TH AVE',
+                      'city' => 'BROOKLYN',
+                      'state' => 'NY',
+                      'zip' => '11220-1909'
                     },
-                    'caresite_phone' => '4808275700',
+                    'caresite_phone' => '718-571-9251',
                     'email' => nil,
                     'fax' => nil,
                     'gender' => 'NotSpecified',
-                    'lat' => 33.259952,
-                    'long' => -111.790163,
-                    'name' => 'Banner Urgent Care Services LLC',
+                    'lat' => 40.644795,
+                    'long' => -74.011055,
+                    'name' => 'CITY MD URGENT CARE',
                     'phone' => nil,
                     'pos_codes' => '20',
                     'pref_contact' => nil,
-                    'unique_id' => '1609229764'
+                    'unique_id' => '1487993564'
                   },
                   'relationships' => {
                     'specialties' => {
@@ -154,7 +172,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                 hash_including(
                   tags: ['facilities.ppms']
                 )
-              ).exactly(7).times
+              ).exactly(9).times
             end
 
             expect do
@@ -221,28 +239,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             if skip_round_trips
               expect(bod['data']).to include(
                 {
-                  'id' => '1386050060',
-                  'type' => 'provider',
-                  'attributes' => {
-                    'acc_new_patients' => 'true',
-                    'address' => {
-                      'street' => '1831 E Queen Creek Rd Ste 119',
-                      'city' => 'Chandler',
-                      'state' => 'AZ',
-                      'zip' => '85286'
-                    },
-                    'caresite_phone' => '4809172300',
-                    'email' => nil,
-                    'fax' => nil,
-                    'gender' => 'Male',
-                    'lat' => 33.262403,
-                    'long' => -111.808538,
-                    'name' => 'OBryant, Steven',
-                    'phone' => nil,
-                    'pos_codes' => nil,
-                    'pref_contact' => nil,
-                    'unique_id' => '1386050060'
+                'id' => '1154383230',
+                'type' => 'provider',
+                'attributes' => {
+                  'acc_new_patients' => 'true',
+                  'address' => {
+                    'street' => '176 RIVERSIDE AVE',
+                    'city' => 'RED BANK',
+                    'state' => 'NJ',
+                    'zip' => '07701-1063'
                   },
+                  'caresite_phone' => '732-219-6625',
+                  'email' => nil,
+                  'fax' => nil,
+                  'gender' => 'Female',
+                  'lat' => 40.35396,
+                  'long' => -74.07492,
+                  'name' => 'GESUALDI, AMY',
+                  'phone' => nil,
+                  'pos_codes' => nil,
+                  'pref_contact' => nil,
+                  'unique_id' => '1154383230'
+                },
                   'relationships' => {
                     'specialties' => {
                       'data' => []
@@ -254,28 +272,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             else
               expect(bod['data']).to include(
                 {
-                  'id' => '1386050060',
-                  'type' => 'provider',
-                  'attributes' => {
-                    'acc_new_patients' => 'true',
-                    'address' => {
-                      'street' => '1831 E Queen Creek Rd Ste 119',
-                      'city' => 'Chandler',
-                      'state' => 'AZ',
-                      'zip' => '85286'
-                    },
-                    'caresite_phone' => '4809172300',
-                    'email' => 'Klloyd@facaaz.com',
-                    'fax' => nil,
-                    'gender' => 'Male',
-                    'lat' => 33.262403,
-                    'long' => -111.808538,
-                    'name' => 'OBryant, Steven',
-                    'phone' => nil,
-                    'pos_codes' => nil,
-                    'pref_contact' => nil,
-                    'unique_id' => '1386050060'
+                'id' => '1154383230',
+                'type' => 'provider',
+                'attributes' => {
+                  'acc_new_patients' => 'true',
+                  'address' => {
+                    'street' => '176 RIVERSIDE AVE',
+                    'city' => 'RED BANK',
+                    'state' => 'NJ',
+                    'zip' => '07701-1063'
                   },
+                  'caresite_phone' => '732-219-6625',
+                  'email' => nil,
+                  'fax' => nil,
+                  'gender' => 'Female',
+                  'lat' => 40.35396,
+                  'long' => -74.07492,
+                  'name' => 'GESUALDI, AMY',
+                  'phone' => nil,
+                  'pos_codes' => nil,
+                  'pref_contact' => nil,
+                  'unique_id' => '1154383230'
+                },
                   'relationships' => {
                     'specialties' => {
                       'data' => [
@@ -315,11 +333,21 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
         context 'type=pharmacy' do
           let(:params) do
-            {
-              address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-              bbox: ['-112.54', '32.53', '-111.04', '34.03'],
-              type: 'pharmacy'
-            }
+            case client_version
+            when 0
+              {
+                address: '58 Leonard Ave, Leonardo, NJ 07737',
+                bbox: ['-75.91', '38.55', '-72.19', '42.27'],
+                type: 'pharmacy'
+              }
+            when 1
+              {
+                latitude: 40.415217,
+                longitude: -74.057114,
+                radius: 200,
+                type: 'pharmacy'
+              }
+            end
           end
 
           it 'returns results from the pos_locator' do
@@ -329,31 +357,30 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             if skip_round_trips
 
-              expect(bod['data']).to include(
+              expect(bod['data'][0]).to match(
                 {
-                  'id' => '1972660348',
-                  'type' => 'provider',
-                  'attributes' =>
-                   {
-                     'acc_new_patients' => 'false',
-                     'address' => {
-                       'street' => '2750 E GERMANN RD',
-                       'city' => 'CHANDLER',
-                       'state' => 'AZ',
-                       'zip' => '85249'
-                     },
-                     'caresite_phone' => '4808122942',
-                     'email' => nil,
-                     'fax' => nil,
-                     'gender' => 'NotSpecified',
-                     'lat' => 33.281291,
-                     'long' => -111.793486,
-                     'name' => 'WAL-MART',
-                     'phone' => nil,
-                     'pos_codes' => nil,
-                     'pref_contact' => nil,
-                     'unique_id' => '1972660348'
-                   },
+                'id' => '1225028293',
+                'type' => 'provider',
+                'attributes' => {
+                  'acc_new_patients' => 'false',
+                  'address' => {
+                    'street' => '2 BAYSHORE PLZ',
+                    'city' => 'ATLANTIC HIGHLANDS',
+                    'state' => 'NJ',
+                    'zip' => '07716'
+                  },
+                  'caresite_phone' => '732-291-2900',
+                  'email' => nil,
+                  'fax' => nil,
+                  'gender' => 'NotSpecified',
+                  'lat' => 40.409114,
+                  'long' => -74.041849,
+                  'name' => 'BAYSHORE PHARMACY',
+                  'phone' => nil,
+                  'pos_codes' => nil,
+                  'pref_contact' => nil,
+                  'unique_id' => '1225028293'
+                },
                   'relationships' => {
                     'specialties' => {
                       'data' => []
@@ -366,31 +393,30 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             else
 
-              expect(bod['data']).to include(
+              expect(bod['data'][0]).to match(
                 {
-                  'id' => '1972660348',
-                  'type' => 'provider',
-                  'attributes' =>
-                   {
-                     'acc_new_patients' => 'false',
-                     'address' => {
-                       'street' => '2750 E GERMANN RD',
-                       'city' => 'CHANDLER',
-                       'state' => 'AZ',
-                       'zip' => '85249'
-                     },
-                     'caresite_phone' => '4808122942',
-                     'email' => 'ENROLLM@WAL-MART.COM',
-                     'fax' => nil,
-                     'gender' => 'NotSpecified',
-                     'lat' => 33.281291,
-                     'long' => -111.793486,
-                     'name' => 'WAL-MART',
-                     'phone' => nil,
-                     'pos_codes' => nil,
-                     'pref_contact' => nil,
-                     'unique_id' => '1972660348'
-                   },
+                'id' => '1225028293',
+                'type' => 'provider',
+                'attributes' => {
+                  'acc_new_patients' => 'false',
+                  'address' => {
+                    'street' => '2 BAYSHORE PLZ',
+                    'city' => 'ATLANTIC HIGHLANDS',
+                    'state' => 'NJ',
+                    'zip' => '07716'
+                  },
+                  'caresite_phone' => '732-291-2900',
+                  'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
+                  'fax' => nil,
+                  'gender' => 'NotSpecified',
+                  'lat' => 40.409114,
+                  'long' => -74.041849,
+                  'name' => 'BAYSHORE PHARMACY',
+                  'phone' => nil,
+                  'pos_codes' => nil,
+                  'pref_contact' => nil,
+                  'unique_id' => '1225028293'
+                },
                   'relationships' => {
                     'specialties' => {
                       'data' => [
@@ -431,12 +457,21 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
         context 'type=urgent_care' do
           let(:params) do
-            {
-              address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-              bbox: ['-112.54', '32.53', '-111.04', '34.03'],
-              type: 'urgent_care',
-              per_page: 10
-            }
+            case client_version
+            when 0
+              {
+                address: '58 Leonard Ave, Leonardo, NJ 07737',
+                bbox: ['-75.91', '38.55', '-72.19', '42.27'],
+                type: 'urgent_care'
+              }
+            when 1
+              {
+                latitude: 40.415217,
+                longitude: -74.057114,
+                radius: 200,
+                type: 'urgent_care'
+              }
+            end
           end
 
           it 'returns results from the pos_locator' do
@@ -444,45 +479,40 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             bod = JSON.parse(response.body)
 
+            sha256 = if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
+                       'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d'
+                     else
+                       '263e81aab50e1c4ea77e84ff7130473f074036f0f01e86abe5ad4a1864c77cb9'
+                     end
+
             expect(bod['data']).to include(
               {
                 'id' => sha256,
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'true',
+                  'acc_new_patients' => 'false',
                   'address' => {
-                    'street' => '3200 S Gilbert Rd',
-                    'city' => 'Chandler',
-                    'state' => 'AZ',
-                    'zip' => '85286'
+                    'street' => '5024 5TH AVE',
+                    'city' => 'BROOKLYN',
+                    'state' => 'NY',
+                    'zip' => '11220-1909'
                   },
-                  'caresite_phone' => '4808275700',
+                  'caresite_phone' => '718-571-9251',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
-                  'lat' => 33.259952,
-                  'long' => -111.790163,
-                  'name' => 'Banner Urgent Care Services LLC',
+                  'lat' => 40.644795,
+                  'long' => -74.011055,
+                  'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
                   'pos_codes' => '20',
                   'pref_contact' => nil,
-                  'unique_id' => '1609229764'
+                  'unique_id' => '1487993564'
                 },
                 'relationships' => {
                   'specialties' => {
                     'data' => []
                   }
-                }
-              }
-            )
-
-            expect(bod['meta']).to include(
-              {
-                'pagination' => {
-                  'current_page' => 1,
-                  'prev_page' => nil,
-                  'next_page' => 2,
-                  'total_pages' => 2
                 }
               }
             )
@@ -504,33 +534,33 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
         end
 
         it 'returns a provider with services' do
-          get '/v1/facilities/ccp/1972660348'
+          get '/v1/facilities/ccp/1225028293'
 
           bod = JSON.parse(response.body)
 
           expect(bod).to include(
             'data' => {
-              'id' => '1972660348',
+              'id' => '1225028293',
               'type' => 'provider',
               'attributes' => {
                 'acc_new_patients' => nil,
                 'address' => {
-                  'street' => '2750 E GERMANN RD',
-                  'city' => 'CHANDLER',
-                  'state' => 'AZ',
-                  'zip' => '85286'
+                  'street' => '2 BAYSHORE PLZ',
+                  'city' => 'ATLANTIC HIGHLANDS',
+                  'state' => 'NJ',
+                  'zip' => '07716'
                 },
                 'caresite_phone' => nil,
-                'email' => 'ENROLLM@WAL-MART.COM',
+                'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
                 'fax' => nil,
                 'gender' => nil,
-                'lat' => 33.281525,
-                'long' => -111.793404,
-                'name' => 'WALMART',
+                'lat' => 40.409114,
+                'long' => -74.041849,
+                'name' => 'BAYSHORE PHARMACY',
                 'phone' => nil,
                 'pos_codes' => nil,
                 'pref_contact' => nil,
-                'unique_id' => '1972660348'
+                'unique_id' => '1225028293'
               },
               'relationships' => {
                 'specialties' => {

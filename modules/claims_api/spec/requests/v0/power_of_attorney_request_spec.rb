@@ -8,7 +8,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-VA-EDIPI': '1007697216',
-      'X-Consumer-Username': 'TestConsumer',
+      'X-Consumer-Username': 'Abe Lincoln',
       'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M',
@@ -45,7 +45,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     it 'returns a unsuccessful response without mpi' do
       allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
       post path, params: data, headers: headers
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
     end
 
     it 'sets the source' do
@@ -53,7 +53,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
       parsed = JSON.parse(response.body)
       token = parsed['data']['id']
       poa = ClaimsApi::PowerOfAttorney.find(token)
-      expect(poa.source_data['name']).to eq('TestConsumer')
+      expect(poa.source_data['name']).to eq('Abe Lincoln')
     end
 
     context 'validation' do

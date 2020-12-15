@@ -51,7 +51,10 @@ class PPMS::Provider < Common::Base
   end
 
   def set_hexdigest_as_id!
-    self.id = Digest::SHA256.hexdigest(attributes.except(:id).to_a.join('|'))
+    self.id = Digest::SHA256.hexdigest(attributes.slice(
+      :address_city, :address_postal_code, :address_state_province, :address_street, :care_site, :caresite_phone,
+      :latitude, :longitude, :provider_identifier
+    ).to_a.join('|'))
   end
 
   def set_group_practive_or_agency!

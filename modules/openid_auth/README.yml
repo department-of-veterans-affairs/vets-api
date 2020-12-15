@@ -21,14 +21,16 @@ info:
 
     Allows a third-party application to request the validated token and VA Identifier ICN for an individual:
 
-    1. Client Request: GET https://api.vets.gov/internal/auth/v0/validation
+    1. Client Request: POST https://api.vets.gov/internal/auth/v1/validation
        * Provide the Bearer token as a header: `Authorization: Bearer <token>`
+       * Provide a body parameter for appropriate audience for validation
+         aud: https://api.va.gov/services/fhir
 
     2. Status Response: A JSON API object with the individual's validated token and VA identifier ICN
 
     ## Reference
 
-    Raw Open API Spec: http://sandbox-api.va.gov/internal/auth/docs/v0/validation
+    Raw Open API Spec: http://sandbox-api.va.gov/internal/auth/docs/v1/validation
 
   termsOfService: ''
   contact:
@@ -41,15 +43,15 @@ servers:
     description: VA.gov API sandbox environment
     variables:
       version:
-        default: v0
+        default: v1
   - url: https://api.va.gov/internal/auth/{version}
     description: VA.gov API production environment
     variables:
       version:
-        default: v0
+        default: v1
 paths:
-  /status:
-    get:
+  /validation:
+    post:
       tags:
         - validated_token
       summary: Get confirmation of a validated token and VA identifier ICN

@@ -817,11 +817,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           200,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+          headers.update(
+            '_data' => {
+              'supporting_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+              }
             }
-          }
+          )
         )
       end
 
@@ -830,7 +832,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           400,
-          ''
+          headers
         )
       end
 
@@ -839,11 +841,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           422,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+          headers.update(
+            '_data' => {
+              'supporting_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+              }
             }
-          }
+          )
         )
       end
     end
@@ -2303,8 +2307,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       before do
         # vet360_id appears in the API request URI so we need it to match the cassette
         allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
-          MVI::Responses::FindProfileResponse.new(
-            status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+          MPI::Responses::FindProfileResponse.new(
+            status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
             profile: build(:mvi_profile, vet360_id: '1')
           )
         )
@@ -2441,8 +2445,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'when MVI returns an unexpected response body' do
       it 'supports returning a custom 502 response' do
-        allow_any_instance_of(MVI::Models::MviProfile).to receive(:gender).and_return(nil)
-        allow_any_instance_of(MVI::Models::MviProfile).to receive(:birth_date).and_return(nil)
+        allow_any_instance_of(MPI::Models::MviProfile).to receive(:gender).and_return(nil)
+        allow_any_instance_of(MPI::Models::MviProfile).to receive(:birth_date).and_return(nil)
 
         VCR.use_cassette('mpi/find_candidate/missing_birthday_and_gender') do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 502, headers)
@@ -2778,8 +2782,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'asks' do
-      describe 'POST v0/ask/asks' do
+    describe 'contact us' do
+      describe 'POST v0/contact_us/inquiries' do
         let(:post_body) do
           {
             inquiry: {
@@ -2814,7 +2818,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/ask/asks',
+            '/v0/contact_us/inquiries',
             201,
             headers.merge('_data' => post_body)
           )
@@ -2825,7 +2829,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/ask/asks',
+            '/v0/contact_us/inquiries',
             422,
             headers.merge(
               '_data' => {
@@ -2842,7 +2846,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           expect(subject).to validate(
             :post,
-            '/v0/ask/asks',
+            '/v0/contact_us/inquiries',
             501,
             headers.merge(
               '_data' => {
@@ -2852,6 +2856,27 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               }
             )
           )
+        end
+      end
+
+      describe 'GET v0/contact_us/inquiries' do
+        context 'logged in' do
+          let(:user) { build(:user, :loa3) }
+          let(:headers) do
+            { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+          end
+
+          it 'supports getting list of inquiries sent by user' do
+            expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
+
+            expect(subject).to validate(:get, '/v0/contact_us/inquiries', 200, headers)
+          end
+        end
+
+        context 'not logged in' do
+          it 'returns a 401' do
+            expect(subject).to validate(:get, '/v0/contact_us/inquiries', 401)
+          end
         end
       end
     end
@@ -2911,6 +2936,40 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           headers.merge(
             '_data' => {
               'education_career_counseling_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
+    end
+
+    describe 'veteran readiness employment claims' do
+      it 'supports adding veteran readiness employment claim' do
+        VCR.use_cassette('veteran_readiness_employment/send_to_vre') do
+          expect(subject).to validate(
+            :post,
+            '/v0/veteran_readiness_employment_claims',
+            200,
+            headers.merge(
+              '_data' => {
+                'veteran_readiness_employment_claim' => {
+                  form: build(:veteran_readiness_employment_claim_no_vet_information).form
+                }
+              }
+            )
+          )
+        end
+      end
+
+      it 'throws an error when adding veteran readiness employment claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/veteran_readiness_employment_claims',
+          422,
+          headers.merge(
+            '_data' => {
+              'veteran_readiness_employment_claim' => {
                 'invalid-form' => { invalid: true }.to_json
               }
             }

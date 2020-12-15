@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_06_023750) do
+ActiveRecord::Schema.define(version: 2020_12_11_213957) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -47,12 +47,15 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "status", default: "pending", null: false
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"
     t.string "encrypted_auth_headers_iv"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "code"
+    t.string "detail"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -129,6 +132,10 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.string "encrypted_file_data_iv"
     t.string "encrypted_evss_response"
     t.string "encrypted_evss_response_iv"
+    t.string "encrypted_bgs_flash_responses"
+    t.string "encrypted_bgs_flash_responses_iv"
+    t.string "flashes", default: [], array: true
+    t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -160,6 +167,20 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.uuid "auto_established_claim_id"
+  end
+
+  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "sid"
+    t.uuid "account_id"
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "encrypted_raw_form_data"
+    t.string "encrypted_raw_form_data_iv"
+    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
+    t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
+    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
 
   create_table "directory_applications", force: :cascade do |t|
@@ -268,6 +289,18 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.string "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "form1010cg_submissions", force: :cascade do |t|
+    t.string "carma_case_id", limit: 18, null: false
+    t.datetime "accepted_at", null: false
+    t.json "metadata"
+    t.json "attachments"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.uuid "claim_guid", null: false
+    t.index ["carma_case_id"], name: "index_form1010cg_submissions_on_carma_case_id", unique: true
+    t.index ["claim_guid"], name: "index_form1010cg_submissions_on_claim_guid", unique: true
   end
 
   create_table "form526_job_statuses", id: :serial, force: :cascade do |t|
@@ -436,6 +469,14 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.index ["code"], name: "index_preferences_on_code", unique: true
   end
 
+  create_table "preferred_facilities", force: :cascade do |t|
+    t.string "facility_code", null: false
+    t.integer "account_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["facility_code", "account_id"], name: "index_preferred_facilities_on_facility_code_and_account_id", unique: true
+  end
+
   create_table "preneed_submissions", id: :serial, force: :cascade do |t|
     t.string "tracking_number", null: false
     t.string "application_uuid"
@@ -546,6 +587,7 @@ ActiveRecord::Schema.define(version: 2020_11_06_023750) do
     t.boolean "s3_deleted"
     t.string "consumer_name"
     t.uuid "consumer_id"
+    t.json "uploaded_pdf"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end

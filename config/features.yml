@@ -21,14 +21,27 @@ features:
     actor_type: user
     description: >
       Allows user to access chapter 33 benefits direct deposit view/update APIs
+  ch33_dd_profile:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allows user to access chapter 33 benefits (direct deposit for education) in the front end
+  covid_vaccine_registration_frontend:
+    actor_type: user
+    description: >
+      Toggles the availability of the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration_frontend_cta:
+    actor_type: user
+    description: >
+      Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/" leading to the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration:
+    actor_type: user
+    description: >
+      Toggles availability of covid vaccine form API.
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
       Toggles whether COVID Research volunteer submissions will be delivered to genISIS
-  dashboard_show_covid19_alert:
-    actor_type: user
-    description: >
-      Allows for showing a special COVID19 alert on the My VA Dashboard
   dashboard_show_dashboard_2:
     actor_type: user
     enable_in_development: true
@@ -141,8 +154,18 @@ features:
       Enables Express Care request flow in VAOS
   va_online_scheduling_flat_facility_page:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables the new VA facility choice page with a flat list
+  va_online_scheduling_flat_facility_page_sacramento:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
+  va_online_scheduling_provider_selection:
+    actor_type: user
+    description: >
+      Enables the community care provider selection field
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -165,6 +188,11 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
+  form526_confirmation_email_show_copy:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Shows vets-website content to inform veterans to expect a form526 confirmation email. Owned by va-notify team.
   va_view_dependents_access:
     actor_type: user
     description: >
@@ -178,10 +206,6 @@ features:
     enable_in_development: true
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
-  allow_online_10_10cg_submissions:
-    actor_type: cookie_id
-    description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   gibct_eyb_bottom_sheet:
     actor_type: user
     description: >
@@ -227,6 +251,11 @@ features:
     enable_in_development: true
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
+  get_help_messages:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables secure messaging
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     enable_in_development: true
@@ -283,17 +312,11 @@ features:
   show_chapter_36:
     actor_type: user
     description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
-  stem_text_message_question:
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E Chapter 36 form
+  view_payment_history:
     actor_type: user
-    enable_in_development: true
     description: >
-      Add text message opt-in question to 10203 Personal Information chapter and layout changes
-  form_1995_edu_updates:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Form updates to bring EDU forms in compliance with latest DEPO patterns and practices
+      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
   request_locked_pdf_password:
     actor_type: user
     enable_in_development: true
@@ -304,3 +327,16 @@ features:
     enable_in_development: true
     description: >
       Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
+  search_typeahead_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables type ahead search functionality
+  allow_online_10_10cg_submissions:
+    actor_type: cookie_id
+    description: >
+      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When enabled, this will redirect visitors from the form's page to the home page (va.gov).
+  async_10_10_cg_attachments:
+    actor_type: cookie_id
+    description: >
+      This will process attachments of 10-10CG submissions using sidekiq.

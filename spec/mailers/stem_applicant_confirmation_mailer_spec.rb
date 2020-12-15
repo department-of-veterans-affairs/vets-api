@@ -47,15 +47,5 @@ RSpec.describe StemApplicantConfirmationMailer, type: [:mailer] do
         expect(subject.body.raw_source).to include(EducationForm::EducationFacility::ADDRESSES[:eastern][1])
       end
     end
-
-    context 'when sending staging emails' do
-      before do
-        allow(FeatureFlipper).to receive(:staging_email?).and_return(true)
-      end
-
-      it 'includes recipients' do
-        expect(subject.bcc).to eq(SchoolCertifyingOfficialsMailer::STAGING_RECIPIENTS)
-      end
-    end
   end
 end
