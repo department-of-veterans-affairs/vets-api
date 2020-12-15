@@ -10,7 +10,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
   describe '#perform' do
     describe 'unit' do
       let(:claim_guid) { SecureRandom.uuid }
-      let(:pdf_file_path) { "tmp/pdfs/10-10CG_#{claim_guid}.pdf" }
+      let(:pdf_file_path) { "/tmp/pdfs/10-10CG_#{claim_guid}.pdf" }
       let(:claim) { build(:caregivers_assistance_claim, guid: claim_guid) }
       let(:submission) { build(:form1010cg_submission, claim_guid: claim_guid) }
 
