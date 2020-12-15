@@ -58,7 +58,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
       'modules/#{file_name}/'\n", after: "# Modules\n"
 
     # insert into main app gemfile
-    insert_into_file 'Gemfile', "gem '#{file_name}', path: 'modules/#{file_name}'\n", after: "# Modules\n"
+    insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
     route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
 
     run 'bundle install'
