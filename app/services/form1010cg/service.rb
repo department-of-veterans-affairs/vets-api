@@ -16,7 +16,7 @@ module Form1010cg
                   :submission # Form1010cg::Submission
 
     NOT_FOUND = 'NOT_FOUND'
-    AUDITOR = Form1010cg::Auditor.new(Rails.logger)
+    AUDITOR = Form1010cg::Auditor.new
 
     def self.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
       raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?

@@ -7,7 +7,7 @@ module V0
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
-    AUDITOR = Form1010cg::Auditor.new(Rails.logger)
+    AUDITOR = Form1010cg::Auditor.new
 
     def create
       auditor.record(:submission_attempt)

@@ -3,10 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Form1010cg::Auditor do
-  let(:subject) do
-    described_class.new(Rails.logger)
-  end
-
   before(:all) do
     # StatsD is configured to use Rails.logger in order to output the stats that are being incremented in our app.
     # Since our methods calls StatsD#increment, it will create a log output using Rails.logger.
@@ -25,6 +21,10 @@ RSpec.describe Form1010cg::Auditor do
     it 'accepts a logger' do
       expect(described_class.new(Rails.logger).logger).to eq(Rails.logger)
       expect(described_class.new(Sidekiq.logger).logger).to eq(Sidekiq.logger)
+    end
+
+    it 'sets the default logger to Rails.logger' do
+      expect(described_class.new.logger).to eq(Rails.logger)
     end
   end
 

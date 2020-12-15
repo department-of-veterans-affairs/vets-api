@@ -25,7 +25,7 @@ module Form1010cg
       )
     end
 
-    def initialize(logger)
+    def initialize(logger = Rails.logger)
       @logger = logger
     end
 
