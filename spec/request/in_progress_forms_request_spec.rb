@@ -99,6 +99,20 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             }.deep_transform_keys { |key| key.to_s.underscore.camelize(:lower) }.to_json)
           end
         end
+
+        context 'with lots of form_data' do
+          let(:form_data) do
+            JSON.parse(File.read('spec/support/disability_compensation_form/in_progress_form_maximal.json'))
+          end
+
+          it 'the json keys are unmolested' do
+            in_progress_form.update(form_data: form_data)
+            get v0_in_progress_form_url(in_progress_form.form_id),
+                params: nil,
+                headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
+            expect(JSON.parse(response.body)['form_data']).to eq(form_data)
+          end
+        end
       end
 
       context 'when a form is not found' do
