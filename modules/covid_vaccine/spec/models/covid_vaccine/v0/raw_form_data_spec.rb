@@ -63,5 +63,24 @@ RSpec.describe CovidVaccine::V0::RawFormData, type: :model do
           .to eq(["Vaccine interest can't be blank"])
       end
     end
+
+    context 'without presence of birth_date' do
+      let(:attributes) { { email: 'jane.doe@email.com', zip_code: '12345-1234',
+                           vaccine_interest: 'yes', birth_date: '' } }
+
+      it 'is not valid without the presence of vaccine_interest' do
+        expect(subject).to be_valid
+      end
+    end
+
+    context 'with a structurally invalid birth_date' do
+      let(:attributes) { { email: 'jane.doe@email.com', zip_code: '12345-1234',
+                           vaccine_interest: 'yes', birth_date: '1999-01-XX' } }
+
+      it 'is not valid' do
+        expect(subject).not_to be_valid
+      end
+    end
+
   end
 end

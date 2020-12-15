@@ -14,7 +14,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       authenticated: true,
       first_name: 'Jane',
       last_name: 'Doe',
-      birth_date: '2/2/1952',
+      birth_date: '1952-02-02',
       phone: '555-555-1234',
       email: 'jane.doe@email.com',
       ssn: '000-00-0022',
@@ -113,6 +113,18 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
             ]
           }
         )
+      end
+
+      it 'returns an error on a malformed date' do
+        invalid_date_attributes = registration_attributes.merge({birth_date: '2000-01-XX'})
+        post '/covid_vaccine/v0/registration', params: { registration: invalid_date_attributes }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'allows a non-existent date' do
+        blank_date_attributes = registration_attributes.merge({birth_date: ''})
+        post '/covid_vaccine/v0/registration', params: { registration: blank_date_attributes }
+        expect(response).to have_http_status(:created)
       end
 
       it 'returns a submission summary' do
