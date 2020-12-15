@@ -37,10 +37,6 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
         )
       described_class.perform_async(email, date, confirmation_id)
       expect(Rails.logger).to receive(:info).with(
-        'CovidVaccine::RegistrationEmailJob submitted to VaNotify',
-        { sid: 'confirmation_id_uuid', va_notify_id: '123456789' }
-      ).once
-      expect(Rails.logger).to receive(:info).with(
         '[StatsD] increment worker.covid_vaccine_registration_email.success:1'
       ).once
       expect { described_class.perform_one }.to change(described_class.jobs, :size).from(1).to(0)
