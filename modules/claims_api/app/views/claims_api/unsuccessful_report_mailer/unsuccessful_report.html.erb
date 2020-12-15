@@ -2,21 +2,55 @@
 <html>
   <head>
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body {
+        font-family: sans-serif;
+        font-size: smaller;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      table tr th, table tr td {
+        border: 1px solid #d3d3d3;
+        padding: 10px;
+      }
+      table tr th {
+        padding: 5px 10px;
+        white-space: nowrap;
+        color: #808080;
+        font-size: smaller;
+        text-transform: uppercase;
+        font-weight: normal;
+        text-align: left;
+      }
+      table tr td {
+        padding: 5px 10px;
+        vertical-align: top;
+      }
+      table tr td.right-align {
+        text-align: right;
+      }
+      h2 {
+        margin: 30px 0 2px;
+      }
+      h2 span.title {
+        color: #808080;
+      }
+    </style>
   </head>
   <body>
     <h1>From <%= @date_from %> -- <%= @date_to %> </h1>
 
-    <h2> Per Consumer Status Counts </h2>
-
+    <h2><span class="title">Per Consumer Status Counts</span></h2>
     <table>
       <thead>
         <tr>
-            <th>consumer | </th>
+            <th>consumer</th>
             <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.each do |status| %>
-            <th><%= status %> | </th>
+            <th><%= status %></th>
             <% end %>
-            <th>totals | </th>
-            <th>errored rate | </th>
+            <th>totals</th>
+            <th>errored rate</th>
             <th>percentage with flashes</th>
         </tr>
       </thead>
@@ -25,22 +59,22 @@
           <tr>
             <td><%= consumer.keys.first %></td>
             <% ClaimsApi::AutoEstablishedClaim::ALL_STATUSES.each do |status| %>
-            <td><%= consumer.values.first[status] || 0 %></td>
+            <td class="right-align"><%= consumer.values.first[status] || 0 %></td>
             <% end %>
-            <td><%= consumer.values.first[:totals] %></td>
-            <td><%= consumer.values.first[:error_rate] %></td>
-            <td><%= consumer.values.first[:percentage_with_flashes] %></td>
+            <td class="right-align"><%= consumer.values.first[:totals] %></td>
+            <td class="right-align"><%= consumer.values.first[:error_rate] %></td>
+            <td class="right-align"><%= consumer.values.first[:percentage_with_flashes] %></td>
           </tr>
         <% end if @consumer_totals %>
       </tbody>
     </table>
 
-    <hr>
+    <h2><span class="title">Flash Counts</span></h2>
     <table>
       <thead>
         <tr>
-            <th>flash | </th>
-            <th>count | </th>
+            <th>flash</th>
+            <th>count</th>
             <th>percentage</th>
         </tr>
       </thead>
@@ -48,21 +82,23 @@
         <% @flash_statistics.each do |statistic| %>
           <tr>
             <td><%= statistic[:flash] %></td>
-            <td><%= statistic[:count] %></td>
-            <td><%= statistic[:percentage] %></td>
+            <td class="right-align"><%= statistic[:count] %></td>
+            <td class="right-align"><%= statistic[:percentage] %></td>
           </tr>
         <% end if @flash_statistics %>
       </tbody>
     </table>
 
-    <hr>
+    <h2>
+      <%= @pending_submissions.count %>
+      <span class="title">Pending</span>
+    </h2>
+    <%= render partial: 'submission_table', locals: { claims: @pending_submissions, ids: true, timestamps: true } unless @pending_submissions.count.zero? %>
 
-    <h2> Pending Count: <%= @pending_submissions.count %></h2>
-    <%= render partial: 'submission_table', locals: {claims: @pending_submissions} unless @pending_submissions.count.zero? %>
-
-    <hr>
-
-    <h2> Unsuccessful count: <%= @unsuccessful_submissions.count %></h2>
-    <%= render partial: 'submission_table', locals: {claims: @unsuccessful_submissions } %>
+    <h2>
+      <%= @unsuccessful_submissions.count %>
+      <span class="title">Unique Unsuccessful EVSS Responses</span>
+    </h2>
+    <%= render partial: 'submission_table', locals: { claims: @unsuccessful_submissions, ids: false, timestamps: false } %>
   </body>
 </html>

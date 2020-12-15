@@ -22,14 +22,18 @@ class V1::Facilities::VaCcpController < FacilitiesController
   def ppms_params
     params.permit(
       :address,
+      :latitude,
+      :longitude,
       :page,
       :per_page,
+      :radius,
       bbox: []
     )
   end
 
   def lighthouse_params
     params.permit(
+      :exclude_mobile,
       :page,
       :per_page,
       bbox: []

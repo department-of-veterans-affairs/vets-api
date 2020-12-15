@@ -13,6 +13,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
 
   let(:valid_doc) { get_fixture('valid_doc.pdf') }
+  let(:locked_doc) { get_fixture('locked.pdf') }
   let(:non_pdf_doc) { get_fixture('valid_metadata.json') }
 
   let(:valid_parts) do
@@ -20,10 +21,21 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       'content' => valid_doc }
   end
 
+  let(:valid_parts_but_locked) do
+    { 'metadata' => valid_metadata,
+      'content' => locked_doc }
+  end
+
   let(:valid_parts_attachment) do
     { 'metadata' => valid_metadata,
       'content' => valid_doc,
       'attachment1' => valid_doc }
+  end
+
+  let(:valid_parts_locked_attachment) do
+    { 'metadata' => valid_metadata,
+      'content' => valid_doc,
+      'attachment1' => locked_doc }
   end
 
   let(:invalid_parts_missing) do
@@ -93,13 +105,26 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('received')
     end
 
-    it 'sets error for file part size exceeding 100MB' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
-      allow(File).to receive(:size).and_return(100_000_001)
-      described_class.new.perform(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC106')
+    context 'with pdf size too large' do
+      { 'sets error status for file content size exceeding 100MB' => :valid_parts,
+        'sets error for file part size exceeding 100MB' => :valid_parts_attachment }.each_pair do |_k, v|
+        it 'sets error for file part size exceeding 100MB' do
+          allow(VBADocuments::MultipartParser).to receive(:parse) { send v }
+          allow(File).to receive(:size) do
+            r_val = 100_000_001
+            if Thread.current[:checking_attachment] && v.eql?(:valid_parts_attachment)
+              r_val = 100_000_001
+            elsif v.eql?(:valid_parts_attachment)
+              r_val = 1
+            end
+            r_val
+          end
+          described_class.new.perform(upload.guid)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.status).to eq('error')
+          expect(updated.code).to eq('DOC106')
+        end
+      end
     end
 
     it 'sets error status for invalid multipart format' do
@@ -119,7 +144,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Incorrect content-type for metdata part')
+      expect(updated.detail).to eq('Incorrect content-type for metadata part')
     end
 
     it 'sets error status for unparseable JSON metadata part' do
@@ -216,13 +241,37 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC103')
     end
 
-    it 'sets error status for missing JSON metadata' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) { invalid_parts_missing }
-      described_class.new.perform(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to eq('Missing required keys: fileNumber')
+    CentralMail::Utilities::REQUIRED_KEYS.each do |key|
+      it "sets error status for missing JSON metadata #{key}" do
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          v = valid_parts
+          hash = JSON.parse(v['metadata'])
+          hash.delete(key)
+          v['metadata'] = hash.to_json
+          v
+        }
+        described_class.new.perform(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).to eq('error')
+        expect(updated.code).to eq('DOC102')
+        expect(updated.detail).to eq("Missing required keys: #{key}")
+      end
+    end
+
+    context 'with locked pdf' do
+      { 'sets error status for locked pdf attachment' => [:valid_parts_locked_attachment,
+                                                          'Invalid PDF content, part attachment1'],
+        'sets error status for locked pdf' => [:valid_parts_but_locked, 'Invalid PDF content, part content'] }
+        .each_pair do |k, v|
+        it k do
+          allow(VBADocuments::MultipartParser).to receive(:parse) { send v.first }
+          described_class.new.perform(upload.guid)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.status).to eq('error')
+          expect(updated.code).to eq('DOC103')
+          expect(updated.detail).to eq(v.last)
+        end
+      end
     end
 
     it 'sets error status for out-of-spec JSON metadata' do
