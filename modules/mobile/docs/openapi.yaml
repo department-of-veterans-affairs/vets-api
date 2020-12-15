@@ -635,37 +635,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "COMPLETED_SUCCESS"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
-                          metadata:
-                            type: array
-                            example: []
+                $ref: "#/components/schemas/AddressTransaction"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -745,37 +715,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "RECEIVED"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
-                          metadata:
-                            type: array
-                            example: [ ]
+                $ref: "#/components/schemas/AddressTransaction"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -848,34 +788,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "COMPLETED_SUCCESS"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::EmailTransaction"
+                $ref: "#/components/schemas/EmailTransaction"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -947,34 +860,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "RECEIVED"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::EmailTransaction"
+                $ref: "#/components/schemas/EmailTransaction"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1050,34 +936,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "RECEIVED"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
+                $ref: "#/components/schemas/PhoneTransaction"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1152,34 +1011,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "RECEIVED"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
+                $ref: "#/components/schemas/PhoneTransaction"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1504,7 +1336,12 @@ paths:
                             example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
                           transactionStatus:
                             type: string
-                            example: "RECEIVED"
+                            enum:
+                              - "REJECTED"
+                              - "COMPLETED_SUCCESS"
+                              - "COMPLETED_NO_CHANGES_DETECTED"
+                              - "COMPLETED_FAILURE"
+                            example: "COMPLETED_SUCCESS"
                           type:
                             type: string
                             example: "AsyncTransaction::Vet360::AddressTransaction"
@@ -2775,65 +2612,193 @@ components:
           type: string, null
           example: "1234"
 
+    AddressTransaction:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - string
+          properties:
+            id:
+              type: string
+              example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+            type:
+              type: string
+              example: "asyncTransactionVet360AddressTransactions"
+            attributes:
+              type: object
+              required:
+                - transactionId
+                - transactionStatus
+                - type
+              properties:
+                transactionId:
+                  type: string
+                  example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                transactionStatus:
+                  type: string
+                  enum:
+                    - "REJECTED"
+                    - "COMPLETED_SUCCESS"
+                    - "COMPLETED_NO_CHANGES_DETECTED"
+                    - "COMPLETED_FAILURE"
+                  example: "COMPLETED_SUCCESS"
+                type:
+                  type: string
+                  example: "AsyncTransaction::Vet360::AddressTransaction"
+                metadata:
+                  type: array
+                  example: []
+
+    EmailTransaction:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - string
+          properties:
+            id:
+              type: string
+              example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+            type:
+              type: string
+              example: "asyncTransactionVet360EmailTransactions"
+            attributes:
+              type: object
+              required:
+                - transactionId
+                - transactionStatus
+                - type
+              properties:
+                transactionId:
+                  type: string
+                  example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                transactionStatus:
+                  type: string
+                  enum:
+                    - "REJECTED"
+                    - "COMPLETED_SUCCESS"
+                    - "COMPLETED_NO_CHANGES_DETECTED"
+                    - "COMPLETED_FAILURE"
+                  example: "COMPLETED_SUCCESS"
+                type:
+                  type: string
+                  example: "AsyncTransaction::Vet360::EmailTransaction"
+                metadata:
+                  type: array
+                  example: [ ]
+
+    PhoneTransaction:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - string
+          properties:
+            id:
+              type: string
+              example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+            type:
+              type: string
+              example: "asyncTransactionVet360PhoneTransactions"
+            attributes:
+              type: object
+              required:
+                - transactionId
+                - transactionStatus
+                - type
+              properties:
+                transactionId:
+                  type: string
+                  example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                transactionStatus:
+                  type: string
+                  enum:
+                    - "REJECTED"
+                    - "COMPLETED_SUCCESS"
+                    - "COMPLETED_NO_CHANGES_DETECTED"
+                    - "COMPLETED_FAILURE"
+                  example: "COMPLETED_SUCCESS"
+                type:
+                  type: string
+                  example: "AsyncTransaction::Vet360::PhoneTransaction"
+                metadata:
+                  type: array
+                  example: [ ]
+
     AddressCreate:
       required:
-        - addressLine1
-        - addressPou
-        - addressType
-        - city
-        - countryCodeIso3
+        - data
       properties:
-        addressMetaData:
+        data:
           type: object
+          required:
+            - addressLine1
+            - addressPou
+            - addressType
+            - city
+            - countryCodeIso3
           properties:
-            confidenceScore:
-              type: integer
-              example: 100
+            addressMetaData:
+              type: object
+              properties:
+                confidenceScore:
+                  type: integer
+                  example: 100
+                addressType:
+                  type: string
+                  example: "Domestic"
+                deliveryPointValidation:
+                  type: string
+                  example: "CONFIRMED"
+                residentialDeliveryIndicator:
+                  type: string
+                  example: "RESIDENTIAL"
+            addressLine1:
+              type: string
+              example: "1493 Martin Luther King Rd"
+            addressLine2:
+              type: string, null
+            addressLine3:
+              type: string, null
+            addressPou:
+              type: string
+              enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
+              example: "RESIDENCE/CHOICE"
             addressType:
               type: string
-              example: "Domestic"
-            deliveryPointValidation:
+              enum: [ "DOMESTIC", "INTERNATIONAL", "MILITARY" ]
+              example: "DOMESTIC"
+            city:
               type: string
-              example: "CONFIRMED"
-            residentialDeliveryIndicator:
+              example: "Fulton"
+            countryCodeIso3:
               type: string
-              example: "RESIDENTIAL"
-        addressLine1:
-          type: string
-          example: "1493 Martin Luther King Rd"
-        addressLine2:
-          type: string, null
-        addressLine3:
-          type: string, null
-        addressPou:
-          type: string
-          enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
-          example: "RESIDENCE/CHOICE"
-        addressType:
-          type: string
-          enum: [ "DOMESTIC", "INTERNATIONAL", "MILITARY" ]
-          example: "DOMESTIC"
-        city:
-          type: string
-          example: "Fulton"
-        countryCodeIso3:
-          type: string
-          example: "USA"
-        internationalPostalCode:
-          type: string, null
-          example: null
-        province:
-          type: string, null
-          example: null
-        stateCode:
-          type: string, null
-          example: "NY"
-        zipCode:
-          type: string, null
-          example: "97062"
-        zipCodeSuffix:
-          type: string, null
-          example: "1234"
+              example: "USA"
+            internationalPostalCode:
+              type: string, null
+              example: null
+            province:
+              type: string, null
+              example: null
+            stateCode:
+              type: string, null
+              example: "NY"
+            zipCode:
+              type: string, null
+              example: "97062"
+            zipCodeSuffix:
+              type: string, null
+              example: "1234"
 
     AddressUpdate:
       required:
