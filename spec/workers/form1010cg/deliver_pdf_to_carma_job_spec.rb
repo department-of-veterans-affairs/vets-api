@@ -26,6 +26,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
 
       shared_examples 'a successful job' do
         let(:attachments) { double('attachments') }
+        let(:auditor) { double('auditor') }
 
         before do
           expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:to_pdf).and_return(pdf_file_path)
@@ -38,7 +39,6 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
 
           expect(attachments).to receive(:to_hash).and_return(:ATTACHMENTS_HASH)
 
-          auditor = double
           expect(Form1010cg::Auditor).to receive(:new).with(Sidekiq.logger).and_return(auditor)
           expect(auditor).to receive(:record).with(
             :attachments_delivered,
