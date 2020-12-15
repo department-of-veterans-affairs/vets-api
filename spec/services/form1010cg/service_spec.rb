@@ -17,10 +17,6 @@ RSpec.describe Form1010cg::Service do
     it 'is using Rails.logger' do
       expect(described_class::AUDITOR.logger).to eq(Rails.logger)
     end
-
-    it 'is always the same instance of Form1010cg::Auditor' do
-      expect(described_class::AUDITOR.object_id).to eq(described_class::AUDITOR.object_id)
-    end
   end
 
   describe '::new' do
