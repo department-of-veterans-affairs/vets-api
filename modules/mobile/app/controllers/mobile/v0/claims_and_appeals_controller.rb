@@ -43,7 +43,7 @@ module Mobile
           claim_detail = EVSSClaimDetailSerializer.new(claim)
           render json: Mobile::V0::ClaimSerializer.new(claim_detail)
         else
-          render json: { error: "Claim #{params[:id]} not found" }, status: :not_found
+          raise Common::Exceptions::RecordNotFound, params[:id]
         end
       end
 
@@ -56,7 +56,7 @@ module Mobile
           serializable_resource[:type] = appeal['type']
           render json: Mobile::V0::AppealSerializer.new(serializable_resource)
         else
-          render json: { error: "Appeal #{params[:id]} not found" }, status: :not_found
+          raise Common::Exceptions::RecordNotFound, params[:id]
         end
       end
 

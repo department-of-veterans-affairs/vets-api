@@ -27,7 +27,7 @@ RSpec.describe 'individual claim', type: :request do
       VCR.use_cassette('evss/claims/claim') do
         get '/mobile/v0/claim/2222222', headers: iam_headers
         expect(response).to have_http_status(:not_found)
-        expect(response.parsed_body.dig('error')).to eq('Claim 2222222 not found')
+        expect(response.body).to match_json_schema('evss_errors')
       end
     end
     it 'and attempting to access another users claim returns a 404 with an error ',
@@ -35,7 +35,7 @@ RSpec.describe 'individual claim', type: :request do
       VCR.use_cassette('evss/claims/claim') do
         get '/mobile/v0/claim/111222333', headers: iam_headers
         expect(response).to have_http_status(:not_found)
-        expect(response.parsed_body.dig('error')).to eq('Claim 111222333 not found')
+        expect(response.body).to match_json_schema('evss_errors')
       end
     end
   end

@@ -20,7 +20,7 @@ RSpec.describe 'individual appeal', type: :request do
       VCR.use_cassette('caseflow/appeals') do
         get '/mobile/v0/appeal/1234567', headers: iam_headers
         expect(response).to have_http_status(:not_found)
-        expect(response.parsed_body.dig('error')).to eq('Appeal 1234567 not found')
+        expect(response.body).to match_json_schema('evss_errors')
       end
     end
   end
