@@ -22,7 +22,7 @@ RSpec.describe 'individual claim', type: :request do
       end
     end
 
-    it 'and attempting to access a nonexistant claim returns a 403 with an error ',
+    it 'and attempting to access a nonexistant claim returns a 404 with an error ',
        run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       VCR.use_cassette('evss/claims/claim') do
         get '/mobile/v0/claim/2222222', headers: iam_headers
@@ -30,7 +30,7 @@ RSpec.describe 'individual claim', type: :request do
         expect(response.parsed_body.dig('error')).to eq('Claim 2222222 not found')
       end
     end
-    it 'and attempting to access another users claim returns a 403 with an error ',
+    it 'and attempting to access another users claim returns a 404 with an error ',
        run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       VCR.use_cassette('evss/claims/claim') do
         get '/mobile/v0/claim/111222333', headers: iam_headers
