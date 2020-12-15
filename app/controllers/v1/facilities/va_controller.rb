@@ -27,15 +27,17 @@ class V1::Facilities::VaController < FacilitiesController
 
   def lighthouse_params
     params.permit(
+      :exclude_mobile,
       :ids,
       :lat,
       :long,
+      :mobile,
       :page,
       :per_page,
       :state,
       :type,
+      :visn,
       :zip,
-      :exclude_mobile,
       bbox: [],
       services: []
     )

@@ -13,9 +13,9 @@ vcr_options = {
 RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options do
   let(:params) do
     {
-      latitude: 33.28,
-      longitude: -111.79,
-      radius: 104
+      latitude: 40.415217,
+      longitude: -74.057114,
+      radius: 200
     }.with_indifferent_access
   end
 
@@ -44,28 +44,45 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
     end
   end
 
+  context 'Legacy Code, BBOX' do
+    it 'Calculates the center and radius from bbox param' do
+      bbox = ['-72.60', '41.86', '-75.5', '38.96']
+      client = described_class.new
+
+      # latitude: 40.415217
+      # longitude: -74.057114
+      # This method rounds to 2 decimal places and is not accurate enough
+
+      expect(client.send(:center_and_radius, bbox)).to eql(
+        latitude: 40.41,
+        longitude: -74.05,
+        radius: 200
+      )
+    end
+  end
+
   describe '#provider_locator' do
     it 'returns a list of providers' do
       r = Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
-      expect(r.length).to be 7
+      expect(r.length).to be 9
       expect(r[0]).to have_attributes(
         acc_new_patients: 'true',
-        address_city: 'Gilbert',
-        address_postal_code: '85295',
-        address_state_province: 'AZ',
-        address_street: '3011 S Lindsay Rd Ste 113',
-        care_site: 'Gregory P Rowe DPM PLC',
-        caresite_phone: '4807596737',
+        address_city: 'RED BANK',
+        address_postal_code: '07701-1063',
+        address_state_province: 'NJ',
+        address_street: '176 RIVERSIDE AVE',
+        care_site: 'VISITING NURSE ASSOCIATION OF CENTRAL J',
+        caresite_phone: '732-219-6625',
         contact_method: nil,
         email: nil,
         fax: nil,
-        gender: 'Male',
-        latitude: 33.295133,
-        longitude: -111.773805,
+        gender: 'Female',
+        latitude: 40.35396,
+        longitude: -74.07492,
         main_phone: nil,
-        miles: 1.949,
-        provider_identifier: '1477844959',
-        provider_name: 'Rowe, Gregory',
+        miles: 5.477,
+        provider_identifier: '1154383230',
+        provider_name: 'GESUALDI, AMY',
         specialties: []
       )
     end
@@ -74,26 +91,26 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
   describe '#pos_locator' do
     it 'finds places of service' do
       r = Facilities::PPMS::V1::Client.new.pos_locator(params)
-      expect(r.length).to be 8
+      expect(r.length).to be 10
       expect(r[0]).to have_attributes(
-        acc_new_patients: 'true',
-        address_city: 'Chandler',
-        address_postal_code: '85286',
-        address_state_province: 'AZ',
-        address_street: '3200 S Gilbert Rd',
-        care_site: 'Banner Urgent Care Services LLC',
-        caresite_phone: '4808275700',
+        acc_new_patients: 'false',
+        address_city: 'BROOKLYN',
+        address_postal_code: '11220-1909',
+        address_state_province: 'NY',
+        address_street: '5024 5TH AVE',
+        care_site: 'CITY MD URGENT CARE',
+        caresite_phone: '718-571-9251',
         contact_method: nil,
         email: nil,
         fax: nil,
         gender: 'NotSpecified',
-        latitude: 33.259952,
-        longitude: -111.790163,
+        latitude: 40.644795,
+        longitude: -74.011055,
         main_phone: nil,
-        miles: 1.417,
+        miles: 42.074,
         pos_codes: ['20'],
-        provider_identifier: '1609229764',
-        provider_name: 'Banner Urgent Care Services LLC',
+        provider_identifier: '1487993564',
+        provider_name: 'CITY MD URGENT CARE',
         specialties: []
       )
     end
