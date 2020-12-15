@@ -44,6 +44,23 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
     end
   end
 
+  context 'Legacy Code, BBOX' do
+    it 'Calculates the center and radius from bbox param' do
+      bbox = ['-72.60','41.86','-75.5','38.96']
+      client = described_class.new
+
+      # latitude: 40.415217
+      # longitude: -74.057114
+      # This method rounds to 2 decimal places and is not accurate enough
+
+      expect(client.send(:center_and_radius, bbox)).to eql(
+                                                         latitude: 40.41,
+                                                         longitude: -74.05,
+                                                         radius: 200
+                                                       )
+    end
+  end
+
   describe '#provider_locator' do
     it 'returns a list of providers' do
       r = Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
