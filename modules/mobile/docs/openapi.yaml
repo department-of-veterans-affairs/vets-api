@@ -1464,7 +1464,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Appeal"
+                $ref: "#/components/schemas/Claim"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1516,132 +1516,224 @@ components:
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
 
   schemas:
-    Appeal:
+    Claim:
       required:
-        - type
-        - id
-        - attributes
+        - data
       properties:
-        type:
-          type: string
-          example: "appeal"
-        id:
-          type: string
-          example: "3294289"
-        attributes:
+        data:
           type: object
           required:
-            - appealIds
-            - active
-            - alerts
-            - aod
-            - aoj
-            - description
-            - docket
-            - events
-            - evidence
-            - incompleteHistory
-            - issues
-            - location
-            - programArea
-            - status
             - type
-            - updated
+            - id
+            - attributes
           properties:
-            appealsIds:
-              type: array
-              items:
-                type: string
-            active:
-              type: boolean
-            alerts:
-              type: array
-              items:
-                $ref: "#/components/schemas/AppealAlert"
-            aod:
-              type: boolean
-            aoj:
-              type: string
-              example: "vba"
-              enum:
-                - vba
-                - vha
-                - nca
-                - other
-            description:
-              type: string
-            docket:
-              type: object, null
-              $ref: "#/components/schemas/AppealDocket"
-            events:
-              type: array
-              items:
-                $ref: "#/components/schemas/AppealEvent"
-            evidence:
-              type: array
-              items:
-                $ref: "#/components/schemas/AppealEvidence"
-            incompleteHistory:
-              type: boolean
-            issues:
-              type: array
-              items:
-                $ref: "#/components/schemas/AppealIssue"
-            location:
-              type: string
-              enum:
-                - aoj
-                - bva
-            programArea:
-              type: string
-              enum:
-                - compensation
-                - pension
-                - insurance
-                - loan_guaranty
-                - education
-                - vre
-                - medical
-                - burial
-                - bva
-                - other
-                - multiple
-            status:
-              type: object
-              properties:
-                details:
-                  type: object
-                type:
-                  type: string
-                  enum:
-                    - scheduled_hearing
-                    - pending_hearing_scheduling
-                    - on_docket
-                    - pending_certification_ssoc
-                    - pending_certification
-                    - pending_form9
-                    - pending_soc
-                    - stayed
-                    - at_vso
-                    - bva_development
-                    - decision_in_progress
-                    - bva_decision
-                    - field_grant
-                    - withdrawn
-                    - ftr
-                    - ramp
-                    - death
-                    - reconsideration
-                    - other_close
-                    - remand_ssoc
-                    - remand
-                    - merged
             type:
               type: string
-              example: "legacyAppeal"
-            updated:
+              example: "claim"
+            id:
               type: string
-              example: "2018-01-19T10:20:42-05:00"
+              example: "600117255"
+            attributes:
+              type: object
+              required:
+                - dateFiled
+                - minEstDate
+                - maxEstDate
+                - open
+                - waiverSubmitted
+                - requestedDecision
+                - contentionList
+                - eventsTimeline
+                - phaseChangeDate
+                - vaRepresentative
+                - documentsNeeded
+                - developmentLetterSent
+                - decisionLetterSent
+                - updatedAt
+                - phase
+                - claimType
+                - everPhaseBack
+                - currentPhaseBack
+              properties:
+                dateFiled:
+                  type: string
+                  example: "2017-12-08"
+                minEstDate:
+                  type: string, null
+                  example: "2017-12-08"
+                maxEstDate:
+                  type: string, null
+                  example: "2017-12-08"
+                open:
+                  type: boolean
+                waiverSubmitted:
+                  type: boolean
+                requestedDecision:
+                  type: boolean
+                contentionList:
+                  type: array
+                  items:
+                    type: string
+                eventsTimeline:
+                  type: array
+                  items:
+                    type: object
+                phaseChangeDate:
+                  type: string, null
+                  example: "2017-12-08"
+                vaRepresentative:
+                  type: string
+                  example: "DALE M BOETTCHER"
+                documentsNeeded:
+                  type: boolean
+                developmentLetterSent:
+                  type: boolean
+                decisionLetterSent:
+                  type: boolean
+                updatedAt:
+                  type: string
+                  example: "2017-12-13T03:28:23+00:00"
+                phase:
+                  type: integer
+                  example: 2
+                claimType:
+                  type: string
+                  example: "Compensation"
+                everPhaseBack:
+                  type: boolean
+                currentPhaseBack:
+                  type: boolean
+    Appeal:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - type
+            - id
+            - attributes
+          properties:
+            type:
+              type: string
+              example: "appeal"
+            id:
+              type: string
+              example: "3294289"
+            attributes:
+              type: object
+              required:
+                - appealIds
+                - active
+                - alerts
+                - aod
+                - aoj
+                - description
+                - docket
+                - events
+                - evidence
+                - incompleteHistory
+                - issues
+                - location
+                - programArea
+                - status
+                - type
+                - updated
+              properties:
+                appealsIds:
+                  type: array
+                  items:
+                    type: string
+                active:
+                  type: boolean
+                alerts:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/AppealAlert"
+                aod:
+                  type: boolean
+                aoj:
+                  type: string
+                  example: "vba"
+                  enum:
+                    - vba
+                    - vha
+                    - nca
+                    - other
+                description:
+                  type: string
+                docket:
+                  type: object, null
+                  $ref: "#/components/schemas/AppealDocket"
+                events:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/AppealEvent"
+                evidence:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/AppealEvidence"
+                incompleteHistory:
+                  type: boolean
+                issues:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/AppealIssue"
+                location:
+                  type: string
+                  enum:
+                    - aoj
+                    - bva
+                programArea:
+                  type: string
+                  enum:
+                    - compensation
+                    - pension
+                    - insurance
+                    - loan_guaranty
+                    - education
+                    - vre
+                    - medical
+                    - burial
+                    - bva
+                    - other
+                    - multiple
+                status:
+                  type: object
+                  properties:
+                    details:
+                      type: object
+                    type:
+                      type: string
+                      enum:
+                        - scheduled_hearing
+                        - pending_hearing_scheduling
+                        - on_docket
+                        - pending_certification_ssoc
+                        - pending_certification
+                        - pending_form9
+                        - pending_soc
+                        - stayed
+                        - at_vso
+                        - bva_development
+                        - decision_in_progress
+                        - bva_decision
+                        - field_grant
+                        - withdrawn
+                        - ftr
+                        - ramp
+                        - death
+                        - reconsideration
+                        - other_close
+                        - remand_ssoc
+                        - remand
+                        - merged
+                type:
+                  type: string
+                  example: "legacyAppeal"
+                updated:
+                  type: string
+                  example: "2018-01-19T10:20:42-05:00"
     AppealDocket:
       properties:
         month:
