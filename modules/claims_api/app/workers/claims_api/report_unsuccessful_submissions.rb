@@ -30,8 +30,8 @@ module ClaimsApi
       generized_errors = errored.map do |error|
         if error.evss_response.present?
           uuid_regex = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/
-          error.evss_response = error.evss_response.gsub(uuid_regex, '%<uuid>')
-          error.evss_response = error.evss_response.gsub(/\d{5,}/, '%<number>')
+          error.evss_response = error.evss_response.to_s.gsub(uuid_regex, '%<uuid>')
+          error.evss_response = error.evss_response.to_s.gsub(/\d{5,}/, '%<number>')
           begin
             error.evss_response = JSON.parse(error.evss_response.gsub('=>', ':'))
           rescue
