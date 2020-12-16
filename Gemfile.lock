@@ -571,6 +571,8 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.2)
+    parallel_tests (3.4.0)
+      parallel
     parser (2.7.1.4)
       ast (~> 2.4.1)
     patience_diff (1.1.0)
@@ -956,6 +958,7 @@ DEPENDENCIES
   pact
   pact-mock_service
   paper_trail
+  parallel_tests
   pdf-forms
   pdf-inspector
   pdf-reader
