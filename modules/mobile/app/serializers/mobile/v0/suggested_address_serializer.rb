@@ -8,6 +8,7 @@ module Mobile
       attributes :address_line1
       attributes :address_line2
       attributes :address_line3
+      attributes :address_pou
       attributes :address_type
       attributes :city
       attributes :country_code_iso3

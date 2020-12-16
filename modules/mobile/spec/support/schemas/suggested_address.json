@@ -20,6 +20,7 @@
         "addressLine1",
         "addressLine2",
         "addressLine3",
+        "addressPou",
         "addressType",
         "city",
         "countryCodeIso3",
@@ -44,6 +45,9 @@
             "string",
             "null"
           ]
+        },
+        "addressPou": {
+          "type": "string"
         },
         "addressType": {
           "type": "string"

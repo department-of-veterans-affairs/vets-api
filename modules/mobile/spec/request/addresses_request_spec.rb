@@ -267,6 +267,7 @@ RSpec.describe 'address', type: :request do
             'addressLine1' => '37 N 1st St',
             'addressLine2' => nil,
             'addressLine3' => nil,
+            'addressPou' => 'RESIDENCE/CHOICE',
             'addressType' => 'DOMESTIC',
             'city' => 'Brooklyn',
             'countryCodeIso3' => 'USA',

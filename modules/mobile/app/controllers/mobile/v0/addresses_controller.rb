@@ -28,6 +28,7 @@ module Mobile
         suggested_addresses = response.dig('response', 'addresses').map do |a|
           OpenStruct.new(a['address'].merge(
                            'id' => SecureRandom.uuid,
+                           'address_pou' => address_params[:address_pou],
                            'validation_key' => response['response']['validation_key'],
                            'address_meta' => a['address_meta_data']
                          ))
