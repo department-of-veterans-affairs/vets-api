@@ -1078,14 +1078,14 @@ paths:
               $ref: '#/components/schemas/AddressCreate'
             example:
               addressLine1: "51 W Weber Rd"
+              addressPou: "CORRESPONDENCE"
               addressType: "DOMESTIC"
               city: "Columbus"
               countryName: "United States"
               countryCodeIso3: "USA"
               stateCode: "OH"
-              zipCode: "43202"
               type: "DOMESTIC"
-              addressPou: "CORRESPONDENCE"
+              zipCode: "43202"
       responses:
         '200':
           description: OK
@@ -1150,21 +1150,25 @@ paths:
                       meta:
                         type: object
                         properties:
-                          confidenceScore:
-                            type: float
-                            example: 100.0
-                          addressType:
-                            type: string
-                            example: "Domestic"
-                          deliveryPointValidation:
-                            type: string
-                            example: "CONFIRMED"
-                          residentialDeliveryIndicator:
-                            type: string
-                            example: "RESIDENTIAL"
+                          address:
+                            type: object
+                            properties:
+                              confidenceScore:
+                                type: float
+                                example: 100.0
+                                addressType:
+                                  type: string
+                                  example: "Domestic"
+                                deliveryPointValidation:
+                                  type: string
+                                  example: "CONFIRMED"
+                                residentialDeliveryIndicator:
+                                  type: string
+                                  example: "RESIDENTIAL"
                           validationKey:
                             type: integer
                             example: -1398777841
+
               examples:
                 Single match:
                   value:
@@ -1185,9 +1189,10 @@ paths:
                           zipCode: "43202"
                           zipCodeSuffix: "1463"
                         meta:
-                          confidenceScore": 100.0
-                          addressType": "Domestic"
-                          deliveryPointValidation": "UNDELIVERABLE"
+                          address:
+                            confidenceScore": 100.0
+                            addressType": "Domestic"
+                            deliveryPointValidation": "UNDELIVERABLE"
                           validationKey": -209411281
                 Multiple matches:
                   value:
@@ -1208,9 +1213,10 @@ paths:
                         zipCode: "11249"
                         zipCodeSuffix: "3939"
                       meta:
-                        confidenceScore: 100.0
-                        addressType: "Domestic"
-                        deliveryPointValidation: "UNDELIVERABLE"
+                        address:
+                          confidenceScore: 100.0
+                          addressType: "Domestic"
+                          deliveryPointValidation: "UNDELIVERABLE"
                         validationKey: -73046298
                     - id: "a5a3b737-a31b-4c66-83b3-b98556b12072"
                       type: "suggested_address"
@@ -1228,10 +1234,11 @@ paths:
                         zipCode: "11249"
                         zipCodeSuffix: "4101"
                       meta:
-                        confidenceScore: 100.0
-                        addressType: "Domestic"
-                        deliveryPointValidation: "CONFIRMED"
-                        residentialDeliveryIndicator: "MIXED"
+                        address:
+                          confidenceScore: 100.0
+                          addressType: "Domestic"
+                          deliveryPointValidation: "CONFIRMED"
+                          residentialDeliveryIndicator: "MIXED"
                         validationKey: -73046298
         '401':
           description: Authentication is possible but has failed or not yet been provided.
