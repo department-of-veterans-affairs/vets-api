@@ -31,8 +31,8 @@ class Account < ApplicationRecord
   redis REDIS_CONFIG[:user_account_details][:namespace]
   redis_ttl REDIS_CONFIG[:user_account_details][:each_ttl]
 
-  scope :idme_uuid_match, lambda { |v| where(idme_uuid: v) if v.present? }
-  scope :sec_id_match, lambda { |v| where(sec_id: v) if v.present? }
+  scope :idme_uuid_match, ->(v) { where(idme_uuid: v) if v.present? }
+  scope :sec_id_match, ->(v) { where(sec_id: v) if v.present? }
 
   # Returns the one Account record for the passed in user.
   #
