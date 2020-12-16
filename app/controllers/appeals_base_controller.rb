@@ -23,7 +23,7 @@ class AppealsBaseController < ApplicationController
 
   def get_hash_from_request_body
     # testing string b/c NullIO class doesn't always exist
-    raise request_body_is_not_a_hash_error if request.body.instance_of?(Puma::NullIO)
+    raise request_body_is_not_a_hash_error if request.body.class.name == 'Puma::NullIO'
 
     body = JSON.parse request.body.string
     raise request_body_is_not_a_hash_error unless body.is_a?(Hash)
