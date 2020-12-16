@@ -34,40 +34,12 @@ module AppealsApi
       @notice_of_disagreement.hearing_type_preference
     end
 
-    def contact_info
-      @notice_of_disagreement.veteran_contact_info
-    end
-
-    def address
-      address_combined = [
-        contact_info.dig('address', 'addressLine1'),
-        contact_info.dig('address', 'addressLine2'),
-        contact_info.dig('address', 'addressLine3')
-      ].compact.map(&:strip).join(' ')
-
-      [
-        address_combined,
-        contact_info.dig('address', 'city'),
-        contact_info.dig('address', 'stateCode'),
-        contact_info.dig('address', 'zipCode5'),
-        contact_info.dig('address', 'countryName')
-      ].compact.map(&:strip).join(', ')
-    end
-
     def homeless?
-      contact_info.dig('homeless')
-    end
-
-    def phone
-      AppealsApi::HigherLevelReview::Phone.new(contact_info&.dig('phone')).to_s
-    end
-
-    def email
-      contact_info.dig('emailAddressText')
+      @notice_of_disagreement.veteran_homeless_state
     end
 
     def representatives_name
-      contact_info.dig('representativesName')
+      @notice_of_disagreement.veteran_representative
     end
 
     def board_review_option

@@ -23,10 +23,6 @@ describe AppealsApi::NoticeOfDisagreementPdfOptions do
     it { expect(pdf_options.veteran_dob).to eq('1969-12-31') }
   end
 
-  describe '#address' do
-    it { expect(pdf_options.address).to eq('123 Main St Suite #1200 Box 4, New York, NY, 30012, United States') }
-  end
-
   describe '#homeless?' do
     context 'when true' do
       before { notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = true }
@@ -39,14 +35,6 @@ describe AppealsApi::NoticeOfDisagreementPdfOptions do
 
       it { expect(pdf_options).not_to be_homeless }
     end
-  end
-
-  describe '#phone' do
-    it { expect(pdf_options.phone).to eq('+6-555-800-1111 ext2') }
-  end
-
-  describe '#email' do
-    it { expect(pdf_options.email).to eq('a@a.a') }
   end
 
   describe '#representatives_name' do

@@ -34,14 +34,14 @@ module AppealsApi
         'veteranFirstName' => notice_of_disagreement.veteran_first_name,
         'veteranLastName' => notice_of_disagreement.veteran_last_name,
         'fileNumber' => notice_of_disagreement.file_number.presence || notice_of_disagreement.ssn,
-        'zipCode' => notice_of_disagreement.zip_code_5,
+        'zipCode' => '', # TODO: temporarily an empty string until we take in address info
         'source' => "Appeals-NOD-#{notice_of_disagreement.consumer_name}",
         'uuid' => notice_of_disagreement.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
         'numberAttachments' => 0,
         'receiveDt' => notice_of_disagreement.created_at.strftime('%Y-%m-%d %H:%M:%S'),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
-        'docType' => '01-0182' # TODO: need the correct format here
+        'docType' => '10182'
       }
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '10182-document.pdf') }
       process_response(CentralMail::Service.new.upload(body), notice_of_disagreement)

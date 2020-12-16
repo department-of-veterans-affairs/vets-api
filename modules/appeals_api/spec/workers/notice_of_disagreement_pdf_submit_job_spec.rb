@@ -94,7 +94,6 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
 
   context 'pdf extra content verification' do
     let(:notice_of_disagreement) { create(:notice_of_disagreement) }
-    let(:email) { notice_of_disagreement.form_data.dig 'data', 'attributes', 'veteran', 'emailAddressText' }
     let(:rep_name) { notice_of_disagreement.form_data.dig 'data', 'attributes', 'veteran', 'representativesName' }
     let(:extra_issue) { notice_of_disagreement.form_data['included'].last.dig('attributes', 'issue') }
 
@@ -103,7 +102,6 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       generated_pdf = described_class.new.generate_pdf(notice_of_disagreement.id)
       reader = PDF::Reader.new(generated_pdf)
       expect(reader.pages.size).to eq 5
-      expect(reader.pages.first.text).to include email
       expect(reader.pages.first.text).to include rep_name
       expect(reader.pages[3].text).to include 'Hearing type requested: Central office'
       expect(reader.pages[4].text).to include extra_issue
