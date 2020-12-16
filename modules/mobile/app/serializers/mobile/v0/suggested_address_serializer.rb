@@ -8,23 +8,22 @@ module Mobile
       attributes :address_line1
       attributes :address_line2
       attributes :address_line3
-      attributes :address_pou
       attributes :address_type
       attributes :city
       attributes :country_code_iso3
       attributes :international_postal_code
       attributes :province
       attributes :state_code
-      attributes :validation_key
       attributes :zip_code
       attributes :zip_code_suffix
 
       # rubocop is misinterpreting this, converting to symbol proc will cause specs to fail
-      # rubocop:disable Style/SymbolProc
       meta do |address|
-        address.meta
+        {
+          address: address.address_meta,
+          validation_key: address.validation_key
+        }
       end
-      # rubocop:enable Style/SymbolProc
     end
   end
 end
