@@ -582,12 +582,705 @@ paths:
                 $ref: "#/components/schemas/Errors"
 
   /v0/user/addresses:
+    post:
+      summary: /v0/user/addresses
+      description: Creates a new residential or mailing address for a user. Calling this endpoint is the second step in adding a new address for a user. The first step is to call the address validation endpoint to check if an address is valid. If it is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
+      operationId: user.createAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: A domestic, internation, or military address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressCreate'
+            examples:
+              Using Suggested Address:
+                value:
+                  addressMetaData:
+                    confidenceScore: 100
+                    addressType: Domestic
+                    deliveryPointValidation: CONFIRMED
+                    residentialDeliveryIndicator: RESIDENTIAL
+                  addressLine1: "1493 Martin Luther King Rd"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  addressType: "DOMESTIC"
+                  addressPou: "RESIDENCE/CHOICE"
+              Using Overridden Address:
+                value:
+                  addressLine1: "1493 Martin Luther King Rd"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  addressType: "DOMESTIC"
+                  addressPou: "RESIDENCE/CHOICE"
+                  validationKey: -1206619807
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
     put:
       summary: /v0/user/addresses
-      description: Updates a user's residential or mailing address
+      description: Updates a user's residential or mailing address. Calling this endpoint is the second step in adding a new address for a user. The first step is to call the address validation endpoint to check if an address is valid. If it is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
       operationId: user.updateAddress
       security:
         - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: A domestic, internation, or military address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressUpdate'
+            example:
+              validationKey: 0,
+              id: 181513
+              addressLine1: "1493 Martin Luther King Rd"
+              city: "Fulton"
+              countryName: "United States"
+              countryCodeIso3: "USA"
+              stateCode: "MS"
+              zipCode: "38843"
+              addressType: "DOMESTIC"
+              addressPou: "RESIDENCE/CHOICE"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/emails:
+    post:
+      summary: /v0/user/emails
+      description: Creates a new email address
+      operationId: user.createEmailAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new email address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailCreate'
+            example:
+              emailAddress: "person42@example.com"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      summary: /v0/user/emails
+      description: Updates a user's email address
+      operationId: user.updateEmailAddress
+      security:
+        - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new email address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Email'
+            example:
+              id: 42,
+              emailAddress: "person42@example.com"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/phones:
+    post:
+      summary: /v0/user/phones
+      description: Creats a phone number for a user
+      operationId: user.createPhoneNumber
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new phone number
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneCreate'
+            example:
+              areaCode: "704"
+              countryCode: "1"
+              phoneNumber: "7749069"
+              phoneType: "HOME"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      summary: /v0/user/phones
+      description: Updates a user's phone number
+      operationId: user.updatePhoneNumber
+      security:
+        - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new phone number
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Phone'
+            example:
+              id: 157032
+              areaCode: "704"
+              countryCode: "1"
+              phoneNumber: "7749069"
+              phoneType: "HOME"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhoneTransaction"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+  /v0/user/addresses/validate:
+    post:
+      summary: /v0/user/addresses/validate
+      description: Validates a residential or mailing address for a user. Calling this endpoint is the first step in adding a new address for a user. If the address is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
+      operationId: user.validateAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: A domestic, internation, or military address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressCreate'
+            example:
+              addressLine1: "51 W Weber Rd"
+              addressType: "DOMESTIC"
+              city: "Columbus"
+              countryName: "United States"
+              countryCodeIso3: "USA"
+              stateCode: "OH"
+              zipCode: "43202"
+              type: "DOMESTIC"
+              addressPou: "CORRESPONDENCE"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    required:
+                      - id
+                      - string
+                    properties:
+                      id:
+                        type: string
+                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                      type:
+                        type: string
+                        example: "suggested_address"
+                      attributes:
+                        type: object
+                        required:
+                          - transactionId
+                          - transactionStatus
+                          - type
+                        properties:
+                          addressLine1:
+                            type: string
+                            example: "51 W Weber Rd"
+                          addressLine2:
+                            type: [string, null]
+                            example: null
+                          addressLine3:
+                            type: [string, null]
+                            example: null
+                          addressPou:
+                            type: string
+                            example: "RESIDENCE/CHOICE"
+                          addressType:
+                            type: string
+                            example: "DOMESTIC"
+                          city:
+                            type: string
+                            example: "Columbus"
+                          countryCodeIso3:
+                            type: string
+                            example: "USA"
+                          internationalPostalCode:
+                            type: [string, null]
+                            example: null
+                          province:
+                            type: [string, null]
+                            example: null
+                          stateCode:
+                            type: string
+                            example: "OH"
+                          zipCode:
+                            type: string
+                            example: "43202"
+                          zipCodeSuffix:
+                            type: string
+                            example: "1922"
+                      meta:
+                        type: object
+                        properties:
+                          confidenceScore:
+                            type: float
+                            example: 100.0
+                          addressType:
+                            type: string
+                            example: "Domestic"
+                          deliveryPointValidation:
+                            type: string
+                            example: "CONFIRMED"
+                          residentialDeliveryIndicator:
+                            type: string
+                            example: "RESIDENTIAL"
+                          validationKey:
+                            type: integer
+                            example: -1398777841
+              examples:
+                Single match:
+                  value:
+                    data:
+                      - id: "6344ba4e-ff9e-436d-97ae-8511e381c11d"
+                        type: "suggested_address"
+                        attributes:
+                          addressLine1: "51 Walhalla Rd"
+                          addressLine2: null
+                          addressLine3: null
+                          addressPou: null
+                          addressType: "DOMESTIC"
+                          city: "Columbus"
+                          countryCodeIso3: "USA"
+                          internationalPostalCode: null
+                          province: null
+                          stateCode: "OH"
+                          zipCode: "43202"
+                          zipCodeSuffix: "1463"
+                        meta:
+                          confidenceScore": 100.0
+                          addressType": "Domestic"
+                          deliveryPointValidation": "UNDELIVERABLE"
+                          validationKey": -209411281
+                Multiple matches:
+                  value:
+                    data:
+                    - id: "8e07b8ff-6b36-4110-9225-a1a9e785ee13"
+                      type: "suggested_address"
+                      attributes:
+                        addressLine1: "37 N 1st St"
+                        addressLine2: null
+                        addressLine3: null
+                        addressPou: null
+                        addressType: "DOMESTIC"
+                        city: "Brooklyn"
+                        countryCodeIso3: "USA"
+                        internationalPostalCode: null
+                        province: null
+                        stateCode: "NY"
+                        zipCode: "11249"
+                        zipCodeSuffix: "3939"
+                      meta:
+                        confidenceScore: 100.0
+                        addressType: "Domestic"
+                        deliveryPointValidation: "UNDELIVERABLE"
+                        validationKey: -73046298
+                    - id: "a5a3b737-a31b-4c66-83b3-b98556b12072"
+                      type: "suggested_address"
+                      attributes:
+                        addressLine1: "37 S 1st St"
+                        addressLine2: null
+                        addressLine3: null
+                        addressPou: null
+                        addressType: "DOMESTIC"
+                        city: "Brooklyn"
+                        countryCodeIso3: "USA"
+                        internationalPostalCode: null
+                        province: null
+                        stateCode: "NY"
+                        zipCode: "11249"
+                        zipCodeSuffix: "4101"
+                      meta:
+                        confidenceScore: 100.0
+                        addressType: "Domestic"
+                        deliveryPointValidation: "CONFIRMED"
+                        residentialDeliveryIndicator: "MIXED"
+                        validationKey: -73046298
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      summary: /v0/user/addresses
+      description: Updates a user's residential or mailing address. Calling this endpoint is the second step in adding a new address for a user. The first step is to call the address validation endpoint to check if an address is valid. If it is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
+      operationId: user.updateAddress
+      security:
+        - Bearer: [ ]
       parameters:
         - in: header
           name: X-Key-Inflection
@@ -643,327 +1336,32 @@ paths:
                             example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
                           transactionStatus:
                             type: string
-                            example: "RECEIVED"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
-        '401':
-          description: Authentication is possible but has failed or not yet been provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '422':
-          description: Unprocessable Entity, usually because of one or more invalid parameters.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '500':
-          description: An internal API error occured.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: An upstream service the API depends on returned an error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '503':
-          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: A response from an upstream service timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-
-  /v0/user/emails:
-    put:
-      summary: /v0/user/emails
-      description: Updates a user's email address
-      operationId: user.updateEmailAddress
-      security:
-        - Bearer: []
-      parameters:
-        - in: header
-          name: X-Key-Inflection
-          schema:
-            type: string
-            description: Allows the API to return camelCase keys rather than snake_case.
-            example: 'camel'
-      requestBody:
-        description: The new email address
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Email'
-            example:
-              id: 42,
-              emailAddress: "person42@example.com"
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "RECEIVED"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
-        '401':
-          description: Authentication is possible but has failed or not yet been provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '422':
-          description: Unprocessable Entity, usually because of one or more invalid parameters.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '500':
-          description: An internal API error occured.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: An upstream service the API depends on returned an error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '503':
-          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: A response from an upstream service timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-
-  /v0/user/phones:
-    put:
-      summary: /v0/user/phones
-      description: Updates a user's phone number
-      operationId: user.updatePhoneNumber
-      security:
-        - Bearer: []
-      parameters:
-        - in: header
-          name: X-Key-Inflection
-          schema:
-            type: string
-            description: Allows the API to return camelCase keys rather than snake_case.
-            example: 'camel'
-      requestBody:
-        description: The new phone number
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Phone'
-            example:
-              id: 157032
-              areaCode: "704"
-              countryCode: "1"
-              phoneNumber: "7749069"
-              phoneType: "HOME"
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "RECEIVED"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
-        '401':
-          description: Authentication is possible but has failed or not yet been provided.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '422':
-          description: Unprocessable Entity, usually because of one or more invalid parameters.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '500':
-          description: An internal API error occured.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '502':
-          description: An upstream service the API depends on returned an error.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '503':
-          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-        '504':
-          description: A response from an upstream service timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
-
-  /v0/user/transaction-status:
-    get:
-      summary: /v0/user/transaction-status/:transactionId
-      description: \[Not implemented\] Returns the status of a user profile update (e.g. address update)
-      operationId: user.updateAddress
-      security:
-        - Bearer: []
-      parameters:
-        - in: header
-          name: X-Key-Inflection
-          schema:
-            type: string
-            description: Allows the API to return camelCase keys rather than snake_case.
-            example: 'camel'
-        - in: query
-          name: transactionId
-          schema:
-            type: string
-            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-          required: true
-          description: The id of the transaction being looked up
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
+                            enum:
+                              - "REJECTED"
+                              - "COMPLETED_SUCCESS"
+                              - "COMPLETED_NO_CHANGES_DETECTED"
+                              - "COMPLETED_FAILURE"
                             example: "COMPLETED_SUCCESS"
                           type:
                             type: string
                             example: "AsyncTransaction::Vet360::AddressTransaction"
+                          metadata:
+                            type: array
+                            example: [ ]
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-        '404':
-          description: The requested resource could not be found.
+        '408':
+          description: The response from this API timed out.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-        '408':
-          description: The response from this API timed out.
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
           content:
             application/json:
               schema:
@@ -992,6 +1390,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+
   /v0/payment-information/benefits:
     get:
       summary: /v0/payment-information/benefits
@@ -2628,7 +3027,7 @@ components:
           example: "RESIDENCE/CHOICE"
         addressType:
           type: string
-          enum: ["DOMESTIC", "INTERNATIONAL"]
+          enum: ["DOMESTIC", "INTERNATIONAL", "MILITARY"]
           example: "DOMESTIC"
         city:
           type: string
@@ -2652,8 +3051,197 @@ components:
           type: string, null
           example: "1234"
 
+    AddressTransaction:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - string
+          properties:
+            id:
+              type: string
+              example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+            type:
+              type: string
+              example: "asyncTransactionVet360AddressTransactions"
+            attributes:
+              type: object
+              required:
+                - transactionId
+                - transactionStatus
+                - type
+              properties:
+                transactionId:
+                  type: string
+                  example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                transactionStatus:
+                  type: string
+                  enum:
+                    - "REJECTED"
+                    - "COMPLETED_SUCCESS"
+                    - "COMPLETED_NO_CHANGES_DETECTED"
+                    - "COMPLETED_FAILURE"
+                  example: "COMPLETED_SUCCESS"
+                type:
+                  type: string
+                  example: "AsyncTransaction::Vet360::AddressTransaction"
+                metadata:
+                  type: array
+                  example: []
+
+    EmailTransaction:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - string
+          properties:
+            id:
+              type: string
+              example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+            type:
+              type: string
+              example: "asyncTransactionVet360EmailTransactions"
+            attributes:
+              type: object
+              required:
+                - transactionId
+                - transactionStatus
+                - type
+              properties:
+                transactionId:
+                  type: string
+                  example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                transactionStatus:
+                  type: string
+                  enum:
+                    - "REJECTED"
+                    - "COMPLETED_SUCCESS"
+                    - "COMPLETED_NO_CHANGES_DETECTED"
+                    - "COMPLETED_FAILURE"
+                  example: "COMPLETED_SUCCESS"
+                type:
+                  type: string
+                  example: "AsyncTransaction::Vet360::EmailTransaction"
+                metadata:
+                  type: array
+                  example: [ ]
+
+    PhoneTransaction:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - string
+          properties:
+            id:
+              type: string
+              example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+            type:
+              type: string
+              example: "asyncTransactionVet360PhoneTransactions"
+            attributes:
+              type: object
+              required:
+                - transactionId
+                - transactionStatus
+                - type
+              properties:
+                transactionId:
+                  type: string
+                  example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
+                transactionStatus:
+                  type: string
+                  enum:
+                    - "REJECTED"
+                    - "COMPLETED_SUCCESS"
+                    - "COMPLETED_NO_CHANGES_DETECTED"
+                    - "COMPLETED_FAILURE"
+                  example: "COMPLETED_SUCCESS"
+                type:
+                  type: string
+                  example: "AsyncTransaction::Vet360::PhoneTransaction"
+                metadata:
+                  type: array
+                  example: [ ]
+
+    AddressCreate:
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - addressLine1
+            - addressPou
+            - addressType
+            - city
+            - countryCodeIso3
+          properties:
+            addressMetaData:
+              type: object
+              properties:
+                confidenceScore:
+                  type: integer
+                  example: 100
+                addressType:
+                  type: string
+                  example: "Domestic"
+                deliveryPointValidation:
+                  type: string
+                  example: "CONFIRMED"
+                residentialDeliveryIndicator:
+                  type: string
+                  example: "RESIDENTIAL"
+            addressLine1:
+              type: string
+              example: "1493 Martin Luther King Rd"
+            addressLine2:
+              type: string, null
+            addressLine3:
+              type: string, null
+            addressPou:
+              type: string
+              enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
+              example: "RESIDENCE/CHOICE"
+            addressType:
+              type: string
+              enum: [ "DOMESTIC", "INTERNATIONAL", "MILITARY" ]
+              example: "DOMESTIC"
+            city:
+              type: string
+              example: "Fulton"
+            countryCodeIso3:
+              type: string
+              example: "USA"
+            internationalPostalCode:
+              type: string, null
+              example: null
+            province:
+              type: string, null
+              example: null
+            stateCode:
+              type: string, null
+              example: "NY"
+            zipCode:
+              type: string, null
+              example: "97062"
+            zipCodeSuffix:
+              type: string, null
+              example: "1234"
+
     AddressUpdate:
       required:
+        - id
         - validationKey
         - addressLine1
         - addressPou
@@ -2661,6 +3249,24 @@ components:
         - city
         - countryCode
       properties:
+        id:
+          type: string
+          example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+        addressMetaData:
+          type: object
+          properties:
+            confidenceScore:
+              type: integer
+              example: 100
+            addressType:
+              type: string
+              example: "Domestic"
+            deliveryPointValidation:
+              type: string
+              example: "CONFIRMED"
+            residentialDeliveryIndicator:
+              type: string
+              example: "RESIDENTIAL"
         validationKey:
           type: integer
           example: 0
@@ -2677,7 +3283,7 @@ components:
           example: "RESIDENCE/CHOICE"
         addressType:
           type: string
-          enum: ["DOMESTIC", "INTERNATIONAL"]
+          enum: ["DOMESTIC", "INTERNATIONAL", "MILITARY"]
           example: "DOMESTIC"
         city:
           type: string
@@ -2713,6 +3319,38 @@ components:
           type: string
           example: "person42@example.com"
 
+    EmailCreate:
+      required:
+        - emailAddress
+      properties:
+        emailAddress:
+          type: string
+          example: "person42@example.com"
+
+    PhoneCreate:
+      required:
+        - areaCode
+        - countryCode
+        - phoneNumber
+        - phoneType
+      properties:
+        id:
+          type: integer
+          example: 157032
+        areaCode:
+          type: string
+          example: "704"
+        countryCode:
+          type: string
+          example: "1"
+        phoneNumber:
+          type: string
+          example: "7749069"
+        phoneType:
+          type: string
+          enum: [ "HOME", "FAX", "MOBILE", "WORK" ]
+          example: "HOME"
+
     Phone:
       required:
         - id
@@ -2735,5 +3373,5 @@ components:
           example: "7749069"
         phoneType:
           type: string
-          enum: ["HOME", "MOBILE", "WORK"]
+          enum: ["HOME", "FAX", "MOBILE", "WORK"]
           example: "HOME"
