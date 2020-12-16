@@ -165,26 +165,6 @@ module AppealsApi
       self.class.date_from_string header_field_as_string "X-VA-#{who}-Birth-Date"
     end
 
-    def name(who)
-      [
-        first_name(who),
-        middle_initial(who),
-        last_name(who)
-      ].map(&:presence).compact.map(&:strip).join(' ')
-    end
-
-    def first_name(who)
-      header_field_as_string "X-VA-#{who}-First-Name"
-    end
-
-    def middle_initial(who)
-      header_field_as_string "X-VA-#{who}-Middle-Initial"
-    end
-
-    def last_name(who)
-      header_field_as_string "X-VA-#{who}-Last-Name"
-    end
-
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
     end
