@@ -34,8 +34,8 @@ RSpec.describe Account, type: :model do
       find_me.save!
       dont_find_me = create :account
       dont_find_me.sec_id = SecureRandom.uuid
+      dont_find_me.save!
       accounts = Account.sec_id_match(find_me.sec_id)
-      # binding.pry
       expect(accounts).to include(find_me)
       expect(accounts).not_to include(dont_find_me)
     end
