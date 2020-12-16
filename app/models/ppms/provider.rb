@@ -43,7 +43,7 @@ class PPMS::Provider < Common::Base
     new_attr[:id] ||= new_attr.delete(:provider_hexdigest) || new_attr[:provider_identifier]
     new_attr[:main_phone] ||= new_attr.delete(:main_phone)
     new_attr[:phone] ||= new_attr.delete(:main_phone)
-    new_attr[:provider_type] ||= new_attr.delete(:provider_type)
+    new_attr[:provider_type] ||= 'GroupPracticeOrAgency'
 
     new_attr = cleanup_specialties(new_attr)
 
