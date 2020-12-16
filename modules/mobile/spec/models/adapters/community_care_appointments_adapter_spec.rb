@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Mobile::V0::Adapters::CommunityCareAppointments do
   let(:adapted_appointments) do
     file = File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'cc_appointments.json'))
-    subject.parse(JSON.parse(file))
+    subject.parse(JSON.parse(file, symbolize_names: true))
   end
 
   it 'returns a list of appointments at the expected size' do

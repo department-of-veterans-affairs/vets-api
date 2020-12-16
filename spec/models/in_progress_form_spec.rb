@@ -25,6 +25,20 @@ RSpec.describe InProgressForm, type: :model do
       expect(in_progress_form.metadata['expires_at']).to eq(1_501_459_200)
       expect(in_progress_form.metadata['in_progress_form_id']).to be_an(Integer)
     end
+    context 'when the form is 21-526EZ' do
+      before { in_progress_form.form_id = '21-526EZ' }
+
+      it 'adds a later form expiration time and id', run_at: '2017-06-01' do
+        in_progress_form.save
+        expect(in_progress_form.metadata['expires_at']).to eq(1_527_811_200)
+        expect(in_progress_form.metadata['in_progress_form_id']).to be_an(Integer)
+      end
+
+      it 'adds a later form expiration time when a leap year', run_at: '2020-06-01' do
+        in_progress_form.save
+        expect(in_progress_form.metadata['expires_at']).to eq(1_622_505_600)
+      end
+    end
   end
 
   describe '#serialize_form_data' do

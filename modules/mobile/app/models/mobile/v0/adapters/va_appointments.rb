@@ -65,9 +65,9 @@ module Mobile
         def parse(appointments)
           facilities = Set.new
 
-          appointments_list = appointments.dig('data', 'appointmentList')
+          appointments_list = appointments.dig(:data, :appointmentList)
           appointments = appointments_list.map do |appointment_hash|
-            facility_id = sub_non_prod_id!(appointment_hash['facilityId'])
+            facility_id = sub_non_prod_id!(appointment_hash[:facilityId])
             facilities.add(facility_id) if facility_id
             details, type = parse_by_appointment_type(appointment_hash)
             start_date = get_start_date(appointment_hash)
@@ -87,15 +87,10 @@ module Mobile
             Mobile::V0::Appointment.new(adapted_hash)
           end
           
-          appointments_with_locations(appointments, facilities)
+          [appointments, facilities]
         end
 
         private
-        
-        def appointments_with_locations(appointments, facilities)
-          puts facilities
-          appointments
-        end
         
         def sub_non_prod_id!(id)
           return id if Settings.hostname == 'www.va.gov'
@@ -106,11 +101,11 @@ module Mobile
         end
 
         def comment(details, type)
-          va?(type) ? details['bookingNote'] : details['instructionsTitle']
+          va?(type) ? details[:bookingNote] : details[:instructionsTitle]
         end
 
         def get_status(details, type, start_date)
-          status = va?(type) ? details['currentStatus'] : details.dig('status', 'code')
+          status = va?(type) ? details[:currentStatus] : details.dig(:status, :code)
           return nil if should_hide_status?(start_date.past?, status)
           return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
 
@@ -118,7 +113,7 @@ module Mobile
         end
 
         def get_start_date(appointment_hash)
-          DateTime.parse(appointment_hash['startDate'])
+          DateTime.parse(appointment_hash[:startDate])
         end
 
         def get_location(details, type, facility_id)
@@ -169,47 +164,49 @@ module Mobile
         end
 
         def healthcare_service(details, type)
-          va?(type) ? details.dig('clinic', 'name') : video_healthcare_service(details)
+          va?(type) ? details.dig(:clinic, :name) : video_healthcare_service(details)
         end
 
         def location_home(details, location)
-          location[:url] = details.dig('providers', 'provider').first.dig('virtualMeetingRoom', 'url')
-          location[:code] = details.dig('providers', 'provider').first.dig('virtualMeetingRoom', 'pin')
+          provider = details.dig(:providers, :provider)
+          location[:url] = provider.first.dig(:virtualMeetingRoom, :url)
+          location[:code] = provider.first.dig(:virtualMeetingRoom, :pin)
           location
         end
 
         def location_atlas(details, location)
-          address = details.dig('tasInfo', 'address')
+          address = details.dig(:tasInfo, :address)
           location[:address] = {
-            street: address['streetAddress'],
-            city: address['city'],
-            state: address['state'],
-            zip_code: address['zipCode'],
-            country: address['country']
+            street: address[:streetAddress],
+            city: address[:city],
+            state: address[:state],
+            zip_code: address[:zipCode],
+            country: address[:country]
           }
-          location[:code] = details.dig('tasInfo', 'confirmationCode')
+          location[:code] = details.dig(:tasInfo, :confirmationCode)
           location
         end
 
         def location_gfe(details, location)
-          location[:url] = details['providers'].first.dig('virtualMeetingRoom', 'url')
-          location[:code] = details['providers'].first.dig('virtualMeetingRoom', 'pin')
+          meeting_room = details[:providers].first[:virtualMeetingRoom]
+          location[:url] = meeting_room[:url]
+          location[:code] = meeting_room[:pin]
           location
         end
 
         def minutes_duration(details, type)
-          minutes_string = va?(type) ? details['appointmentLength'] : details['duration']
+          minutes_string = va?(type) ? details[:appointmentLength] : details[:duration]
           minutes_string&.to_i
         end
 
         def on_site?(appointment)
-          appointment['vdsAppointments']&.size&.positive?
+          appointment[:vdsAppointments]&.size&.positive?
         end
 
         def parse_by_appointment_type(appointment)
-          return [appointment['vdsAppointments']&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
+          return [appointment[:vdsAppointments]&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
 
-          [appointment['vvsAppointments']&.first, get_video_type(appointment)]
+          [appointment[:vvsAppointments]&.first, get_video_type(appointment)]
         end
 
         def should_hide_status?(is_past, status)
@@ -221,29 +218,29 @@ module Mobile
         end
 
         def video_atlas?(appointment)
-          return false unless appointment['vvsAppointments']
+          return false unless appointment[:vvsAppointments]
 
-          appointment['vvsAppointments'].first['tasInfo'].present?
+          appointment[:vvsAppointments].first[:tasInfo].present?
         end
 
         def video_gfe?(appointment)
-          return false unless appointment['vvsAppointments']
+          return false unless appointment[:vvsAppointments]
 
-          appointment['vvsAppointments'].first['appointmentKind'] == VIDEO_GFE_FLAG
+          appointment[:vvsAppointments].first[:appointmentKind] == VIDEO_GFE_FLAG
         end
 
         def video_healthcare_service(details)
-          providers = details['providers']
+          providers = details[:providers]
           return nil unless providers
 
           provider = if providers.is_a?(Array)
-                       details.dig('providers')
+                       details[:providers]
                      else
-                       details.dig('providers', 'provider')
+                       details.dig(:providers, :provider)
                      end
           return nil unless provider
 
-          provider.first.dig('location', 'facility', 'name')
+          provider.first.dig(:location, :facility, :name)
         end
       end
     end

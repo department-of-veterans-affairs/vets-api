@@ -109,10 +109,18 @@ RSpec.describe V0::SessionsController, type: :controller do
               .with_params('op' => 'signup', 'clientId' => '123123')
           end
         end
+
+        context 'routes /v0/sessions/slo/new to SessionController#new' do
+          it 'redirects' do
+            get(:new, params: { type: :slo })
+            expect(get(:new, params: { type: :slo }))
+              .to redirect_to('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+          end
+        end
       end
 
       context 'routes requiring auth' do
-        %w[mfa verify slo].each do |type|
+        %w[mfa verify].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, params: { type: type })
             expect(response).to have_http_status(:unauthorized)
@@ -216,8 +224,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
-            .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
+            .to eq('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
@@ -226,7 +233,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).to be_nil
 
           # this should be created in redis
-          expect(SingleLogoutRequest.find(logout_request.uuid)).not_to be_nil
+          expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
         end
       end
     end

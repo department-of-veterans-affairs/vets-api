@@ -21,21 +21,21 @@ module Mobile
         # @return Array<Mobile::V0::Appointment> the adapted list of appointment models
         #
         def parse(appointments)
-          appointments_list = appointments['bookedAppointmentCollections'].first['bookedCCAppointments']
+          appointments_list = appointments[:bookedAppointmentCollections].first[:bookedCCAppointments]
 
           appointments_list.map do |appointment_hash|
-            location = get_location(appointment_hash['providerPractice'], appointment_hash['address'])
+            location = get_location(appointment_hash[:providerPractice], appointment_hash[:address])
 
             adapted_hash = {
               appointment_type: COMMUNITY_CARE_TYPE,
-              comment: appointment_hash['instructionsToVeteran'],
+              comment: appointment_hash[:instructionsToVeteran],
               facility_id: nil, # not a VA location
-              healthcare_service: appointment_hash['providerPractice'],
+              healthcare_service: appointment_hash[:providerPractice],
               location: location,
               minutes_duration: 60, # not in raw data, matches va.gov default for cc appointments
-              start_date: get_start_date(appointment_hash['appointmentTime'], appointment_hash['timeZone']),
+              start_date: get_start_date(appointment_hash[:appointmentTime], appointment_hash[:timeZone]),
               status: BOOKED_STATUS,
-              time_zone: get_time_zone(appointment_hash['timeZone'], location.dig(:address, :state))
+              time_zone: get_time_zone(appointment_hash[:timeZone], location.dig(:address, :state))
             }
 
             Mobile::V0::Appointment.new(adapted_hash)
@@ -48,10 +48,10 @@ module Mobile
           {
             name: name,
             address: {
-              street: address['street'],
-              city: address['city'],
-              state: address['state'],
-              zip_code: address['zipCode']
+              street: address[:street],
+              city: address[:city],
+              state: address[:state],
+              zip_code: address[:zipCode]
             },
             phone: {
               area_code: nil,

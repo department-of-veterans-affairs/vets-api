@@ -3,13 +3,24 @@
 require 'rails_helper'
 
 describe Mobile::V0::Adapters::VAAppointments do
+  let(:appointment_fixtures) do
+    File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json'))
+  end
+  
   let(:adapted_appointments) do
-    file = File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json'))
-    subject.parse(JSON.parse(file))
+    subject.parse(JSON.parse(appointment_fixtures, symbolize_names: true))[0]
+  end
+
+  let(:adapted_facilities) do
+    subject.parse(JSON.parse(appointment_fixtures, symbolize_names: true))[1]
   end
 
   it 'returns a list of appointments at the expected size' do
     expect(adapted_appointments.size).to eq(10)
+  end
+
+  it 'returns a set of the facilities for the appointments' do
+    expect(adapted_facilities).to eq(Set.new(['442']))
   end
 
   context 'with a booked VA appointment' do
