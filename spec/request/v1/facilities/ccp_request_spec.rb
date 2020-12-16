@@ -239,28 +239,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             if skip_round_trips
               expect(bod['data']).to include(
                 {
-                'id' => '1154383230',
-                'type' => 'provider',
-                'attributes' => {
-                  'acc_new_patients' => 'true',
-                  'address' => {
-                    'street' => '176 RIVERSIDE AVE',
-                    'city' => 'RED BANK',
-                    'state' => 'NJ',
-                    'zip' => '07701-1063'
+                  'id' => '1154383230',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'true',
+                    'address' => {
+                      'street' => '176 RIVERSIDE AVE',
+                      'city' => 'RED BANK',
+                      'state' => 'NJ',
+                      'zip' => '07701-1063'
+                    },
+                    'caresite_phone' => '732-219-6625',
+                    'email' => nil,
+                    'fax' => nil,
+                    'gender' => 'Female',
+                    'lat' => 40.35396,
+                    'long' => -74.07492,
+                    'name' => 'GESUALDI, AMY',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1154383230'
                   },
-                  'caresite_phone' => '732-219-6625',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'Female',
-                  'lat' => 40.35396,
-                  'long' => -74.07492,
-                  'name' => 'GESUALDI, AMY',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'unique_id' => '1154383230'
-                },
                   'relationships' => {
                     'specialties' => {
                       'data' => []
@@ -272,28 +272,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             else
               expect(bod['data']).to include(
                 {
-                'id' => '1154383230',
-                'type' => 'provider',
-                'attributes' => {
-                  'acc_new_patients' => 'true',
-                  'address' => {
-                    'street' => '176 RIVERSIDE AVE',
-                    'city' => 'RED BANK',
-                    'state' => 'NJ',
-                    'zip' => '07701-1063'
+                  'id' => '1154383230',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'true',
+                    'address' => {
+                      'street' => '176 RIVERSIDE AVE',
+                      'city' => 'RED BANK',
+                      'state' => 'NJ',
+                      'zip' => '07701-1063'
+                    },
+                    'caresite_phone' => '732-219-6625',
+                    'email' => nil,
+                    'fax' => nil,
+                    'gender' => 'Female',
+                    'lat' => 40.35396,
+                    'long' => -74.07492,
+                    'name' => 'GESUALDI, AMY',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1154383230'
                   },
-                  'caresite_phone' => '732-219-6625',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'Female',
-                  'lat' => 40.35396,
-                  'long' => -74.07492,
-                  'name' => 'GESUALDI, AMY',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'unique_id' => '1154383230'
-                },
                   'relationships' => {
                     'specialties' => {
                       'data' => [
@@ -359,28 +359,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
               expect(bod['data'][0]).to match(
                 {
-                'id' => '1225028293',
-                'type' => 'provider',
-                'attributes' => {
-                  'acc_new_patients' => 'false',
-                  'address' => {
-                    'street' => '2 BAYSHORE PLZ',
-                    'city' => 'ATLANTIC HIGHLANDS',
-                    'state' => 'NJ',
-                    'zip' => '07716'
+                  'id' => '1225028293',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'false',
+                    'address' => {
+                      'street' => '2 BAYSHORE PLZ',
+                      'city' => 'ATLANTIC HIGHLANDS',
+                      'state' => 'NJ',
+                      'zip' => '07716'
+                    },
+                    'caresite_phone' => '732-291-2900',
+                    'email' => nil,
+                    'fax' => nil,
+                    'gender' => 'NotSpecified',
+                    'lat' => 40.409114,
+                    'long' => -74.041849,
+                    'name' => 'BAYSHORE PHARMACY',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1225028293'
                   },
-                  'caresite_phone' => '732-291-2900',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.409114,
-                  'long' => -74.041849,
-                  'name' => 'BAYSHORE PHARMACY',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'unique_id' => '1225028293'
-                },
                   'relationships' => {
                     'specialties' => {
                       'data' => []
@@ -395,28 +395,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
               expect(bod['data'][0]).to match(
                 {
-                'id' => '1225028293',
-                'type' => 'provider',
-                'attributes' => {
-                  'acc_new_patients' => 'false',
-                  'address' => {
-                    'street' => '2 BAYSHORE PLZ',
-                    'city' => 'ATLANTIC HIGHLANDS',
-                    'state' => 'NJ',
-                    'zip' => '07716'
+                  'id' => '1225028293',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'false',
+                    'address' => {
+                      'street' => '2 BAYSHORE PLZ',
+                      'city' => 'ATLANTIC HIGHLANDS',
+                      'state' => 'NJ',
+                      'zip' => '07716'
+                    },
+                    'caresite_phone' => '732-291-2900',
+                    'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
+                    'fax' => nil,
+                    'gender' => 'NotSpecified',
+                    'lat' => 40.409114,
+                    'long' => -74.041849,
+                    'name' => 'BAYSHORE PHARMACY',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1225028293'
                   },
-                  'caresite_phone' => '732-291-2900',
-                  'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.409114,
-                  'long' => -74.041849,
-                  'name' => 'BAYSHORE PHARMACY',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'unique_id' => '1225028293'
-                },
                   'relationships' => {
                     'specialties' => {
                       'data' => [
