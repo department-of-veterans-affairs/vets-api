@@ -50,7 +50,8 @@ module VEText
     def get_preferences(endpoint_sid)
       response = perform(
         :get,
-        `#{PREFERENCES_PATH}/#{endpoint_sid}`
+        "#{PREFERENCES_PATH}/#{endpoint_sid}",
+        nil
       )
       response.body
     rescue Common::Client::Errors::ClientError => e

@@ -59,4 +59,54 @@ describe 'VEText::Service' do
       end
     end
 
-end
+    describe '#get_preferences' do
+      let(:get_preferences_body) do
+        [
+          {
+            "auto_opt_in": false,
+            "endpoint_sid": "8c258cbe573c462f912e7dd74585a5a9", 
+            "preference_id": "appointment_reminders", 
+            "preference_name": "Appointment Reminders",
+            "value": true
+          },{
+            "auto_opt_in": false,
+            "endpoint_sid": "8c258cbe573c462f912e7dd74585a5a9",
+            "preference_id": "claim_status_updates", 
+            "preference_name": "Claim Status Updates",
+            "value": true
+          }
+        ]
+      end
+      context 'with a valid device token' do
+        let(:response) do
+          VCR.use_cassette('vetext/get_preferences_success') do
+            service.get_preferences('8c258cbe573c462f912e7dd74585a5a9')
+          end
+        end
+  
+        it 'returns the list of preferences' do
+          expect(response).to eq(get_preferences_body)
+        end
+      end
+    end
+  
+    describe '#set_preference' do
+      let(:set_preference_body) do
+        {
+          "success": true
+        }
+      end
+      context 'with a valid device token and preference id' do
+        let(:response) do
+          VCR.use_cassette('vetext/set_preference_success') do
+            service.set_preference('8c258cbe573c462f912e7dd74585a5a9', 'claim_status_updates', true)
+          end
+        end
+  
+        it 'returns successfully' do
+          expect(response).to eq(set_preference_body)
+        end
+      end
+    end
+  
+  end
