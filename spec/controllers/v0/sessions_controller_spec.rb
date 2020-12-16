@@ -587,7 +587,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Failed! Other SAML Response Error(s)',
               :error,
-              saml_error_context: [{ code: '007',
+              saml_error_context: [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                      tag: :unknown,
                                      short_message: 'Other SAML Response Error(s)',
                                      level: :error,
@@ -618,12 +618,12 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
-              saml_error_context: [{ code: '001',
+              saml_error_context: [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
                                      tag: :clicked_deny,
                                      short_message: 'Subject did not consent to attribute release',
                                      level: :warn,
                                      full_message: 'Subject did not consent to attribute release' },
-                                   { code: '007',
+                                   { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                      tag: :unknown,
                                      short_message: 'Other SAML Response Error(s)',
                                      level: :error,
@@ -680,7 +680,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Failed! on User/Session Validation',
               :error,
-              code: '004',
+              code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
               tag: :validations_failed,
               short_message: 'on User/Session Validation',
               level: :error,
