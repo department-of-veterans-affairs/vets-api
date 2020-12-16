@@ -37,7 +37,7 @@ describe 'VEText::Service' do
                     'ios',
                     '13.1'
                 )
-            }.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_400/)
+            }.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_400/)
           end
         end
       end
@@ -54,7 +54,7 @@ describe 'VEText::Service' do
                   'ios',
                   '13.1'
               )
-          }.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_502/)
+          }.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_502/)
           end
       end
     end

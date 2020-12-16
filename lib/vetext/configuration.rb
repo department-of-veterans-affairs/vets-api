@@ -15,7 +15,7 @@ module VEText
     # @return String the service base path from the environment settings
     #
     def base_url
-      Settings.vetext.base_url
+      settings.vetext_push.base_url
     end
 
     # Service name for breakers integration
@@ -32,7 +32,7 @@ module VEText
       @connection ||= Faraday.new(
         base_url, headers: base_request_headers, request: request_options
       ) do |conn|
-        conn.basic_auth(Settings.vetext.user, Settings.vetext.pass)
+        conn.basic_auth(settings.vetext_push.user, settings.vetext_push.pass)
         conn.use :breakers
         conn.request :json
         

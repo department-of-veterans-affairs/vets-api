@@ -84,9 +84,9 @@ module VEText
     def remap_error(e)
       case e.status
       when 400..499
-        raise Common::Exceptions::BackendServiceException.new('VETEXT_400', { detail: e.body[:error] }, e.status, e.body)
+        raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_400', { detail: e.body[:error] }, e.status, e.body)
       when 500..599
-        raise Common::Exceptions::BackendServiceException.new('VETEXT_502', {}, e.status)
+        raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_502', {}, e.status)
       else
         raise e
       end
