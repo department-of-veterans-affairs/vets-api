@@ -199,14 +199,14 @@ module SAML
       private
 
       def should_raise_idme_uuid_error
-        if !idme_uuid
-          if @saml_settings.nil? ||
-             @saml_settings.assertion_consumer_service_url =~ %r{/v1/} && (@authn_context != INBOUND_AUTHN_CONTEXT)
-            true
-          end
-        else
-          false
-        end
+        return false if idme_uuid
+
+        @saml_settings.nil? || auth_context_is_v1_and_not_inbound
+      end
+
+      def auth_context_is_v1_and_not_inbound
+        @saml_settings.assertion_consumer_service_url =~ %r{/v1/} &&
+          @authn_context != INBOUND_AUTHN_CONTEXT
       end
 
       def mvi_ids
