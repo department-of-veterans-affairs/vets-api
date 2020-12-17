@@ -74,7 +74,10 @@ module V0
       end
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
+      unless performed?
+        redirect_to url_service.login_redirect_url(auth: 'fail',
+                                                   code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE)
+      end
       callback_stats(:failed_unknown)
     ensure
       callback_stats(:total)
@@ -83,7 +86,7 @@ module V0
     private
 
     def auth_error_code(code)
-      if code == '005' && validate_session
+      if code == SAML::Responses::Base::AUTH_TOO_LATE_ERROR_CODE && validate_session
         UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
       else
         code
@@ -238,7 +241,11 @@ module V0
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
-        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mpi: additional_context)
+        log_message_to_sentry(
+          'SessionsController version:v0 message:SSN from MPI Lookup does not match UserIdentity cache',
+          :warn,
+          identity_compared_with_mpi: additional_context
+        )
       end
     end
 

@@ -9,10 +9,21 @@ vcr_options = {
 }
 
 RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vcr: vcr_options do
-  [0, 1].each do |client_version|
-    context "Facilities::PPMS::V#{client_version}::Client" do
+  [[0, false], [1, false], [1, true]].each do |(client_version, skip_round_trips)|
+    context "Facilities::PPMS::V#{client_version}::Client, Skip Extra Round Trips [#{skip_round_trips}]" do
       before do
         Flipper.enable(:facility_locator_ppms_use_v1_client, client_version == 1)
+        Flipper.enable(:facility_locator_ppms_skip_additional_round_trips, skip_round_trips)
+      end
+
+      let(:sha256) do
+        if Flipper.enabled?(:facility_locator_ppms_skip_additional_round_trips)
+          'bd2b84cc5c0aa3676090eacde32e99c7d668388e5fc5440e3c582aef419fc398'
+        elsif Flipper.enabled?(:facility_locator_ppms_use_v1_client)
+          'bd2b84cc5c0aa3676090eacde32e99c7d668388e5fc5440e3c582aef419fc398'
+        else
+          'b15b6aeb98d75d1fe64450c412483f9e38d3245a875e071c13ccb6bf44415f4a'
+        end
       end
 
       let(:params) do
@@ -154,13 +165,15 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               )
             )
 
-            expect(StatsD).to receive(:measure).with(
-              'facilities.ppms.providers',
-              kind_of(Numeric),
-              hash_including(
-                tags: ['facilities.ppms']
-              )
-            ).exactly(9).times
+            unless skip_round_trips
+              expect(StatsD).to receive(:measure).with(
+                'facilities.ppms.providers',
+                kind_of(Numeric),
+                hash_including(
+                  tags: ['facilities.ppms']
+                )
+              ).exactly(9).times
+            end
 
             expect do
               get '/v1/facilities/ccp', params: params
@@ -192,7 +205,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                 )
               when 1
                 client = Facilities::PPMS::V1::Client.new
-
                 expect(Facilities::PPMS::V1::Client).to receive(:new).and_return(client)
                 expect(client).to receive(:provider_locator).and_return(
                   Facilities::PPMS::V1::Response.new(
@@ -224,62 +236,96 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             get '/v1/facilities/ccp', params: params
 
             bod = JSON.parse(response.body)
-
-            expect(bod['data']).to include(
-              {
-                'id' => '1154383230',
-                'type' => 'provider',
-                'attributes' => {
-                  'acc_new_patients' => 'true',
-                  'address' => {
-                    'street' => '176 RIVERSIDE AVE',
-                    'city' => 'RED BANK',
-                    'state' => 'NJ',
-                    'zip' => '07701-1063'
+            if skip_round_trips
+              expect(bod['data']).to include(
+                {
+                  'id' => '1154383230',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'true',
+                    'address' => {
+                      'street' => '176 RIVERSIDE AVE',
+                      'city' => 'RED BANK',
+                      'state' => 'NJ',
+                      'zip' => '07701-1063'
+                    },
+                    'caresite_phone' => '732-219-6625',
+                    'email' => nil,
+                    'fax' => nil,
+                    'gender' => 'Female',
+                    'lat' => 40.35396,
+                    'long' => -74.07492,
+                    'name' => 'GESUALDI, AMY',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1154383230'
                   },
-                  'caresite_phone' => '732-219-6625',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'Female',
-                  'lat' => 40.35396,
-                  'long' => -74.07492,
-                  'name' => 'GESUALDI, AMY',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'unique_id' => '1154383230'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => [
-                      {
-                        'id' => '213E00000X',
-                        'type' => 'specialty'
-                      }
-                    ]
+                  'relationships' => {
+                    'specialties' => {
+                      'data' => []
+                    }
                   }
                 }
-              }
-            )
-            expect(bod['included']).to include(
-              {
-                'id' => '213E00000X',
-                'type' => 'specialty',
-                'attributes' => {
-                  'classification' => 'Podiatrist',
-                  'grouping' => 'Podiatric Medicine & Surgery Service Providers',
-                  'name' => 'Podiatrist',
-                  'specialization' => nil,
-                  'specialty_code' => '213E00000X',
-                  'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
-                                             '(D.P.M.) degree, licensed by the state, and practicing within the ' \
-                                             'scope of that license. Podiatrists diagnose and treat foot diseases ' \
-                                             'and deformities. They perform medical, surgical and other operative ' \
-                                             'procedures, prescribe corrective devices and prescribe and administer ' \
-                                             'drugs and physical therapy.'
+              )
+              expect(bod['included']).to match([])
+            else
+              expect(bod['data']).to include(
+                {
+                  'id' => '1154383230',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'true',
+                    'address' => {
+                      'street' => '176 RIVERSIDE AVE',
+                      'city' => 'RED BANK',
+                      'state' => 'NJ',
+                      'zip' => '07701-1063'
+                    },
+                    'caresite_phone' => '732-219-6625',
+                    'email' => nil,
+                    'fax' => nil,
+                    'gender' => 'Female',
+                    'lat' => 40.35396,
+                    'long' => -74.07492,
+                    'name' => 'GESUALDI, AMY',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1154383230'
+                  },
+                  'relationships' => {
+                    'specialties' => {
+                      'data' => [
+                        {
+                          'id' => '213E00000X',
+                          'type' => 'specialty'
+                        }
+                      ]
+                    }
+                  }
                 }
-              }
-            )
+              )
+              expect(bod['included']).to include(
+                {
+                  'id' => '213E00000X',
+                  'type' => 'specialty',
+                  'attributes' => {
+                    'classification' => 'Podiatrist',
+                    'grouping' => 'Podiatric Medicine & Surgery Service Providers',
+                    'name' => 'Podiatrist',
+                    'specialization' => nil,
+                    'specialty_code' => '213E00000X',
+                    'specialty_description' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine ' \
+                                               '(D.P.M.) degree, licensed by the state, and practicing within the ' \
+                                               'scope of that license. Podiatrists diagnose and treat foot diseases ' \
+                                               'and deformities. They perform medical, surgical and other operative ' \
+                                               'procedures, prescribe corrective devices and prescribe and ' \
+                                               'administer drugs and physical therapy.'
+                  }
+                }
+              )
+            end
 
             expect(response).to be_successful
           end
@@ -308,62 +354,103 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             get '/v1/facilities/ccp', params: params
 
             bod = JSON.parse(response.body)
-            expect(bod['data']).to include(
-              {
-                'id' => '1225028293',
-                'type' => 'provider',
-                'attributes' => {
-                  'acc_new_patients' => 'false',
-                  'address' => {
-                    'street' => '2 BAYSHORE PLZ',
-                    'city' => 'ATLANTIC HIGHLANDS',
-                    'state' => 'NJ',
-                    'zip' => '07716'
+
+            if skip_round_trips
+
+              expect(bod['data'][0]).to match(
+                {
+                  'id' => '1225028293',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'false',
+                    'address' => {
+                      'street' => '2 BAYSHORE PLZ',
+                      'city' => 'ATLANTIC HIGHLANDS',
+                      'state' => 'NJ',
+                      'zip' => '07716'
+                    },
+                    'caresite_phone' => '732-291-2900',
+                    'email' => nil,
+                    'fax' => nil,
+                    'gender' => 'NotSpecified',
+                    'lat' => 40.409114,
+                    'long' => -74.041849,
+                    'name' => 'BAYSHORE PHARMACY',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1225028293'
                   },
-                  'caresite_phone' => '732-291-2900',
-                  'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.409114,
-                  'long' => -74.041849,
-                  'name' => 'BAYSHORE PHARMACY',
-                  'phone' => nil,
-                  'pos_codes' => nil,
-                  'pref_contact' => nil,
-                  'unique_id' => '1225028293'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => [
-                      {
-                        'id' => '3336C0003X',
-                        'type' => 'specialty'
-                      }
-                    ]
+                  'relationships' => {
+                    'specialties' => {
+                      'data' => []
+                    }
                   }
                 }
-              }
-            )
+              )
 
-            expect(bod['included'][0]).to match(
-              {
-                'id' => '3336C0003X',
-                'type' => 'specialty',
-                'attributes' => {
-                  'classification' => 'Pharmacy',
-                  'grouping' => 'Suppliers',
-                  'name' => 'Pharmacy - Community/Retail Pharmacy',
-                  'specialization' => 'Community/Retail Pharmacy',
-                  'specialty_code' => '3336C0003X',
-                  'specialty_description' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal ' \
-                    'preparations and/or prescriptions for a local patient population in accordance with federal and ' \
-                    'state law; counsel patients and caregivers (sometimes independent of the dispensing process); ' \
-                    'administer vaccinations; and provide other professional services associated with pharmaceutical ' \
-                    'care such as health screenings, consultative services with other health care providers, ' \
-                    'collaborative practice, disease state management, and education classes.'
+              expect(bod['included']).to match([])
+
+            else
+
+              expect(bod['data'][0]).to match(
+                {
+                  'id' => '1225028293',
+                  'type' => 'provider',
+                  'attributes' => {
+                    'acc_new_patients' => 'false',
+                    'address' => {
+                      'street' => '2 BAYSHORE PLZ',
+                      'city' => 'ATLANTIC HIGHLANDS',
+                      'state' => 'NJ',
+                      'zip' => '07716'
+                    },
+                    'caresite_phone' => '732-291-2900',
+                    'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
+                    'fax' => nil,
+                    'gender' => 'NotSpecified',
+                    'lat' => 40.409114,
+                    'long' => -74.041849,
+                    'name' => 'BAYSHORE PHARMACY',
+                    'phone' => nil,
+                    'pos_codes' => nil,
+                    'pref_contact' => nil,
+                    'unique_id' => '1225028293'
+                  },
+                  'relationships' => {
+                    'specialties' => {
+                      'data' => [
+                        {
+                          'id' => '3336C0003X',
+                          'type' => 'specialty'
+                        }
+                      ]
+                    }
+                  }
                 }
-              }
-            )
+              )
+
+              expect(bod['included'][0]).to match(
+                {
+                  'id' => '3336C0003X',
+                  'type' => 'specialty',
+                  'attributes' => {
+                    'classification' => 'Pharmacy',
+                    'grouping' => 'Suppliers',
+                    'name' => 'Pharmacy - Community/Retail Pharmacy',
+                    'specialization' => 'Community/Retail Pharmacy',
+                    'specialty_code' => '3336C0003X',
+                    'specialty_description' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal ' \
+                      'preparations and/or prescriptions for a local patient population in accordance with federal ' \
+                      'and state law; counsel patients and caregivers (sometimes independent of the dispensing ' \
+                      'process); administer vaccinations; and provide other professional services associated with ' \
+                      'pharmaceutical care such as health screenings, consultative services with other health care ' \
+                      'providers, collaborative practice, disease state management, and education classes.'
+                  }
+                }
+              )
+
+            end
             expect(response).to be_successful
           end
         end

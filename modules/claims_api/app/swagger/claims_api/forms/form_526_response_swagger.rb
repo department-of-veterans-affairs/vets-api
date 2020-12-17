@@ -224,7 +224,7 @@ module ClaimsApi
 
                 property :flashes do
                   key :type, :array
-                  key :description, 'The flashes related to the veteran'
+                  key :description, 'Attributes that describe special circumstances which apply to a Veteran.'
 
                   items do
                     key :type, :string

@@ -91,6 +91,8 @@ gem 'paper_trail'
 gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
+gem 'pg_query', '>= 0.9.0'
+gem 'pghero'
 gem 'prawn'
 gem 'pundit'
 gem 'rack'
@@ -154,6 +156,7 @@ end
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
+  gem 'bootsnap', require: false
   gem 'brakeman', '~> 4.7'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console

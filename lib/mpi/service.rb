@@ -158,7 +158,7 @@ module MPI
         if user_identity.mhv_icn.present?
           log_exception_to_sentry(error, {}, { message: 'Possible RecordNotFound', source: source })
         else
-          log_exception_to_sentry(error, {}, { message: 'MVI Invalid Request', source: source, request: request })
+          log_exception_to_sentry(error, { request: request }, { message: 'MVI Invalid Request', source: source })
         end
       when MPI::Errors::FailedRequestError
         log_exception_to_sentry(error)

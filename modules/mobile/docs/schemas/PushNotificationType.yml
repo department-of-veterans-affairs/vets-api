@@ -1,0 +1,15 @@
+type: object
+required:
+  - key
+  - enabled
+  - displayName
+properties:
+  key:
+    type: string
+    example: "appointment_reminders"
+  displayName:
+    type: string
+    example: "Appointment Reminders"
+    readOnly: true
+  enabled:
+    type: boolean

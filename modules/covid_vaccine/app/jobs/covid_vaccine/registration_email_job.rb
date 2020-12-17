@@ -14,7 +14,7 @@ module CovidVaccine
 
     def perform(email, date, sid)
       @notify_client ||= VaNotify::Service.new
-      response = @notify_client.send_email(
+      @notify_client.send_email(
         email_address: email,
         template_id: Settings.vanotify.template_id.covid_vaccine_registration,
         personalisation: {
@@ -22,11 +22,6 @@ module CovidVaccine
           'confirmation_id' => sid
         },
         reference: sid
-      )
-
-      Rails.logger.info(
-        'CovidVaccine::RegistrationEmailJob submitted to VaNotify',
-        { sid: sid, va_notify_id: response[:id] }
       )
       StatsD.increment(STATSD_SUCCESS_NAME)
     rescue => e
