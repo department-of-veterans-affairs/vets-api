@@ -28,7 +28,8 @@ module Mobile
         'America/New_York',
         'America/Phoenix',
         'Asia/Manila',
-        'Pacific/Honolulu'
+        'Pacific/Honolulu',
+        nil
       )
 
       attribute :appointment_type, APPOINTMENT_TYPE

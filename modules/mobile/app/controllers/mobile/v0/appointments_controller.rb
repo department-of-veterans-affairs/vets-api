@@ -8,9 +8,10 @@ module Mobile
     class AppointmentsController < ApplicationController
       def index
         responses = appointments_service.get_appointments(start_date, end_date)
-        va_appointments, facility_ids = va_adapter.parse(responses[:va].body)
+        # va_appointments, facility_ids = va_adapter.parse(responses[:va].body)
         cc_appointments = cc_adapter.parse(responses[:cc].body)
         
+        binding.pry
         if va_appointments.size > 0
           va_appointments = appointments_with_facilities(facility_ids)
         end
