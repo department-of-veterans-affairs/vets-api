@@ -35,14 +35,14 @@ class Account < ApplicationRecord
                             if v.present?
                               where(idme_uuid: v)
                             else
-                              where('1 = 0')
+                              none
                             end
                           }
   scope :sec_id_match, lambda { |v|
                          if v.present?
                            where(sec_id: v)
                          else
-                           where('1 = 0')
+                           none
                          end
                        }
 
