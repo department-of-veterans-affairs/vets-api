@@ -1,0 +1,25 @@
+data:
+  - type: appointment
+    id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+    attributes:
+      appointmentType: COMMUNITY_CARE
+      status: CANCELLED
+      startTime: 2020-10-29T10:30:00-07:00
+      minutesDuration: 60
+      comment: Please arrive 20 minutes before the start of your appointment
+      timeZone: America/Los_Angeles
+      healthcareService: null
+      location:
+        name: Kaiser Shoreline Treatment Center
+        address:
+          line1: 191 Argonne Ave
+          line2: Ste 3
+          line3: null
+          city: Long Beach
+          state: CA
+          zipCode: "90803"
+        phone:
+          number: 562-434-6008
+          extension: null
+        url: null
+        code: null
