@@ -11,6 +11,18 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
   read_json_from_same_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
+  ERROR_500_EXAMPLE = {
+    "errors": [
+      {
+        "status": "500",
+        "detail": "An unknown error has occurred.",
+        "code": "151",
+        "title": "Internal Server Error"
+      }
+    ],
+    "status": 500
+  }
+
   swagger_path '/notice_of_disagreements/contestable_issues' do
 
     operation :get, tags: NOD_TAG do
@@ -171,18 +183,16 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
       response 500 do
         key :description, '10182 validation errors'
+
         content 'application/json' do
           schema do
             key :type, :object
+            key :example, ERROR_500_EXAMPLE
             property :errors do
               key :type, :array
-
               items do
                 key :'$ref', :errorModel
               end
-
-              #TODO - figure out how to overwrite the examples here so that it
-              #doesn't display a 422 for the 500 response.
             end
           end
         end
@@ -332,15 +342,13 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         content 'application/json' do
           schema do
             key :type, :object
+            key :example, ERROR_500_EXAMPLE
             property :errors do
               key :type, :array
 
               items do
                 key :'$ref', :errorModel
               end
-
-              #TODO - figure out how to overwrite the examples here so that it
-              #doesn't display a 422 for the 500 response.
             end
           end
         end
@@ -387,15 +395,13 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         content 'application/json' do
           schema do
             key :type, :object
+            key :example, ERROR_500_EXAMPLE
             property :errors do
               key :type, :array
 
               items do
                 key :'$ref', :errorModel
               end
-
-              #TODO - figure out how to overwrite the examples here so that it
-              #doesn't display a 422 for the 500 response.
             end
           end
         end
