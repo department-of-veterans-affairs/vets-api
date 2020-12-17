@@ -345,3 +345,8 @@ features:
     enable_in_development: true
     description: >
       Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
+  find_forms_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
