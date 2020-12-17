@@ -46,7 +46,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def prepare_form_data
     form_copy = parsed_form
     appointment_time_preferences = form_copy['appointmentTimePreferences'].map do |key_value|
-      key_value[0] if key_value[1] == true
+      key_value[0].downcase if key_value[1] == true
     end.compact
 
     # VRE now needs an array of times

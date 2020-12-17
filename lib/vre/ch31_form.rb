@@ -26,7 +26,7 @@ module VRE
 
       response = send_to_vre(payload: format_payload_for_vre)
       response_body = response.body
-
+      binding.pry
       raise Ch31Error if response_body['error_occurred'] == true
 
       log_message_to_sentry(
@@ -35,6 +35,7 @@ module VRE
         { application_intake_id: response_body['application_intake'] },
         SENTRY_TAG
       )
+
       response_body
     rescue Ch31Error => e
       process_ch_31_error(e, response_body)
@@ -63,7 +64,7 @@ module VRE
       }
 
       vre_payload[:data].merge!(veteran_address(form_data))
-      vre_payload[:data].merge!({ veteranInformation: claim_form_hash['veteranInformation'] })
+      vre_payload[:data].merge!({ veteranInformation: adjusted_veteran_information })
       vre_payload[:data].merge!(new_address) if claim_form_hash['newAddress'].present?
 
       vre_payload.to_json
@@ -72,7 +73,7 @@ module VRE
     def veteran_address(form_data)
       vet_address = form_data['veteranAddress']
 
-      {
+      adjusted_address = {
         veteranAddress: {
           isForeign: vet_address['country'] != 'USA',
           isMilitary: vet_address['isMilitary'] || false,
@@ -85,27 +86,53 @@ module VRE
           zipCode: vet_address['postalCode']
         }
       }
+
+      return adjusted_address if adjusted_address.dig(:veteranAddress, :isForeign) == false
+
+      international_address = adjusted_address[:veteranAddress]
+      international_address[:internationPostalCode] = international_address.delete(:zipCode)
+      international_address[:province] = international_address.delete(:province)
+
+      adjusted_address
     end
 
     def claim_form_hash
       @claim.parsed_form
     end
 
+    def adjusted_veteran_information
+      vet_info = claim_form_hash['veteranInformation'].with_indifferent_access
+
+      vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
+
+      vet_info
+    end
+
     def new_address
       new_address = claim_form_hash['newAddress']
-      {
+
+      adjusted_new_address = {
         "newAddress": {
           "isForeign": new_address['country'] != 'USA',
-          "isMilitary": new_address['isMilitary'],
+          "isMilitary": new_address['isMilitary'] || false ,
           "countryName": new_address['country'],
           "addressLine1": new_address['street'],
           "addressLine2": new_address['street2'],
           "addressLine3": new_address['street3'],
           "city": new_address['city'],
-          "province": new_address['state'],
-          "internationalPostalCode": new_address['postalCode']
+          "stateCode": new_address['state'],
+          "zipCode": new_address['postalCode']
         }
       }
+
+      return adjusted_new_address if adjusted_new_address.dig(:newAddress, :isForeign) == false
+
+      new_vet_international_address = adjusted_new_address[:newAddress]
+
+      new_vet_international_address[:internationalPostalCode] = new_vet_international_address.delete(:zipCode)
+      new_vet_international_address[:province] = new_vet_international_address.delete(:stateCode)
+
+      adjusted_new_address
     end
 
     def process_ch_31_error(e, response_body)
