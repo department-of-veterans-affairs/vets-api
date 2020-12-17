@@ -64,7 +64,7 @@ module Okta
 
     def system_logs(event, time)
       with_monitoring do
-        get_url_with_token("#{USER_API_BASE_PATH}/logs?filter=event_type+eq+%22#{event}%22?since=#{time}")
+        get_url_with_token("#{API_BASE_PATH}/logs?filter=eventType+eq+%22#{event}%22&since=#{time}")
       end
     end
 

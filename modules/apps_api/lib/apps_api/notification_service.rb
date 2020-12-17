@@ -35,19 +35,23 @@ module AppsApi
       app_id = event['target'].first['detailEntry']['publicclientapp']
       user = @okta_service.user(user_id)
       okta_app = @okta_service.app(app_id)
+      puts okta_app.body['label']
       app_record = DirectoryApplication.find_by(name: okta_app.body['label'])
-      #@notify_client.send_email(
-        #email_address: user.body['profile']['email'],
-        #template_id: template,
-        #personalisation: {
+      unless app_record.blank?
+        #personalisation_hash = {
           #'full_name' => event['actor']['displayName'],
           #'application' => okta_app.body['label'],
           #'time' => event['published'],
-          #'privacy_policy' => app_record.privacy_url,
+          #'privacy_policy' => app_record['privacy_url'],
           #'password_reset' => Settings.vanotify.links.password_reset,
           #'connected_applications_link' => Settings.vanotify.links.connected_applications
         #}
-      #)
+        #@notify_client.send_email(
+          #email_address: user.body['profile']['email'],
+          #template_id: template,
+          #personalisation: personalisation_hash
+        #)
+      end
     end
   end
 end
