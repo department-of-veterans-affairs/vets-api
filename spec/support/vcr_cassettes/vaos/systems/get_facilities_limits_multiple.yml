@@ -62,11 +62,13 @@ http_interactions:
           [
             {
               "numberOfRequests" : 0,
-              "requestLimit" : 1
+              "requestLimit" : 1,
+              "institutionCode" : 688
             },
             {
-              "numberOfRequests" : 0,
-              "requestLimit" : 1
+              "numberOfRequests" : 1,
+              "requestLimit" : 1,
+              "institutionCode" : 405
             }
           ]
   recorded_at: Thu, 10 Dec 2020 23:51:41 GMT

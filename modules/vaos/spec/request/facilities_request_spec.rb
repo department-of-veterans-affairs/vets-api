@@ -370,8 +370,10 @@ RSpec.describe 'facilities', type: :request do
           data_json = JSON.parse(response.body)
           expect(data_json[0]['number_of_requests']).to eq(0)
           expect(data_json[0]['request_limit']).to eq(1)
-          expect(data_json[1]['number_of_requests']).to eq(0)
+          expect(data_json[0]['institution_code']).to eq(688)
+          expect(data_json[1]['number_of_requests']).to eq(1)
           expect(data_json[1]['request_limit']).to eq(1)
+          expect(data_json[1]['institution_code']).to eq(405)
         end
       end
     end
