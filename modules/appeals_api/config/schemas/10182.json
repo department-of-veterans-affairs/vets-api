@@ -31,8 +31,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "veteran":                { "$ref": "#/definitions/nodCreateVeteranOrClaimant" },
-        "claimant":               { "$ref": "#/definitions/nodCreateVeteranOrClaimant" },
+        "veteran":                { "$ref": "#/definitions/nodCreateVeteran" },
         "boardReviewOption":      { "$ref": "#/definitions/nodCreateBoardReviewOption" },
         "hearingTypePreference":  { "$ref": "#/definitions/nodCreateHearingTypePreference" },
         "timezone":               { "$ref": "#/definitions/nodCreateTimezone" },
@@ -42,7 +41,7 @@
     },
 
 
-    "nodCreateVeteranOrClaimant": {
+    "nodCreateVeteran": {
       "type": "object",
       "additionalProperties": false,
       "properties": {

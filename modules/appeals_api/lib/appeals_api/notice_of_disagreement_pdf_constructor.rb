@@ -35,8 +35,6 @@ module AppealsApi
         "F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": nod_pdf_options.veteran_ssn,
         "F[0].Page_1[0].VAFileNumber[0]": nod_pdf_options.veteran_file_number,
         "F[0].Page_1[0].DateSigned[0]": nod_pdf_options.veteran_dob, # Veterans DOB
-        "F[0].Page_1[0].ClaimantsFirstName[0]": nod_pdf_options.claimant_name,
-        "F[0].Page_1[0].DateSigned[1]": nod_pdf_options.claimant_dob, # Claimant DOB
         "F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]": nod_pdf_options.address,
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[0]": nod_pdf_options.homeless? ? 1 : 'Off', # Homeless
         "F[0].Page_1[0].PreferredPhoneNumber[0]": nod_pdf_options.phone,

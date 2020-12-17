@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json_schema/json_api_missing_attribute'
 require 'appeals_api/form_schemas'
 
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
@@ -7,10 +8,12 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
+  before_action :validate_json_schema, only: %i[create validate]
   before_action :new_notice_of_disagreement, only: %i[create validate]
   before_action :find_notice_of_disagreement, only: %i[show]
 
   FORM_NUMBER = '10182'
+  MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
       AppealsApi::Engine.root.join('config/schemas/10182_headers.json')
@@ -18,12 +21,9 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   )['definitions']['nodCreateHeadersRoot']['properties'].keys
 
   def create
-    if @notice_of_disagreement.save
-      AppealsApi::NoticeOfDisagreementPdfSubmitJob.perform_async(@notice_of_disagreement.id)
-      render_notice_of_disagreement
-    else
-      render_model_errors
-    end
+    @notice_of_disagreement.save
+    AppealsApi::NoticeOfDisagreementPdfSubmitJob.perform_async(@notice_of_disagreement.id)
+    render_notice_of_disagreement
   end
 
   def show
@@ -31,16 +31,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def validate
-    if @notice_of_disagreement.valid?
-      render json: {
-        data: {
-          type: 'noticeOfDisagreementValidation',
-          attributes: { status: 'valid' }
-        }
-      }
-    else
-      render_model_errors
-    end
+    render json: validation_success
   end
 
   def schema
@@ -51,6 +42,32 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   private
 
+  def validate_json_schema
+    validate_json_schema_for_headers
+    validate_json_schema_for_body
+  rescue JsonSchema::JsonApiMissingAttribute => e
+    render json: e.to_json_api, status: e.code
+  end
+
+  def validate_json_schema_for_headers
+    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
+  end
+
+  def validate_json_schema_for_body
+    AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
+  end
+
+  def validation_success
+    {
+      data: {
+        type: 'noticeOfDisagreementValidation',
+        attributes: {
+          status: 'valid'
+        }
+      }
+    }
+  end
+
   def headers
     HEADERS.reduce({}) do |hash, key|
       hash.merge(key => request.headers[key])
@@ -59,11 +76,19 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def new_notice_of_disagreement
     @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.new(auth_headers: headers, form_data: @json_body)
+    render_model_errors unless @notice_of_disagreement.validate
   end
 
   def render_model_errors
-    errors = @notice_of_disagreement.errors.to_a.map { |error| { status: 422, detail: error } }
-    render json: { errors: errors }, status: 422
+    render json: model_errors_to_json_api, status: MODEL_ERROR_STATUS
+  end
+
+  def model_errors_to_json_api
+    errors = @notice_of_disagreement.errors.to_a.map do |error|
+      { status: MODEL_ERROR_STATUS, detail: error }
+    end
+
+    { errors: errors }
   end
 
   def find_notice_of_disagreement
