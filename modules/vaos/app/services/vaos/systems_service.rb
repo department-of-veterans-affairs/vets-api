@@ -52,16 +52,28 @@ module VAOS
       end
     end
 
-    def get_facility_limits(facility_ids, type_of_care_id)
+    def get_facility_limits(facility_id, type_of_care_id)
       with_monitoring do
         url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{@user.icn}/request-limit"
+        url_params = {
+          'institution-code' => facility_id,
+          'clinical-service' => type_of_care_id
+        }
+        response = perform(:get, url, url_params, headers)
+        OpenStruct.new(response.body.merge!(id: facility_id))
+      end
+    end
+
+    def get_facilities_limits(facility_ids, type_of_care_id)
+      with_monitoring do
+        url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{@user.icn}/request-limits"
         url_params = {
           'institution-code' => facility_ids,
           'clinical-service' => type_of_care_id
         }
         options = { params_encoder: Faraday::FlatParamsEncoder }
-        response = perform(:get, url, url_params, headers, options)
-        OpenStruct.new(response.body.merge!(id: facility_ids))
+        # make the call to the enpoint and return the response body
+        perform(:get, url, url_params, headers, options)
       end
     end
 

@@ -6,7 +6,6 @@ module VAOS
       def index
         response = systems_service.get_facility_limits(
           facility_id,
-          # facility_ids: url_params[:facility_ids],
           type_of_care_id
         )
 

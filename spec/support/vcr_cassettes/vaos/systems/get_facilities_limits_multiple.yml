@@ -1,0 +1,73 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/1000123456V123456/request-limits?clinical-service=323&institution-code=688&institution-code=405
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 598842bf-f2f8-4c8e-8cff-19eb94ba96f4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200 
+      message: OK
+    headers:
+      Date:
+      - Thu, 10 Dec 2020 23:51:41 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '122'
+      Connection:
+      - keep-alive
+      X-Vamf-Version:
+      - 4.24.0
+      B3:
+      - 2a2da1246b9d34e9-d2bf3537c7ff4054-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - fdd6179
+      X-Vamf-Timestamp:
+      - '2020-11-12T23:50:31+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Set-Cookie:
+      - TS016f4012=01c16e2d81642b3c181c36d9d9f54b111f86408b37803bc7648a489fa2c2ca49e52f3bcff3ee97c899ef313b22db015f667d83e8fea933220171c5a88c42bbf4b786719f746fb73676291bb1de7653e716ac1d3cec;
+        Max-Age=900; Path=/
+      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.QtLTXaMGsVwI9er1wsIp2lgO1AtVT1U4tgWzqbyrdxevSQKSytGBrcOGGKhDhm53m77p0xogcFVREMLGWXI136OsBHOBsg1HQyNLdeOtiEWHRGt31qNh2arz6U-AWsmhFCX5ATX8O8MUCq3pHrirMrqwfslR0JncoSMlffjcPHFRFQ5q6EbHfUrVg613y0QUWF50qW5rE5HCyPjEg6ZE1G54c1JjzP3gE_MHokYEAdOMOWuRFVaHsQd1WUhkujo8_cm7s_mmbJhOI-_-kF8MT-Wo7_2PqdYWC7LBD0TKuf9YRmTeuXxQHe1wWW-7QMCBRGyRPJV6FySFWUOo9w53Zg.ohuNWSZQbloHzAVIKiGmqw.mni87kQYxP-nO0KHAenfMj2kTwDli4MPfeWlG52m_7ehUJBesQAhgBJLQEjbL79ghcdylv93WOdYEmk0iUiSE7nEN7beht-Bs7_NUSks7NPbUW6ewPQOHICkWEzvWjD29U-T207xrXW-TpDlehMS-9ocAgbCAPd8zvYV30bzS5ZV3Qdis4EO-G9SwEp_uoGO2CDZE8y5yG8Yj8cXhED_V7lAmphzwqojPxN0m9Trul7cRKejpY6hl_ZOoL2Xsbu9dntHKg9hs1mhrJE3Uoce-h35g6ocdNAsoD9QUpjhW-dsc0ouqtmGVjRXtK5Q6m8cyS4OATNjeAtdVihCpsfe8s8ZxuD0uU50g3WQ0O7HPuJzC4AAR0uv7WfXTrbDQs6KFLgVMw_pr2OYoFVVRguRzBFBWkRdypxChXwcxbURhrGrDqD_Br-6xRfGrxJyDRMJBxjFBInWZheCAW-hBCGPomTn8-m6UjeeZ-1E2-hHaNMHlp-Xz6PXuhOQGWNWQ2VhpQWWsSmuJ9epU9D7GerFPkf_pgFcyDyi6vhDRQXA973ROkp3c4UNfWzrA4gtDA58db-gB97jKjn-E4uf7Lg3p-ymPuIxQPT5VbSAMIF4ulbzJ_z5xLjo5Z5VD5RwbYcWIVMKFiaylLjqE7rDwjV7RT7jMJtngMTSWeCvH2ih_SO93oayrlERqITY9F0L97GT_UfdQktX9boa6k4w1omeeQ.wIY3egBEuJvKoCPRlzromio7fzicGv0gBKu3BDamIjg;
+        path=/; SameSite=Lax; HttpOnly
+      - vamftimeoutv1=1607645201; SameSite=Lax; path=/
+    body:
+      encoding: UTF-8
+      string: |-
+          [
+            {
+              "numberOfRequests" : 0,
+              "requestLimit" : 1
+            },
+            {
+              "numberOfRequests" : 0,
+              "requestLimit" : 1
+            }
+          ]
+  recorded_at: Thu, 10 Dec 2020 23:51:41 GMT
+recorded_with: VCR 6.0.0

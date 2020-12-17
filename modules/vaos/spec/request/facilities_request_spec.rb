@@ -363,37 +363,18 @@ RSpec.describe 'facilities', type: :request do
 
     context 'with a valid GET facility limits response' do
       it 'returns a 200 with the correct schema' do
-        VCR.use_cassette('vaos/systems/get_facility_limits_new', record: :new_episodes) do
-          get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323', facility_ids: %w[688] }
+        VCR.use_cassette('vaos/systems/get_facilities_limits_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323', facility_ids: %w[688 405] }
 
-          # expect(response).to have_http_status(:ok)
-          # expect(response.body).to be_a(String)
-          # expect(response).to match_response_schema('vaos/facility_limits')
+          expect(response).to have_http_status(:ok)
+          data_json = JSON.parse(response.body)
+          expect(data_json[0]['number_of_requests']).to eq(0)
+          expect(data_json[0]['request_limit']).to eq(1)
+          expect(data_json[1]['number_of_requests']).to eq(0)
+          expect(data_json[1]['request_limit']).to eq(1)
         end
       end
-
-      # it 'returns a 200 with the correct camel-inflected schema' do
-      #   VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method uri]) do
-      #     get '/vaos/v0/facilities/688/limits', params: { type_of_care_id: '323' }, headers: inflection_header
-
-      #     expect(response).to have_http_status(:ok)
-      #     expect(response.body).to be_a(String)
-      #     expect(response).to match_camelized_response_schema('vaos/facility_limits')
-      #   end
-      # end
     end
-
-    # context 'when type_of_care_id is missing' do
-    #   it 'returns an error message with the missing param' do
-    #     VCR.use_cassette('vaos/systems/get_facility_limits', match_requests_on: %i[method uri]) do
-    #       get '/vaos/v0/facilities/688/limits'
-
-    #       expect(response).to have_http_status(:bad_request)
-    #       expect(JSON.parse(response.body)['errors'].first['detail'])
-    #         .to eq('The required parameter "type_of_care_id", is missing')
-    #     end
-    #   end
-    # end
   end
 
   describe 'GET /vaos/v0/facilities/:facility_id/visits/:schedule_type' do

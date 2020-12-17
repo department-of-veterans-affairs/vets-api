@@ -9,8 +9,8 @@ module VAOS
       end
 
       def limits
-        response = systems_service.get_facility_limits(facility_ids, type_of_care_id)
-        render json: VAOS::V0::FacilitySerializer.new(response)
+        response = systems_service.get_facilities_limits(facility_ids, type_of_care_id)
+        render json: response.body
       end
 
       private
