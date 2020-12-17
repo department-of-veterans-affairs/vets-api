@@ -289,7 +289,7 @@ module AppealsApi::V1
         end
 
         schema :contestableIssue do
-          key :description, "A contestable issue"
+          key :description, 'A contestable issue'
           key :type, :object
 
           property :type do

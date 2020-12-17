@@ -14,19 +14,17 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   ERROR_500_EXAMPLE = {
     "errors": [
       {
-        "status": "500",
-        "detail": "An unknown error has occurred.",
-        "code": "151",
-        "title": "Internal Server Error"
+        "status": '500',
+        "detail": 'An unknown error has occurred.',
+        "code": '151',
+        "title": 'Internal Server Error'
       }
     ],
     "status": 500
-  }
+  }.freeze
 
   swagger_path '/notice_of_disagreements/contestable_issues' do
-
     operation :get, tags: NOD_TAG do
-
       key :operationId, 'getNODContestableIssues'
 
       key :summary, 'Returns all contestable issues for a specific veteran.'
@@ -62,7 +60,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/v1/decision_reviews/notice_of_disagreements' do
     operation :post, tags: NOD_TAG do
-
       key :summary, 'Creates a new Notice of Disagreement.'
       key :description, ''
       key :operationId, 'nodCreateRoot'
@@ -202,7 +199,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
   swagger_path '/notice_of_disagreements/validate' do
     operation :post, tags: NOD_TAG do
-
       key :summary, 'Validates the schema provided to create a NOD'
       key :description, ''
       key :operationId, 'nodValidateSchema'
