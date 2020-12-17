@@ -64,10 +64,10 @@ module Mobile
         #
         def parse(appointments)
           facilities = Set.new
-
-          appointments_list = appointments.dig(:data, :appointmentList)
+          
+          appointments_list = appointments.dig(:data, :appointment_list)
           appointments = appointments_list.map do |appointment_hash|
-            facility_id = sub_non_prod_id!(appointment_hash[:facilityId])
+            facility_id = sub_non_prod_id!(appointment_hash[:facility_id])
             facilities.add(facility_id) if facility_id
             details, type = parse_by_appointment_type(appointment_hash)
             start_date = get_start_date(appointment_hash)
@@ -101,11 +101,11 @@ module Mobile
         end
 
         def comment(details, type)
-          va?(type) ? details[:bookingNote] : details[:instructionsTitle]
+          va?(type) ? details[:booking_note] : details[:instructions_title]
         end
 
         def get_status(details, type, start_date)
-          status = va?(type) ? details[:currentStatus] : details.dig(:status, :code)
+          status = va?(type) ? details[:current_status] : details.dig(:status, :code)
           return nil if should_hide_status?(start_date.past?, status)
           return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
 
@@ -113,7 +113,7 @@ module Mobile
         end
 
         def get_start_date(appointment_hash)
-          DateTime.parse(appointment_hash[:startDate])
+          DateTime.parse(appointment_hash[:start_date])
         end
 
         def get_location(details, type, facility_id)
@@ -169,44 +169,44 @@ module Mobile
 
         def location_home(details, location)
           provider = details.dig(:providers, :provider)
-          location[:url] = provider.first.dig(:virtualMeetingRoom, :url)
-          location[:code] = provider.first.dig(:virtualMeetingRoom, :pin)
+          location[:url] = provider.first.dig(:virtual_meeting_room, :url)
+          location[:code] = provider.first.dig(:virtual_meeting_room, :pin)
           location
         end
 
         def location_atlas(details, location)
-          address = details.dig(:tasInfo, :address)
+          address = details.dig(:tas_info, :address)
           location[:address] = {
-            street: address[:streetAddress],
+            street: address[:street_address],
             city: address[:city],
             state: address[:state],
-            zip_code: address[:zipCode],
+            zip_code: address[:zip_code],
             country: address[:country]
           }
-          location[:code] = details.dig(:tasInfo, :confirmationCode)
+          location[:code] = details.dig(:tas_info, :confirmation_code)
           location
         end
 
         def location_gfe(details, location)
-          meeting_room = details[:providers].first[:virtualMeetingRoom]
+          meeting_room = details[:providers].first[:virtual_meeting_room]
           location[:url] = meeting_room[:url]
           location[:code] = meeting_room[:pin]
           location
         end
 
         def minutes_duration(details, type)
-          minutes_string = va?(type) ? details[:appointmentLength] : details[:duration]
+          minutes_string = va?(type) ? details[:appointment_length] : details[:duration]
           minutes_string&.to_i
         end
 
         def on_site?(appointment)
-          appointment[:vdsAppointments]&.size&.positive?
+          appointment[:vds_appointments]&.size&.positive?
         end
 
         def parse_by_appointment_type(appointment)
-          return [appointment[:vdsAppointments]&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
+          return [appointment[:vds_appointments]&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
 
-          [appointment[:vvsAppointments]&.first, get_video_type(appointment)]
+          [appointment[:vvs_appointments]&.first, get_video_type(appointment)]
         end
 
         def should_hide_status?(is_past, status)
@@ -218,15 +218,15 @@ module Mobile
         end
 
         def video_atlas?(appointment)
-          return false unless appointment[:vvsAppointments]
+          return false unless appointment[:vvs_appointments]
 
-          appointment[:vvsAppointments].first[:tasInfo].present?
+          appointment[:vvs_appointments].first[:tas_info].present?
         end
 
         def video_gfe?(appointment)
-          return false unless appointment[:vvsAppointments]
+          return false unless appointment[:vvs_appointments]
 
-          appointment[:vvsAppointments].first[:appointmentKind] == VIDEO_GFE_FLAG
+          appointment[:vvs_appointments].first[:appointment_kind] == VIDEO_GFE_FLAG
         end
 
         def video_healthcare_service(details)

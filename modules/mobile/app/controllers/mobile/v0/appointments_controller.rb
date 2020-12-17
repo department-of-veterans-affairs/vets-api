@@ -8,7 +8,6 @@ module Mobile
     class AppointmentsController < ApplicationController
       def index
         responses = appointments_service.get_appointments(start_date, end_date)
-        binding.pry
         va_appointments, facility_ids = va_adapter.parse(responses[:va].body)
         cc_appointments = cc_adapter.parse(responses[:cc].body)
         
