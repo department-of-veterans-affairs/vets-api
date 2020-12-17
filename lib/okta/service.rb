@@ -65,14 +65,16 @@ module Okta
     def metadata(iss)
       proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
       with_monitoring do
-        get_url_with_token(proxied_iss + '/.well-known/openid-configuration')
+        get(proxied_iss + '/.well-known/openid-configuration', {},
+            { 'Content-Type' => 'application/json', 'accept' => 'application/json' }, {})
       end
     end
 
     def oidc_jwks_keys(iss)
       url = metadata(iss).body['jwks_uri']
       with_monitoring do
-        get_url_with_token(url)
+        get(url, {},
+            { 'Content-Type' => 'application/json', 'accept' => 'application/json' }, {})
       end
     end
 
