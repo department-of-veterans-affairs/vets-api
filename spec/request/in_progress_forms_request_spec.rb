@@ -110,7 +110,14 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             get v0_in_progress_form_url(in_progress_form.form_id),
                 params: nil,
                 headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
-            expect(JSON.parse(response.body)['form_data']).to eq(form_data)
+            expect(JSON.parse(response.body)['formData']).to eq(form_data)
+          end
+
+          it 'the json keys are unmolested - no header' do
+            in_progress_form.update(form_data: form_data)
+            get v0_in_progress_form_url(in_progress_form.form_id),
+                params: nil
+            expect(JSON.parse(response.body)['formData']).to eq(form_data)
           end
         end
       end

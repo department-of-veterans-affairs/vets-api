@@ -36,6 +36,13 @@ class InProgressForm < ApplicationRecord
     }
   end
 
+  def data_and_metadata_camelcase
+    {
+      formData: JSON.parse(form_data),
+      metadata: metadata.deep_transform_keys { |key| key.to_s.underscore.camelize(:lower) }
+    }
+  end
+
   def metadata
     data = super || {}
     last_accessed = updated_at || Time.current

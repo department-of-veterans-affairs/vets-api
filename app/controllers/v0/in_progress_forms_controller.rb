@@ -13,7 +13,7 @@ module V0
       form    = InProgressForm.form_for_user(form_id, @current_user)
 
       if form
-        render json: form.data_and_metadata
+        render json: form.data_and_metadata_camelcase
       else
         render json: FormProfile.for(form_id: form_id, user: @current_user).prefill
       end
