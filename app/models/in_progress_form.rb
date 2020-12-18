@@ -9,6 +9,7 @@ class InProgressForm < ApplicationRecord
     alias serialize cast
   end
 
+  # TODO: these scopes are only used in a rake task but should be fixed for case.
   RETURN_URL_SQL = "CAST(metadata -> 'return_url' AS text)"
   scope :has_attempted_submit, -> { where("(metadata -> 'submission' ->> 'has_attempted_submit')::boolean") }
   scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
@@ -29,17 +30,14 @@ class InProgressForm < ApplicationRecord
     InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
   end
 
-  def data_and_metadata
-    {
-      form_data: JSON.parse(form_data),
-      metadata: metadata
-    }
+  def parsed_form_data
+    JSON.parse(form_data)
   end
 
-  def data_and_metadata_camelcase
+  def data_and_metadata
     {
-      formData: JSON.parse(form_data),
-      metadata: metadata.deep_transform_keys { |key| key.to_s.underscore.camelize(:lower) }
+      formData: parsed_form_data,
+      metadata: metadata
     }
   end
 
@@ -47,9 +45,9 @@ class InProgressForm < ApplicationRecord
     data = super || {}
     last_accessed = updated_at || Time.current
     data.merge(
-      'expires_at' => expires_at.to_i || (last_accessed + expires_after).to_i,
-      'last_updated' => updated_at.to_i,
-      'in_progress_form_id' => id
+      'expiresAt' => expires_at.to_i || (last_accessed + expires_after).to_i,
+      'lastUpdated' => updated_at.to_i,
+      'inProgressFormId' => id
     )
   end
 
