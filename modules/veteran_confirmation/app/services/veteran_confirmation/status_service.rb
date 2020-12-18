@@ -25,7 +25,7 @@ module VeteranConfirmation
       emis_resp = veteran_status_service.get_veteran_status(edipi_or_icn_option(mvi_resp.profile))
       return NOT_CONFIRMED if emis_resp.error?
 
-      emis_resp.items.first.title38_status_code == 'V1' ? CONFIRMED : NOT_CONFIRMED
+      emis_resp.items.first&.title38_status_code == 'V1' ? CONFIRMED : NOT_CONFIRMED
     end
 
     private
