@@ -35,6 +35,7 @@ module AppealsApi::V1::SwaggerRoot
 
     security do
       key :type, :apiKey
+      key :name, :apiKey
       key :in, :header
     end
   end
