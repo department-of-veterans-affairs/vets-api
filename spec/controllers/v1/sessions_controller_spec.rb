@@ -397,6 +397,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'verifying' do
         let(:authn_context) { LOA::IDME_LOA3 }
+        let(:version) { 'v1' }
+        let(:expected_ssn_log) do
+          "SessionsController version:#{version} message:SSN from MPI Lookup does not match UserIdentity cache"
+        end
 
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           SAMLRequestTracker.create(
@@ -410,7 +414,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(existing_user.ssn).to eq('796111863')
           allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
           expect(controller).to receive(:log_message_to_sentry).with(
-            'SSNS DO NOT MATCH!!',
+            expected_ssn_log,
             :warn,
             identity_compared_with_mpi: {
               length: [9, 9],
@@ -649,7 +653,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             .with(
               'Login Failed! Other SAML Response Error(s)',
               :error,
-              extra_context: [{ code: '007',
+              extra_context: [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                 tag: :unknown,
                                 short_message: 'Other SAML Response Error(s)',
                                 level: :error,
@@ -695,17 +699,17 @@ RSpec.describe V1::SessionsController, type: :controller do
               "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>",
               :error,
               extra_context: [
-                { code: '007',
+                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                   tag: :unknown,
                   short_message: 'Other SAML Response Error(s)',
                   level: :error,
                   full_message: 'Test1' },
-                { code: '007',
+                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                   tag: :unknown,
                   short_message: 'Other SAML Response Error(s)',
                   level: :error,
                   full_message: 'Test2' },
-                { code: '007',
+                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                   tag: :unknown,
                   short_message: 'Other SAML Response Error(s)',
                   level: :error,
@@ -728,12 +732,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             .with(
               'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
-              extra_context: [{ code: '001',
+              extra_context: [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
                                 tag: :clicked_deny,
                                 short_message: 'Subject did not consent to attribute release',
                                 level: :warn,
                                 full_message: 'Subject did not consent to attribute release' },
-                              { code: '007',
+                              { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                 tag: :unknown,
                                 short_message: 'Other SAML Response Error(s)',
                                 level: :error,
@@ -799,7 +803,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               'Login Failed! on User/Session Validation',
               :error,
               extra_context: {
-                code: '004',
+                code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
                 tag: :validations_failed,
                 short_message: 'on User/Session Validation',
                 level: :error,

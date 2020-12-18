@@ -20,7 +20,7 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
     end
 
     it 'executes perform' do
-      instance = instance_double(VaNotify::Service, send_email: nil)
+      instance = instance_double(VaNotify::Service, send_email: { id: '123456789' })
       allow(VaNotify::Service).to receive(:new).and_return(instance)
 
       expect(instance)
@@ -31,10 +31,14 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
             personalisation: {
               'date' => date,
               'confirmation_id' => confirmation_id
-            }
+            },
+            reference: confirmation_id
           }
         )
       described_class.perform_async(email, date, confirmation_id)
+      expect(Rails.logger).to receive(:info).with(
+        '[StatsD] increment worker.covid_vaccine_registration_email.success:1'
+      ).once
       expect { described_class.perform_one }.to change(described_class.jobs, :size).from(1).to(0)
     end
 
@@ -42,10 +46,15 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
       allow(VaNotify::Service).to receive(:new).and_raise(StandardError)
 
       described_class.perform_async(email, date, confirmation_id)
-      expect { described_class.perform_one }
-        .to raise_error(StandardError)
-        .and change(described_class.jobs, :size).from(1).to(0)
-      # I cant think of a good way to test retry logic, but maybe I should just trust that Sidekiq does that.
+      expect(Raven).to receive(:capture_exception).with(StandardError, { level: 'error' })
+      expect(Raven).to receive(:extra_context).with(sid: 'confirmation_id_uuid')
+      expect(Rails.logger).to receive(:info).with(
+        '[StatsD] increment worker.covid_vaccine_registration_email.error:1'
+      ).once
+
+      with_settings(Settings.sentry, dsn: 'T') do
+        expect { described_class.perform_one }.to raise_error(StandardError)
+      end
     end
   end
 end

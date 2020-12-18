@@ -35,8 +35,6 @@ module AppealsApi
         "F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": nod_pdf_options.veteran_ssn,
         "F[0].Page_1[0].VAFileNumber[0]": nod_pdf_options.veteran_file_number,
         "F[0].Page_1[0].DateSigned[0]": nod_pdf_options.veteran_dob, # Veterans DOB
-        "F[0].Page_1[0].ClaimantsFirstName[0]": nod_pdf_options.claimant_name,
-        "F[0].Page_1[0].DateSigned[1]": nod_pdf_options.claimant_dob, # Claimant DOB
         "F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]": nod_pdf_options.address,
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[0]": nod_pdf_options.homeless? ? 1 : 'Off', # Homeless
         "F[0].Page_1[0].PreferredPhoneNumber[0]": nod_pdf_options.phone,
@@ -67,23 +65,6 @@ module AppealsApi
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
     # rubocop:enable Metrics/AbcSize
-
-    # TODO: Remove this override by refactoring BasePdfConstructor & HigherLevelReviewPdfConstructor to use
-    #       `additional_pages` key in this manner instead of `additional_page` key
-    def merge_page(temp_path, output_path)
-      return temp_path if pdf_options[:additional_pages].blank?
-
-      rand_path = "/#{Common::FileHelpers.random_file_path}.pdf"
-      Prawn::Document.generate(rand_path) do |pdf|
-        pdf_options[:additional_pages].each_with_index do |txt, index|
-          pdf.start_new_page unless index.zero?
-          pdf.text txt, inline_format: true
-        end
-      end
-      pdf = CombinePDF.load(temp_path) << CombinePDF.load(rand_path)
-      pdf.save output_path
-      output_path
-    end
 
     def stamp_pdf(pdf_path, consumer_name)
       stamped_path = super

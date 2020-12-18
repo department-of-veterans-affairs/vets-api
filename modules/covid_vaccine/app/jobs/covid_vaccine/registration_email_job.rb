@@ -12,23 +12,24 @@ module CovidVaccine
     STATSD_ERROR_NAME = 'worker.covid_vaccine_registration_email.error'
     STATSD_SUCCESS_NAME = 'worker.covid_vaccine_registration_email.success'
 
-    def perform(email, date, confirmation_id)
+    def perform(email, date, sid)
       @notify_client ||= VaNotify::Service.new
       @notify_client.send_email(
         email_address: email,
         template_id: Settings.vanotify.template_id.covid_vaccine_registration,
         personalisation: {
           'date' => date,
-          'confirmation_id' => confirmation_id
-        }
+          'confirmation_id' => sid
+        },
+        reference: sid
       )
       StatsD.increment(STATSD_SUCCESS_NAME)
     rescue => e
-      handle_errors(e)
+      handle_errors(e, sid)
     end
 
-    def handle_errors(ex)
-      log_exception_to_sentry(ex)
+    def handle_errors(ex, sid)
+      log_exception_to_sentry(ex, { sid: sid })
       StatsD.increment(STATSD_ERROR_NAME)
 
       raise ex

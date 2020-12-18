@@ -4,11 +4,14 @@ class UserSessionForm
   include ActiveModel::Validations
   include SentryLogging
 
-  ERRORS = { validations_failed: { code: '004',
+  VALIDATIONS_FAILED_ERROR_CODE = '004'
+  SAML_REPLAY_VALID_SESSION_ERROR_CODE = '002'
+
+  ERRORS = { validations_failed: { code: VALIDATIONS_FAILED_ERROR_CODE,
                                    tag: :validations_failed,
                                    short_message: 'on User/Session Validation',
                                    level: :error },
-             saml_replay_valid_session: { code: '002',
+             saml_replay_valid_session: { code: SAML_REPLAY_VALID_SESSION_ERROR_CODE,
                                           tag: :saml_replay_valid_session,
                                           short_message: 'SamlResponse is too late but user has current session',
                                           level: :warn } }.freeze
@@ -51,7 +54,7 @@ class UserSessionForm
     saml_user.validate!
     saml_user.to_hash
   rescue SAML::UserAttributeError => e
-    raise unless e.code == SAML::UserAttributeError::ERRORS[:idme_uuid_missing][:code]
+    raise unless e.code == SAML::UserAttributeError::IDME_UUID_MISSING_CODE
 
     idme_uuid = idme_uuid_from_account(e&.identifier)
     raise if idme_uuid.blank?

@@ -63,6 +63,9 @@ features:
   facility_locator_ppms_use_v1_client:
     actor_type: user
     description: Have the V1 API use the PPMS::V1::Client
+  facility_locator_ppms_skip_additional_round_trips:
+    actor_type: user
+    description: Have the PPMS::V1::Client skip the additional round trips to get the type
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
@@ -337,3 +340,13 @@ features:
     actor_type: cookie_id
     description: >
       This will process attachments of 10-10CG submissions using sidekiq.
+  evss_upload_limit_150mb:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
+  find_forms_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.

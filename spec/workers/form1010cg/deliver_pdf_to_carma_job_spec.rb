@@ -25,6 +25,9 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
       end
 
       shared_examples 'a successful job' do
+        let(:attachments) { double('attachments') }
+        let(:auditor) { double('auditor') }
+
         before do
           expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:to_pdf).and_return(pdf_file_path)
           expect(Form1010cg::Service).to receive(:submit_attachment!).with(
@@ -32,7 +35,17 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
             claim.veteran_data['fullName'],
             '10-10CG',
             pdf_file_path
-          ).and_return(:submission)
+          ).and_return(attachments)
+
+          expect(attachments).to receive(:to_hash).and_return(:ATTACHMENTS_HASH)
+
+          expect(Form1010cg::Auditor).to receive(:new).with(Sidekiq.logger).and_return(auditor)
+          expect(auditor).to receive(:record).with(
+            :attachments_delivered,
+            claim_guid: claim_guid,
+            carma_case_id: submission.carma_case_id,
+            attachments: :ATTACHMENTS_HASH
+          )
         end
 
         after do
@@ -121,7 +134,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
             it_behaves_like 'a successful job' do
               before do
                 expect(File).to receive(:delete).with(pdf_file_path).and_raise(pdf_delete_exception)
-                expect(Rails.logger).to receive(:error).with(pdf_delete_exception)
+                expect(Sidekiq.logger).to receive(:error).with(pdf_delete_exception)
               end
             end
           end
@@ -173,6 +186,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
         submission.save!
 
         # Create the file contents of the claim to match the request body in the VCR (carma/attachments/upload/201)
+        Dir.mkdir('tmp/pdfs') unless File.exist?('tmp/pdfs')
         File.open(file_path, 'w') { |f| f.write('<PDF_CONTENTS>') }
         expect_any_instance_of(SavedClaim::CaregiversAssistanceClaim).to receive(:to_pdf).and_return(file_path)
       end

@@ -117,6 +117,14 @@ class V1::Facilities::CcpController < FacilitiesController
   end
 
   def provider_search_v1(options = {})
+    if Flipper.enabled?(:facility_locator_ppms_skip_additional_round_trips)
+      provider_search_v1_without_additional_round_trips(options)
+    else
+      provider_search_v1_with_additional_round_trips(options)
+    end
+  end
+
+  def provider_search_v1_with_additional_round_trips(options = {})
     providers = api.provider_locator(ppms_params.merge(options))
 
     current_page = providers.current_page
@@ -137,6 +145,10 @@ class V1::Facilities::CcpController < FacilitiesController
       pager.replace(providers)
       pager.total_entries = total_entries
     end
+  end
+
+  def provider_search_v1_without_additional_round_trips(options = {})
+    api.provider_locator(ppms_params.merge(options))
   end
 
   def resource_path(options)

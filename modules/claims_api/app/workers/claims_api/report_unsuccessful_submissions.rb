@@ -14,7 +14,7 @@ module ClaimsApi
 
         ClaimsApi::UnsuccessfulReportMailer.build(@from, @to, consumer_totals: totals,
                                                               pending_submissions: pending,
-                                                              unsuccessful_submissions: errored,
+                                                              unsuccessful_submissions: errored_grouped,
                                                               flash_statistics: flash_statistics).deliver_now
       end
     end
@@ -24,6 +24,25 @@ module ClaimsApi
         created_at: @from..@to,
         status: %w[errored]
       ).order(:source, :status)
+    end
+
+    def errored_grouped
+      generized_errors = errored.map do |error|
+        if error.evss_response.present?
+          uuid_regex = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/
+          error.evss_response = error.evss_response.to_s.gsub(uuid_regex, '%<uuid>')
+          error.evss_response = error.evss_response.to_s.gsub(/\d{5,}/, '%<number>')
+          begin
+            error.evss_response = JSON.parse(error.evss_response.gsub('=>', ':'))
+          rescue
+            # message not guaranteed to be in hash format
+          end
+        end
+
+        error
+      end
+
+      generized_errors.uniq { |error| [error.source, error.status, error.evss_response] }
     end
 
     def pending

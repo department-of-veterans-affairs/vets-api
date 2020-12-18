@@ -16,9 +16,10 @@ module SAML
 
       attr_reader :attributes, :authn_context, :warnings
 
-      def initialize(saml_attributes, authn_context)
+      def initialize(saml_attributes, authn_context, saml_settings = nil)
         @attributes = saml_attributes # never default this to {}
         @authn_context = authn_context
+        @saml_settings = saml_settings
         @warnings = []
       end
 
@@ -186,7 +187,7 @@ module SAML
 
       # Raise any fatal exceptions due to validation issues
       def validate!
-        unless idme_uuid
+        if should_raise_idme_uuid_error
           data = SAML::UserAttributeError::ERRORS[:idme_uuid_missing].merge({ identifier: mhv_icn })
           raise SAML::UserAttributeError, data
         end
@@ -196,6 +197,17 @@ module SAML
       end
 
       private
+
+      def should_raise_idme_uuid_error
+        return false if idme_uuid
+
+        @saml_settings.nil? || auth_context_is_v1_and_not_inbound
+      end
+
+      def auth_context_is_v1_and_not_inbound
+        @saml_settings.assertion_consumer_service_url =~ %r{/v1/} &&
+          @authn_context != INBOUND_AUTHN_CONTEXT
+      end
 
       def mvi_ids
         return @mvi_ids if @mvi_ids
