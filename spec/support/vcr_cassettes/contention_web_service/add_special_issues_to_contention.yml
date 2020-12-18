@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://localhost:4447/ContentionService/ContentionService?WSDL
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/ContentionService/ContentionService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -209,7 +209,7 @@ http_interactions:
   recorded_at: Fri, 18 Dec 2020 06:09:45 GMT
 - request:
     method: post
-    uri: https://localhost:4447/ContentionService/ContentionService
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/ContentionService/ContentionService
     body:
       encoding: UTF-8
       string: |-
@@ -2273,7 +2273,7 @@ http_interactions:
   recorded_at: Fri, 18 Dec 2020 06:10:28 GMT
 - request:
     method: post
-    uri: https://localhost:4447/ContentionService/ContentionService
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/ContentionService/ContentionService
     body:
       encoding: UTF-8
       string: |-
