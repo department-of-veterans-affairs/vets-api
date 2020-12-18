@@ -10,6 +10,10 @@ module MPI
         invalid_request: 'AE'
       }.freeze
 
+      def initialize(code = nil)
+        @code = code
+      end
+
       # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
       #
       # @return [Boolean] has failed or invalid code?
@@ -32,21 +36,17 @@ module MPI
       end
 
       def sanitize_edipi(edipi)
-        return if edipi.nil?
+        return unless edipi.present? && edipi.is_a?(String)
 
-        # Get rid of invalid values like 'UNK'
-        sanitized_result = edipi.match(/\d{10}/)&.to_s
-        Rails.logger.info "Edipi sanitized was: '#{edipi}' now: '#{sanitized_result}'." unless sanitized_result == edipi
-        sanitized_result
+        # Remove non-digit characters from input, and match the first contiguous 10 digits found
+        edipi.match(/\d{10}/)&.to_s
       end
 
       def sanitize_id(id)
-        return if id.nil?
+        return unless id.present? && id.is_a?(String)
 
-        # Get rid of non-digit characters like 'UNK'/'ASKU'
-        sanitized_result = id.match(/\d+/)&.to_s
-        Rails.logger.info "Id sanitized, was: '#{id}' now: '#{id}'." if sanitized_result != id
-        sanitized_result
+        # Remove non-digit characters from input
+        id.match(/\d+/)&.to_s
       end
 
       def locate_element(el, path)
@@ -54,7 +54,7 @@ module MPI
       end
 
       def locate_elements(el, path)
-        return nil unless el
+        return nil unless el.present? && el.is_a?(Ox::Element)
 
         el.locate(path)
       end
