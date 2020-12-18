@@ -139,10 +139,7 @@ module AppealsApi
     scope :has_not_been_updated_in_a_week, -> { where 'updated_at < ?', 1.week.ago }
     scope :ready_to_have_pii_expunged, -> { has_pii.completed.has_not_been_updated_in_a_week }
 
-    validate(
-      :validate_address_unless_homeless,
-      :validate_hearing_type_selection
-    )
+    validate :validate_hearing_type_selection
 
     def update_status_using_central_mail_status!(status, error_message = nil)
       begin
@@ -174,12 +171,12 @@ module AppealsApi
       header_field_as_string 'X-VA-File-Number'
     end
 
-    def zip_code_5
-      veteran_contact_info&.dig('address', 'zipCode5')
+    def veteran_homeless_state
+      form_data&.dig('data', 'attributes', 'veteran', 'homeless')
     end
 
-    def veteran_contact_info
-      form_data&.dig('data', 'attributes', 'veteran')
+    def veteran_representative
+      form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
     def consumer_name
@@ -226,17 +223,6 @@ module AppealsApi
 
     def unexpected_hearing_type_inclusion?
       !board_review_hearing_selected? && includes_hearing_type_preference?
-    end
-
-    def validate_address_unless_homeless
-      # TODO: the return solution needs to be improved
-      return if veteran_contact_info.nil?
-
-      contact_info = veteran_contact_info
-      homeless = contact_info&.dig('homeless')
-      address = contact_info&.dig('address')
-
-      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') if !homeless && address.nil?
     end
 
     def birth_date(who)
