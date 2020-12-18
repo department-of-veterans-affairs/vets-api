@@ -10,8 +10,16 @@ module AppealsApi
       name 'Veteran'
     end
 
+    def veteran_last_name
+      last_name 'Veteran'
+    end
+
     def veteran_ssn
       header_field_as_string 'X-VA-Veteran-SSN'
+    end
+
+    def veteran_safe_ssn
+      header_field_as_string('X-VA-Veteran-SSN').last(4)
     end
 
     def veteran_file_number
@@ -22,16 +30,12 @@ module AppealsApi
       dob 'Veteran'
     end
 
-    def claimant_name
-      name 'Claimant'
-    end
-
-    def claimant_dob
-      dob 'Claimant'
+    def hearing_type_preference
+      @notice_of_disagreement.hearing_type_preference
     end
 
     def contact_info
-      @notice_of_disagreement.veteran_contact_info || @notice_of_disagreement.claimant_contact_info
+      @notice_of_disagreement.veteran_contact_info
     end
 
     def address
@@ -85,15 +89,7 @@ module AppealsApi
     end
 
     def signature
-      name = [first_name('Claimant'), last_name('Claimant')]
-             .map(&:presence).compact.map(&:strip).join(' ')
-
-      unless name.presence
-        name = [first_name('Veteran'), last_name('Veteran')]
-               .map(&:presence).compact.map(&:strip).join(' ')
-      end
-
-      name
+      [first_name('Veteran'), last_name('Veteran')].map(&:presence).compact.map(&:strip).join(' ')
     end
 
     private

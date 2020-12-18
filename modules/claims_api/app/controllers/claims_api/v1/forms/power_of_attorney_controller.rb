@@ -17,7 +17,8 @@ module ClaimsApi
         FORM_NUMBER = '2122'
 
         def submit_form_2122
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5)
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
+                                                                                          source_name: source_name)
           unless power_of_attorney&.status&.in?(%w[submitted pending])
             power_of_attorney = ClaimsApi::PowerOfAttorney.create(
               status: ClaimsApi::PowerOfAttorney::PENDING,
@@ -62,7 +63,8 @@ module ClaimsApi
         end
 
         def active
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(header_md5: header_md5)
+          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
+                                                                                          source_name: source_name)
           if power_of_attorney
             render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
           else
@@ -91,14 +93,19 @@ module ClaimsApi
         def source_data
           {
             name: source_name,
-            icn: current_user.icn,
+            icn: nullable_icn,
             email: current_user.email
           }
         end
 
-        def source_name
-          user = header_request? ? @current_user : target_veteran
-          "#{user.first_name} #{user.last_name}"
+        def nullable_icn
+          current_user.icn
+        rescue => e
+          log_message_to_sentry('Failed to retrieve icn for consumer',
+                                :warning,
+                                body: e.message)
+
+          nil
         end
 
         def find_poa_by_id

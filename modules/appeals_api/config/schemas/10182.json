@@ -31,17 +31,17 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "veteran":           { "$ref": "#/definitions/nodCreateVeteranOrClaimant" },
-        "claimant":          { "$ref": "#/definitions/nodCreateVeteranOrClaimant" },
-        "boardReviewOption": { "$ref": "#/definitions/nodCreateBoardReviewOption" },
-        "timezone":          { "$ref": "#/definitions/nodCreateTimezone" },
-        "socOptIn":          { "type": "boolean" }
+        "veteran":                { "$ref": "#/definitions/nodCreateVeteran" },
+        "boardReviewOption":      { "$ref": "#/definitions/nodCreateBoardReviewOption" },
+        "hearingTypePreference":  { "$ref": "#/definitions/nodCreateHearingTypePreference" },
+        "timezone":               { "$ref": "#/definitions/nodCreateTimezone" },
+        "socOptIn":               { "type": "boolean" }
       },
       "required": [ "boardReviewOption", "socOptIn" ]
     },
 
 
-    "nodCreateVeteranOrClaimant": {
+    "nodCreateVeteran": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
@@ -155,6 +155,10 @@
       "enum": [ "direct_review", "evidence_submission", "hearing" ]
     },
 
+    "nodCreateHearingTypePreference": {
+      "type": "string",
+      "enum": [ "virtual_hearing", "video_conference", "central_office" ]
+    },
 
     "nodCreateTimezone": {
       "type": "string",

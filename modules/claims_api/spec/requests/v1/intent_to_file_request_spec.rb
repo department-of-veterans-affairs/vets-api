@@ -61,9 +61,20 @@ RSpec.describe 'Intent to file', type: :request do
     it 'posts a 422 error with detail when BGS returns a 500 response' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
-          data['attributes'] = { type: 'pension' }
+          data[:data][:attributes] = { type: 'pension' }
           post path, params: data.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
+        end
+      end
+    end
+
+    it 'posts a 403 when a representative who doesn\'t have an MPI account tries to post type "burial"' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+          expect_any_instance_of(OpenidUser).to receive(:participant_id).and_raise(ArgumentError.new('whatever'))
+          data[:data][:attributes] = { type: 'burial' }
+          post path, params: data.to_json, headers: headers.merge(auth_header)
+          expect(response.status).to eq(403)
         end
       end
     end

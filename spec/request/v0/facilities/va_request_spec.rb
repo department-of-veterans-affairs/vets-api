@@ -257,8 +257,8 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
   context 'Community Care (PPMS)', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms') do
     let(:params) do
       {
-        address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-        bbox: ['-112.54', '32.53', '-111.04', '34.03']
+        address: '58 Leonard Ave, Leonardo, NJ 07737',
+        bbox: ['-75.91', '38.55', '-72.19', '42.27']
       }
     end
 
@@ -267,11 +267,11 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
       expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(6)
+      expect(json['data'].length).to eq(8)
       provider = json['data'][0]
-      expect(provider['attributes']['address']['city']).to eq('Chandler')
+      expect(provider['attributes']['address']['city']).to eq('RED BANK')
       expect(provider['attributes']['phone']).to be_nil
-      expect(provider['attributes']['caresite_phone']).to eq('4809172300')
+      expect(provider['attributes']['caresite_phone']).to eq('732-219-6625')
     end
 
     it 'responds to GET #index with success even if no providers are found' do

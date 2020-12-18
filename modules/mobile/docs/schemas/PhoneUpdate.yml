@@ -1,0 +1,24 @@
+type: object
+required:
+  - id
+  - areaCode
+  - countryCode
+  - phoneNumber
+  - phoneType
+properties:
+  id:
+    type: integer
+    example: 157032
+  areaCode:
+    type: string
+    example: "704"
+  countryCode:
+    type: string
+    example: "1"
+  phoneNumber:
+    type: string
+    example: "7749069"
+  phoneType:
+    type: string
+    enum: [ "HOME", "FAX", "MOBILE", "WORK" ]
+    example: "HOME"

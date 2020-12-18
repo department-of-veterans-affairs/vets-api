@@ -9,22 +9,25 @@ ruby '2.6.6'
 gem 'websocket-extensions', '>= 0.1.5'
 
 # Modules
-gem 'appeals_api', path: 'modules/appeals_api'
-gem 'apps_api', path: 'modules/apps_api'
-gem 'claims_api', path: 'modules/claims_api'
-gem 'covid_research', path: 'modules/covid_research'
-gem 'health_quest', path: 'modules/health_quest'
-gem 'mobile', path: 'modules/mobile'
-gem 'openid_auth', path: 'modules/openid_auth'
-gem 'va_forms', path: 'modules/va_forms'
-gem 'vaos', path: 'modules/vaos'
-gem 'vba_documents', path: 'modules/vba_documents'
-gem 'veteran', path: 'modules/veteran'
-gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
-gem 'veteran_verification', path: 'modules/veteran_verification'
+path 'modules' do
+  gem 'appeals_api'
+  gem 'apps_api'
+  gem 'claims_api'
+  gem 'covid_research'
+  gem 'covid_vaccine'
+  gem 'health_quest'
+  gem 'mobile'
+  gem 'openid_auth'
+  gem 'va_forms'
+  gem 'vaos'
+  gem 'vba_documents'
+  gem 'veteran'
+  gem 'veteran_confirmation'
+  gem 'veteran_verification'
+end
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.5'
+gem 'puma', '~> 4.3.7'
 gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 6.0.2'
 
@@ -88,6 +91,8 @@ gem 'paper_trail'
 gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
+gem 'pg_query', '>= 0.9.0'
+gem 'pghero'
 gem 'prawn'
 gem 'pundit'
 gem 'rack'
@@ -107,13 +112,13 @@ gem 'sentry-raven'
 gem 'shrine'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
+gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
-gem 'zero_downtime_migrations'
 
 group :development do
   gem 'benchmark-ips'
@@ -126,12 +131,13 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
+  gem 'debase'
+  gem 'ruby-debug-ide', git: 'https://github.com/corgibytes/ruby-debug-ide', branch: 'feature-add-fixed-port-range'
   gem 'web-console', platforms: :ruby
 end
 
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', branch: 'master'
-  gem 'awrence'
   gem 'fakeredis'
   gem 'pact', require: false
   gem 'pact-mock_service', require: false
@@ -150,6 +156,7 @@ end
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
+  gem 'bootsnap', require: false
   gem 'brakeman', '~> 4.7'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -169,6 +176,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
   gem 'rspec-instrumentation-matcher'
+  gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rubocop', require: false
   gem 'rubocop-rails'

@@ -17,8 +17,6 @@ class InProgressForm < ApplicationRecord
   # the double quotes in return_url are part of the value
   scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
 
-  EXPIRES_AFTER = YAML.load_file(Rails.root.join('config', 'in_progress_forms', 'expirations.yml'))
-
   attribute :user_uuid, CleanUUID.new
   attr_encrypted :form_data, key: Settings.db_encryption_key
   validates(:form_data, presence: true)
@@ -69,6 +67,11 @@ class InProgressForm < ApplicationRecord
   end
 
   def expires_after
-    EXPIRES_AFTER[form_id]&.days || 60.days
+    @expires_after ||=  case form_id
+                        when '21-526EZ'
+                          1.year
+                        else
+                          60.days
+                        end
   end
 end

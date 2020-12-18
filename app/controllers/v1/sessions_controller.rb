@@ -104,7 +104,9 @@ module V1
 
     def raise_saml_error(form)
       code = form.error_code
-      code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code] if code == '005' && validate_session
+      if code == SAML::Responses::Base::AUTH_TOO_LATE_ERROR_CODE && validate_session
+        code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
+      end
       raise SAML::FormError.new(form, code)
     end
 
@@ -168,16 +170,9 @@ module V1
     end
 
     def saml_cookie_content
-      ssoe_cookie =  cookies[Settings.ssoe_eauth_cookie.name]
-      transaction_id = if current_user && url_service.should_uplevel? && ssoe_cookie
-                         JSON.parse(ssoe_cookie)['transaction_id']
-                       else
-                         SecureRandom.uuid
-                       end
-
       {
         'timestamp' => Time.now.iso8601,
-        'transaction_id' => transaction_id,
+        'transaction_id' => url_service.tracker&.payload_attr(:transaction_id),
         'saml_request_id' => url_service.tracker&.uuid,
         'saml_request_query_params' => url_service.query_params
       }
@@ -213,7 +208,8 @@ module V1
       values = {
         'id' => tracker&.uuid,
         'authn' => tracker&.payload_attr(:authn_context),
-        'type' => tracker&.payload_attr(:type)
+        'type' => tracker&.payload_attr(:type),
+        'transaction_id' => tracker&.payload_attr(:transaction_id)
       }
       Rails.logger.info("SSOe: SAML Request => #{values}")
       StatsD.increment(STATSD_SSO_SAMLREQUEST_KEY,
@@ -223,15 +219,17 @@ module V1
     end
 
     def saml_response_stats(saml_response)
-      type = JSON.parse(params[:RelayState] || '{}')['type']
+      uuid = saml_response.in_response_to
+      tracker = SAMLRequestTracker.find(uuid)
       values = {
-        'id' => saml_response.in_response_to,
+        'id' => uuid,
         'authn' => saml_response.authn_context,
-        'type' => type
+        'type' => tracker&.payload_attr(:type),
+        'transaction_id' => tracker&.payload_attr(:transaction_id)
       }
       Rails.logger.info("SSOe: SAML Response => #{values}")
       StatsD.increment(STATSD_SSO_SAMLRESPONSE_KEY,
-                       tags: ["type:#{type}",
+                       tags: ["type:#{tracker&.payload_attr(:type)}",
                               "context:#{saml_response.authn_context}",
                               VERSION_TAG])
     end
@@ -264,7 +262,7 @@ module V1
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
-        tags_and_error_code = tags << "error:#{error.code}"
+        tags_and_error_code = tags << "error:#{error&.code || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
         Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
       end
@@ -295,8 +293,14 @@ module V1
 
     # rubocop:disable Metrics/ParameterLists
     def handle_callback_error(exc, status, response, level = :error, context = {},
-                              code = '007', tag = nil)
-      log_message_to_sentry(exc.message, level, extra_context: context)
+                              code = SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE, tag = nil)
+      # replaces bundled Sentry error message with specific XML messages
+      message = if response.normalized_errors.count > 1 && response.status_detail
+                  response.status_detail
+                else
+                  exc.message
+                end
+      log_message_to_sentry(message, level, extra_context: context)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)
@@ -328,7 +332,11 @@ module V1
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
-        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mpi: additional_context)
+        log_message_to_sentry(
+          'SessionsController version:v1 message:SSN from MPI Lookup does not match UserIdentity cache',
+          :warn,
+          identity_compared_with_mpi: additional_context
+        )
       end
     end
 

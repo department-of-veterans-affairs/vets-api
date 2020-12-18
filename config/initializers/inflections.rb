@@ -37,6 +37,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'VEText'
   inflect.acronym 'VHA'
   inflect.acronym 'VIC'
+  inflect.acronym 'VRE'
   inflect.acronym 'VSO'
   inflect.uncountable 'terms_and_conditions'
 end

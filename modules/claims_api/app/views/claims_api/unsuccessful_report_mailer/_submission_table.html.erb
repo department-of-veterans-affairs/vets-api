@@ -1,23 +1,31 @@
 <table>
   <thead>
     <tr>
-      <th>GUID</th>
+      <% if ids %>
+        <th>GUID</th>
+      <% end %>
       <th>Consumer Name</th>
       <th>Status</th>
       <th>EVSS Response</th>
-      <th>Created At</th>
-      <th>Updated At</th>
+      <% if timestamps %>
+        <th>Created At</th>
+        <th>Updated At</th>
+      <% end %>
     </tr>
   </thead>
   <tbody>
     <% claims.each do |claim| %>
       <tr>
-        <td><%= claim.id %></td>
+        <% if ids %>
+          <td><%= claim.id %></td>
+        <% end %>
         <td><%= claim.source %></td>
         <td><%= claim.status %></td>
-        <td><%= claim.evss_response&.to_s %></td>
-        <td><%= claim.created_at %></td>
-        <td><%= claim.updated_at %></td>
+        <td><pre><code><%= JSON.pretty_generate(claim.evss_response) %></code></pre></td>
+        <% if timestamps %>
+          <td><%= claim.created_at %></td>
+          <td><%= claim.updated_at %></td>
+        <% end %>
       </tr>
     <% end %>
   </tbody>

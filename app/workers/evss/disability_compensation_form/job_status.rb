@@ -70,7 +70,7 @@ module EVSS
       def job_success
         upsert_job_status(Form526JobStatus::STATUS[:success])
         log_info('success')
-        metrics.increment_success
+        metrics.increment_success(@is_bdd)
       rescue => e
         Rails.logger.error('error tracking job success', error: e, class: klass)
       end

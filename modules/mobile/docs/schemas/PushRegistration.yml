@@ -1,0 +1,35 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "pushRegistration"
+        readOnly: true
+      attributes:
+        type: object
+        required:
+          - deviceToken
+          - osName
+          - osVersion
+        properties:
+          deviceToken:
+            type: string
+            example: "740f4707bebcf74f9b7c25d48e3358945f6aa01da5ddb387462c7eaf61bb78ad"
+          osName:
+            type: string
+            enum:
+              - ios
+              - android
+          osVersion:
+            type: string
+            example: "12.1"
+          deviceName:
+            type: string
+            example: "Jeff's iPhone"
