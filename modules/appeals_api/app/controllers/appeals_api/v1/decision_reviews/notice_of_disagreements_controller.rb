@@ -19,6 +19,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
       AppealsApi::Engine.root.join('config/schemas/10182_headers.json')
     )
   )['definitions']['nodCreateHeadersRoot']['properties'].keys
+  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
   def create
     @notice_of_disagreement.save
@@ -50,11 +51,11 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def validate_json_schema_for_headers
-    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
+    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!("#{FORM_NUMBER}_HEADERS", headers)
   end
 
   def validate_json_schema_for_body
-    AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
+    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!(FORM_NUMBER, @json_body)
   end
 
   def validation_success

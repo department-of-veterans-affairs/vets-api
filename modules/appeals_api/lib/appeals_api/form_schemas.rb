@@ -4,6 +4,10 @@ require 'json_schema/form_schemas'
 
 module AppealsApi
   class FormSchemas < JsonSchema::FormSchemas
+    def initialize(error_type = JsonSchema::JsonApiMissingAttribute)
+      @error_type = error_type
+    end
+
     def base_dir
       Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir)
     end
@@ -16,7 +20,7 @@ module AppealsApi
       # this is a work around
       schema_validator.validate(payload).count
       errors = schema_validator.validate(payload).to_a
-      raise Common::Exceptions::DetailedSchemaErrors, errors unless errors.empty?
+      raise @error_type, errors unless errors.empty?
 
       true
     end
