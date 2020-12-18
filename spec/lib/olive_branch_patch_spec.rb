@@ -38,7 +38,7 @@ describe 'OliveBranchPatch', type: :request do
   end
 
   # camelCase would keep the leading `va` in lower case
-  it 'does not duplicate keys with leading va' do
+  it 'keeps keys with leading va in lower' do
     hash = { va_key: 'VA Value' }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
@@ -52,7 +52,7 @@ describe 'OliveBranchPatch', type: :request do
     expect(response).to have_http_status(:ok)
   end
 
-  it 'does not add keys if `VA` is not in the middle of a key' do
+  it 'does not change keys if `VA` is not in the middle of a key' do
     hash = { hello_there: 'hello there' }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
@@ -60,39 +60,35 @@ describe 'OliveBranchPatch', type: :request do
     expect(json['helloThere']).to eq hash[:hello_there]
   end
 
-  it 'duplicates va keys containing a colon' do
+  it 'changes `VA` keys containing a colon' do
     hash = { 'view:has_va_medical_records' => true }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('view:hasVaMedicalRecords', 'view:hasVAMedicalRecords')
-    expect(json['view:hasVaMedicalRecords']).to eq json['view:hasVAMedicalRecords']
-    expect(json['view:hasVAMedicalRecords']).to eq hash['view:has_va_medical_records']
+    expect(json.keys).to include('view:hasVaMedicalRecords')
+    expect(json['view:hasVaMedicalRecords']).to eq hash['view:has_va_medical_records']
   end
 
-  it 'adds a second key to data with `VA` in the key except the key uses `Va`' do
+  it 'changes a key with `VA` to be `Va`' do
     hash = { year_va_founded: 1989 }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('yearVaFounded', 'yearVAFounded')
-    expect(json['yearVaFounded']).to eq json['yearVAFounded']
+    expect(json.keys).to include('yearVaFounded')
     expect(json['yearVaFounded']).to eq hash[:year_va_founded]
   end
 
-  it 'adds additional keys to data with `VA` in multiple keys except the keys use `Va` for each instance of `VA`' do
+  it 'changes keys with `VA` to use `Va` for each instance of `VA`' do
     hash = { we_love_the_va: true, thumbs_up_for_the_va: 'two' }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
     expect(json.keys).to include(
       'weLoveTheVa',
-      'weLoveTheVA',
-      'thumbsUpForTheVA',
       'thumbsUpForTheVa'
     )
-    expect(json['weLoveTheVa']).to eq json['weLoveTheVA']
-    expect(json['thumbsUpForTheVA']).to eq json['thumbsUpForTheVa']
+    expect(json['weLoveTheVa']).to eq hash[:we_love_the_va]
+    expect(json['thumbsUpForTheVA']).to eq hash[:thumbs_up_for_the_va]
   end
 
-  it 'adds a second `VA` key with a nested object in the value' do
+  it 'changes a `VA` key to `Va` with a nested object in the value' do
     hash = { the_va_address: {
       'name' => 'Veteran Affairs Building',
       'street' => '810 Vermont Avenue NW',
@@ -103,30 +99,27 @@ describe 'OliveBranchPatch', type: :request do
     } }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('theVAAddress', 'theVaAddress')
-    expect(json['theVAAddress']).to eq json['theVaAddress']
+    expect(json.keys).to include('theVaAddress')
     expect(json['theVaAddress']).to eq hash[:the_va_address]
   end
 
-  it 'adds a second `VA` key with an array value' do
+  it 'changes a `VA` key to `Va` with an array value' do
     hash = { three_va_administrations: ['VHA', 'VBA', 'National Cemetery Administration'] }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('threeVaAdministrations', 'threeVAAdministrations')
-    expect(json['threeVaAdministrations']).to eq json['threeVAAdministrations']
+    expect(json.keys).to include('threeVaAdministrations')
     expect(json['threeVaAdministrations']).to eq hash[:three_va_administrations]
   end
 
-  it 'adds a second `VA` key with an null value' do
+  it 'changes a `VA` key with a null value' do
     hash = { year_va_closes: nil }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('yearVaCloses', 'yearVACloses')
-    expect(json['yearVaCloses']).to eq json['yearVACloses']
+    expect(json.keys).to include('yearVaCloses')
     expect(json['yearVaCloses']).to eq hash[:year_va_closes]
   end
 
-  it 'adds addtional VA keys in complex example' do
+  it 'changes `VA` keys in complex example' do
     hash = {
       some_va_details: {
         'year_va_founded' => 1989,
@@ -151,22 +144,15 @@ describe 'OliveBranchPatch', type: :request do
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
 
     json = JSON.parse(response.body)
-    expect(json.keys).to include('someVADetails', 'someVaDetails', 'helloThere', 'helloToTheVA', 'helloToTheVa')
+    expect(json.keys).to include('someVaDetails', 'helloThere', 'helloToTheVa')
 
-    expect(json['someVADetails'].keys).to include(
-      'yearVAFounded', 'yearVACloses', 'listsForVA', 'theVAAddress', 'weLoveTheVA', 'thumbsUpForTheVA', 'differentKey'
-    )
     expect(json['someVaDetails'].keys).to include(
       'yearVaFounded', 'yearVaCloses', 'listsForVa', 'theVaAddress', 'weLoveTheVa', 'thumbsUpForTheVa', 'differentKey'
     )
 
     url_for_va = hash.dig(:some_va_details, 'the_va_address', 'notes', 'url_for_va')
-    expect(json.dig('someVADetails', 'theVAAddress', 'notes', 'urlForVA')).to eq url_for_va
-    expect(json.dig('someVaDetails', 'theVaAddress', 'notes', 'urlForVa')).to eq url_for_va
-
+    expect(json.dig('someVaDetails', 'theVaAddress', 'notes', 'urlForVa')).to eq url_for_v
     expect(json['helloThere']).to eq hash[:hello_there]
-
-    expect(json['helloToTheVA']).to eq json['helloToTheVa']
     expect(json['helloToTheVa']).to eq hash[:hello_to_the_va]
   end
 end
