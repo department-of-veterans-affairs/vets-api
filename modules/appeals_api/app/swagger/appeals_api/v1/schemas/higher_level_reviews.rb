@@ -18,7 +18,7 @@ module AppealsApi::V1
 
         schema :hlrStatus do
           key :type, :string
-          key :enum, %w[pending submitting submitted processing error uploaded received success vbms expired]
+          key :enum, %w[pending submitting submitted processing error uploaded received success expired]
         end
 
         schema :errorWithTitleAndDetail do
