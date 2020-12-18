@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
-require 'central_mail/service'
 require 'common/exceptions'
 
 module AppealsApi
@@ -61,7 +60,8 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    STATUSES = %w[pending submitting submitted processing error uploaded received success vbms expired].freeze
+    STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
+
     validates :status, inclusion: { 'in': STATUSES }
 
     CENTRAL_MAIL_STATUS_TO_HLR_ATTRIBUTES = lambda do
@@ -70,7 +70,6 @@ module AppealsApi
       hash['In Process'] = { status: 'processing' }
       hash['Processing Success'] = hash['In Process']
       hash['Success'] = { status: 'success' }
-      hash['VBMS Complete'] = { status: 'vbms' }
       hash['Error'] = { status: 'error', code: 'DOC202' }
       hash['Processing Error'] = hash['Error']
       hash
@@ -112,6 +111,20 @@ module AppealsApi
       :contestable_issue_dates_are_valid_dates,
       if: proc { |a| a.form_data.present? }
     )
+
+    def update_status_using_central_mail_status!(status, error_message = nil)
+      begin
+        attributes = CENTRAL_MAIL_STATUS_TO_HLR_ATTRIBUTES[status] || {}
+      rescue ArgumentError
+        self.class.log_unknown_central_mail_status(status)
+        raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
+      end
+      if status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message
+        attributes = attributes.merge(detail: "Downstream status: #{error_message}")
+      end
+
+      update! attributes
+    end
 
     # 1. VETERAN'S NAME
     def first_name
@@ -244,25 +257,6 @@ module AppealsApi
 
     def consumer_id
       auth_headers&.dig('X-Consumer-ID')
-    end
-
-    def central_mail_status
-      CentralMail::Service.new.status(id)
-    end
-
-    def update_status_using_central_mail_status!(status, error_message = nil)
-      begin
-        attributes = CENTRAL_MAIL_STATUS_TO_HLR_ATTRIBUTES[status] || {}
-      rescue ArgumentError
-        self.class.log_unknown_central_mail_status(status)
-        raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
-      end
-
-      if status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message
-        attributes = attributes.merge(detail: "Downstream status: #{error_message}")
-      end
-
-      update! attributes
     end
 
     define_method :remove_pii, &REMOVE_PII

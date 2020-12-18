@@ -46,6 +46,17 @@ module ClaimsApi
       evss_headers
     end
 
+    def flashes
+      initial_flashes = form_attributes.dig('veteran', 'flashes')
+      homelessness = form_attributes.dig('veteran', 'homelessness')
+      is_terminally_ill = form_attributes.dig('veteran', 'isTerminallyIll')
+
+      initial_flashes.push('Homeless') if homelessness.present?
+      initial_flashes.push('Terminally Ill') if is_terminally_ill.present? && is_terminally_ill
+
+      initial_flashes.present? ? initial_flashes.uniq : []
+    end
+
     def documents
       document_keys = params.keys.select { |key| key.include? 'attachment' }
       params.slice(*document_keys).values.map do |document|
@@ -77,8 +88,6 @@ module ClaimsApi
     end
 
     def intent_to_file_options
-      participant_claimant_id = form_type == 'burial' ? @current_user.participant_id : target_veteran.participant_id
-
       {
         intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES[form_type],
         participant_claimant_id: form_attributes['participant_claimant_id'] || participant_claimant_id,
@@ -87,6 +96,18 @@ module ClaimsApi
         submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
         ssn: target_veteran.ssn
       }
+    end
+
+    def participant_claimant_id
+      if form_type == 'burial'
+        begin
+          @current_user.participant_id
+        rescue ArgumentError
+          raise ::Common::Exceptions::Forbidden, detail: "Representative cannot file for type 'burial'"
+        end
+      else
+        target_veteran.participant_id
+      end
     end
 
     def received_date

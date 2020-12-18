@@ -25,7 +25,7 @@ describe Common::CacheAside do
       expect(instance1.attributes[:response]).not_to be(nil)
 
       instance2 = Vet360Redis::ContactInformation.for_user(user)
-      instance2.do_cached_with(key: 'test') { person_response }
+      instance2.do_cached_with(key: 'test') { raise 'value was not cached!' }
       expect(instance2.attributes[:uuid]).not_to be(nil)
       expect(instance2.attributes[:response]).not_to be(nil)
     end

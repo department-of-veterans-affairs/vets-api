@@ -25,23 +25,208 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["ALS", "HEPC", "POW", "PTSD/1", "PTSD/2", "PTSD/3", "PTSD/4", "MST"]
+        "enum": [
+          "ALS",
+          "HEPC",
+          "POW",
+          "PTSD/1",
+          "PTSD/2",
+          "PTSD/3",
+          "PTSD/4",
+          "MST"
+        ]
       }
     },
     "flashes": {
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["Hardship", "Seriously Injured/Very Seriously Injured", "Terminally Ill", "Homeless", "Purple Heart", "POW", "Medal of Honor", "Amyotrophic Lateral Sclerosis", "Emergency Care"]
+        "enum": [
+          "1151 P&T",
+          "38 USC 1151",
+          "Active Chapter 31 Case",
+          "Agent Orange - Vietnam",
+          "Amyotrophic Lateral Sclerosis",
+          "Annual IU Eligibility Review-Fraud",
+          "Attorney Fee",
+          "Authzn to Release Information to Third Party",
+          "Automobile Adaptive Equipment Paid",
+          "Automobile Allowance Paid",
+          "BVA Decision",
+          "Blind",
+          "Blue Water Navy",
+          "C-123",
+          "CADD - Written Requests Only",
+          "CAVC Temp File",
+          "CH31 SAM",
+          "CHAMPUS Entitlement Exists",
+          "CRSC/CRDP Case",
+          "CSRS",
+          "CWA Exposure OIF/OND",
+          "Case Managed Development",
+          "Clear and Unmistakable Error",
+          "Closed Chapter 31 Case",
+          "Committee on Waiver Case",
+          "Compensation Award Line",
+          "Compensation Under 1925 Rating Schedule",
+          "Congressional",
+          "Converted - Automobile Adaptive Equipment Paid",
+          "Converted - Automobile Allowance Paid",
+          "Converted - Blind",
+          "Converted - Comp Under 1925 Rating Schedule",
+          "Converted - Created Combined Evaluation For 1996",
+          "Converted - Created Combined Evaluation For 1997",
+          "Converted - Created Combined Evaluation For 1998",
+          "Converted - Created Combined Evaluation For 1999",
+          "Converted - Created Combined Evaluation For 2000",
+          "Converted - Created Combined Evaluation For 2001",
+          "Converted - Created Combined Evaluation For 2002",
+          "Converted - Created Combined Evaluation For 2003",
+          "Converted - Created Combined Evaluation For 2004",
+          "Converted - Created Combined Evaluation For 2005",
+          "Converted - Created Combined Evaluation For 2006",
+          "Converted - Created Combined Evaluation For 2007",
+          "Converted - Created Combined Evaluation For 2008",
+          "Converted - Created Combined Evaluation For 2009",
+          "Converted - Created Combined Evaluation Not RBA",
+          "Converted - Created Combined Evaluation Pre 1996",
+          "Converted - Default Fiduciary Used",
+          "Converted - Disappearance of Veteran",
+          "Converted - File NBR Match & SSN/File NBR Mismatch",
+          "Converted - Folder Stored At RMC",
+          "Converted - Forfeiture Case",
+          "Converted - General Law Case",
+          "Converted - Gulf War Registry",
+          "Converted - In Receipt of Chapter 31",
+          "Converted - Marker/Engraving Paid",
+          "Converted - More Than 9 Children Existed",
+          "Converted - NSC Burial Paid",
+          "Converted - NSC Burial/Plot Paid",
+          "Converted - NSC Burial/Trans Paid",
+          "Converted - NSC Burial/Trans/Plot Paid",
+          "Converted - Naval Pension Case",
+          "Converted - P&T Decision Possibly Derived",
+          "Converted - POW",
+          "Converted - Plot Paid",
+          "Converted - Possible CHAMPVA Entitlement Exists",
+          "Converted - Potential Attorney Fee",
+          "Converted - Provider Proof of Medical Expense Case",
+          "Converted - Review SSN - Adjustments Made",
+          "Converted - SC Burial Paid",
+          "Converted - SC Burial/Plot Paid",
+          "Converted - SC Burial/Trans Paid",
+          "Converted - SSN Existed In Another Record",
+          "Converted - Severance Offset PCT Not Set",
+          "Converted - Severance Withhold Offset PCT Set",
+          "Converted - Special Adapted Housing Paid",
+          "Converted - Special Condition Existed",
+          "Converted - Spouse Matched Different SSN & NM/DOB",
+          "Converted - Spouse Matched NM/DOB But Not SSN",
+          "Converted - Spouse Matched NM/DOB- Overlaid SSN",
+          "Converted - Tort Offset PCT Not Set",
+          "Converted - Tort Withhold Offset PCT Set",
+          "Converted - Transportation Paid",
+          "Converted - Under IVM Review",
+          "Converted Retired Pay Involved",
+          "Copy VAF 21-526 before return to vet for sign",
+          "Counsel Folder Location",
+          "DBQ Referral Program",
+          "Death in Service",
+          "Denied - Fraud",
+          "Dependency Review - DOMA",
+          "Disappearance of Veteran",
+          "Disaster Impacted",
+          "Document(s) exist in VBMS",
+          "Documents Exist in Virtual VA",
+          "Dual Benefits",
+          "EHRM Pilot",
+          "Emergency Care",
+          "FBI Case",
+          "Filipino Equity Comp 15000",
+          "Filipino Equity Comp 9000",
+          "Finance Flash",
+          "Foreign Claim",
+          "Forfeiture Case",
+          "Formerly Homeless",
+          "Fugitive Felon",
+          "G-WOT Active Duty DOD",
+          "G-WOT Active Duty Veteran Provided",
+          "G-WOT Guard/Reserve DOD",
+          "G-WOT Guard/Reserve Veteran Provided",
+          "GW Undiagnosed Illness",
+          "Gulf War Registry",
+          "Hardship",
+          "Homeless",
+          "IDES Participant",
+          "If orig CFile found conduct Phase II Nehmer Review",
+          "In Receipt of Chapter 31",
+          "Incarceration",
+          "Incompetency",
+          "Insurance Overpayment",
+          "Job Training Folder Exists",
+          "Litigation Hold",
+          "Locked File",
+          "Lump Sum Retirement",
+          "Medal of Honor",
+          "Mini-VSC Orlando",
+          "Mini-VSC WPB",
+          "National Guard",
+          "Nehmer - AL Amyloidosis",
+          "Nehmer - IHD - PD - HCL",
+          "No Paper Claim Folder",
+          "No Paper NOD Folder",
+          "Non - Nehmer Agent Orange 2010",
+          "OIG Case",
+          "OWCP referral after rating, disallow, notify Vet",
+          "Office of Investigation, Central Office",
+          "POW",
+          "Pension Award Line",
+          "Philippine Service",
+          "Physical Claims File Exists",
+          "Potential Attorney Fee",
+          "Potential Incident",
+          "Priority Processing - Veteran over age 85",
+          "Private Attorney - Fees Payable",
+          "Private Attorney - No Fees Payable",
+          "Provider Proof of Medical Expense Case",
+          "Purple Heart",
+          "RAMP Participant - VSO",
+          "RECA Claims Pending",
+          "RECA Payments Made",
+          "Railroad Retirement",
+          "Rebuilt Fldr, Ntfy NPRC when consolid w/lost File",
+          "Recommend Rating Ready",
+          "Reserve",
+          "Restricted Access",
+          "Retro Funds W/H for Potential Incompetent Bene",
+          "Returned to Active Duty",
+          "Secret Service Case",
+          "Sensitive Level 6",
+          "Seriously Injured/Very Seriously Injured",
+          "Specially Adapted Housing Claimed",
+          "Supervised Direct Pay",
+          "TBI Equitable Relief Review",
+          "Temporary Folder Exists",
+          "Terminally Ill",
+          "Terminated - Fraud",
+          "Third Party Release",
+          "VA Employee",
+          "VACO Deferral Review",
+          "VACO Special Status 1",
+          "VACO Special Status 2",
+          "VBMS",
+          "VOW - VEI",
+          "VR Trainee",
+          "Vietnam In - Country Service Verified",
+          "Voluntary Separation Incentive"
+        ]
       }
     }
   },
   "properties": {
     "veteran": {
       "type": "object",
-      "required": [
-        "currentMailingAddress"
-      ],
+      "required": ["currentMailingAddress"],
       "properties": {
         "flashes": {
           "$ref": "#/definitions/flashes"
@@ -79,11 +264,7 @@
             "type": {
               "type": "string",
               "default": "DOMESTIC",
-              "enum": [
-                "INTERNATIONAL",
-                "MILITARY",
-                "DOMESTIC"
-              ]
+              "enum": ["INTERNATIONAL", "MILITARY", "DOMESTIC"]
             },
             "state": {
               "type": "string",
@@ -184,11 +365,7 @@
             "type": {
               "type": "string",
               "default": "DOMESTIC",
-              "enum": [
-                "INTERNATIONAL",
-                "MILITARY",
-                "DOMESTIC"
-              ]
+              "enum": ["INTERNATIONAL", "MILITARY", "DOMESTIC"]
             },
             "militaryStateCode": {
               "type": "string"
@@ -268,16 +445,11 @@
         },
         "homelessness": {
           "type": "object",
-          "required": [
-            "pointOfContact"
-          ],
+          "required": ["pointOfContact"],
           "properties": {
             "pointOfContact": {
               "type": "object",
-              "required": [
-                "pointOfContactName",
-                "primaryPhone"
-              ],
+              "required": ["pointOfContactName", "primaryPhone"],
               "properties": {
                 "pointOfContactName": {
                   "type": "string",
@@ -287,10 +459,7 @@
                 },
                 "primaryPhone": {
                   "type": "object",
-                  "required": [
-                    "areaCode",
-                    "phoneNumber"
-                  ],
+                  "required": ["areaCode", "phoneNumber"],
                   "properties": {
                     "areaCode": {
                       "type": "string"
@@ -304,19 +473,18 @@
             },
             "currentlyHomeless": {
               "type": "object",
-              "required": [
-                "homelessSituationType",
-                "otherLivingSituation"
-              ],
+              "required": ["homelessSituationType", "otherLivingSituation"],
               "properties": {
                 "homelessSituationType": {
                   "type": "string",
                   "default": "OTHER",
-                  "enum": ["fleeing",
-                           "shelter",
-                           "notShelter",
-                           "anotherPerson",
-                           "other"]
+                  "enum": [
+                    "fleeing",
+                    "shelter",
+                    "notShelter",
+                    "anotherPerson",
+                    "other"
+                  ]
                 },
                 "otherLivingSituation": {
                   "type": "string",
@@ -334,9 +502,7 @@
                 "homelessnessRiskSituationType": {
                   "type": "string",
                   "default": "OTHER",
-                  "enum": ["losingHousing",
-                           "leavingShelter",
-                           "other"]
+                  "enum": ["losingHousing", "leavingShelter", "other"]
                 },
                 "otherLivingSituation": {
                   "type": "string",
@@ -353,9 +519,7 @@
     },
     "serviceInformation": {
       "type": "object",
-      "required": [
-        "servicePeriods"
-      ],
+      "required": ["servicePeriods"],
       "properties": {
         "servicePeriods": {
           "type": "array",
@@ -412,10 +576,7 @@
           "uniqueItems": true,
           "items": {
             "type": "object",
-            "required": [
-              "confinementBeginDate",
-              "confinementEndDate"
-            ],
+            "required": ["confinementBeginDate", "confinementEndDate"],
             "properties": {
               "confinementBeginDate": {
                 "$ref": "#/definitions/date"
@@ -463,10 +624,7 @@
             },
             "unitPhone": {
               "type": "object",
-              "required": [
-                "areaCode",
-                "phoneNumber"
-              ],
+              "required": ["areaCode", "phoneNumber"],
               "properties": {
                 "areaCode": {
                   "type": "string"
@@ -488,10 +646,7 @@
           "uniqueItems": true,
           "items": {
             "type": "object",
-            "required": [
-              "firstName",
-              "lastName"
-            ],
+            "required": ["firstName", "lastName"],
             "properties": {
               "firstName": {
                 "type": "string",
@@ -522,10 +677,7 @@
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "required": [
-          "disabilityActionType",
-          "name"
-        ],
+        "required": ["disabilityActionType", "name"],
         "properties": {
           "specialIssues": {
             "$ref": "#/definitions/specialIssues"
@@ -548,11 +700,7 @@
             "uniqueItems": true,
             "items": {
               "type": "object",
-              "required": [
-                "name",
-                "disabilityActionType",
-                "serviceRelevance"
-              ],
+              "required": ["name", "disabilityActionType", "serviceRelevance"],
               "properties": {
                 "name": {
                   "type": "string"
@@ -602,10 +750,7 @@
           },
           "center": {
             "type": "object",
-            "required": [
-              "name",
-              "country"
-            ],
+            "required": ["name", "country"],
             "properties": {
               "name": {
                 "type": "string"
@@ -634,19 +779,14 @@
         },
         "militaryRetiredPay": {
           "type": "object",
-          "required": [
-            "receiving",
-            "payment"
-          ],
+          "required": ["receiving", "payment"],
           "properties": {
             "receiving": {
               "type": "boolean"
             },
             "payment": {
               "type": "object",
-              "required": [
-                "serviceBranch"
-              ],
+              "required": ["serviceBranch"],
               "properties": {
                 "serviceBranch": {
                   "type": "string"
@@ -662,18 +802,11 @@
     },
     "directDeposit": {
       "type": "object",
-      "required": [
-        "accountType",
-        "accountNumber",
-        "routingNumber"
-      ],
+      "required": ["accountType", "accountNumber", "routingNumber"],
       "properties": {
         "accountType": {
           "type": "string",
-          "enum": [
-            "Checking",
-            "Saving"
-          ]
+          "enum": ["Checking", "Saving"]
         },
         "accountNumber": {
           "minLength": 4,

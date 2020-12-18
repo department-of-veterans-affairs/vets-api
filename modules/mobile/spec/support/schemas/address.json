@@ -37,6 +37,9 @@
     "city": {
       "type": "string"
     },
+    "countryCodeIso3": {
+      "type": "string"
+    },
     "internationalPostalCode": {
       "type": ["string", "null"]
     },

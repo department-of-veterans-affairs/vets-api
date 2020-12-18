@@ -106,10 +106,14 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     #   expect(generated_pdf_md5).to eq(expected_pdf_md5)
     #   Timecop.return
     # end
-    it 'generates the correct number of pages' do
+    it 'generates the correct number of pages and extra content on additional page' do
       Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
       path = described_class.new.generate_pdf(extra_higher_level_review.id)
       expect(PdfInfo::Metadata.read(path).pages).to eq(3)
+
+      reader = PDF::Reader.new(path)
+      expect(reader.page(3).text).to include('left shoulder', 'sleep apnea')
+
       File.delete(path) if File.exist?(path)
       Timecop.return
     end

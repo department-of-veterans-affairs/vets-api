@@ -4,45 +4,25 @@ require 'rails_helper'
 require 'generators/module/module_generator'
 
 describe ModuleGenerator do
-  describe 'create_app' do
+  after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
+  describe 'create_directory_structure' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_app }
+      before(:all) { ModuleGenerator.new(['foo']).create_directory_structure }
 
-      after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+      let(:path) { Rails.root.join('modules', 'foo', 'app') }
 
-      let(:path) { Rails.root.join('modules', 'foo') }
-
-      it 'creates the app controller' do
-        expect(File).to exist("#{path}/app/controllers/foo/application_controller.rb")
-      end
-
-      it 'creates the endpoint controller' do
-        expect(File).to exist("#{path}/app/controllers/foo/v0/foo_controller.rb")
-      end
-
-      it 'creates the model' do
-        expect(File).to exist("#{path}/app/models/foo/resource.rb")
-      end
-
-      it 'creates the serializer' do
-        expect(File).to exist("#{path}/app/serializers/foo/foo_serializer.rb")
-      end
-
-      it 'creates the service configurations' do
-        expect(File).to exist("#{path}/app/services/foo/configuration.rb")
-      end
-
-      it 'creates the service' do
-        expect(File).to exist("#{path}/app/services/foo/service.rb")
+      it 'the directories should exist' do
+        %w[controllers models serializers service].each do |module_dir|
+          File.directory?("#{path}/#{module_dir}").should be true
+        end
       end
     end
   end
 
-  describe 'create_lib' do
+  describe 'create_engine' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_lib }
-
-      after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+      before(:all) { ModuleGenerator.new(['foo']).create_engine }
 
       let(:path) { Rails.root.join('modules', 'foo', 'lib') }
 
@@ -54,26 +34,32 @@ describe ModuleGenerator do
         expect(File).to exist("#{path}/foo/version.rb")
       end
 
-      it 'creates the rake tasks' do
-        expect(File).to exist("#{path}/tasks/foo_tasks.rake")
-      end
-
       it 'creates the module file' do
         expect(File).to exist("#{path}/foo.rb")
       end
     end
   end
 
-  describe 'create_config' do
+  describe 'create_additional_files' do
     context 'once generated' do
-      before(:all) { ModuleGenerator.new(['foo']).create_config }
-
-      after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+      before(:all) { ModuleGenerator.new(['foo']).create_additional_files }
 
       let(:path) { Rails.root.join('modules', 'foo') }
 
+      it 'creates the rakefile' do
+        expect(File).to exist("#{path}/Rakefile")
+      end
+
+      it 'creates the readme' do
+        expect(File).to exist("#{path}/README.rdoc")
+      end
+
       it 'creates the rails file' do
         expect(File).to exist("#{path}/bin/rails")
+      end
+
+      it 'creates the spec_helper' do
+        expect(File).to exist("#{path}/spec/spec_helper.rb")
       end
 
       it 'creates the routes file' do
@@ -82,10 +68,6 @@ describe ModuleGenerator do
 
       it 'creates the gemspec' do
         expect(File).to exist("#{path}/foo.gemspec")
-      end
-
-      it 'creates the rakefile' do
-        expect(File).to exist("#{path}/Rakefile")
       end
 
       it 'creates the Gemfile' do

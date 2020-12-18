@@ -43,11 +43,11 @@ RSpec.describe CovidResearch::GenisisSerializer do
     end
 
     it 'translates false to "No"' do
-      expect(output['FormQuestions'].first['QuestionValue']).to eq 'No'
+      expect(output['FormQuestions'][3]['QuestionValue']).to eq 'No'
     end
 
     it 'translates true to "Yes"' do
-      expect(output['FormQuestions'][5]['QuestionValue']).to eq 'Yes'
+      expect(output['FormQuestions'][6]['QuestionValue']).to eq 'Yes'
     end
   end
 end

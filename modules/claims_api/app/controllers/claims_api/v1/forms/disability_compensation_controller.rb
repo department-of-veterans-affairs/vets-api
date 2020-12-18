@@ -25,9 +25,12 @@ module ClaimsApi
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
+            flashes: flashes,
             source: source_name
           )
-          auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
+          unless auto_claim.id
+            auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5, source: source_name)
+          end
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
@@ -50,11 +53,6 @@ module ClaimsApi
         end
 
         private
-
-        def source_name
-          user = header_request? ? @current_user : target_veteran
-          "#{user.first_name} #{user.last_name}"
-        end
 
         def validate_initial_claim
           if claims_service.claims_count.zero? && form_attributes['autoCestPDFGenerationDisabled'] == false

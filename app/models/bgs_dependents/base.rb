@@ -52,7 +52,8 @@ module BGSDependents
         living_expenses_paid_amount: optional_fields[:living_expenses_paid],
         child_prevly_married_ind: optional_fields[:child_prevly_married_ind],
         guardian_particpant_id: optional_fields[:guardian_particpant_id],
-        type: optional_fields[:type]
+        type: optional_fields[:type],
+        dep_has_income_ind: optional_fields[:dep_has_income_ind]
       }
     end
 
@@ -84,7 +85,7 @@ module BGSDependents
     def format_date(date)
       return nil if date.nil?
 
-      Date.parse(date).to_time.iso8601
+      DateTime.parse(date + ' 12:00:00').to_time.iso8601
     end
 
     def generate_address(address)
@@ -118,6 +119,12 @@ module BGSDependents
         prvnc_nm: payload['state_code'],
         email_addrs_txt: payload['email_address']
       }
+    end
+
+    def formatted_boolean(bool_attribute)
+      return nil if bool_attribute.nil?
+
+      bool_attribute ? 'Y' : 'N'
     end
   end
 end

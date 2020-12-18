@@ -18,6 +18,7 @@
           "countryName": "USA"
       },
       "telephoneNumber": "1-6099008787",
+      "email": "fake@example.com",
       "dateOfBirth": "06/28/1957",
       "married": true,
       "spouseFullName": {

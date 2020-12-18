@@ -54,7 +54,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             updated_at: Time.now.utc
           }
           Form526JobStatus.upsert(values, unique_by: :job_id)
-
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to(
+            receive(:increment_success).with(false).once
+          )
           described_class.drain
           job_status = Form526JobStatus.where(job_id: values[:job_id]).first
           expect(job_status.status).to eq 'success'

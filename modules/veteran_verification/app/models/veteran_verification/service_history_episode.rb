@@ -2,7 +2,7 @@
 
 require 'active_support/core_ext/digest/uuid'
 require 'common/exceptions'
-require 'veteran_verification/mock_military_information_v2'
+require_relative '../veteran_verification/mock_military_information_v2'
 module VeteranVerification
   class ServiceHistoryEpisode
     include ActiveModel::Serialization
@@ -19,12 +19,17 @@ module VeteranVerification
     attribute :pay_grade, String
     attribute :separation_reason, String
 
+    def self.emis_service
+      Rails.logger.info("Settings.vet_verification.mock_emis: #{Settings.vet_verification.mock_emis}")
+      if Settings.vet_verification.mock_emis == true
+        EMISRedis::MockMilitaryInformationV2
+      else
+        EMISRedis::MilitaryInformationV2
+      end
+    end
+
     def self.for_user(user)
-      emis = if Settings.vet_verification.mock_emis
-               EMISRedis::MockMilitaryInformationV2.for_user(user)
-             else
-               EMISRedis::MilitaryInformationV2.for_user(user)
-             end
+      emis = emis_service.for_user(user)
       handle_errors!(emis)
       episodes(emis, user)
     end
