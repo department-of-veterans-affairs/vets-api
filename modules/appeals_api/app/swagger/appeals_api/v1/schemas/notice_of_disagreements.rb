@@ -2,10 +2,11 @@
 
 module AppealsApi::V1
   module Schemas
-    class Definitions
+    class NoticeOfDisagreements
       include Swagger::Blocks
 
       swagger_component do
+
         schema :nodCreateInput do
           key :required, %i[type attributes]
           key :description, 'Form 10182 with minimum required to establish.'
@@ -38,11 +39,11 @@ module AppealsApi::V1
                   key :type, :object
                   key :description, 'Current Mailing Address Object being submitted'
                   key :required, %i[
-                    addressLine1
-                    city
-                    state
-                    countryName
-                    zipCode5
+                  addressLine1
+                  city
+                  state
+                  countryName
+                  zipCode5
                   ]
 
                   property :addressLine1 do
