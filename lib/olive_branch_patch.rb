@@ -14,14 +14,28 @@ module OliveBranchMiddlewareExtension
         # do not process strings that aren't json (like pdf responses)
         next unless json.is_a?(String) && json.starts_with?('{')
 
-        duplicate_basic_va_keys!(json)
-        duplicate_collection_va_keys!(json)
+        un_camel_va_keys!(json)
+
+        # duplicate_basic_va_keys!(json)
+        # duplicate_collection_va_keys!(json)
       end
     end
     result
   end
 
   private
+
+  VA_KEY_REGEX = /("[^"]+VA[^"]*"):/.freeze
+
+  def un_camel_va_keys!(json)
+    # rubocop:disable Style/PerlBackrefs
+    # gsub with a block explicitly sets backrefs correctly https://ruby-doc.org/core-2.6.6/String.html#method-i-gsub
+    json.gsub!(VA_KEY_REGEX) do
+      key = $1
+      "#{key.gsub('VA', 'Va')}:"
+    end
+    # rubocop:enable Style/PerlBackrefs
+  end
 
   # key and value are each a match group
   VA_KEY_VALUE_PAIR_REGEX = /("[^"]+VA[^"]*"):("[^"]*"|\d+|true|false|null)/.freeze

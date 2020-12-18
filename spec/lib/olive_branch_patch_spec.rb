@@ -80,9 +80,9 @@ describe 'OliveBranchPatch', type: :request do
     hash = { we_love_the_va: true, thumbs_up_for_the_va: 'two' }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
-    expect(json.keys).to eq ['weLoveTheVa', 'thumbsUpForTheVa']
+    expect(json.keys).to eq %w[weLoveTheVa thumbsUpForTheVa]
     expect(json['weLoveTheVa']).to eq hash[:we_love_the_va]
-    expect(json['thumbsUpForTheVA']).to eq hash[:thumbs_up_for_the_va]
+    expect(json['thumbsUpForTheVa']).to eq hash[:thumbs_up_for_the_va]
   end
 
   it 'changes a `VA` key to `Va` with a nested object in the value' do
