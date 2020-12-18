@@ -18,9 +18,9 @@ class AppealsApi::Docs::V1::DocsController < ApplicationController
   private
 
   def decision_reviews_swagger_json
-    Swagger::Blocks.build_root_json(SWAGGERED_CLASSES).
-      deep_merge(
-        AppealsApi::V1::Schemas::HigherLevelReviews.hlr_legacy_schemas
-      )
+    Swagger::Blocks.build_root_json(SWAGGERED_CLASSES)
+                   .deep_merge(
+                     AppealsApi::V1::Schemas::HigherLevelReviews.hlr_legacy_schemas
+                   )
   end
 end

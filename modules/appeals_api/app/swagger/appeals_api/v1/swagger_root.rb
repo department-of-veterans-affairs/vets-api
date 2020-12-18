@@ -6,7 +6,6 @@ module AppealsApi::V1::SwaggerRoot
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
   read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
-  # rubocop:disable Metrics/BlockLength
   swagger_root do
     key :openapi, '3.0.0'
     info do
@@ -39,5 +38,4 @@ module AppealsApi::V1::SwaggerRoot
       key :in, :header
     end
   end
-  # rubocop:enable Metrics/BlockLength
 end
