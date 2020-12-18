@@ -26,7 +26,7 @@ module Okta
       end
     end
 
-    def call(action, url)
+    def call_no_token(action, url)
       connection.send(action) do |req|
         req.url url
         req.headers['Content-Type'] = 'application/json'
@@ -73,14 +73,14 @@ module Okta
     def metadata(iss)
       proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
       with_monitoring do
-        get_url(proxied_iss + '/.well-known/openid-configuration')
+        get_url_no_token(proxied_iss + '/.well-known/openid-configuration')
       end
     end
 
     def oidc_jwks_keys(iss)
       url = metadata(iss).body['jwks_uri']
       with_monitoring do
-        get_url(url)
+        get_url_no_token(url)
       end
     end
 
@@ -93,8 +93,8 @@ module Okta
     end
 
     %i[get post put delete].each do |http_verb|
-      define_method("#{http_verb}_url".to_sym) do |url|
-        Okta::Response.new call(http_verb, url)
+      define_method("#{http_verb}_url_no_token".to_sym) do |url|
+        Okta::Response.new call_no_token(http_verb, url)
       end
     end
   end
