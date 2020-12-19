@@ -11,11 +11,9 @@ module Mobile
         :healthcare_service,
         :location,
         :minutes_duration,
-        :start_date,
-        :status,
-        :time_zone
+        :start_date_local,
+        :start_date_utc,
+        :status
     end
   end
 end
-
-

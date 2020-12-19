@@ -52,6 +52,8 @@ describe Mobile::V0::Adapters::VAAppointments do
             state: nil,
             zip_code: nil
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -109,6 +111,8 @@ describe Mobile::V0::Adapters::VAAppointments do
             state: nil,
             zip_code: nil
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -166,6 +170,8 @@ describe Mobile::V0::Adapters::VAAppointments do
             state: nil,
             zip_code: nil
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -181,8 +187,12 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_home[:minutes_duration]).to eq(20)
     end
 
-    it 'has a start date' do
-      expect(booked_video_home[:start_date]).to eq(DateTime.parse('2020-11-30T17:32:00+00:00'))
+    it 'has a local start date' do
+      expect(booked_video_home[:start_date_local]).to eq(DateTime.parse('2020-11-30 10:32:00.000 MST -07:00'))
+    end
+
+    it 'has a utc start date' do
+      expect(booked_video_home[:start_date_utc]).to eq(DateTime.parse('2020-11-30T17:32:00+00:00'))
     end
 
     it 'has a status' do
@@ -223,6 +233,8 @@ describe Mobile::V0::Adapters::VAAppointments do
             state: 'MT',
             zip_code: '59917'
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -280,6 +292,8 @@ describe Mobile::V0::Adapters::VAAppointments do
             state: nil,
             zip_code: nil
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -295,16 +309,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_gfe[:minutes_duration]).to eq(20)
     end
 
-    it 'has a start date' do
-      expect(booked_video_gfe[:start_date]).to eq(DateTime.parse('2020-11-22T13:35:00.000+00:00'))
+    it 'has a local start date' do
+      expect(booked_video_gfe[:start_date_local]).to eq(DateTime.parse('2020-11-22 06:35:00.000 MST -07:00'))
+    end
+
+    it 'has a utc start date' do
+      expect(booked_video_gfe[:start_date_utc]).to eq(DateTime.parse('2020-11-22T13:35:00.000+00:00'))
     end
 
     it 'has a booked status' do
       expect(booked_video_gfe[:status]).to eq('BOOKED')
-    end
-
-    it 'has a time zone' do
-      expect(booked_video_gfe[:time_zone]).to eq('America/Denver')
     end
   end
 end

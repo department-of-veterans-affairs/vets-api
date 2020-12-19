@@ -70,18 +70,20 @@ module Mobile
             facility_id = sub_non_prod_id!(appointment_hash[:facility_id])
             facilities.add(facility_id) if facility_id
             details, type = parse_by_appointment_type(appointment_hash)
-            start_date = get_start_date(appointment_hash)
-
+            start_date_utc = start_date_utc(appointment_hash)
+            time_zone = time_zone(facility_id)
+            
             adapted_hash = {
+              id: SecureRandom.uuid,
               appointment_type: type,
               comment: comment(details, type),
               facility_id: facility_id,
               healthcare_service: healthcare_service(details, type),
-              location: get_location(details, type, facility_id),
+              location: location(details, type, facility_id),
               minutes_duration: minutes_duration(details, type),
-              start_date: start_date,
-              status: get_status(details, type, start_date),
-              time_zone: get_time_zone(facility_id)
+              start_date_local: start_date_utc.in_time_zone(time_zone),
+              start_date_utc: start_date_utc,
+              status: status(details, type, start_date_utc)
             }
 
             Mobile::V0::Appointment.new(adapted_hash)
@@ -104,7 +106,7 @@ module Mobile
           va?(type) ? details[:booking_note] : details[:instructions_title]
         end
 
-        def get_status(details, type, start_date)
+        def status(details, type, start_date)
           status = va?(type) ? details[:current_status] : details.dig(:status, :code)
           return nil if should_hide_status?(start_date.past?, status)
           return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
@@ -112,11 +114,11 @@ module Mobile
           STATUSES[:booked]
         end
 
-        def get_start_date(appointment_hash)
+        def start_date_utc(appointment_hash)
           DateTime.parse(appointment_hash[:start_date])
         end
 
-        def get_location(details, type, facility_id)
+        def location(details, type, facility_id)
           facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
           location = {
             name: facility ? facility[:name] : nil,
@@ -126,6 +128,8 @@ module Mobile
               state: nil,
               zip_code: nil
             },
+            lat: nil,
+            long: nil,
             phone: {
               area_code: nil,
               number: nil,
@@ -151,12 +155,12 @@ module Mobile
           end
         end
 
-        def get_time_zone(facility_id)
+        def time_zone(facility_id)
           facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
           facility ? facility[:time_zone] : nil
         end
 
-        def get_video_type(appointment)
+        def video_type(appointment)
           return APPOINTMENT_TYPES[:va_video_connect_atlas] if video_atlas?(appointment)
           return APPOINTMENT_TYPES[:va_video_connect_gfe] if video_gfe?(appointment)
 
@@ -206,7 +210,7 @@ module Mobile
         def parse_by_appointment_type(appointment)
           return [appointment[:vds_appointments]&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
 
-          [appointment[:vvs_appointments]&.first, get_video_type(appointment)]
+          [appointment[:vvs_appointments]&.first, video_type(appointment)]
         end
 
         def should_hide_status?(is_past, status)

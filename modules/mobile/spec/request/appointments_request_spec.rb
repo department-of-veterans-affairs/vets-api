@@ -39,8 +39,11 @@ RSpec.describe 'appointments', type: :request do
       let(:params) { { start_date: start_date, end_date: end_date } }
       
       it 'returns an ok response' do
-        puts response.body
         expect(response).to have_http_status(:ok)
+      end
+
+      it 'matches the expected schema' do
+        expect(response.body).to match_json_schema('appointments')
       end
     end
   end
