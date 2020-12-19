@@ -34,6 +34,10 @@ module Okta
       end
     end
 
+    def get_url_no_token(url)
+      Okta::Response.new call_no_token('get', url)
+    end
+
     def app(app_id)
       with_monitoring do
         get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}")
@@ -89,12 +93,6 @@ module Okta
     %i[get post put delete].each do |http_verb|
       define_method("#{http_verb}_url_with_token".to_sym) do |url|
         Okta::Response.new call_with_token(http_verb, url)
-      end
-    end
-
-    %i[get].each do |http_verb|
-      define_method("#{http_verb}_url_no_token".to_sym) do |url|
-        Okta::Response.new call_no_token(http_verb, url)
       end
     end
   end
