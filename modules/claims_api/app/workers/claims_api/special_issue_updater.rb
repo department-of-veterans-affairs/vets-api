@@ -8,13 +8,13 @@ module ClaimsApi
     include Sidekiq::Worker
     include SentryLogging
 
-    def perform(user, special_issues, auto_established_claim: nil)
+    def perform(user, special_issues, auto_established_claim)
       service = bgs_service(user).contention
 
       contentions = service.find_contentions_by_ptcpnt_id(user.participant_id)
 
       contention = contentions[:benefit_claims].select do |claim|
-                     claim[:clm_id] == auto_established_claim.evss_id.to_s
+                     claim[:clm_id] == auto_established_claim&.evss_id.to_s
                    end [0]
 
       options = contention_options(contention)
@@ -27,7 +27,8 @@ module ClaimsApi
 
       service.manage_contentions(options)
 
-      # TODO: need to add some kind of error handling here
+      rescue => e
+        log_exception_to_sentry(e)
     end
 
     def bgs_service(user)

@@ -14,10 +14,16 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
   let(:claim_unestablished) { create(:auto_established_claim) }
   let(:claim_established) { create(:auto_established_claim, :status_established) }
 
-  it 'submits succesfully' do
+  it 'submits successfully' do
+    expect do
+      subject.perform_async(user, special_issues, claim_established)
+    end.to change(subject.jobs, :size).by(1)
+  end
+
+  it 'submits special issues to bgs succesfully' do
     VCR.use_cassette('contention_web_service/add_special_issues_to_contention') do
       expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions)
-      subject.new.perform(user, special_issues, auto_established_claim: claim_established)
+      subject.new.perform(user, special_issues, claim_established)
     end
   end
 end
