@@ -92,7 +92,7 @@ module Okta
       end
     end
 
-    %i[get post put delete].each do |http_verb|
+    %i[get].each do |http_verb|
       define_method("#{http_verb}_url_no_token".to_sym) do |url|
         Okta::Response.new call_no_token(http_verb, url)
       end
