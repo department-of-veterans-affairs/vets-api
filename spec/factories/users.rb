@@ -18,6 +18,7 @@ FactoryBot.define do
       sec_id { nil }
       participant_id { nil }
       birls_id { nil }
+      icn { nil }
       mhv_icn { nil }
       multifactor { false }
       mhv_correlation_id { nil }
@@ -55,6 +56,7 @@ FactoryBot.define do
                              sec_id: t.sec_id,
                              participant_id: t.participant_id,
                              birls_id: t.birls_id,
+                             icn: t.icn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
                              multifactor: t.multifactor,
