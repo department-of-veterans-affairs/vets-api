@@ -31,5 +31,4 @@ class TransactionalEmailMailer < ApplicationMailer
     template_file = File.read("app/mailers/views/#{name}.html.erb")
     ERB.new(template_file).result(binding)
   end
-
 end
