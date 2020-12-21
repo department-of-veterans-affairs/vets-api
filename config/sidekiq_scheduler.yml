@@ -71,8 +71,6 @@ FacilityAccessBulkUpdate:
   class: Facilities::AccessDataDownload
   description: "Download and cache facility access-to-care metric data"
 
-
-
 FacilityLocationVHADriveTime:
   cron: "55 4 * * * America/New_York"
   class: Facilities::PSSGDownload
