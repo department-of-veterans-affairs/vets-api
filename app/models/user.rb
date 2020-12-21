@@ -146,6 +146,10 @@ class User < Common::RedisStore
     identity.sec_id || va_profile&.sec_id
   end
 
+  def icn
+    identity&.icn || mpi&.icn
+  end
+
   def birls_id
     identity&.birls_id || mpi&.birls_id
   end
