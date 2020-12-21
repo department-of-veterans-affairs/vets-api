@@ -4,45 +4,7 @@
     "attributes": {
       "veteran": {
         "homeless": false,
-        "address": {
-          "addressLine1": "123 Main St",
-          "addressLine2": "Suite #1200",
-          "addressLine3": "Box 4",
-          "city": "New York",
-          "countryName": "United States",
-          "stateCode": "NY",
-          "zipCode5": "30012",
-          "internationalPostalCode": "1"
-        },
-        "phone": {
-          "countryCode": "6",
-          "areaCode": "555",
-          "phoneNumber": "8001111",
-          "phoneNumberExt": "2"
-        },
-        "emailAddressText": "a@a.a",
         "representativesName": "Tony Danza"
-      },
-      "claimant": {
-        "homeless": false,
-        "address": {
-          "addressLine1": "456 Easy St",
-          "addressLine2": "Suite #999",
-          "addressLine3": "Box 1",
-          "city": "Los Angeles",
-          "countryName": "United States",
-          "stateCode": "CA",
-          "zipCode5": "90210",
-          "internationalPostalCode": "1"
-        },
-        "phone": {
-          "countryCode": "1",
-          "areaCode": "555",
-          "phoneNumber": "3031234",
-          "phoneNumberExt": "1"
-        },
-        "emailAddressText": "b@b.b",
-        "representativesName": "Harry Styles"
       },
       "boardReviewOption": "hearing",
       "hearingTypePreference": "central_office",

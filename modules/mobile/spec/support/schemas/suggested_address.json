@@ -1,4 +1,3 @@
-
 {
   "$schema": "http://json-schema.org/draft-04/schema",
   "type": "object",
@@ -36,13 +35,19 @@
           "type": "string"
         },
         "addressLine2": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "addressLine3": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "addressPou": {
-          "type": ["string", "null"]
+          "type": "string"
         },
         "addressType": {
           "type": "string"
@@ -54,13 +59,22 @@
           "type": "string"
         },
         "internationalPostalCode": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "province": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "stateCode": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "zipCode": {
           "type": "string"
@@ -73,23 +87,34 @@
     "meta": {
       "type": "object",
       "required": [
-        "confidenceScore",
-        "addressType",
-        "deliveryPointValidation",
+        "address",
         "validationKey"
       ],
       "properties": {
-        "confidenceScore": {
-          "type": "number"
-        },
-        "addressType": {
-          "type": "string"
-        },
-        "deliveryPointValidation": {
-          "type": "string"
+        "address": {
+          "type": "object",
+          "required": [
+            "confidenceScore",
+            "addressType",
+            "deliveryPointValidation"
+          ],
+          "properties": {
+            "confidenceScore": {
+              "type": "number"
+            },
+            "addressType": {
+              "type": "string"
+            },
+            "deliveryPointValidation": {
+              "type": "string"
+            },
+            "residentialDeliveryIndicator": {
+              "type": "string"
+            }
+          }
         },
         "validationKey": {
-          "type": ["integer", "null"]
+          "type": "integer"
         }
       }
     }

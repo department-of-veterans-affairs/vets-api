@@ -110,7 +110,7 @@ pension_burial:
 central_mail:
   upload:
     enabled: true
-    host: "icmhs-api-test.csrarad.com"
+    host: "test2.domaonline.com/EmmsAPI"
     token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
@@ -156,6 +156,7 @@ decision_review:
 # Settings for modules/appeals_api
 modules_appeals_api:
   higher_level_review_updater_enabled: true
+  notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
 
 vre_counseling:
@@ -549,6 +550,7 @@ flipper:
     - tony.williams@va.gov
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
+    - zmorel@governmentcio.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT

@@ -31,11 +31,30 @@ describe CovidVaccine::V0::VetextService do
       end
     end
 
-    # Need to discuss error handling with VEText developers. This isn't even JSON.
-    xit 'raises a BackendServiceException with invalid attribute' do
-      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_error', match_requests_on: %i[method path]) do
+    it 'raises a BackendServiceException with invalid attribute' do
+      exception_arguments = {
+        detail: 'Unrecognized field dateVaccineReeceived',
+        code: 'VETEXT_400',
+        source: 'POST: /api/vetext/pub/covid/vaccine/registry'
+      }
+      exception_message = "BackendServiceException: #{exception_arguments}"
+      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_400', match_requests_on: %i[method path]) do
         expect { subject.put_vaccine_registry(date_vaccine_reeceived: '') }
-          .to raise_error(Common::Exceptions::BackendServiceException)
+          .to raise_error(Common::Exceptions::BackendServiceException, exception_message)
+      end
+    end
+
+    it 'raises a BackendServiceException on a 500 error' do
+      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_500', match_requests_on: %i[method path]) do
+        expect { subject.put_vaccine_registry(registry_attributes) }
+          .to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_502/)
+      end
+    end
+
+    it 'raises a BackendServiceException on a 599 error' do
+      VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_599', match_requests_on: %i[method path]) do
+        expect { subject.put_vaccine_registry(registry_attributes) }
+          .to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
   end

@@ -63,6 +63,9 @@ features:
   facility_locator_ppms_use_v1_client:
     actor_type: user
     description: Have the V1 API use the PPMS::V1::Client
+  facility_locator_ppms_skip_additional_round_trips:
+    actor_type: user
+    description: Have the PPMS::V1::Client skip the additional round trips to get the type
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
@@ -161,8 +164,14 @@ features:
       Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
   va_online_scheduling_provider_selection:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables the community care provider selection field
+  va_online_scheduling_cheetah:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables Project Cheetah discovery work
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -203,10 +212,6 @@ features:
     enable_in_development: true
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
-  allow_online_10_10cg_submissions:
-    actor_type: cookie_id
-    description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   gibct_eyb_bottom_sheet:
     actor_type: user
     description: >
@@ -333,3 +338,21 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
+  allow_online_10_10cg_submissions:
+    actor_type: cookie_id
+    description: >
+      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When enabled, this will redirect visitors from the form's page to the home page (va.gov).
+  async_10_10_cg_attachments:
+    actor_type: cookie_id
+    description: >
+      This will process attachments of 10-10CG submissions using sidekiq.
+  evss_upload_limit_150mb:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
+  find_forms_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.

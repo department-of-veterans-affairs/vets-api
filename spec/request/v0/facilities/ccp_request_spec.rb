@@ -17,8 +17,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
     context 'type=cc_provider' do
       let(:params) do
         {
-          address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-          bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+          address: '58 Leonard Ave, Leonardo, NJ 07737',
+          bbox: ['-75.91', '38.55', '-72.19', '42.27'],
           type: 'cc_provider',
           services: ['213E00000X']
         }
@@ -27,8 +27,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
       context 'services=261QU0200X' do
         let(:params) do
           {
-            address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-            bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+            address: '58 Leonard Ave, Leonardo, NJ 07737',
+            bbox: ['-75.91', '38.55', '-72.19', '42.27'],
             type: 'cc_provider',
             services: ['261QU0200X']
           }
@@ -44,23 +44,23 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             expect(bod['data']).to include(
               {
-                'id' => 'ccp_1609229764',
+                'id' => 'ccp_1427432244',
                 'type' => 'cc_provider',
                 'attributes' => {
                   'acc_new_patients' => 'true',
                   'address' => {
-                    'street' => '3200 S Gilbert Rd',
-                    'city' => 'Chandler',
-                    'state' => 'AZ',
-                    'zip' => '85286'
+                    'street' => '363 State Highway 36',
+                    'city' => 'Port Monmouth',
+                    'state' => 'NJ',
+                    'zip' => '07758'
                   },
-                  'caresite_phone' => '4808275700',
+                  'caresite_phone' => '7324710400',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
-                  'lat' => 33.259952,
-                  'long' => -111.790163,
-                  'name' => 'Banner Urgent Care Services LLC',
+                  'lat' => 40.428809,
+                  'long' => -74.10675,
+                  'name' => 'Integrated Medicine Alliance PA',
                   'phone' => nil,
                   'pos_codes' => nil,
                   'pref_contact' => nil,
@@ -70,7 +70,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                       'desc' => 'Definition to come...'
                     }
                   ],
-                  'unique_id' => '1609229764'
+                  'unique_id' => '1427432244'
                 }
               }
             )
@@ -87,28 +87,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             expect(bod['data']).to include(
               {
-                'id' => 'ccp_398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
+                'id' => 'ccp_263e81aab50e1c4ea77e84ff7130473f074036f0f01e86abe5ad4a1864c77cb9',
                 'type' => 'cc_provider',
                 'attributes' => {
-                  'acc_new_patients' => 'true',
+                  'acc_new_patients' => 'false',
                   'address' => {
-                    'street' => '3200 S Gilbert Rd',
-                    'city' => 'Chandler',
-                    'state' => 'AZ',
-                    'zip' => '85286'
+                    'street' => '5024 5TH AVE',
+                    'city' => 'BROOKLYN',
+                    'state' => 'NY',
+                    'zip' => '11220-1909'
                   },
-                  'caresite_phone' => '4808275700',
+                  'caresite_phone' => '718-571-9251',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
-                  'lat' => 33.259952,
-                  'long' => -111.790163,
-                  'name' => 'Banner Urgent Care Services LLC',
+                  'lat' => 40.644795,
+                  'long' => -74.011055,
+                  'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'specialty' => [],
-                  'unique_id' => '1609229764'
+                  'unique_id' => '1487993564'
                 }
               }
             )
@@ -182,37 +182,36 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
         expect(bod['data']).to include(
           {
-            'id' => 'ccp_1386050060',
+            'id' => 'ccp_1154383230',
             'type' => 'cc_provider',
             'attributes' => {
               'acc_new_patients' => 'true',
               'address' => {
-                'street' => '1831 E Queen Creek Rd Ste 119',
-                'city' => 'Chandler',
-                'state' => 'AZ',
-                'zip' => '85286'
+                'street' => '176 RIVERSIDE AVE',
+                'city' => 'RED BANK',
+                'state' => 'NJ',
+                'zip' => '07701-1063'
               },
-              'caresite_phone' => '4809172300',
-              'email' => 'Klloyd@facaaz.com',
+              'caresite_phone' => '732-219-6625',
+              'email' => nil,
               'fax' => nil,
-              'gender' => 'Male',
-              'lat' => 33.262403,
-              'long' => -111.808538,
-              'name' => 'OBryant, Steven',
+              'gender' => 'Female',
+              'lat' => 40.35396,
+              'long' => -74.07492,
+              'name' => 'GESUALDI, AMY',
               'phone' => nil,
               'pos_codes' => nil,
               'pref_contact' => nil,
               'specialty' => [
                 {
                   'name' => 'Podiatrist',
-                  'desc' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) ' \
-                            'degree, licensed by the state, and practicing within the scope of that license. ' \
-                            'Podiatrists diagnose and treat foot diseases and deformities. They perform medical, ' \
-                            'surgical and other operative procedures, prescribe corrective devices and prescribe ' \
-                            'and administer drugs and physical therapy.'
+                  'desc' => 'A podiatrist is a person qualified by a Doctor of Podiatric Medicine (D.P.M.) degree, ' \
+                            'licensed by the state, and practicing within the scope of that license. Podiatrists ' \
+                            'diagnose and treat foot diseases and deformities. They perform medical, surgical and ' \
+                            'other operative procedures, prescribe corrective devices and prescribe and administer ' \
+                            'drugs and physical therapy.'
                 }
-              ],
-              'unique_id' => '1386050060'
+              ], 'unique_id' => '1154383230'
             }
           }
         )
@@ -229,8 +228,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
         context 'type=cc_pharmacy' do
           let(:params) do
             {
-              address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-              bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+              address: '58 Leonard Ave, Leonardo, NJ 07737',
+              bbox: ['-75.91', '38.55', '-72.19', '42.27'],
               type: 'cc_pharmacy'
             }
           end
@@ -242,23 +241,23 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             expect(bod['data']).to include(
               {
-                'id' => 'ccp_1972660348',
+                'id' => 'ccp_1225028293',
                 'type' => 'cc_provider',
                 'attributes' => {
                   'acc_new_patients' => 'false',
                   'address' => {
-                    'street' => '2750 E GERMANN RD',
-                    'city' => 'CHANDLER',
-                    'state' => 'AZ',
-                    'zip' => '85249'
+                    'street' => '2 BAYSHORE PLZ',
+                    'city' => 'ATLANTIC HIGHLANDS',
+                    'state' => 'NJ',
+                    'zip' => '07716'
                   },
-                  'caresite_phone' => '4808122942',
-                  'email' => 'ENROLLM@WAL-MART.COM',
+                  'caresite_phone' => '732-291-2900',
+                  'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
                   'fax' => nil,
                   'gender' => 'NotSpecified',
-                  'lat' => 33.281291,
-                  'long' => -111.793486,
-                  'name' => 'WAL-MART',
+                  'lat' => 40.409114,
+                  'long' => -74.041849,
+                  'name' => 'BAYSHORE PHARMACY',
                   'phone' => nil,
                   'pos_codes' => nil,
                   'pref_contact' => nil,
@@ -266,15 +265,15 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                     {
                       'name' => 'Pharmacy - Community/Retail Pharmacy',
                       'desc' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal preparations ' \
-                                'and/or prescriptions for a local patient population in accordance with federal ' \
-                                'and state law; counsel patients and caregivers (sometimes independent of the ' \
-                                'dispensing process); administer vaccinations; and provide other professional ' \
-                                'services associated with pharmaceutical care such as health screenings, ' \
-                                'consultative services with other health care providers, collaborative practice, ' \
-                                'disease state management, and education classes.'
+                                'and/or prescriptions for a local patient population in accordance with federal and ' \
+                                'state law; counsel patients and caregivers (sometimes independent of the dispensing ' \
+                                'process); administer vaccinations; and provide other professional services '\
+                                'associated with pharmaceutical care such as health screenings, consultative ' \
+                                'services with other health care providers, collaborative practice, disease state ' \
+                                'management, and education classes.'
                     }
                   ],
-                  'unique_id' => '1972660348'
+                  'unique_id' => '1225028293'
                 }
               }
             )
@@ -293,8 +292,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
         context 'type=cc_urgent_care' do
           let(:params) do
             {
-              address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-              bbox: ['-112.54', '32.53', '-111.04', '34.03'],
+              address: '58 Leonard Ave, Leonardo, NJ 07737',
+              bbox: ['-75.91', '38.55', '-72.19', '42.27'],
               type: 'cc_urgent_care'
             }
           end
@@ -306,28 +305,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
             expect(bod['data']).to include(
               {
-                'id' => 'ccp_398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
+                'id' => 'ccp_263e81aab50e1c4ea77e84ff7130473f074036f0f01e86abe5ad4a1864c77cb9',
                 'type' => 'cc_provider',
                 'attributes' => {
-                  'acc_new_patients' => 'true',
+                  'acc_new_patients' => 'false',
                   'address' => {
-                    'street' => '3200 S Gilbert Rd',
-                    'city' => 'Chandler',
-                    'state' => 'AZ',
-                    'zip' => '85286'
+                    'street' => '5024 5TH AVE',
+                    'city' => 'BROOKLYN',
+                    'state' => 'NY',
+                    'zip' => '11220-1909'
                   },
-                  'caresite_phone' => '4808275700',
+                  'caresite_phone' => '718-571-9251',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
-                  'lat' => 33.259952,
-                  'long' => -111.790163,
-                  'name' => 'Banner Urgent Care Services LLC',
+                  'lat' => 40.644795,
+                  'long' => -74.011055,
+                  'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'specialty' => [],
-                  'unique_id' => '1609229764'
+                  'unique_id' => '1487993564'
                 }
               }
             )
@@ -368,39 +367,45 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
     end
 
     it 'returns a provider with services' do
-      get '/v0/facilities/ccp/ccp_1609229764'
+      get '/v0/facilities/ccp/ccp_1225028293'
 
       bod = JSON.parse(response.body)
 
       expect(bod).to include(
         'data' => {
-          'id' => 'ccp_1609229764',
+          'id' => 'ccp_1225028293',
           'type' => 'cc_provider',
           'attributes' => {
             'acc_new_patients' => nil,
             'address' => {
-              'street' => '641 W Warner Rd',
-              'city' => 'Gilbert',
-              'state' => 'AZ',
-              'zip' => '85233'
+              'street' => '2 BAYSHORE PLZ',
+              'city' => 'ATLANTIC HIGHLANDS',
+              'state' => 'NJ',
+              'zip' => '07716'
             },
             'caresite_phone' => nil,
-            'email' => nil,
+            'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
             'fax' => nil,
             'gender' => nil,
-            'lat' => 33.33487,
-            'long' => -111.80365,
-            'name' => 'Banner Urgent Care Services LLC',
+            'lat' => 40.409114,
+            'long' => -74.041849,
+            'name' => 'BAYSHORE PHARMACY',
             'phone' => nil,
             'pos_codes' => nil,
             'pref_contact' => nil,
             'specialty' => [
               {
-                'name' => 'Clinic/Center - Urgent Care',
-                'desc' => 'Definition to come...'
+                'name' => 'Pharmacy - Community/Retail Pharmacy',
+                'desc' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal preparations ' \
+                          'and/or prescriptions for a local patient population in accordance with federal and ' \
+                          'state law; counsel patients and caregivers (sometimes independent of the dispensing ' \
+                          'process); administer vaccinations; and provide other professional services '\
+                          'associated with pharmaceutical care such as health screenings, consultative ' \
+                          'services with other health care providers, collaborative practice, disease state ' \
+                          'management, and education classes.'
               }
             ],
-            'unique_id' => '1609229764'
+            'unique_id' => '1225028293'
           }
         }
       )

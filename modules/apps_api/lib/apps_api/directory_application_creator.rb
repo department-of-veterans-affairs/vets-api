@@ -37,6 +37,21 @@ module AppsApi
         app.tos_url = 'https://ice.ibluebutton.com/docs/ibb/eula.html'
         app.save
       end
+      DirectoryApplication.find_or_initialize_by(name: 'Coral Health').tap do |app|
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/CoralHealth+1024x1024.png'
+        app.app_type = 'Third-Party-OAuth'
+        app.service_categories = ['Health']
+        app.platforms = %w[iOS Android]
+        app.app_url = 'https://mycoralhealth.com'
+        app.description =
+          'Coral Health is a free personal healthcare management app that is used to track medications,'\
+          ' get medication reminders, consolidate official medical records,'\
+          ' and monitor health trends and issues over time.'
+        app.privacy_url = 'https://mycoralhealth.com/privacy-policy'
+        app.tos_url = 'https://mycoralhealth.com/terms-of-service'
+        app.save
+      end
+
       DirectoryApplication.find_or_initialize_by(name: 'MyLinks').tap do |app|
         app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/MyLinks+Logo+1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
