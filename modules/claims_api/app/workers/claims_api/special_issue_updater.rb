@@ -13,22 +13,22 @@ module ClaimsApi
 
       contentions = service.find_contentions_by_ptcpnt_id(user.participant_id)
 
-      contention = contentions[:benefit_claims].select do |claim|
-                     claim[:clm_id] == auto_established_claim&.evss_id.to_s
-                   end [0]
+      matching_contentions =
+        contentions[:benefit_claims].select { |claim| claim[:clm_id] == auto_established_claim&.evss_id.to_s }
 
-      options = contention_options(contention)
+      matching_contentions.each do |contention|
+        options = contention_options(contention)
 
-      options[:contentions] =
-        [{
-          clm_id: contention[:clm_id],
-          special_issues: special_issues.map { |special_issue| { spis_tc: special_issue } }
-        }]
+        options[:contentions] =
+          [{
+            clm_id: contention[:clm_id],
+            special_issues: special_issues.map { |special_issue| { spis_tc: special_issue } }
+          }]
 
-      service.manage_contentions(options)
-
-      rescue => e
-        log_exception_to_sentry(e)
+        service.manage_contentions(options)
+      end
+    rescue => e
+      log_exception_to_sentry(e)
     end
 
     def bgs_service(user)
