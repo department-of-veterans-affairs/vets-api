@@ -355,9 +355,14 @@ features:
   stem_automated_decision:
     actor_type: user
     description: >
-      Add automated decision to 10203 application workflow   
+      Add automated decision to 10203 application workflow
   stem_applicant_email:
     actor_type: user
     enable_in_development: true
     description: >
       Enable/disable SCO applicant email per environment
+  in_progress_form_custom_expiration:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable/disable custom expiration dates for forms
