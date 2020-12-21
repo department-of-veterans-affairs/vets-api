@@ -30,7 +30,7 @@ describe 'OliveBranchPatch', type: :request do
   end
 
   it 'does not change response keys when camel inflection is not used' do
-    hash = { hello_to_the_va: 'greetings' }
+    hash = { hello_to_the_va: 'greetingsVA' }
     get '/some_json', params: hash
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['hello_to_the_va']
@@ -39,7 +39,7 @@ describe 'OliveBranchPatch', type: :request do
 
   # camelCase would keep the leading `va` in lower case
   it 'keeps keys with leading va in lower' do
-    hash = { va_key: 'VA Value' }
+    hash = { va_key: 'valueForVA' }
     get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['vaKey']
