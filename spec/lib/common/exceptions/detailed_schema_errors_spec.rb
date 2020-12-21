@@ -180,4 +180,16 @@ describe Common::Exceptions::DetailedSchemaErrors do
       expect(subject[:detail]).to eq 'Unknown data provided'
     end
   end
+
+  context 'unknown error type' do
+    it 'responds with generic validation error data with pointer' do
+      schema = get_fixture 'json/detailed_schema_errors_schema'
+      schema['definitions']['married']['type'] = 'null'
+      validator = JSONSchemer.schema(schema)
+      error = described_class.new(validator.validate(data).to_a).errors.first
+      expect(error[:title]).to eq 'Validation error'
+      expect(error[:code]).to eq '100'
+      expect(error[:source][:pointer]).to eq '/married'
+    end
+  end
 end

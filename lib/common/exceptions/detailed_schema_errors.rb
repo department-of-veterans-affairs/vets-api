@@ -16,7 +16,11 @@ module Common
         @raw_errors.map do |raw_error|
           type = raw_error['type'].downcase
           pointer = raw_error['data_pointer'].presence || '/'
-          error = send type, raw_error
+          error = if respond_to?(type, true)
+                    send type, raw_error
+                  else
+                    I18n.t('common.exceptions.validation_errors')
+                  end
           error.merge! source: { pointer: pointer }
           SerializableError.new error
         end
