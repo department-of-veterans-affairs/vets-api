@@ -36,6 +36,8 @@ module Common
       alias integer data_type
       alias number data_type
       alias string data_type
+      alias object data_type
+      alias array data_type
 
       def enum(error)
         opts = error.dig 'schema', 'enum'
@@ -82,6 +84,20 @@ module Common
         data = i18n_interpolated :schema
         data
       end
+
+      def array_items(error)
+        data = i18n_interpolated :array_items, { detail: { size: error['data'].size } }
+        data[:meta] ||= {}
+        data[:meta][:received_size] = error['data'].size
+        data[:meta][:received_unique_items] = error['data'].size == error['data'].uniq.size
+        data[:meta].merge! max_items: error['schema']['maxItems'] if error['schema']['maxItems']
+        data[:meta].merge! min_items: error['schema']['minItems'] if error['schema']['minItems']
+        data[:meta].merge! unique_items: error['schema']['uniqueItems'] if error['schema']['uniqueItems']
+        data
+      end
+      alias minitems array_items
+      alias maxitems array_items
+      alias uniqueitems array_items
     end
   end
 end

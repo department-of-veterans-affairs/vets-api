@@ -13,6 +13,7 @@
         "email": { "$ref": "#/definitions/email" },
         "gender": { "$ref": "#/definitions/gender" },
         "location": { "$ref": "#/definitions/location" },
+        "favoriteFruits": { "$ref":  "#/definitions/favoriteFruits" },
         "requiredField": { "$ref": "#/definitions/requiredField" }
       },
       "required": ["name", "age", "married", "email", "gender", "location", "requiredField"]
@@ -56,6 +57,16 @@
         "latitude",
         "longitude"
       ]
+    },
+    "favoriteFruits": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/fruit" },
+      "minItems": 3,
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "fruit": {
+      "type": "string"
     },
     "requiredField": {
       "type": "string"

@@ -238,6 +238,12 @@ en:
           detail: Unknown data provided
           code: 156
           status: 422
+        array_items:
+          <<: *defaults
+          title: Invalid array
+          detail: "The %{size} items provided did not match the definition"
+          code: 157
+          status: 422
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services

@@ -75,6 +75,49 @@ describe Common::Exceptions::DetailedSchemaErrors do
       expect(subject[:title]).to eq 'Invalid data type'
       expect(subject[:detail]).to eq 'Expected string data'
     end
+
+    it 'respects object datatype' do
+      data['location'] = Faker::Lorem.word
+      expect(subject[:title]).to eq 'Invalid data type'
+      expect(subject[:detail]).to eq 'Expected object data'
+    end
+
+    it 'respects array datatype' do
+      data['favoriteFruits'] = Faker::Lorem.word
+      expect(subject[:title]).to eq 'Invalid data type'
+      expect(subject[:detail]).to eq 'Expected array data'
+    end
+  end
+
+  context 'arrays' do
+    it 'has title, detail, and meta' do
+      data['favoriteFruits'] = %w[a b]
+      expect(subject[:title]).to eq 'Invalid array'
+      expect(subject[:detail]).to eq 'The 2 items provided did not match the definition'
+      expected_keys = %i[received_size received_unique_items min_items max_items unique_items]
+      expect(subject[:meta].keys).to match_array expected_keys
+    end
+
+    it 'shows received size & uniqueness in meta' do
+      data['favoriteFruits'] = %w[a a a b c d e f]
+      expect(subject[:meta][:received_size]).to eq 8
+      expect(subject[:meta][:received_unique_items]).to eq false
+    end
+
+    it 'respects maximum size' do
+      data['favoriteFruits'] = %w[a b c d e f g h]
+      expect(subject[:meta][:max_items]).to eq 5
+    end
+
+    it 'respects minimum size' do
+      data['favoriteFruits'] = %w[a b]
+      expect(subject[:meta][:min_items]).to eq 3
+    end
+
+    it 'respects uniqueness constraint' do
+      data['favoriteFruits'] = %w[a a a a]
+      expect(subject[:meta][:unique_items]).to eq true
+    end
   end
 
   context 'enums' do
