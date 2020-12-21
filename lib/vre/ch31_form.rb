@@ -26,6 +26,7 @@ module VRE
 
       response = send_to_vre(payload: format_payload_for_vre)
       response_body = response.body
+
       raise Ch31Error if response_body['error_occurred'] == true
 
       log_message_to_sentry(
@@ -34,7 +35,6 @@ module VRE
         { application_intake_id: response_body['application_intake'] },
         SENTRY_TAG
       )
-
       response_body
     rescue Ch31Error => e
       process_ch_31_error(e, response_body)
