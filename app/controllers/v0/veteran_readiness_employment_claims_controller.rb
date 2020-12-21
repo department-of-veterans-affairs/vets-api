@@ -12,6 +12,7 @@ module V0
         Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
+
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       claim.send_to_vre(current_user)
       render json: claim
