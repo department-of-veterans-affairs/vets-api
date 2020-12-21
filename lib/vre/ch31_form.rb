@@ -26,7 +26,7 @@ module VRE
 
       response = send_to_vre(payload: format_payload_for_vre)
       response_body = response.body
-      binding.pry
+
       raise Ch31Error if response_body['error_occurred'] == true
 
       log_message_to_sentry(
@@ -114,7 +114,7 @@ module VRE
       adjusted_new_address = {
         "newAddress": {
           "isForeign": new_address['country'] != 'USA',
-          "isMilitary": new_address['isMilitary'] || false ,
+          "isMilitary": new_address['isMilitary'] || false,
           "countryName": new_address['country'],
           "addressLine1": new_address['street'],
           "addressLine2": new_address['street2'],
