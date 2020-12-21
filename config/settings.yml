@@ -158,6 +158,8 @@ modules_appeals_api:
   higher_level_review_updater_enabled: true
   notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
+  documentation:
+    notice_of_disagreements_v1: false
 
 vre_counseling:
   prefill: true

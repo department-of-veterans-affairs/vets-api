@@ -5,6 +5,8 @@ require_dependency 'appeals_api/form_schemas'
 class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   include Swagger::Blocks
 
+  PATH_ENABLED_FOR_ENV = Settings.modules_appeals_api.documentation.notice_of_disagreements_v1
+
   NOD_TAG = ['Notice of Disagreements'].freeze
 
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
@@ -59,6 +61,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/v1/decision_reviews/notice_of_disagreements' do
+    next unless PATH_ENABLED_FOR_ENV
+
     operation :post, tags: NOD_TAG do
       key :summary, 'Creates a new Notice of Disagreement.'
       key :description, ''
@@ -198,6 +202,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/validate' do
+    next unless PATH_ENABLED_FOR_ENV
+
     operation :post, tags: NOD_TAG do
       key :summary, 'Validates the schema provided to create a NOD'
       key :description, ''
@@ -353,6 +359,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/schema' do
+    next unless PATH_ENABLED_FOR_ENV
+
     operation :get do
       key :summary, 'Get Notice of Disagreement JSON Schema'
       key :operationId, 'getNodJsonSchema'
