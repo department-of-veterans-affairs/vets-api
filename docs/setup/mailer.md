@@ -14,5 +14,3 @@
 These previews are available at:
 
 http://localhost:3000/rails/mailers
-
-https://staging-api.va.gov/rails/mailers/
