@@ -743,6 +743,29 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
         end
       end
+
+      context 'when user has multiple distinct mhv ids' do
+        let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids][:message] }
+        let(:expected_warn_message) do
+          "SessionsController version:v0 context:{} message:#{expected_error_message}"
+        end
+
+        before do
+          allow(UserSessionForm).to receive(:new).and_raise(
+            SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_mhv_ids]
+          )
+        end
+
+        it 'logs an info message to rails logger' do
+          expect(Rails.logger).to receive(:warn).with(expected_warn_message)
+          post(:saml_callback)
+        end
+
+        it 'does not log to sentry' do
+          expect(controller).not_to receive(:log_message_to_sentry)
+          post(:saml_callback)
+        end
+      end
     end
   end
 end
