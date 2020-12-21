@@ -69,7 +69,9 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'returns error objects in JSON API 1.0 ErrorObject format' do
-        expect(parsed['errors'].first.keys).to match_array(%w[code detail meta source status title])
+        expected_keys = %w[code detail links meta sentry_type source status title]
+        expect(parsed['errors'].first.keys).to match_array(expected_keys)
+        expect(parsed['errors'][0]['source']['pointer']).to eq '/data/attributes/hearingTypePreference'
       end
     end
 

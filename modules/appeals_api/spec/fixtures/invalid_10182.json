@@ -1,13 +1,14 @@
 {
   "data": {
-    "type": "invalidType",
+    "type": "noticeOfDisagreement",
     "attributes": {
       "veteran": {
-        "homeless": "false",
+        "homeless": false,
         "representativesName": "Tony Danza"
       },
       "boardReviewOption": "hearing",
-      "timezone": "America/Chicago"
+      "timezone": "America/Chicago",
+      "socOptIn": false
     }
   },
   "included": [

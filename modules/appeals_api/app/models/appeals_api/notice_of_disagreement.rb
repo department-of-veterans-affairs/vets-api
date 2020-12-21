@@ -203,7 +203,7 @@ module AppealsApi
       return if board_review_hearing_selected? && includes_hearing_type_preference?
 
       source = '/data/attributes/hearingTypePreference'
-      data = { title: I18n.t('appeals_api.errors.form_data') }
+      data = I18n.t('common.exceptions.validation_errors')
 
       if hearing_type_missing?
         errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_missing'))
