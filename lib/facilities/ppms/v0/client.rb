@@ -153,7 +153,7 @@ module Facilities
             driveTime: 10_000,
             posCodes: pos_code,
             network: 0,
-            maxResults: (per_page * page + 1).clamp(MIN_RESULTS,MAX_RESULTS)
+            maxResults: (per_page * page + 1).clamp(MIN_RESULTS, MAX_RESULTS)
           }
         end
 
@@ -161,7 +161,6 @@ module Facilities
           page = Integer(params[:page] || 1)
 
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
-
 
           specialty_code = params.slice(:services, :specialties).values.first
           specialty = "'#{specialty_code ? specialty_code[0] : 'null'}'"
@@ -178,7 +177,7 @@ module Facilities
             gender: 0,
             primarycare: 0,
             acceptingnewpatients: 0,
-            maxResults: (per_page * page + 1).clamp(MIN_RESULTS,MAX_RESULTS)
+            maxResults: (per_page * page + 1).clamp(MIN_RESULTS, MAX_RESULTS)
           }
         end
       end

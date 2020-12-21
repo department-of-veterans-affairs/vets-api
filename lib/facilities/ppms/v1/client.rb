@@ -150,7 +150,7 @@ module Facilities
           {
             address: [cnr[:latitude], cnr[:longitude]].join(','),
             radius: cnr[:radius],
-            maxResults: (per_page * page + 1).clamp(MIN_RESULTS,MAX_RESULTS)
+            maxResults: (per_page * page + 1).clamp(MIN_RESULTS, MAX_RESULTS)
           }
         end
 
