@@ -30,7 +30,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     context 'visitor' do
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-          form_params = { veteran_readiness_employment_claim: { form: test_form_no_vet_info.form } }
+          form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
 
           post(:create, params: form_params)
           expect(response.code).to eq('200')
