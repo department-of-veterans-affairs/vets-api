@@ -66,18 +66,18 @@ module Mobile
         raise Common::Exceptions::RecordNotFound, params[:id] unless claim
 
         document_data = EVSSClaimDocument.new(
-            evss_claim_id: claim.evss_id,
-            file_obj: params[:file],
-            uuid: SecureRandom.uuid,
-            file_name: params[:file].original_filename,
-            tracked_item_id: params[:tracked_item_id],
-            document_type: params[:document_type],
-            password: params[:password]
+          evss_claim_id: claim.evss_id,
+          file_obj: params[:file],
+          uuid: SecureRandom.uuid,
+          file_name: params[:file].original_filename,
+          tracked_item_id: params[:tracked_item_id],
+          document_type: params[:document_type],
+          password: params[:password]
         )
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
         jid = document_upload_service.upload_document(document_data)
-        render json: { data: {job_id: jid }}, status: :accepted
+        render json: { data: { job_id: jid } }, status: :accepted
       end
 
       private
