@@ -49,30 +49,35 @@ module AppealsApi::V1
                     key :type, :string
                     key :example, '1234 Couch Street'
                     key :description, 'Address Veteran resides in'
+                    key :maxLength, 100
                   end
 
                   property :addressLine2 do
                     key :type, :string
                     key :example, 'Apt. 22'
                     key :description, 'Additional Address Information Veteran resides in'
+                    key :maxLength, 100
                   end
 
                   property :city do
                     key :type, :string
                     key :example, 'Portland'
                     key :description, 'City Veteran resides in'
+                    key :maxLength, 100
                   end
 
                   property :countryName do
                     key :type, :string
                     key :example, 'USA'
                     key :description, 'Country Veteran resides in'
+                    key :maxLength, 35
                   end
 
                   property :zipCode5 do
                     key :type, :string
                     key :example, '12345'
                     key :description, 'Zipcode (First 5 digits) Veteran resides in'
+                    key :maxLength, 5
                   end
 
                   property :state do
@@ -91,12 +96,15 @@ module AppealsApi::V1
                     key :type, :string
                     key :example, '555'
                     key :description, 'Area code of Veteran phone number'
+                    key :maxLength, 3
                   end
 
                   property :phoneNumber do
                     key :type, :string
                     key :example, '8001111'
                     key :description, 'phone number of Veteran'
+                    key :minLength, 1
+                    key :maxLength, 14
                   end
                 end
 
@@ -104,6 +112,8 @@ module AppealsApi::V1
                   key :type, :string
                   key :example, 'john.doe@example.com'
                   key :description, 'Veteran email address'
+                  key :minLength, 1
+                  key :maxLength, 255
                 end
               end
 
