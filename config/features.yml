@@ -267,10 +267,6 @@ features:
     enable_in_development: true
     description: >
       Enables showing the pre-appointment questionnaire feature.
-  stem_sco_email:
-    actor_type: user
-    description: >
-      Enable/disable SCO email per environment
   show526_wizard:
     actor_type: user
     description: >
