@@ -78,6 +78,8 @@ module VRE
 
       return adjusted_address if adjusted_address.dig(:veteranAddress, :isForeign) == false
 
+      # VRE/CMSA expects different keys for postal and state for foreign addresses
+      # internationPostalCode misspelling is correct
       international_address = adjusted_address[:veteranAddress]
       international_address[:internationPostalCode] = international_address.delete(:zipCode)
       international_address[:province] = international_address.delete(:stateCode)
@@ -90,7 +92,7 @@ module VRE
     end
 
     def adjusted_veteran_information
-      vet_info = claim_form_hash['veteranInformation'].with_indifferent_access
+      vet_info = claim_form_hash['veteranInformation']
 
       vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
 
@@ -106,12 +108,11 @@ module VRE
         newAddress: new_address
       }
 
-      return adjusted_new_address if adjusted_new_address.dig(:newAddress, :isForeign) == false
+      return adjusted_new_address unless new_address[:isForeign]
 
-      new_vet_international_address = adjusted_new_address[:newAddress]
-
-      new_vet_international_address[:internationalPostalCode] = new_vet_international_address.delete(:zipCode)
-      new_vet_international_address[:province] = new_vet_international_address.delete(:stateCode)
+      # VRE/CMSA expects different keys for postal and state for foreign addresses
+      adjusted_new_address[:newAddress][:internationalPostalCode] = adjusted_new_address[:newAddress].delete(:zipCode)
+      adjusted_new_address[:newAddress][:province] = adjusted_new_address[:newAddress].delete(:stateCode)
 
       adjusted_new_address
     end
@@ -127,7 +128,7 @@ module VRE
         city: client_hash['city'],
         stateCode: client_hash['state'],
         zipCode: client_hash['postalCode']
-      }.with_indifferent_access
+      }
     end
 
     def process_ch_31_error(e, response_body)
