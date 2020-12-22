@@ -9,6 +9,6 @@ class StemApplicantScoMailer < TransactionalEmailMailer
 
   def build(applicant, ga_client_id)
     @applicant = applicant
-    super(applicant.email, ga_client_id, {})
+    super([applicant.email], ga_client_id, {})
   end
 end
