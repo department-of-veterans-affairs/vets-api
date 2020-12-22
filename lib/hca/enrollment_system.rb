@@ -85,7 +85,7 @@ module HCA
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
 
-    def format_address(address)
+    def format_address(address, type_code = nil)
       return {} if address.blank?
 
       formatted = address.slice('city', 'country')
@@ -102,6 +102,8 @@ module HCA
         formatted['provinceCode'] = address['state'] || address['provinceCode']
         formatted['postalCode'] = address['postalCode']
       end
+
+      formatted['addressTypeCode'] = type_code if type_code
       formatted
     end
 
@@ -565,16 +567,34 @@ module HCA
       { 'association' => associations }
     end
 
-    def veteran_to_demographics_info(veteran)
-      address = format_address(veteran['veteranAddress'])
-      address['addressTypeCode'] = 'P'
+    def address_from_veteran(veteran)
+      mailing_address  = veteran['veteranMailingAddress']
+      home_address     = veteran['veteranAddress']
 
+      if mailing_address
+        [
+          {
+            # Home address gets marked as "residential"
+            'address' => format_address(home_address, 'R')
+          },
+          {
+            # Mailing address gets marked as "permanent"
+            'address' => format_address(mailing_address, 'P')
+          }
+        ]
+      else
+        {
+          # When only one address present, set the address as "permanent"
+          'address' => format_address(home_address, 'P')
+        }
+      end
+    end
+
+    def veteran_to_demographics_info(veteran)
       {
         'appointmentRequestResponse' => veteran['wantsInitialVaContact'].present?,
         'contactInfo' => {
-          'addresses' => {
-            'address' => address
-          },
+          'addresses' => address_from_veteran(veteran),
           'emails' => email_from_veteran(veteran),
           'phones' => phone_number_from_veteran(veteran)
         },
