@@ -314,14 +314,6 @@ features:
   show_chapter_36:
     actor_type: user
     description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
-  stem_automated_decision:
-    actor_type: user
-    description: >
-      Add automated decision to 10203 application workflow     
-  stem_document_type:
-    actor_type: user
-    description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E Chapter 36 form
   view_payment_history:
     actor_type: user
@@ -360,3 +352,7 @@ features:
     enable_in_development: true
     description: >
       Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+  stem_automated_decision:
+    actor_type: user
+    description: >
+      Add automated decision to 10203 application workflow   
