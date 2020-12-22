@@ -18,6 +18,7 @@ path 'modules' do
   gem 'health_quest'
   gem 'mobile'
   gem 'openid_auth'
+  gem 'test_user_dashboard'
   gem 'va_forms'
   gem 'vaos'
   gem 'vba_documents'

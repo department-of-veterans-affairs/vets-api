@@ -89,6 +89,8 @@ PATH
     health_quest (0.1.0)
     mobile (0.1.0)
     openid_auth (0.0.1)
+    test_user_dashboard (0.1.0)
+      rails (~> 6.0.3, >= 6.0.3.4)
     va_forms (0.0.1)
       faraday
       nokogiri
@@ -1013,6 +1015,7 @@ DEPENDENCIES
   strong_migrations
   super_diff
   swagger-blocks
+  test_user_dashboard!
   timecop
   typhoeus
   tzinfo-data

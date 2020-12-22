@@ -359,6 +359,10 @@ Rails.application.routes.draw do
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
+  unless Rails.env.production?
+    mount TestUserDashboard::Engine, at: '/test-user-dashboard'
+  end
+
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 
   # This globs all unmatched routes and routes them as routing errors
