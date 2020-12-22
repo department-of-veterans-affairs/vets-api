@@ -21,99 +21,17 @@ module AppealsApi::V1
             property :attributes do
               key :type, :object
               key :description, 'Required by JSON API standard'
-              key :required, %i[veteran phone boardReviewOption timezone]
+              key :required, %i[veteran boardReviewOption timezone]
 
               property :veteran do
                 key :type, :object
                 key :description, 'Veteran Object being submitted in appeal'
-                key :required, %i[homeless address phone emailAddressText]
+                key :required, %i[homeless]
 
                 property :homeless do
                   key :type, :boolean
                   key :example, false
                   key :description, 'Flag if Veteran is homeless'
-                end
-
-                property :address do
-                  key :type, :object
-                  key :description, 'Current Mailing Address Object being submitted'
-                  key :required, %i[
-                    addressLine1
-                    city
-                    state
-                    countryName
-                    zipCode5
-                  ]
-
-                  property :addressLine1 do
-                    key :type, :string
-                    key :example, '1234 Couch Street'
-                    key :description, 'Address Veteran resides in'
-                    key :maxLength, 100
-                  end
-
-                  property :addressLine2 do
-                    key :type, :string
-                    key :example, 'Apt. 22'
-                    key :description, 'Additional Address Information Veteran resides in'
-                    key :maxLength, 100
-                  end
-
-                  property :city do
-                    key :type, :string
-                    key :example, 'Portland'
-                    key :description, 'City Veteran resides in'
-                    key :maxLength, 100
-                  end
-
-                  property :countryName do
-                    key :type, :string
-                    key :example, 'USA'
-                    key :description, 'Country Veteran resides in'
-                    key :maxLength, 35
-                  end
-
-                  property :zipCode5 do
-                    key :type, :string
-                    key :example, '12345'
-                    key :description, 'Zipcode (First 5 digits) Veteran resides in'
-                    key :maxLength, 5
-                  end
-
-                  property :state do
-                    key :type, :string
-                    key :example, 'OR'
-                    key :description, 'State Veteran resides in'
-                  end
-                end
-
-                property :phone do
-                  key :type, :object
-                  key :description, 'Current phone number Object being submitted'
-                  key :required, %i[areaCode phoneNumber]
-
-                  property :areaCode do
-                    key :type, :string
-                    key :example, '555'
-                    key :description, 'Area code of Veteran phone number'
-                    key :maxLength, 3
-                  end
-
-                  property :phoneNumber do
-                    key :type, :string
-                    key :example, '8001111'
-                    key :description, 'phone number of Veteran'
-                    key :minLength, 1
-                    key :maxLength, 14
-                  end
-                end
-
-                property :emailAddressText do
-                  key :type, :string
-                  key :example, 'john.doe@example.com'
-                  key :description, 'Veteran email address'
-                  key :minLength, 1
-                  key :maxLength, 255
                 end
               end
 
