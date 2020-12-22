@@ -25,7 +25,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
           vet_info
         )
 
-        described_class.new.perform(dependency_claim.id, vet_info)
+        described_class.new.perform(dependency_claim.id, vet_info, true, false)
       end
     end
 
@@ -38,7 +38,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
           nil
         )
 
-        job.perform('non-existant-claim', vet_info)
+        job.perform('non-existant-claim', vet_info, true, false)
       end
 
       it 'raises an error if there is nothing in the dependents_application is empty' do
@@ -50,11 +50,11 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
         )
 
         vet_info['veteran_information'].delete('ssn')
-        job.perform(invalid_dependency_claim.id, vet_info)
+        job.perform(invalid_dependency_claim.id, vet_info, true, false)
       end
 
       it 'returns false' do
-        job = described_class.new.perform('f', vet_info)
+        job = described_class.new.perform('f', vet_info, true, false)
 
         expect(job).to eq(false)
       end
