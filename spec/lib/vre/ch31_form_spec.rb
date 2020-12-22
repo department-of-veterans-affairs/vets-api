@@ -23,6 +23,24 @@ RSpec.describe VRE::Ch31Form do
     }
   end
 
+  let(:foreign_vet_address_claim) do
+    claim = create(:veteran_readiness_employment_claim)
+    form_copy = claim.parsed_form
+    form_copy['veteranAddress']['country'] = 'DEU'
+    claim.form = form_copy.to_json
+
+    claim
+  end
+
+  let(:foreign_new_address_claim) do
+    claim = create(:veteran_readiness_employment_claim)
+    form_copy = claim.parsed_form
+    form_copy['newAddress']['country'] = 'JPN'
+    claim.form = form_copy.to_json
+
+    claim
+  end
+
   describe '#submit' do
     let(:faraday_response) { double('faraday_connection') }
 
@@ -67,6 +85,62 @@ RSpec.describe VRE::Ch31Form do
 
           expect(response['error_occurred']).to eq(true)
         end
+      end
+    end
+
+    context 'user\'s current (veteran) address is foreign' do
+      it 'updates veteran address zipCode to internationPostalCode' do
+        foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_vet_address_claim)
+        response_double = double('response')
+
+        allow(response_double).to receive(:body) { {'error_occurred' => false, 'application_intake' => '12345'} }
+
+        expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
+          payload: a_string_including("\"internationPostalCode\":\"33928\"")
+        ) { response_double }
+
+        foreign_vet_address_claim_service.submit
+      end
+
+      it 'updates veteran address stateCode to province' do
+        foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_vet_address_claim)
+        response_double = double('response')
+
+        allow(response_double).to receive(:body) { {'error_occurred' => false, 'application_intake' => '12345'} }
+
+        expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
+          payload: a_string_including("\"province\":\"FL\"")
+        ) { response_double }
+
+        foreign_vet_address_claim_service.submit
+      end
+    end
+
+    context 'user\'s new address is foreign' do
+      it 'updates veteran address zipCode to internationPostalCode' do
+        foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_new_address_claim)
+        response_double = double('response')
+
+        allow(response_double).to receive(:body) { {'error_occurred' => false, 'application_intake' => '12345'} }
+
+        expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
+          payload: a_string_including("\"internationalPostalCode\":\"93420\"")
+        ) { response_double }
+
+        foreign_vet_address_claim_service.submit
+      end
+
+      it 'updates veteran address stateCode to province' do
+        foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_new_address_claim)
+        response_double = double('response')
+
+        allow(response_double).to receive(:body) { {'error_occurred' => false, 'application_intake' => '12345'} }
+
+        expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
+          payload: a_string_including("\"province\":\"CA\"")
+        ) { response_double }
+
+        foreign_vet_address_claim_service.submit
       end
     end
   end

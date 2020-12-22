@@ -90,7 +90,7 @@ module VRE
 
       international_address = adjusted_address[:veteranAddress]
       international_address[:internationPostalCode] = international_address.delete(:zipCode)
-      international_address[:province] = international_address.delete(:province)
+      international_address[:province] = international_address.delete(:stateCode)
 
       adjusted_address
     end
@@ -103,6 +103,8 @@ module VRE
       vet_info = claim_form_hash['veteranInformation'].with_indifferent_access
 
       vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
+
+      vet_info['VAFileNumber'] = vet_info['ssn'] if vet_info['VAFileNumber'].nil?
 
       vet_info
     end
