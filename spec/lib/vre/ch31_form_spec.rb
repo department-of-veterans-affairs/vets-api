@@ -93,10 +93,12 @@ RSpec.describe VRE::Ch31Form do
         foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_vet_address_claim)
         response_double = double('response')
 
-        allow(response_double).to receive(:body) { {'error_occurred' => false, 'application_intake' => '12345'} }
+        allow(response_double).to receive(:body).and_return(
+          { 'error_occurred' => false, 'application_intake' => '12345' }
+        )
 
         expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
-          payload: a_string_including("\"internationPostalCode\":\"33928\"")
+          payload: a_string_including('"internationPostalCode":"33928"')
         ) { response_double }
 
         foreign_vet_address_claim_service.submit
@@ -106,10 +108,12 @@ RSpec.describe VRE::Ch31Form do
         foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_vet_address_claim)
         response_double = double('response')
 
-        allow(response_double).to receive(:body) { {'error_occurred' => false, 'application_intake' => '12345'} }
+        allow(response_double).to receive(:body).and_return(
+          { 'error_occurred' => false, 'application_intake' => '12345' }
+        )
 
         expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
-          payload: a_string_including("\"province\":\"FL\"")
+          payload: a_string_including('"province":"FL"')
         ) { response_double }
 
         foreign_vet_address_claim_service.submit
@@ -121,10 +125,12 @@ RSpec.describe VRE::Ch31Form do
         foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_new_address_claim)
         response_double = double('response')
 
-        allow(response_double).to receive(:body) { {'error_occurred' => false, 'application_intake' => '12345'} }
+        allow(response_double).to receive(:body).and_return(
+          { 'error_occurred' => false, 'application_intake' => '12345' }
+        )
 
         expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
-          payload: a_string_including("\"internationalPostalCode\":\"93420\"")
+          payload: a_string_including('"internationalPostalCode":"93420"')
         ) { response_double }
 
         foreign_vet_address_claim_service.submit
@@ -134,10 +140,12 @@ RSpec.describe VRE::Ch31Form do
         foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_new_address_claim)
         response_double = double('response')
 
-        allow(response_double).to receive(:body) { {'error_occurred' => false, 'application_intake' => '12345'} }
+        allow(response_double).to receive(:body).and_return(
+          { 'error_occurred' => false, 'application_intake' => '12345' }
+        )
 
         expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
-          payload: a_string_including("\"province\":\"CA\"")
+          payload: a_string_including('"province":"CA"')
         ) { response_double }
 
         foreign_vet_address_claim_service.submit
