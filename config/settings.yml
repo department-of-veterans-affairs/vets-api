@@ -156,7 +156,10 @@ decision_review:
 # Settings for modules/appeals_api
 modules_appeals_api:
   higher_level_review_updater_enabled: true
+  notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
+  documentation:
+    notice_of_disagreements_v1: false
 
 vre_counseling:
   prefill: true
@@ -549,6 +552,7 @@ flipper:
     - tony.williams@va.gov
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
+    - zmorel@governmentcio.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT

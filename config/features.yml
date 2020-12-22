@@ -164,8 +164,14 @@ features:
       Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
   va_online_scheduling_provider_selection:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables the community care provider selection field
+  va_online_scheduling_cheetah:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables Project Cheetah discovery work
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -261,10 +267,6 @@ features:
     enable_in_development: true
     description: >
       Enables showing the pre-appointment questionnaire feature.
-  stem_sco_email:
-    actor_type: user
-    description: >
-      Enable/disable SCO email per environment
   show526_wizard:
     actor_type: user
     description: >
@@ -340,3 +342,18 @@ features:
     actor_type: cookie_id
     description: >
       This will process attachments of 10-10CG submissions using sidekiq.
+  evss_upload_limit_150mb:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
+  find_forms_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+  stem_applicant_email:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable/disable SCO applicant email per environment

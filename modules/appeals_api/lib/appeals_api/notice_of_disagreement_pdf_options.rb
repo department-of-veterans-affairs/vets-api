@@ -30,52 +30,16 @@ module AppealsApi
       dob 'Veteran'
     end
 
-    def claimant_name
-      name 'Claimant'
-    end
-
-    def claimant_dob
-      dob 'Claimant'
-    end
-
     def hearing_type_preference
       @notice_of_disagreement.hearing_type_preference
     end
 
-    def contact_info
-      @notice_of_disagreement.veteran_contact_info || @notice_of_disagreement.claimant_contact_info
-    end
-
-    def address
-      address_combined = [
-        contact_info.dig('address', 'addressLine1'),
-        contact_info.dig('address', 'addressLine2'),
-        contact_info.dig('address', 'addressLine3')
-      ].compact.map(&:strip).join(' ')
-
-      [
-        address_combined,
-        contact_info.dig('address', 'city'),
-        contact_info.dig('address', 'stateCode'),
-        contact_info.dig('address', 'zipCode5'),
-        contact_info.dig('address', 'countryName')
-      ].compact.map(&:strip).join(', ')
-    end
-
     def homeless?
-      contact_info.dig('homeless')
-    end
-
-    def phone
-      AppealsApi::HigherLevelReview::Phone.new(contact_info&.dig('phone')).to_s
-    end
-
-    def email
-      contact_info.dig('emailAddressText')
+      @notice_of_disagreement.veteran_homeless_state
     end
 
     def representatives_name
-      contact_info.dig('representativesName')
+      @notice_of_disagreement.veteran_representative
     end
 
     def board_review_option
@@ -97,15 +61,7 @@ module AppealsApi
     end
 
     def signature
-      name = [first_name('Claimant'), last_name('Claimant')]
-             .map(&:presence).compact.map(&:strip).join(' ')
-
-      unless name.presence
-        name = [first_name('Veteran'), last_name('Veteran')]
-               .map(&:presence).compact.map(&:strip).join(' ')
-      end
-
-      name
+      [first_name('Veteran'), last_name('Veteran')].map(&:presence).compact.map(&:strip).join(' ')
     end
 
     private
