@@ -111,7 +111,7 @@ RSpec.describe VRE::Ch31Form do
       end
     end
 
-    context 'user\'s new address is foreign' do
+    context "user's new address is foreign" do
       let(:foreign_new_address_claim) do
         claim = create(:veteran_readiness_employment_claim)
         form_copy = claim.parsed_form
