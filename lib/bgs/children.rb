@@ -95,7 +95,7 @@ module BGS
       @children << child_event.serialize_dependent_result(
         participant,
         'Child',
-        'Other',
+        'Biological',
         {
           'event_date': formatted_info['event_date'],
           'type': event_type,
