@@ -111,8 +111,8 @@ module VRE
       return adjusted_new_address unless new_address[:isForeign]
 
       # VRE/CMSA expects different keys for postal and state for foreign addresses
-      adjusted_new_address[:newAddress][:internationalPostalCode] = adjusted_new_address[:newAddress].delete(:zipCode)
-      adjusted_new_address[:newAddress][:province] = adjusted_new_address[:newAddress].delete(:stateCode)
+      new_address[:internationalPostalCode] = new_address.delete(:zipCode)
+      new_address[:province] = new_address.delete(:stateCode)
 
       adjusted_new_address
     end
