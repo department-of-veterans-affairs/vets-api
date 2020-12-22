@@ -17,7 +17,7 @@ module ClaimsApi
       raise "Claim not found with contention: #{contention_id}" if claim.blank?
 
       options = required_claim_fields(claim)
-      options = append_provided_special_issues(options, special_issues)
+      options = append_provided_special_issues(options, contention_id, special_issues)
 
       service.manage_contentions(options)
     rescue BGS::ShareError, BGS::PublicError => e
@@ -34,7 +34,7 @@ module ClaimsApi
       )
     end
 
-    def append_provided_special_issues(options, special_issues)
+    def append_provided_special_issues(options, contention_id, special_issues)
       options[:contentions].each do |contention|
         next unless contention[:cntntn_id] == contention_id
 
@@ -77,9 +77,9 @@ module ClaimsApi
     end
 
     def existing_contentions(claim)
-      return [] if claims[:contentions].blank?
+      return [] if claim[:contentions].blank?
 
-      claims[:contentions].map do |contention|
+      claim[:contentions].map do |contention|
         {
           clm_id: claim[:clm_id],
           special_issues: existing_special_issues(contention)
