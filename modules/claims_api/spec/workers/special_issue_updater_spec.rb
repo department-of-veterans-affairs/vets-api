@@ -10,20 +10,55 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
   end
 
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:contention_id) { 'contention-id-here' }
   let(:special_issues) { %w[ALS PTSD/2] }
-  let(:claim_unestablished) { create(:auto_established_claim) }
-  let(:claim_established) { create(:auto_established_claim, :status_established) }
 
   it 'submits successfully' do
     expect do
-      subject.perform_async(user, special_issues, claim_established)
+      subject.perform_async(user, contention_id, special_issues)
     end.to change(subject.jobs, :size).by(1)
   end
 
-  it 'submits special issues to bgs succesfully' do
-    VCR.use_cassette('contention_web_service/add_special_issues_to_contention') do
-      expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions)
-      subject.new.perform(user, special_issues, claim_established)
+  context 'when no matching claim is found' do
+    let(:claims) { { benefit_claims: [] } }
+
+    it 'job fails and retries later' do
+      expect_any_instance_of(BGS::ContentionService).to receive(:find_contentions_by_ptcpnt_id)
+        .and_return(claims)
+
+      expect {
+        subject.new.perform(user, contention_id, special_issues)
+      }.to raise_error(StandardError)
+    end
+  end
+
+  context 'when a matching claim is found' do
+    context 'when no matching contention is found' do
+      it 'job fails and retries later' do
+        skip '##TODO'
+      end
+    end
+
+    context 'when a matching contention is found' do
+      context 'when contention does not have existing special issues' do
+        it 'all special issues provided are appended to payload' do
+          skip '##TODO'
+        end
+      end
+
+      context 'when contention does have existing special issues' do
+        context 'when one or more special issue provided is new' do
+          it 'new special issues provided are added while preserving existing special issues' do
+            skip '##TODO'
+          end
+        end
+
+        context 'when none of the special issues provided is new' do
+          it 'existing special issues are left unchanged' do
+            skip '##TODO'
+          end
+        end
+      end
     end
   end
 end
