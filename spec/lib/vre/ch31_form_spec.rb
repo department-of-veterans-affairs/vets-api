@@ -121,34 +121,34 @@ RSpec.describe VRE::Ch31Form do
     end
 
     context 'user\'s new address is foreign' do
-      it 'updates veteran address zipCode to internationPostalCode' do
-        foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_new_address_claim)
+      it 'updates veteran address zipCode to internationalPostalCode' do
+        claim_service = VRE::Ch31Form.new(user: user, claim: foreign_new_address_claim)
         response_double = double('response')
 
         allow(response_double).to receive(:body).and_return(
           { 'error_occurred' => false, 'application_intake' => '12345' }
         )
 
-        expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
+        expect(claim_service).to receive(:send_to_vre).with(
           payload: a_string_including('"internationalPostalCode":"93420"')
         ) { response_double }
 
-        foreign_vet_address_claim_service.submit
+        claim_service.submit
       end
 
       it 'updates veteran address stateCode to province' do
-        foreign_vet_address_claim_service = VRE::Ch31Form.new(user: user, claim: foreign_new_address_claim)
+        claim_service = VRE::Ch31Form.new(user: user, claim: foreign_new_address_claim)
         response_double = double('response')
 
         allow(response_double).to receive(:body).and_return(
           { 'error_occurred' => false, 'application_intake' => '12345' }
         )
 
-        expect(foreign_vet_address_claim_service).to receive(:send_to_vre).with(
+        expect(claim_service).to receive(:send_to_vre).with(
           payload: a_string_including('"province":"CA"')
         ) { response_double }
 
-        foreign_vet_address_claim_service.submit
+        claim_service.submit
       end
     end
   end

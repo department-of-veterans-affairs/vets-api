@@ -70,20 +70,10 @@ module VRE
     end
 
     def veteran_address(form_data)
-      vet_address = form_data['veteranAddress']
+      vet_address = mapped_address_hash(form_data['veteranAddress'])
 
       adjusted_address = {
-        veteranAddress: {
-          isForeign: vet_address['country'] != 'USA',
-          isMilitary: vet_address['isMilitary'] || false,
-          countryName: vet_address['country'],
-          addressLine1: vet_address['street'],
-          addressLine2: vet_address['street2'],
-          addressLine3: vet_address['street3'],
-          city: vet_address['city'],
-          stateCode: vet_address['state'],
-          zipCode: vet_address['postalCode']
-        }
+        veteranAddress: vet_address
       }
 
       return adjusted_address if adjusted_address.dig(:veteranAddress, :isForeign) == false
@@ -110,20 +100,10 @@ module VRE
     end
 
     def new_address
-      new_address = claim_form_hash['newAddress']
+      new_address = mapped_address_hash(claim_form_hash['newAddress'])
 
       adjusted_new_address = {
-        "newAddress": {
-          "isForeign": new_address['country'] != 'USA',
-          "isMilitary": new_address['isMilitary'] || false,
-          "countryName": new_address['country'],
-          "addressLine1": new_address['street'],
-          "addressLine2": new_address['street2'],
-          "addressLine3": new_address['street3'],
-          "city": new_address['city'],
-          "stateCode": new_address['state'],
-          "zipCode": new_address['postalCode']
-        }
+        newAddress: new_address
       }
 
       return adjusted_new_address if adjusted_new_address.dig(:newAddress, :isForeign) == false
@@ -134,6 +114,20 @@ module VRE
       new_vet_international_address[:province] = new_vet_international_address.delete(:stateCode)
 
       adjusted_new_address
+    end
+
+    def mapped_address_hash(client_hash)
+      {
+        isForeign: client_hash['country'] != 'USA',
+        isMilitary: client_hash['isMilitary'] || false,
+        countryName: client_hash['country'],
+        addressLine1: client_hash['street'],
+        addressLine2: client_hash['street2'],
+        addressLine3: client_hash['street3'],
+        city: client_hash['city'],
+        stateCode: client_hash['state'],
+        zipCode: client_hash['postalCode']
+      }.with_indifferent_access
     end
 
     def process_ch_31_error(e, response_body)
