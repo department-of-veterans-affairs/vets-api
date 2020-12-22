@@ -36,6 +36,13 @@ class InProgressForm < ApplicationRecord
     }
   end
 
+  def data_and_camelized_metadata
+    {
+      form_data: JSON.parse(form_data),
+      metadata: camelized_metadata
+    }
+  end
+
   def metadata
     data = super || {}
     last_accessed = updated_at || Time.current
@@ -43,6 +50,13 @@ class InProgressForm < ApplicationRecord
       'expires_at' => expires_at.to_i || (last_accessed + expires_after).to_i,
       'last_updated' => updated_at.to_i,
       'in_progress_form_id' => id
+    )
+  end
+
+  def camelized_metadata
+    OliveBranch::Transformations.transform(
+      metadata,
+      OliveBranch::Transformations.method(:camelize)
     )
   end
 

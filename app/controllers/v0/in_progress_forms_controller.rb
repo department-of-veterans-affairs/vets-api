@@ -13,15 +13,15 @@ module V0
       form    = InProgressForm.form_for_user(form_id, @current_user)
 
       if form
-        render json: form.data_and_metadata
+        render json: form.data_and_camelized_metadata
       else
-        render json: FormProfile.for(form_id: form_id, user: @current_user).prefill
+        render json: FormProfile.for(form_id: form_id, user: @current_user).camelized_prefill
       end
     end
 
     def update
       form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first_or_initialize
-      form.update!(form_data: params[:form_data], metadata: params[:metadata])
+      form.update! form_data: form_data, metadata: metadata
       render json: form
     end
 
@@ -31,6 +31,16 @@ module V0
 
       form.destroy
       render json: form
+    end
+
+    private
+
+    def form_data
+      params[:form_data] || params[:formData]
+    end
+
+    def metadata
+      OliveBranch::Transformations.transform params[:metadata], &:underscore
     end
   end
 end
