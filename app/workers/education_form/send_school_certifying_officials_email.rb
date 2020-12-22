@@ -89,6 +89,9 @@ module EducationForm
       if emails.any?
         StatsD.increment("#{stats_key}.success")
         SchoolCertifyingOfficialsMailer.build(@claim.open_struct_form, emails, nil).deliver_now
+        if Flipper.enabled?(:stem_applicant_email, @user)
+          StemApplicantScoMailer.build(@claim.open_struct_form, nil).deliver_now
+        end
         @claim.email_sent(true)
       else
         StatsD.increment("#{stats_key}.failure")

@@ -112,6 +112,8 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
 
     context 'when all conditions are met' do
       before do
+        allow(Flipper).to receive(:enabled?).with(:stem_applicant_email, anything).and_return(true)
+
         gi_bill_status = build(:gi_bill_status_response)
         allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
           .and_return(gi_bill_status)
