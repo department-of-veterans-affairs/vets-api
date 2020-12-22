@@ -7,7 +7,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
   FORM = '28-1900'
 
-  validate :veteran_information, on: :create
+  validate :veteran_information, on: :prepare_form_data
 
   def add_claimant_info(user)
     return if form.blank?

@@ -43,7 +43,6 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
         post(:create, params: { veteran_readiness_employment_claim: { form: { not_valid: 'not valid' } } })
 
         expect(response.code).to eq('422')
-
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             'form - can\'t be blank'
