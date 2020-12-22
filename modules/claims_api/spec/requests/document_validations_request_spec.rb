@@ -41,6 +41,18 @@ RSpec.describe 'Document Validations Requests', type: :request do
       end
     end
 
+    context 'with an explicit form pdf' do
+      let(:params) do
+        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/21-526EZ.pdf") }
+      end
+
+      it 'returns an success' do
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params: params, headers: headers
+        expect(response.status).to eq(200)
+      end
+    end
+
     context 'with a non pdf' do
       let(:params) do
         path = Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/form_2122_json_api.json")

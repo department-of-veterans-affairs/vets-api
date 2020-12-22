@@ -12,7 +12,7 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
-require 'support/mvi/stub_mvi'
+require 'support/mpi/stub_mpi'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
 require 'support/factory_bot'
@@ -29,6 +29,7 @@ require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'super_diff/rspec-rails'
+require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -162,7 +163,7 @@ RSpec.configure do |config|
   end
 
   config.before do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
+    stub_mpi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
 

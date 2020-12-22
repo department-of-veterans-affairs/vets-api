@@ -17,14 +17,36 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
+  ch33_dd:
+    actor_type: user
+    description: >
+      Allows user to access chapter 33 benefits direct deposit view/update APIs
+  ch33_dd_profile:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allows user to access chapter 33 benefits (direct deposit for education) in the front end
+  covid_vaccine_registration_frontend:
+    actor_type: user
+    description: >
+      Toggles the availability of the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration_frontend_cta:
+    actor_type: user
+    description: >
+      Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/" leading to the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration:
+    actor_type: user
+    description: >
+      Toggles availability of covid vaccine form API.
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
       Toggles whether COVID Research volunteer submissions will be delivered to genISIS
-  dashboard_show_covid19_alert:
+  dashboard_show_dashboard_2:
     actor_type: user
+    enable_in_development: true
     description: >
-      Allows for showing a special COVID19 alert on the My VA Dashboard
+      Enables The New My VA Dashboard 2.0
   facility_locator_show_community_cares:
     actor_type: user
     enable_in_development: true
@@ -38,12 +60,18 @@ features:
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
-  facility_locator_ppms_location_query:
+  facility_locator_ppms_use_v1_client:
     actor_type: user
-    description: Use the Lat/Long instead of an address
+    description: Have the V1 API use the PPMS::V1::Client
+  facility_locator_ppms_skip_additional_round_trips:
+    actor_type: user
+    description: Have the PPMS::V1::Client skip the additional round trips to get the type
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
+  facilities_ppms_suppress_pharmacies:
+    actor_type: user
+    description: Front End Flag to suppress the ability to search for pharmacies
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
@@ -60,11 +88,6 @@ features:
     enable_in_development: true
     description: >
       https://www.va.gov/profile/ show Receive Text Notifications
-  profile_show_profile_2.0:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables Profile 2.0
   va_online_scheduling:
     actor_type: user
     enable_in_development: true
@@ -131,8 +154,24 @@ features:
       Enables Express Care request flow in VAOS
   va_online_scheduling_flat_facility_page:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables the new VA facility choice page with a flat list
+  va_online_scheduling_flat_facility_page_sacramento:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
+  va_online_scheduling_provider_selection:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the community care provider selection field
+  va_online_scheduling_cheetah:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables Project Cheetah discovery work
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -142,11 +181,6 @@ features:
     enable_in_development: true
     description: >
       Enables ssoe, as opposed to saml authentication wrapped by id.me
-  edu_benefits_stem_scholarship:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables STEM scholarship functionality
   form526_original_claims:
     actor_type: user
     description: >
@@ -160,6 +194,11 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
+  form526_confirmation_email_show_copy:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Shows vets-website content to inform veterans to expect a form526 confirmation email. Owned by va-notify team.
   va_view_dependents_access:
     actor_type: user
     description: >
@@ -173,31 +212,14 @@ features:
     enable_in_development: true
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
-  allow_online_10_10cg_submissions:
-    actor_type: cookie_id
-    description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
-  stub_carma_responses:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      All 10-10CG submissions (Caregivers Assistance Claims) will not hit CARMA and instead return a dubmmy response.
   gibct_eyb_bottom_sheet:
     actor_type: user
     description: >
       Panel that displays while the user is modifying inputs to give context to their currently estimated benefits until they reach the full your estimated benefits panel.
-  gibct_search_enhancements:
-    actor_type: user
-    description: >
-      Comparison Tool Search Enhancements to improve usability
   form996_higher_level_review:
     actor_type: user
     description: >
       Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
-  gibct_filter_enhancement:
-    actor_type: user
-    description: >
-      Comparison Tool Filter Enhancements to improve usability
   debt_letters_show_letters:
     actor_type: user
     description: >
@@ -232,17 +254,19 @@ features:
       This determines when the wizard should show up on the 1990e introduction page
   get_help_ask_form:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
+  get_help_messages:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables secure messaging
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     enable_in_development: true
     description: >
       Enables showing the pre-appointment questionnaire feature.
-  stem_sco_email:
-    actor_type: user
-    description: >
-      Enable/disable SCO email per environment
   show526_wizard:
     actor_type: user
     description: >
@@ -267,6 +291,14 @@ features:
     actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+  cerner_override_668:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 668 as `isCerner`.
+  cerner_override_757:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 757 as `isCerner`.
   gibct_benefit_filter_enhancement:
     actor_type: user
     description: >
@@ -288,15 +320,41 @@ features:
     description: >
       Add automated decision to 10203 application workflow     
   stem_document_type:
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E Chapter 36 form
+  view_payment_history:
     actor_type: user
     description: >
-      Set 10203 spool file document type
-  stem_text_message_question:
-    actor_type: user
-    description: >
-      Add text message opt-in question to 10203 Personal Information chapter and layout changes     
-  form_1995_edu_updates:
+      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
+  request_locked_pdf_password:
     actor_type: user
     enable_in_development: true
     description: >
-      Form updates to bring EDU forms in compliance with latest DEPO patterns and practices
+      Ask for a password when an encrypted PDF is detected before uploading
+  education_reports_cleanup:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Updates to the daily education reports to remove old data that isn't needed in the new fiscal year
+  search_typeahead_enabled:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables type ahead search functionality
+  allow_online_10_10cg_submissions:
+    actor_type: cookie_id
+    description: >
+      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When enabled, this will redirect visitors from the form's page to the home page (va.gov).
+  async_10_10_cg_attachments:
+    actor_type: cookie_id
+    description: >
+      This will process attachments of 10-10CG submissions using sidekiq.
+  evss_upload_limit_150mb:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
+  find_forms_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.

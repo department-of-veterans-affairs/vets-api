@@ -98,69 +98,94 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
         get '/v1/facilities/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
       end.to instrument('lighthouse.facilities.request.faraday')
     end
+    context 'exclude_mobile=false' do
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        bbox: [-74.730, 40.015, -73.231, 41.515],
+                        page: 2
+                      },
+                      %w[
+                        vc_0102V vc_0857MVC vc_0110V nca_808 vha_526
+                        vha_526QA vc_0109V vha_561GD vc_0132V vha_630A4
+                      ]
 
-    it_behaves_like 'paginated request from params with expected IDs',
-                    {
-                      bbox: [-74.730, 40.015, -73.231, 41.515],
-                      page: 2
-                    },
-                    %w[
-                      vc_0102V vc_0857MVC vc_0110V nca_808 vha_526
-                      vha_526QA vc_0109V vha_561GD vc_0132V vha_630A4
-                    ]
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        bbox: [-122.786758, 45.451913, -122.440689, 45.64]
+                      },
+                      %w[
+                        vba_348e vha_648GI vba_348 vba_348a vc_0617V
+                        vba_348d vha_648 vba_348h vha_648A4 nca_954
+                      ]
 
-    it_behaves_like 'paginated request from params with expected IDs',
-                    {
-                      bbox: [-122.786758, 45.451913, -122.440689, 45.64]
-                    },
-                    %w[
-                      vba_348e vha_648GI vba_348 vba_348a vc_0617V
-                      vba_348d vha_648 vba_348h vha_648A4 nca_954
-                    ]
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        bbox: [-122.786758, 45.451913, -122.440689, 45.64],
+                        type: 'health'
+                      },
+                      %w[vha_648GI vha_648 vha_648A4 vha_648GE]
 
-    it_behaves_like 'paginated request from params with expected IDs',
-                    {
-                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                      type: 'health'
-                    },
-                    %w[vha_648GI vha_648 vha_648A4 vha_648GE]
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        bbox: [-122.786758, 45.451913, -122.440689, 45.64],
+                        type: 'benefits'
+                      },
+                      %w[vba_348e vba_348 vba_348a vba_348d vba_348h]
 
-    it_behaves_like 'paginated request from params with expected IDs',
-                    {
-                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                      type: 'benefits'
-                    },
-                    %w[vba_348e vba_348 vba_348a vba_348d vba_348h]
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        bbox: [-122.786758, 45.451913, -122.440689, 45.64],
+                        type: 'benefits',
+                        services: ['DisabilityClaimAssistance']
+                      },
+                      %w[vba_348]
 
-    it_behaves_like 'paginated request from params with expected IDs',
-                    {
-                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                      type: 'benefits',
-                      services: ['DisabilityClaimAssistance']
-                    },
-                    %w[vba_348]
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        lat: 33.298639,
+                        long: -111.789659
+                      },
+                      %w[
+                        vha_644BY vc_0524V vba_345f vba_345g vba_345
+                        vha_644QA vc_0517V vha_644GG vha_644 vha_644QB
+                      ]
 
-    it_behaves_like 'paginated request from params with expected IDs',
-                    {
-                      lat: 33.298639,
-                      long: -111.789659
-                    },
-                    %w[
-                      vha_644BY vc_0524V vba_345f vba_345g vba_345
-                      vha_644QA vc_0517V vha_644GG vha_644 vha_644QB
-                    ]
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        zip: 85_297
+                      },
+                      ['vha_644BY']
 
-    it_behaves_like 'paginated request from params with expected IDs',
-                    {
-                      zip: 85_297
-                    },
-                    ['vha_644BY']
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        ids: 'vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD'
+                      },
+                      %w[vha_442 vha_552 vha_552GB vha_442GC vha_442GB vha_552GA vha_552GD]
+    end
 
-    it_behaves_like 'paginated request from params with expected IDs',
-                    {
-                      ids: 'vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD'
-                    },
-                    %w[vha_442 vha_552 vha_552GB vha_442GC vha_442GB vha_552GA vha_552GD]
+    context 'exclude_mobile=true' do
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        exclude_mobile: true,
+                        bbox: [-74.730, 40.015, -73.231, 41.515],
+                        page: 2
+                      },
+                      %w[
+                        vc_0102V vc_0110V nca_808 vha_526
+                        vc_0109V vha_561GD vc_0132V vha_630A4
+                      ]
+
+      it_behaves_like 'paginated request from params with expected IDs',
+                      {
+                        exclude_mobile: true,
+                        lat: 33.298639,
+                        long: -111.789659
+                      },
+                      %w[
+                        vha_644BY vc_0524V vba_345f vba_345g vba_345
+                        vha_644QA vc_0517V vha_644GG vha_644
+                      ]
+    end
   end
 
   describe 'GET #show' do

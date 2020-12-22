@@ -13,7 +13,8 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
   it 'builds the extra pdf options' do
     higher_level_review = create(:extra_higher_level_review)
     constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review.id)
-    options = valid_pdf_options.merge(additional_page: "Issue: sleep apnea - Decision Date: 1900-01-07\n")
+    extra_page = "Issue: sleep apnea - Decision Date: 1900-01-08\nIssue: left shoulder - Decision Date: 1900-01-07\n"
+    options = valid_pdf_options.merge(additional_pages: extra_page)
     expect(constructor.pdf_options).to eq(options)
   end
 
@@ -43,6 +44,11 @@ describe AppealsApi::HigherLevelReviewPdfConstructor do
       'F[0].#subform[2].VAFileNumber[0]': '987654321',
       'F[0].#subform[2].VeteransServiceNumber[0]': '876543210',
       'F[0].#subform[2].InsurancePolicyNumber[0]': '987654321123456789',
+      "F[0].#subform[2].ClaimantType[0]": 'off',
+      "F[0].#subform[2].ClaimantType[1]": 'off',
+      "F[0].#subform[2].ClaimantType[2]": 'off',
+      "F[0].#subform[2].ClaimantType[3]": 'off',
+      "F[0].#subform[2].ClaimantType[4]": 1,
       'F[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]': no_address_provided,
       'F[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]': '',
       'F[0].#subform[2].CurrentMailingAddress_City[0]': '',

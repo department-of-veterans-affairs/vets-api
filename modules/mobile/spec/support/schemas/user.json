@@ -33,7 +33,7 @@
                 "firstName",
                 "middleName",
                 "lastName",
-                "email",
+                "signinEmail",
                 "residentialAddress",
                 "mailingAddress"
               ],
@@ -47,14 +47,36 @@
                 "lastName": {
                   "type": "string"
                 },
-                "email": {
+                "contactEmail": {
+                  "$ref": "email.json"
+                },
+                "signinEmail": {
                   "type": "string"
+                },
+                "birth_date": {
+                  "type": "string"
+                },
+                "gender": {
+                  "type": "string",
+                  "enum": ["F", "M"]
                 },
                 "residentialAddress": {
                   "$ref": "address.json"
                 },
                 "mailingAddress": {
                   "$ref": "address.json"
+                },
+                "faxNumber": {
+                  "$ref": "phone.json"
+                },
+                "homePhoneNumber": {
+                  "$ref": "phone.json"
+                },
+                "mobilePhoneNumber": {
+                  "$ref": "phone.json"
+                },
+                "workPhoneNumber": {
+                  "$ref": "phone.json"
                 }
               }
             },

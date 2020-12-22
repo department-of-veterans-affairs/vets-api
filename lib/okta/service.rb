@@ -13,6 +13,7 @@ module Okta
     API_BASE_PATH = '/api/v1'
     USER_API_BASE_PATH = "#{API_BASE_PATH}/users"
     APP_API_BASE_PATH = "#{API_BASE_PATH}/apps"
+    AUTH_SERVER_API_BASE_PATH = "#{API_BASE_PATH}/authorizationServers"
 
     configuration Okta::Configuration
 
@@ -25,9 +26,29 @@ module Okta
       end
     end
 
+    def call_no_token(action, url)
+      connection.send(action) do |req|
+        req.url url
+        req.headers['Content-Type'] = 'application/json'
+        req.headers['Accept'] = 'application/json'
+      end
+    end
+
     def app(app_id)
       with_monitoring do
         get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}")
+      end
+    end
+
+    def get_auth_servers
+      with_monitoring do
+        get_url_with_token(AUTH_SERVER_API_BASE_PATH)
+      end
+    end
+
+    def get_server_scopes(server_id)
+      with_monitoring do
+        get_url_with_token("#{AUTH_SERVER_API_BASE_PATH}/#{server_id}/scopes")
       end
     end
 
@@ -52,14 +73,14 @@ module Okta
     def metadata(iss)
       proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
       with_monitoring do
-        get_url_with_token(proxied_iss + '/.well-known/openid-configuration')
+        get_url_no_token(proxied_iss + '/.well-known/openid-configuration')
       end
     end
 
     def oidc_jwks_keys(iss)
       url = metadata(iss).body['jwks_uri']
       with_monitoring do
-        get_url_with_token(url)
+        get_url_no_token(url)
       end
     end
 
@@ -69,6 +90,10 @@ module Okta
       define_method("#{http_verb}_url_with_token".to_sym) do |url|
         Okta::Response.new call_with_token(http_verb, url)
       end
+    end
+
+    def get_url_no_token(url)
+      Okta::Response.new call_no_token('get', url)
     end
   end
 end

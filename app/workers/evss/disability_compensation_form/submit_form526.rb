@@ -7,8 +7,8 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
       # Sidekiq has built in exponential back-off functionality for retrys
-      # A max retry attempt of 13 will result in a run time of ~25 hours
-      RETRY = 13
+      # A max retry attempt of 15 will result in a run time of ~36 hours
+      RETRY = 15
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
       sidekiq_options retry: RETRY
@@ -16,7 +16,7 @@ module EVSS
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
-        job_exhausted(msg)
+        job_exhausted(msg, STATSD_KEY_PREFIX)
       end
       # :nocov:
 

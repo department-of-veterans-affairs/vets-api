@@ -178,7 +178,7 @@ RSpec.describe Users::Profile do
     end
 
     context '#va_profile' do
-      context 'when user.mvi is not nil' do
+      context 'when user.mpi is not nil' do
         it 'includes birth_date' do
           expect(va_profile[:birth_date]).to eq(user.va_profile[:birth_date])
         end
@@ -204,7 +204,7 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'when user.mvi is nil' do
+      context 'when user.mpi is nil' do
         let(:user) { build :user }
 
         it 'returns va_profile as null' do
@@ -225,8 +225,8 @@ RSpec.describe Users::Profile do
         end
       end
 
-      context 'when user.mvi is not found' do
-        before { stub_mvi_not_found }
+      context 'when user.mpi is not found' do
+        before { stub_mpi_not_found }
 
         it 'returns va_profile as null' do
           expect(va_profile).to be_nil
@@ -248,7 +248,7 @@ RSpec.describe Users::Profile do
     end
 
     context '#veteran_status' do
-      context 'when a veteran status is succesfully returned' do
+      context 'when a veteran status is successfully returned' do
         it 'includes is_veteran' do
           expect(veteran_status[:is_veteran]).to eq(user.veteran?)
         end

@@ -43,14 +43,10 @@ module CARMA
         }
       end
 
-      def submit!(client)
+      def submit!(client = CARMA::Client::Client.new)
         return response if response
 
-        @response = if Flipper.enabled?(:stub_carma_responses)
-                      client.upload_attachments_stub(to_request_payload)
-                    else
-                      client.upload_attachments(to_request_payload)
-                    end
+        @response = client.upload_attachments(to_request_payload)
 
         @has_errors = @response['hasErrors']
 

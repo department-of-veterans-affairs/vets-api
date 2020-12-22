@@ -16,6 +16,9 @@ FactoryBot.define do
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       sec_id { nil }
+      participant_id { nil }
+      birls_id { nil }
+      icn { nil }
       mhv_icn { nil }
       multifactor { false }
       mhv_correlation_id { nil }
@@ -51,6 +54,9 @@ FactoryBot.define do
                              ssn: t.ssn,
                              idme_uuid: t.idme_uuid,
                              sec_id: t.sec_id,
+                             participant_id: t.participant_id,
+                             birls_id: t.birls_id,
+                             icn: t.icn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
                              multifactor: t.multifactor,
@@ -149,7 +155,7 @@ FactoryBot.define do
 
     factory :user_with_no_ids, traits: [:loa3] do
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             birls_id: nil,
@@ -161,7 +167,7 @@ FactoryBot.define do
 
     factory :user_with_no_birls_id, traits: [:loa3] do
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             birls_id: nil
@@ -172,7 +178,7 @@ FactoryBot.define do
 
     factory :user_with_no_secid, traits: [:loa3] do
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             sec_id: nil
@@ -183,7 +189,7 @@ FactoryBot.define do
 
     factory :vets360_user, traits: [:loa3] do
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             vet360_id: '1411684'
@@ -199,7 +205,7 @@ FactoryBot.define do
       ssn { '796043735' }
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             edipi: '1007697216',
@@ -218,7 +224,7 @@ FactoryBot.define do
       ssn { '796043735' }
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             edipi: nil,
@@ -238,7 +244,7 @@ FactoryBot.define do
       ssn { '796068949' }
 
       after(:build) do
-        stub_mvi(build(:mvi_profile, birls_id: '796068948'))
+        stub_mpi(build(:mvi_profile, birls_id: '796068948'))
       end
     end
 
@@ -249,7 +255,7 @@ FactoryBot.define do
       ssn { nil }
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             edipi: '1007697216',
@@ -274,15 +280,31 @@ FactoryBot.define do
       ssn { '796043735' }
 
       after(:build) do
-        stub_mvi(
+        stub_mpi(
           build(
-            :mvi_profile_response,
+            :mpi_profile_response,
             edipi: '1007697216',
             birls_id: '796043735',
             participant_id: '600061742',
             birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
           )
         )
+      end
+    end
+
+    factory :ch33_dd_user, traits: [:loa3] do
+      ssn { '796104437' }
+
+      after(:build) do
+        stub_mpi(
+          build(
+            :mvi_profile,
+            icn: '82836359962678900'
+          )
+        )
+
+        allow(BGS.configuration).to receive(:env).and_return('prepbepbenefits')
+        allow(BGS.configuration).to receive(:client_ip).and_return('10.247.35.119')
       end
     end
 
@@ -349,7 +371,7 @@ FactoryBot.define do
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
       after(:build) do |_user, t|
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             icn: '1000123456V123456',
@@ -396,7 +418,7 @@ FactoryBot.define do
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
       after(:build) do |_user, t|
-        stub_mvi(
+        stub_mpi(
           build(
             :mvi_profile,
             icn: '1000123456V123456',

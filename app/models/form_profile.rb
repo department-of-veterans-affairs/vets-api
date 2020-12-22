@@ -100,10 +100,13 @@ class FormProfile
     dependents: ['686C-674'],
     decision_review: ['20-0996'],
     mdot: ['MDOT'],
-    vre_counseling: ['28-8832']
+    fsr: ['5655'],
+    vre_counseling: ['28-8832'],
+    vre_readiness: ['28-1900']
   }.freeze
 
   FORM_ID_TO_CLASS = {
+    '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
@@ -123,7 +126,9 @@ class FormProfile
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'MDOT' => ::FormProfiles::MDOT,
     '22-10203' => ::FormProfiles::VA10203,
-    '28-8832' => ::FormProfiles::VA288832
+    '5655' => ::FormProfiles::VA5655,
+    '28-8832' => ::FormProfiles::VA288832,
+    '28-1900' => ::FormProfiles::VA281900
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
@@ -135,7 +140,7 @@ class FormProfile
   attribute :military_information, FormMilitaryInformation
 
   def self.prefill_enabled_forms
-    forms = %w[21-686C 40-10007]
+    forms = %w[21-686C 40-10007 0873]
     ALL_FORMS.each { |type, form_list| forms += form_list if Settings[type].prefill }
     forms
   end
@@ -345,10 +350,28 @@ class FormProfile
     prefilled = {}
 
     hash.each do |k, v|
-      prefilled[k.camelize(:lower)] = v.is_a?(Hash) ? convert_mapping(v) : call_methods(v)
+      if v.is_a?(Array) && v.any?(Hash)
+        prefilled[k.camelize(:lower)] = []
+
+        v.each do |h|
+          nested_prefill = {}
+
+          h.each do |key, val|
+            nested_prefill[key.camelize(:lower)] = convert_value(val)
+          end
+
+          prefilled[k.camelize(:lower)] << nested_prefill
+        end
+      else
+        prefilled[k.camelize(:lower)] = convert_value(v)
+      end
     end
 
     prefilled
+  end
+
+  def convert_value(val)
+    val.is_a?(Hash) ? convert_mapping(val) : call_methods(val)
   end
 
   def generate_prefill(mappings)

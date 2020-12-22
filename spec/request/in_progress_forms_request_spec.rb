@@ -85,7 +85,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
         context 'with the x key inflection header set' do
           let(:form_data) do
-            { foo_bar: 1 }
+            { 'view:hasVaMedicalRecords' => true }
           end
 
           it 'converts the json keys' do
@@ -96,7 +96,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             expect(response.body).to eq({
               form_data: form_data,
               metadata: in_progress_form.metadata
-            }.to_camelback_keys.to_json)
+            }.deep_transform_keys { |key| key.to_s.underscore.camelize(:lower) }.to_json)
           end
         end
       end

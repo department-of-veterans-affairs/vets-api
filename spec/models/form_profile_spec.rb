@@ -30,6 +30,18 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:veteran_service_information) do
+    {
+      'dateOfBirth' => user.birth_date,
+      'socialSecurityNumber' => user.ssn,
+      'branchOfService' => 'Air Force',
+      'serviceDateRange' => {
+        'from' => '2007-04-01',
+        'to' => '2007-04-02'
+      }
+    }
+  end
+
   let(:veteran_full_name) do
     {
       'veteranFullName' => full_name
@@ -65,6 +77,16 @@ RSpec.describe FormProfile, type: :model do
           'phoneNumber' => us_phone
         }
       }
+    }
+  end
+
+  let(:v0873_expected) do
+    {
+      'fullName' => full_name,
+      'email' => user.pciu_email,
+      'phone' => us_phone,
+      'address' => address,
+      'veteranServiceInformation' => veteran_service_information
     }
   end
 
@@ -558,6 +580,31 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v5655_expected) do
+    {
+      'personalIdentification' => {
+        'ssn' => user.ssn.last(4),
+        'fileNumber' => '7890'
+      },
+      'personalData' => {
+        'fullName' => full_name,
+        'address' => address,
+        'phone' => us_phone,
+        'email' => user.pciu_email,
+        'dateOfBirth' => user.birth_date
+      },
+      'income' => [
+        {
+          'veteranOrSpouse' => 'VETERAN',
+          'otherIncome' => {
+            'name' => 'VA Benefits',
+            'amount' => '541.83'
+          }
+        }
+      ]
+    }
+  end
+
   let(:vvic_expected) do
     {
       'email' => user.pciu_email,
@@ -604,7 +651,7 @@ RSpec.describe FormProfile, type: :model do
         'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
+        'country' => 'US',
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhone' => us_phone,
@@ -699,9 +746,26 @@ RSpec.describe FormProfile, type: :model do
         'addressLine2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'stateCode' => user.va_profile[:address][:state],
-        'countryName' => 'USA',
+        'countryName' => user.va_profile[:address][:country],
         'zipCode' => user.va_profile[:address][:postal_code][0..4]
-      }
+      },
+      'claimantPhoneNumber' => us_phone,
+      'claimantEmailAddress' => user.pciu_email
+    }
+  end
+
+  let(:v28_1900_expected) do
+    {
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'mainPhone' => us_phone,
+      'email' => user.pciu_email
     }
   end
 
@@ -790,6 +854,26 @@ RSpec.describe FormProfile, type: :model do
       it 'returns a prefilled MDOT form' do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
+        end
+      end
+    end
+
+    context 'with a user that can prefill financial status report' do
+      before do
+        allow_any_instance_of(BGS::PeopleService).to(
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        )
+        allow_any_instance_of(User).to(
+          receive(:participant_id).and_return('111111')
+        )
+        allow_any_instance_of(User).to(
+          receive(:icn).and_return('999999')
+        )
+      end
+
+      it 'returns a prefilled 5655 form' do
+        VCR.use_cassette('bgs/awards_service/get_awards') do
+          expect_prefilled('5655')
         end
       end
     end
@@ -910,6 +994,17 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
+      context 'with emis and vet360 prefill for 0873' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+        end
+
+        it 'prefills 0873' do
+          expect_prefilled('0873')
+        end
+      end
+
       context 'with emis prefill for 10203' do
         before do
           stub_methods_for_emis_data
@@ -984,6 +1079,7 @@ RSpec.describe FormProfile, type: :model do
           FEEDBACK-TOOL
           686C-674
           28-8832
+          28-1900
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)

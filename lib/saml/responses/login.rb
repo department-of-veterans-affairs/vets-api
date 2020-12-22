@@ -7,18 +7,6 @@ module SAML
     class Login < OneLogin::RubySaml::Response
       include SAML::Responses::Base
 
-      def initialize(saml_response, options = {})
-        super(saml_response, options)
-      rescue OpenSSL::PKey::RSAError => e # "padding check failed." when decrypt fails
-        # :nocov: Temporary code only required during key rollovers using a new private key
-        raise e unless Settings.saml.key_new
-
-        duped_options = options.dup
-        duped_options[:settings].private_key = Settings.saml.key_new
-        super(saml_response, duped_options)
-        # :nocov:
-      end
-
       def errors_message
         @errors_message ||= if errors.any?
                               message = 'Login Failed! '
@@ -26,6 +14,17 @@ module SAML
                               message += ' Multiple SAML Errors' if normalized_errors.count > 1
                               message
                             end
+      end
+
+      def status_detail
+        @status_detail ||= begin
+          node = REXML::XPath.first(
+            decrypted_document || document,
+            '/p:Response/p:Status/p:StatusDetail',
+            { 'p' => PROTOCOL }
+          )
+          node.nil? ? nil : node.each_element_with_text.join(', ')
+        end
       end
     end
   end

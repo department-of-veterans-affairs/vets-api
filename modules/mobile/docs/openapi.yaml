@@ -20,14 +20,340 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Message"
+                $ref: "./schemas/Message.yml"
 
+  /v0/appointments:
+    get:
+      summary: /v0/appointments
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments
+      operationId: getAppointments
+      security:
+        - Bearer: []
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: datetime
+          description: The start date for the range of appointments in ISO 8601 UTC format
+          example: 2020-10-29T07:00:00.000Z
+        - in: query
+          name: endDate
+          schema:
+            type: datetime
+          description: The end date for the range of appointments in ISO 8601 UTC format
+          example: 2021-11-29T08:00:00.000Z
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Appointments.yml"
+              examples:
+                VA Appointment:
+                  value:
+                    $ref: "./examples/appointments/va_appointment.yml"
+                VA Video Connect Appointment:
+                  value:
+                    $ref: "./examples/appointments/va_video_connect_appointment.yml"
+                VA Video Connect ATLAS Appointment:
+                  value:
+                    $ref: "./examples/appointments/va_video_connect_atlas_appointment.yml"
+                Community Care Appointment:
+                  value:
+                    $ref: "./examples/appointments/cc_appointment.yml"
 
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/military-service-history:
+    get:
+      summary: /v0/military-service-history
+      description: Returns user's service history
+      operationId: getServiceHistory
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/MilitaryHistory.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/letters:
+    get:
+      summary: /v0/letters
+      description: Returns the list of letter names and types for the given user
+      operationId: letters
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Letters.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/letters/beneficiary:
+    get:
+      summary: /v0/letters/beneficiary
+      description: Returns benefit info and options for the given user with or without a dependent
+      operationId: beneficiary
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/LettersBeneficiaryInfo.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/letters/{type}/download:
+    post:
+      summary: /v0/letters/{type}/download
+      description: Returns requested letter for download
+      operationId: download
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: type
+          required: true
+          schema:
+            type: string
+          description: letter type
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/LetterOptions.yml'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/user:
     get:
       summary: /v0/user
       description: >
-        \[Partially implemented\] Returns the user profile, including the user's addresses and the services
+        Returns the user profile, including the user's addresses and the services
         the user has the requisite ids to access. Meta data for this endpoint returns all the services available in the API.
       operationId: user.getProfile
       security:
@@ -47,7 +373,7 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: "#/components/schemas/User"
+                    $ref: "./schemas/User.yml"
                   meta:
                     properties:
                       availableServices:
@@ -65,51 +391,112 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '404':
           description: The requested resource could not be found.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '408':
           description: The response from this API timed out.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '500':
           description: An internal API error occured.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '502':
           description: An upstream service the API depends on returned an error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '503':
           description: An upstream service is unavailable, or its circuit breaker may have been tripped.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '504':
           description: A response from an upstream service timed out.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
 
-  /v0/user/address:
-    put:
-      summary: /v0/user/address
-      description: \[Not implemented\] Returns the user profile
-      operationId: user.updateAddress
+  /v0/user/logout:
+    get:
+      summary: /v0/user/logout
+      description: >
+        Logs the user out by revoking their access token from the IAM SSOe OAuth service and destroying the IAM user, user identity, and session objects from Redis.
+      operationId: user.logout
       security:
         - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '400':
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+
+  /v0/user/addresses:
+    post:
+      summary: /v0/user/addresses
+      description: Creates a new residential or mailing address for a user. Calling this endpoint is the second step in adding a new address for a user. The first step is to call the address validation endpoint to check if an address is valid. If it is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
+      operationId: user.createAddress
+      security:
+        - Bearer: [ ]
       parameters:
         - in: header
           name: X-Key-Inflection
@@ -123,18 +510,213 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddressUpdate'
+              $ref: '#./schemas/AddressCreate.yml'
+            examples:
+              Using Suggested Address:
+                value:
+                  addressMetaData:
+                    confidenceScore: 100
+                    addressType: Domestic
+                    deliveryPointValidation: CONFIRMED
+                    residentialDeliveryIndicator: RESIDENTIAL
+                  addressLine1: "1493 Martin Luther King Rd"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  addressType: "DOMESTIC"
+                  addressPou: "RESIDENCE/CHOICE"
+              Using Overridden Address:
+                value:
+                  addressLine1: "1493 Martin Luther King Rd"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  addressType: "DOMESTIC"
+                  addressPou: "RESIDENCE/CHOICE"
+                  validationKey: -1206619807
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/AddressTransaction.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    put:
+      summary: /v0/user/addresses
+      description: Updates a user's residential or mailing address. Calling this endpoint is the second step in adding a new address for a user. The first step is to call the address validation endpoint to check if an address is valid. If it is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
+      operationId: user.updateAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: A domestic, internation, or military address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#./schemas/AddressUpdate.yml'
+            examples:
+              Using Suggested Address:
+                value:
+                  addressMetaData:
+                    confidenceScore: 100
+                    addressType: Domestic
+                    deliveryPointValidation: CONFIRMED
+                    residentialDeliveryIndicator: RESIDENTIAL
+                  addressLine1: "1493 Martin Luther King Rd"
+                  addressPou: "RESIDENCE/CHOICE"
+                  addressType: "DOMESTIC"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  id: 181513
+              Using Overridden Address:
+                value:
+                  addressLine1: "1493 Martin Luther King Rd"
+                  addressPou: "RESIDENCE/CHOICE"
+                  addressType: "DOMESTIC"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  id: 181513
+                  validationKey: -1206619807
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/AddressTransaction.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+
+  /v0/user/addresses/validate:
+    post:
+      summary: /v0/user/addresses/validate
+      description: Validates a residential or mailing address for a user. Calling this endpoint is the first step in adding a new address for a user. If the address is valid you'll receive a 'addressMetaData' object back with the addresses confidence score. This object should then be included along with the new address in the request body. If the user wishes to continue with an 'invalid' address then the 'validationKey' should be passed along with the new address in the request body. This lets the underlying service know that an invalid address be passed through.
+      operationId: user.validateAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: A domestic, internation, or military address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#./schemas/Address.yml'
             example:
-              validationKey: 0,
-              addressLine1: "1493 Martin Luther King Rd"
-              addressLine2: "string"
-              addressLine3: "string"
-              addressPou: "RESIDENCE/CHOICE"
+              addressLine1: "51 W Weber Rd"
+              addressPou: "CORRESPONDENCE"
               addressType: "DOMESTIC"
-              city: "Fulton"
+              city: "Columbus"
               countryName: "United States"
-              stateCode: "MS"
-              zipCode: "38843"
+              countryCodeIso3: "USA"
+              stateCode: "OH"
+              type: "DOMESTIC"
+              zipCode: "43202"
       responses:
         '200':
           description: OK
@@ -152,7 +734,7 @@ paths:
                         example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
                       type:
                         type: string
-                        example: "asyncTransactionVet360AddressTransactions"
+                        example: "suggested_address"
                       attributes:
                         type: object
                         required:
@@ -160,63 +742,190 @@ paths:
                           - transactionStatus
                           - type
                         properties:
-                          transactionId:
+                          addressLine1:
                             type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
+                            example: "51 W Weber Rd"
+                          addressLine2:
+                            type: [ string, null ]
+                            example: null
+                          addressLine3:
+                            type: [ string, null ]
+                            example: null
+                          addressPou:
                             type: string
-                            example: "RECEIVED"
-                          type:
+                            example: "RESIDENCE/CHOICE"
+                          addressType:
                             type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
+                            example: "DOMESTIC"
+                          city:
+                            type: string
+                            example: "Columbus"
+                          countryCodeIso3:
+                            type: string
+                            example: "USA"
+                          internationalPostalCode:
+                            type: [ string, null ]
+                            example: null
+                          province:
+                            type: [ string, null ]
+                            example: null
+                          stateCode:
+                            type: string
+                            example: "OH"
+                          zipCode:
+                            type: string
+                            example: "43202"
+                          zipCodeSuffix:
+                            type: string
+                            example: "1922"
+                      meta:
+                        type: object
+                        properties:
+                          address:
+                            type: object
+                            properties:
+                              confidenceScore:
+                                type: float
+                                example: 100.0
+                                addressType:
+                                  type: string
+                                  example: "Domestic"
+                                deliveryPointValidation:
+                                  type: string
+                                  example: "CONFIRMED"
+                                residentialDeliveryIndicator:
+                                  type: string
+                                  example: "RESIDENTIAL"
+                          validationKey:
+                            type: integer
+                            example: -1398777841
+
+              examples:
+                Single match:
+                  value:
+                    $ref: "./examples/appointments/va_appointment.yml"
+                Multiple matches:
+                  value:
+                    $ref: "./examples/appointments/va_appointment.yml"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '408':
           description: The response from this API timed out.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '422':
           description: Unprocessable Entity, usually because of one or more invalid parameters.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '500':
           description: An internal API error occured.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '502':
           description: An upstream service the API depends on returned an error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '503':
           description: An upstream service is unavailable, or its circuit breaker may have been tripped.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '504':
           description: A response from an upstream service timed out.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
 
-  /v0/user/transaction-status:
-    get:
-      summary: /v0/user/transaction-status/:transactionId
-      description: \[Not implemented\] Returns the status of a user profile update (e.g. address update)
-      operationId: user.updateAddress
+  /v0/user/emails:
+    post:
+      summary: /v0/user/emails
+      description: Creates a new email address
+      operationId: user.createEmailAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new email address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#./schemas/Email.yml'
+            example:
+              emailAddress: "person42@example.com"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/EmailTransaction.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    put:
+      summary: /v0/user/emails
+      description: Updates a user's email address
+      operationId: user.updateEmailAddress
       security:
         - Bearer: []
       parameters:
@@ -226,90 +935,732 @@ paths:
             type: string
             description: Allows the API to return camelCase keys rather than snake_case.
             example: 'camel'
-        - in: query
-          name: transactionId
-          schema:
-            type: string
-            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-          required: true
-          description: The id of the transaction being looked up
+      requestBody:
+        description: The new email address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/EmailUpdate.yml'
+            example:
+              id: 42,
+              emailAddress: "person42@example.com"
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "asyncTransactionVet360AddressTransactions"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          transactionId:
-                            type: string
-                            example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                          transactionStatus:
-                            type: string
-                            example: "COMPLETED_SUCCESS"
-                          type:
-                            type: string
-                            example: "AsyncTransaction::Vet360::AddressTransaction"
+                $ref: "./schemas/EmailTransaction.yml"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
-        '404':
-          description: The requested resource could not be found.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '408':
           description: The response from this API timed out.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
         '500':
           description: An internal API error occured.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '502':
           description: An upstream service the API depends on returned an error.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '503':
           description: An upstream service is unavailable, or its circuit breaker may have been tripped.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
         '504':
           description: A response from an upstream service timed out.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "./schemas/Errors.yml"
 
+  /v0/user/phones:
+    post:
+      summary: /v0/user/phones
+      description: Creats a phone number for a user
+      operationId: user.createPhoneNumber
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new phone number
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#./schemas/Phone.yml"
+            example:
+              areaCode: "704"
+              countryCode: "1"
+              phoneNumber: "7749069"
+              phoneType: "HOME"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/PhoneTransaction.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    put:
+      summary: /v0/user/phones
+      description: Updates a user's phone number
+      operationId: user.updatePhoneNumber
+      security:
+        - Bearer: []
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new phone number
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#./schemas/PhoneUpdate.yml"
+            example:
+              id: 157032
+              areaCode: "704"
+              countryCode: "1"
+              phoneNumber: "7749069"
+              phoneType: "HOME"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/PhoneTransaction.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+
+  /v0/payment-information/benefits:
+    get:
+      summary: /v0/payment-information/benefits
+      description: Returns direct deposit payment info
+      operationId: index
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/PaymentInfo.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    put:
+      summary: /v0/payment-information/benefits
+      description: Returns updated direct deposit payment info
+      operationId: update
+      security:
+        - Bearer: []
+      requestBody:
+        description: New direct deposit info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/UpdatePaymentInfoRequest.yml'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/PaymentInfo.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/push/register:
+    post:
+      summary: /v0/push/register
+      description: Allows a new app install to register to receive push notifications
+      operationId: register
+      security:
+        - Bearer: []
+      requestBody:
+        description: Device information
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/PushRegistration.yml'
+      responses:
+        '201':
+          description: OK
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/push/prefs:
+    get:
+      summary: /v0/push/prefs
+      description: Get the user's push notification preferences
+      operationId: prefs
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/PushPreferences.yml'
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    put:
+      summary: /v0/push/prefs
+      description: Set the user's push notification preferences
+      operationId: prefs
+      security:
+        - Bearer: []
+      requestBody:
+        description: Push notification preferences
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/PushPreferences.yml'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/claims-and-appeals/overview:
+    get:
+      summary: /v0/claims-and-appeals-overview
+      description: Returns info on all user's claims and appeals for mobile overview page
+      operationId: index
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/ClaimsAndAppealsOverview.yml"
+        '207':
+          description: One of the two upstream services failed
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/ClaimsAndAppealsOverview.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: Both upstream services the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/ClaimsAndAppealsOverviewDoubleFailure.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/appeal/{id}:
+    get:
+      summary: /v0/appeal/{id}
+      description: Returns info on all user's claims and appeals for mobile overview page
+      operationId: get_appeal
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Appeal Id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Appeal.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/claim/{id}:
+    get:
+      summary: /v0/claim/{id}
+      description: Returns info on all user's claims and appeals for mobile overview page
+      operationId: get_claim
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Claim Id
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Claim.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
 components:
   securitySchemes:
     Bearer:
@@ -317,218 +1668,3 @@ components:
       name: Authorization
       in: header
       description: Authentication is via an access token returned from IAM's SSOe service. Pass the access token in the 'Authorization' Header in the format 'Bearer {accessToken}'. e.g. 'Bearer abcdefg1234567'.
-
-  schemas:
-    Errors:
-      required:
-        - errors
-      properties:
-        errors:
-          type: array
-          items:
-            $ref: "#/components/schemas/Error"
-    Error:
-      required:
-        - title
-        - detail
-        - code
-        - status
-      properties:
-        title:
-          type: string
-        detail:
-          type: string
-        code:
-          type: string
-        status:
-          type: string
-    EVSSAuthError:
-      required:
-        - errors
-      properties:
-        errors:
-          type: array
-          items:
-            required:
-              - title
-              - detail
-              - code
-              - status
-            properties:
-              title:
-                type: string
-                example: Not Found
-              detail:
-                type: string
-                example: "The requested resource could not be found but may be available again in the future."
-              code:
-                type: string
-                example: '404'
-              status:
-                type: string
-                example: '404'
-
-    Message:
-      required:
-        - message
-      properties:
-        message:
-          type: string
-          example: "Welcome to the VA mobile API"
-
-    User:
-      required:
-        - id
-        - type
-        - attributes
-      properties:
-        id:
-          type: string
-          example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
-        type:
-          type: string
-          example: user
-        attributes:
-          type: object
-          required:
-            - profile
-            - authorizedServices
-          properties:
-            profile:
-              type: object
-              required:
-                - firstName
-                - middleName
-                - lastName
-                - email
-                - birthDate
-                - gender
-                - addresses
-              properties:
-                firstName:
-                  type: string
-                  example: "John"
-                middleName:
-                  type: string
-                  example: "A"
-                lastName:
-                  type: string
-                  example: "Smith"
-                email:
-                  type: string
-                  example: "john.a.smith@domain.com"
-                residential_address:
-                  $ref: "#/components/schemas/Address"
-                mailing_address:
-                  $ref: "#/components/schemas/Address"
-            authorizedServices:
-              type: array
-              items:
-                type: string
-              example:
-                - appeals
-                - directDepositBenefits
-                - militaryServiceHistory
-
-    Address:
-      required:
-        - addressLine1
-        - addressLine2
-        - addressLine3
-        - addressPou
-        - addressType
-        - city
-        - countryCode
-        - internationalPostalCode
-        - province
-        - stateCode
-        - zipCode
-        - zipCodeSuffix
-      properties:
-        addressLine1:
-          type: string
-          example: "1493 Martin Luther King Rd"
-        addressLine2:
-          type: string, null
-        addressLine3:
-          type: string, null
-        addressPou:
-          type: string
-          enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
-          example: "RESIDENCE/CHOICE"
-        addressType:
-          type: string
-          enum: ["DOMESTIC", "INTERNATIONAL"]
-          example: "DOMESTIC"
-        city:
-          type: string
-          example: "Fulton"
-        countryCode:
-          type: string
-          example: "US"
-        internationalPostalCode:
-          type: string, null
-          example: null
-        province:
-          type: string, null
-          example: null
-        stateCode:
-          type: string
-          example: "NY"
-        zipCode:
-          type: string
-          example: "97062"
-        zipCodeSuffix:
-          type: string, null
-          example: "1234"
-
-    AddressUpdate:
-      required:
-        - validationKey
-        - addressLine1
-        - addressPou
-        - addressType
-        - city
-        - countryCode
-      properties:
-        validationKey:
-          type: integer
-          example: 0
-        addressLine1:
-          type: string
-          example: "1493 Martin Luther King Rd"
-        addressLine2:
-          type: string, null
-        addressLine3:
-          type: string, null
-        addressPou:
-          type: string
-          enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
-          example: "RESIDENCE/CHOICE"
-        addressType:
-          type: string
-          enum: [ "DOMESTIC", "INTERNATIONAL" ]
-          example: "DOMESTIC"
-        city:
-          type: string
-          example: "Fulton"
-        countryCode:
-          type: string
-          example: "US"
-        internationalPostalCode:
-          type: string, null
-          example: null
-        province:
-          type: string, null
-          example: null
-        stateCode:
-          type: string
-          example: "NY"
-        zipCode:
-          type: string
-          example: "97062"
-        zipCodeSuffix:
-          type: string, null
-          example: "1234"
-
-

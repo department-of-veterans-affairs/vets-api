@@ -29,8 +29,9 @@ Rails.application.routes.draw do
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
-
-    resource :form526_opt_in, only: :create
+    resources :financial_status_reports, only: :create
+    resources :education_career_counseling_claims, only: :create
+    resources :veteran_readiness_employment_claims, only: :create
 
     resources :letters, only: [:index] do
       collection do
@@ -49,7 +50,7 @@ Rails.application.routes.draw do
       get 'separation_locations'
     end
 
-    post '/mvi_users/:id', to: 'mvi_users#submit'
+    post '/mvi_users/:id', to: 'mpi_users#submit'
 
     resource :upload_supporting_evidence, only: :create
 
@@ -241,6 +242,9 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+
+      resources :ch33_bank_accounts, only: %i[index]
+      put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
     end
 
     resources :search, only: :index
@@ -293,8 +297,8 @@ Rails.application.routes.draw do
       resource :tokens, only: :create
     end
 
-    namespace :ask do
-      resource :asks, only: :create
+    namespace :contact_us do
+      resources :inquiries, only: %i[index create]
     end
   end
 
@@ -324,6 +328,7 @@ Rails.application.routes.draw do
   end
 
   scope '/services' do
+    mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
@@ -337,6 +342,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
   mount Mobile::Engine, at: '/mobile'
+  mount CovidVaccine::Engine, at: '/covid_vaccine'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

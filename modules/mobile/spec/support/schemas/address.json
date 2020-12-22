@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema",
   "type": "object",
   "required": [
+    "id",
     "addressLine1",
     "addressLine2",
     "addressLine3",
@@ -15,14 +16,17 @@
     "zipCodeSuffix"
   ],
   "properties": {
+    "id": {
+      "type": "integer"
+    },
     "addressLine1": {
       "type": "string"
     },
     "addressLine2": {
-      "type": "null"
+      "type": ["string", "null"]
     },
     "addressLine3": {
-      "type": "null"
+      "type": ["string", "null"]
     },
     "addressPou": {
       "type": "string"
@@ -33,11 +37,14 @@
     "city": {
       "type": "string"
     },
+    "countryCodeIso3": {
+      "type": "string"
+    },
     "internationalPostalCode": {
-      "type": "null"
+      "type": ["string", "null"]
     },
     "province": {
-      "type": "null"
+      "type": ["string", "null"]
     },
     "stateCode": {
       "type": "string"
@@ -46,7 +53,7 @@
       "type": "string"
     },
     "zipCodeSuffix": {
-      "type": "null"
+      "type": ["string", "null"]
     }
   }
 }

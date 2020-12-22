@@ -8,7 +8,7 @@ require 'pact/provider/rspec'
 require 'rspec/rails'
 require 'support/factory_bot'
 require 'support/authenticated_session_helper'
-require 'support/mvi/stub_mvi'
+require 'support/mpi/stub_mpi'
 require 'support/stub_emis'
 require 'support/stub_session'
 require 'support/vet360/stub_vet360'
@@ -39,10 +39,16 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
 
   config.before do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
+    stub_mpi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
     stub_vet360 unless example.metadata[:skip_vet360]
+
+    Redis.current.flushall
   end
+end
+
+FactoryBot::SyntaxRunner.class_eval do
+  include RSpec::Mocks::ExampleMethods
 end
 
 Pact.service_provider 'VA.gov API' do
@@ -55,11 +61,11 @@ Pact.service_provider 'VA.gov API' do
 
   # # temporarily define the url or else we will get failing verification
   # honours_pact_with 'Search' do
-  #   pact_uri 'https://vagov-pact-broker.herokuapp.com/pacts/provider/VA.gov%20API/consumer/Search/latest'
+  #   pact_uri 'https://dev.va.gov/_vfs/pact-broker/pacts/provider/VA.gov%20API/consumer/Search/latest'
   # end
 
   honours_pacts_from_pact_broker do
-    pact_broker_base_url 'https://vagov-pact-broker.herokuapp.com',
+    pact_broker_base_url 'https://dev.va.gov/_vfs/pact-broker/',
                          {
                            username: ENV['PACT_BROKER_BASIC_AUTH_USERNAME'],
                            password: ENV['PACT_BROKER_BASIC_AUTH_PASSWORD']

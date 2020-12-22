@@ -34,13 +34,13 @@ module BGSDependents
       vet_info.to_h
     end
 
-    def veteran_response(participant, va_file_number, address, end_product, regional_office)
+    def veteran_response(participant, address, claim_info)
       {
         vnp_participant_id: participant[:vnp_ptcpnt_id],
         first_name: first_name,
         last_name: last_name,
         vnp_participant_address_id: address[:vnp_ptcpnt_addrs_id],
-        file_number: va_file_number,
+        file_number: claim_info[:va_file_number],
         address_line_one: address[:addrs_one_txt],
         address_line_two: address[:addrs_two_txt],
         address_line_three: address[:addrs_three_txt],
@@ -49,8 +49,10 @@ module BGSDependents
         address_city: address[:city_nm],
         address_zip_code: address[:zip_prefix_nbr],
         type: 'veteran',
-        benefit_claim_type_end_product: end_product,
-        regional_office: regional_office
+        benefit_claim_type_end_product: claim_info[:claim_type_end_product],
+        regional_office_number: claim_info[:regional_office_number],
+        location_id: claim_info[:location_id],
+        net_worth_over_limit_ind: claim_info[:net_worth_over_limit_ind]
       }
     end
 

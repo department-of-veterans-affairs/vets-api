@@ -27,19 +27,6 @@ module CARMA
         end
       end
 
-      # Used for Feature Flipper :stub_carma_responses
-      def create_submission_stub(_payload)
-        {
-          'message' => 'Application Received',
-          'data' => {
-            'carmacase' => {
-              'id' => 'aB935000000F3VnCAK',
-              'createdAt' => DateTime.now.iso8601
-            }
-          }
-        }
-      end
-
       def upload_attachments(payload)
         with_monitoring do
           restforce.post(
@@ -50,23 +37,17 @@ module CARMA
         end
       end
 
-      # Used for Feature Flipper :stub_carma_responses
-      def upload_attachments_stub(_payload)
-        {
-          'hasErrors' => false,
-          'results' => [
-            {
-              'referenceId' => '1010CG',
-              'id' => '06835000000YpsjAAC'
-            }
-          ]
-        }
-      end
-
       private
 
       def restforce
-        @client ||= get_client
+        return @client if @client.present?
+
+        @client = get_client
+        if Settings['salesforce-carma'].mock
+          @client.builder.insert_before(Faraday::Adapter::NetHttp, Betamocks::Middleware)
+        end
+
+        @client
       end
     end
   end

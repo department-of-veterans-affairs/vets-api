@@ -6,7 +6,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
   before do
-    stub_mvi
+    stub_mpi
   end
 
   let(:request_headers) do
@@ -42,16 +42,17 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     context 'with errors' do
-      it 'renders an empty array' do
+      it 'shows a errored Claims not found error message' do
         VCR.use_cassette('evss/claims/claims_with_errors') do
           get '/services/claims/v0/claims', params: nil, headers: request_headers
-          expect(JSON.parse(response.body)['data'].length).to eq(0)
+          expect(response.status).to eq(404)
         end
       end
 
       it 'shows a single errored Claim with an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         create(:auto_established_claim,
                auth_headers: { some: 'data' },
+               source: 'TestConsumer',
                evss_id: 600_118_851,
                id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
                status: 'errored',
@@ -73,6 +74,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
       it 'shows a single errored Claim without an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         create(:auto_established_claim,
+               source: 'TestConsumer',
                auth_headers: { some: 'data' },
                evss_id: 600_118_851,
                id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
@@ -127,6 +129,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
       before do
         create(:auto_established_claim,
+               source: 'TestConsumer',
                auth_headers: { some: 'data' },
                evss_id: 600_118_851,
                id: auto_established_claim_id)

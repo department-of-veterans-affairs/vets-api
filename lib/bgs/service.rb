@@ -29,12 +29,12 @@ module BGS
       end
     end
 
-    def create_proc_form(vnp_proc_id)
+    def create_proc_form(vnp_proc_id, form_type_code)
       # Temporary log proc_id to sentry
       log_message_to_sentry(vnp_proc_id, :warn, '', { team: 'vfs-ebenefits' })
       with_multiple_attempts_enabled do
         service.vnp_proc_form.vnp_proc_form_create(
-          { vnp_proc_id: vnp_proc_id, form_type_cd: '21-686c' }.merge(bgs_auth)
+          { vnp_proc_id: vnp_proc_id, form_type_cd: form_type_code }.merge(bgs_auth)
         )
       end
     end
@@ -113,10 +113,10 @@ module BGS
       end
     end
 
-    def find_benefit_claim_type_increment
+    def find_benefit_claim_type_increment(claim_type_cd)
       increment_params = {
         ptcpnt_id: @user.participant_id,
-        bnft_claim_type_cd: '130DPNEBNADJ',
+        bnft_claim_type_cd: claim_type_cd,
         pgm_type_cd: 'CPL'
       }
 
@@ -168,6 +168,24 @@ module BGS
       { ssn: @user.ssn }
     end
 
+    def find_ch33_dd_eft
+      service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
+    end
+
+    def update_ch33_dd_eft(routing_number, acct_number, checking_acct)
+      service.claims.send(
+        :request,
+        :update_ch33_dd_eft,
+        ch33DdEftInput: {
+          dpositAcntNbr: acct_number,
+          dpositAcntTypeNm: checking_acct ? 'C' : 'S',
+          fileNumber: @user.ssn,
+          routngTrnsitNbr: routing_number,
+          tranCode: '2'
+        }
+      )
+    end
+
     def get_regional_office_by_zip_code(zip_code, country, province, lob, ssn)
       regional_office_response = service.routing.get_regional_office_by_zip_code(
         zip_code, country, province, lob, ssn
@@ -178,12 +196,21 @@ module BGS
       '347' # return default location id
     end
 
+    def find_regional_offices
+      service.data.find_regional_offices[:return]
+    rescue => e
+      notify_of_service_exception(e, __method__, 1, :warn)
+    end
+
     private
 
     def service
       external_key = @user.common_name || @user.email
 
-      @service ||= BGS::Services.new(external_uid: @user.icn, external_key: external_key)
+      @service ||= BGS::Services.new(
+        external_uid: @user.icn || @user.uuid,
+        external_key: external_key
+      )
     end
   end
 end

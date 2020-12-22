@@ -8,7 +8,6 @@ module VbaDocuments
         schema :DocumentUploadStatus do
           key :description, 'Status record for a previously initiated document submission.'
           key :required, %i[id type attributes]
-
           property :id do
             key :description, 'JSON API identifier'
             key :type, :string

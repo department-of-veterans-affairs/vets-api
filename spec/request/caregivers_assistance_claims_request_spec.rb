@@ -76,7 +76,16 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   end
 
   describe 'POST /v0/caregivers_assistance_claims' do
+    subject do
+      post endpoint, params: body, headers: headers
+    end
+
     let(:endpoint) { uri + '/v0/caregivers_assistance_claims' }
+    let(:body) do
+      form_data = build_valid_form_submission.call
+
+      { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
+    end
     let(:vcr_options) do
       {
         record: :none,
@@ -85,63 +94,69 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
       }
     end
 
-    context 'when :stub_carma_responses is disabled' do
-      it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims'
+    it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims'
 
-      timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
+    timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
-      it 'can submit a valid submission', run_at: timestamp.iso8601 do
-        form_data = build_valid_form_submission.call
+    context 'when flipper :async_10_10_cg_attachments' do
+      context 'is enabled' do
+        before do
+          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(true)
+        end
 
-        body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
+        after do
+          expect(Form1010cg::DeliverPdfToCARMAJob.jobs.size).to eq(1)
+        end
 
-        expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(false).twice
-
-        VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          VCR.use_cassette 'carma/auth/token/200', vcr_options do
-            VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-              VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
-                post endpoint, params: body, headers: headers
+        it 'can submit a valid submission', run_at: timestamp.iso8601 do
+          VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
+            VCR.use_cassette 'carma/auth/token/200', vcr_options do
+              VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+                subject
               end
             end
           end
+
+          expect(response.code).to eq('200')
+
+          res_body = JSON.parse(response.body)
+
+          expect(res_body['data']).to be_present
+          expect(res_body['data']['type']).to eq 'form1010cg_submissions'
+          expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
+          expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
         end
-
-        expect(response.code).to eq('200')
-
-        res_body = JSON.parse(response.body)
-
-        expect(res_body['data']).to be_present
-        expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-        expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-        expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
       end
-    end
 
-    context 'when :stub_carma_responses is enabled' do
-      it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims'
-
-      timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
-
-      it 'will mock responses from CARMA', run_at: timestamp.iso8601 do
-        form_data = build_valid_form_submission.call
-
-        body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
-
-        expect(Flipper).to receive(:enabled?).with(:stub_carma_responses).and_return(true).twice
-
-        VCR.use_cassette 'mvi/find_candidate/valid', vcr_options do
-          post endpoint, params: body, headers: headers
+      context 'is disabled' do
+        before do
+          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(false)
         end
 
-        expect(response.code).to eq('200')
+        after do
+          expect(Form1010cg::DeliverPdfToCARMAJob.jobs.size).to eq(0)
+        end
 
-        res_body = JSON.parse(response.body)
+        it 'can submit a valid submission', run_at: timestamp.iso8601 do
+          VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
+            VCR.use_cassette 'carma/auth/token/200', vcr_options do
+              VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+                VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
+                  subject
+                end
+              end
+            end
+          end
 
-        expect(res_body['data']).to be_present
-        expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-        expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-        expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
+          expect(response.code).to eq('200')
+
+          res_body = JSON.parse(response.body)
+
+          expect(res_body['data']).to be_present
+          expect(res_body['data']['type']).to eq 'form1010cg_submissions'
+          expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
+          expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
+        end
       end
     end
   end

@@ -43,28 +43,8 @@ RSpec.describe BGS::Dependents do
             a_hash_including(
               divorce_state: 'FL',
               divorce_city: 'Tampa',
-              end_date: Time.new('2020-01-01').iso8601,
+              end_date: DateTime.parse('2020-01-01 12:00:00').to_time.iso8601,
               type: 'divorce'
-            )
-          )
-        end
-      end
-    end
-
-    context 'report 674' do
-      it 'returns a hash that represents child over 18 attending school' do
-        VCR.use_cassette('bgs/dependents/create') do
-          dependents = BGS::Dependents.new(
-            proc_id: proc_id,
-            payload: all_flows_payload,
-            user: user_object
-          ).create_all
-
-          expect(dependents).to include(
-            a_hash_including(
-              type: '674',
-              participant_relationship_type_name: 'Child',
-              family_relationship_type_name: 'Other'
             )
           )
         end

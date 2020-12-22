@@ -121,11 +121,4 @@ RSpec.describe EVSSClaimDocumentUploader do
       expect(subject.store_dir).to eq("evss_claim_documents/1234abc/#{uuid}")
     end
   end
-
-  describe '#store!' do
-    it 'raises an error when the file is larger than 25 megabytes' do
-      file = double(size: 25.megabytes + 1)
-      expect { subject.store!(file) }.to raise_error(CarrierWave::UploadError)
-    end
-  end
 end

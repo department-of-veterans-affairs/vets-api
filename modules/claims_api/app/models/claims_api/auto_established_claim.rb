@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/concerns/file_data'
 require 'json_marshal/marshaller'
 
 module ClaimsApi
@@ -9,6 +8,11 @@ module ClaimsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_flash_responses, key: Settings.db_encryption_key,
+                                         marshal: true,
+                                         marshaler: JsonMarshal::Marshaller)
+
+    after_create :log_flashes
 
     has_many :supporting_documents, dependent: :destroy
 
@@ -16,6 +20,9 @@ module ClaimsApi
     SUBMITTED = 'submitted'
     ESTABLISHED = 'established'
     ERRORED = 'errored'
+
+    ALL_STATUSES = [PENDING, SUBMITTED, ESTABLISHED, ERRORED].freeze
+
     EVSS_CLAIM_ATTRIBUTES = %i[date_filed min_est_date max_est_date open waiver_submitted
                                documents_needed development_letter_sent decision_letter_sent
                                requested_decision va_representative].freeze
@@ -47,7 +54,7 @@ module ClaimsApi
 
     def self.pending?(id)
       query = where(id: id)
-      query.exists? && query.first.evss_id.nil? ? query.first : false
+      query.exists? ? query.first : false
     end
 
     def self.evss_id_by_token(token)
@@ -79,6 +86,10 @@ module ClaimsApi
     end
 
     private
+
+    def log_flashes
+      Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following flashes - #{flashes}") if flashes.present?
+    end
 
     def remove_encrypted_fields
       if status == ESTABLISHED

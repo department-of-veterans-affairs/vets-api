@@ -2,12 +2,13 @@
 
 class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   PROCESSING_CLASS = VIC::ProcessingUploader
-  include ValidateFileSize
-  include SetAwsConfig
+  include SetAWSConfig
   include AsyncProcessing
   include LogMetrics
 
-  MAX_FILE_SIZE = 10.megabytes
+  def size_range
+    1.byte...10.megabytes
+  end
 
   def initialize(guid)
     super
@@ -23,7 +24,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def extension_white_list
+  def extension_whitelist
     %w[jpg jpeg gif png tif tiff]
   end
 

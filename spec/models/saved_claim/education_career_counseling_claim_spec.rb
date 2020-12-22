@@ -6,19 +6,19 @@ RSpec.describe SavedClaim::EducationCareerCounselingClaim do
   let(:claim) { create(:education_career_counseling_claim_no_vet_information) }
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
 
-  describe '#add_veteran_info' do
+  describe '#add_claimant_info' do
     it 'adds veteran information' do
-      claim.add_veteran_info(user_object)
+      claim.add_claimant_info(user_object)
 
       expect(claim.parsed_form).to include(
-        'claimant_information' => {
-          'full_name' => {
+        'claimantInformation' => {
+          'fullName' => {
             'first' => 'WESLEY',
-            'middle' => nil,
+            'middle' => '',
             'last' => 'FORD'
           },
-          'ssn' => '796043735',
-          'date_of_birth' => '1809-02-12'
+          'veteranSocialSecurityNumber' => '796043735',
+          'dateOfBirth' => '1809-02-12'
         }
       )
     end
@@ -27,6 +27,19 @@ RSpec.describe SavedClaim::EducationCareerCounselingClaim do
   describe '#regional_office' do
     it 'returns an empty array for regional office' do
       expect(claim.regional_office).to eq([])
+    end
+  end
+
+  describe '#send_to_central_mail!' do
+    it 'formats data before sending to central mail' do
+      expect(claim).to receive(:update).with(form: a_string_including('"veteranSocialSecurityNumber":"333224444"'))
+
+      claim.send_to_central_mail!
+    end
+
+    it 'calls process_attachments! method' do
+      expect(claim).to receive(:process_attachments!)
+      claim.send_to_central_mail!
     end
   end
 end

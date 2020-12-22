@@ -8,5 +8,4 @@ Shrine.storages = {
   store: Shrine::Storage::FileSystem.new('tmp', prefix: 'uploads/store') # permanent
 }
 
-Shrine.plugin :logging
 Shrine.plugin :determine_mime_type

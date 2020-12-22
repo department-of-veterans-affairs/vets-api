@@ -8,6 +8,123 @@ RSpec.describe User, type: :model do
   let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
 
+  describe '#icn' do
+    let(:user) { build(:user, icn: identity_icn) }
+    let(:mpi_profile) { build(:mvi_profile, icn: mpi_icn) }
+    let(:identity_icn) { 'some_identity_icn' }
+    let(:mpi_icn) { 'some_mpi_icn' }
+
+    before do
+      allow(user).to receive(:mpi).and_return(mpi_profile)
+    end
+
+    context 'when icn on User Identity exists' do
+      let(:identity_icn) { 'some_identity_icn' }
+
+      it 'returns icn off the User Identity' do
+        expect(user.icn).to eq(identity_icn)
+      end
+    end
+
+    context 'when icn on identity does not exist' do
+      let(:identity_icn) { nil }
+
+      context 'and icn on MPI Data exists' do
+        let(:mpi_icn) { 'some_mpi_icn' }
+
+        it 'returns icn from the MPI Data' do
+          expect(user.icn).to eq(mpi_icn)
+        end
+      end
+
+      context 'and icn on MPI Data does not exist' do
+        let(:mpi_icn) { nil }
+
+        it 'returns nil' do
+          expect(user.icn).to eq(nil)
+        end
+      end
+    end
+  end
+
+  describe '#birls_id' do
+    let(:user) { build(:user, birls_id: identity_birls_id) }
+    let(:mpi_profile) { build(:mvi_profile, birls_id: mpi_birls_id) }
+    let(:identity_birls_id) { 'some_identity_birls_id' }
+    let(:mpi_birls_id) { 'some_mpi_birls_id' }
+
+    before do
+      allow(user).to receive(:mpi).and_return(mpi_profile)
+    end
+
+    context 'when birls_id on User Identity exists' do
+      let(:identity_birls_id) { 'some_identity_birls_id' }
+
+      it 'returns birls_id off the User Identity' do
+        expect(user.birls_id).to eq(identity_birls_id)
+      end
+    end
+
+    context 'when birls_id on identity does not exist' do
+      let(:identity_birls_id) { nil }
+
+      context 'and birls_id on MPI Data exists' do
+        let(:mpi_birls_id) { 'some_mpi_birls_id' }
+
+        it 'returns birls_id from the MPI Data' do
+          expect(user.birls_id).to eq(mpi_birls_id)
+        end
+      end
+
+      context 'and birls_id on MPI Data does not exist' do
+        let(:mpi_birls_id) { nil }
+
+        it 'returns nil' do
+          expect(user.birls_id).to eq(nil)
+        end
+      end
+    end
+  end
+
+  describe '#participant_id' do
+    let(:user) { build(:user, participant_id: identity_participant_id) }
+    let(:mpi_profile) { build(:mvi_profile, participant_id: mpi_participant_id) }
+    let(:identity_participant_id) { 'some_identity_participant_id' }
+    let(:mpi_participant_id) { 'some_mpi_participant_id' }
+
+    before do
+      allow(user).to receive(:mpi).and_return(mpi_profile)
+    end
+
+    context 'when participant_id on User Identity exists' do
+      let(:identity_participant_id) { 'some_identity_participant_id' }
+
+      it 'returns participant_id off the User Identity' do
+        expect(user.participant_id).to eq(identity_participant_id)
+      end
+    end
+
+    context 'when participant_id on identity does not exist' do
+      let(:identity_participant_id) { nil }
+
+      context 'and participant_id on MPI Data exists' do
+        let(:mpi_participant_id) { 'some_mpi_participant_id' }
+
+        it 'returns participant_id from the MPI Data' do
+          expect(user.participant_id).to eq(mpi_participant_id)
+        end
+      end
+
+      context 'and participant_id on MPI Data does not exist' do
+        let(:mpi_participant_id) { nil }
+
+        it 'returns nil' do
+          expect(user.participant_id).to eq(nil)
+        end
+      end
+    end
+  end
+
   describe '#all_emails' do
     let(:user) { build(:user, :loa3) }
     let(:vet360_email) { user.vet360_contact_info.email.email_address }
@@ -38,7 +155,7 @@ RSpec.describe User, type: :model do
     let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mpi(mvi_profile)
     end
 
     it 'returns true if user loa3?, and ssns dont match' do
@@ -196,7 +313,7 @@ RSpec.describe User, type: :model do
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
 
         before do
-          stub_mvi(mvi_profile)
+          stub_mpi(mvi_profile)
         end
 
         it 'fetches first_name from IDENTITY' do
@@ -228,7 +345,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
-          expect(user.edipi).to be(user.mvi.edipi)
+          expect(user.edipi).to be(user.mpi.edipi)
         end
 
         it 'fetches edipi from identity.dslogon_edipi when available' do
@@ -245,7 +362,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mpi(mvi_profile) }
 
         it 'fetches first_name from MVI' do
           expect(user.first_name).to be(user.va_profile.given_names.first)
@@ -284,7 +401,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches birth_date from MVI' do
-          expect(user.birth_date).to be(user.va_profile.birth_date)
+          expect(user.birth_date).to eq(user.va_profile.birth_date.to_date.to_s)
         end
 
         it 'fetches zip from MVI' do
@@ -300,7 +417,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa1, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mpi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be_nil
@@ -335,7 +452,7 @@ RSpec.describe User, type: :model do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3) }
 
-        before { stub_mvi(mvi_profile) }
+        before { stub_mpi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
           expect(user.first_name).to be(user.identity.first_name)
@@ -380,7 +497,7 @@ RSpec.describe User, type: :model do
           let(:mvi_profile) { build(:mvi_profile) }
 
           it 'has a mhv correlation id' do
-            stub_mvi(mvi_profile)
+            stub_mpi(mvi_profile)
             expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
             expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.active_mhv_ids.first)
           end
@@ -401,7 +518,7 @@ RSpec.describe User, type: :model do
     let(:user) { build(:user, :loa3) }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mpi(mvi_profile)
     end
 
     around do |example|
@@ -506,7 +623,7 @@ RSpec.describe User, type: :model do
     let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[200MHS 400 741 744]) }
 
     before do
-      stub_mvi(mvi_profile)
+      stub_mpi(mvi_profile)
     end
 
     it 'filters out fake vha facility ids that arent in Settings.mhv.facility_range' do

@@ -18,7 +18,7 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
         get '/health_quest/v0/appointments'
         expect(response).to have_http_status(:forbidden)
         expect(JSON.parse(response.body)['errors'].first['detail'])
-          .to eq('You do not have access to online scheduling')
+          .to eq('You do not have access to the health quest service')
       end
     end
   end
@@ -37,12 +37,12 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
           get '/health_quest/v0/appointments'
           expect(response).to have_http_status(:forbidden)
           expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('You do not have access to online scheduling')
+            .to eq('You do not have access to the health quest service')
         end
       end
 
       context 'without icn' do
-        before { stub_mvi_not_found }
+        before { stub_mpi_not_found }
 
         let(:current_user) { build(:user, :mhv, mhv_icn: nil) }
 

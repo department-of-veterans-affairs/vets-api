@@ -1,0 +1,22 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "pushPreferences"
+        readOnly: true
+      attributes:
+        type: object
+        properties:
+          pushNotificationTypes:
+            type: array
+            items:
+              type: object
+              $ref: "./PushNotificationType.yml"

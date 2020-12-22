@@ -23,28 +23,28 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(false)
       end
 
-      it 'does not call SendSCOEmail' do
-        expect { instance.after_submit(user) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+      it 'does not call SendSchoolCertifyingOfficialsEmail' do
+        expect { instance.after_submit(user) }
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
     end
 
     context 'Not logged in' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, nil).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         mail = double('mail')
         allow(mail).to receive(:deliver_now)
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
-      it 'does not call SendSCOEmail' do
-        expect { instance.after_submit(nil) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+      it 'does not call SendSchoolCertifyingOfficialsEmail' do
+        expect { instance.after_submit(nil) }
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
     end
 
     context 'authorized' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(true)
@@ -53,30 +53,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
-      it 'calls SendSCOEmail' do
-        expect { instance.after_submit(user) }.to change(EducationForm::SendSCOEmail.jobs, :size).by(1)
-      end
-
-      it 'calls StemApplicantConfirmationMailer' do
-        mail = double('mail')
-        allow(mail).to receive(:deliver_now)
-        expect(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).once.and_return(mail)
-        instance.after_submit(user)
-      end
-    end
-
-    context 'stem_sco_email flipped off' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(false)
-        expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
-        mail = double('mail')
-        allow(mail).to receive(:deliver_now)
-        allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
-      end
-
-      it 'does not call SendSCOEmail' do
+      it 'calls SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(user) }
-          .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(1)
       end
 
       it 'calls StemApplicantConfirmationMailer' do
@@ -89,7 +68,6 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'unauthorized' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:stem_sco_email, user).and_return(true)
         expect(FeatureFlipper).to receive(:send_email?).once.and_return(true)
         expect(user).to receive(:authorize).with(:evss, :access?).and_return(false).at_least(:once)
         expect(user.authorize(:evss, :access?)).to eq(false)
@@ -98,9 +76,9 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         allow(StemApplicantConfirmationMailer).to receive(:build).with(instance, nil).and_return(mail)
       end
 
-      it 'does not call SendSCOEmail' do
+      it 'does not call SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(user) }
-          .to change(EducationForm::SendSCOEmail.jobs, :size).by(0)
+          .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
       end
 
       it 'calls StemApplicantConfirmationMailer' do

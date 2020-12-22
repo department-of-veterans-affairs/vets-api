@@ -10,15 +10,15 @@ module PdfInfo
   class Metadata
     def self.read(file_or_path)
       if file_or_path.is_a? String
-        new(file_or_path, Settings.binaries.pdfinfo)
+        new(file_or_path)
       else
-        new(file_or_path.path, Settings.binaries.pdfinfo)
+        new(file_or_path.path)
       end
     end
 
-    def initialize(path, bin)
+    def initialize(path)
       @stdout = []
-      Open3.popen2e([bin, 'argv0'], path) do |_stdin, stdout, wait|
+      Open3.popen2e(Settings.binaries.pdfinfo, path) do |_stdin, stdout, wait|
         @exit_status = wait.value
         stdout.each_line do |line|
           @stdout.push(force_utf8_encoding(line))
