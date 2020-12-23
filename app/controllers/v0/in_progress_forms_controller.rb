@@ -40,7 +40,7 @@ module V0
     end
 
     def metadata
-      OliveBranch::Transformations.transform params[:metadata], &:underscore
+      OliveBranch::Transformations.transform params[:metadata], :underscore.to_proc
     end
   end
 end
