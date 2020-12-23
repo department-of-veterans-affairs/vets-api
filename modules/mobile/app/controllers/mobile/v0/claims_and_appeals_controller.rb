@@ -60,6 +60,26 @@ module Mobile
         end
       end
 
+      def upload_documents
+        params.require :file
+        claim = claims_scope.find_by(evss_id: params[:id])
+        raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+
+        document_data = EVSSClaimDocument.new(
+          evss_claim_id: claim.evss_id,
+          file_obj: params[:file],
+          uuid: SecureRandom.uuid,
+          file_name: params[:file].original_filename,
+          tracked_item_id: params[:tracked_item_id],
+          document_type: params[:document_type],
+          password: params[:password]
+        )
+        raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+
+        jid = document_upload_service.upload_document(document_data)
+        render json: { data: { job_id: jid } }, status: :accepted
+      end
+
       private
 
       def parse_claims(claims, full_list, error_list)
@@ -107,7 +127,11 @@ module Mobile
       end
 
       def claims_scope
-        EVSSClaim.for_user(@current_user)
+        @claims_scope ||= EVSSClaim.for_user(@current_user)
+      end
+
+      def document_upload_service
+        @document_upload_service ||= EVSSClaimService.new(@current_user)
       end
 
       def create_or_update_claim(raw_claim)
