@@ -78,9 +78,9 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq({
-            'form_data' => JSON.parse(in_progress_form.form_data),
-            'metadata' => in_progress_form.camelized_metadata
-          })
+                                                    'form_data' => JSON.parse(in_progress_form.form_data),
+                                                    'metadata' => in_progress_form.camelized_metadata
+                                                  })
         end
 
         context 'with the x key inflection header set' do
