@@ -10,7 +10,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
   end
 
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
-  let(:contention_id) { 'contention-id-here' }
+  let(:contention_id) { { claim_id: '123', code: '200', name: 'contention-name-here' } }
   let(:special_issues) { %w[ALS PTSD/2] }
 
   it 'submits successfully' do
@@ -26,7 +26,9 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
       expect_any_instance_of(BGS::ContentionService).to receive(:find_contentions_by_ptcpnt_id)
         .and_return(claims)
 
-      expect { subject.new.perform(user, contention_id, special_issues) }.to raise_error(StandardError)
+      expect do
+        subject.new.perform(user, contention_id, special_issues)
+      end.to raise_error(StandardError)
     end
   end
 
@@ -42,7 +44,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
           benefit_claims: [
             {
               contentions: [
-                { cntntn_id: 'different-contention-id' }
+                { clm_id: '321', clsfcn_id: '333', clmnt_txt: 'different-name-here' }
               ]
             }
           ]
@@ -50,7 +52,9 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
       end
 
       it 'job fails and retries later' do
-        expect { subject.new.perform(user, contention_id, special_issues) }.to raise_error(StandardError)
+        expect do
+          subject.new.perform(user, contention_id, special_issues)
+        end.to raise_error(StandardError)
       end
     end
 
@@ -65,7 +69,12 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
             claim_rcvd_dt: '2020-08-17T00:00:00-05:00',
             clm_id: claim_id,
             contentions: [
-              { cntntn_id: contention_id }
+              {
+                clm_id: contention_id[:claim_id],
+                cntntn_id: '999111',
+                clsfcn_id: contention_id[:code],
+                clmnt_txt: contention_id[:name]
+              }
             ],
             lc_stt_rsn_tc: 'OPEN',
             lc_stt_rsn_tn: 'Open',
@@ -84,7 +93,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
           expected_claim_options = claim.dup
           special_issues_payload = special_issues.map { |si| { spis_tc: si } }
           expected_claim_options[:contentions] = [
-            { clm_id: claim_id, cntntn_id: contention_id, special_issues: special_issues_payload }
+            { clm_id: claim_id, cntntn_id: '999111', special_issues: special_issues_payload }
           ]
           expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
@@ -103,7 +112,13 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
               claim_rcvd_dt: '2020-08-17T00:00:00-05:00',
               clm_id: claim_id,
               contentions: [
-                { cntntn_id: contention_id, special_issues: [{ spis_tc: 'something-else' }, { spis_tc: 'ALS' }] }
+                {
+                  clm_id: contention_id[:claim_id],
+                  cntntn_id: '999111',
+                  clsfcn_id: contention_id[:code],
+                  clmnt_txt: contention_id[:name],
+                  special_issues: [{ spis_tc: 'something-else' }, { spis_tc: 'ALS' }]
+                }
               ],
               lc_stt_rsn_tc: 'OPEN',
               lc_stt_rsn_tn: 'Open',
@@ -120,9 +135,9 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
 
           it 'new special issues provided are added while preserving existing special issues' do
             expected_claim_options = claim.dup
-            special_issues_payload = [{ spis_tc: 'something-else' }] + special_issues.map { |si| { spis_tc: si } }
+            special_issues_payload = special_issues.map { |si| { spis_tc: si } } + [{ spis_tc: 'something-else' }]
             expected_claim_options[:contentions] = [
-              { clm_id: claim_id, cntntn_id: contention_id, special_issues: special_issues_payload }
+              { clm_id: claim_id, cntntn_id: '999111', special_issues: special_issues_payload }
             ]
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
@@ -140,7 +155,13 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
               claim_rcvd_dt: '2020-08-17T00:00:00-05:00',
               clm_id: claim_id,
               contentions: [
-                { cntntn_id: contention_id, special_issues: (special_issues.map { |si| { spis_tc: si } }) }
+                {
+                  clm_id: contention_id[:claim_id],
+                  cntntn_id: '999111',
+                  clsfcn_id: contention_id[:code],
+                  clmnt_txt: contention_id[:name],
+                  special_issues: (special_issues.map { |si| { spis_tc: si } })
+                }
               ],
               lc_stt_rsn_tc: 'OPEN',
               lc_stt_rsn_tn: 'Open',
@@ -159,7 +180,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
             expected_claim_options = claim.dup
             special_issues_payload = special_issues.map { |si| { spis_tc: si } }
             expected_claim_options[:contentions] = [
-              { clm_id: claim_id, cntntn_id: contention_id, special_issues: special_issues_payload }
+              { clm_id: claim_id, cntntn_id: '999111', special_issues: special_issues_payload }
             ]
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
