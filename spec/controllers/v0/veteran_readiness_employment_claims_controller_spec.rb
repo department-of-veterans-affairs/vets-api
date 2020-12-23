@@ -30,7 +30,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     context 'visitor' do
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-          form_params = { veteran_readiness_employment_claim: { form: test_form_no_vet_info.form } }
+          form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
 
           post(:create, params: form_params)
           expect(response.code).to eq('200')
@@ -43,7 +43,6 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
         post(:create, params: { veteran_readiness_employment_claim: { form: { not_valid: 'not valid' } } })
 
         expect(response.code).to eq('422')
-
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             'form - can\'t be blank'
