@@ -8,6 +8,11 @@ module ClaimsApi
     include Sidekiq::Worker
     include SentryLogging
 
+    sidekiq_retries_exhausted do |message|
+      # TODO: https://vajira.max.gov/browse/API-3277
+      log_exception_to_sentry(StandardError.new("Failed to apply special issues to contention: #{message}"))
+    end
+
     # Update special issues for a single contention/disability
     #
     # @param user [OpenStruct] Veteran to attach special issues to
