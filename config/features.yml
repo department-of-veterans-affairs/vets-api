@@ -356,3 +356,8 @@ features:
     actor_type: user
     description: >
       Add automated decision to 10203 application workflow   
+  stem_applicant_email:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable/disable SCO applicant email per environment
