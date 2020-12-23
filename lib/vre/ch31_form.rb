@@ -96,8 +96,6 @@ module VRE
 
       vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
 
-      vet_info['VAFileNumber'] = vet_info['ssn'] if vet_info['VAFileNumber'].nil?
-
       vet_info
     end
 
