@@ -82,6 +82,7 @@ module ClaimsApi
       claim[:contentions].map do |contention|
         {
           clm_id: claim[:clm_id],
+          cntntn_id: contention[:cntntn_id],
           special_issues: existing_special_issues(contention)
         }
       end
@@ -91,7 +92,7 @@ module ClaimsApi
       return [] if contention[:special_issues].blank?
 
       contention[:special_issues].map do |special_issue|
-        { spis_tc: special_issue }
+        { spis_tc: special_issue[:spis_tc] }
       end
     end
   end
