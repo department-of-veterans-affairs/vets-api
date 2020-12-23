@@ -352,6 +352,10 @@ features:
     enable_in_development: true
     description: >
       Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+  stem_automated_decision:
+    actor_type: user
+    description: >
+      Add automated decision to 10203 application workflow   
   stem_applicant_email:
     actor_type: user
     enable_in_development: true
