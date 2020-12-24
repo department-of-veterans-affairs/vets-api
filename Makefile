@@ -135,6 +135,14 @@ else
 	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
 endif
 
+.PHONY: spec_parallel_setup
+spec_parallel_setup:  ## Runs spec tests in parallel
+	@$(BASH_DEV) "bin/rails parallel:setup"
+
+.PHONY: spec_parallel
+spec_parallel:  ## Runs spec tests in parallel
+	@$(BASH_DEV) "RAILS_ENV=test NOCOVERAGE=true bundle exec parallel_rspec ${SPEC_PATH}"
+
 .PHONY: up
 up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV
 	@$(BASH_DEV) "rm -f tmp/pids/server.pid && foreman start -m ${FOREMAN_ARG}"
