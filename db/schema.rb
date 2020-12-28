@@ -47,13 +47,13 @@ ActiveRecord::Schema.define(version: 2020_12_17_223026) do
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "status", default: "pending", null: false
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"
     t.string "encrypted_auth_headers_iv"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "status", default: "pending", null: false
     t.string "code"
     t.string "detail"
   end
@@ -137,6 +137,7 @@ ActiveRecord::Schema.define(version: 2020_12_17_223026) do
     t.string "encrypted_bgs_flash_responses"
     t.string "encrypted_bgs_flash_responses_iv"
     t.string "flashes", default: [], array: true
+    t.jsonb "special_issues", default: []
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
