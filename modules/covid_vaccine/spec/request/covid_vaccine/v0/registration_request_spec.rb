@@ -332,6 +332,36 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
           expect(body['data']['id']).to eq(submission2.sid)
         end
       end
+
+      context 'opting out of submission' do
+        let!(:submission) do
+          create(:covid_vax_registration,
+                 account_id: loa3_user.account_uuid,
+                 created_at: Time.zone.now - 2.minutes)
+        end
+
+        it 'opts email out' do
+          VCR.use_cassette 'covid_vaccine/vetext/put_email_opt_out_200', match_requests_on: %i[method path] do
+            put "/covid_vaccine/v0/registration/opt_out?sid=#{submission.sid}"
+            expect(response).to have_http_status(:no_content)
+          end
+        end
+      end
+
+      context 'opting in on previously opted out submission' do
+        let!(:submission) do
+          create(:covid_vax_registration,
+                 account_id: loa3_user.account_uuid,
+                 created_at: Time.zone.now - 2.minutes)
+        end
+
+        it 'opts email in' do
+          VCR.use_cassette 'covid_vaccine/vetext/put_email_opt_in_200', match_requests_on: %i[method path] do
+            put "/covid_vaccine/v0/registration/opt_in?sid=#{submission.sid}"
+            expect(response).to have_http_status(:no_content)
+          end
+        end
+      end
     end
   end
 end

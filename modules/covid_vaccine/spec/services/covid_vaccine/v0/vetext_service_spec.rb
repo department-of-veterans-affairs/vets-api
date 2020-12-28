@@ -58,4 +58,26 @@ describe CovidVaccine::V0::VetextService do
       end
     end
   end
+
+  describe '#put_email_opt_out' do
+    let(:active_sid) { 'FA82BF279B8673EDF2160766351113753298' }
+
+    it 'opts a users email out of future emails' do
+      VCR.use_cassette('covid_vaccine/vetext/put_email_opt_out_200', match_requests_on: %i[method path]) do
+        response = subject.put_email_opt_out(active_sid)
+        expect(response[:sid]).to eq('FA82BF279B8673EDF2160766351113753298')
+      end
+    end
+  end
+
+  describe 'put_email_opt_in' do
+    let(:inactive_sid) { 'FA82BF279B8673EDF2160766351113753298' }
+
+    it 'opts a users email in on future emails' do
+      VCR.use_cassette('covid_vaccine/vetext/put_email_opt_in_200', match_requests_on: %i[method path]) do
+        response = subject.put_email_opt_in(inactive_sid)
+        expect(response[:sid]).to eq('FA82BF279B8673EDF2160766351113753298')
+      end
+    end
+  end
 end
