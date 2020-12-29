@@ -22,7 +22,14 @@ module PdfFill
 
         extras_address = combine_name_addr_extras(hash, name_key, address_key)
 
-        hash['combinedAddr'] = combine_full_address(hash[address_key])
+        hash['combinedAddr'] = if hash[address_key]['postalCode'].is_a?(Hash)
+          address_dup = hash[address_key].deep_dup
+          address_dup['postalCode'] = combine_postal_code(address_dup['postalCode'])
+          combine_full_address(address_dup)
+        else
+          combine_full_address(hash[address_key])
+        end
+
         address = combine_hash(hash, [name_key, 'combinedAddr'], ', ')
         hash.delete('combinedAddr')
 
@@ -62,8 +69,9 @@ module PdfFill
       end
 
       def combine_postal_code(postal_code)
-        combined_postal_code = postal_code['firstFive'].to_s
-        combined_postal_code << "-#{postal_code['lastFour']}" unless postal_code['lastFour'].nil?
+        code = postal_code.deep_dup
+        combined_postal_code = code['firstFive'].to_s
+        combined_postal_code << "-#{code['lastFour']}" unless code['lastFour'].nil?
         combined_postal_code
       end
 
