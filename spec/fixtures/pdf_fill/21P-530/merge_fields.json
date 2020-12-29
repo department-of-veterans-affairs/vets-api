@@ -90,7 +90,10 @@
   "claimantAddress": {
     "city": "Baltimore",
     "country": "US",
-    "postalCode": "21231",
+    "postalCode": {
+      "firstFive": "21231",
+      "lastFour": "1234"
+    },
     "street": "street",
     "street2": "street2",
     "state": "MD"
