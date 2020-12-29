@@ -67,6 +67,10 @@ module EVSS
 
       private
 
+      def redacted(account_number, routing_number)
+        account_number&.include?('*') || routing_number&.include?('*')
+      end
+
       def input_form
         @form_content['form526']
       end
@@ -98,7 +102,7 @@ module EVSS
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
         # if banking data is not included then it has not changed and will be retrieved
         # from the PPIU service
-        if !populated
+        if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
           get_banking_info
         else
           direct_deposit(

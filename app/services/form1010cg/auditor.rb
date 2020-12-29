@@ -2,7 +2,7 @@
 
 module Form1010cg
   class Auditor
-    include Singleton
+    attr_reader :logger
 
     STATSD_KEY_PREFIX   = 'api.form1010cg'
     LOGGER_PREFIX       = 'Form 10-10CG'
@@ -25,6 +25,10 @@ module Form1010cg
       )
     end
 
+    def initialize(logger = Rails.logger)
+      @logger = logger
+    end
+
     def record(event, **context)
       message = "record_#{event}"
       context.any? ? send(message, context) : send(message)
@@ -34,14 +38,15 @@ module Form1010cg
       increment self.class.metrics.submission.attempt
     end
 
-    def record_submission_success(claim_guid:, carma_case_id:, metadata:, attachments:)
+    def record_submission_success(claim_guid:, carma_case_id:, metadata:, attachments:, attachments_job_id:)
       increment self.class.metrics.submission.success
       log(
         'Submission Successful',
         claim_guid: claim_guid,
         carma_case_id: carma_case_id,
         metadata: metadata,
-        attachments: attachments
+        attachments: attachments,
+        attachments_job_id: attachments_job_id
       )
     end
 
@@ -57,6 +62,15 @@ module Form1010cg
 
     def record_pdf_download
       increment self.class.metrics.pdf_download
+    end
+
+    def record_attachments_delivered(claim_guid:, carma_case_id:, attachments:)
+      log(
+        'Attachments Delivered',
+        claim_guid: claim_guid,
+        carma_case_id: carma_case_id,
+        attachments: attachments
+      )
     end
 
     def log_mpi_search_result(claim_guid:, form_subject:, result:)
@@ -79,7 +93,7 @@ module Form1010cg
     end
 
     def log(message, context_hash = {})
-      Rails.logger.send :info, "[#{LOGGER_PREFIX}] #{message}", deep_apply_filter(context_hash)
+      logger.send :info, "[#{LOGGER_PREFIX}] #{message}", deep_apply_filter(context_hash)
     end
 
     def deep_apply_filter(value)

@@ -1,0 +1,31 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+describe AppealsApi::NoticeOfDisagreementUploadStatusUpdater, type: :job do
+  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:upload) { create(:notice_of_disagreement, :status_received) }
+  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:in_process_element) do
+    [{ "uuid": 'ignored',
+       "status": 'In Process',
+       "errorMessage": '',
+       "lastUpdated": '2018-04-25 00:02:39' }]
+  end
+
+  describe '#perform' do
+    it 'updates the status of a NoticeOfDisagreement' do
+      expect(CentralMail::Service).to receive(:new) { client_stub }
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+      in_process_element[0]['uuid'] = upload.id
+      expect(faraday_response).to receive(:body).at_least(:once).and_return([in_process_element].to_json)
+
+      with_settings(Settings.modules_appeals_api, notice_of_disagreement_updater_enabled: true) do
+        AppealsApi::NoticeOfDisagreementUploadStatusUpdater.new.perform([upload])
+        upload.reload
+        expect(upload.status).to eq('processing')
+      end
+    end
+  end
+end

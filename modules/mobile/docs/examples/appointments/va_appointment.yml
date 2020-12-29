@@ -1,0 +1,25 @@
+data:
+  - type: appointment
+    id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+    attributes:
+      appointmentType: va
+      status: BOOKED
+      startTime: 2020-10-29T10:30:00-07:00
+      minutesDuration: 60
+      comment: Please arrive 20 minutes before the start of your appointment
+      timeZone: America/Los_Angeles
+      healthcareService: Blind Rehabilitation Center
+      location:
+        name: VA Long Beach Healthcare System
+        address:
+          line1: 5901 East 7th Street
+          line2: Building 166
+          line3: null
+          city: Long Beach
+          state: CA
+          zipCode: "90822"
+        phone:
+          number: 562-826-8000
+          extension: "5696"
+        url: null
+        code: null

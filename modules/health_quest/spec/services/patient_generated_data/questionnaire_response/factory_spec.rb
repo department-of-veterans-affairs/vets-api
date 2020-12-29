@@ -31,11 +31,13 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
   end
 
   describe '#search' do
-    it 'returns a ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
-        .to receive(:search).with({ author: user.icn }).and_return(client_reply)
+    let(:filters) { { appointment_id: nil }.with_indifferent_access }
+    let(:options_builder) { HealthQuest::PatientGeneratedData::OptionsBuilder.manufacture(user, filters) }
 
-      expect(subject.new(user).search).to eq(client_reply)
+    it 'returns a ClientReply' do
+      allow_any_instance_of(FHIR::Client).to receive(:search).with(anything, anything).and_return(client_reply)
+
+      expect(subject.new(user).search(options_builder.to_hash)).to eq(client_reply)
     end
   end
 
@@ -47,6 +49,23 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
         .to receive(:get).with(id).and_return(client_reply)
 
       expect(subject.new(user).get(id)).to eq(client_reply)
+    end
+  end
+
+  describe '#create' do
+    let(:data) do
+      {
+        appointment_id: 'abc123',
+        questionnaire_response: {},
+        questionnaire_id: 'abcd-1234'
+      }
+    end
+
+    it 'returns a ClientReply' do
+      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        .to receive(:create).with(anything).and_return(client_reply)
+
+      expect(subject.new(user).create(data)).to eq(client_reply)
     end
   end
 end

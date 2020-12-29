@@ -356,6 +356,7 @@ FactoryBot.define do
             'phone_number' => '1112223333',
             'email_address' => 'foo@foo.com'
           },
+          'household_income' => true,
           'add_child' => true,
           'add_spouse' => true,
           'report_death' => true,

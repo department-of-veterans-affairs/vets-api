@@ -31,6 +31,7 @@ class SimpleCovHelper
       add_filter 'lib/bip_claims/configuration.rb'
       add_filter 'version.rb'
 
+      # Modules
       add_group 'Policies', 'app/policies'
       add_group 'Serializers', 'app/serializers'
       add_group 'Services', 'app/services'
@@ -38,6 +39,7 @@ class SimpleCovHelper
       add_group 'Uploaders', 'app/uploaders'
       add_group 'AppealsApi', 'modules/appeals_api/'
       add_group 'ClaimsApi', 'modules/claims_api/'
+      add_group 'CovidVaccine', 'modules/covid_vaccine/'
       add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'VBADocuments', 'modules/vba_documents/'
       add_group 'Veteran', 'modules/veteran/'

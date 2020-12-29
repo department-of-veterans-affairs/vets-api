@@ -33,6 +33,10 @@ describe 'IAMSSOeOAuth::SessionManager' do
       it 'creates a user identity' do
         expect(@user.identity).not_to be_nil
       end
+
+      it 'last_signed_in is set and is a time' do
+        expect(@user.last_signed_in).to be_a_kind_of(Time)
+      end
     end
   end
 

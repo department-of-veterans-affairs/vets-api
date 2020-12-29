@@ -9,6 +9,13 @@ FactoryBot.define do
     form_data do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_10182.json"
     end
+    trait :status_received do
+      status { 'received' }
+    end
+    trait :completed_a_week_ago do
+      updated_at { 8.days.ago }
+      status { AppealsApi::NoticeOfDisagreement::COMPLETE_STATUSES.sample }
+    end
   end
 
   factory :minimal_notice_of_disagreement, class: 'AppealsApi::NoticeOfDisagreement' do

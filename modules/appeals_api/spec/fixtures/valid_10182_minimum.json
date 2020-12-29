@@ -3,20 +3,9 @@
     "type": "noticeOfDisagreement",
     "attributes": {
       "veteran": {
-        "homeless": false,
-        "address": {
-          "addressLine1": "123 Main St",
-          "city": "New York",
-          "countryName": "United States",
-          "zipCode5": "30012"
-        },
-        "phone": {
-          "areaCode": "555",
-          "phoneNumber": "8001111"
-        },
-        "emailAddressText": "a@a.a"
+        "homeless": false
       },
-      "boardReviewOption": "hearing",
+      "boardReviewOption": "evidence_submission",
       "timezone": "America/Chicago",
       "socOptIn": false
     }

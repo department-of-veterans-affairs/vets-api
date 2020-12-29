@@ -3,10 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Form1010cg::Auditor do
-  let(:subject) do
-    described_class.instance
-  end
-
   before(:all) do
     # StatsD is configured to use Rails.logger in order to output the stats that are being incremented in our app.
     # Since our methods calls StatsD#increment, it will create a log output using Rails.logger.
@@ -21,11 +17,18 @@ RSpec.describe Form1010cg::Auditor do
     StatsD.backend = @_statsd_logger
   end
 
-  it 'is a singleton' do
-    expect(described_class.ancestors).to include(Singleton)
+  describe '::new' do
+    it 'accepts a logger' do
+      expect(described_class.new(Rails.logger).logger).to eq(Rails.logger)
+      expect(described_class.new(Sidekiq.logger).logger).to eq(Sidekiq.logger)
+    end
+
+    it 'sets the default logger to Rails.logger' do
+      expect(described_class.new.logger).to eq(Rails.logger)
+    end
   end
 
-  describe ':metrics' do
+  describe '::metrics' do
     it 'provides StatsD metric values' do
       expect(
         described_class.metrics.submission.attempt
@@ -63,16 +66,24 @@ RSpec.describe Form1010cg::Auditor do
 
   describe '#record_submission_success' do
     context 'requires' do
-      it 'claim_guid:, carma_case_id:, metadata:, attachments:' do
+      it 'claim_guid:, carma_case_id:, metadata:, attachments:, attachments_job_id:' do
         expect { subject.record_submission_success }.to raise_error(ArgumentError) do |e|
-          expect(e.message).to eq('missing keywords: claim_guid, carma_case_id, metadata, attachments')
+          expect(e.message).to eq(
+            'missing keywords: claim_guid, carma_case_id, metadata, attachments, attachments_job_id'
+          )
         end
       end
     end
 
     context 'increments' do
       it 'api.form1010cg.submission.success' do
-        expected_context = { claim_guid: 'uuid-123', carma_case_id: 'CASE_123', metadata: {}, attachments: {} }
+        expected_context = {
+          claim_guid: 'uuid-123',
+          carma_case_id: 'CASE_123',
+          metadata: {},
+          attachments: {},
+          attachments_job_id: 'abc123'
+        }
 
         expect(StatsD).to receive(:increment).with('api.form1010cg.submission.success')
         subject.record_submission_success(expected_context)
@@ -118,19 +129,14 @@ RSpec.describe Form1010cg::Auditor do
                 'document_date' => '2020-01-01'
               }
             ]
-          }
+          },
+          attachments_job_id: '12345abcdef'
         }
 
         logged_context = {
-          claim_guid: 'uuid-123',
-          carma_case_id: 'CASE_123',
-          metadata: {
-            'claimGuid' => 'uuid-123',
-            'veteran' => { 'icn' => nil, 'isVeteran' => false },
-            'primaryCaregiver' => { 'icn' => nil },
-            'secondaryCaregiverOne' => { 'icn' => nil },
-            'secondaryCaregiverTwo' => nil
-          },
+          claim_guid: provided_context[:claim_guid],
+          carma_case_id: provided_context[:carma_case_id],
+          metadata: provided_context[:metadata],
           attachments: {
             'has_errors' => false,
             'data' => [
@@ -151,7 +157,8 @@ RSpec.describe Form1010cg::Auditor do
                 'document_date' => '2020-01-01'
               }
             ]
-          }
+          },
+          attachments_job_id: provided_context[:attachments_job_id]
         }
 
         expect(Rails.logger).to receive(:info).with(expected_message, logged_context)
@@ -246,6 +253,22 @@ RSpec.describe Form1010cg::Auditor do
     end
   end
 
+  describe '#record_attachments_delivered' do
+    let(:subject) do
+      described_class.new(Sidekiq.logger)
+    end
+
+    context 'logs' do
+      it '[Form 10-10CG] Attachments Delivered' do
+        expected_message = '[Form 10-10CG] Attachments Delivered'
+        expected_context = { claim_guid: 'uuid-123', carma_case_id: 'CASE_123', attachments: :ATTACHMENTS_HASH }
+
+        expect(Sidekiq.logger).to receive(:info).with(expected_message, expected_context)
+        subject.record_attachments_delivered(expected_context)
+      end
+    end
+  end
+
   describe '#log_mpi_search_result' do
     context 'requires' do
       it 'claim_guid:, form_subject:, result:' do
@@ -320,7 +343,13 @@ RSpec.describe Form1010cg::Auditor do
 
       context 'for :submission_success' do
         it 'calls :record submission_success' do
-          context = { claim_guid: 'uuid-123', carma_case_id: 'CASE_123', metadata: {}, attachments: {} }
+          context = {
+            claim_guid: 'uuid-123',
+            carma_case_id: 'CASE_123',
+            metadata: {},
+            attachments: {},
+            attachments_job_id: '123abc'
+          }
 
           expect(subject).to receive(:record_submission_success).with(context)
           subject.record(:submission_success, context)
@@ -328,7 +357,7 @@ RSpec.describe Form1010cg::Auditor do
       end
 
       context 'for :submission_failure_client_data' do
-        it 'calls :record submission_failure_client_data' do
+        it 'calls :record_submission_failure_client_data' do
           context = { claim_guid: 'uuid-123', errors: %w[error1 error2] }
 
           expect(subject).to receive(:record_submission_failure_client_data).with(context)
@@ -337,7 +366,7 @@ RSpec.describe Form1010cg::Auditor do
       end
 
       context 'for :submission_failure_client_qualification' do
-        it 'calls :record submission_failure_client_qualification' do
+        it 'calls :record_submission_failure_client_qualification' do
           context = { claim_guid: 'uuid-123' }
 
           expect(subject).to receive(:record_submission_failure_client_qualification).with(context)
@@ -346,9 +375,22 @@ RSpec.describe Form1010cg::Auditor do
       end
 
       context 'for :pdf_download' do
-        it 'calls :record pdf_download' do
+        it 'calls :record_pdf_download' do
           expect(subject).to receive(:record_pdf_download)
           subject.record(:pdf_download)
+        end
+      end
+
+      context 'for :attachments_delivered' do
+        it 'calls :record_attachments_delivered' do
+          context = {
+            claim_guid: 'uuid-123',
+            carma_case_id: 'CASE_123',
+            attachments: {}
+          }
+
+          expect(subject).to receive(:record_attachments_delivered).with(context)
+          subject.record(:attachments_delivered, context)
         end
       end
     end

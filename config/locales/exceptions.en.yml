@@ -194,6 +194,56 @@ en:
         detail: "No query params are allowed for this route"
         code: 400
         status: 400
+      detailed_schema_errors:
+        <<: *validation_errors # Fallbacks for missing translations
+        data_type:
+          <<: *defaults
+          title: Invalid data type
+          detail: Expected %{data_type} data
+          code: 140
+          status: 422
+        enum:
+          <<: *defaults
+          title: Invalid option
+          detail: "'%{value}' is not an available option"
+          code: 141
+          status: 422
+        length:
+          <<: *defaults
+          title: Invalid length
+          detail: "'%{value}' did not fit within the defined length limits"
+          code: 142
+          status: 422
+        pattern:
+          <<: *defaults
+          title: Invalid format
+          detail: "'%{value}' did not match the defined format"
+          code: 143
+          status: 422
+        range:
+          <<: *defaults
+          title: Value outside range
+          detail: "'%{value}' is outside the defined range"
+          code: 144
+          status: 422
+        required:
+          <<: *defaults
+          title: Missing required fields
+          detail: One or more expected fields were not found
+          code: 145
+          status: 422
+        schema:
+          <<: *defaults
+          title: Schema mismatch
+          detail: Unknown data provided
+          code: 146
+          status: 422
+        array_items:
+          <<: *defaults
+          title: Invalid array
+          detail: "The %{size} items provided did not match the definition"
+          code: 147
+          status: 422
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
@@ -1737,6 +1787,18 @@ en:
         code: VET360_PERM101
         detail: Permission ID must be null
         status: 400
+      VETEXT_400:
+        <<: *external_defaults
+        title: Bad Request
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
+        code: # deliberately left nil to reference response.body which is unparsable string (not json)
+        status: 400
+      VETEXT_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
+        code: # deliberately left nil to reference response.body which is unparsable string (not json)
+        status: 502
       LIGHTHOUSE_FACILITIES400:
         <<: *external_defaults
         title: Bad Request

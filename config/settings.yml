@@ -110,7 +110,7 @@ pension_burial:
 central_mail:
   upload:
     enabled: true
-    host: "icmhs-api-test.csrarad.com"
+    host: "test2.domaonline.com/EmmsAPI"
     token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
@@ -156,9 +156,15 @@ decision_review:
 # Settings for modules/appeals_api
 modules_appeals_api:
   higher_level_review_updater_enabled: true
+  notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
+  documentation:
+    notice_of_disagreements_v1: false
 
 vre_counseling:
+  prefill: true
+
+vre_readiness:
   prefill: true
 
 # Settings for EVSS
@@ -415,6 +421,7 @@ oidc:
     claims: ~
   base_api_url: https://example.com
   base_api_token: ~
+  smart_launch_url: ~
 
 sentry:
   dsn: ~
@@ -441,6 +448,7 @@ shrine:
 maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
+  service_query_prefix: "External: "
   services:
     carma: P6XLE0T
     appeals: P9S4RFU
@@ -456,6 +464,7 @@ maintenance:
     search: PRG8HJI
     tims: PUL8OQ4
     vet360: PHVOGQ1
+    vetext_vaccine: P9PG8HG
     vic: P7LW3MS
   aws:
     access_key_id: ~
@@ -489,6 +498,7 @@ flipper:
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
+    - ed.mangimelli@adhocteam.us
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
@@ -538,9 +548,12 @@ flipper:
     - shawkey_daniel@bah.com
     - shefai.nayak@thoughtworks.com
     - sonntag_adam@bah.com
+    - ssuddath@governmentcio.com
+    - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
     - zurbergram@gmail.com
+    - zmorel@governmentcio.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
@@ -559,6 +572,12 @@ va_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
   key_path: /fake/client/key/path
+  timeout: 15
+
+vetext:
+  url: "https://something.fake.va.gov"
+  mock: false
+  token: fake_token
   timeout: 15
 
 hqva_mobile:
@@ -611,6 +630,7 @@ vanotify:
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+    covid_vaccine_registration: fake_template_id
   mock: false
 
 # Settings to connect to the drupal forms graphql api
@@ -625,3 +645,8 @@ genisis:
   service_path: /COVID19Service
   user: TestUser
   pass: bogus
+
+veteran_readiness_and_employment:
+  base_url: ~
+  credentials: ~
+  auth_endpoint: ~

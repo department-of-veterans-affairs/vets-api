@@ -21,6 +21,23 @@ features:
     actor_type: user
     description: >
       Allows user to access chapter 33 benefits direct deposit view/update APIs
+  ch33_dd_profile:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allows user to access chapter 33 benefits (direct deposit for education) in the front end
+  covid_vaccine_registration_frontend:
+    actor_type: user
+    description: >
+      Toggles the availability of the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration_frontend_cta:
+    actor_type: user
+    description: >
+      Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/" leading to the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration:
+    actor_type: user
+    description: >
+      Toggles availability of covid vaccine form API.
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
@@ -46,6 +63,9 @@ features:
   facility_locator_ppms_use_v1_client:
     actor_type: user
     description: Have the V1 API use the PPMS::V1::Client
+  facility_locator_ppms_skip_additional_round_trips:
+    actor_type: user
+    description: Have the PPMS::V1::Client skip the additional round trips to get the type
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
@@ -144,8 +164,14 @@ features:
       Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
   va_online_scheduling_provider_selection:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables the community care provider selection field
+  va_online_scheduling_cheetah:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables Project Cheetah discovery work
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -186,10 +212,6 @@ features:
     enable_in_development: true
     description: >
       Enables automatic establishment/disconnection of vets-api session based on a user's SSOe session status
-  allow_online_10_10cg_submissions:
-    actor_type: cookie_id
-    description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. This feature is also known as a Caregivers Assistance Claim.
   gibct_eyb_bottom_sheet:
     actor_type: user
     description: >
@@ -235,15 +257,16 @@ features:
     enable_in_development: true
     description: >
       Enables inquiry form for users to submit questions, suggestions, and complaints.
+  get_help_messages:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables secure messaging
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     enable_in_development: true
     description: >
       Enables showing the pre-appointment questionnaire feature.
-  stem_sco_email:
-    actor_type: user
-    description: >
-      Enable/disable SCO email per environment
   show526_wizard:
     actor_type: user
     description: >
@@ -296,11 +319,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an ebenefits link and a link to View Payment History on VA.gov
-  form_1995_edu_updates:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Form updates to bring EDU forms in compliance with latest DEPO patterns and practices
   request_locked_pdf_password:
     actor_type: user
     enable_in_development: true
@@ -316,3 +334,34 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
+  allow_online_10_10cg_submissions:
+    actor_type: cookie_id
+    description: >
+      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When disabled, this will redirect visitors from the form's page to the home page (va.gov).
+  async_10_10_cg_attachments:
+    actor_type: cookie_id
+    description: >
+      This will process attachments of 10-10CG submissions using sidekiq.
+  multiple_address_10_10ez:
+    actor_type: cookie_id
+    description: >
+      [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran vs only collecting a single, "permanent" address.
+  evss_upload_limit_150mb:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
+  find_forms_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+  stem_automated_decision:
+    actor_type: user
+    description: >
+      Add automated decision to 10203 application workflow   
+  stem_applicant_email:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable/disable SCO applicant email per environment

@@ -18,6 +18,30 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
   after { Timecop.return }
 
+  describe '#redacted' do
+    context 'when the banking numbers include a *' do
+      it 'returns true' do
+        expect(subject.send('redacted', '**234', '1212')).to eq(
+          true
+        )
+      end
+    end
+
+    context 'when the banking numbers dont include a *' do
+      it 'returns false' do
+        expect(subject.send('redacted', '234', '1212')).to eq(
+          false
+        )
+      end
+    end
+
+    context 'when the banking numbers are nil' do
+      it 'returns falsey' do
+        expect(subject.send('redacted', nil, nil)).to be_falsey
+      end
+    end
+  end
+
   describe '#translate' do
     context 'all claims' do
       before do
@@ -142,6 +166,30 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'routingNumber' => '0987654321',
           'bankName' => 'test'
         }
+      end
+    end
+
+    context 'when the banking info is redacted' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'bankName' => 'test',
+            'bankAccountType' => 'checking',
+            'bankAccountNumber' => '**34567890',
+            'bankRoutingNumber' => '0987654321'
+          }
+        }
+      end
+
+      it 'gathers the banking info from the PPIU service' do
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          expect(subject.send(:translate_banking_info)).to eq 'directDeposit' => {
+            'accountType' => 'CHECKING',
+            'accountNumber' => '9876543211234',
+            'routingNumber' => '042102115',
+            'bankName' => 'Comerica'
+          }
+        end
       end
     end
 

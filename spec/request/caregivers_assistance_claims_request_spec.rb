@@ -98,25 +98,66 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
 
     timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
-    it 'can submit a valid submission', run_at: timestamp.iso8601 do
-      VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
-        VCR.use_cassette 'carma/auth/token/200', vcr_options do
-          VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-            VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
-              subject
+    context 'when flipper :async_10_10_cg_attachments' do
+      context 'is enabled' do
+        before do
+          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(true)
+        end
+
+        after do
+          expect(Form1010cg::DeliverPdfToCARMAJob.jobs.size).to eq(1)
+        end
+
+        it 'can submit a valid submission', run_at: timestamp.iso8601 do
+          VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
+            VCR.use_cassette 'carma/auth/token/200', vcr_options do
+              VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+                subject
+              end
             end
           end
+
+          expect(response.code).to eq('200')
+
+          res_body = JSON.parse(response.body)
+
+          expect(res_body['data']).to be_present
+          expect(res_body['data']['type']).to eq 'form1010cg_submissions'
+          expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
+          expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
         end
       end
 
-      expect(response.code).to eq('200')
+      context 'is disabled' do
+        before do
+          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(false)
+        end
 
-      res_body = JSON.parse(response.body)
+        after do
+          expect(Form1010cg::DeliverPdfToCARMAJob.jobs.size).to eq(0)
+        end
 
-      expect(res_body['data']).to be_present
-      expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-      expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-      expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
+        it 'can submit a valid submission', run_at: timestamp.iso8601 do
+          VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
+            VCR.use_cassette 'carma/auth/token/200', vcr_options do
+              VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+                VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
+                  subject
+                end
+              end
+            end
+          end
+
+          expect(response.code).to eq('200')
+
+          res_body = JSON.parse(response.body)
+
+          expect(res_body['data']).to be_present
+          expect(res_body['data']['type']).to eq 'form1010cg_submissions'
+          expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
+          expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
+        end
+      end
     end
   end
 

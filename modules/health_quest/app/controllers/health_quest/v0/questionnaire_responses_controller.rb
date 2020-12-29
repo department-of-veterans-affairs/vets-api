@@ -3,14 +3,16 @@
 module HealthQuest
   module V0
     class QuestionnaireResponsesController < HealthQuest::V0::BaseController
-      before_action :factory
-
       def index
-        render json: @factory.search.response[:body]
+        render json: factory.search(params[:filters]).response[:body]
       end
 
       def show
-        render json: @factory.get(params[:id]).response[:body]
+        render json: factory.get(params[:id]).response[:body]
+      end
+
+      def create
+        render json: factory.create(params[questionnaire_response]).response[:body]
       end
 
       private

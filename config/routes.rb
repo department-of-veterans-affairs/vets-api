@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     resources :debt_letters, only: %i[index show]
     resources :financial_status_reports, only: :create
     resources :education_career_counseling_claims, only: :create
+    resources :veteran_readiness_employment_claims, only: :create
 
     resources :letters, only: [:index] do
       collection do
@@ -134,6 +135,11 @@ Rails.application.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :higher_level_reviews, only: %i[create show]
+
+    namespace :notice_of_disagreements do
+      get 'contestable_issues', to: 'contestable_issues#index'
+    end
+    resources :notice_of_disagreements, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -296,8 +302,8 @@ Rails.application.routes.draw do
       resource :tokens, only: :create
     end
 
-    namespace :ask do
-      resource :asks, only: :create
+    namespace :contact_us do
+      resources :inquiries, only: %i[index create]
     end
   end
 
@@ -341,6 +347,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
   mount Mobile::Engine, at: '/mobile'
+  mount CovidVaccine::Engine, at: '/covid_vaccine'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
