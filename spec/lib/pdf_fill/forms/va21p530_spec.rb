@@ -56,8 +56,8 @@ describe PdfFill::Forms::Va21p530 do
           JSON.parse(class_form_data['firmNameAndAddr'].to_json)
         ).to eq(
           'value' => 'firmName, street, street2, Baltimore, MD, ' \
-            '{\"firstFive\"=>\"21231\", \"lastFour\"=>\"1234\"}, USA',
-          'extras_value' => "firmName\nstreet\nstreet2\nBaltimore, MD," \
+            '{"firstFive"=>"21231", "lastFour"=>"1234"}, USA',
+          'extras_value' => "firmName\nstreet\nstreet2\nBaltimore, MD, " \
             "{\"firstFive\"=>\"21231\", \"lastFour\"=>\"1234\"}\nUSA"
         )
       end
