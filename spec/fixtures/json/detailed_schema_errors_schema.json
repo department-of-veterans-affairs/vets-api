@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "JSON Schema for testing SchemaError handling",
+  "$ref": "#/definitions/data",
+  "definitions": {
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "$ref": "#/definitions/name" },
+        "age": { "$ref": "#/definitions/age" },
+        "married": { "$ref": "#/definitions/married" },
+        "email": { "$ref": "#/definitions/email" },
+        "gender": { "$ref": "#/definitions/gender" },
+        "location": { "$ref": "#/definitions/location" },
+        "favoriteFruits": { "$ref":  "#/definitions/favoriteFruits" },
+        "requiredField": { "$ref": "#/definitions/requiredField" }
+      },
+      "required": ["name", "age", "married", "email", "gender", "location", "requiredField"]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 20
+    },
+    "age": {
+      "type": "integer",
+      "minimum": 21,
+      "maximum": 130
+    },
+    "married": {
+      "type": "boolean"
+    },
+    "email": {
+      "type": "string",
+      "pattern": ".@."
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "undisclosed"
+      ]
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "latitude",
+        "longitude"
+      ]
+    },
+    "favoriteFruits": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/fruit" },
+      "minItems": 3,
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "fruit": {
+      "type": "string"
+    },
+    "requiredField": {
+      "type": "string"
+    }
+  }
+}

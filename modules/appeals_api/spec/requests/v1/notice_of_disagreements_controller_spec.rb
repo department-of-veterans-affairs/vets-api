@@ -61,10 +61,17 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     end
 
     context 'when validation fails due to invalid data' do
+      before { post(path, params: @invalid_data, headers: @headers) }
+
       it 'returns an error response' do
-        post(path, params: @invalid_data, headers: @headers)
         expect(response.status).to eq(422)
         expect(parsed['errors']).not_to be_empty
+      end
+
+      it 'returns error objects in JSON API 1.0 ErrorObject format' do
+        expected_keys = %w[code detail links meta sentry_type source status title]
+        expect(parsed['errors'].first.keys).to match_array(expected_keys)
+        expect(parsed['errors'][0]['source']['pointer']).to eq '/data/attributes/hearingTypePreference'
       end
     end
 

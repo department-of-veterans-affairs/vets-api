@@ -202,10 +202,13 @@ module AppealsApi
     def validate_hearing_type_selection
       return if board_review_hearing_selected? && includes_hearing_type_preference?
 
+      source = '/data/attributes/hearingTypePreference'
+      data = I18n.t('common.exceptions.validation_errors')
+
       if hearing_type_missing?
-        errors.add :form_data, I18n.t('appeals_api.errors.hearing_type_preference_missing')
+        errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_missing'))
       elsif unexpected_hearing_type_inclusion?
-        errors.add :form_data, I18n.t('appeals_api.errors.hearing_type_preference_inclusion')
+        errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_inclusion'))
       end
     end
 
