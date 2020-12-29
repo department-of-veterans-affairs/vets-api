@@ -49,6 +49,7 @@ module PdfFill
 
       def combine_full_address_extras(address)
         return if address.blank?
+
         postal_code = address['postalCode']
         postal_code = combine_postal_code(postal_code) if postal_code.is_a?(Hash)
 
@@ -61,7 +62,7 @@ module PdfFill
       end
 
       def combine_postal_code(postal_code)
-        combined_postal_code = "#{postal_code['firstFive']}"
+        combined_postal_code = postal_code['firstFive'].to_s
         combined_postal_code << "-#{postal_code['lastFour']}" unless postal_code['lastFour'].nil?
         combined_postal_code
       end
