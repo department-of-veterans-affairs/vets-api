@@ -23,6 +23,7 @@
           "diagnosticCode": 9999,
           "disabilityActionType": "NEW",
           "name": "PTSD (post traumatic stress disorder)",
+          "specialIssues": ["Fully Developed Claim", "PTSD/2"],
           "secondaryDisabilities": [
             {
               "name": "PTSD personal trauma",
