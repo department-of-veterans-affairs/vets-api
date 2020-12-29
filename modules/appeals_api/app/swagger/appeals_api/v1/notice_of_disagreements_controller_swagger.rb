@@ -373,7 +373,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       ]
 
       security do
-        key :bearer_token, []
+        key :apikey, []
       end
 
       response 200 do
