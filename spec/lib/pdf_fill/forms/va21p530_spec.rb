@@ -37,7 +37,10 @@ describe PdfFill::Forms::Va21p530 do
           'claimantAddress' => {
             'city' => 'Baltimore',
             'country' => 'USA',
-            'postalCode' => '21231',
+            'postalCode' => {
+              'firstFive' => '21231',
+              'lastFour' => '1234'
+            },
             'street' => 'street',
             'street2' => 'street2',
             'state' => 'MD'
