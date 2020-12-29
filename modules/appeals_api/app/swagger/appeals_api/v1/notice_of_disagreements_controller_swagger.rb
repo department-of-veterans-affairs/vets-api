@@ -60,7 +60,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     end
   end
 
-  swagger_path '/v1/decision_reviews/notice_of_disagreements' do
+  swagger_path '/notice_of_disagreements' do
     next unless PATH_ENABLED_FOR_ENV
 
     operation :post, tags: NOD_TAG do
