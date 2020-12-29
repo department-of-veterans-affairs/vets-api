@@ -135,7 +135,7 @@ module AppealsApi
 
     scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
     scope :completed, -> { where status: COMPLETE_STATUSES }
-    scope :has_pii, -> { where.not encrypted_form_data: nil, encrypted_auth_headers: nil }
+    scope :has_pii, -> { where.not(encrypted_form_data: nil).or(where.not(encrypted_auth_headers: nil)) }
     scope :has_not_been_updated_in_a_week, -> { where 'updated_at < ?', 1.week.ago }
     scope :ready_to_have_pii_expunged, -> { has_pii.completed.has_not_been_updated_in_a_week }
 
