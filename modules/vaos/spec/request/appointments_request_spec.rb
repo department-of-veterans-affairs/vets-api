@@ -341,12 +341,14 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('vaos/appointments/put_cancel_appointment_409', match_requests_on: %i[method uri]) do
-            expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args)
+            expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args).once
             expect(Rails.logger).to receive(:warn).with(
               'Clinic does not support VAOS appointment cancel',
               clinic_id: request_body[:clinic_id],
               site_code: request_body[:facility_id]
-            )
+            ).once
+            # We're checking that the logger is called twice to account for behavior in sentry_logging.rb lines 25-30
+            expect(Rails.logger).to receive(:warn).twice
             put '/vaos/v0/appointments/cancel', params: request_body
 
             expect(response).to have_http_status(:conflict)
