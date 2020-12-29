@@ -75,6 +75,19 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
+    it 'sets the special issues' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/claims/claims') do
+          post path, params: data, headers: headers.merge(auth_header)
+          token = JSON.parse(response.body)['data']['attributes']['token']
+          aec = ClaimsApi::AutoEstablishedClaim.find(token)
+          expect(aec.special_issues).to eq([{ 'code' => 9999,
+                                              'name' => 'PTSD (post traumatic stress disorder)',
+                                              'special_issues' => %w[SSR RDN ECCD] }])
+        end
+      end
+    end
+
     it 'builds the auth headers' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claims') do
