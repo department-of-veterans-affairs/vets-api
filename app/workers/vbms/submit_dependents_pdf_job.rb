@@ -17,8 +17,7 @@ module VBMS
         claim.upload_to_vbms("tmp#{attachment.file_url}")
       end
 
-      claim.upload_pdf('686C-674') if submittable_686
-      claim.upload_pdf('21-674') if submittable_674
+      generate_pdf(claim, submittable_686, submittable_674)
     rescue => e
       send_error_to_sentry(e, claim&.id)
     end
@@ -33,6 +32,11 @@ module VBMS
         },
         { team: 'vfs-ebenefits' }
       )
+    end
+
+    def generate_pdf(claim, submittable_686, submittable_674)
+      claim.upload_pdf('686C-674') if submittable_686
+      claim.upload_pdf('21-674') if submittable_674
     end
   end
 end
