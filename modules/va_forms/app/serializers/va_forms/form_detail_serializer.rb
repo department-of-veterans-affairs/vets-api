@@ -14,11 +14,6 @@ module VaForms
       object.form_name
     end
 
-    # TODO: Need to remove and add back to attributes when ready for production
-    def form_details_url
-      nil
-    end
-
     def versions
       object.versions.map do |v|
         {

@@ -12,6 +12,7 @@ Mobile::Engine.routes.draw do
     get '/payment-information/benefits', to: 'payment_information#index'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
+    post '/claim/:id/documents', to: 'claims_and_appeals#upload_documents'
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
     put '/payment-information/benefits', to: 'payment_information#update'
     get '/user', to: 'users#show'

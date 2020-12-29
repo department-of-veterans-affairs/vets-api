@@ -7,12 +7,6 @@ class StemApplicantConfirmationMailer < TransactionalEmailMailer
   GA_LABEL = 'stem-applicant-confirmation-10203-submission-notification'
   TEMPLATE = 'stem_applicant_confirmation'
 
-  def first_and_last_name
-    return '' if @applicant.veteranFullName.nil?
-
-    "#{@applicant.veteranFullName.first} #{@applicant.veteranFullName.last}"
-  end
-
   def application_date
     @claim.created_at.strftime('%b %d, %Y')
   end
