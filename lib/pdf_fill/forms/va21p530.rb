@@ -386,11 +386,11 @@ module PdfFill
         }
       end
 
-      def split_postal_code(hash, key)
-        postal_code = hash[key]
+      def split_postal_code(hash)
+        postal_code = hash['claimantAddress']['postalCode']
         return if postal_code.blank?
 
-        hash[key] = {
+        hash['claimantAddress']['postalCode'] = {
           'firstFive' => postal_code[0..4],
           'lastFour' => postal_code[6..10]
         }
@@ -473,7 +473,7 @@ module PdfFill
 
         split_phone(@form_data, 'claimantPhone')
 
-        split_postal_code(@form_data, 'postalCode')
+        split_postal_code(@form_data)
 
         expand_relationship(@form_data, 'relationship')
 
