@@ -14,7 +14,7 @@ module ClaimsApi
 
         ClaimsApi::UnsuccessfulReportMailer.build(@from, @to, consumer_totals: totals,
                                                               pending_submissions: pending,
-                                                              unsuccessful_submissions: errored_grouped,
+                                                              unsuccessful_submissions: errored_hash,
                                                               flash_statistics: flash_statistics).deliver_now
       end
     end
@@ -26,23 +26,31 @@ module ClaimsApi
       ).order(:source, :status)
     end
 
-    def errored_grouped
-      generized_errors = errored.map do |error|
+    def errored_hash
+      errors_hash = { error_guids: errored.pluck(:source, :status, :id) }
+      errors_array = errored.flat_map do |error|
         if error.evss_response.present?
           uuid_regex = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/
           error.evss_response = error.evss_response.to_s.gsub(uuid_regex, '%<uuid>')
           error.evss_response = error.evss_response.to_s.gsub(/\d{5,}/, '%<number>')
+          error.evss_response = error.evss_response.to_s.gsub(/\[\d\]/, '[%<number>]')
           begin
             error.evss_response = JSON.parse(error.evss_response.gsub('=>', ':'))
           rescue
             # message not guaranteed to be in hash format
+            []
           end
         end
-
-        error
       end
 
-      generized_errors.uniq { |error| [error.source, error.status, error.evss_response] }
+      errors_hash[:uniq_errors] = count_uniqs(errors_array.select { |n| n['severity'] == 'ERROR' })
+      errors_hash[:uniq_warnings] = count_uniqs(errors_array.select { |n| n['severity'] == 'WARN' })
+
+      errors_hash
+    end
+
+    def count_uniqs(array)
+      array.each_with_object(Hash.new(0)) { |word, counts| counts[word] += 1 }.sort_by { |_k, v| v }.reverse
     end
 
     def pending
