@@ -124,10 +124,10 @@ module ClaimsApi
     #
     # @return [Boolean] true if matches, false if not
     def matches_contention?(contention_id, contention)
-      return false if contention[:clm_id] != contention_id[:claim_id]
-      return true if contention_id[:code].present? && contention[:clsfcn_id] == contention_id[:code]
+      return false if contention[:clm_id] != contention_id[:claim_id].to_s
+      return true if contention_id[:code].present? && contention[:clsfcn_id] == contention_id[:code].to_s
 
-      contention_id[:code].blank? && contention_id[:name] == contention[:clmnt_txt]
+      contention_id[:code].blank? && contention_id[:name].to_s == contention[:clmnt_txt]
     end
 
     # Ensure contention_id provided is a valid starting structure
