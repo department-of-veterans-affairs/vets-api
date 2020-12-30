@@ -5,20 +5,30 @@ require 'common/exceptions'
 module VAOS
   module Exceptions
     class BackendServiceException < Common::Exceptions::BackendServiceException
-      # rubocop:disable Style/MutableConstant, Style/CaseEquality
+      # rubocop:disable Style/MutableConstant
       VAOS_ERRORS = {
         400 => 'VAOS_400',
         403 => 'VAOS_403',
         404 => 'VAOS_404',
         409 => 'VAOS_409A',
-        500..510 => 'VAOS_502'
+        500 => 'VAOS_502',
+        501 => 'VAOS_502',
+        502 => 'VAOS_502',
+        503 => 'VAOS_502',
+        504 => 'VAOS_502',
+        505 => 'VAOS_502',
+        506 => 'VAOS_502',
+        507 => 'VAOS_502',
+        508 => 'VAOS_502',
+        509 => 'VAOS_502',
+        510 => 'VAOS_502'
       }
 
       VAOS_ERRORS.default = 'VA900'
 
       def initialize(env)
         @env = env
-        key = lookup_key(env.status)
+        key = VAOS_ERRORS[env.status]
         super(key, response_values, env.status, env.body)
       end
 
@@ -31,10 +41,6 @@ module VAOS
 
       private
 
-      def lookup_key(status)
-        VAOS_ERRORS.select { |status_code| status_code === status }.values.first
-      end
-
       def detail(body)
         parsed = JSON.parse(body)
         if parsed['errors']
@@ -45,7 +51,7 @@ module VAOS
       rescue
         body
       end
-      # rubocop:enable Style/MutableConstant, Style/CaseEquality
+      # rubocop:enable Style/MutableConstant
     end
   end
 end

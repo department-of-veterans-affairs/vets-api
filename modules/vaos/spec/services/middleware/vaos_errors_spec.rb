@@ -39,7 +39,7 @@ describe VAOS::Middleware::Response::Errors do
   let(:env_404) { MyEnv.new(404, 'body', 'url', false) }
   let(:env_409) { MyEnv.new(409, 'body', 'url', false) }
   let(:env_500) { MyEnv.new(500, 'body', 'url', false) }
-  let(:env_other) { MyEnv.new(401, 'body', 'url', false) }
+  let(:env_other) { MyEnv.new(600, 'body', 'url', false) }
   let(:env_with_error) { MyEnv.new(400, JSON[error], 'url', false) }
   let(:env_with_errors) { MyEnv.new(400, JSON[errors], 'url', false) }
 
@@ -124,7 +124,7 @@ describe VAOS::Middleware::Response::Errors do
           expect(e.response_values[:detail]).to equal('body')
           expect(e.response_values[:source][:vamf_url]).to equal('url')
           expect(e.response_values[:source][:vamf_body]).to equal('body')
-          expect(e.response_values[:source][:vamf_status]).to equal(401)
+          expect(e.response_values[:source][:vamf_status]).to equal(600)
         }
       end
     end
