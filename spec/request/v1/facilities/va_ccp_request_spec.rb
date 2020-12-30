@@ -9,8 +9,7 @@ vcr_options = {
 }
 
 RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities, vcr: vcr_options do
-  context "Facilities::PPMS::V1::Client" do
-
+  context 'Facilities::PPMS::V1::Client' do
     let(:params) do
       {
         bbox: ['-75.91', '38.55', '-72.19', '42.27'],
