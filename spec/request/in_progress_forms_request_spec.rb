@@ -55,7 +55,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         subject
         items = JSON.parse(response.body)['data']
         expect(items.size).to eq(2)
-        expect(items.dig(0, 'attributes', 'form_id')).to be_a(String)
+        expect(items.dig(0, 'attributes', 'formId')).to be_a(String)
       end
     end
 
@@ -77,10 +77,10 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           get v0_in_progress_form_url(in_progress_form.form_id), params: nil
 
           expect(response).to have_http_status(:ok)
-          expect(response.body).to eq({
-            'form_data' => JSON.parse(in_progress_form.form_data),
+          expect(JSON.parse(response.body)).to eq(
+            'formData' => JSON.parse(in_progress_form.form_data),
             'metadata' => in_progress_form.metadata
-          }.to_json)
+          )
         end
 
         context 'with the x key inflection header set' do
@@ -165,7 +165,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         it 'inserts the form', run_at: '2017-01-01' do
           expect do
             put v0_in_progress_form_url(new_form.form_id), params: {
-              form_data: new_form.form_data,
+              formData: new_form.form_data,
               metadata: new_form.metadata
             }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
           end.to change(InProgressForm, :count).by(1)
@@ -176,10 +176,10 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expect(in_progress_form.form_data).to eq(new_form.form_data)
           expect(in_progress_form.metadata).to eq(
             'version' => 1,
-            'return_url' => 'foo.com',
-            'expires_at' => 1_488_412_800,
-            'last_updated' => 1_483_228_800,
-            'in_progress_form_id' => in_progress_form.id
+            'returnUrl' => 'foo.com',
+            'expiresAt' => 1_488_412_800,
+            'lastUpdated' => 1_483_228_800,
+            'inProgressFormId' => in_progress_form.id
           )
         end
 

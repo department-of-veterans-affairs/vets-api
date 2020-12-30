@@ -5,7 +5,9 @@ module V0
     include IgnoreNotFound
 
     def index
-      render json: InProgressForm.where(user_uuid: @current_user.uuid)
+      render(
+        json: InProgressFormSerializer.new(InProgressForm.where(user_uuid: @current_user.uuid)).serializable_hash
+      )
     end
 
     def show
@@ -15,13 +17,13 @@ module V0
       if form
         render json: form.data_and_metadata
       else
-        render json: FormProfile.for(form_id: form_id, user: @current_user).prefill
+        render json: FormProfile.for(form_id: form_id, user: @current_user).camelized_prefill
       end
     end
 
     def update
       form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first_or_initialize
-      form.update!(form_data: params[:form_data], metadata: params[:metadata])
+      form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
       render json: form
     end
 

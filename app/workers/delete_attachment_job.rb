@@ -19,7 +19,7 @@ class DeleteAttachmentJob
     uuids = []
 
     InProgressForm.where(form_id: self.class::FORM_ID).find_each do |in_progress_form|
-      uuids += get_uuids(in_progress_form.data_and_metadata[:form_data])
+      uuids += get_uuids(in_progress_form.data_and_metadata[:formData])
     end
 
     uuids

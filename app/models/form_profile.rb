@@ -192,6 +192,13 @@ class FormProfile
     { form_data: form_data, metadata: metadata }
   end
 
+  def camelized_prefill
+    OliveBranch::Transformations.transform(
+      prefill,
+      OliveBranch::Transformations.method(:camelize)
+    )
+  end
+
   private
 
   def initialize_military_information
