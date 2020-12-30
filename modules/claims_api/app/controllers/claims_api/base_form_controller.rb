@@ -5,6 +5,7 @@ require 'claims_api/form_schemas'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'bgs/auth_headers'
+require 'claims_api/special_issue_mapper'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
@@ -55,6 +56,26 @@ module ClaimsApi
       initial_flashes.push('Terminally Ill') if is_terminally_ill.present? && is_terminally_ill
 
       initial_flashes.present? ? initial_flashes.uniq : []
+    end
+
+    def special_issues_per_disability
+      (form_attributes['disabilities'] || []).map { |disability| special_issues_for_disability(disability) }
+    end
+
+    def special_issues_for_disability(disability)
+      primary_special_issues = disability['specialIssues'] || []
+      secondary_special_issues = []
+      (disability['secondaryDisabilities'] || []).each do |secondary_disability|
+        secondary_special_issues += (secondary_disability['specialIssues'] || [])
+      end
+      special_issues = primary_special_issues + secondary_special_issues
+
+      mapper = ClaimsApi::SpecialIssueMapper.new
+      {
+        code: disability['diagnosticCode'],
+        name: disability['name'],
+        special_issues: special_issues.map { |special_issue| mapper.code_from_name(special_issue) }
+      }
     end
 
     def documents
