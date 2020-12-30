@@ -88,7 +88,6 @@ module BGSDependents
       DateTime.parse(date + ' 12:00:00').to_time.iso8601
     end
 
-    # rubocop:disable Layout/LineLength
     def generate_address(address)
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
@@ -97,16 +96,24 @@ module BGSDependents
       end
 
       if address['veteran_address']
-        all_address_lines = "#{address['veteran_address']['address_line1']} #{address['veteran_address']['address_line2']} #{address['veteran_address']['address_line3']}"
-        new_lines = all_address_lines.gsub(/\s+/, ' ').scan(/.{1,19}(?: |$)/).map(&:strip)
-
-        address['veteran_address']['address_line1'] = new_lines[0]
-        address['veteran_address']['address_line2'] = new_lines[1]
-        address['veteran_address']['address_line3'] = new_lines[2]
+        vet_address = address['veteran_address']
+        adjust_address_lines(vet_address)
       end
+
+      adjust_address_lines(address)
+
       address
     end
-    # rubocop:enable Layout/LineLength
+
+    #  BGS will not accept address lines longer than 20 characters
+    def adjust_address_lines(address)
+      all_lines = "#{address['address_line1']} #{address['address_line2']} #{address['address_line3']}"
+      new_lines = all_lines.gsub(/\s+/, ' ').scan(/.{1,19}(?: |$)/).map(&:strip)
+
+      address['address_line1'] = new_lines[0]
+      address['address_line2'] = new_lines[1]
+      address['address_line3'] = new_lines[2]
+    end
 
     def create_address_params(proc_id, participant_id, payload)
       address = generate_address(payload)
