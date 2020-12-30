@@ -38,9 +38,15 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
           consumer_totals: [],
           flash_statistics: [],
           pending_submissions: ClaimsApi::AutoEstablishedClaim.where(created_at: from..to,
-                                                                     status: 'pending').order(:source, :status),
+                                                                     status: 'pending')
+                                                                .order(:source, :status)
+                                                                .pluck(:source, :status, :id),
           unsuccessful_submissions: ClaimsApi::AutoEstablishedClaim.where(created_at: from..to,
-                                                                          status: 'errored').order(:source, :status)
+                                                                          status: 'errored')
+                                                                      .order(:source, :status)
+                                                                      .pluck(:source, :status, :id),
+          grouped_errors: [],
+          grouped_warnings: []
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
                      end)
@@ -56,9 +62,9 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
 
         job = described_class.new
         job.perform
-        grouped_errors = job.errored_grouped
+        grouped_errors = job.errors_hash[:uniq_errors]
 
-        expect(grouped_errors.count).to eq(3)
+        expect(grouped_errors.count).to eq(1)
       end
     end
 
