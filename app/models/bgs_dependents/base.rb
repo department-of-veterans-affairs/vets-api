@@ -88,6 +88,7 @@ module BGSDependents
       DateTime.parse(date + ' 12:00:00').to_time.iso8601
     end
 
+    # rubocop:disable Layout/LineLength
     def generate_address(address)
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
@@ -95,11 +96,20 @@ module BGSDependents
         address['military_post_office_type_code'] = address.delete('city')
       end
 
+      if address['veteran_address']
+        all_address_lines = "#{address['veteran_address']['address_line1']} #{address['veteran_address']['address_line2']} #{address['veteran_address']['address_line3']}"
+        new_lines = all_address_lines.gsub(/\s+/, ' ').scan(/.{1,19}(?: |$)/).map(&:strip)
+
+        address['veteran_address']['address_line1'] = new_lines[0]
+        address['veteran_address']['address_line2'] = new_lines[1]
+        address['veteran_address']['address_line3'] = new_lines[2]
+      end
       address
     end
+    # rubocop:enable Layout/LineLength
 
     def create_address_params(proc_id, participant_id, payload)
-      generate_address(payload)
+      address = generate_address(payload)
 
       {
         efctv_dt: Time.current.iso8601,
@@ -107,16 +117,16 @@ module BGSDependents
         vnp_proc_id: proc_id,
         ptcpnt_addrs_type_nm: 'Mailing',
         shared_addrs_ind: 'N',
-        addrs_one_txt: payload['address_line1'],
-        addrs_two_txt: payload['address_line2'],
-        addrs_three_txt: payload['address_line3'],
-        city_nm: payload['city'],
-        cntry_nm: payload['country_name'],
-        postal_cd: payload['state_code'],
-        mlty_postal_type_cd: payload['military_postal_code'],
-        mlty_post_office_type_cd: payload['military_post_office_type_code'],
-        zip_prefix_nbr: payload['zip_code'],
-        prvnc_nm: payload['state_code'],
+        addrs_one_txt: address['address_line1'],
+        addrs_two_txt: address['address_line2'],
+        addrs_three_txt: address['address_line3'],
+        city_nm: address['city'],
+        cntry_nm: address['country_name'],
+        postal_cd: address['state_code'],
+        mlty_postal_type_cd: address['military_postal_code'],
+        mlty_post_office_type_cd: address['military_post_office_type_code'],
+        zip_prefix_nbr: address['zip_code'],
+        prvnc_nm: address['state_code'],
         email_addrs_txt: payload['email_address']
       }
     end
