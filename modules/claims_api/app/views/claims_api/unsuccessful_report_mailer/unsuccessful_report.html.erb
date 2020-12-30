@@ -99,6 +99,6 @@
       <%= @unsuccessful_submissions.count %>
       <span class="title">Unique Unsuccessful EVSS Responses</span>
     </h2>
-    <%= render partial: 'submission_table', locals: { claims: @unsuccessful_submissions, ids: false, timestamps: false } %>
+    <%= render partial: 'submission_table', locals: { claims: @unsuccessful_submissions, ids: false, timestamps: false } unless @unsuccessful_submissions.count.zero? %>
   </body>
 </html>

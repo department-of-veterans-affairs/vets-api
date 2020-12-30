@@ -57,7 +57,7 @@ module ClaimsApi
       ClaimsApi::AutoEstablishedClaim.where(
         created_at: @from..@to,
         status: 'pending'
-      ).order(:source, :status)
+      ).order(:source, :status).pluck(:source, :status, :id)
     end
 
     def flash_statistics
