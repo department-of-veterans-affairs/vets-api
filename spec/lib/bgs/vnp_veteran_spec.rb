@@ -137,13 +137,13 @@ RSpec.describe BGS::VnpVeteran do
         zip_prefix_nbr: '21122'
       }
       VCR.use_cassette('bgs/vnp_veteran/create') do
-        # expect_any_instance_of(BGS::Service).to receive(:create_person)
-        #   .with(a_hash_including(vet_person_hash))
-        #   .and_call_original
-        #
-        # expect_any_instance_of(BGS::Service).to receive(:create_phone)
-        #   .with(anything, anything, a_hash_including(formatted_payload))
-        #   .and_call_original
+        expect_any_instance_of(BGS::Service).to receive(:create_person)
+          .with(a_hash_including(vet_person_hash))
+          .and_call_original
+
+        expect_any_instance_of(BGS::Service).to receive(:create_phone)
+          .with(anything, anything, a_hash_including(formatted_payload))
+          .and_call_original
 
         expect_any_instance_of(BGS::Service).to receive(:create_address)
           .with(a_hash_including(expected_address))
