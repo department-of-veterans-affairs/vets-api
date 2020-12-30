@@ -74,6 +74,12 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :description, 'First Name of Veteran creating the Notice of Disagreement'
         key :required, true
         key :type, :string
+        key :maxLength, 16
+
+        #The total amount of characters available for the First Name, Middle Name,
+        #Last Name is 52 characters. 16, allowing 4 for middle initial and
+        #whitespace, and then 36 is an acceptable distribution, but not set in
+        #stone.
       end
 
       parameter do
@@ -82,14 +88,16 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :description, 'Last Name of Veteran creating the Notice of Disagreement'
         key :required, true
         key :type, :string
+        key :maxLength, 36
       end
 
       parameter do
-        key :name, 'XVA-SSN'
+        key :name, 'X-VA-SSN'
         key :in, :header
         key :description, 'SSN of Veteran creating the Notice of Disagreement'
         key :required, true
         key :type, :string
+        key :maxLength, 9
       end
 
       parameter do
@@ -98,6 +106,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :description, 'Birth Date of Veteran creating the Notice of Disagreement'
         key :required, true
         key :type, :string
+        key :maxLength, 10
       end
 
       parameter do
@@ -105,6 +114,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'VA file number'
+        key :maxLength, 9
       end
 
       parameter do
@@ -112,6 +122,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'The birth date of the Veteran referenced in the decision review request.'
+        key :maxLength, 10
       end
 
       parameter do
@@ -119,6 +130,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'The first name of the benefits claimant (if applicable)'
+        key :maxLength, 16
       end
 
       parameter do
@@ -133,6 +145,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'The last name of the benefits claimant (if applicable)'
+        key :maxLength, 36
       end
 
       parameter do
@@ -140,6 +153,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'The birth date of the benefits claimant (if applicable)'
+        key :maxLength, 10
       end
 
       request_body do
