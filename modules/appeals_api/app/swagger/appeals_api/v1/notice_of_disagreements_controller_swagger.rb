@@ -31,8 +31,11 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
       key :summary, 'Returns all contestable issues for a specific veteran.'
 
-      desc = 'Returns all issues associated with a Veteran that have not previously been decided by a Notice of Disagreement as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal. Associate these results when creating a new Notice of Disagreement.'
-      key :description, desc
+      description = 'Returns all issues associated with a Veteran that have' \
+      'not previously been decided by a Notice of Disagreement' \
+      'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
+      'Associate these results when creating a new Notice of Disagreement.'
+      key :description, description
 
       parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
@@ -64,7 +67,12 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
     operation :post, tags: NOD_TAG do
       key :summary, 'Creates a new Notice of Disagreement.'
-      key :description, 'Submits an appeal of type Notice of Disagreement. This endpoint is analogous to submitting VA Form 10182 via mail or fax directly to the Board of Veterans’ Appeals.'
+
+      description = 'Submits an appeal of type Notice of Disagreement.' \
+      'This endpoint is analogous to submitting VA Form 10182' \
+      'via mail or fax directly to the Board of Veterans’ Appeals.'
+      key :description, description
+
       key :operationId, 'nodCreateRoot'
 
       security do
@@ -79,10 +87,10 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :type, :string
         key :maxLength, 16
 
-        #The total amount of characters available for the First Name, Middle Name,
-        #Last Name is 52 characters. 16, allowing 4 for middle initial and
-        #whitespace, and then 36 is an acceptable distribution, but not set in
-        #stone.
+        # The total amount of characters available for the First Name, Middle Name,
+        # Last Name is 52 characters. 16, allowing 4 for middle initial and
+        # whitespace, and then 36 is an acceptable distribution, but not set in
+        # stone.
       end
 
       parameter do
@@ -222,7 +230,9 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     next unless PATH_ENABLED_FOR_ENV
 
     operation :post, tags: NOD_TAG do
-      key :summary, 'Validates the schema provided to create a NOD. This endpoint can be used to test your submission prior to calling the CREATE endpoint.'
+      summary = 'Validates the schema provided to create a NOD.'\
+        'This endpoint can be used to test your submission prior to calling the CREATE endpoint.'
+      key :summary, summary
       key :description, ''
       key :operationId, 'nodValidateSchema'
 
