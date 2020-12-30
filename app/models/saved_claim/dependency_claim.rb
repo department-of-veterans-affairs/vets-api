@@ -107,8 +107,7 @@ class SavedClaim::DependencyClaim < SavedClaim
   def partitioned_686_674_params
     dependent_data = parsed_form
 
-    keys = STUDENT_ATTENDING_COLLEGE_KEYS.map { |i| i }
-    keys << 'veteran_contact_information' << 'household_income'
+    keys = (STUDENT_ATTENDING_COLLEGE_KEYS.dup << %w[veteran_contact_information household_income]).flatten
 
     college_student_data = { 'dependents_application' => dependent_data['dependents_application'].extract!(*keys) }
 
