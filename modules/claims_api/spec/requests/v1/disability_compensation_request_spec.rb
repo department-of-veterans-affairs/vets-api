@@ -83,7 +83,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           aec = ClaimsApi::AutoEstablishedClaim.find(token)
           expect(aec.special_issues).to eq([{ 'code' => 9999,
                                               'name' => 'PTSD (post traumatic stress disorder)',
-                                              'special_issues' => %w[SSR RDN ECCD] }])
+                                              'special_issues' => %w[FDC PTSD/2 RDN ECCD] }])
         end
       end
     end
