@@ -29,7 +29,7 @@
     "nodCreateHeadersSsn": {
       "allOf": [
         { "description": "social security number" },
-        { "type": "string", "maxLength": "9", "pattern": "^[0-9]{9}$" }
+        { "type": "string", "maxLength": 9, "pattern": "^[0-9]{9}$" }
       ]
     },
 
@@ -39,7 +39,7 @@
         { "description": "first name" },
         {
           "type": "string",
-          "maxLength": "16",
+          "maxLength": 16,
           "$comment": "can be whitespace, to accommodate those with 1 legal name"
         }
       ]
@@ -57,7 +57,7 @@
     "nodCreateHeadersLastName": {
       "allOf": [
         { "description": "last name" },
-        { "maxLength": "36" },
+        { "maxLength": 36 },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },
@@ -66,7 +66,7 @@
     "nodCreateHeadersBirthDate": {
       "allOf": [
         { "description": "birth date" },
-        { "maxLength": "10" },
+        { "maxLength": 10 },
         { "$ref": "#/definitions/nodCreateHeadersDate" }
       ]
     },
@@ -75,7 +75,7 @@
     "nodCreateHeadersFileNumber": {
       "allOf": [
         { "description": "VA file number (c-file / css)" },
-        { "maxLength": "9" },
+        { "maxLength": 9 },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },
