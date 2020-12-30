@@ -14,9 +14,15 @@ module ClaimsApi
 
         ClaimsApi::UnsuccessfulReportMailer.build(@from, @to, consumer_totals: totals,
                                                               pending_submissions: pending,
-                                                              unsuccessful_submissions: errored_hash,
+                                                              unsuccessful_submissions: unsuccessful_submissions,
+                                                              grouped_errors: errored_hash[:uniq_errors],
+                                                              grouped_warnings: errors_hash[:uniq_warnings],
                                                               flash_statistics: flash_statistics).deliver_now
       end
+    end
+
+    def unsuccessful_submissions
+      errored.pluck(:source, :status, :id)
     end
 
     def errored
@@ -27,7 +33,8 @@ module ClaimsApi
     end
 
     def errored_hash
-      errors_hash = { error_guids: errored.pluck(:source, :status, :id) }
+      return @errors_hash if @errors_hash
+
       errors_array = errored.flat_map do |error|
         if error.evss_response.present?
           uuid_regex = /[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/
@@ -43,10 +50,8 @@ module ClaimsApi
         end
       end
 
-      errors_hash[:uniq_errors] = count_uniqs(errors_array.select { |n| n['severity'] == 'ERROR' })
-      errors_hash[:uniq_warnings] = count_uniqs(errors_array.select { |n| n['severity'] == 'WARN' })
-
-      errors_hash
+      @errors_hash = { uniq_errors: count_uniqs(errors_array.select { |n| n['severity'] == 'ERROR' }),
+                       uniq_warnings: count_uniqs(errors_array.select { |n| n['severity'] == 'WARN' }) }
     end
 
     def count_uniqs(array)
