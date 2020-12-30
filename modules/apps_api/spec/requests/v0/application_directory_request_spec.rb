@@ -26,7 +26,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
 
   describe '#get /services/apps/v0/directory/scopes/:category' do
     it 'returns a populated list of health scopes' do
-      VCR.use_cassette('okta/health-scopes') do
+      VCR.use_cassette('okta/health-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/Health'
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:success)
@@ -35,7 +35,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       end
     end
     it 'returns a populated list of benefits scopes' do
-      VCR.use_cassette('okta/benefits-scopes') do
+      VCR.use_cassette('okta/benefits-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/Benefits'
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:success)
@@ -44,7 +44,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       end
     end
     it 'returns a populated list of verification scopes' do
-      VCR.use_cassette('okta/verification-scopes') do
+      VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/Verification'
         body = JSON.parse(response.body)
         expect(response).to have_http_status(:success)
@@ -53,13 +53,13 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       end
     end
     it 'returns an empty list when given an unknown category' do
-      VCR.use_cassette('okta/verification-scopes') do
+      VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes/unknown_category'
         expect(response).to have_http_status(:no_content)
       end
     end
     it '204s when given a null category' do
-      VCR.use_cassette('okta/verification-scopes') do
+      VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes'
         expect(response).to have_http_status(:no_content)
       end
