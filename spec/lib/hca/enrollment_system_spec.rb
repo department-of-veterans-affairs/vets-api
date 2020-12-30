@@ -1048,29 +1048,25 @@ describe HCA::EnrollmentSystem do
         expect(
           described_class.address_from_veteran(provided_veteran_data)
         ).to eq(
-          [
+          'address' => [
             {
-              'address' => {
-                'city' => 'Ontario',
-                'country' => 'CAN',
-                'line1' => '123 NW 5th St',
-                'provinceCode' => 'ON',
-                'postalCode' => '21231',
-                # Home address is marked as "residential"
-                'addressTypeCode' => 'R'
-              }
+              'city' => 'Ontario',
+              'country' => 'CAN',
+              'line1' => '567 SW 9th Ave.',
+              'line2' => '#102',
+              'provinceCode' => 'ON',
+              'postalCode' => '21231',
+              # Mailing address is marked as "permanent"
+              'addressTypeCode' => 'P'
             },
             {
-              'address' => {
-                'city' => 'Ontario',
-                'country' => 'CAN',
-                'line1' => '567 SW 9th Ave.',
-                'line2' => '#102',
-                'provinceCode' => 'ON',
-                'postalCode' => '21231',
-                # Mailing address is marked as "permanent"
-                'addressTypeCode' => 'P'
-              }
+              'city' => 'Ontario',
+              'country' => 'CAN',
+              'line1' => '123 NW 5th St',
+              'provinceCode' => 'ON',
+              'postalCode' => '21231',
+              # Home address is marked as "residential"
+              'addressTypeCode' => 'R'
             }
           ]
         )
@@ -1159,20 +1155,9 @@ describe HCA::EnrollmentSystem do
         {
           'appointmentRequestResponse' => true,
           'contactInfo' => {
-            'addresses' => [
-              {
-                'address' => {
-                  'city' => 'Ontario',
-                  'country' => 'CAN',
-                  'line1' => '123 NW 5th St',
-                  'provinceCode' => 'ON',
-                  'postalCode' => '21231',
-                  # Home address is marked as "residential"
-                  'addressTypeCode' => 'R'
-                }
-              },
-              {
-                'address' => {
+            'addresses' => {
+              'address' => [
+                {
                   'city' => 'Ontario',
                   'country' => 'CAN',
                   'line1' => '567 SW 9th Ave.',
@@ -1181,9 +1166,18 @@ describe HCA::EnrollmentSystem do
                   'postalCode' => '21231',
                   # Mailing address is marked as "permanent"
                   'addressTypeCode' => 'P'
+                },
+                {
+                  'city' => 'Ontario',
+                  'country' => 'CAN',
+                  'line1' => '123 NW 5th St',
+                  'provinceCode' => 'ON',
+                  'postalCode' => '21231',
+                  # Home address is marked as "residential"
+                  'addressTypeCode' => 'R'
                 }
-              }
-            ],
+              ]
+            },
             'emails' => [
               { 'email' => { 'address' => 'foo@example.com', 'type' => '1' } }
             ],

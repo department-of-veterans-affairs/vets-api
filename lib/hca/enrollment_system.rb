@@ -568,26 +568,18 @@ module HCA
     end
 
     def address_from_veteran(veteran)
-      mailing_address  = veteran['veteranMailingAddress']
-      home_address     = veteran['veteranAddress']
+      mailing_address = veteran['veteranMailingAddress']
+      home_address = veteran['veteranAddress']
+      address = if mailing_address
+                  [
+                    format_address(mailing_address, 'P'),
+                    format_address(home_address, 'R')
+                  ]
+                else
+                  format_address(home_address, 'P')
+                end
 
-      if mailing_address
-        [
-          {
-            # Home address gets marked as "residential"
-            'address' => format_address(home_address, 'R')
-          },
-          {
-            # Mailing address gets marked as "permanent"
-            'address' => format_address(mailing_address, 'P')
-          }
-        ]
-      else
-        {
-          # When only one address present, set the address as "permanent"
-          'address' => format_address(home_address, 'P')
-        }
-      end
+      { 'address' => address }
     end
 
     def veteran_to_demographics_info(veteran)
