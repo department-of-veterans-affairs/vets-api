@@ -134,9 +134,9 @@ ActiveRecord::Schema.define(version: 2020_12_17_223026) do
     t.string "encrypted_file_data_iv"
     t.string "encrypted_evss_response"
     t.string "encrypted_evss_response_iv"
+    t.string "flashes", default: [], array: true
     t.string "encrypted_bgs_flash_responses"
     t.string "encrypted_bgs_flash_responses_iv"
-    t.string "flashes", default: [], array: true
     t.jsonb "special_issues", default: []
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
@@ -321,6 +321,15 @@ ActiveRecord::Schema.define(version: 2020_12_17_223026) do
     t.datetime "updated_at", null: false
     t.index ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id"
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
+  end
+
+  create_table "form526_opt_ins", id: :serial, force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.string "encrypted_email", null: false
+    t.string "encrypted_email_iv", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true
   end
 
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
