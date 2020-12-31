@@ -314,7 +314,7 @@ module PdfFill
 
         # extract phone_number
         expand_phone_number
-        binding.pry
+
         # extract postal code and country
         claimant_address = @form_data['claimantAddress']
         claimant_address['postalCode'] = split_postal_code(claimant_address)
