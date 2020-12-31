@@ -7,5 +7,5 @@ require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
 require 'sidekiq/web/authorization'
 
 Sidekiq::Web.authorize do |env, method, path|
-  Sidekiq::Web::Authorization.new(Rails.env).request_authorized?(env, method, path)
+  Sidekiq::Web::Authorization.request_authorized?(env, method, path)
 end
