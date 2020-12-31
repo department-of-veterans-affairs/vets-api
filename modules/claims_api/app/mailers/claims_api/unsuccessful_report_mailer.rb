@@ -23,6 +23,7 @@ module ClaimsApi
       @grouped_errors = data[:grouped_errors]
       @grouped_warnings = data[:grouped_warnings]
       @flash_statistics = data[:flash_statistics]
+      @special_issues_statistics = data[:special_issues_statistics]
       @date_from = date_from
       @date_to = date_to
 
