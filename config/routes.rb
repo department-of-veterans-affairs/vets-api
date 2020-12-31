@@ -348,15 +348,7 @@ Rails.application.routes.draw do
   mount CovidResearch::Engine, at: '/covid-research'
   mount Mobile::Engine, at: '/mobile'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
-
-  if Rails.env.development? || Settings.sidekiq_admin_panel
-    require 'sidekiq/web'
-    require 'sidekiq-scheduler/web'
-    require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
-    require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
-    mount Sidekiq::Web, at: '/sidekiq'
-  end
-
+  mount Sidekiq::Web => '/sidekiq' # Autorization defined in lib/sidekiq/web/
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 
   # This globs all unmatched routes and routes them as routing errors
