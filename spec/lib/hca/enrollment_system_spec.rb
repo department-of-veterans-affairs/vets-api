@@ -268,7 +268,7 @@ describe HCA::EnrollmentSystem do
 
     context 'with "Address Type Code" specified' do
       it 'sets the "addressTypeCode" attribute' do
-        expect(described_class.format_address(test_address, 'P')).to eq(
+        expect(described_class.format_address(test_address, type: 'P')).to eq(
           'city' => 'Dulles',
           'country' => 'USA',
           'line1' => '123 NW 8th St',
@@ -278,7 +278,7 @@ describe HCA::EnrollmentSystem do
           'addressTypeCode' => 'P'
         )
 
-        expect(described_class.format_address(test_address, 'R')).to eq(
+        expect(described_class.format_address(test_address, type: 'R')).to eq(
           'city' => 'Dulles',
           'country' => 'USA',
           'line1' => '123 NW 8th St',
