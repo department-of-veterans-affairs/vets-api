@@ -117,14 +117,21 @@ module PdfFill
           }
         }, # end claimantInformation
         'claimantAddress' => {
-          'addressLine1' => {
+          'street' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]',
             limit: 30,
             question_num: 3,
             question_suffix: 'A',
             question_text: 'MAILING ADDRESS'
           },
-          'addressLine2' => {
+          'street2' => {
+            key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+            limit: 5,
+            question_num: 3,
+            question_suffix: 'B',
+            question_text: 'MAILING ADDRESS'
+          },
+          'street3' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
             limit: 5,
             question_num: 3,
@@ -138,7 +145,7 @@ module PdfFill
             question_suffix: 'C',
             question_text: 'MAILING ADDRESS'
           },
-          'stateCode' => {
+          'state' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_StateOrProvince[0]',
             limit: 2,
             question_num: 3,
@@ -307,7 +314,7 @@ module PdfFill
 
         # extract phone_number
         expand_phone_number
-
+        binding.pry
         # extract postal code and country
         claimant_address = @form_data['claimantAddress']
         claimant_address['postalCode'] = split_postal_code(claimant_address)

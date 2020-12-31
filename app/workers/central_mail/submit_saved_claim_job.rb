@@ -19,7 +19,7 @@ module CentralMail
       PensionBurial::TagSentry.tag_sentry
       @claim = SavedClaim.find(saved_claim_id)
       @pdf_path = process_record(@claim)
-
+      binding.pry
       @attachment_paths = @claim.persistent_attachments.map do |record|
         process_record(record)
       end
