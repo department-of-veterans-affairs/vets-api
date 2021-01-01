@@ -7,7 +7,7 @@ module VBMS
     include SentryLogging
 
     # Generates PDF for 686c form and uploads to VBMS
-    def perform(saved_claim_id, va_file_number_with_payload, submittable_686, submittable_674)
+    def perform(saved_claim_id:, va_file_number_with_payload:, submittable_686:, submittable_674:)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(va_file_number_with_payload)
 
