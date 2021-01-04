@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# Stores a preferred facility for a user.
+# Users can have many preferred facilities and each facility code
+# should be included in the user's +va_treatment_facility_ids+.
+
 class PreferredFacility < ApplicationRecord
   attr_accessor :user
 
