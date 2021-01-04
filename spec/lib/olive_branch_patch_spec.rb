@@ -143,8 +143,8 @@ describe 'OliveBranchPatch', type: :request do
     json = JSON.parse(response.body)
     expect(json.keys).to include('someVaDetails', 'helloThere', 'helloToTheVa')
 
-    expect(json['someVaDetails'].keys).to eq [
-      'yearVaFounded', 'yearVaCloses', 'listsForVa', 'theVaAddress', 'weLoveTheVa', 'thumbsUpForTheVa', 'differentKey'
+    expect(json['someVaDetails'].keys).to eq %w[
+      yearVaFounded yearVaCloses listsForVa theVaAddress weLoveTheVa thumbsUpForTheVa differentKey
     ]
 
     url_for_va = hash.dig(:some_va_details, 'the_va_address', 'notes', 'url_for_va')
