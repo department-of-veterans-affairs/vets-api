@@ -124,20 +124,6 @@ module PdfFill
             question_suffix: 'A',
             question_text: 'MAILING ADDRESS'
           },
-          'street2' => {
-            key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
-            limit: 5,
-            question_num: 3,
-            question_suffix: 'B',
-            question_text: 'MAILING ADDRESS'
-          },
-          'street3' => {
-            key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
-            limit: 5,
-            question_num: 3,
-            question_suffix: 'B',
-            question_text: 'MAILING ADDRESS'
-          },
           'city' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_City[0]',
             limit: 18,
@@ -316,9 +302,11 @@ module PdfFill
         expand_phone_number
 
         # extract postal code and country
-        claimant_address = @form_data['claimantAddress']
-        claimant_address['postalCode'] = split_postal_code(claimant_address)
-        claimant_address['country'] = extract_country(claimant_address)
+        claimant_addr = @form_data['claimantAddress']
+        claimant_addr['postalCode'] = split_postal_code(claimant_addr)
+        claimant_addr['country'] = extract_country(claimant_addr)
+
+        claimant_addr['street'] = "#{claimant_addr['street']} #{claimant_addr['street2']} #{claimant_addr['street3']}"
       end
 
       def merge_veteran_helpers
