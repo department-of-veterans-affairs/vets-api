@@ -1,0 +1,271 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://deptva-eval.okta.com/api/v1/logs?filter=eventType%20eq%20%22app.oauth2.as.consent.grant%22&since=2020-12-31T18:37:57Z
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.17.0
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Authorization:
+      - SSWS <OKTA_TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Dec 2020 19:37:57 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+      Vary:
+      - Accept-Encoding
+      X-Okta-Request-Id:
+      - X@4olfWBN1YseKan4-hmpAAABC4
+      X-Xss-Protection:
+      - '0'
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '50'
+      X-Rate-Limit-Remaining:
+      - '49'
+      X-Rate-Limit-Reset:
+      - '1609443537'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Content-Security-Policy-Report-Only:
+      - 'default-src ''self'' *.oktacdn.com deptva-eval.okta.com; connect-src ''self''
+        *.oktacdn.com *.mixpanel.com *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        deptva-eval.okta.com deptva-eval-admin.okta.com deptva-eval.kerberos.okta.com
+        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
+        ''self'' *.oktacdn.com; style-src ''unsafe-inline'' ''self'' *.oktacdn.com
+        app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com;
+        frame-src ''self'' login.okta.com deptva-eval.okta.com deptva-eval-admin.okta.com;
+        img-src ''self'' *.oktacdn.com deptva-eval.okta.com *.tiles.mapbox.com *.mapbox.com
+        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        data: blob:; font-src data: ''self'' *.oktacdn.com fonts.gstatic.com; report-uri
+        https://okta.report-uri.com/r/d/csp/reportOnly; report-to csp-report'
+      Report-To:
+      - '{"group":"csp-report","max_age":31536000,"endpoints":[{"url":"https://okta.report-uri.com/r/d/csp/reportOnly"}],"include_subdomains":true}'
+      Expect-Ct:
+      - report-uri="https://oktaexpectct.report-uri.com/r/t/ct/reportOnly", max-age=0
+      Link:
+      - <https://deptva-eval.okta.com/api/v1/logs?since=2020-12-31T18%3A37%3A57Z&filter=eventType+eq+%22app.oauth2.as.consent.grant%22&after=1609440066731_1>;
+        rel="next"
+      - <https://deptva-eval.okta.com/api/v1/logs?since=2020-12-31T18%3A37%3A57Z&filter=eventType+eq+%22app.oauth2.as.consent.grant%22>;
+        rel="self"
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000; includeSubDomains
+      Set-Cookie:
+      - JSESSIONID=BC3383B4F621B7E7B2B6140604205CD8; Path=/; Secure; HttpOnly
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"actor":{"id":"00u3z5e6as6tEwXWx2p7","type":"User","alternateId":"b24346a788c04dfea5048d44ad071181","displayName":"Tamara
+        Ellis","detailEntry":null},"client":{"userAgent":{"rawUserAgent":"Mozilla/5.0
+        (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/88.0.4298.0
+        Safari/537.36","os":"Linux","browser":"CHROME"},"zone":"null","device":"Computer","id":null,"ipAddress":"104.209.133.158","geographicalContext":{"city":"Boydton","state":"Virginia","country":"United
+        States","postalCode":"23917","geolocation":{"lat":36.6534,"lon":-78.375}}},"authenticationContext":{"authenticationProvider":null,"credentialProvider":null,"credentialType":null,"issuer":null,"interface":null,"authenticationStep":0,"externalSessionId":"102AKNIeVhkQhu4-F2JN_PdaA"},"displayMessage":"Consent
+        granted","eventType":"app.oauth2.as.consent.grant","outcome":{"result":"SUCCESS","reason":null},"published":"2020-12-31T18:39:47.912Z","securityContext":{"asNumber":8075,"asOrg":"microsoft
+        corporation","isp":"microsoft corporation","domain":"cloudapp.net","isProxy":false},"severity":"INFO","debugContext":{"debugData":{"authorizationServerName":"default","authorizationServer":"aus1bptuzqo48Ut942p7","requestId":"X@4a8yITkb0c9sqjWx9LbAAAAyg","requestUri":"/api/v1/authn/consent","threatSuspected":"false","url":"/api/v1/authn/consent?"}},"legacyEventType":"app.oauth2.as.consent.grant_success","transaction":{"type":"WEB","id":"X@4a8yITkb0c9sqjWx9LbAAAAyg","detail":{}},"uuid":"8f2c4531-4b97-11eb-9466-21f77258c27e","version":"0","request":{"ipChain":[{"ip":"104.209.133.158","geographicalContext":{"city":"Boydton","state":"Virginia","country":"United
+        States","postalCode":"23917","geolocation":{"lat":36.6534,"lon":-78.375}},"version":"V4","source":null}]},"target":[{"id":"oagnrfc2iZL0bHhqE2p6","type":"ConsentGrant","alternateId":null,"displayName":"launch/patient","detailEntry":{"publicclientapp":"0oa7rb3qjbKyi6j7O2p7","authorizationserver":"aus1bptuzqo48Ut942p7","user":"00u3z5e6as6tEwXWx2p7"}}]},{"actor":{"id":"00u3z5e6as6tEwXWx2p7","type":"User","alternateId":"b24346a788c04dfea5048d44ad071181","displayName":"Tamara
+        Ellis","detailEntry":null},"client":{"userAgent":{"rawUserAgent":"Mozilla/5.0
+        (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/88.0.4298.0
+        Safari/537.36","os":"Linux","browser":"CHROME"},"zone":"null","device":"Computer","id":null,"ipAddress":"104.209.133.158","geographicalContext":{"city":"Boydton","state":"Virginia","country":"United
+        States","postalCode":"23917","geolocation":{"lat":36.6534,"lon":-78.375}}},"authenticationContext":{"authenticationProvider":null,"credentialProvider":null,"credentialType":null,"issuer":null,"interface":null,"authenticationStep":0,"externalSessionId":"102CnqMppMIRuWI98-dars8Zw"},"displayMessage":"Consent
+        granted","eventType":"app.oauth2.as.consent.grant","outcome":{"result":"SUCCESS","reason":null},"published":"2020-12-31T18:41:06.473Z","securityContext":{"asNumber":8075,"asOrg":"microsoft
+        corporation","isp":"microsoft corporation","domain":"cloudapp.net","isProxy":false},"severity":"INFO","debugContext":{"debugData":{"authorizationServerName":"default","authorizationServer":"aus1bptuzqo48Ut942p7","requestId":"X@4bQihbacXEM7eZXDbPNgAABCA","requestUri":"/api/v1/authn/consent","threatSuspected":"false","url":"/api/v1/authn/consent?"}},"legacyEventType":"app.oauth2.as.consent.grant_success","transaction":{"type":"WEB","id":"X@4bQihbacXEM7eZXDbPNgAABCA","detail":{}},"uuid":"bdffba58-4b97-11eb-a76a-7fc45dfa4f74","version":"0","request":{"ipChain":[{"ip":"104.209.133.158","geographicalContext":{"city":"Boydton","state":"Virginia","country":"United
+        States","postalCode":"23917","geolocation":{"lat":36.6534,"lon":-78.375}},"version":"V4","source":null}]},"target":[{"id":"oagnrfcvnic5RKHUV2p6","type":"ConsentGrant","alternateId":null,"displayName":"launch/patient","detailEntry":{"publicclientapp":"0oa7rb3qjbKyi6j7O2p7","authorizationserver":"aus1bptuzqo48Ut942p7","user":"00u3z5e6as6tEwXWx2p7"}}]}]'
+  recorded_at: Thu, 31 Dec 2020 19:37:57 GMT
+- request:
+    method: get
+    uri: https://deptva-eval.okta.com/api/v1/apps/0oa7rb3qjbKyi6j7O2p7
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.17.0
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Authorization:
+      - SSWS <OKTA_TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Dec 2020 19:37:57 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+      Vary:
+      - Accept-Encoding
+      X-Okta-Request-Id:
+      - X@4olQOu1xblBsZr-ZnNQwAACjg
+      X-Xss-Protection:
+      - '0'
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '600'
+      X-Rate-Limit-Remaining:
+      - '596'
+      X-Rate-Limit-Reset:
+      - '1609443500'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Content-Security-Policy-Report-Only:
+      - 'default-src ''self'' *.oktacdn.com deptva-eval.okta.com; connect-src ''self''
+        *.oktacdn.com *.mixpanel.com *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        deptva-eval.okta.com deptva-eval-admin.okta.com deptva-eval.kerberos.okta.com
+        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
+        ''self'' *.oktacdn.com; style-src ''unsafe-inline'' ''self'' *.oktacdn.com
+        app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com;
+        frame-src ''self'' login.okta.com deptva-eval.okta.com deptva-eval-admin.okta.com;
+        img-src ''self'' *.oktacdn.com deptva-eval.okta.com *.tiles.mapbox.com *.mapbox.com
+        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        data: blob:; font-src data: ''self'' *.oktacdn.com fonts.gstatic.com; report-uri
+        https://okta.report-uri.com/r/d/csp/reportOnly; report-to csp-report'
+      Report-To:
+      - '{"group":"csp-report","max_age":31536000,"endpoints":[{"url":"https://okta.report-uri.com/r/d/csp/reportOnly"}],"include_subdomains":true}'
+      Expect-Ct:
+      - report-uri="https://oktaexpectct.report-uri.com/r/t/ct/reportOnly", max-age=0
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000; includeSubDomains
+      Set-Cookie:
+      - JSESSIONID=45453D664C835DA572BB7C3B328CE628; Path=/; Secure; HttpOnly
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"id":"0oa7rb3qjbKyi6j7O2p7","name":"oidc_client","label":"LibertyITSMarkwordt-2020-07-14T16:37:31.039Z","status":"ACTIVE","lastUpdated":"2020-12-11T20:12:08.000Z","created":"2020-07-14T16:37:31.000Z","accessibility":{"selfService":false,"errorRedirectUrl":null,"loginRedirectUrl":null},"visibility":{"autoSubmitToolbar":false,"hide":{"iOS":true,"web":true},"appLinks":{"oidc_client_link":true}},"features":[],"signOnMode":"OPENID_CONNECT","credentials":{"userNameTemplate":{"template":"${source.login}","type":"BUILT_IN"},"signing":{"kid":"FKHfbEAUXleNQzw0de1ci1qSRZqz4hQx2QbOMC163TQ"},"oauthClient":{"autoKeyRotation":true,"client_id":"0oa7rb3qjbKyi6j7O2p7","token_endpoint_auth_method":"client_<DMC_TOKEN>_basic"}},"settings":{"app":{},"notifications":{"vpn":{"network":{"connection":"DISABLED"},"message":null,"helpUrl":null}},"oauthClient":{"client_uri":null,"logo_uri":null,"redirect_uris":["http://localhost:8080/redirect","http://localhost:3000/callback","https://sandbox-api.va.gov/oauth2/redirect/","https://dev-api.va.gov/oauth2/redirect/","http://localhost:7100/oauth2/redirect/","ecs-oauth-proxy-dev.vfs.va.gov:7100/oauth2/redirect/","https://staging-api.va.gov/oauth2/redirect/","https://app/after-auth"],"response_types":["code","token","id_token"],"grant_types":["authorization_code","refresh_token","implicit"],"initiate_login_uri":"https://dev-api.va.gov/oauth2/redirect/","application_type":"web","consent_method":"REQUIRED","issuer_mode":"ORG_URL","idp_initiated_login":{"mode":"DISABLED","default_scope":[]}}},"_links":{"appLinks":[{"name":"oidc_client_link","href":"https://deptva-eval.okta.com/home/oidc_client/0oa7rb3qjbKyi6j7O2p7/aln177a159h7Zf52X0g8","type":"text/html"}],"groups":{"href":"https://deptva-eval.okta.com/api/v1/apps/0oa7rb3qjbKyi6j7O2p7/groups"},"logo":[{"name":"medium","href":"https://ok6static.oktacdn.com/assets/img/logos/default.6770228fb0dab49a1695ef440a5279bb.png","type":"image/png"}],"users":{"href":"https://deptva-eval.okta.com/api/v1/apps/0oa7rb3qjbKyi6j7O2p7/users"},"deactivate":{"href":"https://deptva-eval.okta.com/api/v1/apps/0oa7rb3qjbKyi6j7O2p7/lifecycle/deactivate"}}}'
+  recorded_at: Thu, 31 Dec 2020 19:37:57 GMT
+- request:
+    method: get
+    uri: https://deptva-eval.okta.com/api/v1/users/00u3z5e6as6tEwXWx2p7
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.17.0
+      Content-Type:
+      - application/json
+      Accept:
+      - application/json
+      Authorization:
+      - SSWS <OKTA_TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 31 Dec 2020 19:37:58 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - nginx
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="r5EfzZxQVvQpKo3AgYRaT7X2bDO/kj3ACwmxfdT2zt8="; pin-sha256="MaqlcUgk2mvY/RFSGeSwBRkI+rZ6/dxe/DuQfBT/vnQ=";
+        pin-sha256="72G5IEvDEWn+EThf3qjR7/bQSWaS2ZSLqolhnO6iyJI="; pin-sha256="rrV6CLCCvqnk89gWibYT0JO6fNQ8cCit7GGoiVTjCOg=";
+        max-age=60; report-uri="https://okta.report-uri.com/r/default/hpkp/reportOnly"
+      Vary:
+      - Accept-Encoding
+      X-Okta-Request-Id:
+      - X@4olsV5MzW9wJNiyqvukwAAD-E
+      X-Xss-Protection:
+      - '0'
+      P3p:
+      - CP="HONK"
+      X-Rate-Limit-Limit:
+      - '1000'
+      X-Rate-Limit-Remaining:
+      - '997'
+      X-Rate-Limit-Reset:
+      - '1609443515'
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      Content-Security-Policy-Report-Only:
+      - 'default-src ''self'' *.oktacdn.com deptva-eval.okta.com; connect-src ''self''
+        *.oktacdn.com *.mixpanel.com *.mapbox.com app.pendo.io data.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        deptva-eval.okta.com deptva-eval-admin.okta.com deptva-eval.kerberos.okta.com
+        https://oinmanager.okta.com data:; script-src ''unsafe-inline'' ''unsafe-eval''
+        ''self'' *.oktacdn.com; style-src ''unsafe-inline'' ''self'' *.oktacdn.com
+        app.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com;
+        frame-src ''self'' login.okta.com deptva-eval.okta.com deptva-eval-admin.okta.com;
+        img-src ''self'' *.oktacdn.com deptva-eval.okta.com *.tiles.mapbox.com *.mapbox.com
+        app.pendo.io data.pendo.io cdn.pendo.io pendo-static-5634101834153984.storage.googleapis.com
+        data: blob:; font-src data: ''self'' *.oktacdn.com fonts.gstatic.com; report-uri
+        https://okta.report-uri.com/r/d/csp/reportOnly; report-to csp-report'
+      Report-To:
+      - '{"group":"csp-report","max_age":31536000,"endpoints":[{"url":"https://okta.report-uri.com/r/d/csp/reportOnly"}],"include_subdomains":true}'
+      Expect-Ct:
+      - report-uri="https://oktaexpectct.report-uri.com/r/t/ct/reportOnly", max-age=0
+      X-Content-Type-Options:
+      - nosniff
+      Strict-Transport-Security:
+      - max-age=315360000; includeSubDomains
+      Set-Cookie:
+      - JSESSIONID=7FCCC53A9DF4EA260BA884FBD40237E8; Path=/; Secure; HttpOnly
+      - sid=""; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"id":"00u3z5e6as6tEwXWx2p7","status":"ACTIVE","created":"2019-05-16T18:28:04.000Z","activated":"2019-05-16T18:28:04.000Z","statusChanged":"2019-05-16T18:28:04.000Z","lastLogin":"2020-12-31T19:37:45.000Z","lastUpdated":"2020-12-31T19:37:45.000Z","<EE_PASS>Changed":null,"type":{"id":"oty1bpuo75x4e9uHl2p7"},"profile":{"last_login_type":"http://idmanagement.gov/ns/assurance/loa/3","firstName":"Tamara","lastName":"Ellis","idme_loa":"3","mobilePhone":null,"icn":"1012667145V762142","secondEmail":null,"middleName":"E","login":"b24346a788c04dfea5048d44ad071181","email":"va.api.user+idme.001@gmail.com","loa":3},"credentials":{"provider":{"type":"FEDERATION","name":"FEDERATION"}},"_links":{"suspend":{"href":"https://deptva-eval.okta.com/api/v1/users/00u3z5e6as6tEwXWx2p7/lifecycle/suspend","method":"POST"},"schema":{"href":"https://deptva-eval.okta.com/api/v1/meta/schemas/user/osc1bpuo75x4e9uHl2p7"},"resetPassword":{"href":"https://deptva-eval.okta.com/api/v1/users/00u3z5e6as6tEwXWx2p7/lifecycle/reset_<EE_PASS>","method":"POST"},"changeRecoveryQuestion":{"href":"https://deptva-eval.okta.com/api/v1/users/00u3z5e6as6tEwXWx2p7/credentials/change_recovery_question","method":"POST"},"self":{"href":"https://deptva-eval.okta.com/api/v1/users/00u3z5e6as6tEwXWx2p7"},"type":{"href":"https://deptva-eval.okta.com/api/v1/meta/types/user/oty1bpuo75x4e9uHl2p7"},"deactivate":{"href":"https://deptva-eval.okta.com/api/v1/users/00u3z5e6as6tEwXWx2p7/lifecycle/deactivate","method":"POST"}}}'
+  recorded_at: Thu, 31 Dec 2020 19:37:58 GMT
+recorded_with: VCR 6.0.0

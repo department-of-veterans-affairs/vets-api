@@ -16,28 +16,18 @@ module AppsApi
       @disconnection_event = 'app.oauth2.as.token.revoke'
     end
 
-    def handle_connect
-      logs = get_events(@connection_event)
+    def handle_event(event_type, template)
+      logs = get_events(event_type)
       logs.body.each do |event|
         unless event_is_invalid(event)
           parsed_hash = parse_event(event)
-          send_email(parsed_hash, @connection_template)
+          send_email(hash: parsed_hash, template: template)
         end
       end
     end
 
-    def handle_disconnect
-      logs = get_events(@disconnection_event)
-      logs.body.each do |event|
-        unless event_is_invalid(event)
-          parsed_hash = parse_event(event)
-          send_email(parsed_hash, @disconnection_template)
-        end
-      end
-    end
-
-    def get_events(event)
-      @okta_service.system_logs(event, @time_period)
+    def get_events(event_type)
+      @okta_service.system_logs(event_type, @time_period)
     end
 
     def parse_event(event)
@@ -51,18 +41,18 @@ module AppsApi
         app_record = DirectoryApplication.find_by(name: event['actor']['displayName'])
       end
       user = @okta_service.user(user_id)
-      create_hash(app_record, user, event)
+      create_hash(app_record: app_record, user: user, published: event['published'])
     end
 
-    def create_hash(app_record:, user:, event:)
+    def create_hash(app_record:, user:, published:)
       {
         'app_record' => app_record,
         'user_email' => user.body['profile']['email'],
         'options' => {
-          'full_name' => event['actor']['displayName'],
-          'application' => app_record['name'],
-          'time' => event['published'],
-          'privacy_policy' => app_record['privacy_url'],
+          'full_name' => "#{user.body['profile']['firstName']} #{user.body['profile']['lastName']}",
+          'application' => app_record ? app_record['name'] : nil,
+          'time' => published,
+          'privacy_policy' => app_record ? app_record['privacy_url'] : nil,
           'password_reset' => Settings.vanotify.links.password_reset,
           'connected_applications_link' => Settings.vanotify.links.connected_applications
         }
@@ -77,7 +67,9 @@ module AppsApi
 
     def send_email(hash:, template:)
       # will be nil if the application isn't in our directory
-      unless hash['app_record'].nil?
+      if hash['app_record'].nil?
+        false
+      else
         @notify_client.send_email(
           email_address: hash['user_email'],
           template_id: template,

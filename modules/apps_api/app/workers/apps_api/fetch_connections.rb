@@ -10,8 +10,16 @@ module AppsApi
 
     def perform
       notif_service = AppsApi::NotificationService.new
-      notif_service.handle_connect
-      notif_service.handle_disconnect
+      # process all connection events
+      notif_service.handle_event(
+        'app.oauth2.as.consent.grant',
+        Settings.vanotify.template_id.connection_template
+      )
+      # process all disconnection events
+      notif_service.handle_event(
+        'app.oauth2.as.token.revoke',
+        Settings.vanotify.template_id.disconnection_template
+      )
     end
   end
 end
