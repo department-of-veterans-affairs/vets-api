@@ -138,6 +138,11 @@ Rails.application.routes.draw do
     end
     resources :higher_level_reviews, only: %i[create show]
 
+    namespace :notice_of_disagreements do
+      get 'contestable_issues', to: 'contestable_issues#index'
+    end
+    resources :notice_of_disagreements, only: %i[create show]
+
     scope :messaging do
       scope :health do
         resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'

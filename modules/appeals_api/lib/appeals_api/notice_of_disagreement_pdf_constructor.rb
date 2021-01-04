@@ -25,7 +25,7 @@ module AppealsApi
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/CyclomaticComplexity
     # rubocop:disable Metrics/PerceivedComplexity
-    # rubocop:disable Metrics/AbcSize
+    # rubocop:disable Layout/LineLength
     def pdf_options
       return @pdf_options if @pdf_options
 
@@ -35,19 +35,14 @@ module AppealsApi
         "F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": nod_pdf_options.veteran_ssn,
         "F[0].Page_1[0].VAFileNumber[0]": nod_pdf_options.veteran_file_number,
         "F[0].Page_1[0].DateSigned[0]": nod_pdf_options.veteran_dob, # Veterans DOB
-        "F[0].Page_1[0].ClaimantsFirstName[0]": nod_pdf_options.claimant_name,
-        "F[0].Page_1[0].DateSigned[1]": nod_pdf_options.claimant_dob, # Claimant DOB
-        "F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]": nod_pdf_options.address,
+        "F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]": 'USE ADDRESS ON FILE',
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[0]": nod_pdf_options.homeless? ? 1 : 'Off', # Homeless
-        "F[0].Page_1[0].PreferredPhoneNumber[0]": nod_pdf_options.phone,
-        "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]":
-            nod_pdf_options.board_review_option == 'direct_review' ? 1 : 'Off',
-        "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[2]":
-            nod_pdf_options.board_review_option == 'evidence_submission' ? 1 : 'Off',
-        "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[3]":
-            nod_pdf_options.board_review_option == 'hearing' ? 1 : 'Off',
-        "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[4]":
-            nod_pdf_options.contestable_issues.size > 5 ? 1 : 'Off', # Additional pages checkbox
+        "F[0].Page_1[0].PreferredPhoneNumber[0]": 'USE PHONE NUMBER ON FILE',
+        "F[0].Page_1[0].PreferredE_MailAddress[0]": 'USE EMAIL ON FILE',
+        "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]": nod_pdf_options.board_review_option == 'direct_review' ? 1 : 'Off',
+        "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[2]": nod_pdf_options.board_review_option == 'evidence_submission' ? 1 : 'Off',
+        "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[3]": nod_pdf_options.board_review_option == 'hearing' ? 1 : 'Off',
+        "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[4]": nod_pdf_options.contestable_issues.size > 5 ? 1 : 'Off', # Additional pages checkbox
         "F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[5]": nod_pdf_options.soc_opt_in? ? 1 : 'Off', # soc
         "F[0].Page_1[0].SignatureOfClaimant_AuthorizedRepresentative[0]": nod_pdf_options.signature, # Signature
         "F[0].Page_1[0].DateSigned[2]": nod_pdf_options.date_signed
@@ -66,24 +61,7 @@ module AppealsApi
     # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/AbcSize
-
-    # TODO: Remove this override by refactoring BasePdfConstructor & HigherLevelReviewPdfConstructor to use
-    #       `additional_pages` key in this manner instead of `additional_page` key
-    def merge_page(temp_path, output_path)
-      return temp_path if pdf_options[:additional_pages].blank?
-
-      rand_path = "/#{Common::FileHelpers.random_file_path}.pdf"
-      Prawn::Document.generate(rand_path) do |pdf|
-        pdf_options[:additional_pages].each_with_index do |txt, index|
-          pdf.start_new_page unless index.zero?
-          pdf.text txt, inline_format: true
-        end
-      end
-      pdf = CombinePDF.load(temp_path) << CombinePDF.load(rand_path)
-      pdf.save output_path
-      output_path
-    end
+    # rubocop:enable Layout/LineLength
 
     def stamp_pdf(pdf_path, consumer_name)
       stamped_path = super
@@ -104,7 +82,6 @@ module AppealsApi
       Prawn::Document.generate(temp_file) do |pdf|
         text_opts = { overflow: :shrink_to_fit, min_font_size: 8, valign: :bottom }
         pdf.font 'Courier'
-        pdf.text_box nod_pdf_options.email.to_s, text_opts.merge(at: [145, 512], width: 195, height: 24)
         pdf.text_box nod_pdf_options.representatives_name.to_s, text_opts.merge(at: [350, 512], width: 195, height: 24)
         nod_pdf_options.contestable_issues.take(5).each_with_index do |issue, index|
           ypos = 288 - (45 * index)

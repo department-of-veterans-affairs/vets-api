@@ -336,6 +336,10 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'verifying' do
         let(:authn_context) { LOA::IDME_LOA3_VETS }
+        let(:version) { 'v0' }
+        let(:expected_ssn_log) do
+          "SessionsController version:#{version} message:SSN from MPI Lookup does not match UserIdentity cache"
+        end
 
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           existing_user = User.find(uuid)
@@ -345,7 +349,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(existing_user.ssn).to eq('796111863')
           allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
           expect(controller).to receive(:log_message_to_sentry).with(
-            'SSNS DO NOT MATCH!!',
+            expected_ssn_log,
             :warn,
             identity_compared_with_mpi: {
               length: [9, 9],
@@ -583,7 +587,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Failed! Other SAML Response Error(s)',
               :error,
-              saml_error_context: [{ code: '007',
+              saml_error_context: [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                      tag: :unknown,
                                      short_message: 'Other SAML Response Error(s)',
                                      level: :error,
@@ -614,12 +618,12 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
-              saml_error_context: [{ code: '001',
+              saml_error_context: [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
                                      tag: :clicked_deny,
                                      short_message: 'Subject did not consent to attribute release',
                                      level: :warn,
                                      full_message: 'Subject did not consent to attribute release' },
-                                   { code: '007',
+                                   { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                      tag: :unknown,
                                      short_message: 'Other SAML Response Error(s)',
                                      level: :error,
@@ -676,7 +680,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Failed! on User/Session Validation',
               :error,
-              code: '004',
+              code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
               tag: :validations_failed,
               short_message: 'on User/Session Validation',
               level: :error,
@@ -737,6 +741,29 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(Account.count).to eq 1
             expect(Account.first.idme_uuid).to eq account.idme_uuid
           end
+        end
+      end
+
+      context 'when user has multiple distinct mhv ids' do
+        let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids][:message] }
+        let(:expected_warn_message) do
+          "SessionsController version:v0 context:{} message:#{expected_error_message}"
+        end
+
+        before do
+          allow(UserSessionForm).to receive(:new).and_raise(
+            SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_mhv_ids]
+          )
+        end
+
+        it 'logs an info message to rails logger' do
+          expect(Rails.logger).to receive(:warn).with(expected_warn_message)
+          post(:saml_callback)
+        end
+
+        it 'does not log to sentry' do
+          expect(controller).not_to receive(:log_message_to_sentry)
+          post(:saml_callback)
         end
       end
     end

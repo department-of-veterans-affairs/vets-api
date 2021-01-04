@@ -7,6 +7,8 @@ module V0
 
     rescue_from ::Form1010cg::Service::InvalidVeteranStatus, with: :backend_service_outage
 
+    AUDITOR = Form1010cg::Auditor.new
+
     def create
       auditor.record(:submission_attempt)
 
@@ -74,15 +76,16 @@ module V0
     def record_submission_success(submission)
       submission_context = {
         carma_case_id: submission.carma_case_id,
+        metadata: submission.metadata,
         attachments: submission.attachments,
-        metadata: submission.metadata
+        attachments_job_id: submission.attachments_job_id
       }
 
       auditor.record(:submission_success, claim_guid: @claim.guid, **submission_context)
     end
 
     def auditor
-      Form1010cg::Auditor.instance
+      self.class::AUDITOR
     end
   end
 end

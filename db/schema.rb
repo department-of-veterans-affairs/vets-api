@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_08_215916) do
+ActiveRecord::Schema.define(version: 2020_12_31_033748) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -47,13 +47,13 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "status", default: "pending", null: false
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"
     t.string "encrypted_auth_headers_iv"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "status", default: "pending", null: false
     t.string "code"
     t.string "detail"
   end
@@ -70,6 +70,7 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
     t.datetime "updated_at", null: false
     t.string "encrypted_metadata"
     t.string "encrypted_metadata_iv"
+    t.index ["created_at"], name: "index_async_transactions_on_created_at"
     t.index ["source_id"], name: "index_async_transactions_on_source_id"
     t.index ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true
     t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
@@ -97,6 +98,7 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
     t.boolean "mobile"
     t.string "active_status"
     t.string "visn"
+    t.index ["lat"], name: "index_base_facilities_on_lat"
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
     t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
@@ -135,6 +137,11 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
     t.string "encrypted_bgs_flash_responses"
     t.string "encrypted_bgs_flash_responses_iv"
     t.string "flashes", default: [], array: true
+    t.jsonb "special_issues", default: []
+    t.string "encrypted_bgs_special_issue_responses"
+    t.string "encrypted_bgs_special_issue_responses_iv"
+    t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
+    t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
   end
 
@@ -170,12 +177,14 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
   end
 
   create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "sid", null: false
+    t.string "sid"
     t.uuid "account_id"
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "encrypted_raw_form_data"
+    t.string "encrypted_raw_form_data_iv"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
@@ -249,6 +258,7 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
     t.boolean "transfer_of_entitlement", default: false, null: false
     t.boolean "chapter1607", default: false, null: false
     t.boolean "vettec", default: false
+    t.index ["created_at"], name: "index_education_benefits_submissions_on_created_at"
     t.index ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true
     t.index ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd"
   end
@@ -261,6 +271,8 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
     t.string "user_uuid", null: false
     t.json "list_data", default: {}, null: false
     t.boolean "requested_decision", default: false, null: false
+    t.index ["evss_id"], name: "index_evss_claims_on_evss_id"
+    t.index ["updated_at"], name: "index_evss_claims_on_updated_at"
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
   end
 
@@ -311,15 +323,6 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
     t.datetime "updated_at", null: false
     t.index ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id"
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
-  end
-
-  create_table "form526_opt_ins", id: :serial, force: :cascade do |t|
-    t.string "user_uuid", null: false
-    t.string "encrypted_email", null: false
-    t.string "encrypted_email_iv", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true
   end
 
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
@@ -419,6 +422,7 @@ ActiveRecord::Schema.define(version: 2020_12_08_215916) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "mhv_correlation_id"
+    t.index ["mhv_correlation_id"], name: "index_mhv_accounts_on_mhv_correlation_id"
     t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true
   end
 

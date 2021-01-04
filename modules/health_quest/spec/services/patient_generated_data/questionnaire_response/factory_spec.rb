@@ -51,4 +51,21 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
       expect(subject.new(user).get(id)).to eq(client_reply)
     end
   end
+
+  describe '#create' do
+    let(:data) do
+      {
+        appointment_id: 'abc123',
+        questionnaire_response: {},
+        questionnaire_id: 'abcd-1234'
+      }
+    end
+
+    it 'returns a ClientReply' do
+      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        .to receive(:create).with(anything).and_return(client_reply)
+
+      expect(subject.new(user).create(data)).to eq(client_reply)
+    end
+  end
 end

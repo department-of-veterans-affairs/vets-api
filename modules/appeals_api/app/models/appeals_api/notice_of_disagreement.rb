@@ -1,12 +1,37 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
+require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
     include SentryLogging
 
+    REMOVE_PII = proc { update form_data: nil, auth_headers: nil }
+
     class << self
+      def refresh_statuses_using_central_mail!(notice_of_disagreement)
+        return if notice_of_disagreement.empty?
+
+        response = CentralMail::Service.new.status(notice_of_disagreement.pluck(:id))
+        unless response.success?
+          log_bad_central_mail_response(response)
+          raise Common::Exceptions::BadGateway
+        end
+
+        central_mail_status_objects = parse_central_mail_response(response).select { |s| s.id.present? }
+        ActiveRecord::Base.transaction do
+          central_mail_status_objects.each do |obj|
+            notice_of_disagreement.find { |h| h.id == obj.id }
+                                  .update_status_using_central_mail_status!(obj.status, obj.error_message)
+          end
+        end
+      end
+
+      def log_unknown_central_mail_status(status)
+        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status)
+      end
+
       def date_from_string(string)
         string.match(/\d{4}-\d{2}-\d{2}/) && Date.parse(string)
       rescue ArgumentError
@@ -59,66 +84,107 @@ module AppealsApi
       #     ... # entire schema
       #   }
       # }
-      def json_schemer_errors(data:, schema:)
-        data ||= {} # this is to compensate for a JSON Schemer bug --nil input always returns 0 errors
-        JSONSchemer.schema(schema).validate(data).to_a
+
+      define_method :remove_pii, &REMOVE_PII
+
+      private
+
+      def parse_central_mail_response(response)
+        JSON.parse(response.body).flatten.map do |hash|
+          Struct.new(:id, :status, :error_message).new(*hash.values_at('uuid', 'status', 'errorMessage'))
+        end
       end
 
-      def json_schemer_error_to_string(error)
-        type = error['type']
-        schema = error['schema']
-        missing_keys = error.dig('details', 'missing_keys')
-
-        reason = if type == 'required' && missing_keys.present?
-                   "did not contain the required keys: #{missing_keys}"
-                 else
-                   "did not match the following requirements: #{schema}"
-                 end
-
-        path = error['data_pointer'].presence || '/'
-
-        "The property \"#{path}\" #{reason}"
+      def log_bad_central_mail_response(resp)
+        log_message_to_sentry('Error getting status from Central Mail', :warning, status: resp.status, body: resp.body)
       end
     end
 
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    FORM_SCHEMA = load_json_schema '10182'
-    AUTH_HEADERS_SCHEMA = load_json_schema '10182_headers'
-    STATUSES = %w[pending].freeze
+    STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
 
     validates :status, inclusion: { 'in': STATUSES }
-    validate(
-      :validate_auth_headers_against_schema,
-      :validate_form_data_against_schema,
-      :validate_claimant_properly_included_or_absent,
-      :validate_that_at_least_one_set_of_contact_info_is_present,
-      # At least one must be present ^^^
-      # --not enforced at the JSON Schema level.
-      # Using JSON Schema's conditional keywords (if, oneOf, anyOf, not, etc) produces fairly unreadable errors.
-      :validate_address,
-      :validate_hearing_type_selection
-    )
 
-    def claimant_name
-      name 'Claimant'
+    CENTRAL_MAIL_STATUS_TO_NOD_ATTRIBUTES = lambda do
+      hash = Hash.new { |_, _| raise ArgumentError, 'Unknown Central Mail status' }
+      hash['Received'] = { status: 'received' }
+      hash['In Process'] = { status: 'processing' }
+      hash['Processing Success'] = hash['In Process']
+      hash['Success'] = { status: 'success' }
+      hash['Error'] = { status: 'error', code: 'DOC202' }
+      hash['Processing Error'] = hash['Error']
+      hash
+    end.call.freeze
+    # ensure that statuses in map are valid statuses
+    raise unless CENTRAL_MAIL_STATUS_TO_NOD_ATTRIBUTES.values.all? do |attributes|
+      [:status, 'status'].all? do |status|
+        !attributes.key?(status) || attributes[status].in?(STATUSES)
+      end
     end
 
-    def claimant_birth_date
-      birth_date 'Claimant'
+    CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
+    raise unless CENTRAL_MAIL_ERROR_STATUSES - CENTRAL_MAIL_STATUS_TO_NOD_ATTRIBUTES.keys == []
+
+    RECEIVED_OR_PROCESSING = %w[received processing].freeze
+    raise unless RECEIVED_OR_PROCESSING - STATUSES == []
+
+    COMPLETE_STATUSES = %w[success error].freeze
+    raise unless COMPLETE_STATUSES - STATUSES == []
+
+    scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
+    scope :completed, -> { where status: COMPLETE_STATUSES }
+    scope :has_pii, -> { where.not(encrypted_form_data: nil).or(where.not(encrypted_auth_headers: nil)) }
+    scope :has_not_been_updated_in_a_week, -> { where 'updated_at < ?', 1.week.ago }
+    scope :ready_to_have_pii_expunged, -> { has_pii.completed.has_not_been_updated_in_a_week }
+
+    validate :validate_hearing_type_selection
+
+    def update_status_using_central_mail_status!(status, error_message = nil)
+      begin
+        attributes = CENTRAL_MAIL_STATUS_TO_NOD_ATTRIBUTES[status] || {}
+      rescue ArgumentError
+        self.class.log_unknown_central_mail_status(status)
+        raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
+      end
+      if status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message
+        attributes = attributes.merge(detail: "Downstream status: #{error_message}")
+      end
+
+      update! attributes
     end
 
-    def claimant_contact_info
-      form_data&.dig('data', 'attributes', 'claimant')
+    def veteran_first_name
+      header_field_as_string 'X-VA-First-Name'
     end
 
-    def veteran_contact_info
-      form_data&.dig('data', 'attributes', 'veteran')
+    def veteran_last_name
+      header_field_as_string 'X-VA-Last-Name'
+    end
+
+    def ssn
+      header_field_as_string 'X-VA-SSN'
+    end
+
+    def file_number
+      header_field_as_string 'X-VA-File-Number'
+    end
+
+    def veteran_homeless_state
+      form_data&.dig('data', 'attributes', 'veteran', 'homeless')
+    end
+
+    def veteran_representative
+      form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
     def consumer_name
       auth_headers&.dig('X-Consumer-Username')
+    end
+
+    def consumer_id
+      auth_headers&.dig('X-Consumer-ID')
     end
 
     def board_review_option
@@ -129,59 +195,20 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'hearingTypePreference')
     end
 
+    define_method :remove_pii, &REMOVE_PII
+
     private
-
-    def validate_auth_headers_against_schema
-      validate_against_schema data: auth_headers, schema: AUTH_HEADERS_SCHEMA, attribute_name: :auth_headers
-    end
-
-    def validate_form_data_against_schema
-      validate_against_schema data: form_data, schema: FORM_SCHEMA, attribute_name: :form_data
-    end
-
-    def validate_against_schema(data:, schema:, attribute_name:)
-      self.class.json_schemer_errors(data: data, schema: schema)
-          .map { |error| self.class.json_schemer_error_to_string error }
-          .each { |error_message| errors.add attribute_name, error_message }
-    end
-
-    def validate_claimant_properly_included_or_absent
-      return true if claimant_properly_included_or_absent?
-
-      # at least 1 piece is missing (name, birth_date, or contact info)
-
-      add_missing_claimant_info_error 'name', attribute_name: :auth_headers if claimant_name.blank?
-      add_missing_claimant_info_error 'birth date', attribute_name: :auth_headers if claimant_birth_date.blank?
-      if claimant_contact_info.blank?
-        add_missing_claimant_info_error 'contact info (data/attributes/claimant)', attribute_name: :form_data
-      end
-
-      false
-    end
-
-    def claimant_properly_included_or_absent?
-      required_claimant_fields_are_all_present? || all_claimant_fields_blank?
-    end
-
-    def required_claimant_fields_are_all_present?
-      claimant_name.present? && claimant_birth_date.present? && claimant_contact_info.present?
-    end
-
-    def all_claimant_fields_blank?
-      claimant_name.blank? && claimant_birth_date.blank? && claimant_contact_info.blank?
-    end
-
-    def add_missing_claimant_info_error(field, attribute_name:)
-      errors.add attribute_name, I18n.t('appeals_api.errors.claimant_info', field: field)
-    end
 
     def validate_hearing_type_selection
       return if board_review_hearing_selected? && includes_hearing_type_preference?
 
+      source = '/data/attributes/hearingTypePreference'
+      data = I18n.t('common.exceptions.validation_errors')
+
       if hearing_type_missing?
-        errors.add :form_data, I18n.t('appeals_api.errors.hearing_type_preference_missing')
+        errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_missing'))
       elsif unexpected_hearing_type_inclusion?
-        errors.add :form_data, I18n.t('appeals_api.errors.hearing_type_preference_inclusion')
+        errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_inclusion'))
       end
     end
 
@@ -201,53 +228,12 @@ module AppealsApi
       !board_review_hearing_selected? && includes_hearing_type_preference?
     end
 
-    def validate_address
-      contact_info = veteran_contact_info || claimant_contact_info
-      homeless = contact_info&.dig('homeless')
-      address = contact_info&.dig('address')
-
-      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') if !homeless && address.nil?
-    end
-
-    # Note: This only checks for veteran or claimant *contact info*
-    # The veteran's name/ssn/birth date/etc is required in the JSON Schema, and the claimant's name/birth date
-    # is checked for in the preceding validation `validate_claimant_properly_included_or_absent`
-    def validate_that_at_least_one_set_of_contact_info_is_present
-      return if veteran_contact_info.present? || claimant_contact_info.present?
-
-      errors.add :form_data, I18n.t('appeals_api.errors.contact_info_presence')
-    end
-
     def birth_date(who)
       self.class.date_from_string header_field_as_string "X-VA-#{who}-Birth-Date"
     end
 
-    def name(who)
-      [
-        first_name(who),
-        middle_initial(who),
-        last_name(who)
-      ].map(&:presence).compact.map(&:strip).join(' ')
-    end
-
-    def first_name(who)
-      header_field_as_string "X-VA-#{who}-First-Name"
-    end
-
-    def middle_initial(who)
-      header_field_as_string "X-VA-#{who}-Middle-Initial"
-    end
-
-    def last_name(who)
-      header_field_as_string "X-VA-#{who}-Last-Name"
-    end
-
     def header_field_as_string(key)
-      header_field(key).to_s.strip
-    end
-
-    def header_field(key)
-      auth_headers&.dig(key)
+      auth_headers&.dig(key).to_s.strip
     end
   end
 end

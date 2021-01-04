@@ -172,11 +172,24 @@ module ClaimsApi
           key(
             :description,
             <<~X
-              Upload attachments for [form 526](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) submission.
-              Use this endpoint in conjunction with the [POST](#operations-Disability-post526Claim) endpoint to file an original claim when the filer is _not_ the veteran (the oauth token is not the veteran’s).
-              In most cases, if the veteran is not the filer on the original claim, a scanned copy of form 526, signed in ink by the veteran, is required.
-              **`Step 1:`** use [POST /forms/526/{id}](#operations-Disability-post526Claim) but set `"autoCestPDFGenerationDisabled": true` (this disables automatic PDF generation).
-              **`Step 2:`** use PUT to attach scan of form 526 in binary PDF or base64 string.
+              Use this endpoint to upload completed, wet-signed 526 PDFs after POSTing the claim data to
+              the [/forms/526](#operations-Disability-post526Claim) endpoint. Uploading a completed, wet-signed
+              PDF is only required for a Veteran's first claim (called an original claim) when the original claim
+              is filed by a representative using the representative's OAuth token. Uploading a PDF for subsequent
+              claims is not required or recommended. When using this endpoint, you must:
+
+              * Set the `autoCestPDFGenerationDisabled` boolean in your [/forms/526](#operations-Disability-post526Claim)
+              payload to `true` (unless explicitly set, a PDF is automatically generated using the data submitted in
+              the original 526 submission payload).
+
+              * Send only [526 forms](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf). For other attachments,
+              such as medical records, use the
+              [/forms/526/{id}/attachments](#operations-Disability-upload526Attachments) endpoint.
+
+              * The pdf you are sending represents the final version of the claim that was submitted through
+              the POST to [/forms/526](#operations-Disability-post526Claim). If there is a discrepancy between the
+              PDF and the data submitted through the [/forms/526](#operations-Disability-post526Claim) endpoint,
+              the VA will manually review the data and change it to the values present in the PDF.
             X
           )
           key :operationId, 'upload526Attachment'
