@@ -337,11 +337,15 @@ features:
   allow_online_10_10cg_submissions:
     actor_type: cookie_id
     description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When enabled, this will redirect visitors from the form's page to the home page (va.gov).
+      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When disabled, this will redirect visitors from the form's page to the home page (va.gov).
   async_10_10_cg_attachments:
     actor_type: cookie_id
     description: >
       This will process attachments of 10-10CG submissions using sidekiq.
+  multiple_address_10_10ez:
+    actor_type: cookie_id
+    description: >
+      [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran vs only collecting a single, "permanent" address.
   evss_upload_limit_150mb:
     actor_type: user
     enable_in_development: true
@@ -352,8 +356,17 @@ features:
     enable_in_development: true
     description: >
       Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+  stem_automated_decision:
+    actor_type: user
+    description: >
+      Add automated decision to 10203 application workflow
   stem_applicant_email:
     actor_type: user
     enable_in_development: true
     description: >
       Enable/disable SCO applicant email per environment
+  in_progress_form_custom_expiration:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable/disable custom expiration dates for forms

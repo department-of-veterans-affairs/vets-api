@@ -37,7 +37,10 @@ describe PdfFill::Forms::Va21p530 do
           'claimantAddress' => {
             'city' => 'Baltimore',
             'country' => 'USA',
-            'postalCode' => '21231',
+            'postalCode' => {
+              'firstFive' => '21231',
+              'lastFour' => '1234'
+            },
             'street' => 'street',
             'street2' => 'street2',
             'state' => 'MD'
@@ -52,8 +55,8 @@ describe PdfFill::Forms::Va21p530 do
         expect(
           JSON.parse(class_form_data['firmNameAndAddr'].to_json)
         ).to eq(
-          'value' => 'firmName, street, street2, Baltimore, MD, 21231, USA',
-          'extras_value' => "firmName\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"
+          'value' => 'firmName, street, street2, Baltimore, MD, 21231-1234, USA',
+          'extras_value' => "firmName\nstreet\nstreet2\nBaltimore, MD, 21231-1234\nUSA"
         )
       end
     end

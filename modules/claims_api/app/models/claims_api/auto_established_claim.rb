@@ -12,6 +12,7 @@ module ClaimsApi
                                          marshal: true,
                                          marshaler: JsonMarshal::Marshaller)
 
+    after_create :log_special_issues
     after_create :log_flashes
 
     has_many :supporting_documents, dependent: :destroy
@@ -89,6 +90,12 @@ module ClaimsApi
 
     def log_flashes
       Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following flashes - #{flashes}") if flashes.present?
+    end
+
+    def log_special_issues
+      return if special_issues.blank?
+
+      Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following special issues - #{special_issues}")
     end
 
     def remove_encrypted_fields

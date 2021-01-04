@@ -47,13 +47,24 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'successful submission' do
       it 'successfully sends to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
           expect(response['error_occurred']).to eq(false)
         end
       end
 
+      it 'ensures appointment time preferences are downcased' do
+        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          claim.add_claimant_info(user_object)
+          claim.send_to_vre(user_object)
+
+          expect(claim.parsed_form['appointmentTimePreferences'].first).to eq('morning')
+        end
+      end
+
       it 'does not successfully send to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
+          claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
 
           expect(response['error_occurred']).to eq(true)
