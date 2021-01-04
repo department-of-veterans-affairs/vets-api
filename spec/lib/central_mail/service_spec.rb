@@ -150,6 +150,16 @@ RSpec.describe CentralMail::Service do
               response_helper.call(metadata, key, false)
             end
           end
+          it "Returns a 412 error when #{key} is not enough digits" do
+            VCR.use_cassette(
+              "central_mail/bad_metadata_invalid_#{key}_digits",
+              match_requests_on: [multipart_request_matcher, :method, :uri]
+            ) do
+              metadata = valid_metadata.call
+              metadata[key] = '111'
+              response_helper.call(metadata, key, false)
+            end
+          end
         end
       end
     end
