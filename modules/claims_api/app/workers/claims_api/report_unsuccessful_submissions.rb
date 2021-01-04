@@ -17,12 +17,13 @@ module ClaimsApi
                                                               unsuccessful_submissions: unsuccessful_submissions,
                                                               grouped_errors: errors_hash[:uniq_errors],
                                                               grouped_warnings: errors_hash[:uniq_warnings],
-                                                              flash_statistics: flash_statistics).deliver_now
+                                                              flash_statistics: flash_statistics,
+                                                              special_issues_statistics: nil).deliver_now
       end
     end
 
     def unsuccessful_submissions
-      errored.pluck(:source, :status, :id)
+      errored.pluck_to_hash(:source, :status, :id)
     end
 
     def errored
@@ -64,7 +65,7 @@ module ClaimsApi
       ClaimsApi::AutoEstablishedClaim.where(
         created_at: @from..@to,
         status: 'pending'
-      ).order(:source, :status).pluck(:source, :status, :id)
+      ).order(:source, :status).pluck_to_hash(:source, :status, :id)
     end
 
     def flash_statistics
@@ -72,10 +73,10 @@ module ClaimsApi
       return [] if submissions_with_flashes.blank?
 
       unique_flashes = submissions_with_flashes.pluck(:flashes).sum.uniq
-      aggregations = unique_flashes.map { |flash| { flash: flash, count: 0 } }
+      aggregations = unique_flashes.map { |flash| { code: flash, count: 0 } }
       submissions_with_flashes.each do |submission|
         submission.flashes.each do |flash|
-          aggregation = aggregations.detect { |agg| agg[:flash] == flash }
+          aggregation = aggregations.detect { |agg| agg[:code] == flash }
           aggregation[:count] = aggregation[:count] + 1
         end
       end

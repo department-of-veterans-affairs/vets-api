@@ -9,9 +9,9 @@
   <tbody>
     <% claims.each do |claim| %>
       <tr>
-        <td><%= claim.first %></td>
-        <td><%= claim.second %></td>
-        <td><%= claim.last %></td>
+        <td><%= claim[:source] %></td>
+        <td><%= claim[:status] %></td>
+        <td><%= claim[:id] %></td>
       </tr>
     <% end %>
   </tbody>

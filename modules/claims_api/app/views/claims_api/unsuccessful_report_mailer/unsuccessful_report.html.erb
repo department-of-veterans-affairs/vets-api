@@ -95,13 +95,13 @@
 
     <h2>
       <%= @pending_submissions.count %>
-      <span class="title">Pending</span>
+      <span class="title">Pending Submissions</span>
     </h2>
     <%= render partial: 'submission_table', locals: { claims: @pending_submissions } unless @pending_submissions.count.zero? %>
 
     <h2>
       <%= @unsuccessful_submissions.count %>
-      <span class="title">Unique Unsuccessful EVSS Responses</span>
+      <span class="title">Errorred Submissions</span>
     </h2>
     <%= render partial: 'submission_table', locals: { claims: @unsuccessful_submissions } unless @unsuccessful_submissions.count.zero? %>
   </body>
