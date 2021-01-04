@@ -19,7 +19,7 @@ module V0
     end
 
     def separation_locations
-      response = EVSS::ReferenceData::ResponseStrategy.new.cache_or_service(
+      response = EVSS::ReferenceData::ResponseStrategy.new.cache_by_user_and_type(
         :all_users,
         :get_separation_locations
       ) do
