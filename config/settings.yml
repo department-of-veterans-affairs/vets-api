@@ -158,6 +158,8 @@ modules_appeals_api:
   higher_level_review_updater_enabled: true
   notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
+  documentation:
+    notice_of_disagreements_v1: false
 
 vre_counseling:
   prefill: true
@@ -496,6 +498,8 @@ flipper:
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
+    - draju@governmentcio.com
+    - ed.mangimelli@adhocteam.us
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com

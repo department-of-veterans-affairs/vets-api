@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 05f0ed20453a3952ed90f76ad7d20c80ea56e417
+  revision: 2f1bbb6d0b4e42de44f9eca6486d747ada737a78
   specs:
     bgs_ext (0.16.0)
       httpclient
@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c12156e77d9cbffa439ee0ec2ddf42b805658023
+  revision: 45901ef6dbc68adc2dfb926c24829e53d1dcf86c
   branch: master
   specs:
-    vets_json_schema (18.4.0)
+    vets_json_schema (18.5.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
