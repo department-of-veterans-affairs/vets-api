@@ -23,15 +23,13 @@ RSpec.describe PreferredFacility, type: :model do
       expect_attr_invalid(facility, :facility_code, "must be included in user's va treatment facilities list")
     end
 
-    context 'uniqueness of facility_code' do
-      it 'shows an error if facility_code is not unique per account' do
-        preferred_facility = build(
-          :preferred_facility,
-          facility_code: create(:preferred_facility).facility_code
-        )
+    it 'shows an error if facility_code is not unique per account' do
+      preferred_facility = build(
+        :preferred_facility,
+        facility_code: create(:preferred_facility).facility_code
+      )
 
-        expect_attr_invalid(preferred_facility, :facility_code, 'has already been taken')
-      end
+      expect_attr_invalid(preferred_facility, :facility_code, 'has already been taken')
     end
   end
 
