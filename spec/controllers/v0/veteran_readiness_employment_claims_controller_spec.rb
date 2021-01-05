@@ -15,15 +15,49 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     build(:veteran_readiness_employment_claim)
   end
 
+  let(:no_veteran_info) do
+    hash_copy = JSON.parse(
+      test_form.form
+    )
+
+    hash_copy['veteranInformation'] = nil
+    hash_copy.to_json
+  end
+
   describe 'POST create' do
-    context 'logged in user' do
+    context 'logged in as loa3 user' do
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
           sign_in_as(loa3_user)
+
+          form_params = { veteran_readiness_employment_claim: { form: no_veteran_info } }
+
+          post(:create, params: form_params)
+          expect(response.code).to eq('200')
+        end
+      end
+    end
+
+    context 'logged in as loa1 user' do
+      it 'validates successfully' do
+        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          sign_in_as(loa1_user)
+
           form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
 
           post(:create, params: form_params)
           expect(response.code).to eq('200')
+        end
+      end
+
+      it 'fails validation when no veteran_info is passed in' do
+        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          sign_in_as(loa1_user)
+
+          form_params = { veteran_readiness_employment_claim: { form: no_veteran_info } }
+
+          post(:create, params: form_params)
+          expect(response.code).to eq('422')
         end
       end
     end
@@ -36,6 +70,13 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
           post(:create, params: form_params)
           expect(response.code).to eq('200')
         end
+      end
+
+      it 'fails validation when no veteran_info is passed in' do
+        form_params = { veteran_readiness_employment_claim: { form: no_veteran_info } }
+
+        post(:create, params: form_params)
+        expect(response.code).to eq('422')
       end
     end
 
