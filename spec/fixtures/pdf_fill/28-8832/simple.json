@@ -14,10 +14,10 @@
   },
   "claimantAddress": {
     "country": "USA",
-    "addressLine1": "123 Sunshine Blvd",
-    "addressLine2": "Apt 1",
+    "street": "123 Sunshine Blvd",
+    "street2": "Apt 1",
     "city": "Miami",
-    "stateCode": "FL",
+    "state": "FL",
     "postalCode": "33928-0808"
   },
   "status": "isVeteran"
