@@ -230,4 +230,89 @@ namespace :form526 do
     end
     puts "reuploaded files for #{form_submissions.count} submissions"
   end
+
+  desc 'Convert SIP data to camel case and fix checkboxes'
+  task convert_sip_data: :environment do |_, _args|
+    def to_olivebranch_case(method, val)
+      OliveBranch::Transformations.transform(
+        val,
+        OliveBranch::Transformations.method(method)
+      )
+    end
+
+    # make a has that has both the original and corrupted versions of the disability name.
+    # eg {"myocardial infarction (mi)" => "myocardial infarction (MI)"}
+    def get_disability_hash(form_data_hash)
+      new_conditions = form_data_hash['newDisabilities']&.collect { |d| d.dig('condition') } || []
+      rated_disabilities = form_data_hash['ratedDisabilities']&.collect { |rd| rd['name'] } || []
+      disabilities = new_conditions + rated_disabilities
+      corrupted_disability_hash = {}
+      disabilities.each do |dis|
+        munged_dis_name = to_olivebranch_case(:dasherize, to_olivebranch_case(:camelize, dis))
+        corrupted_disability_hash[munged_dis_name] = dis if munged_dis_name != dis
+      end
+      corrupted_disability_hash
+    end
+
+    # replace the corruted names of disibilites with the original names
+    def fix_form_data(form_data_hash)
+      corrupted_disability_hash = get_disability_hash(form_data_hash)
+      return form_data_hash if corrupted_disability_hash.blank?
+
+      form_data_hash = fix_treatment_facilities_disability_name(form_data_hash, corrupted_disability_hash)
+      form_data_hash = fix_pow_disabilities(form_data_hash, corrupted_disability_hash)
+      form_data_hash
+    end
+
+    def fix_treatment_facilities_disability_name(form_data_hash, corrupted_disability_hash)
+      # fix vaTreatmentFacilities -> treatedDisabilityNames
+      form_data_hash['vaTreatmentFacilities'].each do |va_treatment_facilities|
+        new_treated_disability_names = {}
+        va_treatment_facilities['treatedDisabilityNames'].each do |disability_name, value|
+          if corrupted_disability_hash.keys.include? disability_name
+            new_treated_disability_names[corrupted_disability_hash[disability_name]] = value
+          else
+            new_treated_disability_names[disability_name] = value
+          end
+        end
+        va_treatment_facilities['treatedDisabilityNames'] = new_treated_disability_names
+      end
+      form_data_hash
+    end
+
+    def fix_pow_disabilities(form_data_hash, corrupted_disability_hash)
+      # just like treatedDisabilityNames fix the same checkbox data for POW disabilities
+      pow_disabilities = form_data_hash.dig('view:isPow', 'powDisabilities')
+      if pow_disabilities
+        new_pow_disability_names = {}
+        pow_disabilities.each do |disability_name, value|
+          if corrupted_disability_hash.keys.include? disability_name
+            new_pow_disability_names[corrupted_disability_hash[disability_name]] = value
+          else
+            new_pow_disability_names[disability_name] = value
+          end
+        end
+        form_data_hash['view:isPow']['powDisabilities'] = new_pow_disability_names
+      end
+      form_data_hash
+    end
+
+    # forms expire a year after they're last updated by the user so we want to disable updating the updated_at.
+    ActiveRecord::Base.record_timestamps = false
+    begin
+      # get all of the forms that have not yet been converted.
+      in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
+                                        .where("metadata -> 'return_url' is not null")
+      in_progress_forms.find_each do |in_progress_form|
+        in_progress_form.metadata = to_olivebranch_case(:camelize, in_progress_form.metadata)
+        form_data_hash = to_olivebranch_case(:camelize, JSON.parse(in_progress_form.form_data))
+        in_progress_form.form_data = fix_form_data(form_data_hash).to_json
+
+        puts in_progress_form.form_data
+        # in_progress_form.save!
+      end
+    ensure
+      ActiveRecord::Base.record_timestamps = true
+    end
+  end
 end
