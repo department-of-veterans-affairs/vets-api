@@ -86,13 +86,13 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     context 'when there is an update error' do
       it 'renders the error message' do
         res = {
-          :update_ch33_dd_eft_response => {
-            :return => {
-              :return_code => "F",
-              :error_message => 'Invalid routing number',
-              :return_message=>"FAILURE"
+          update_ch33_dd_eft_response: {
+            return: {
+              return_code: 'F',
+              error_message: 'Invalid routing number',
+              return_message: 'FAILURE'
             },
-            :"@xmlns:ns0"=>"http://services.share.benefits.vba.va.gov/"
+            "@xmlns:ns0": 'http://services.share.benefits.vba.va.gov/'
           }
         }
 
