@@ -26,7 +26,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
 
         no_claimant_info['claimantInformation']['fullName'] = nil
 
-        form_params = {education_career_counseling_claim: {form: no_claimant_info.to_json}}
+        form_params = { education_career_counseling_claim: { form: no_claimant_info.to_json } }
 
         post(:create, params: form_params)
         expect(response.code).to eq('200')
@@ -36,7 +36,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
     context 'logged in loa1 user' do
       it 'validates successfully' do
         sign_in_as(loa1_user)
-        form_params = {education_career_counseling_claim: {form: test_form_no_vet_info.form}}
+        form_params = { education_career_counseling_claim: { form: test_form_no_vet_info.form } }
 
         post(:create, params: form_params)
         expect(response.code).to eq('200')
@@ -48,9 +48,9 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
           test_form_no_vet_info.form
         )
 
-         no_claimant_info['claimantInformation']['fullName'] = nil
+        no_claimant_info['claimantInformation']['fullName'] = nil
 
-        form_params = {education_career_counseling_claim: {form: no_claimant_info.to_json}}
+        form_params = { education_career_counseling_claim: { form: no_claimant_info.to_json } }
 
         post(:create, params: form_params)
         expect(response.code).to eq('422')
@@ -59,7 +59,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
 
     context 'visitor' do
       it 'validates successfully' do
-        form_params = {education_career_counseling_claim: {form: test_form.form}}
+        form_params = { education_career_counseling_claim: { form: test_form.form } }
 
         post(:create, params: form_params)
         expect(response.code).to eq('200')
@@ -68,7 +68,7 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
 
     context 'with invalid params' do
       it 'shows the validation errors' do
-        post(:create, params: {education_career_counseling_claim: {form: {not_valid: 'not valid'}}})
+        post(:create, params: { education_career_counseling_claim: { form: { not_valid: 'not valid' } } })
 
         expect(response.code).to eq('422')
 
