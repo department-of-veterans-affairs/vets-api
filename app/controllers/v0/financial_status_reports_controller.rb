@@ -8,6 +8,14 @@ module V0
       render json: service.submit_financial_status_report(fsr_form)
     end
 
+    def show
+      send_data(
+        service.get_pdf(params[:id]),
+        type: 'application/pdf',
+        filename: 'VA Form 5655 - Submitted'
+      )
+    end
+
     private
 
     def full_name

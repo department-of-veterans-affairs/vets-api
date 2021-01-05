@@ -18,6 +18,9 @@ module DebtManagementCenter
       end
     end
 
+    def get_pdf(id)
+    end
+
     private
 
     def camelize(hash)
