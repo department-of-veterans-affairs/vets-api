@@ -3,12 +3,18 @@
 module V0
   module ContactUs
     class InquiriesController < ApplicationController
-      skip_before_action :authenticate, only: :create
+      skip_before_action :authenticate
+      skip_before_action :verify_authenticity_token
 
       def index
         return not_implemented unless Flipper.enabled?(:get_help_messages)
 
-        render json: STUB_RESPONSE, status: :ok
+        # render json: STUB_RESPONSE, status: :ok
+
+        uri = URI(Settings.contact_us.ping_url)
+        res = Net::HTTP.get(uri)
+
+        render plain: res
       end
 
       def create

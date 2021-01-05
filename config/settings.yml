@@ -636,6 +636,11 @@ vanotify:
     covid_vaccine_registration: fake_template_id
   mock: false
 
+# Settings for contact us form
+contact_us:
+  ping_url: https://nonprod.integration.d365.va.gov/veis/patsr.lob.whh.avtest/api/ping
+  test_url: https://staging-api.va.gov
+
 # Settings to connect to the drupal forms graphql api
 va_forms:
   drupal_username: ~
