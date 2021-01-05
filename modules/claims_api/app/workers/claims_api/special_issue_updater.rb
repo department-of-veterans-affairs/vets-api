@@ -9,7 +9,7 @@ module ClaimsApi
     include SentryLogging
 
     sidekiq_retries_exhausted do |message|
-      # TODO: https://vajira.max.gov/browse/API-3277
+      log_exception_to_claim_record(message['args'].last, { text: 'Job retries exhausted' })
       log_exception_to_sentry(StandardError.new("Failed to apply special issues to contention: #{message}"))
     end
 
@@ -18,7 +18,8 @@ module ClaimsApi
     # @param user [OpenStruct] Veteran to attach special issues to
     # @param contention_id [Hash(claim_id:, code:, name:)] Identifier to match existing contention
     # @param special_issues [Array(String)] List of special issues to append
-    def perform(user, contention_id, special_issues)
+    # @param auto_claim_id [Integer] default: nil
+    def perform(user, contention_id, special_issues, auto_claim_id: nil)
       validate_contention_id_structure(contention_id)
       service = bgs_service(user).contention
 
@@ -29,8 +30,21 @@ module ClaimsApi
       options = required_claim_fields(claim, contention_id, special_issues)
       service.manage_contentions(options)
     rescue BGS::ShareError, BGS::PublicError => e
-      # TODO: https://vajira.max.gov/browse/API-3277
+      log_exception_to_claim_record(auto_claim_id, { key: e.code, text: e.message })
       log_exception_to_sentry(e)
+    end
+
+    # Store off exception information on the claim record within the database
+    #
+    # @param auto_claim_id [Integer] Applied to that particular claim id if provided
+    # @param message [any] Anything in any format that explains the error
+    def log_exception_to_claim_record(auto_claim_id, message)
+      return if auto_claim_id.blank?
+
+      auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
+      auto_claim.bgs_special_issue_responses = [] if auto_claim.bgs_special_issue_responses.blank?
+      auto_claim.bgs_special_issue_responses = auto_claim.bgs_special_issue_responses + [message]
+      auto_claim.save
     end
 
     # Service object to interface with BGS

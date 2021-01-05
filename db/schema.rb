@@ -138,6 +138,8 @@ ActiveRecord::Schema.define(version: 2021_01_04_135429) do
     t.string "encrypted_bgs_flash_responses_iv"
     t.string "flashes", default: [], array: true
     t.jsonb "special_issues", default: []
+    t.string "encrypted_bgs_special_issue_responses"
+    t.string "encrypted_bgs_special_issue_responses_iv"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
