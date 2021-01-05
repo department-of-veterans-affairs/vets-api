@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_31_033748) do
+ActiveRecord::Schema.define(version: 2021_01_05_174800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(version: 2020_12_31_033748) do
     t.datetime "updated_at", null: false
     t.string "code"
     t.string "detail"
+    t.string "source"
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
