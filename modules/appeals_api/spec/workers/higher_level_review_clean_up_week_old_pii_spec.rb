@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe AppealsApi::HigherLevelReviewCleanUpWeekOldPii, type: :job do
   describe '#perform' do
-    it "calls AppealsApi::RemovePii" do
+    it 'calls AppealsApi::RemovePii' do
       service = instance_double(AppealsApi::RemovePii)
       allow(AppealsApi::RemovePii).to receive(:new).and_return(service)
       allow(service).to receive(:run!)
