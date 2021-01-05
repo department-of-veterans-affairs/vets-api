@@ -5,8 +5,6 @@ require_dependency 'vba_documents/pdf_inspector'
 
 module VBADocuments
   class UploadSerializer < ActiveModel::Serializer
-    MAX_DETAIL_DISPLAY_LENGTH = 200
-
     type 'document_upload'
 
     attributes :guid, :status, :code, :detail, :location, :updated_at, :uploaded_pdf
@@ -27,12 +25,6 @@ module VBADocuments
 
     delegate :code, to: :object
     delegate :detail, to: :object
-
-    def detail
-      detail = object.detail.to_s
-      detail = detail.to_s[0..MAX_DETAIL_DISPLAY_LENGTH - 1] + '...' if detail.length > MAX_DETAIL_DISPLAY_LENGTH
-      detail
-    end
 
     def uploaded_pdf
       return nil unless object.uploaded_pdf
