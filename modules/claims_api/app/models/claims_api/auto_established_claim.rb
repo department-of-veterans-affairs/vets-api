@@ -11,6 +11,9 @@ module ClaimsApi
     attr_encrypted(:bgs_flash_responses, key: Settings.db_encryption_key,
                                          marshal: true,
                                          marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_special_issue_responses, key: Settings.db_encryption_key,
+                                                 marshal: true,
+                                                 marshaler: JsonMarshal::Marshaller)
 
     after_create :log_special_issues
     after_create :log_flashes
