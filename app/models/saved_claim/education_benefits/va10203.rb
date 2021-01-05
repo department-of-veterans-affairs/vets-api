@@ -20,7 +20,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
   def create_stem_automated_decision
     education_benefits_claim.build_education_stem_automated_decision(
-      ssn_md5: Digest::MD5.hexdigest(parsed_form['veteranSocialSecurityNumber'])
+      user_uuid: user.uuid
     ).save
   end
 
