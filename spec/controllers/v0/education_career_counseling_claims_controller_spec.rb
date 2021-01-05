@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller do
-  let(:user) { create(:evss_user) }
+  let(:loa3_user) { create(:evss_user) }
+  let(:loa1_user) { create(:user) }
 
   let(:test_form_no_vet_info) do
     build(:education_career_counseling_claim_no_vet_information)
@@ -15,13 +16,32 @@ RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller 
   end
 
   describe 'POST create' do
-    context 'logged in user' do
+    context 'logged in loa3 user' do
       it 'validates successfully' do
-        sign_in_as(user)
+        sign_in_as(loa3_user)
         form_params = { education_career_counseling_claim: { form: test_form_no_vet_info.form } }
 
         post(:create, params: form_params)
         expect(response.code).to eq('200')
+      end
+    end
+
+    context 'logged in loa1 user' do
+      it 'validates successfully' do
+        sign_in_as(loa1_user)
+        form_params = { education_career_counseling_claim: { form: test_form_no_vet_info.form } }
+
+        post(:create, params: form_params)
+        expect(response.code).to eq('200')
+      end
+
+      it 'fails validation when no claimant info is sent' do
+        sign_in_as(loa1_user)
+        no_claimant_info = JSON.parse(test_form_no_vet_info.form).delete(['claimantInformation'])
+        form_params = { education_career_counseling_claim: { form: no_claimant_info.to_json } }
+
+        post(:create, params: form_params)
+        expect(response.code).to eq('422')
       end
     end
 
