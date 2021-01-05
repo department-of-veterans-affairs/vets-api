@@ -69,16 +69,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_va[:minutes_duration]).to eq(20)
     end
 
-    it 'has a start date' do
-      expect(booked_va[:start_date]).to eq(DateTime.parse('2020-11-03T16:00:00.000+00:00'))
+    it 'has a utc start date' do
+      expect(booked_va[:start_date_utc]).to eq(DateTime.parse('Tue, 03 Nov 2020 16:00:00 +0000'))
+    end
+
+    it 'has a local start date' do
+      expect(booked_va[:start_date_local]).to eq(DateTime.parse('Tue, 03 Nov 2020 09:00:00 MST -07:00'))
     end
 
     it 'has a booked status' do
       expect(booked_va[:status]).to eq('BOOKED')
-    end
-
-    it 'has a time zone' do
-      expect(booked_va[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -128,16 +128,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(cancelled_va[:minutes_duration]).to be_nil
     end
 
-    it 'has a start date' do
-      expect(cancelled_va[:start_date]).to eq(DateTime.parse('2020-11-03T20:20:00.000+00:00'))
+    it 'has a utc start date' do
+      expect(cancelled_va[:start_date_utc]).to eq(DateTime.parse('Tue, 03 Nov 2020 20:20:00 +0000'))
+    end
+
+    it 'has a local start date' do
+      expect(cancelled_va[:start_date_local]).to eq(DateTime.parse('Tue, 03 Nov 2020 13:20:00 MST -07:00'))
     end
 
     it 'has a cancelled status' do
       expect(cancelled_va[:status]).to eq('CANCELLED')
-    end
-
-    it 'has a time zone' do
-      expect(cancelled_va[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -198,10 +198,6 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a status' do
       expect(booked_video_home[:status]).to eq('BOOKED')
     end
-
-    it 'has a time zone' do
-      expect(booked_video_home[:time_zone]).to eq('America/Denver')
-    end
   end
 
   context 'with a booked atlas appointment' do
@@ -250,16 +246,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_atlas[:minutes_duration]).to eq(30)
     end
 
-    it 'has a start date' do
-      expect(booked_video_atlas[:start_date]).to eq(DateTime.parse('2021-09-23T20:00:00.000+00:00'))
+    it 'has a utc start date' do
+      expect(booked_video_atlas[:start_date_utc]).to eq(DateTime.parse('Thu, 23 Sep 2021 20:00:00 +0000'))
+    end
+
+    it 'has a local start date' do
+      expect(booked_video_atlas[:start_date_local]).to eq(DateTime.parse('Thu, 23 Sep 2021 14:00:00 MDT -06:00'))
     end
 
     it 'has a booked status' do
       expect(booked_video_atlas[:status]).to eq('BOOKED')
-    end
-
-    it 'has a time zone' do
-      expect(booked_video_atlas[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -310,6 +306,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a local start date' do
+      puts booked_video_gfe.to_hash
       expect(booked_video_gfe[:start_date_local]).to eq(DateTime.parse('2020-11-22 06:35:00.000 MST -07:00'))
     end
 
