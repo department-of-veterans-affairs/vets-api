@@ -265,12 +265,12 @@ ActiveRecord::Schema.define(version: 2021_01_04_135429) do
 
   create_table "education_stem_automated_decisions", force: :cascade do |t|
     t.bigint "education_benefits_claim_id"
-    t.string "ssn_md5"
     t.string "automated_decision_state", default: "init"
+    t.string "user_uuid", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
-    t.index ["ssn_md5"], name: "index_education_stem_automated_decisions_on_ssn_md5"
+    t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
 
   create_table "evss_claims", id: :serial, force: :cascade do |t|
