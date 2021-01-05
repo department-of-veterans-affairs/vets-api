@@ -254,16 +254,6 @@ namespace :form526 do
       corrupted_disability_hash
     end
 
-    # replace the corruted names of disibilites with the original names
-    def fix_form_data(form_data_hash)
-      corrupted_disability_hash = get_disability_hash(form_data_hash)
-      return form_data_hash if corrupted_disability_hash.blank?
-
-      form_data_hash = fix_treatment_facilities_disability_name(form_data_hash, corrupted_disability_hash)
-      form_data_hash = fix_pow_disabilities(form_data_hash, corrupted_disability_hash)
-      form_data_hash
-    end
-
     def fix_treatment_facilities_disability_name(form_data_hash, corrupted_disability_hash)
       # fix vaTreatmentFacilities -> treatedDisabilityNames
       form_data_hash['vaTreatmentFacilities'].each do |va_treatment_facilities|
@@ -297,6 +287,8 @@ namespace :form526 do
       form_data_hash
     end
 
+    @affected_forms = []
+
     # forms expire a year after they're last updated by the user so we want to disable updating the updated_at.
     ActiveRecord::Base.record_timestamps = false
     begin
@@ -306,7 +298,18 @@ namespace :form526 do
       in_progress_forms.find_each do |in_progress_form|
         in_progress_form.metadata = to_olivebranch_case(:camelize, in_progress_form.metadata)
         form_data_hash = to_olivebranch_case(:camelize, JSON.parse(in_progress_form.form_data))
-        in_progress_form.form_data = fix_form_data(form_data_hash).to_json
+
+        corrupted_disability_hash = get_disability_hash(form_data_hash)
+
+        if corrupted_disability_hash.present?
+          form_data_hash = fix_treatment_facilities_disability_name(form_data_hash, corrupted_disability_hash)
+          form_data_hash = fix_pow_disabilities(form_data_hash, corrupted_disability_hash)
+          @affected_forms << [in_progress_form.id,
+                              in_progress_form.user_uuid,
+                              form_data_hash.dig('phoneAndEmail', 'emailAddress')]
+        end
+
+        in_progress_form.form_data = form_data_hash.to_json
 
         puts in_progress_form.form_data
         # in_progress_form.save!
@@ -314,5 +317,7 @@ namespace :form526 do
     ensure
       ActiveRecord::Base.record_timestamps = true
     end
+    puts "Affected form count #{@affected_forms.count}"
+    puts @affected_forms.join("\n")
   end
 end
