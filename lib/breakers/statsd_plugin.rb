@@ -2,7 +2,7 @@
 
 module Breakers
   class StatsdPlugin
-    def get_tags(request, response)
+    def get_tags(request, response = nil)
       tags = []
       if request
         tags.append("endpoint:#{filtered_endpoint_tag(request.url.path)}") if request.url&.path
