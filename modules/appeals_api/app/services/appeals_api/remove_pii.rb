@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AppealsApi
   class RemovePii
     include SentryLogging
@@ -17,6 +19,8 @@ module AppealsApi
       result = remove_pii!
 
       log_failure_to_sentry if records_were_not_cleared(result)
+
+      result
     end
 
     private
