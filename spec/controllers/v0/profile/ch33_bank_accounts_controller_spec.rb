@@ -60,21 +60,57 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
   end
 
   describe '#update' do
-    it 'sends the update req' do
-      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-        VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-          put(
-            :update,
-            params: {
-              account_type: 'Checking',
-              account_number: '444',
-              financial_institution_routing_number: '122239982'
-            }
-          )
-        end
-      end
+    def send_update
+      put(
+        :update,
+        params: {
+          account_type: 'Checking',
+          account_number: '444',
+          financial_institution_routing_number: '122239982'
+        }
+      )
+    end
 
-      expect_find_ch33_dd_eft_res
+    context 'with a successful update' do
+      it 'submits the update req and rerenders index' do
+        VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+            send_update
+          end
+        end
+
+        expect_find_ch33_dd_eft_res
+      end
+    end
+
+    context 'when there is an update error' do
+      it 'renders the error message' do
+        res = {
+          :update_ch33_dd_eft_response => {
+            :return => {
+              :return_code => "F",
+              :error_message => 'Invalid routing number',
+              :return_message=>"FAILURE"
+            },
+            :"@xmlns:ns0"=>"http://services.share.benefits.vba.va.gov/"
+          }
+        }
+
+        expect_any_instance_of(BGS::Service).to receive(:update_ch33_dd_eft).with(
+          '122239982',
+          '444',
+          true
+        ).and_return(
+          OpenStruct.new(
+            body: res
+          )
+        )
+
+        send_update
+
+        expect(response.status).to eq(400)
+        expect(JSON.parse(response.body)).to eq(res.deep_stringify_keys)
+      end
     end
   end
 end

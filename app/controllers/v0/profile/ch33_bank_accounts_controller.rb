@@ -19,7 +19,7 @@ module V0
         ).body
 
         unless res[:update_ch33_dd_eft_response][:return][:return_code] == 'S'
-          return render(json: res)
+          return render(json: res, status: :bad_request)
         end
 
         render_find_ch33_dd_eft
