@@ -22,12 +22,12 @@ module CovidVaccine
       end
 
       def put_email_opt_out(identifier)
-        response = perform(:put, "#{url}/opt-out", identifier, headers)
+        response = perform(:put, "#{url}/opt-out", { sid: identifier }, headers)
         response.body
       end
 
       def put_email_opt_in(identifier)
-        response = perform(:put, "#{url}/opt-in", identifier, headers)
+        response = perform(:put, "#{url}/opt-in", { sid: identifier }, headers)
         response.body
       end
 

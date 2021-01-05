@@ -60,12 +60,18 @@ describe CovidVaccine::V0::VetextService do
   end
 
   describe '#put_email_opt_out' do
-    let(:active_sid) { 'FA82BF279B8673EDF2160766351113753298' }
-
     it 'opts a users email out of future emails' do
-      VCR.use_cassette('covid_vaccine/vetext/put_email_opt_out_200', match_requests_on: %i[method path]) do
-        response = subject.put_email_opt_out(active_sid)
-        expect(response[:sid]).to eq('FA82BF279B8673EDF2160766351113753298')
+      VCR.use_cassette('covid_vaccine/vetext/create_and_opt_out', match_requests_on: %i[method path]) do
+        create_response = subject.put_vaccine_registry(registry_attributes)
+        opt_response = subject.put_email_opt_out(create_response[:sid])
+        expect(opt_response[:success]).to be_truthy
+      end
+    end
+
+    it 'returns a 400 when supplied with a nonexistent SID' do
+      VCR.use_cassette('covid_vaccine/vetext/opt_out_nonexistent', match_requests_on: %i[method path]) do
+        expect { subject.put_email_opt_out(SecureRandom.uuid) }
+          .to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_400/)
       end
     end
   end
@@ -74,9 +80,10 @@ describe CovidVaccine::V0::VetextService do
     let(:inactive_sid) { 'FA82BF279B8673EDF2160766351113753298' }
 
     it 'opts a users email in on future emails' do
-      VCR.use_cassette('covid_vaccine/vetext/put_email_opt_in_200', match_requests_on: %i[method path]) do
-        response = subject.put_email_opt_in(inactive_sid)
-        expect(response[:sid]).to eq('FA82BF279B8673EDF2160766351113753298')
+      VCR.use_cassette('covid_vaccine/vetext/create_and_opt_in', match_requests_on: %i[method path]) do
+        create_response = subject.put_vaccine_registry(registry_attributes)
+        opt_response = subject.put_email_opt_in(create_response[:sid])
+        expect(opt_response[:success]).to be_truthy
       end
     end
   end
