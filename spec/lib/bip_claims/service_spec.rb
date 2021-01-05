@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'bip_claims/service'
-require 'mpi/attr_service'
 
 RSpec.describe BipClaims::Service do
   let(:service) { described_class.new }
