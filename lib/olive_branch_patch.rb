@@ -7,12 +7,12 @@
 module OliveBranchMiddlewareExtension
   def call(env)
     result = super(env)
-    _status, _headers, response = result
+    _status, headers, response = result
+    # olive branch uses this private method to determine if a tranformation should happen https://github.com/vigetlabs/olive_branch/blob/master/lib/olive_branch/middleware.rb#L92
+    return result if send(:exclude_response?, env, headers)
+
     if env['HTTP_X_KEY_INFLECTION'] =~ /camel/i
       response.each do |json|
-        # do not process strings that aren't json (like pdf responses)
-        next unless json.is_a?(String) && json.starts_with?('{')
-
         un_camel_va_keys!(json)
       end
     end
