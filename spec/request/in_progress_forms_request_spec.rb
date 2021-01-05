@@ -93,7 +93,6 @@ RSpec.describe V0::InProgressFormsController, type: :request do
                 headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
             body = JSON.parse(response.body)
             expect(body.keys).to include('formData', 'metadata')
-            # using VA as Va is deprecated, when forms are updated to use VA, this test should reflect that
             expect(body['formData'].keys).to include('view:hasVaMedicalRecords')
             expect(body['formData']['view:hasVaMedicalRecords']).to eq form_data['view:hasVaMedicalRecords']
             expect(body['metadata'])
