@@ -117,6 +117,7 @@ module AppealsApi::V1
                       key :type, :string
                       key :example, 'Mr. Wiggles'
                       key :description, 'The name of the representative for the NOD submission'
+                      key :maxLength, 120
                     end
                   end
 
@@ -233,12 +234,14 @@ module AppealsApi::V1
               key :type, :string
               key :example, 'tinnitus'
               key :example, 'the type of issue being contested'
+              key :maxLength, 368
             end
 
             property :decisionDate do
               key :type, :string
               key :example, '1900-01-01'
               key :example, 'The decision date for the contested issue'
+              key :maxLength, 10
             end
           end
         end
