@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller do
-  let(:user) { create(:evss_user) }
+  let(:loa3_user) { create(:evss_user) }
+  let(:loa1_user) { create(:user) }
 
   let(:test_form_no_vet_info) do
     build(:veteran_readiness_employment_claim_no_vet_information)
@@ -18,7 +19,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     context 'logged in user' do
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
-          sign_in_as(user)
+          sign_in_as(loa3_user)
           form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
 
           post(:create, params: form_params)
