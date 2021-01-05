@@ -136,7 +136,8 @@ else
 endif
 
 .PHONY: spec_parallel_setup
-spec_parallel_setup:  ## Runs spec tests in parallel
+spec_parallel_setup:  ## Setup the parallel test dbs. This resets the curret test db, then prepares the rest
+	@$(BASH_DEV) "RAILS_ENV=test bundle exec rake db:reset"
 	@$(BASH_DEV) "bin/rails parallel:setup"
 
 .PHONY: spec_parallel
