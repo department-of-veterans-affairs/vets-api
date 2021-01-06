@@ -25,6 +25,8 @@ module BGS
     def valid_claim_data(saved_claim_id, vet_info)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
 
+      claim.add_veteran_info(vet_info)
+
       raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
 
       claim.formatted_674_data(vet_info)
