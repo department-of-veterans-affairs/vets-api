@@ -23,8 +23,6 @@ module VA10203dny
 end
 
 class FormProfiles::VA10203dny < FormProfiles::VA10203
-  VA10203dny.table_name = 'va10203dny'
-
   attribute :remaining_entitlement, VA10203dny::FormEntitlementInformation
   attribute :school_information, VA10203dny::FormInstitutionInfo
 end
