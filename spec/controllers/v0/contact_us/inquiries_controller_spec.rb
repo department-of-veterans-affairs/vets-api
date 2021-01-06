@@ -33,10 +33,12 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
           end
 
           context 'enabled' do
-            skip 'renders :not_implemented' do
+            it 'renders :ok' do
               expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
 
-              get :index
+              VCR.use_cassette('contact_us/test-ping') do
+                get :index
+              end
 
               expect(response).to have_http_status(:ok)
             end

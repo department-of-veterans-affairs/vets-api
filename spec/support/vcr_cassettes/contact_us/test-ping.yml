@@ -1,0 +1,72 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://nonprod.integration.d365.va.gov/veis/patsr.lob.whh.avtest/api/ping
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - nonprod.integration.d365.va.gov
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 06 Jan 2021 16:09:34 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Etag:
+      - W/"2faebd2ee620d9b3dee3c8f5abed0a5b"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Set-Cookie:
+      - TS016f4012=01c8917e480e93a6c601d0f2c7604a388a1d9c2f952515382409a6feae585ff0731b71f5f963b12348e0a0211fb7846f068fbc0fd46e4b4e2597889973337cbf6e3d171645;
+        Max-Age=900; Path=/
+      - api_session=rGi5L5vTUelyXUDdXB%2B2pSpx1wUsaRCDhqbhZQW5o%2BYds0xon5b8evhIek9Gjz%2FgLbgDuH1Cpc3%2FrZDCYcjoKSavd98FvcGW9HcvRZMbNyTV%2BsmZx6WCqlzUwjZhUp5YJVXFgOBJ6QG%2B%2BdoKp16%2F4YPtdxMfzFAj3NH9ae7gxIaunayZFNPEqE8JwymGcvebs82RpvXfrAjb%2BlylrTCTPYJAic5RiJVX0ORWcamaXCOF7Q%2FXLtoDm0TwbNJXptZdCCb7YPLgM9UKofQZLZu2Mfl3OVMauhJc%2Fvykt%2BwtfXU3O8ZDRhn9MXGGkGt1zNI%3D--pNkWIwYcTL%2F9FPTw--o5VVJ94X0vKvwiN2ywzPCw%3D%3D;
+        path=/; secure; HttpOnly
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Csrf-Token:
+      - tashVvQGpYOhyojzgNtpj/rBeKk6CuNukkuYiWYhWH7F/FozFL+9kKwBeOvVcKg6RCLUMMWQ2r2cEiN8jbr5pw==
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 0c6d0eff779102db0ac12ec77b7f9b0f3dc13c26
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - '0579a63b-56fe-4ec4-a762-fab2f2cbd023'
+      X-Runtime:
+      - '0.006746'
+      X-Xss-Protection:
+      - 1; mode=block
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"message":"Welcome to the vets.gov API"}'
+  recorded_at: Wed, 06 Jan 2021 16:09:34 GMT
+recorded_with: VCR 6.0.0
