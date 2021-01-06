@@ -68,7 +68,8 @@ dmc:
   client_secret: "secret"
   mock_debts: false
   mock_fsr: false
-  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
+  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
+  debts_endpoint: debt-letter/get
 
 fsr:
   prefill: true
@@ -158,6 +159,8 @@ modules_appeals_api:
   higher_level_review_updater_enabled: true
   notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
+  documentation:
+    notice_of_disagreements_v1: false
 
 vre_counseling:
   prefill: true
@@ -496,6 +499,8 @@ flipper:
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
+    - draju@governmentcio.com
+    - ed.mangimelli@adhocteam.us
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
@@ -549,6 +554,7 @@ flipper:
     - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
+    - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT

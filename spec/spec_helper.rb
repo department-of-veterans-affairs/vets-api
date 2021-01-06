@@ -33,6 +33,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/search/response.rb'
     add_filter 'lib/vet360/exceptions/builder.rb'
     add_filter 'lib/vet360/response.rb'
+    add_filter 'modules/appeals_api/app/swagger'
     add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
     add_filter 'modules/apps_api/app/swagger'
     add_filter 'modules/apps_api/lib/apps_api/directory_application_creator.rb'

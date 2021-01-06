@@ -46,50 +46,9 @@
       "additionalProperties": false,
       "properties": {
         "homeless":            { "type": "boolean" },
-        "address":             { "$ref": "#/definitions/nodCreateAddress" },
-        "phone":               { "$ref": "#/definitions/nodCreatePhone" },
-        "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail" },
-        "representativesName": { "type": "string" }
+        "representativesName": { "type": "string", "maxLength": 120 }
       },
-      "required": [ "homeless", "phone", "emailAddressText" ]
-    },
-
-
-    "nodCreateAddress": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "addressLine1":            { "type": "string" },
-        "addressLine2":            { "type": "string" },
-        "addressLine3":            { "type": "string" },
-        "city":                    { "type": "string" },
-        "stateCode":               { "$ref": "#/definitions/nodCreateStateCode" },
-        "countryName":             { "type": "string" },
-        "zipCode5":                { "type": "string", "pattern": "^[0-9]{5}$" },
-        "internationalPostalCode": { "type": "string" }
-      },
-      "required": [ "addressLine1", "city", "countryName", "zipCode5" ]
-    },
-
-
-    "nodCreatePhone": {
-      "$comment": "the phone fields must not exceed 25 chars, when concatenated",
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
-        "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$" },
-        "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
-        "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
-      },
-      "required": [ "areaCode", "phoneNumber" ]
-    },
-
-
-    "nodCreateEmail": {
-      "type": "string",
-      "pattern": ".@.",
-      "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
+      "required": [ "homeless" ]
     },
 
 
@@ -116,7 +75,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString" },
+        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString", "maxLength": 368 },
         "decisionDate":              { "$ref": "#/definitions/nodCreateDate" },
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },
@@ -126,7 +85,7 @@
     },
 
 
-    "nodCreateDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "nodCreateDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "maxLength": 10, "minLength": 10 },
 
 
     "nodCreateNonBlankString": {
@@ -155,10 +114,12 @@
       "enum": [ "direct_review", "evidence_submission", "hearing" ]
     },
 
+
     "nodCreateHearingTypePreference": {
       "type": "string",
       "enum": [ "virtual_hearing", "video_conference", "central_office" ]
     },
+
 
     "nodCreateTimezone": {
       "type": "string",

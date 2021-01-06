@@ -29,6 +29,7 @@ class StatsdMiddleware
     burials
     claims-status
     coronavirus-research
+    coronavirus-vaccination
     covid19screen
     dashboard
     dependents-view-dependents

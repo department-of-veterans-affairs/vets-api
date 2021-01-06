@@ -8,6 +8,7 @@ Mobile::Engine.routes.draw do
     get '/appointments', to: 'appointments#index'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
+    post '/claim/:id/documents', to: 'claims_and_appeals#upload_documents'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'

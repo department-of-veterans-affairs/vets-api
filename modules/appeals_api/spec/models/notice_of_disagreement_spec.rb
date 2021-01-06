@@ -24,33 +24,6 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
   # rubocop:disable Layout/LineLength
   describe 'validations' do
-    describe '#validate_address' do
-      context 'when homeless is true' do
-        before do
-          notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = true
-          notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
-          notice_of_disagreement.valid?
-        end
-
-        it { expect(notice_of_disagreement.errors.count).to be 0 }
-      end
-
-      context 'when homeless is false' do
-        before do
-          notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = false
-          notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
-          notice_of_disagreement.valid?
-        end
-
-        it do
-          expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq(
-            "Form data if not homeless, address must be provided: '/data/attributes/veteran/address'"
-          )
-        end
-      end
-    end
-
     describe '#validate_hearing_type_selection' do
       context "when board review option 'hearing' selected" do
         context 'when hearing type provided' do
@@ -71,8 +44,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
           it 'throws an error' do
             expect(notice_of_disagreement.errors.count).to be 1
-            expect(notice_of_disagreement.errors.full_messages.first).to eq(
-              "Form data if '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
+            expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
+              "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
             )
           end
         end
@@ -89,8 +62,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
           it 'throws an error' do
             expect(notice_of_disagreement.errors.count).to be 1
-            expect(notice_of_disagreement.errors.full_messages.first).to eq(
-              "Form data if '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
+            expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
+              "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
             )
           end
         end

@@ -26,6 +26,7 @@ module ClaimsApi
             auth_headers: auth_headers,
             form_data: form_attributes,
             flashes: flashes,
+            special_issues: special_issues_per_disability,
             source: source_name
           )
           unless auto_claim.id
