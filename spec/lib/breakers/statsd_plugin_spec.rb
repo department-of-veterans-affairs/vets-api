@@ -62,6 +62,9 @@ describe Breakers::StatsdPlugin do
 
         request.url = URI(test_host + '/api/v1/users/00u2i1p2u2m3l7FYb712/grants')
         expect(subject.get_tags(request)).to include('endpoint:/api/v1/users/xxx/grants')
+
+        request.url = URI(test_host + '/cce/v1/patients/1012845331V153043/eligibility/Podiatry')
+        expect(subject.get_tags(request)).to include('endpoint:/cce/v1/patients/xxx/eligibility/zzz')
       end
     end
 
