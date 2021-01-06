@@ -58,7 +58,11 @@ module ClaimsApi
     end
 
     def count_uniqs(array)
-      array.each_with_object(Hash.new(0)) { |word, counts| counts[word] += 1 }.sort_by { |_k, v| v }.reverse
+      counted_array = array.each_with_object(Hash.new(0)) { |word, counts| counts[word] += 1 }
+      sorted_array = counted_array.sort_by { |_k, v| v }.reverse
+      sorted_array.map do |code, counts|
+        { code: code, count: counts, percentage: '%' }
+      end
     end
 
     def pending
