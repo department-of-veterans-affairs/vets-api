@@ -34,7 +34,9 @@ class SavedClaim::DependencyClaim < SavedClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
-  def upload_pdf
+  def upload_pdf(form_id)
+    self.form_id = form_id
+
     form_path = PdfFill::Filler.fill_form(self)
     upload_to_vbms(form_path)
   end
@@ -105,7 +107,9 @@ class SavedClaim::DependencyClaim < SavedClaim
   def partitioned_686_674_params
     dependent_data = parsed_form
 
-    college_student_data = dependent_data['dependents_application'].extract!(*STUDENT_ATTENDING_COLLEGE_KEYS)
+    keys = (STUDENT_ATTENDING_COLLEGE_KEYS.dup << %w[veteran_contact_information household_income]).flatten
+
+    college_student_data = { 'dependents_application' => dependent_data['dependents_application'].extract!(*keys) }
 
     { college_student_data: college_student_data, dependent_data: dependent_data }
   end
