@@ -181,24 +181,11 @@ module V1
     # rubocop:disable Metrics/CyclomaticComplexity
     def login_params(type)
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
-
-      case type
-      when 'signup'
-        url_service.signup_url
-      when 'mhv'
-        url_service.mhv_url
-      when 'dslogon'
-        url_service.dslogon_url
-      when 'idme'
-        url_service.idme_url
-      when 'mfa'
-        url_service.mfa_url
-      when 'verify'
-        url_service.verify_url
-      when 'custom'
+      if type == 'custom'
         raise Common::Exceptions::ParameterMissing, 'authn' if params[:authn].blank?
-
         url_service(false).custom_url params[:authn]
+      else
+        url_service.send("#{type}_url")
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity
