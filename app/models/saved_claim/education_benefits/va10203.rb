@@ -4,7 +4,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   add_form_and_validation('22-10203')
 
   def after_submit(user)
-    create_stem_automated_decision if user.present?
+    create_stem_automated_decision(user) if user.present?
 
     email_sent(false)
     return unless FeatureFlipper.send_email?
@@ -18,7 +18,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     end
   end
 
-  def create_stem_automated_decision
+  def create_stem_automated_decision(user)
     education_benefits_claim.build_education_stem_automated_decision(
       user_uuid: user.uuid
     ).save

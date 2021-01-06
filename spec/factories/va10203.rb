@@ -39,6 +39,7 @@ FactoryBot.define do
         privacyAgreementAccepted: true
       }.to_json
     }
+    education_benefits_claim { create(:education_benefits_claim) }
   end
 
   trait :school_changed do
