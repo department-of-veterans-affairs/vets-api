@@ -101,7 +101,7 @@ module AppealsApi
     end
 
     def extra_issues_content
-      return [] unless nod_pdf_options.contestable_issues.size > 5
+      return unless nod_pdf_options.contestable_issues.size > 5
 
       lines = ["<b>Additional Issues</b>\n"]
       # The first five issues are given space on the form, so drop them.
