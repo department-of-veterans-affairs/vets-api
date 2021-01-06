@@ -15,13 +15,21 @@ module EducationForm::Forms
     end
 
     def any_remaining_benefit
-      yesno(%w[moreThanSixMonths sixMonthsOrLess].include?(@applicant.benefitLeft))
+      yesno(%w[moreThanSixMonths sixMonthsOrLess].include?(benefit_left))
     end
 
     def receive_text_message
       return false if @applicant.receiveTexts.nil?
 
       @applicant.receiveTexts
+    end
+
+    def benefit_left
+      @applicant.benefitLeft
+    end
+
+    def pursuing_teaching_cert
+      @applicant.isPursuingTeachingCert
     end
   end
 end
