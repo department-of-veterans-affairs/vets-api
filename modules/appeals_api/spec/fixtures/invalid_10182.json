@@ -1,6 +1,6 @@
 {
   "data": {
-    "type": "invalidType",
+    "type": "noticeOfDisagreement",
     "attributes": {
       "veteran": {
         "homeless": false,

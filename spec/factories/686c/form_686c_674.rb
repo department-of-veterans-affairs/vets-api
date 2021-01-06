@@ -71,7 +71,9 @@ FactoryBot.define do
             'name' => 'Another Amazing School',
             'address' => {
               'country_name' => 'USA',
-              'address_line1' => '2037 29th St',
+              'address_line1' => '20374 twenty ninth St',
+              'address_line2' => 'apt 1',
+              'address_line3' => 'flat 3',
               'city' => 'Rock Island',
               'state_code' => 'IL',
               'zip_code' => '61201'
@@ -97,7 +99,9 @@ FactoryBot.define do
             'training_program' => 'Something amazing',
             'address' => {
               'country_name' => 'USA',
-              'address_line1' => '2037 29th St',
+              'address_line1' => '55 twenty ninth St',
+              'address_line2' => 'Bldg 5',
+              'address_line3' => 'No. 5',
               'city' => 'Rock Island',
               'state_code' => 'AR',
               'zip_code' => '61201'
@@ -106,7 +110,9 @@ FactoryBot.define do
           'student_address_marriage_tuition' => {
             'address' => {
               'country_name' => 'USA',
-              'address_line1' => '1019 Robin Cir',
+              'address_line1' => '20374 Alexander Hamilton St',
+              'address_line2' => 'apt 4',
+              'address_line3' => 'Bldg 44',
               'city' => 'Arroyo Grande',
               'state_code' => 'CA',
               'zip_code' => '93420'
@@ -138,7 +144,9 @@ FactoryBot.define do
               },
               'address' => {
                 'country_name' => 'USA',
-                'address_line1' => '412 Crooks Road',
+                'address_line1' => '2666999 Veteran Street',
+                'address_line2' => 'Bldg 51',
+                'address_line3' => 'flat 10000',
                 'city' => 'Clawson',
                 'state_code' => 'AL',
                 'zip_code' => '48017'
@@ -259,7 +267,9 @@ FactoryBot.define do
             'current_spouse_reason_for_separation' => 'Other',
             'address' => {
               'country_name' => 'USA',
-              'address_line1' => '2037 29th St',
+              'address_line1' => '20374 Forty Seventh Avenue',
+              'address_line2' => 'apt 9000',
+              'address_line3' => 'flat 3',
               'city' => 'Rock Island',
               'state_code' => 'IL',
               'zip_code' => '61201'
@@ -298,7 +308,9 @@ FactoryBot.define do
                 },
                 'address' => {
                   'country_name' => 'USA',
-                  'address_line1' => '1100 Robin Cir',
+                  'address_line1' => 'One thousand five Lincoln Street',
+                  'address_line2' => 'apt 609',
+                  'address_line3' => 'flat 333',
                   'city' => 'Los Angelas',
                   'state_code' => 'CA',
                   'zip_code' => '90210'
@@ -348,7 +360,9 @@ FactoryBot.define do
           'veteran_contact_information' => {
             'veteran_address' => {
               'country_name' => 'USA',
-              'address_line1' => '8200 Doby LN',
+              'address_line1' => '2037400 twenty ninth St',
+              'address_line2' => 'apt 2222',
+              'address_line3' => 'Bldg 33333',
               'city' => 'Pasadena',
               'state_code' => 'CA',
               'zip_code' => '21122'
@@ -382,7 +396,9 @@ FactoryBot.define do
         'veteran_contact_information' => {
           'veteran_address' => {
             'country_name' => 'USA',
-            'address_line1' => '8200 Doby LN',
+            'address_line1' => '2037400 twenty ninth St',
+            'address_line2' => 'apt 2222',
+            'address_line3' => 'Bldg 33333',
             'city' => 'Pasadena',
             'state_code' => 'CA',
             'zip_code' => '21122'
@@ -425,7 +441,9 @@ FactoryBot.define do
           'current_spouse_reason_for_separation' => 'Other',
           'address' => {
             'country_name' => 'USA',
-            'address_line1' => '2037 29th St',
+            'address_line1' => '20374 Forty Seventh Avenue',
+            'address_line2' => 'apt 9000',
+            'address_line3' => 'flat 3',
             'city' => 'Rock Island',
             'state_code' => 'IL',
             'zip_code' => '61201'

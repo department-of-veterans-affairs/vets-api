@@ -14,10 +14,10 @@
   },
   "claimantAddress": {
     "country": "USA",
-    "addressLine1": "123 Sunshine Boulevard Avenue Lane",
-    "addressLine2": "Apt 1",
+    "street": "123 Sunshine Boulevard Avenue Lane",
+    "street2": "Apt 1",
     "city": "Mmmmiiiiaaaammmmiiii",
-    "stateCode": "FL",
+    "state": "FL",
     "postalCode": "33928-0808"
   },
   "veteranFullName": {
