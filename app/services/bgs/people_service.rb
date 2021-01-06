@@ -2,15 +2,15 @@
 
 module BGS
   class PeopleService < BaseService
-    class VaFileNumberNotFound < StandardError; end
+    class VAFileNumberNotFound < StandardError; end
 
     def find_person_by_participant_id
       response = @service.people.find_person_by_ptcpnt_id(@user.participant_id, @user.ssn)
 
-      raise VaFileNumberNotFound if response.nil?
+      raise VAFileNumberNotFound if response.nil?
 
       response
-    rescue VaFileNumberNotFound => e
+    rescue VAFileNumberNotFound => e
       report_no_va_file_user(e)
 
       {}
