@@ -43,7 +43,6 @@ module Swagger
               key :description, 'Feature toggled off'
             end
           end
-
         end
       end
     end
