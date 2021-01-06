@@ -64,7 +64,7 @@ module Mobile
         #
         def parse(appointments)
           facilities = Set.new
-          
+
           appointments_list = appointments.dig(:data, :appointment_list)
           appointments = appointments_list.map do |appointment_hash|
             facility_id = sub_non_prod_id!(appointment_hash[:facility_id])
@@ -72,7 +72,8 @@ module Mobile
             details, type = parse_by_appointment_type(appointment_hash)
             start_date_utc = start_date_utc(appointment_hash)
             time_zone = time_zone(facility_id)
-            
+            start_date_local = start_date_utc.in_time_zone(time_zone)
+
             adapted_hash = {
               id: SecureRandom.uuid,
               appointment_type: type,
@@ -88,15 +89,15 @@ module Mobile
 
             Mobile::V0::Appointment.new(adapted_hash)
           end
-          
+
           [appointments, facilities]
         end
 
         private
-        
+
         def sub_non_prod_id!(id)
           return id if Settings.hostname == 'www.va.gov'
-          
+
           id.sub!('983', '442') if id.start_with?('983')
           id.sub!('984', '552') if id.start_with?('984')
           id

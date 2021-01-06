@@ -6,7 +6,7 @@ describe Mobile::V0::Adapters::VAAppointments do
   let(:appointment_fixtures) do
     File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json'))
   end
-  
+
   let(:adapted_appointments) do
     subject.parse(JSON.parse(appointment_fixtures, symbolize_names: true))[0]
   end
@@ -306,7 +306,6 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a local start date' do
-      puts booked_video_gfe.to_hash
       expect(booked_video_gfe[:start_date_local]).to eq(DateTime.parse('2020-11-22 06:35:00.000 MST -07:00'))
     end
 

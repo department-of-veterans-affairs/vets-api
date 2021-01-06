@@ -27,6 +27,7 @@ module Mobile
             location = location(appointment_hash[:provider_practice], appointment_hash[:address])
             start_date_utc = start_date(appointment_hash[:appointment_time], appointment_hash[:time_zone]).utc
             time_zone = time_zone(appointment_hash[:time_zone], location.dig(:address, :state))
+            start_date_local = start_date_utc.in_time_zone(time_zone)
 
             adapted_hash = {
               id: appointment_hash[:appointment_request_id],
@@ -36,7 +37,7 @@ module Mobile
               healthcare_service: appointment_hash[:provider_practice],
               location: location,
               minutes_duration: 60, # not in raw data, matches va.gov default for cc appointments
-              start_date_local: start_date_utc.in_time_zone(time_zone),
+              start_date_local: start_date_local,
               start_date_utc: start_date_utc,
               status: BOOKED_STATUS
             }
@@ -79,7 +80,7 @@ module Mobile
           # The Navajo Nation does observe daylight savings time but veteran care
           # is provided at the Navajo Nation VA or at US Government VA clinics (non Nation zip codes)
           return 'America/Phoenix' if state == 'AZ'
-  
+
           Mobile::VA_TZ_DATABASE_NAMES_BY_SCHEDULE[time_zone.split[1]]
         end
       end

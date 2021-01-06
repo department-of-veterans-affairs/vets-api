@@ -165,7 +165,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
 
   context 'with a booked CC appointment in MDT' do
     let(:booked_cc) { adapted_appointments[9] }
-    
+
     it 'has a utc start date' do
       expect(booked_cc[:start_date_utc].to_s).to eq('2020-05-24 01:31:00 UTC')
     end
