@@ -233,7 +233,7 @@ namespace :form526 do
 
   # Resubmit to EVSS
   desc 'Resubmit entire claim'
-  task retry_526: :environment do |_, args|
+  task retry_submission: :environment do |_, args|
     raise 'No Form526Submission ids provided' unless args.extras.count.positive?
 
     def get_open_claims_from_evss(auth_headers)
@@ -252,19 +252,21 @@ namespace :form526 do
                                         .where.not(submitted_claim_id: nil)
                                         .order(id: :desc)
     form_submissions.each do |form_submission|
-      newer_submission = Form526Submission.where(user_uuid: form.user_uuid,
+      newer_submission = Form526Submission.where(user_uuid: form_submission.user_uuid,
                                                  created_at: [form_submission.created_at..Time.zone.now])
                                           .present?
 
       unless newer_submission
-        open_claim_count = get_open_claims_from_evss(form.auth_headers)
+        open_claim_count = get_open_claims_from_evss(form_submission.auth_headers)
         if open_claim_count.zero?
           @retryable_participants << form_submission.participant_ids
           @retryable_form_ids << form_submission.id
           # form_submission.start - after this has been tested some resbumit.
         end
       end
+      puts 'retryable_form_ids'
       puts @retryable_form_ids
+      puts 'retryable_participants'
       puts @retryable_participants
     end
   end
