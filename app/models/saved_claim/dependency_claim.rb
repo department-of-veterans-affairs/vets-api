@@ -27,7 +27,7 @@ class SavedClaim::DependencyClaim < SavedClaim
     report_stepchild_not_in_household
     report_marriage_of_child_under18
     child_marriage
-    not_attending_school
+    report_child18_or_older_is_not_attending_school
     add_spouse
   ].freeze
 
