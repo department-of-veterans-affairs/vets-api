@@ -53,8 +53,7 @@ module AppealsApi
         options[:"F[0].Page_1[0].Percentage2[#{index}]"] = issue['attributes']['decisionDate']
       end
 
-      insert_administrative_page(options)
-      insert_extra_issues_page(options) if nod_pdf_options.contestable_issues.size > 5
+      insert_additional_page(options)
 
       @pdf_options = options
     end
@@ -95,19 +94,26 @@ module AppealsApi
       output_path
     end
 
-    def insert_administrative_page(pdf_options)
+    def administrative_page_content
       return if nod_pdf_options.hearing_type_preference.blank?
 
-      pdf_options[:additional_pages] << "Hearing type requested: #{nod_pdf_options.hearing_type_preference.humanize}"
+      "Hearing Type Preference: #{nod_pdf_options.hearing_type_preference.humanize}"
     end
 
-    def insert_extra_issues_page(pdf_options)
-      lines = []
+    def extra_issues_content
+      return [] unless nod_pdf_options.contestable_issues.size > 5
+
+      lines = ["<b>Additional Issues</b>\n"]
       # The first five issues are given space on the form, so drop them.
       nod_pdf_options.contestable_issues.drop(5).each do |issue|
         lines << "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
       end
-      pdf_options[:additional_pages] << lines.join("\n")
+
+      lines.join("\n")
+    end
+
+    def insert_additional_page(pdf_options)
+      pdf_options[:additional_pages] << [administrative_page_content, "\n\n", extra_issues_content].join("\n")
     end
   end
 end
