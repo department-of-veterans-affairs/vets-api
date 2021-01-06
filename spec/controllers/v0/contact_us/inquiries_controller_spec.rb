@@ -33,7 +33,7 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
           end
 
           context 'enabled' do
-            it 'renders :ok' do
+            it 'renders status :ok' do
               expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
 
               VCR.use_cassette('contact_us/test-ping') do
