@@ -38,8 +38,9 @@ RSpec.describe 'request eligibility criteria', type: :request do
       #   end
       # end
 
-      it 'returns a 200 with the correct camel-inflected schema' do
+      it 'returns a 200 with the correct camel-inflected schema' do 
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria', match_requests_on: %i[method uri]) do
+          binding.pry
           get '/vaos/v0/request_eligibility_criteria', headers: inflection_header
           expect(response).to have_http_status(:ok)
           expect(size).to eq(1269)
