@@ -52,7 +52,7 @@ RSpec.describe 'appointments', type: :request do
         expect(first_appointment['startDateUtc']).to be < last_appointment['startDateUtc']
       end
 
-      it 'includes the expected properties for a CC appointment' do
+      it 'includes the expected properties for a VA appointment' do
         va_appointment = response.parsed_body['data'].filter { |a| a['attributes']['appointmentType'] == 'VA' }.first
         expect(va_appointment).to include(
           {
@@ -90,7 +90,10 @@ RSpec.describe 'appointments', type: :request do
       end
 
       it 'includes the expected properties for a CC appointment' do
-        cc_appointment = response.parsed_body['data'].filter { |a| a['attributes']['appointmentType'] == 'COMMUNITY_CARE' }.first
+        cc_appointment = response.parsed_body['data'].filter do |a|
+          a['attributes']['appointmentType'] == 'COMMUNITY_CARE'
+        end.first
+
         expect(cc_appointment).to include(
           {
             'type' => 'appointment',

@@ -11,7 +11,7 @@ module Mobile
         va_appointments, facility_ids = va_adapter.parse(responses[:va].body)
         cc_appointments = cc_adapter.parse(responses[:cc].body)
 
-        va_appointments = appointments_with_facilities(va_appointments, facility_ids) if va_appointments.size > 0
+        va_appointments = appointments_with_facilities(va_appointments, facility_ids) if va_appointments.size.positive?
 
         appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
 

@@ -67,33 +67,36 @@ module Mobile
 
           appointments_list = appointments.dig(:data, :appointment_list)
           appointments = appointments_list.map do |appointment_hash|
-            facility_id = sub_non_prod_id!(appointment_hash[:facility_id])
-            facilities.add(facility_id) if facility_id
-            details, type = parse_by_appointment_type(appointment_hash)
-            start_date_utc = start_date_utc(appointment_hash)
-            time_zone = time_zone(facility_id)
-            start_date_local = start_date_utc.in_time_zone(time_zone)
-
-            adapted_hash = {
-              id: SecureRandom.uuid,
-              appointment_type: type,
-              comment: comment(details, type),
-              facility_id: facility_id,
-              healthcare_service: healthcare_service(details, type),
-              location: location(details, type, facility_id),
-              minutes_duration: minutes_duration(details, type),
-              start_date_local: start_date_utc.in_time_zone(time_zone),
-              start_date_utc: start_date_utc,
-              status: status(details, type, start_date_utc)
-            }
-
-            Mobile::V0::Appointment.new(adapted_hash)
+            build_appointment_model(appointment_hash, facilities)
           end
 
           [appointments, facilities]
         end
 
         private
+
+        def build_appointment_model(appointment_hash, facilities)
+          facility_id = sub_non_prod_id!(appointment_hash[:facility_id])
+          facilities.add(facility_id) if facility_id
+          details, type = parse_by_appointment_type(appointment_hash)
+          start_date_utc = start_date_utc(appointment_hash)
+          time_zone = time_zone(facility_id)
+
+          adapted_hash = {
+            id: SecureRandom.uuid,
+            appointment_type: type,
+            comment: comment(details, type),
+            facility_id: facility_id,
+            healthcare_service: healthcare_service(details, type),
+            location: location(details, type, facility_id),
+            minutes_duration: minutes_duration(details, type),
+            start_date_local: start_date_utc.in_time_zone(time_zone),
+            start_date_utc: start_date_utc,
+            status: status(details, type, start_date_utc)
+          }
+
+          Mobile::V0::Appointment.new(adapted_hash)
+        end
 
         def sub_non_prod_id!(id)
           return id if Settings.hostname == 'www.va.gov'
