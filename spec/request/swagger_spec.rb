@@ -2860,13 +2860,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       describe 'GET v0/contact_us/inquiries' do
-        context 'logged in' do
+        skip 'logged in' do
           let(:user) { build(:user, :loa3) }
           let(:headers) do
             { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
           end
 
-          skip 'supports getting list of inquiries sent by user' do
+          it 'supports getting list of inquiries sent by user' do
             expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
 
             expect(subject).to validate(:get, '/v0/contact_us/inquiries', 200, headers)
