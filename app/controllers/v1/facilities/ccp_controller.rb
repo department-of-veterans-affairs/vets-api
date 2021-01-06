@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
-require 'facilities/ppms/v0/client'
 require 'facilities/ppms/v1/client'
 
 class V1::Facilities::CcpController < FacilitiesController
@@ -38,31 +37,11 @@ class V1::Facilities::CcpController < FacilitiesController
   private
 
   def index_api_results
-    if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
-      index_api_results_v1
-    else
-      index_api_results_v0
-    end
-  end
-
-  def index_api_results_v0
-    ppms_search.collect do |result|
-      PPMS::Provider.new(
-        result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym }
-      )
-    end.paginate(pagination_params)
-  end
-
-  def index_api_results_v1
     ppms_search
   end
 
   def api
-    @api ||= if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
-               Facilities::PPMS::V1::Client.new
-             else
-               Facilities::PPMS::V0::Client.new
-             end
+    @api ||= Facilities::PPMS::V1::Client.new
   end
 
   def ppms_params
@@ -97,57 +76,6 @@ class V1::Facilities::CcpController < FacilitiesController
   end
 
   def provider_search(options = {})
-    if Flipper.enabled?(:facility_locator_ppms_use_v1_client)
-      provider_search_v1(options)
-    else
-      provider_search_v0(options)
-    end
-  end
-
-  def provider_search_v0(options = {})
-    api.provider_locator(ppms_params.merge(options)).uniq(&:id).map do |provider|
-      begin
-        prov_info = api.provider_info(provider.id)
-        provider.add_details(prov_info)
-      rescue => e
-        log_exception_to_sentry(e, { provider_info: provider.id }, { external_service: :ppms })
-      end
-      provider
-    end
-  end
-
-  def provider_search_v1(options = {})
-    if Flipper.enabled?(:facility_locator_ppms_skip_additional_round_trips)
-      provider_search_v1_without_additional_round_trips(options)
-    else
-      provider_search_v1_with_additional_round_trips(options)
-    end
-  end
-
-  def provider_search_v1_with_additional_round_trips(options = {})
-    providers = api.provider_locator(ppms_params.merge(options))
-
-    current_page = providers.current_page
-    per_page = providers.per_page
-    total_entries = providers.total_entries
-
-    providers.map do |provider|
-      begin
-        prov_info = api.provider_info(provider.id)
-        provider.add_details(prov_info)
-      rescue => e
-        log_exception_to_sentry(e, { provider_info: provider.id }, { external_service: :ppms })
-      end
-      provider
-    end
-
-    WillPaginate::Collection.create(current_page, per_page) do |pager|
-      pager.replace(providers)
-      pager.total_entries = total_entries
-    end
-  end
-
-  def provider_search_v1_without_additional_round_trips(options = {})
     api.provider_locator(ppms_params.merge(options))
   end
 
