@@ -33,7 +33,8 @@
     },
     "email": {
       "type": "string",
-      "pattern": ".@."
+      "pattern": ".@.",
+      "minLength": 3
     },
     "gender": {
       "type": "string",
