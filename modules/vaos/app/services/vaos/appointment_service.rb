@@ -44,7 +44,7 @@ module VAOS
         ''
       rescue Common::Exceptions::BackendServiceException => e
         # TODO: Reevaluate the need to log clinic data three months after launch (6/15/20)
-        log_clinic_details(:cancel, params[:clinic_id], site_code) if e.key == 'VAOS_400'
+        log_clinic_details(:cancel, params[:clinic_id], site_code) if e.key == 'VAOS_409A' || e.key == 'VAOS_400'
         raise e
       end
     rescue Common::Client::Errors::ClientError => e
