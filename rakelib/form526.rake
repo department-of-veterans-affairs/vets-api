@@ -238,82 +238,100 @@ namespace :form526 do
 
     # make a hash that has both the original and corrupted versions of the disability name.
     # eg {"myocardial infarction (mi)" => "myocardial infarction (MI)"}
-    def get_disability_hash(form_data_hash)
+    def get_disability_array(form_data_hash)
       new_conditions = form_data_hash['newDisabilities']&.collect { |d| d.dig('condition') } || []
       rated_disabilities = form_data_hash['ratedDisabilities']&.collect { |rd| rd['name'] } || []
-      disabilities = new_conditions + rated_disabilities
-      corrupted_disability_hash = {}
-      disabilities.each do |dis|
-        munged_dis_name = to_olivebranch_case(:dasherize, to_olivebranch_case(:camelize, dis))
-        corrupted_disability_hash[munged_dis_name] = dis if munged_dis_name != dis
-      end
-      corrupted_disability_hash
+      new_conditions + rated_disabilities
     end
 
-    def fix_treatment_facilities_disability_name(form_data_hash, corrupted_disability_hash)
+    # downcase and remove everything but letters and numbers
+    def simplify_string(string)
+      string.downcase.gsub(/[^a-z0-9]/, '')
+    end
+
+    def get_dis_translation_hash(disability_array)
+      dis_translation_hash = {}
+      disability_array.each do |dis|
+        dis_translation_hash[simplify_string(dis)] = dis
+      end
+      dis_translation_hash
+    end
+
+    def fix_treatment_facilities_disability_name(form_data_hash, dis_translation_hash, disability_array)
+      transformed = false
       # fix vaTreatmentFacilities -> treatedDisabilityNames
-      form_data_hash['vaTreatmentFacilities'].each do |va_treatment_facilities|
+      # this should never happen, just want to confirm
+      form_data_hash['vaTreatmentFacilities']&.each do |va_treatment_facilities|
         new_treated_disability_names = {}
-        va_treatment_facilities['treatedDisabilityNames'].each do |disability_name, value|
-          if corrupted_disability_hash.keys.include? disability_name
-            new_treated_disability_names[corrupted_disability_hash[disability_name]] = value
-          else
-            new_treated_disability_names[disability_name] = value
+        if va_treatment_facilities['treatedDisabilityNames']
+          va_treatment_facilities['treatedDisabilityNames'].each do |disability_name, value|
+            if disability_array.include? disability_name
+              new_treated_disability_names[disability_name] = value
+            else
+              transformed = true
+              original_disability_name = dis_translation_hash[simplify_string(disability_name)]
+              raise if original_disability_name.nil?
+
+              new_treated_disability_names[original_disability_name] = value
+            end
           end
+          va_treatment_facilities['treatedDisabilityNames'] = new_treated_disability_names
         end
-        va_treatment_facilities['treatedDisabilityNames'] = new_treated_disability_names
       end
-      form_data_hash
+      transformed
     end
 
-    def fix_pow_disabilities(form_data_hash, corrupted_disability_hash)
+    def fix_pow_disabilities(form_data_hash, dis_translation_hash, disability_array)
+      transformed = false
       # just like treatedDisabilityNames fix the same checkbox data for POW disabilities
       pow_disabilities = form_data_hash.dig('view:isPow', 'powDisabilities')
       if pow_disabilities
         new_pow_disability_names = {}
         pow_disabilities.each do |disability_name, value|
-          if corrupted_disability_hash.keys.include? disability_name
-            new_pow_disability_names[corrupted_disability_hash[disability_name]] = value
-          else
+          if disability_array.include? disability_name
             new_pow_disability_names[disability_name] = value
+          else
+            transformed = true
+            original_disability_name = dis_translation_hash[simplify_string(disability_name)]
+            raise if original_disability_name.nil?
+
+            new_pow_disability_names[original_disability_name] = value
           end
         end
         form_data_hash['view:isPow']['powDisabilities'] = new_pow_disability_names
       end
-      form_data_hash
+      transformed
     end
 
     @affected_forms = []
+    # get all of the forms that have not yet been converted.
+    in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
+                                      .where("metadata -> 'return_url' is not null").limit(10)
+    in_progress_forms.each do |in_progress_form|
+      in_progress_form.metadata = to_olivebranch_case(:camelize, in_progress_form.metadata)
+      puts '==========BEFORE==========' + in_progress_form.form_data
+      form_data_hash = to_olivebranch_case(:camelize, JSON.parse(in_progress_form.form_data))
+      puts '==========during==========' + form_data_hash.to_json
+      disability_array = get_disability_array(form_data_hash)
+      dis_translation_hash = get_dis_translation_hash(disability_array)
 
-    # forms expire a year after they're last updated by the user so we want to disable updating the updated_at.
-    ActiveRecord::Base.record_timestamps = false
-    begin
-      # get all of the forms that have not yet been converted.
-      in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
-                                        .where("metadata -> 'return_url' is not null")
-      in_progress_forms.find_each do |in_progress_form|
-        in_progress_form.metadata = to_olivebranch_case(:camelize, in_progress_form.metadata)
-        form_data_hash = to_olivebranch_case(:camelize, JSON.parse(in_progress_form.form_data))
-
-        corrupted_disability_hash = get_disability_hash(form_data_hash)
-
-        if corrupted_disability_hash.present?
-          form_data_hash = fix_treatment_facilities_disability_name(form_data_hash, corrupted_disability_hash)
-          form_data_hash = fix_pow_disabilities(form_data_hash, corrupted_disability_hash)
-          @affected_forms << [in_progress_form.id,
-                              in_progress_form.user_uuid,
-                              form_data_hash.dig('phoneAndEmail', 'emailAddress')]
-        end
-
-        in_progress_form.form_data = form_data_hash.to_json
-
-        puts in_progress_form.form_data
-        # in_progress_form.save!
+      treatment_facilities_transformed = fix_treatment_facilities_disability_name(form_data_hash, dis_translation_hash,
+                                                                                  disability_array)
+      pow_transformed = fix_pow_disabilities(form_data_hash, dis_translation_hash, disability_array)
+      if treatment_facilities_transformed || pow_transformed
+        @affected_forms << [in_progress_form.id,
+                            in_progress_form.user_uuid,
+                            form_data_hash.dig('phoneAndEmail', 'emailAddress')]
       end
-    ensure
-      ActiveRecord::Base.record_timestamps = true
+
+      in_progress_form.form_data = form_data_hash.to_json
+
+      puts '==========AFTER==========' + in_progress_form.form_data
+      # forms expire a year after they're last updated by the user so we want to disable updating the updated_at.
+      # in_progress_form.save!(touch: false)
     end
+
     puts "Affected form count #{@affected_forms.count}"
-    puts @affected_forms.join("\n")
+    puts @affected_forms.join(" \n")
   end
 end
