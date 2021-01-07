@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bgs/service'
+
 module V0
   module Profile
     class Ch33BankAccountsController < ApplicationController
@@ -7,7 +9,7 @@ module V0
 
       def index
         render(
-          json: service.find_ch33_dd_eft,
+          json: service.get_ch33_dd_eft_info,
           serializer: Ch33BankAccountSerializer
         )
       end

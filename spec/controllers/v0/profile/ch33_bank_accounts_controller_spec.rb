@@ -38,16 +38,19 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
   describe '#index' do
     it 'returns the right data' do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-        get(:index)
+        VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+          get(:index)
+        end
       end
 
       expect(JSON.parse(response.body)).to eq(
         {
           'data' => {
-            'id' => '', 'type' => 'savon_responses',
+            'id' => '', 'type' => 'hashes',
             'attributes' => {
               'account_type' => 'Checking', 'account_number' => '123',
-              'financial_institution_routing_number' => '*****9982'
+              "financial_institution_name"=>"BANK OF AMERICA, N.A.",
+              'financial_institution_routing_number' => '*****0724'
             }
           }
         }
