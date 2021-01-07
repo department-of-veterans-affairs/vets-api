@@ -26,6 +26,24 @@ RSpec.describe BGS::Service do
       end
     end
 
+    describe '#get_ch33_dd_eft_info' do
+      it 'retrieves a users dd eft details including bank name' do
+        VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+            res = bgs_service.get_ch33_dd_eft_info
+            expect(res).to eq(
+              {
+                :dposit_acnt_nbr=>"123",
+                :dposit_acnt_type_nm=>"C",
+                :routng_trnsit_nbr=>"122400724",
+                :financial_institution_name=>"BANK OF AMERICA, N.A."
+              }
+            )
+          end
+        end
+      end
+    end
+
     it 'retrieves a users dd eft info' do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
         response = bgs_service.find_ch33_dd_eft
