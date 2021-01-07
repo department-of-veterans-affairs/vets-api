@@ -7,10 +7,12 @@ module AppealsApi
     include Sidekiq::Worker
 
     def perform
-      to = Time.zone.now
-      from = to.monday? ? 7.days.ago : 1.day.ago
+      if Settings.modules_appeals_api.report_enabled
+        to = Time.zone.now
+        from = to.monday? ? 7.days.ago : 1.day.ago
 
-      DecisionReviewMailer.build(date_from: from, date_to: to).deliver_now
+        DecisionReviewMailer.build(date_from: from, date_to: to).deliver_now
+      end
     end
   end
 end

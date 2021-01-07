@@ -5,7 +5,7 @@ require 'appeals_api/decision_review_report'
 module AppealsApi
   class DecisionReviewMailer < ApplicationMailer
     RECIPIENTS = %w[
-      example@va.gov
+      premal.shah@va.gov
     ].freeze
 
     def build(date_from:, date_to:)
