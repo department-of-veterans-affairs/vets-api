@@ -48,6 +48,15 @@ module AppealsApi::V1
               end
             end
           end
+
+          property :included do
+            key :type, :array
+            key :minItems, 1
+
+            items do
+              key :'$ref', :contestableIssue
+            end
+          end
         end
 
         schema :nodCreateResponse do

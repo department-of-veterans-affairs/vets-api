@@ -7,8 +7,6 @@ module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
     include SentryLogging
 
-    REMOVE_PII = proc { update form_data: nil, auth_headers: nil }
-
     class << self
       def refresh_statuses_using_central_mail!(notice_of_disagreement)
         return if notice_of_disagreement.empty?
@@ -85,8 +83,6 @@ module AppealsApi
       #   }
       # }
 
-      define_method :remove_pii, &REMOVE_PII
-
       private
 
       def parse_central_mail_response(response)
@@ -134,10 +130,6 @@ module AppealsApi
     raise unless COMPLETE_STATUSES - STATUSES == []
 
     scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
-    scope :completed, -> { where status: COMPLETE_STATUSES }
-    scope :has_pii, -> { where.not(encrypted_form_data: nil).or(where.not(encrypted_auth_headers: nil)) }
-    scope :has_not_been_updated_in_a_week, -> { where 'updated_at < ?', 1.week.ago }
-    scope :ready_to_have_pii_expunged, -> { has_pii.completed.has_not_been_updated_in_a_week }
 
     validate :validate_hearing_type_selection
 
@@ -194,8 +186,6 @@ module AppealsApi
     def hearing_type_preference
       form_data&.dig('data', 'attributes', 'hearingTypePreference')
     end
-
-    define_method :remove_pii, &REMOVE_PII
 
     private
 
