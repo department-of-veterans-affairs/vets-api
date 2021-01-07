@@ -1076,7 +1076,7 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'GET returns true false if veteran has a VA file number'
-          key :operationId, 'getValidVaFileNumber'
+          key :operationId, 'getValidVAFileNumber'
           key :tags, ['profile']
 
           parameter :authorization
@@ -1084,7 +1084,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :ValidVaFileNumber
+              key :'$ref', :ValidVAFileNumber
             end
           end
         end
