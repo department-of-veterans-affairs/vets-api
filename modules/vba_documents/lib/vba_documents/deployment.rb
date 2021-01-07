@@ -9,11 +9,7 @@ module VBADocuments
     def self.fetch_environment
       prefix = Settings.vba_documents.location.prefix
       prefix =~ /https:.*?-(dev|staging|sandbox|prod)-.*/
-      begin
-        Regexp.last_match(1).to_sym
-      rescue
-        :unknown_environment
-      end
+      (Regexp.last_match(1) || :unknown_environment).to_sym
     end
     VBADocuments::Deployment.environment = VBADocuments::Deployment.fetch_environment
   end
