@@ -15,7 +15,7 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
     it 'sends to the right people' do
       expect(subject.to).to eq(
         %w[
-          example@va.gov
+          premal.shah@va.gov
         ]
       )
     end
