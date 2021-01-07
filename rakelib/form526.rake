@@ -240,7 +240,7 @@ namespace :form526 do
       )
     end
 
-    # make a has that has both the original and corrupted versions of the disability name.
+    # make a hash that has both the original and corrupted versions of the disability name.
     # eg {"myocardial infarction (mi)" => "myocardial infarction (MI)"}
     def get_disability_array(form_data_hash)
       new_conditions = form_data_hash['newDisabilities']&.collect { |d| d.dig('condition') } || []
