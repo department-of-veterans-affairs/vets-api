@@ -32,10 +32,10 @@ module AppealsApi
     end
 
     def validate_form_type!
-      raise ArgumentError, 'Invalid Form Type' unless valid_form_type
+      raise ArgumentError, 'Invalid Form Type' unless valid_form_type?
     end
 
-    def valid_form_type
+    def valid_form_type?
       form_type.in?(APPEALS_TYPES)
     end
 
