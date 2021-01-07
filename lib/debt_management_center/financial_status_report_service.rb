@@ -19,6 +19,9 @@ module DebtManagementCenter
     end
 
     def get_pdf(id)
+      perform(
+        :get, 'financial-status-report/documentstream', objectId: id
+      ).body
     end
 
     private
