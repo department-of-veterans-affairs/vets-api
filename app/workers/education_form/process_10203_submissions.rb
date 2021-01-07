@@ -24,6 +24,7 @@ module EducationForm
         }
       )
     )
+      return unless Flipper.enabled?(:stem_automated_decision)
 
       if records.count.zero?
         log_info('No records to process.')
