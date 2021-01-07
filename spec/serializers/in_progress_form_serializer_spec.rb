@@ -20,7 +20,7 @@ RSpec.describe InProgressFormSerializer, type: :serializer do
     expect(attributes.keys).to contain_exactly('form_id', 'created_at', 'updated_at', 'metadata')
   end
 
-  context 'with nested camelCase data' do
+  context 'with nested metadata' do
     let(:in_progress_form) { build :in_progress_form, :with_nested_metadata }
 
     it 'deeply transformed the keys to snake_case' do
