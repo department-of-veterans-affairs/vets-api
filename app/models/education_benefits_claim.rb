@@ -19,6 +19,7 @@ class EducationBenefitsClaim < ApplicationRecord
   belongs_to(:saved_claim, class_name: 'SavedClaim::EducationBenefits', inverse_of: :education_benefits_claim)
 
   has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
+  has_one(:education_stem_automated_decision, inverse_of: :education_benefits_claim, dependent: :destroy)
 
   delegate(:parsed_form, to: :saved_claim)
   delegate(:form, to: :saved_claim)

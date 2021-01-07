@@ -31,9 +31,11 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
       key :summary, 'Returns all contestable issues for a specific veteran.'
 
-      desc = 'Returns all issues a Veteran could contest in a Notice of Disagreement as of the `receiptDate` ' \
-        'Associate these results when creating new Decision Reviews.'
-      key :description, desc
+      description = 'Returns all issues associated with a Veteran that have' \
+      'not previously been decided by a Notice of Disagreement' \
+      'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
+      'Associate these results when creating a new Notice of Disagreement.'
+      key :description, description
 
       parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
@@ -60,44 +62,62 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     end
   end
 
-  swagger_path '/v1/decision_reviews/notice_of_disagreements' do
+  swagger_path '/decision_reviews/notice_of_disagreements' do
     next unless PATH_ENABLED_FOR_ENV
 
     operation :post, tags: NOD_TAG do
       key :summary, 'Creates a new Notice of Disagreement.'
-      key :description, ''
+
+      description = 'Submits an appeal of type Notice of Disagreement.' \
+      'This endpoint is analogous to submitting VA Form 10182' \
+      'via mail or fax directly to the Board of Veterans’ Appeals.'
+      key :description, description
+
       key :operationId, 'nodCreateRoot'
+
+      security do
+        key :apiKey, []
+      end
 
       parameter do
         key :name, 'X-VA-First-Name'
         key :in, :header
-        key :description, 'First Name of Veteran creating the Notice of Disagreement'
+        key :description, 'First Name of Veteran referenced in Notice of Disagreement'
         key :required, true
         key :type, :string
+        key :maxLength, 16
+
+        # The total amount of characters available for the First Name, Middle Name,
+        # Last Name is 52 characters. 16, allowing 4 for middle initial and
+        # whitespace, and then 36 is an acceptable distribution, but not set in
+        # stone.
       end
 
       parameter do
         key :name, 'X-VA-Last-Name'
         key :in, :header
-        key :description, 'Last Name of Veteran creating the Notice of Disagreement'
+        key :description, 'Last Name of Veteran referenced in Notice of Disagreement'
         key :required, true
         key :type, :string
+        key :maxLength, 36
       end
 
       parameter do
-        key :name, 'XVA-SSN'
+        key :name, 'X-VA-SSN'
         key :in, :header
-        key :description, 'SSN of Veteran creating the Notice of Disagreement'
+        key :description, 'SSN of Veteran referenced in Notice of Disagreement'
         key :required, true
         key :type, :string
+        key :maxLength, 9
       end
 
       parameter do
         key :name, 'X-VA-Birth-Date'
         key :in, :header
-        key :description, 'Birth Date of Veteran creating the Notice of Disagreement'
+        key :description, 'Birth Date of Veteran referenced in Notice of Disagreement'
         key :required, true
         key :type, :string
+        key :maxLength, 10
       end
 
       parameter do
@@ -105,13 +125,15 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'VA file number'
+        key :maxLength, 9
       end
 
       parameter do
         key :name, 'X-VA-Veteran-Birth-Date'
         key :in, :header
         key :required, false
-        key :description, 'The birth date of the Veteran referenced in the decision review request.'
+        key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
+        key :maxLength, 10
       end
 
       parameter do
@@ -119,6 +141,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'The first name of the benefits claimant (if applicable)'
+        key :maxLength, 16
       end
 
       parameter do
@@ -133,6 +156,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'The last name of the benefits claimant (if applicable)'
+        key :maxLength, 36
       end
 
       parameter do
@@ -140,6 +164,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'The birth date of the benefits claimant (if applicable)'
+        key :maxLength, 10
       end
 
       request_body do
@@ -183,7 +208,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
 
       response 500 do
-        key :description, '10182 validation errors'
+        key :description, 'Unknown Error'
 
         content 'application/json' do
           schema do
@@ -205,14 +230,20 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     next unless PATH_ENABLED_FOR_ENV
 
     operation :post, tags: NOD_TAG do
-      key :summary, 'Validates the schema provided to create a NOD'
+      summary = 'Validates the schema provided to create a NOD.'\
+        'This endpoint can be used to test your submission prior to calling the CREATE endpoint.'
+      key :summary, summary
       key :description, ''
       key :operationId, 'nodValidateSchema'
+
+      security do
+        key :apiKey, []
+      end
 
       parameter do
         key :name, 'X-VA-First-Name'
         key :in, :header
-        key :description, 'First Name of Veteran creating the Notice of Disagreement'
+        key :description, 'First Name of Veteran referenced in Notice of Disagreement'
         key :required, true
         key :type, :string
       end
@@ -220,7 +251,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       parameter do
         key :name, 'X-VA-Last-Name'
         key :in, :header
-        key :description, 'Last Name of Veteran creating the Notice of Disagreement'
+        key :description, 'Last Name of Veteran referenced in Notice of Disagreement'
         key :required, true
         key :type, :string
       end
@@ -228,7 +259,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       parameter do
         key :name, 'XVA-SSN'
         key :in, :header
-        key :description, 'SSN of Veteran creating the Notice of Disagreement'
+        key :description, 'SSN of Veteran referenced in Notice of Disagreement'
         key :required, true
         key :type, :string
       end
@@ -236,7 +267,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       parameter do
         key :name, 'X-VA-Birth-Date'
         key :in, :header
-        key :description, 'Birth Date of Veteran creating the Notice of Disagreement'
+        key :description, 'Birth Date of Veteran referenced in Notice of Disagreement'
         key :required, true
         key :type, :string
       end
@@ -252,7 +283,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :name, 'X-VA-Veteran-Birth-Date'
         key :in, :header
         key :required, false
-        key :description, 'The birth date of the Veteran referenced in the decision review request.'
+        key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
       end
 
       parameter do
@@ -318,7 +349,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
 
       response 422 do
-        key :description, '10182 validation errors'
+        key :description, 'Unknown Error'
         content 'application/json' do
           schema do
             key :type, :object
@@ -373,7 +404,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       ]
 
       security do
-        key :bearer_token, []
+        key :apikey, []
       end
 
       response 200 do
