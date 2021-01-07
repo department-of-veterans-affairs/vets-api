@@ -99,7 +99,7 @@ module ClaimsApi
 
     def with_special_issues(source: nil)
       claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
-                                              .where('array_length(special_issues, 1) >= 1')
+                                              .where.not(special_issues: nil)
 
       claims = claims.where(source: source) if source.present?
 
