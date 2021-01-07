@@ -10,7 +10,8 @@ module VBADocuments
       # the above shouldn't get hit, but if an environment becomes undetectable we will send that env to everyone
       # and tag it as 'unknown_environment' to motivate a quick repair.
       hash = YAML.load_file(__dir__ + '/unsuccessful_report_recipients.yml')
-      hash[env.to_s] + hash['common']
+      env_hash = hash[env.to_s].nil? ? [] : hash[env.to_s]
+      env_hash + hash['common']
     end
 
     RECIPIENTS = fetch_recipients.freeze
