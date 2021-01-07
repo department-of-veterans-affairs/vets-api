@@ -246,7 +246,7 @@ namespace :form526 do
 
     # downcase and remove everything but letters and numbers
     def simplify_string(string)
-      string.downcase.gsub(/[^a-z0-9]/, '')
+      string&.downcase&.gsub(/[^a-z0-9]/, '')
     end
 
     def get_dis_translation_hash(disability_array)
@@ -302,16 +302,13 @@ namespace :form526 do
       end
       transformed
     end
-
-    @affected_forms = []
     # get all of the forms that have not yet been converted.
     in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
-                                      .where("metadata -> 'return_url' is not null").limit(10)
+                                      .where("metadata -> 'return_url' is not null")
+    @affected_forms = []
     in_progress_forms.each do |in_progress_form|
       in_progress_form.metadata = to_olivebranch_case(:camelize, in_progress_form.metadata)
-      puts '==========BEFORE==========' + in_progress_form.form_data
       form_data_hash = to_olivebranch_case(:camelize, JSON.parse(in_progress_form.form_data))
-      puts '==========during==========' + form_data_hash.to_json
       disability_array = get_disability_array(form_data_hash)
       dis_translation_hash = get_dis_translation_hash(disability_array)
 
@@ -325,13 +322,11 @@ namespace :form526 do
       end
 
       in_progress_form.form_data = form_data_hash.to_json
-
-      puts '==========AFTER==========' + in_progress_form.form_data
       # forms expire a year after they're last updated by the user so we want to disable updating the updated_at.
       # in_progress_form.save!(touch: false)
     end
 
     puts "Affected form count #{@affected_forms.count}"
-    puts @affected_forms.join(" \n")
+    @affected_forms.each { |f| puts f.join ',' }
   end
 end
