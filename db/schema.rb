@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_06_135429) do
+ActiveRecord::Schema.define(version: 2021_01_07_162113) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -566,6 +566,14 @@ ActiveRecord::Schema.define(version: 2021_01_06_135429) do
     t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
   end
 
+  create_table "tud_accounts", force: :cascade do |t|
+    t.boolean "standard"
+    t.boolean "available"
+    t.datetime "checkout_time"
+    t.integer "loa_level"
+    t.integer "accounts_id"
+  end
+
   create_table "user_preferences", id: :serial, force: :cascade do |t|
     t.integer "account_id", null: false
     t.integer "preference_id", null: false
@@ -662,4 +670,5 @@ ActiveRecord::Schema.define(version: 2021_01_06_135429) do
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
   end
 
+  add_foreign_key "tud_accounts", "accounts", column: "accounts_id"
 end

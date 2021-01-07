@@ -3,9 +3,8 @@ class AddTudAccountsTable < ActiveRecord::Migration[6.0]
     create_table :tud_accounts do |t|
       t.boolean :standard, :available
       t.datetime :checkout_time
-      t.integer :loa_level
+      t.integer :loa_level, :accounts_id
     end
-    add_foreign_key :accounts, :tud_accounts
   end
 
   def down
