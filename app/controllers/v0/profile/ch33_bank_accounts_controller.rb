@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bgs/service.rb'
+
 module V0
   module Profile
     class Ch33BankAccountsController < ApplicationController
