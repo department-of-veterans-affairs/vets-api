@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'okta/service'
-require_relative '../../app/models/veteran_verification/mock_open_id_user'
 
 RSpec.describe MockOpenIdUser, type: :model do
   let(:some_ttl) { 86_400 }
