@@ -37,6 +37,7 @@ RSpec.describe ClaimsApi::ReportUnsuccessfulSubmissions, type: :job do
           to,
           consumer_totals: [],
           flash_statistics: [],
+          special_issues_statistics: [],
           pending_submissions: ClaimsApi::AutoEstablishedClaim.where(created_at: from..to,
                                                                      status: 'pending')
                                                                 .order(:source, :status)

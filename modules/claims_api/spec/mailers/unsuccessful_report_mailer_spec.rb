@@ -7,13 +7,17 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
     FactoryBot.create(:auto_established_claim, :status_errored)
     ClaimsApi::AutoEstablishedClaim.where(status: 'errored')
                                    .order(:source, :status)
-                                   .pluck(:source, :status, :id)
+                                   .pluck(:source, :status, :id).map do |source, status, id|
+                                     { id: id, status: status, source: source }
+                                   end
   end
   let(:uploaded_upload) do
     FactoryBot.create(:auto_established_claim, :status_established)
     ClaimsApi::AutoEstablishedClaim.where(status: 'established')
                                    .order(:source, :status)
-                                   .pluck(:source, :status, :id)
+                                   .pluck(:source, :status, :id).map do |source, status, id|
+                                     { id: id, status: status, source: source }
+                                   end
   end
   let(:totals) do
     [
@@ -38,7 +42,7 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
       }
     ]
   end
-  let(:flash_statistics) do
+  let(:statistics) do
     [
       { flash: 'POW', count: 1, percentage: '50.0%' },
       { flash: 'Homeless', count: 1, percentage: '50.0%' },
@@ -49,9 +53,12 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
   describe '#build' do
     subject do
       described_class.build(7.days.ago, Time.zone.now, consumer_totals: totals,
-                                                       unsuccessful_submissions: [unsuccessful_submissions],
-                                                       pending_submissions: [uploaded_upload],
-                                                       flash_statistics: flash_statistics).deliver_now
+                                                       unsuccessful_submissions: unsuccessful_submissions,
+                                                       grouped_errors: statistics,
+                                                       grouped_warnings: statistics,
+                                                       pending_submissions: uploaded_upload,
+                                                       flash_statistics: statistics,
+                                                       special_issues_statistics: statistics).deliver_now
     end
 
     it 'sends the email' do

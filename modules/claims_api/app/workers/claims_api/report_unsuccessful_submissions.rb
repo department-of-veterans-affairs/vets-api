@@ -18,12 +18,14 @@ module ClaimsApi
                                                               grouped_errors: errors_hash[:uniq_errors],
                                                               grouped_warnings: errors_hash[:uniq_warnings],
                                                               flash_statistics: flash_statistics,
-                                                              special_issues_statistics: nil).deliver_now
+                                                              special_issues_statistics: si_statistics).deliver_now
       end
     end
 
     def unsuccessful_submissions
-      errored.pluck_to_hash(:source, :status, :id)
+      errored.pluck(:source, :status, :id).map do |source, status, id|
+        { id: id, status: status, source: source }
+      end
     end
 
     def errored
@@ -69,7 +71,13 @@ module ClaimsApi
       ClaimsApi::AutoEstablishedClaim.where(
         created_at: @from..@to,
         status: 'pending'
-      ).order(:source, :status).pluck_to_hash(:source, :status, :id)
+      ).order(:source, :status).pluck(:source, :status, :id).map do |source, status, id|
+        { id: id, status: status, source: source }
+      end
+    end
+
+    def si_statistics
+      []
     end
 
     def flash_statistics
