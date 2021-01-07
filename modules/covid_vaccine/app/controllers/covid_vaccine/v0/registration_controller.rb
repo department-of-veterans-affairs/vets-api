@@ -27,7 +27,21 @@ module CovidVaccine
         render json: submission, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
       end
 
+      def opt_out
+        CovidVaccine::V0::VetextService.new.put_email_opt_out(sid)
+        head :no_content
+      end
+
+      def opt_in
+        CovidVaccine::V0::VetextService.new.put_email_opt_in(sid)
+        head :no_content
+      end
+
       private
+
+      def sid
+        params.require(:sid)
+      end
 
       def validate_raw_form_data
         form_data = CovidVaccine::V0::RawFormData.new(params[:registration] || {})
