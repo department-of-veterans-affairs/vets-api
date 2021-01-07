@@ -4,7 +4,7 @@ require 'json_schema/json_api_missing_attribute'
 require 'appeals_api/form_schemas'
 
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
-  include AppealsApi::JsonFormatValidation
+  include AppealsApi::Concerns::JsonFormatValidation
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
