@@ -11,7 +11,7 @@ module BGS
     # @return [Hash]
     #
     def get_awards
-      @service.awards.find_award_by_participant_id(@user.participant_id)
+      @service.awards.find_award_by_participant_id(@user.participant_id, @user.ssn)
     rescue => e
       report_error(e)
     end
