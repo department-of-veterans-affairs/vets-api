@@ -36,7 +36,7 @@ describe VAOS::AppointmentService do
         VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
           expect { subject.post_appointment(request_body) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |error|
-              expect(error.status_code).to eq(400)
+              expect(error.status_code).to eq(409)
             end
         end
       end

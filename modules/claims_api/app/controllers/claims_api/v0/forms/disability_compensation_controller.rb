@@ -13,9 +13,8 @@ module ClaimsApi
 
         skip_before_action(:authenticate)
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
-        # TODO: Fix methods in document_validations to work correctly before uncommenting, add broader range of tests
-        # before_action :validate_documents_content_type, only: %i[upload_supporting_documents]
-        # before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
+        before_action :validate_documents_content_type, only: %i[upload_supporting_documents]
+        before_action :validate_documents_page_size, only: %i[upload_supporting_documents]
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
 
         def submit_form_526
@@ -23,9 +22,13 @@ module ClaimsApi
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes,
+            flashes: flashes,
+            special_issues: special_issues_per_disability,
             source: source_name
           )
-          auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
+          unless auto_claim.id
+            auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5, source: source_name)
+          end
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
@@ -46,12 +49,6 @@ module ClaimsApi
 
         def validate_form_526
           super
-        end
-
-        private
-
-        def source_name
-          request.headers['X-Consumer-Username']
         end
       end
     end

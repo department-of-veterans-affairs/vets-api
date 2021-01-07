@@ -22,6 +22,7 @@ AllCops:
     - db/migrate/*.rb
     - 'script/**/*'
     - 'vendor/**/*'
+    - modules/**/db/migrate/*.rb
 
 # This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
 Style/TrivialAccessors:
@@ -85,6 +86,8 @@ Rails/Output:
 
 Metrics/MethodLength:
   Max: 20
+  Exclude:
+    - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
 
 Metrics/ClassLength:
   Max: 400

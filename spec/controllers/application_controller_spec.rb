@@ -17,12 +17,34 @@ RSpec.describe ApplicationController, type: :controller do
       raise Pundit::NotAuthorizedError
     end
 
+    def unauthorized
+      raise Common::Exceptions::Unauthorized
+    end
+
+    def routing_error
+      raise Common::Exceptions::RoutingError
+    end
+
+    def forbidden
+      raise Common::Exceptions::Forbidden
+    end
+
+    def breakers_outage
+      Rx::Configuration.instance.breakers_service.begin_forced_outage!
+      client = Rx::Client.new(session: { user_id: 123 })
+      client.get_session
+    end
+
     def record_not_found
       raise Common::Exceptions::RecordNotFound, 'some_id'
     end
 
     def other_error
       raise Common::Exceptions::BackendServiceException, 'RX139'
+    end
+
+    def common_error_with_warning_sentry
+      raise Common::Exceptions::BackendServiceException, 'VAOS_409A'
     end
 
     def client_connection_failed
@@ -43,6 +65,11 @@ RSpec.describe ApplicationController, type: :controller do
   before do
     routes.draw do
       get 'not_authorized' => 'anonymous#not_authorized'
+      get 'unauthorized' => 'anonymous#unauthorized'
+      get 'routing_error' => 'anonymous#routing_error'
+      get 'forbidden' => 'anonymous#forbidden'
+      get 'breakers_outage' => 'anonymous#breakers_outage'
+      get 'common_error_with_warning_sentry' => 'anonymous#common_error_with_warning_sentry'
       get 'record_not_found' => 'anonymous#record_not_found'
       get 'other_error' => 'anonymous#other_error'
       get 'client_connection_failed' => 'anonymous#client_connection_failed'
@@ -52,6 +79,53 @@ RSpec.describe ApplicationController, type: :controller do
   end
 
   it_behaves_like 'a sentry logger'
+
+  describe 'Sentry Handling' do
+    around do |example|
+      with_settings(Settings.sentry, dsn: 'T') do
+        example.run
+      end
+    end
+
+    it 'does log exceptions to sentry if Pundit::NotAuthorizedError' do
+      expect(Raven).to receive(:capture_exception).with(Pundit::NotAuthorizedError, { level: 'info' })
+      expect(Raven).not_to receive(:capture_message)
+      get :not_authorized
+    end
+
+    it 'does log exceptions to sentry based on level identified in exception.en.yml' do
+      expect(Raven).to receive(:capture_exception).with(
+        Common::Exceptions::BackendServiceException,
+        { level: 'warning' }
+      )
+      expect(Raven).not_to receive(:capture_message)
+      get :common_error_with_warning_sentry
+    end
+
+    it 'does not log to sentry if Breakers::OutageException' do
+      expect(Raven).not_to receive(:capture_exception)
+      expect(Raven).not_to receive(:capture_message)
+      get :breakers_outage
+    end
+
+    it 'does not log to sentry if Common::Exceptions::Unauthorized' do
+      expect(Raven).not_to receive(:capture_exception)
+      expect(Raven).not_to receive(:capture_message)
+      get :unauthorized
+    end
+
+    it 'does not log to sentry if Common::Exceptions::RoutingError' do
+      expect(Raven).not_to receive(:capture_exception)
+      expect(Raven).not_to receive(:capture_message)
+      get :routing_error
+    end
+
+    it 'does not log to sentry if Common::Exceptions::Forbidden' do
+      expect(Raven).not_to receive(:capture_exception)
+      expect(Raven).not_to receive(:capture_message)
+      get :forbidden
+    end
+  end
 
   describe '#clear_saved_form' do
     subject do
@@ -211,7 +285,7 @@ RSpec.describe ApplicationController, type: :controller do
         )
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
-          uuid: user.uuid,
+          id: user.uuid,
           authn_context: user.authn_context,
           loa: user.loa,
           mhv_icn: user.mhv_icn
@@ -257,6 +331,8 @@ RSpec.describe ApplicationController, type: :controller do
           expect(Raven).to receive(:extra_context).once.with(
             request_uuid: nil
           )
+
+          expect(Raven).not_to receive(:capture_exception)
 
           with_settings(Settings.sentry, dsn: 'T') do
             get :not_authorized

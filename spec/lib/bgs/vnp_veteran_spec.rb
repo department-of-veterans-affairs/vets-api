@@ -14,7 +14,9 @@ RSpec.describe BGS::VnpVeteran do
       'phone_number' => '1112223333',
       'email_address' => 'foo@foo.com',
       'country_name' => 'USA',
-      'address_line1' => '8200 Doby LN',
+      'address_line1' => '2037400 twenty',
+      'address_line2' => 'ninth St apt 2222',
+      'address_line3' => 'Bldg 33333',
       'city' => 'Pasadena',
       'state_code' => 'CA',
       'zip_code' => '21122',
@@ -22,7 +24,9 @@ RSpec.describe BGS::VnpVeteran do
       'martl_status_type_cd' => 'Separated',
       'veteran_address' => {
         'country_name' => 'USA',
-        'address_line1' => '8200 Doby LN',
+        'address_line1' => '2037400 twenty',
+        'address_line2' => 'ninth St apt 2222',
+        'address_line3' => 'Bldg 33333',
         'city' => 'Pasadena',
         'state_code' => 'CA',
         'zip_code' => '21122'
@@ -34,7 +38,12 @@ RSpec.describe BGS::VnpVeteran do
     context 'married veteran' do
       it 'returns a VnpPersonAddressPhone object' do
         VCR.use_cassette('bgs/vnp_veteran/create') do
-          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user_object).create
+          vnp_veteran = BGS::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload,
+            user: user_object,
+            claim_type: '130DPNEBNADJ'
+          ).create
 
           expect(vnp_veteran).to eq(
             vnp_participant_id: '151031',
@@ -51,7 +60,9 @@ RSpec.describe BGS::VnpVeteran do
             address_zip_code: '21122',
             type: 'veteran',
             benefit_claim_type_end_product: '139',
-            location_id: '343'
+            regional_office_number: '313',
+            location_id: '343',
+            net_worth_over_limit_ind: 'Y'
           )
         end
       end
@@ -62,7 +73,12 @@ RSpec.describe BGS::VnpVeteran do
         VCR.use_cassette('bgs/vnp_veteran/create') do
           expect_any_instance_of(BGS::Service).to receive(:find_regional_offices).and_return nil
 
-          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user_object).create
+          vnp_veteran = BGS::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload,
+            user: user_object,
+            claim_type: '130DPNEBNADJ'
+          ).create
 
           expect(vnp_veteran).to include(location_id: '347')
         end
@@ -73,7 +89,12 @@ RSpec.describe BGS::VnpVeteran do
           expect_any_instance_of(BGS::Service)
             .to receive(:get_regional_office_by_zip_code).and_return 'invalid regional office'
 
-          vnp_veteran = BGS::VnpVeteran.new(proc_id: '3828241', payload: all_flows_payload, user: user_object).create
+          vnp_veteran = BGS::VnpVeteran.new(
+            proc_id: '3828241',
+            payload: all_flows_payload,
+            user: user_object,
+            claim_type: '130DPNEBNADJ'
+          ).create
 
           expect(vnp_veteran).to include(location_id: '347')
         end
@@ -99,9 +120,9 @@ RSpec.describe BGS::VnpVeteran do
       }
 
       expected_address = {
-        addrs_one_txt: '8200 Doby LN',
-        addrs_three_txt: nil,
-        addrs_two_txt: nil,
+        addrs_one_txt: '2037400 twenty',
+        addrs_two_txt: 'ninth St apt 2222',
+        addrs_three_txt: 'Bldg 33333',
         city_nm: 'Pasadena',
         cntry_nm: 'USA',
         email_addrs_txt: 'foo@foo.com',
@@ -128,7 +149,12 @@ RSpec.describe BGS::VnpVeteran do
           .with(a_hash_including(expected_address))
           .and_call_original
 
-        BGS::VnpVeteran.new(proc_id: '12345', payload: all_flows_payload, user: user_object).create
+        BGS::VnpVeteran.new(
+          proc_id: '12345',
+          payload: all_flows_payload,
+          user: user_object,
+          claim_type: '130DPNEBNADJ'
+        ).create
       end
     end
   end

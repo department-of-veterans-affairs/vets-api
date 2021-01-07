@@ -135,13 +135,13 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     end
   end
 
-  # rubocop:disable Metrics/BlockLength
   swagger_path '/higher_level_reviews/contestable_issues/{benefit_type}' do
     operation :get, tags: HLR_TAG do
       key :operationId, 'getContestableIssues'
       key :summary, 'Returns all contestable issues for a specific veteran.'
-      desc = 'Returns all issues a Veteran could contest in a Higher-Level Review as of the `receiptDate` ' \
-        'and bound by `benefitType`. Associate these results when creating new Decision Reviews.'
+      desc = 'Returns all issues associated with a Veteran that have not previously been decided by a Higher-Level ' \
+        'Review as of the `receiptDate` and bound by `benefitType`. Not all issues returned are guaranteed to be ' \
+        'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       key :description, desc
       parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
@@ -176,5 +176,4 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       end
     end
   end
-  # rubocop:enable Metrics/BlockLength
 end

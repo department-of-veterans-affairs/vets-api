@@ -8,6 +8,8 @@ module DecisionReview
   # sets the base path, the base request headers, and a service name for breakers and metrics.
   #
   class Configuration < Common::Client::Configuration::REST
+    self.read_timeout = Settings.caseflow.timeout || 20 # using the same timeout as lighthouse
+
     ##
     # @return [String] Base path for decision review URLs.
     #

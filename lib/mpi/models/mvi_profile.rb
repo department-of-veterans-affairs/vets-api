@@ -25,6 +25,7 @@ module MPI
       attribute :edipi, String
       attribute :participant_id, String
       attribute :birls_id, String
+      attribute :birls_ids, Array[String]
       attribute :sec_id, String
       attribute :vet360_id, String
       attribute :historical_icns, Array[String]

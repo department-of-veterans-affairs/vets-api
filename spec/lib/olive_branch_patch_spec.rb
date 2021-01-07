@@ -3,9 +3,8 @@
 require 'rails_helper'
 
 class OliveBranchPatchController < ActionController::API
-  def params_as_json
-    params.permit!
-    response = params.reject { |k, _| %w[controller action].include?(k) }
+  def respond_with_data
+    response = params['data']
     render json: response.to_json.gsub(/\"(true|false|\d+)\"/) { |quoted_value| quoted_value.gsub('"', '') }
   end
 
@@ -20,7 +19,7 @@ end
 describe 'OliveBranchPatch', type: :request do
   before(:all) do
     Rails.application.routes.draw do
-      get 'some_json' => 'olive_branch_patch#params_as_json'
+      get 'some_json' => 'olive_branch_patch#respond_with_data'
       get 'some_document' => 'olive_branch_patch#document'
     end
   end
@@ -30,61 +29,75 @@ describe 'OliveBranchPatch', type: :request do
   end
 
   it 'does not change response keys when camel inflection is not used' do
-    hash = { hello_to_the_va: 'greetings' }
-    get '/some_json', params: hash
+    data = { hello_to_the_va: 'greetingsVA' }
+    get '/some_json', params: { data: data }, headers: { 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['hello_to_the_va']
-    expect(json['hello_to_the_va']).to eq hash[:hello_to_the_va]
+    expect(json['hello_to_the_va']).to eq data[:hello_to_the_va]
   end
 
   # camelCase would keep the leading `va` in lower case
-  it 'does not duplicate keys with leading va' do
-    hash = { va_key: 'VA Value' }
-    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+  it 'keeps keys with leading va in lower' do
+    data = { va_key: 'valueForVA' }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['vaKey']
   end
 
   it 'does not change document responses' do
     # this pdf fixture chosen arbitrarily
-    hash = { path: 'spec/fixtures/pdf_fill/21-0781a/simple.pdf' }
-    get '/some_document', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    params = { path: 'spec/fixtures/pdf_fill/21-0781a/simple.pdf' }
+    get '/some_document',
+        params: params,
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     expect(response).to have_http_status(:ok)
   end
 
-  it 'does not add keys if `VA` is not in the middle of a key' do
-    hash = { hello_there: 'hello there' }
-    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+  it 'does not change keys if `VA` is not in the middle of a key' do
+    data = { hello_there: 'hello there' }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
     expect(json.keys).to eq ['helloThere']
-    expect(json['helloThere']).to eq hash[:hello_there]
+    expect(json['helloThere']).to eq data[:hello_there]
   end
 
-  it 'adds a second key to data with `VA` in the key except the key uses `Va`' do
-    hash = { year_va_founded: 1989 }
-    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+  it 'changes `VA` keys containing a colon' do
+    data = { 'view:has_va_medical_records' => true }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('yearVaFounded', 'yearVAFounded')
-    expect(json['yearVaFounded']).to eq json['yearVAFounded']
-    expect(json['yearVaFounded']).to eq hash[:year_va_founded]
+    expect(json.keys).to eq ['view:hasVaMedicalRecords']
+    expect(json['view:hasVaMedicalRecords']).to eq data['view:has_va_medical_records']
   end
 
-  it 'adds additional keys to data with `VA` in multiple keys except the keys use `Va` for each instance of `VA`' do
-    hash = { we_love_the_va: true, thumbs_up_for_the_va: 'two' }
-    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+  it 'changes a key with `VA` to be `Va`' do
+    data = { year_va_founded: 1989 }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include(
-      'weLoveTheVa',
-      'weLoveTheVA',
-      'thumbsUpForTheVA',
-      'thumbsUpForTheVa'
-    )
-    expect(json['weLoveTheVa']).to eq json['weLoveTheVA']
-    expect(json['thumbsUpForTheVA']).to eq json['thumbsUpForTheVa']
+    expect(json.keys).to eq ['yearVaFounded']
+    expect(json['yearVaFounded']).to eq data[:year_va_founded]
   end
 
-  it 'adds a second `VA` key with a nested object in the value' do
-    hash = { the_va_address: {
+  it 'changes keys with `VA` to use `Va` for each instance of `VA`' do
+    data = { we_love_the_va: true, thumbs_up_for_the_va: 'two' }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
+    json = JSON.parse(response.body)
+    expect(json.keys).to eq %w[weLoveTheVa thumbsUpForTheVa]
+    expect(json['weLoveTheVa']).to eq data[:we_love_the_va]
+    expect(json['thumbsUpForTheVa']).to eq data[:thumbs_up_for_the_va]
+  end
+
+  it 'changes a `VA` key to `Va` with a nested object in the value' do
+    data = { the_va_address: {
       'name' => 'Veteran Affairs Building',
       'street' => '810 Vermont Avenue NW',
       'city' => 'Washington',
@@ -92,33 +105,36 @@ describe 'OliveBranchPatch', type: :request do
       'country' => 'U.S.',
       'notes' => { 'url' => 'va.gov' }
     } }
-    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('theVAAddress', 'theVaAddress')
-    expect(json['theVAAddress']).to eq json['theVaAddress']
-    expect(json['theVaAddress']).to eq hash[:the_va_address]
+    expect(json.keys).to eq ['theVaAddress']
+    expect(json['theVaAddress']).to eq data[:the_va_address]
   end
 
-  it 'adds a second `VA` key with an array value' do
-    hash = { three_va_administrations: ['VHA', 'VBA', 'National Cemetery Administration'] }
-    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+  it 'changes a `VA` key to `Va` with an array value' do
+    data = { three_va_administrations: ['VHA', 'VBA', 'National Cemetery Administration'] }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('threeVaAdministrations', 'threeVAAdministrations')
-    expect(json['threeVaAdministrations']).to eq json['threeVAAdministrations']
-    expect(json['threeVaAdministrations']).to eq hash[:three_va_administrations]
+    expect(json.keys).to eq ['threeVaAdministrations']
+    expect(json['threeVaAdministrations']).to eq data[:three_va_administrations]
   end
 
-  it 'adds a second `VA` key with an null value' do
-    hash = { year_va_closes: nil }
-    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+  it 'changes a `VA` key with a null value' do
+    data = { year_va_closes: nil }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
     json = JSON.parse(response.body)
-    expect(json.keys).to include('yearVaCloses', 'yearVACloses')
-    expect(json['yearVaCloses']).to eq json['yearVACloses']
-    expect(json['yearVaCloses']).to eq hash[:year_va_closes]
+    expect(json.keys).to eq ['yearVaCloses']
+    expect(json['yearVaCloses']).to eq data[:year_va_closes]
   end
 
-  it 'adds addtional VA keys in complex example' do
-    hash = {
+  it 'changes `VA` keys in complex example' do
+    data = {
       some_va_details: {
         'year_va_founded' => 1989,
         'year_va_closes' => nil,
@@ -139,25 +155,20 @@ describe 'OliveBranchPatch', type: :request do
       hello_to_the_va: 'greetings'
     }
 
-    get '/some_json', params: hash, headers: { 'X-Key-Inflection' => 'camel' }
+    get '/some_json',
+        params: { data: data },
+        headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
 
     json = JSON.parse(response.body)
-    expect(json.keys).to include('someVADetails', 'someVaDetails', 'helloThere', 'helloToTheVA', 'helloToTheVa')
+    expect(json.keys).to include('someVaDetails', 'helloThere', 'helloToTheVa')
 
-    expect(json['someVADetails'].keys).to include(
-      'yearVAFounded', 'yearVACloses', 'listsForVA', 'theVAAddress', 'weLoveTheVA', 'thumbsUpForTheVA', 'differentKey'
-    )
-    expect(json['someVaDetails'].keys).to include(
-      'yearVaFounded', 'yearVaCloses', 'listsForVa', 'theVaAddress', 'weLoveTheVa', 'thumbsUpForTheVa', 'differentKey'
-    )
+    expect(json['someVaDetails'].keys).to eq %w[
+      yearVaFounded yearVaCloses listsForVa theVaAddress weLoveTheVa thumbsUpForTheVa differentKey
+    ]
 
-    url_for_va = hash.dig(:some_va_details, 'the_va_address', 'notes', 'url_for_va')
-    expect(json.dig('someVADetails', 'theVAAddress', 'notes', 'urlForVA')).to eq url_for_va
+    url_for_va = data.dig(:some_va_details, 'the_va_address', 'notes', 'url_for_va')
     expect(json.dig('someVaDetails', 'theVaAddress', 'notes', 'urlForVa')).to eq url_for_va
-
-    expect(json['helloThere']).to eq hash[:hello_there]
-
-    expect(json['helloToTheVA']).to eq json['helloToTheVa']
-    expect(json['helloToTheVa']).to eq hash[:hello_to_the_va]
+    expect(json['helloThere']).to eq data[:hello_there]
+    expect(json['helloToTheVa']).to eq data[:hello_to_the_va]
   end
 end

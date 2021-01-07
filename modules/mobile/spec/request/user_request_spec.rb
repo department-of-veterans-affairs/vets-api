@@ -31,10 +31,18 @@ RSpec.describe 'user', type: :request do
         )
       end
 
-      it 'includes the users email' do
+      it 'includes the users sign-in email' do
         expect(attributes['profile']).to include(
-          'email' => 'va.api.user+idme.008@gmail.com'
+          'signinEmail' => 'va.api.user+idme.008@gmail.com'
         )
+      end
+
+      it 'includes the users contact email id' do
+        expect(attributes.dig('profile', 'contactEmail', 'id')).to eq(456)
+      end
+
+      it 'includes the users contact email addrss' do
+        expect(attributes.dig('profile', 'contactEmail', 'emailAddress')).to match(/person\d+@example.com/)
       end
 
       it 'includes the users birth date' do
@@ -46,12 +54,14 @@ RSpec.describe 'user', type: :request do
       it 'includes the expected residential address' do
         expect(attributes['profile']).to include(
           'residentialAddress' => {
+            'id' => 123,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
             'addressPou' => 'RESIDENCE/CHOICE',
             'addressType' => 'DOMESTIC',
             'city' => 'Washington',
+            'countryCodeIso3' => 'USA',
             'internationalPostalCode' => nil,
             'province' => nil,
             'stateCode' => 'DC',
@@ -64,12 +74,14 @@ RSpec.describe 'user', type: :request do
       it 'includes the expected mailing address' do
         expect(attributes['profile']).to include(
           'mailingAddress' => {
+            'id' => 124,
             'addressLine1' => '140 Rock Creek Rd',
             'addressLine2' => nil,
             'addressLine3' => nil,
             'addressPou' => 'CORRESPONDENCE',
             'addressType' => 'DOMESTIC',
             'city' => 'Washington',
+            'countryCodeIso3' => 'USA',
             'internationalPostalCode' => nil,
             'province' => nil,
             'stateCode' => 'DC',

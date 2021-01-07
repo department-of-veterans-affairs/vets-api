@@ -1,42 +1,21 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../support/form1010cg_helpers/build_claim_data_for'
 
 RSpec.describe Form1010cg::Service do
+  include Form1010cgHelpers
+
   let(:subject) { described_class.new build(:caregivers_assistance_claim) }
   let(:default_email_on_mvi_search) { 'no-email@example.com' }
-  let(:build_claim_data_for) do
-    lambda do |form_subject, &mutations|
-      data = {
-        'fullName' => {
-          'first' => Faker::Name.first_name,
-          'last' => Faker::Name.last_name
-        },
-        'dateOfBirth' => Faker::Date.between(from: 100.years.ago, to: 18.years.ago).to_s,
-        'address' => {
-          'street' => Faker::Address.street_address,
-          'city' => Faker::Address.city,
-          'state' => Faker::Address.state_abbr,
-          'postalCode' => Faker::Address.postcode
-        },
-        'primaryPhoneNumber' => Faker::Number.number(digits: 10).to_s
-      }
 
-      # Required properties for all caregivers
-      data['vetRelationship'] = 'Daughter' if form_subject != :veteran
+  describe '::auditor' do
+    it 'is an instance of Form1010cg::Auditor' do
+      expect(described_class::AUDITOR).to be_an_instance_of(Form1010cg::Auditor)
+    end
 
-      # Required properties for :primaryCaregiver
-      data['hasHealthInsurance'] = true if form_subject == :primaryCaregiver
-
-      # Required property for :veteran
-      if form_subject == :veteran
-        data['ssnOrTin'] = Faker::IDNumber.valid.remove('-')
-        data['plannedClinic'] = '568A4'
-      end
-
-      mutations&.call data
-
-      data
+    it 'is using Rails.logger' do
+      expect(described_class::AUDITOR.logger).to eq(Rails.logger)
     end
   end
 
@@ -69,16 +48,114 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
+  describe '::submit_attachment!' do
+    let(:carma_case_id) { 'CAS_1234' }
+    let(:veteran_name) { { 'first' => 'Jane', 'last' => 'Doe' } }
+    let(:document_type) { '10-10CG' }
+    let(:file_path) { 'tmp/pdfs/10-10CG_uuid-123.pdf' }
+
+    it 'requires a carma_case_id, veteran_name, document_type, and file_path' do
+      expect { described_class.submit_attachment! }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 0, expected 4)')
+      end
+
+      expect { described_class.submit_attachment!(carma_case_id) }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 1, expected 4)')
+      end
+
+      expect { described_class.submit_attachment!(carma_case_id, veteran_name) }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 2, expected 4)')
+      end
+
+      arguments = [carma_case_id, veteran_name, document_type]
+      expect { described_class.submit_attachment!(*arguments) }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 3, expected 4)')
+      end
+    end
+
+    context 'when veteran_name is invalid' do
+      it 'raises error' do
+        expect { described_class.submit_attachment!(carma_case_id, nil, document_type, file_path) }.to raise_error(
+          'invalid veteran_name'
+        )
+
+        expect { described_class.submit_attachment!(carma_case_id, {}, document_type, file_path) }.to raise_error(
+          'invalid veteran_name'
+        )
+
+        arguments = [carma_case_id, { 'fullName' => {} }, document_type, file_path]
+        expect { described_class.submit_attachment!(*arguments) }.to raise_error(
+          'invalid veteran_name'
+        )
+      end
+    end
+
+    context 'when document_type is invalid' do
+      it 'raises error' do
+        expect { described_class.submit_attachment!(carma_case_id, veteran_name, nil, file_path) }.to raise_error(
+          'invalid document_type'
+        )
+
+        expect { described_class.submit_attachment!(carma_case_id, veteran_name, '', file_path) }.to raise_error(
+          'invalid document_type'
+        )
+
+        arguments = [carma_case_id, veteran_name, 'other-doc-type', file_path]
+        expect { described_class.submit_attachment!(*arguments) }.to raise_error(
+          'invalid document_type'
+        )
+      end
+    end
+
+    describe 'on delivery' do
+      let(:carma_attachments) { double }
+
+      before do
+        expect(CARMA::Models::Attachments).to receive(
+          :new
+        ).with(
+          carma_case_id, veteran_name['first'], veteran_name['last']
+        ).and_return(carma_attachments)
+
+        expect(carma_attachments).to receive(:add).with('10-10CG', file_path).and_return(carma_attachments)
+      end
+
+      context 'when a client error occures' do
+        before do
+          expect(carma_attachments).to receive(:submit!).and_raise(Faraday::ClientError.new('bad request'))
+        end
+
+        it 'raises error' do
+          submission_method = lambda do
+            described_class.submit_attachment!(carma_case_id, veteran_name, '10-10CG', file_path)
+          end
+          expect { submission_method.call }.to raise_error(Faraday::ClientError)
+        end
+      end
+
+      context 'when successful' do
+        before do
+          expect(carma_attachments).to receive(:submit!).and_return(:PROCESSED_ATTACHMENTS)
+        end
+
+        it 'returns attachments payload' do
+          result = described_class.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
+          expect(result).to eq(:PROCESSED_ATTACHMENTS)
+        end
+      end
+    end
+  end
+
   describe '#icn_for' do
-    let(:set_ssn) { ->(data) { data['ssnOrTin'] = '111111111' } }
+    let(:set_ssn) { ->(data, _form_subject) { data['ssnOrTin'] = '111111111' } }
 
     it 'searches MVI for the provided form subject' do
       subject = described_class.new(
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -122,8 +199,8 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -167,8 +244,8 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -187,9 +264,9 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
-            'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver, &set_ssn),
+            'secondaryCaregiverOne' => build_claim_data_for(:secondaryCaregiverOne)
           }.to_json
         )
       )
@@ -268,7 +345,7 @@ RSpec.describe Form1010cg::Service do
     context 'when email is provided' do
       it 'will provid that email in the mvi search' do
         veteran_email = 'veteran-email@example.com'
-        veteran_data = build_claim_data_for.call(:veteran) do |data|
+        veteran_data = build_claim_data_for(:veteran) do |data|
           data['email'] = veteran_email
         end
 
@@ -277,7 +354,7 @@ RSpec.describe Form1010cg::Service do
             :caregivers_assistance_claim,
             form: {
               'veteran' => veteran_data,
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+              'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
             }.to_json
           )
         )
@@ -321,10 +398,10 @@ RSpec.describe Form1010cg::Service do
           build(
             :caregivers_assistance_claim,
             form: {
-              'veteran' => build_claim_data_for.call(:veteran),
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver, &set_ssn),
-              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne, &set_ssn),
-              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo, &set_ssn)
+              'veteran' => build_claim_data_for(:veteran),
+              'primaryCaregiver' => build_claim_data_for(:primaryCaregiver, &set_ssn),
+              'secondaryCaregiverOne' => build_claim_data_for(:secondaryCaregiverOne, &set_ssn),
+              'secondaryCaregiverTwo' => build_claim_data_for(:secondaryCaregiverTwo, &set_ssn)
             }.to_json
           )
         )
@@ -336,7 +413,7 @@ RSpec.describe Form1010cg::Service do
             double(status: 'OK', profile: double(icn: :ICN_123))
           )
 
-          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+          expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
             result: :found
@@ -352,7 +429,7 @@ RSpec.describe Form1010cg::Service do
             double(status: 'NOT_FOUND', error: double)
           )
 
-          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+          expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
             result: :not_found
@@ -368,17 +445,17 @@ RSpec.describe Form1010cg::Service do
             :caregivers_assistance_claim,
             form: {
               # Form subjects with no SSNs
-              'veteran' => build_claim_data_for.call(:veteran),
-              'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver),
-              'secondaryCaregiverOne' => build_claim_data_for.call(:secondaryCaregiverOne),
-              'secondaryCaregiverTwo' => build_claim_data_for.call(:secondaryCaregiverTwo)
+              'veteran' => build_claim_data_for(:veteran),
+              'primaryCaregiver' => build_claim_data_for(:primaryCaregiver),
+              'secondaryCaregiverOne' => build_claim_data_for(:secondaryCaregiverOne),
+              'secondaryCaregiverTwo' => build_claim_data_for(:secondaryCaregiverTwo)
             }.to_json
           )
         )
 
         # Only testing for caregivers, since veteran requires an SSN
         %w[primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo].each do |form_subject|
-          expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+          expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
             claim_guid: subject.claim.guid,
             form_subject: form_subject,
             result: :skipped
@@ -394,7 +471,7 @@ RSpec.describe Form1010cg::Service do
         )
 
         # Exception would be raised if this is called more (or less than) than one time
-        expect(Form1010cg::Auditor.instance).to receive(:log_mpi_search_result).with(
+        expect(described_class::AUDITOR).to receive(:log_mpi_search_result).with(
           claim_guid: subject.claim.guid,
           form_subject: 'veteran',
           result: :found
@@ -413,8 +490,8 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -432,8 +509,8 @@ RSpec.describe Form1010cg::Service do
             build(
               :caregivers_assistance_claim,
               form: {
-                'veteran' => build_claim_data_for.call(:veteran),
-                'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+                'veteran' => build_claim_data_for(:veteran),
+                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
               }.to_json
             )
           )
@@ -465,8 +542,8 @@ RSpec.describe Form1010cg::Service do
             build(
               :caregivers_assistance_claim,
               form: {
-                'veteran' => build_claim_data_for.call(:veteran),
-                'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+                'veteran' => build_claim_data_for(:veteran),
+                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
               }.to_json
             )
           )
@@ -498,8 +575,8 @@ RSpec.describe Form1010cg::Service do
             build(
               :caregivers_assistance_claim,
               form: {
-                'veteran' => build_claim_data_for.call(:veteran),
-                'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+                'veteran' => build_claim_data_for(:veteran),
+                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
               }.to_json
             )
           )
@@ -527,8 +604,8 @@ RSpec.describe Form1010cg::Service do
             build(
               :caregivers_assistance_claim,
               form: {
-                'veteran' => build_claim_data_for.call(:veteran),
-                'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+                'veteran' => build_claim_data_for(:veteran),
+                'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
               }.to_json
             )
           )
@@ -557,8 +634,8 @@ RSpec.describe Form1010cg::Service do
         build(
           :caregivers_assistance_claim,
           form: {
-            'veteran' => build_claim_data_for.call(:veteran),
-            'primaryCaregiver' => build_claim_data_for.call(:primaryCaregiver)
+            'veteran' => build_claim_data_for(:veteran),
+            'primaryCaregiver' => build_claim_data_for(:primaryCaregiver)
           }.to_json
         )
       )
@@ -642,52 +719,83 @@ RSpec.describe Form1010cg::Service do
       expect { subject.process_claim! }.to raise_error(described_class::InvalidVeteranStatus)
     end
 
-    it 'submits the claim with metadata to carma and returns a Form1010cg::Submission' do
-      expected = {
-        results: {
-          carma_case_id: 'aB935000000A9GoCAK',
-          submitted_at: DateTime.new,
-          metadata: :REQUEST_METADATA
+    context 'when flipper :async_10_10_cg_attachments' do
+      let(:expected) do
+        {
+          results: {
+            carma_case_id: 'aB935000000A9GoCAK',
+            submitted_at: DateTime.new,
+            metadata: { 'key' => 'value' }
+          }
         }
-      }
+      end
 
-      expect(subject).to receive(:assert_veteran_status).and_return(nil)
-      expect(subject).to receive(:build_metadata).and_return(:generated_metadata)
-      expect(CARMA::Models::Submission).to receive(:from_claim).with(subject.claim, :generated_metadata) {
-        carma_submission = double
+      before do
+        expect(subject).to receive(:assert_veteran_status).and_return(nil)
+        expect(subject).to receive(:build_metadata).and_return(:generated_metadata)
+        expect(CARMA::Models::Submission).to receive(:from_claim).with(subject.claim, :generated_metadata) {
+          carma_submission = double
 
-        expect(carma_submission).to receive(:submit!) {
-          expect(carma_submission).to receive(:carma_case_id).and_return(expected[:results][:carma_case_id])
-          expect(carma_submission).to receive(:submitted_at).and_return(expected[:results][:submitted_at])
-          expect(carma_submission).to receive(:request_body).and_return({ 'metadata' => expected[:results][:metadata] })
+          expect(carma_submission).to receive(:submit!) {
+            expect(carma_submission).to receive(:carma_case_id).and_return(expected[:results][:carma_case_id])
+            expect(carma_submission).to receive(:submitted_at).and_return(expected[:results][:submitted_at])
+            expect(carma_submission).to receive(:request_body).and_return(
+              { 'metadata' => expected[:results][:metadata] }
+            )
+
+            carma_submission
+          }
 
           carma_submission
         }
+      end
 
-        carma_submission
-      }
+      context 'is enabled' do
+        before do
+          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(true)
+          expect(subject).to receive(:submit_attachment_async)
+        end
 
-      expect(subject).to receive(:submit_attachment)
+        it 'submits the claim to carma and returns a Form1010cg::Submission' do
+          result = subject.process_claim!
 
-      result = subject.process_claim!
+          expect(result).to be_a(Form1010cg::Submission)
+          expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
+          expect(result.accepted_at).to eq(expected[:results][:submitted_at])
+          expect(result.metadata).to eq(expected[:results][:metadata])
+        end
+      end
 
-      expect(result).to be_a(Form1010cg::Submission)
-      expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
-      expect(result.submitted_at).to eq(expected[:results][:submitted_at])
-      expect(result.metadata).to eq(:REQUEST_METADATA)
+      context 'is disabled' do
+        before do
+          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(false)
+          expect(subject).to receive(:submit_attachment)
+        end
+
+        it 'submits the claim to carma and returns a Form1010cg::Submission' do
+          result = subject.process_claim!
+
+          expect(result).to be_a(Form1010cg::Submission)
+          expect(result.carma_case_id).to eq(expected[:results][:carma_case_id])
+          expect(result.accepted_at).to eq(expected[:results][:submitted_at])
+          expect(result.metadata).to eq(expected[:results][:metadata])
+        end
+      end
     end
   end
 
   describe '#submit_attachment' do
     context 'raises error' do
-      it 'when claim is not yet processed' do
-        expect { subject.submit_attachment }.to raise_error('requires a processed submission')
+      it 'when submission is not present' do
+        expect { subject.submit_attachment }.to raise_error('requires a submission')
+      end
 
+      it 'when submission is not yet processed' do
         subject.submission = double(carma_case_id: nil)
         expect { subject.submit_attachment }.to raise_error('requires a processed submission')
       end
 
-      it 'if provided submission already has attachments' do
+      it 'when submission already has attachments' do
         subject.submission = double(carma_case_id: 'CAS_1234', attachments: [{ id: 'CAS_qwer' }])
         expect { subject.submit_attachment }.to raise_error('submission already has attachments')
       end
@@ -701,7 +809,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -732,7 +840,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -749,7 +857,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -772,7 +880,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -803,7 +911,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)
@@ -835,7 +943,7 @@ RSpec.describe Form1010cg::Service do
 
       submission = Form1010cg::Submission.new(
         carma_case_id: 'aB9350000000TjICAU',
-        submitted_at: '2020-06-26 13:30:59'
+        accepted_at: '2020-06-26 13:30:59'
       )
 
       subject = described_class.new(claim, submission)

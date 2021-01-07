@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+require_relative 'find_profile_message_fields'
 require_relative 'find_profile_message_helpers'
 
 module MPI
   module Messages
-    # Builds an MVI SOAP XML message.
+    # Builds an MPI SOAP XML message.
     #
     # = Usage
     # Call the .build passing in the candidate's given and family names, birth_date, and ssn.
@@ -38,8 +39,13 @@ module MPI
       end
 
       def required_fields_present?(profile)
-        raise ArgumentError, 'required keys are missing' unless REQUIRED_FIELDS.all? { |k| profile.key?(k) }
-        raise ArgumentError, 'required values are missing' unless REQUIRED_FIELDS.all? { |k| profile[k].present? }
+        fields = FindProfileMessageFields.new(profile)
+        fields.validate
+
+        raise ArgumentError, "required keys are missing: #{fields.missing_keys}" if fields.missing_keys.present?
+        if fields.missing_values.present?
+          raise ArgumentError, "required values are missing for keys: #{fields.missing_values}"
+        end
       end
 
       private

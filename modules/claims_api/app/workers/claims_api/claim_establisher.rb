@@ -3,6 +3,7 @@
 require 'sidekiq'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
+require 'bgs/auth_headers'
 require 'sentry_logging'
 
 module ClaimsApi
@@ -20,6 +21,9 @@ module ClaimsApi
       auto_claim.evss_id = response.claim_id
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
       auto_claim.save
+
+      queue_flash_updater(auth_headers, auto_claim.flashes, auto_claim_id)
+      queue_special_issues_updater(auth_headers, auto_claim.special_issues, auto_claim)
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
@@ -34,6 +38,27 @@ module ClaimsApi
 
     private
 
+    def queue_special_issues_updater(auth_headers, special_issues_per_disability, auto_claim)
+      return if special_issues_per_disability.blank?
+
+      special_issues_per_disability.each do |disability|
+        contention_id = {
+          claim_id: auto_claim.evss_id,
+          code: disability['code'],
+          name: disability['name']
+        }
+        ClaimsApi::SpecialIssueUpdater.perform_async(bgs_user(auth_headers),
+                                                     contention_id,
+                                                     disability['special_issues'])
+      end
+    end
+
+    def queue_flash_updater(auth_headers, flashes, auto_claim_id)
+      return if flashes.blank?
+
+      ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes, auto_claim_id: auto_claim_id)
+    end
+
     def service(auth_headers)
       if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
         ClaimsApi::DisabilityCompensation::MockOverrideService.new(
@@ -44,6 +69,21 @@ module ClaimsApi
           auth_headers
         )
       end
+    end
+
+    def bgs_user(auth_headers)
+      user = OpenStruct.new(ssn: auth_headers['va_eauth_pnid'],
+                            uuid: nil,
+                            email: nil,
+                            icn: nil,
+                            common_name: nil)
+      return user if auth_headers['va_bgs_authorization'].blank?
+
+      bgs_auth_headers = JSON.parse(auth_headers['va_bgs_authorization'])
+      user.uuid = bgs_auth_headers['external_uid']
+      user.email = bgs_auth_headers['external_key']
+
+      user
     end
   end
 end

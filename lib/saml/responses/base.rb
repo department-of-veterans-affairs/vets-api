@@ -3,23 +3,27 @@
 module SAML
   module Responses
     module Base
-      ERRORS = { clicked_deny: { code: '001',
+      CLICKED_DENY_ERROR_CODE = '001'
+      AUTH_TOO_EARLY_ERROR_CODE = '003'
+      AUTH_TOO_LATE_ERROR_CODE = '005'
+      UNKNOWN_OR_BLANK_ERROR_CODE = '007'
+      ERRORS = { clicked_deny: { code: CLICKED_DENY_ERROR_CODE,
                                  tag: :clicked_deny,
                                  short_message: 'Subject did not consent to attribute release',
                                  level: :warn },
-                 auth_too_late: { code: '005',
+                 auth_too_late: { code: AUTH_TOO_LATE_ERROR_CODE,
                                   tag: :auth_too_late,
                                   short_message: 'Current time is on or after NotOnOrAfter condition',
                                   level: :warn },
-                 auth_too_early: { code: '003',
+                 auth_too_early: { code: AUTH_TOO_EARLY_ERROR_CODE,
                                    tag: :auth_too_early,
                                    short_message: 'Current time is earlier than NotBefore condition',
                                    level: :error },
-                 blank: { code: '007',
+                 blank: { code: UNKNOWN_OR_BLANK_ERROR_CODE,
                           tag: :blank,
                           short_message: 'Blank response',
                           level: :error },
-                 unknown: { code: '007',
+                 unknown: { code: UNKNOWN_OR_BLANK_ERROR_CODE,
                             tag: :unknown,
                             short_message: 'Other SAML Response Error(s)',
                             level: :error } }.freeze

@@ -77,9 +77,9 @@ RSpec.describe StatsdMiddleware, type: :request do
 
   it 'sends source_app to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index source_app:account status:200]
+    tags = %w[controller:v0/prescriptions action:index source_app:profile status:200]
     expect do
-      get '/v0/prescriptions', headers: { 'Source-App-Name' => 'account' }
+      get '/v0/prescriptions', headers: { 'Source-App-Name' => 'profile' }
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
 

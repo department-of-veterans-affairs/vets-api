@@ -73,3 +73,10 @@ dump.rdb
 
 # Ignore IDE files
 *.iml
+
+#ignore docker_debugging and .env
+docker_debugging
+.env
+
+# Ignore lock files in modules (gems)
+modules/**/Gemfile.lock
