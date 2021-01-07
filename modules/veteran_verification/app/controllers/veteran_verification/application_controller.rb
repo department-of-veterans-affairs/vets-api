@@ -23,7 +23,7 @@ module VeteranVerification
       return false if @session.nil?
 
       open_id = if Settings.vet_verification.mock_emis
-                  MockOpenidUser
+                  MockOpenIdUser
                 else
                   OpenidUser
                 end
