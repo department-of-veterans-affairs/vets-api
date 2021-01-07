@@ -39,6 +39,8 @@ module ClaimsApi
 
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def find_claim
       claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
@@ -55,6 +57,8 @@ module ClaimsApi
                status: :not_found
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def fetch_errored(claim)
       if claim.evss_response&.any?
