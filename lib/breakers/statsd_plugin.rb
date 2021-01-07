@@ -48,17 +48,21 @@ module Breakers
       okta_users = %r{(?<user_path>api\/v1\/users\/)\w*}
       r = %r{
         (?<first_slash>\/)
-        (#{okta_users}
-        |#{digit}
-        |#{contact_id}
-        |#{uuids}
-        |#{institution_ids}
-        |#{provider_ids})
+        (#{okta_users} |#{digit} |#{contact_id} |#{uuids} |#{institution_ids} |#{provider_ids})
         (?<ending_slash>\/|$)
       }x
 
-      path.gsub(r) do
+      # replace  ids sent in the endpoint with 'xxx'
+      rslt = path.gsub(r) do
         "#{$LAST_MATCH_INFO[:first_slash]}#{$LAST_MATCH_INFO[:user_path]}xxx#{$LAST_MATCH_INFO[:ending_slash]}"
+      end
+
+      # for endpoints of type '/cce/v1/patients/xxx/eligibility/<specialty>' replace <specialty> with zzz to provide
+      # better grouping in grafana
+      if rslt =~ %r{/cce/v1/patients/xxx/eligibility/}
+        "#{$LAST_MATCH_INFO}zzz"
+      else
+        rslt
       end
     end
   end

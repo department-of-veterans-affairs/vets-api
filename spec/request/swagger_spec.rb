@@ -637,18 +637,58 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
         end
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
+        end
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 400, headers)
+        end
       end
 
       context 'with a loa1 user' do
         let(:mhv_user) { build(:user, :loa1) }
 
-        it 'supports getting separation_locations' do
+        it 'returns error on getting rated disabilities without evss authorization' do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 403, headers)
+        end
+
+        it 'returns error on getting separation_locations' do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 403, headers)
+        end
+
+        it 'returns error on submit_all_claim' do
+          expect(subject).to validate(
+            :post,
+            '/v0/disability_compensation_form/submit_all_claim',
+            403,
+            headers.update(
+              '_data' => form526v2
+            )
+          )
+        end
+
+        it 'returns error on getting submission status' do
+          expect(subject).to validate(
+            :get,
+            '/v0/disability_compensation_form/submission_status/{job_id}',
+            403,
+            headers.update(
+              '_data' => form526v2,
+              'job_id' => 123
+            )
+          )
+        end
+
+        it 'returns error on getting rating info' do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 403, headers)
         end
       end
 
       it 'supports getting separation_locations' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 401)
+        VCR.use_cassette('evss/reference_data/get_intake_sites_500') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 502, headers)
+        end
         VCR.use_cassette('evss/reference_data/get_intake_sites') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/separation_locations', 200, headers)
         end
@@ -674,22 +714,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         allow(EVSS::DisabilityCompensationForm::SubmitForm526)
           .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit_all_claim', 401)
-        VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('evss/intent_to_file/active_compensation') do
-            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-              VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
-                expect(subject).to validate(
-                  :post,
-                  '/v0/disability_compensation_form/submit_all_claim',
-                  200,
-                  headers.update(
-                    '_data' => form526v2
-                  )
-                )
-              end
-            end
-          end
-        end
+        expect(subject).to validate(:post, '/v0/disability_compensation_form/submit_all_claim', 422,
+                                    headers.update('_data' => '{ "form526": "foo"}'))
+        expect(subject).to validate(
+          :post,
+          '/v0/disability_compensation_form/submit_all_claim',
+          200,
+          headers.update('_data' => form526v2)
+        )
       end
 
       context 'with a submission and job status' do
@@ -706,6 +738,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(
             :get,
             '/v0/disability_compensation_form/submission_status/{job_id}',
+            404,
+            headers.merge('job_id' => 'invalid_id')
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/disability_compensation_form/submission_status/{job_id}',
             200,
             headers.merge('job_id' => job_status.job_id)
           )
@@ -714,6 +752,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports getting rating info' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 401)
+
         VCR.use_cassette('evss/disability_compensation_form/rating_info') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rating_info', 200, headers)
         end

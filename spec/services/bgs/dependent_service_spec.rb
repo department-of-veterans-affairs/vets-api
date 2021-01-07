@@ -45,10 +45,15 @@ RSpec.describe BGS::DependentService do
     it 'fires PDF job' do
       VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
         service = BGS::DependentService.new(user)
-        allow(claim).to receive(:submittable_686?)
-        allow(claim).to receive(:submittable_674?)
+        allow(claim).to receive(:submittable_686?).and_return(true)
+        allow(claim).to receive(:submittable_674?).and_return(false)
 
-        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(claim.id, vet_info)
+        expect(VBMS::SubmitDependentsPdfJob).to receive(:perform_async).with(
+          saved_claim_id: claim.id,
+          va_file_number_with_payload: vet_info,
+          submittable_686: true,
+          submittable_674: false
+        )
 
         service.submit_686c_form(claim)
       end
