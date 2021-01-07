@@ -44,9 +44,9 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
   end
   let(:statistics) do
     [
-      { flash: 'POW', count: 1, percentage: '50.0%' },
-      { flash: 'Homeless', count: 1, percentage: '50.0%' },
-      { flash: 'Terminally Ill', count: 1, percentage: '50.0%' }
+      { code: 'POW', count: 1, percentage: '50.0%' },
+      { code: 'Homeless', count: 1, percentage: '50.0%' },
+      { code: 'Terminally Ill', count: 1, percentage: '50.0%' }
     ]
   end
 
