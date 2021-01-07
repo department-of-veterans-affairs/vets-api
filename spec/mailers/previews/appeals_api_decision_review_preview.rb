@@ -6,6 +6,6 @@ class AppealsApiDecisionReviewPreview < ActionMailer::Preview
     from = 1.week.ago.utc
     to = Time.zone.now
 
-    AppealsApi::DecisionReviewMailer.build(from: from, to: to)
+    AppealsApi::DecisionReviewMailer.build(date_from: from, date_to: to)
   end
 end
