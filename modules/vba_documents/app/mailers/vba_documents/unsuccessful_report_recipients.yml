@@ -6,11 +6,8 @@ common:
   - 'gregory.bowman@libertyits.com'
   - 'mark.viterna@libertyits.com'
 dev:
-  - 'dev@dev.dev'
 staging:
-  - 'staging@staging.staging'
 sandbox:
-  - 'sandbox@sandbox.sandbox'
 prod:
   - 'david.mazik@va.gov'
   - 'ryan.link@oddball.io'
