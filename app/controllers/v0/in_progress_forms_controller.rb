@@ -5,9 +5,7 @@ module V0
     include IgnoreNotFound
 
     def index
-      render(
-        json: InProgressFormSerializer.new(InProgressForm.where(user_uuid: @current_user.uuid)).serializable_hash
-      )
+      render json: current_users_in_progress_forms
     end
 
     def show
@@ -33,6 +31,10 @@ module V0
 
       form.destroy
       render json: form
+    end
+
+    def current_users_in_progress_forms
+      InProgressForm.where(user_uuid: @current_user.uuid)
     end
   end
 end

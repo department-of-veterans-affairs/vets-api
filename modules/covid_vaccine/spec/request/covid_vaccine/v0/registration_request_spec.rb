@@ -332,6 +332,44 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
           expect(body['data']['id']).to eq(submission2.sid)
         end
       end
+
+      context 'opting out of submission' do
+        before do
+          sign_in_as(loa3_user)
+        end
+
+        it 'opts email out' do
+          Sidekiq::Testing.inline! do
+            VCR.use_cassette('covid_vaccine/vetext/create_and_opt_out', match_requests_on: %i[method path]) do
+              post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+              get '/covid_vaccine/v0/registration'
+              body = JSON.parse(response.body)
+              sid = body['data']['id']
+              put "/covid_vaccine/v0/registration/opt_out?sid=#{sid}"
+              expect(response).to have_http_status(:no_content)
+            end
+          end
+        end
+      end
+
+      context 'opting in on previously opted out submission' do
+        before do
+          sign_in_as(loa3_user)
+        end
+
+        it 'opts email in' do
+          Sidekiq::Testing.inline! do
+            VCR.use_cassette('covid_vaccine/vetext/create_and_opt_in', match_requests_on: %i[method path]) do
+              post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+              get '/covid_vaccine/v0/registration'
+              body = JSON.parse(response.body)
+              sid = body['data']['id']
+              put "/covid_vaccine/v0/registration/opt_in?sid=#{sid}"
+              expect(response).to have_http_status(:no_content)
+            end
+          end
+        end
+      end
     end
   end
 end

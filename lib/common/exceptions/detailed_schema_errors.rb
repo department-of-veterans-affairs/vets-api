@@ -52,7 +52,7 @@ module Common
       end
 
       def length(error)
-        data = i18n_interpolated :length
+        data = i18n_interpolated :length, detail: { value: error['data'] }
         data[:meta] ||= {}
         data[:meta].merge! max_length: error['schema']['maxLength'] if error['schema']['maxLength']
         data[:meta].merge! min_length: error['schema']['minLength'] if error['schema']['minLength']
@@ -62,7 +62,7 @@ module Common
       alias minlength length
 
       def range(error)
-        data = i18n_interpolated :range
+        data = i18n_interpolated :range, detail: { value: error['data'] }
         data[:meta] ||= {}
         data[:meta].merge! maximum: error['schema']['maximum'] if error['schema']['maximum']
         data[:meta].merge! minimum: error['schema']['minimum'] if error['schema']['minimum']

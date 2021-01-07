@@ -12,7 +12,9 @@ RSpec.describe BGS::StudentSchool do
     {
       course_name_txt: 'An amazing program',
       curnt_hours_per_wk_num: 37,
-      curnt_school_addrs_one_txt: '2037 29th St',
+      curnt_school_addrs_one_txt: '55 twenty ninth St',
+      curnt_school_addrs_three_txt: 'No. 5',
+      curnt_school_addrs_two_txt: 'Bldg 5',
       curnt_school_addrs_zip_nbr: '61201',
       curnt_school_city_nm: 'Rock Island',
       curnt_school_nm: 'My Great School',
