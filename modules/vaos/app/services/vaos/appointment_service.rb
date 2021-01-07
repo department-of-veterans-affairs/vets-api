@@ -17,15 +17,6 @@ module VAOS
       end
     end
 
-    def show_appointment(type, appointment_id) #"/patients/{icn}/appointments/{id}"
-      with_monitoring do
-        response = perform(:get, show_appointment_base_url(appointment_id), headers, timeout: 55)
-        {
-          data: deserialized_appointments(response.body, type),
-        }
-      end
-    end
-
     def post_appointment(request_object_body)
       params = VAOS::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
       site_code = params[:clinic][:site_code]
@@ -99,10 +90,6 @@ module VAOS
       else
         "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
       end
-    end
-
-    def show_appointment_base_url(appointment_id)
-      "/appointments/v1/patients/#{user.icn}/appointments/#{appointment_id}"
     end
 
     def post_appointment_url(site)
