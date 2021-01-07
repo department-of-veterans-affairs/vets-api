@@ -24,8 +24,8 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
 
   def pending
     [
-      { id: '6ceaa096-0d6d-4f23-a587-04ef359cee4a', status: 'errored', source: 'GDIT' },
-      { id: 'b8c5c06c-e3ae-4ad1-b8da-b2d1b028e6bf', status: 'errored', source: 'GDIT' }
+      { id: '6ceaa096-0d6d-4f23-a587-04ef359cee4a', status: 'pending', source: 'GDIT' },
+      { id: 'b8c5c06c-e3ae-4ad1-b8da-b2d1b028e6bf', status: 'pending', source: 'GDIT' }
     ]
   end
 
