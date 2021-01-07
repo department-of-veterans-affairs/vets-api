@@ -142,11 +142,14 @@ module ClaimsApi
         totals = counts.sum { |_k, v| v }
         error_rate = counts['errored'] ? (100.0 / totals * counts['errored']).round : 0
         percentage_with_flashes = (with_flashes(source: name).count.to_f / totals) * 100
+        percentage_with_special_issues = (with_special_issues(source: name).count.to_f / totals) * 100
         if totals.positive?
           {
             name => counts.merge(totals: totals,
                                  error_rate: "#{error_rate}%",
-                                 percentage_with_flashes: "#{percentage_with_flashes}%")
+                                 percentage_with_flashes: "#{percentage_with_flashes}%",
+                                 percentage_with_special_issues: "#{percentage_with_special_issues}%")
+                          .deep_symbolize_keys
           }
         end
       end
