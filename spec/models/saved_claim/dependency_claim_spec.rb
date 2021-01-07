@@ -27,14 +27,14 @@ RSpec.describe SavedClaim::DependencyClaim do
       )
 
       dependency_claim.add_veteran_info(va_file_number_with_payload)
-      dependency_claim.upload_pdf
+      dependency_claim.upload_pdf('686C-674')
     end
 
     it 'uploads to vbms' do
       expect_any_instance_of(ClaimsApi::VBMSUploader).to receive(:upload!)
 
       dependency_claim.add_veteran_info(va_file_number_with_payload)
-      dependency_claim.upload_pdf
+      dependency_claim.upload_pdf('686C-674')
     end
   end
 
@@ -52,7 +52,8 @@ RSpec.describe SavedClaim::DependencyClaim do
       claim = described_class.new(form: all_flows_payload.to_json)
 
       formatted_data = claim.formatted_674_data(va_file_number_with_payload)
-      expect(formatted_data).to include(:student_name_and_ssn)
+      expect(formatted_data).to include(:dependents_application)
+      expect(formatted_data[:dependents_application]).to include(:student_name_and_ssn)
     end
   end
 

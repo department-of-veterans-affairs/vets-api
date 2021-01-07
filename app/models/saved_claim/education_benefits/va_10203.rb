@@ -9,10 +9,10 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
 
     StemApplicantConfirmationMailer.build(self, nil).deliver_now
 
-    if Flipper.enabled?(:stem_sco_email, user) && user.present?
+    if user.present?
       authorized = user.authorize(:evss, :access?)
 
-      EducationForm::SendSCOEmail.perform_async(user.uuid, id) if authorized
+      EducationForm::SendSchoolCertifyingOfficialsEmail.perform_async(user.uuid, id) if authorized
     end
   end
 

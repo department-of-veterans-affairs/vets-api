@@ -122,7 +122,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
     context 'with missing MHV accounts' do
       let(:mvi_profile) do
-        build(:mvi_profile_response,
+        build(:mpi_profile_response,
               :missing_attrs)
       end
       let(:mhv_user) { build(:user, :mhv) }

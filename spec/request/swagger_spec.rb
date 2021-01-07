@@ -817,11 +817,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           200,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+          headers.update(
+            '_data' => {
+              'supporting_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+              }
             }
-          }
+          )
         )
       end
 
@@ -830,7 +832,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           400,
-          ''
+          headers
         )
       end
 
@@ -839,11 +841,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/upload_supporting_evidence',
           422,
-          '_data' => {
-            'supporting_evidence_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+          headers.update(
+            '_data' => {
+              'supporting_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+              }
             }
-          }
+          )
         )
       end
     end
@@ -2778,6 +2782,105 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'contact us' do
+      describe 'POST v0/contact_us/inquiries' do
+        let(:post_body) do
+          {
+            inquiry: {
+              form: JSON.generate(
+                {
+                  fullName: {
+                    first: 'Obi Wan',
+                    last: 'Kenobi'
+                  },
+                  topic: {
+                    levelOne: 'Caregiver Support Program',
+                    levelTwo: 'VA Supportive Services'
+                  },
+                  inquiryType: 'Question',
+                  query: 'Can you help me?',
+                  veteranStatus: {
+                    veteranStatus: 'general'
+                  },
+                  preferredContactMethod: 'email',
+                  email: 'obi1kenobi@gmail.com',
+                  address: {
+                    country: 'USA'
+                  }
+                }
+              )
+            }
+          }
+        end
+
+        it 'supports posting contact us form data' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/contact_us/inquiries',
+            201,
+            headers.merge('_data' => post_body)
+          )
+        end
+
+        it 'supports validating posted contact us form data' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(true)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/contact_us/inquiries',
+            422,
+            headers.merge(
+              '_data' => {
+                'inquiry' => {
+                  'form' => {}.to_json
+                }
+              }
+            )
+          )
+        end
+
+        it 'supports 501 when feature is disabled' do
+          expect(Flipper).to receive(:enabled?).with(:get_help_ask_form).and_return(false)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/contact_us/inquiries',
+            501,
+            headers.merge(
+              '_data' => {
+                'inquiry' => {
+                  'form' => {}.to_json
+                }
+              }
+            )
+          )
+        end
+      end
+
+      describe 'GET v0/contact_us/inquiries' do
+        context 'logged in' do
+          let(:user) { build(:user, :loa3) }
+          let(:headers) do
+            { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+          end
+
+          it 'supports getting list of inquiries sent by user' do
+            expect(Flipper).to receive(:enabled?).with(:get_help_messages).and_return(true)
+
+            expect(subject).to validate(:get, '/v0/contact_us/inquiries', 200, headers)
+          end
+        end
+
+        context 'not logged in' do
+          it 'returns a 401' do
+            expect(subject).to validate(:get, '/v0/contact_us/inquiries', 401)
+          end
+        end
+      end
+    end
+
     describe 'dependents applications' do
       it 'supports getting dependent information' do
         expect(subject).to validate(:get, '/v0/dependents_applications/show', 401)
@@ -2833,6 +2936,40 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           headers.merge(
             '_data' => {
               'education_career_counseling_claim' => {
+                'invalid-form' => { invalid: true }.to_json
+              }
+            }
+          )
+        )
+      end
+    end
+
+    describe 'veteran readiness employment claims' do
+      it 'supports adding veteran readiness employment claim' do
+        VCR.use_cassette('veteran_readiness_employment/send_to_vre') do
+          expect(subject).to validate(
+            :post,
+            '/v0/veteran_readiness_employment_claims',
+            200,
+            headers.merge(
+              '_data' => {
+                'veteran_readiness_employment_claim' => {
+                  form: build(:veteran_readiness_employment_claim_no_vet_information).form
+                }
+              }
+            )
+          )
+        end
+      end
+
+      it 'throws an error when adding veteran readiness employment claim' do
+        expect(subject).to validate(
+          :post,
+          '/v0/veteran_readiness_employment_claims',
+          422,
+          headers.merge(
+            '_data' => {
+              'veteran_readiness_employment_claim' => {
                 'invalid-form' => { invalid: true }.to_json
               }
             }

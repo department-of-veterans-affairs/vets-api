@@ -84,8 +84,8 @@
   "firmName": "firmName",
   "claimantAddress": {
     "city": "Baltimore",
-    "country": "USA",
-    "postalCode": "21231",
+    "country": "US",
+    "postalCode": "21231-1234",
     "street": "street",
     "street2": "street2",
     "state": "MD"

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/special_issue_mapper'
+
 FactoryBot.define do
   factory :auto_established_claim, class: 'ClaimsApi::AutoEstablishedClaim' do
     id { SecureRandom.uuid }
@@ -10,6 +12,17 @@ FactoryBot.define do
     form_data do
       json = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_json_api.json"))
       json['data']['attributes']
+    end
+    flashes { form_data.dig('veteran', 'flashes') }
+    special_issues do
+      if form_data['disabilities'].present? && form_data['disabilities'].first['specialIssues'].present?
+        mapper = ClaimsApi::SpecialIssueMapper.new
+        [{ code: form_data['disabilities'].first['diagnosticCode'],
+           name: form_data['disabilities'].first['name'],
+           special_issues: form_data['disabilities'].first['specialIssues'].map { |si| mapper.code_from_name(si) } }]
+      else
+        []
+      end
     end
 
     trait :status_established do

@@ -12,7 +12,7 @@ require 'common/models/concerns/cache_aside'
 class MPIData < Common::RedisStore
   include Common::CacheAside
 
-  REDIS_CONFIG_KEY = :mvi_profile_response
+  REDIS_CONFIG_KEY = :mpi_profile_response
   redis_config_key REDIS_CONFIG_KEY
 
   # @return [User] the user to query MVI for.

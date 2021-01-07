@@ -24,6 +24,8 @@ module BGSDependents
     #   @return [String] reason child marriage ended
     # @!attribute family_relationship_type
     #   @return [String] family relationship type: Biological/Stepchild/Adopted Child/Other
+    # @!attribute child_income
+    #   @return [String] did this child have income in the last 365 days
     #
     attribute :ssn, String
     attribute :first, String
@@ -37,6 +39,7 @@ module BGSDependents
     attribute :place_of_birth_country, String
     attribute :reason_marriage_ended, String
     attribute :family_relationship_type, String
+    attribute :child_income, String
 
     CHILD_STATUS = {
       'stepchild' => 'Stepchild',
@@ -89,7 +92,8 @@ module BGSDependents
         place_of_birth_state: @child_info.dig('place_of_birth', 'state'),
         place_of_birth_city: @child_info.dig('place_of_birth', 'city'),
         reason_marriage_ended: @child_info.dig('previous_marriage_details', 'reason_marriage_ended'),
-        ever_married_ind: marriage_indicator
+        ever_married_ind: marriage_indicator,
+        child_income: formatted_boolean(@child_info['child_income'])
       }.merge(@child_info['full_name'])
     end
 

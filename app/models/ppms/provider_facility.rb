@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'facilities/ppms/v0/client'
+require 'facilities/ppms/v1/client'
 require 'lighthouse/facilities/client'
 
 class PPMS::ProviderFacility < Common::Base
@@ -30,11 +30,7 @@ class PPMS::ProviderFacility < Common::Base
   private
 
   def ppms_api_results
-    Facilities::PPMS::V0::Client.new.pos_locator(ppms_params.with_indifferent_access).collect do |result|
-      PPMS::Provider.new(
-        result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym }
-      )
-    end.uniq(&:id).paginate(pagination_params)
+    Facilities::PPMS::V1::Client.new.pos_locator(ppms_params.with_indifferent_access)
   end
 
   def lighthouse_api_results

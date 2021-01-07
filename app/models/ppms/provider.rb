@@ -43,7 +43,7 @@ class PPMS::Provider < Common::Base
     new_attr[:id] ||= new_attr.delete(:provider_hexdigest) || new_attr[:provider_identifier]
     new_attr[:main_phone] ||= new_attr.delete(:main_phone)
     new_attr[:phone] ||= new_attr.delete(:main_phone)
-    new_attr[:provider_type] ||= new_attr.delete(:provider_type)
+    new_attr[:provider_type] ||= 'GroupPracticeOrAgency'
 
     new_attr = cleanup_specialties(new_attr)
 
@@ -51,7 +51,10 @@ class PPMS::Provider < Common::Base
   end
 
   def set_hexdigest_as_id!
-    self.id = Digest::SHA256.hexdigest(attributes.except(:id).to_a.join('|'))
+    self.id = Digest::SHA256.hexdigest(attributes.slice(
+      :address_city, :address_postal_code, :address_state_province, :address_street, :care_site, :caresite_phone,
+      :latitude, :longitude, :provider_identifier
+    ).to_a.join('|'))
   end
 
   def set_group_practive_or_agency!

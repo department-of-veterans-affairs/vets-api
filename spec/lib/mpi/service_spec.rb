@@ -21,12 +21,14 @@ describe MPI::Service do
 
   let(:mvi_profile) do
     build(
-      :mvi_profile_response,
+      :mpi_profile_response,
       :missing_attrs,
       :address_austin,
       given_names: %w[Mitchell G],
       vha_facility_ids: [],
       sec_id: '1008714701',
+      birls_id: '796122306',
+      birls_ids: ['796122306'],
       historical_icns: nil,
       icn_with_aaid: icn_with_aaid,
       full_mvi_ids: [

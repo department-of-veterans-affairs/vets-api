@@ -1,23 +1,23 @@
 Description:
-    Creates a Rails engine starter app that wires up a service backed endpoint.
+    This generator will create an initial file structure and engine file for VFS developers.  The purpose of this being so they can quickly start developing code in an isolated file structure exclusive to the new business logic thay are creating.
+
+When a generator is invoked, each public method in the generator is executed sequentially in the order that it is defined.
 
 Example:
-    rails va new foo
+    rails generate module Thing
 
     This will create:
-        modules/foo/app/controllers/foo/v0/foo_controller.rb
-        modules/foo/app/controllers/foo/application_controller.rb
-        modules/foo/app/models/foo/foo.rb
-        modules/foo/app/serializers/foo/foo_serializer.rb
-        modules/foo/app/services/foo/configuration.rb
-        modules/foo/app/services/foo/service.rb
-        modules/foo/lib/foo/engine.rb
-        modules/foo/lib/foo/version.rb
-        modules/foo/lib/tasks/foo_tasks.rake
-        modules/foo/lib/foo.rb
-        modules/foo/bin/rails
-        modules/foo/bin/rails
-        modules/foo/config/routes.rb
-        modules/foo/foo.gemspec
-        modules/foo/Rakefile
-        modules/foo/Gemfile
+        modules/thing/app/controllers
+        modules/thing/app/models
+        modules/thing/app/serializers
+        modules/thing/app/service
+        modules/thing/lib/engine.rb
+        modules/thing/lib/version.rb
+        modules/thing/lib/thing.rb
+        modules/thing/Rakefile
+        modules/thing/README.rdoc
+        modules/thing/bin/rails
+        modules/thing/spec/spec_helper.rb
+        modules/thing/config/routes.rb
+        modules/thing/thing.gemspec
+        modules/thing/Gemfile

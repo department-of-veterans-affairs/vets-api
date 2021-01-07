@@ -8,6 +8,7 @@ module Mobile
       include FastJsonapi::ObjectSerializer
 
       ADDRESS_KEYS = %i[
+        id
         address_line1
         address_line2
         address_line3
@@ -15,11 +16,17 @@ module Mobile
         address_type
         city
         country_code
+        country_code_iso3
         international_postal_code
         province
         state_code
         zip_code
         zip_code_suffix
+      ].freeze
+
+      EMAIL_KEYS = %i[
+        id
+        email_address
       ].freeze
 
       PHONE_KEYS = %i[
@@ -50,7 +57,8 @@ module Mobile
           first_name: user.first_name,
           middle_name: user.middle_name,
           last_name: user.last_name,
-          email: user.email,
+          contact_email: filter_keys(user.vet360_contact_info&.email, EMAIL_KEYS),
+          signin_email: user.email,
           birth_date: user.birth_date.nil? ? nil : Date.parse(user.birth_date).iso8601,
           gender: user.gender,
           residential_address: filter_keys(user.vet360_contact_info&.residential_address, ADDRESS_KEYS),

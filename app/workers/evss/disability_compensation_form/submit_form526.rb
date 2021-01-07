@@ -7,8 +7,8 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
       # Sidekiq has built in exponential back-off functionality for retrys
-      # A max retry attempt of 13 will result in a run time of ~25 hours
-      RETRY = 13
+      # A max retry attempt of 15 will result in a run time of ~36 hours
+      RETRY = 15
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
       sidekiq_options retry: RETRY
@@ -32,7 +32,9 @@ module EVSS
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
-      rescue Common::Exceptions::GatewayTimeout, Breakers::OutageException => e
+      rescue Common::Exceptions::GatewayTimeout,
+             Breakers::OutageException,
+             EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
         retryable_error_handler(e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         # retry submitting the form for specific upstream errors

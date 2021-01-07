@@ -4,6 +4,13 @@ require 'rails_helper'
 require 'carma/client/client'
 
 RSpec.describe CARMA::Client::Client, type: :model do
+  let(:restforce_client) do
+    restforce_client = double
+    expect(subject).to receive(:get_client).and_return(restforce_client)
+
+    restforce_client
+  end
+
   describe 'configuration' do
     it 'sets the proper constants' do
       expect(described_class::STATSD_KEY_PREFIX).to eq('api.carma')
@@ -14,44 +21,71 @@ RSpec.describe CARMA::Client::Client, type: :model do
     end
   end
 
-  describe '#create_submission' do
-    it 'accepts a payload and submitts to CARMA' do
-      payload           = { 'my' => 'data' }
-      restforce_client  = double
-      response_double   = double
-      expect(subject).to receive(:get_client).and_return(restforce_client)
-      expect(restforce_client).to receive(:post).with(
-        '/services/apexrest/carma/v1/1010-cg-submissions',
-        payload,
-        'Content-Type': 'application/json',
-        'Sforce-Auto-Assign': 'FALSE'
-      ).and_return(
-        response_double
-      )
+  def self.test_carma_submission
+    describe '#create_submission' do
+      it 'accepts a payload and submits to CARMA' do
+        payload           = { 'my' => 'data' }
+        response_double   = double
 
-      expect(response_double).to receive(:body).and_return(:response_token)
-      response = subject.create_submission(payload)
-      expect(response).to eq(:response_token)
+        expect(restforce_client).to receive(:post).with(
+          '/services/apexrest/carma/v1/1010-cg-submissions',
+          payload,
+          'Content-Type': 'application/json',
+          'Sforce-Auto-Assign': 'FALSE'
+        ).and_return(
+          response_double
+        )
+
+        expect(response_double).to receive(:body).and_return(:response_token)
+        response = subject.create_submission(payload)
+        expect(response).to eq(:response_token)
+      end
     end
   end
 
-  describe '#upload_attachments' do
-    it 'accepts a payload and submitts to CARMA' do
-      payload           = { 'my' => 'data' }
-      restforce_client  = double
-      response_double   = double
-      expect(subject).to receive(:get_client).and_return(restforce_client)
-      expect(restforce_client).to receive(:post).with(
-        '/services/data/v47.0/composite/tree/ContentVersion',
-        payload,
-        'Content-Type': 'application/json'
-      ).and_return(
-        response_double
-      )
+  def self.test_upload_attachments
+    describe '#upload_attachments' do
+      it 'accepts a payload and submitts to CARMA' do
+        payload           = { 'my' => 'data' }
+        response_double   = double
 
-      expect(response_double).to receive(:body).and_return(:response_token)
-      response = subject.upload_attachments(payload)
-      expect(response).to eq(:response_token)
+        expect(restforce_client).to receive(:post).with(
+          '/services/data/v47.0/composite/tree/ContentVersion',
+          payload,
+          'Content-Type': 'application/json'
+        ).and_return(
+          response_double
+        )
+
+        expect(response_double).to receive(:body).and_return(:response_token)
+        response = subject.upload_attachments(payload)
+        expect(response).to eq(:response_token)
+      end
     end
+  end
+
+  context 'with betamocks enabled' do
+    before do
+      expect(Settings['salesforce-carma']).to receive(:mock).and_return(true)
+
+      builder = double
+      expect(restforce_client).to receive(:builder).and_return(builder)
+      expect(builder).to receive(:insert_before).with(Faraday::Adapter::NetHttp, Betamocks::Middleware)
+    end
+
+    test_carma_submission
+
+    test_upload_attachments
+  end
+
+  context 'with betamocks disabled' do
+    before do
+      expect(Settings['salesforce-carma']).to receive(:mock).and_return(false)
+      expect(restforce_client).not_to receive(:builder)
+    end
+
+    test_carma_submission
+
+    test_upload_attachments
   end
 end

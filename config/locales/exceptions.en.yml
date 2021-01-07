@@ -9,10 +9,12 @@ en:
         # links: optional, could contain an 'about' link to further details
         # source: optional, an object containing references to the source of the error (pointer to json in validation)
         # meta: optional, contains information suitable for debugging, VISIBLE IN PRODUCTION
+        # sentry_type: optional, defaults to 'error', supported values = debug, info, warn, error, fatal, and 'none'
         detail: ~
         links: ~
         source: ~
         meta: ~
+        sentry_type: 'error'
 # INTERNAL EXCEPTIONS
       validation_errors: &validation_errors
         <<: *defaults
@@ -95,11 +97,13 @@ en:
         title: Not authorized
         code: 401
         status: 401
+        sentry_type: 'none'
       forbidden:
         <<: *defaults
         title: Forbidden
         code: 403
         status: 403
+        sentry_type: 'none'
       record_not_found:
         <<: *defaults
         title: Record not found
@@ -118,6 +122,7 @@ en:
         detail: "There are no routes matching your request: %{path}"
         code: 411
         status: 404
+        sentry_type: 'none'
       unknown_format:
         <<: *defaults
         title: Not acceptable
@@ -189,6 +194,56 @@ en:
         detail: "No query params are allowed for this route"
         code: 400
         status: 400
+      detailed_schema_errors:
+        <<: *validation_errors # Fallbacks for missing translations
+        data_type:
+          <<: *defaults
+          title: Invalid data type
+          detail: Expected %{data_type} data
+          code: 140
+          status: 422
+        enum:
+          <<: *defaults
+          title: Invalid option
+          detail: "'%{value}' is not an available option"
+          code: 141
+          status: 422
+        length:
+          <<: *defaults
+          title: Invalid length
+          detail: "'%{value}' did not fit within the defined length limits"
+          code: 142
+          status: 422
+        pattern:
+          <<: *defaults
+          title: Invalid format
+          detail: "'%{value}' did not match the defined format"
+          code: 143
+          status: 422
+        range:
+          <<: *defaults
+          title: Value outside range
+          detail: "'%{value}' is outside the defined range"
+          code: 144
+          status: 422
+        required:
+          <<: *defaults
+          title: Missing required fields
+          detail: One or more expected fields were not found
+          code: 145
+          status: 422
+        schema:
+          <<: *defaults
+          title: Schema mismatch
+          detail: Unknown data provided
+          code: 146
+          status: 422
+        array_items:
+          <<: *defaults
+          title: Invalid array
+          detail: "The %{size} items provided did not match the definition"
+          code: 147
+          status: 422
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
@@ -384,10 +439,10 @@ en:
         code: 'CASEFLOWSTATUS502'
         detail: 'Received an invalid response from the upstream server'
         status: 502
-      DEBTS400:
+      DMC400:
         <<: *external_defaults
         title: 'Bad Request'
-        code: 'DEBTS400'
+        code: 'DMC400'
         detail: 'Received a bad request response from the upstream server'
         status: 400
       GI404:
@@ -522,6 +577,13 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      VAOS_409A:
+        <<: *external_defaults
+        title: Conflict
+        code: 'VAOS_409A'
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
+        status: 409
+        sentry_type: 'warn'
       VAOS_400:
         <<: *external_defaults
         title: Bad Request
@@ -1725,6 +1787,18 @@ en:
         code: VET360_PERM101
         detail: Permission ID must be null
         status: 400
+      VETEXT_400:
+        <<: *external_defaults
+        title: Bad Request
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
+        code: # deliberately left nil to reference response.body which is unparsable string (not json)
+        status: 400
+      VETEXT_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
+        code: # deliberately left nil to reference response.body which is unparsable string (not json)
+        status: 502
       LIGHTHOUSE_FACILITIES400:
         <<: *external_defaults
         title: Bad Request

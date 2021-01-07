@@ -63,11 +63,13 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
-debts:
+dmc:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
   client_secret: "secret"
-  mock: true
-  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
+  mock_debts: false
+  mock_fsr: false
+  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
+  debts_endpoint: debt-letter/get
 
 fsr:
   prefill: true
@@ -80,6 +82,7 @@ salesforce-gibft:
   url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
 salesforce-carma:
+  mock: true
   url: "https://fake-carma.salesforce.com"
   consumer_key: 12345ABC.QQ_1234BBfake
   signing_key_path: "spec/fixtures/carma/privatekey.pem" # A dummy private key used for test suite
@@ -108,7 +111,7 @@ pension_burial:
 central_mail:
   upload:
     enabled: true
-    host: "icmhs-api-test.csrarad.com"
+    host: "test2.domaonline.com/EmmsAPI"
     token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
@@ -154,9 +157,15 @@ decision_review:
 # Settings for modules/appeals_api
 modules_appeals_api:
   higher_level_review_updater_enabled: true
+  notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
+  documentation:
+    notice_of_disagreements_v1: false
 
 vre_counseling:
+  prefill: true
+
+vre_readiness:
   prefill: true
 
 # Settings for EVSS
@@ -332,7 +341,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  timeout: 20
+  timeout: 40
 
 vic:
   url: https://some.fakesite.com
@@ -410,8 +419,10 @@ oidc:
   isolated_audience:
     default: ~
     veteran_verification: ~
+    claims: ~
   base_api_url: https://example.com
   base_api_token: ~
+  smart_launch_url: ~
 
 sentry:
   dsn: ~
@@ -438,6 +449,7 @@ shrine:
 maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
+  service_query_prefix: "External: "
   services:
     carma: P6XLE0T
     appeals: P9S4RFU
@@ -453,6 +465,7 @@ maintenance:
     search: PRG8HJI
     tims: PUL8OQ4
     vet360: PHVOGQ1
+    vetext_vaccine: P9PG8HG
     vic: P7LW3MS
   aws:
     access_key_id: ~
@@ -477,6 +490,7 @@ search:
 
 flipper:
   admin_user_emails:
+    - adewitt@thoughtworks.com
     - alastair@adhocteam.us
     - anna@adhoc.team
     - bconley@governmentcio.com
@@ -485,37 +499,44 @@ flipper:
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
+    - draju@governmentcio.com
+    - ed.mangimelli@adhocteam.us
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
     - grodriguez@governmentcio.com
+    - hshin@thoughtworks.com
     - hughes_dustin@bah.com
+    - jacob.gacek@thoughtworks.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
+    - jennie.mcgibney@va.gov
     - jesse.cohn@adhocteam.us
+    - jlinn@governmentcio.com
     - kabrown@thoughtworks.com
+    - kadams@governmentcio.com
     - kam@adhocteam.us
     - keifer@oddball.io
-    - kadams@governmentcio.com
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
-    - jlinn@governmentcio.com
     - lauren.alexanderson@va.gov
     - lihan@adhocteam.us
     - lindsey.hattamer@oddball.io
+    - lsanchez@governmentcio.com
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
     - mdewey@governmentcio.com
     - micah@adhocteam.us
     - michael.fleet@oddball.io
+    - mnunemak@thoughtworks.com
     - n.ratana@gmail.com
     - narin@adhocteam.us
     - nick.sullivan@adhocteam.us
-    - osanchez@governmentcio.com
     - patrick.bateman@va.gov
     - patrick@adhocteam.us
+    - paul.phillips@thoughtworks.com
     - pherbert@thoughtworks.com
     - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
@@ -527,17 +548,15 @@ flipper:
     - samara.strauss@va.gov
     - shallie@governmentcio.com
     - shawkey_daniel@bah.com
-    - sonntag_adam@bah.com
-    - travis.hilton@oddball.io
-    - zurbergram@gmail.com
-    - tony.williams@va.gov
-    - jennie.mcgibney@va.gov
-    - adewitt@thoughtworks.com
     - shefai.nayak@thoughtworks.com
-    - jacob.gacek@thoughtworks.com
-    - paul.phillips@thoughtworks.com
-    - mnunemak@thoughtworks.com
-    - hshin@thoughtworks.com
+    - sonntag_adam@bah.com
+    - ssuddath@governmentcio.com
+    - stephen.barrs@va.gov
+    - tony.williams@va.gov
+    - travis.hilton@oddball.io
+    - tze@adhocteam.us
+    - zurbergram@gmail.com
+    - zmorel@governmentcio.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
@@ -558,11 +577,17 @@ va_mobile:
   key_path: /fake/client/key/path
   timeout: 15
 
+vetext:
+  url: "https://something.fake.va.gov"
+  mock: false
+  token: fake_token
+  timeout: 15
+
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
-  mock: true
-  cert_path: config/certs/vetsgov-localhost.crt
-  key_path: config/certs/vetsgov-localhost.key
+  mock: false
+  key_path: /srv/vets-api/secret/health-quest.key
+  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
 
 lighthouse:
@@ -608,6 +633,7 @@ vanotify:
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+    covid_vaccine_registration: fake_template_id
   mock: false
 
 # Settings to connect to the drupal forms graphql api
@@ -622,3 +648,8 @@ genisis:
   service_path: /COVID19Service
   user: TestUser
   pass: bogus
+
+veteran_readiness_and_employment:
+  base_url: ~
+  credentials: ~
+  auth_endpoint: ~
