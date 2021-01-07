@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+
 RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   include SchemaMatchers
 
@@ -258,7 +259,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
             post '/vaos/v0/appointments', params: request_body
 
-            expect(response).to have_http_status(:bad_request)
+            expect(response).to have_http_status(:conflict)
             expect(JSON.parse(response.body)['errors'].first['detail'])
               .to eq(error_detail)
           end
@@ -339,36 +340,22 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'returns bad request with detail in errors' do
-          VCR.use_cassette('vaos/appointments/put_cancel_appointment_400', match_requests_on: %i[method uri]) do
-            expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args)
+          VCR.use_cassette('vaos/appointments/put_cancel_appointment_409', match_requests_on: %i[method uri]) do
+            expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args).once
             expect(Rails.logger).to receive(:warn).with(
               'Clinic does not support VAOS appointment cancel',
               clinic_id: request_body[:clinic_id],
               site_code: request_body[:facility_id]
-            )
+            ).once
+            # We're checking that the logger is called twice to account for behavior in sentry_logging.rb lines 25-30
+            expect(Rails.logger).to receive(:warn).twice
             put '/vaos/v0/appointments/cancel', params: request_body
 
-            expect(response).to have_http_status(:bad_request)
+            expect(response).to have_http_status(:conflict)
             expect(JSON.parse(response.body)['errors'].first['detail'])
               .to eq('This appointment cannot be cancelled using VA Online Scheduling.  Please contact the site direc' \
                 'tly to cancel your appointment. <a class="external-link" href="https://www.va.gov/find-locations/">V' \
                 'A Facility Locator</a>')
-          end
-        end
-
-        it 'returns bad request with detail in errors (TEMPORARY PATCH)' do
-          VCR.use_cassette('vaos/appointments/put_cancel_appointment_500', match_requests_on: %i[method uri]) do
-            expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args)
-            expect(Rails.logger).to receive(:warn).with(
-              'Clinic does not support VAOS appointment cancel',
-              clinic_id: request_body[:clinic_id],
-              site_code: request_body[:facility_id]
-            )
-            put '/vaos/v0/appointments/cancel', params: request_body
-
-            expect(response).to have_http_status(:bad_request)
-            expect(JSON.parse(response.body)['errors'].first['detail'])
-              .to eq('Could not cancel appointment from VistA Scheduling Service')
           end
         end
       end
