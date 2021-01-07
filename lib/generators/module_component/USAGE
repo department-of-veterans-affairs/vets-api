@@ -1,0 +1,21 @@
+Description:
+    This generator will create additional files that may be needed when creating a module.
+	e.g. Controllers, Models, Serializers and Service Classes
+
+Example:
+    rails generate module_component your_module_name controller
+
+    This will create:
+        what/will/it/create
+		
+Example:
+    rails generate module_component your_module_name serializer
+
+    This will create:
+        what/will/it/create		
+
+Example: Creating multiple components at the same time
+    rails generate module_component your_module_name controller serializer
+
+    This will create:
+        what/will/it/create		
