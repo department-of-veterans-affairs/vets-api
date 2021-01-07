@@ -16,6 +16,7 @@ module EducationForm
     #                 unique_for: 30.minutes,
     #                 retry: 5
 
+    # Get all 10203 submissions
     def perform(
       records: EducationBenefitsClaim.includes(:saved_claim).where(
         saved_claims: {
@@ -23,7 +24,6 @@ module EducationForm
         }
       )
     )
-      return false if federal_holiday?
 
       if records.count.zero?
         log_info('No records to process.')
@@ -38,10 +38,14 @@ module EducationForm
 
     private
 
+    # Group the submissions by user_uuid or NO_USER
     def group_user_uuid(records)
       records.group_by { |ebc| ebc.education_stem_automated_decision&.user_uuid || NO_USER }
     end
 
+    # If there is NO_USER or the user doesn't have EVSS data mark the 10203 as DENIED
+    # If there are multiple submissions for a user compare un-submitted to most recent submission
+    # Else check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_submissions(user_submissions)
       user_submissions.each do |user_uuid, submissions|
         gi_bill_status = if user_uuid == NO_USER
@@ -65,6 +69,7 @@ module EducationForm
       end
     end
 
+    # Retrieve EVSS gi_bill_status data for a user
     def get_gi_bill_status(user_uuid)
       user = User.find(user_uuid)
       service = EVSS::GiBillStatus::Service.new(user)
@@ -79,6 +84,15 @@ module EducationForm
       submission.education_stem_automated_decision.save
     end
 
+    # Makes a list of all submissions that have not been processed and have a status of INIT
+    # Finds most recent submission that has already been processed
+    #
+    # Submissions are marked as processed in EducationForm::CreateDailySpoolFiles
+    #
+    # For each unprocessed submission compare benefit_left and pursuing_teaching_cert values
+    #     to most recent processed submissions
+    # If values are the same set status as PROCESSED
+    # Else check submission data and EVSS data to see if submission can be marked as PROCESSED
     def check_previous_submissions(submissions, gi_bill_status)
       unprocessed_submissions = submissions.find_all { |ebc| ebc.processed_at.nil? && ebc.education_stem_automated_decision&.automated_decision_state == INIT }
       most_recent_processed = submissions.find_all { |ebc| ebc.processed_at.present? && ebc.education_stem_automated_decision&.automated_decision_state != INIT }
@@ -98,6 +112,8 @@ module EducationForm
       end
     end
 
+    # Set status to DENIED when pursing_teaching_cert in form data is 'no'
+    #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status)
       submission_form = format_application(submission)
       status = if submission_form.pursuing_teaching_cert == 'no' || !less_than_six_months?(gi_bill_status)
