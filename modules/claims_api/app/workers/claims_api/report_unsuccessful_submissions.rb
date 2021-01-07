@@ -77,7 +77,33 @@ module ClaimsApi
     end
 
     def si_statistics
-      []
+      submissions_with_special_issues = with_special_issues
+      return [] if submissions_with_special_issues.blank?
+
+      unique_special_issues = submissions_with_special_issues.pluck(:special_issues).sum.uniq
+      aggregations = unique_special_issues.map { |special_issue| { code: special_issue, count: 0 } }
+      submissions_with_special_issues.each do |submission|
+        submission.special_issues.each do |special_issue|
+          aggregation = aggregations.detect { |agg| agg[:code] == special_issue }
+          aggregation[:count] = aggregation[:count] + 1
+        end
+      end
+
+      totals = submissions_with_special_issues.count
+      aggregations.each do |aggregation|
+        aggregation[:percentage] = "#{(aggregation[:count].to_f / totals) * 100}%"
+      end
+
+      aggregations
+    end
+
+    def with_special_issues(source: nil)
+      claims = ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to)
+                                              .where('array_length(special_issues, 1) >= 1')
+
+      claims = claims.where(source: source) if source.present?
+
+      claims.order(:source, :status)
     end
 
     def flash_statistics
