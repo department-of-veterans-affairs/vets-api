@@ -204,7 +204,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             expected_data['veteranFullName']['suffix'] = user.va_profile&.normalized_suffix
           end
 
-          expect(JSON.parse(response.body)['form_data']).to eq(expected_data)
+          expect(JSON.parse(response.body)['formData']).to eq(expected_data)
         end
       end
 
