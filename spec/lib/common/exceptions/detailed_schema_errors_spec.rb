@@ -121,23 +121,19 @@ describe Common::Exceptions::DetailedSchemaErrors do
   end
 
   context 'enums' do
-    let(:bad_val) { Faker::Lorem.sentence }
-
     it 'has title, detail, and meta' do
-      data['gender'] = bad_val
+      data['gender'] = Faker::Lorem.sentence
       expect(subject[:title]).to eq 'Invalid option'
-      expect(subject[:detail]).to eq "'#{bad_val}' is not an available option"
+      expect(subject[:detail]).to eq "'#{data['gender']}' is not an available option"
       expect(subject[:meta][:available_options]).to match_array %w[male female undisclosed]
     end
   end
 
   context 'patterns' do
-    let(:bad_val) { Faker::Lorem.sentence }
-
     it 'has title, detail, and meta' do
-      data['email'] = bad_val
+      data['email'] = Faker::Lorem.sentence
       expect(subject[:title]).to eq 'Invalid format'
-      expect(subject[:detail]).to eq "'#{bad_val}' did not match the defined format"
+      expect(subject[:detail]).to eq "'#{data['email']}' did not match the defined format"
       expect(subject[:meta][:regex]).to eq '.@.'
     end
   end
@@ -146,24 +142,28 @@ describe Common::Exceptions::DetailedSchemaErrors do
     it 'respects maximum length' do
       data['name'] = Faker::Lorem.sentence(word_count: 20)
       expect(subject[:title]).to eq 'Invalid length'
+      expect(subject[:detail]).to eq "'#{data['name']}' did not fit within the defined length limits"
       expect(subject[:meta]).to eq({ max_length: 20, min_length: 3 })
     end
 
     it 'respects minimum length' do
       data['name'] = 'Ed'
       expect(subject[:title]).to eq 'Invalid length'
+      expect(subject[:detail]).to eq "'#{data['name']}' did not fit within the defined length limits"
       expect(subject[:meta]).to eq({ max_length: 20, min_length: 3 })
     end
 
     it 'respects maximum value' do
       data['age'] = 150
       expect(subject[:title]).to eq 'Value outside range'
+      expect(subject[:detail]).to eq "'#{data['age']}' is outside the defined range"
       expect(subject[:meta]).to eq({ maximum: 130, minimum: 21 })
     end
 
     it 'respects minimum value' do
       data['age'] = 18
       expect(subject[:title]).to eq 'Value outside range'
+      expect(subject[:detail]).to eq "'#{data['age']}' is outside the defined range"
       expect(subject[:meta]).to eq({ maximum: 130, minimum: 21 })
     end
   end
@@ -178,6 +178,17 @@ describe Common::Exceptions::DetailedSchemaErrors do
     it 'has title and detail' do
       expect(subject[:title]).to eq 'Schema mismatch'
       expect(subject[:detail]).to eq 'Unknown data provided'
+    end
+  end
+
+  context 'multiple errors on one field' do
+    subject { described_class.new(@validator.validate(data).to_a).errors }
+
+    it 'displays all errors found for that pointer' do
+      data['email'] = 'A'
+      expect(subject.size).to eq 2
+      expect(subject.map { |e| e[:source][:pointer] }).to eq %w[/email /email]
+      expect(subject.map { |e| e[:code] }).to match_array %w[142 143]
     end
   end
 
