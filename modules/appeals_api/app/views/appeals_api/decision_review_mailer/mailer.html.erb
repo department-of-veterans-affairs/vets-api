@@ -42,27 +42,25 @@
   <body>
     <h1>Decision Review Report from <%= @report.from %> -- <%= @report.to %> </h1>
 
-    <h2><span class="title">Number of successful submissions by Appeal type</span></h2>
+    <h2><span class="title">HLR submissions by status and count</span></h2>
     <table>
       <thead>
         <tr>
-            <th>Type</th>
+            <th>Status</th>
             <th>Count</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>HLR</td>
-          <td class="right-align"><%= @report.successful_hlr_count %></td>
-        </tr>
-        <tr>
-          <td>NOD</td>
-          <td class="right-align"><%= @report.successful_nod_count %></td>
-        </tr>
+        <% @report.hlr_by_status_and_count.each do |status, count| %>
+          <tr>
+            <td class="right-align"><%= status %></td>
+            <td class="right-align"><%= count %></td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
 
-    <h2><span class="title">Errors</span></h2>
+    <h2><span class="title">HLR Errors</span></h2>
     <table>
       <thead>
         <tr>
@@ -89,6 +87,45 @@
             <td class="right-align"><%= hlr.updated_at %></td>
           </tr>
         <% end %>
+      </tbody>
+    </table>
+
+    <br />
+    <hr />
+
+    <h2><span class="title">NOD submissions by status and count</span></h2>
+    <table>
+      <thead>
+        <tr>
+            <th>Status</th>
+            <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @report.nod_by_status_and_count.each do |status, count| %>
+          <tr>
+            <td class="right-align"><%= status %></td>
+            <td class="right-align"><%= count %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <h2><span class="title">NOD Errors</span></h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>GUID</th>
+          <th>Consumer</th>
+          <th>Status</th>
+          <th>Code</th>
+          <th>Detail</th>
+          <th>Created At</th>
+          <th>Updated At</th>
+        </tr>
+      </thead>
+      <tbody>
         <% @report.nod_with_errors.each do |nod| %>
           <tr>
             <td>NOD</td>
