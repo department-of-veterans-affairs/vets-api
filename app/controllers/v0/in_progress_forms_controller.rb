@@ -7,11 +7,12 @@ module V0
     def index
       # :unaltered prevents the keys from being deeply transformed, which might corrupt some keys
       # see https://github.com/department-of-veterans-affairs/va.gov-team/issues/17595 for more details
-      render json: in_progress_forms_for_current_user, key_transform: :unaltered
+      render json: InProgressForm.where(user_uuid: @current_user.uuid), key_transform: :unaltered
     end
 
     def show
-      form = InProgressForm.form_for_user(form_id, @current_user)
+      form_id = params[:id]
+      form    = InProgressForm.form_for_user(form_id, @current_user)
 
       if form
         render json: form.data_and_metadata
@@ -21,14 +22,14 @@ module V0
     end
 
     def update
-      form = InProgressForm.where(form_id: form_id, user_uuid: @current_user.uuid).first_or_initialize
+      form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first_or_initialize
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
       render json: form
     end
 
     def destroy
-      form = InProgressForm.form_for_user(form_id, @current_user)
-      raise Common::Exceptions::RecordNotFound, form_id if form.blank?
+      form = InProgressForm.form_for_user(params[:id], @current_user)
+      raise Common::Exceptions::RecordNotFound, params[:id] if form.blank?
 
       form.destroy
       render json: form
@@ -38,10 +39,6 @@ module V0
 
     def form_id
       params[:id]
-    end
-
-    def in_progress_forms_for_current_user
-      InProgressForm.where(user_uuid: @current_user.uuid)
     end
 
     # the front end is always expecting camelCase

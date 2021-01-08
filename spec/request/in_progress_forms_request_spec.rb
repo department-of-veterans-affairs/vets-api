@@ -44,6 +44,10 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         let(:metadata_returned_with_the_request) { in_progress_form_with_nested_hash['attributes']['metadata'] }
         let(:metadata_before_the_request) { in_progress_form_edu.metadata }
 
+        def response_body
+          JSON.parse response.body
+        end
+
         it 'returns a 200' do
           subject
           expect(response).to have_http_status(:ok)
@@ -51,7 +55,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
         it 'has the correct shape (JSON:API), and has camelCase keys all the way down to attributes' do
           subject
-          expect(json).to be_a Hash
+          expect(response_body).to be_a Hash
           expect(top_level_keys).to contain_exactly 'data'
           expect(data).to be_an Array
           expect(data.count).to be > 1
@@ -87,7 +91,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           it 'still has camelCase keys (twice camelized)' do
             subject
-            expect(json).to be_a Hash
+            expect(response_body).to be_a Hash
             expect(top_level_keys).to contain_exactly 'data'
             expect(data).to be_an Array
             expect(data.count).to be > 1
