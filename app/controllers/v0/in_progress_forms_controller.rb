@@ -37,17 +37,13 @@ module V0
 
     private
 
-    def form_id
-      params[:id]
-    end
-
     # the front end is always expecting camelCase
     # --this ensures that, even if the OliveBranch inflection header isn't used, camelCase keys are sent
     def camelized_prefill_for_current_user
       # camelize exactly as OliveBranch would
       # inspired by vets-api/blob/327b26c76ea7904744014ea35463022e8b50f3fb/lib/tasks/support/schema_camelizer.rb#L27
       OliveBranch::Transformations.transform(
-        FormProfile.for(form_id: form_id, user: @current_user).prefill.as_json,
+        FormProfile.for(form_id: params[:id], user: @current_user).prefill.as_json,
         OliveBranch::Transformations.method(:camelize)
       )
     end
