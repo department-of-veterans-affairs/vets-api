@@ -46,9 +46,18 @@
       "additionalProperties": false,
       "properties": {
         "homeless":            { "type": "boolean" },
-        "representativesName": { "type": "string", "maxLength": 120 }
+        "representativesName": { "type": "string", "maxLength": 120 },
+        "address": { "$ref": "#/definitions/nodCreateAddress" }
       },
-      "required": [ "homeless" ]
+      "required": [ "homeless", "address" ]
+    },
+
+
+    "nodCreateAddress": {
+      "type": "object",
+      "properties": { "zipCode5": { "type": "string", "pattern": "^[0-9]{5}$" } },
+      "additionalProperties": false,
+      "required": [ "zipCode5" ]
     },
 
 
