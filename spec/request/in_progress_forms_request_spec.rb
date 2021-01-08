@@ -133,7 +133,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
     describe '#show' do
       let(:user) { loa3_user }
-      let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
+      let!(:in_progress_form) { FactoryBot.create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -155,33 +155,48 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           )
         end
 
-        context 'with the x key inflection header set' do
+        context 'with the inflection header' do
           it 'converts the json keys' do
             form_data = { 'view:hasVaMedicalRecords' => true }
 
             in_progress_form.update(form_data: form_data)
             get v0_in_progress_form_url(in_progress_form.form_id),
-                params: nil,
                 headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
             body = JSON.parse(response.body)
             expect(body.keys).to include('formData', 'metadata')
             expect(body['formData'].keys).to include('view:hasVaMedicalRecords')
             expect(body['formData']['view:hasVaMedicalRecords']).to eq form_data['view:hasVaMedicalRecords']
-            expect(body['metadata'])
-              .to eq in_progress_form.metadata.transform_keys { |key| key.underscore.camelize(:lower) }
+            expect(body['formData'].keys).not_to include('Hello, there Sam-I -Am!')
+            expect(body['metadata']['howNow']['brownCow']).to be_present
+            expect(body['metadata']['howNow']['brownCow']['-an eas-i-ly corRupted KEY.']).not_to be_present
+          end
+        end
+
+        context 'without the inflection header' do
+          it 'has camelCase top-level keys, but does not transform nested keys' do
+            form_data = {
+              'view:hasVaMedicalRecords' => true,
+              'Hello, there Sam-I -Am!' => true
+            }
+
+            in_progress_form.update(form_data: form_data)
+            get v0_in_progress_form_url(in_progress_form.form_id)
+            body = JSON.parse(response.body)
+            expect(body.keys).to include('formData', 'metadata')
+            expect(body['formData'].keys).to include('view:hasVaMedicalRecords')
+            expect(body['formData']['view:hasVaMedicalRecords']).to eq form_data['view:hasVaMedicalRecords']
+            expect(body['formData'].keys).to include('Hello, there Sam-I -Am!')
+            expect(body['formData']['Hello, there Sam-I -Am!']).to eq form_data['Hello, there Sam-I -Am!']
+            expect(body['metadata']['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.']).to be_present
+            expect(body['metadata']).to eq in_progress_form.metadata
           end
         end
       end
 
       context 'when a form is not found' do
         let(:street_check) { build(:street_check) }
-
-        it 'returns pre-fill data' do
-          _, phone_response = stub_evss_pciu(user)
-
-          get v0_in_progress_form_url('FAKEFORM'), params: nil
-
-          expected_data = {
+        let(:expected_data) do
+          {
             'veteranFullName' => {
               'first' => user.first_name&.capitalize,
               'last' => user.last_name&.capitalize
@@ -199,12 +214,44 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             },
             'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
           }
+        end
+        let(:phone_response) { stub_evss_pciu(user).second }
+
+        it 'returns pre-fill data' do
+          expected_data
+          get v0_in_progress_form_url('FAKEFORM'), params: nil
 
           if user.va_profile&.normalized_suffix.present?
             expected_data['veteranFullName']['suffix'] = user.va_profile&.normalized_suffix
           end
 
+          check_case_of_keys_recursively = lambda do |value|
+            case value
+            when Hash
+              value.each_key do |key|
+                expect(key).not_to include '_' # ensure all keys are camelCase
+                check_case_of_keys_recursively.call(value[key])
+              end
+            when Array
+              value.each { |v| check_case_of_keys_recursively.call(v) }
+            end
+          end
+          check_case_of_keys_recursively.call(JSON.parse(response.body))
+
           expect(JSON.parse(response.body)['formData']).to eq(expected_data)
+        end
+
+        it 'returns pre-fill data the same way, with or without the Inflection heaader' do
+          expected_data
+
+          get v0_in_progress_form_url('FAKEFORM')
+          without_inflection_header = JSON.parse(response.body)
+
+          get v0_in_progress_form_url('FAKEFORM'),
+              headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
+          with_inflection_header = JSON.parse(response.body)
+
+          expect(without_inflection_header).to eq with_inflection_header
         end
       end
 
