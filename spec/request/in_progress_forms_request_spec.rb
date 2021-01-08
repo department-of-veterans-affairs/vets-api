@@ -37,9 +37,8 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
-        let(:json) { JSON.parse response.body }
-        let(:top_level_keys) { json.keys }
-        let(:data) { json['data'] }
+        let(:top_level_keys) { response_body.keys }
+        let(:data) { response_body['data'] }
         let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['howNow'] } }
         let(:metadata_returned_with_the_request) { in_progress_form_with_nested_hash['attributes']['metadata'] }
         let(:metadata_before_the_request) { in_progress_form_edu.metadata }
