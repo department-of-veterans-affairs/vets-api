@@ -158,7 +158,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           )
         end
 
-        context 'with the inflection header' do
+        context 'with the x key inflection header set' do
           it 'converts the json keys' do
             form_data = { 'view:hasVaMedicalRecords' => true }
 
