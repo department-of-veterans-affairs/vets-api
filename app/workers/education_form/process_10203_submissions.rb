@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/gi_bill_status/service'
+require 'sentry_logging'
 
 module EducationForm
   NO_USER = 'no_user'
@@ -14,9 +15,9 @@ module EducationForm
   class Process10203Submissions
     include Sidekiq::Worker
     include SentryLogging
-    # sidekiq_options queue: 'default',
-    #                 unique_for: 30.minutes,
-    #                 retry: 5
+    sidekiq_options queue: 'default',
+                    unique_for: 30.minutes,
+                    retry: 5
 
     # Get all 10203 submissions
     def perform(
@@ -47,8 +48,9 @@ module EducationForm
     end
 
     # If there is NO_USER or the user doesn't have EVSS data mark the 10203 as DENIED
-    # If there are multiple submissions for a user compare un-submitted to most recent submission
-    # Else check submission data and EVSS data to see if submission can be marked as PROCESSED
+    # If there are multiple submissions for a user compare un-submitted to most recent processed
+    #   by EducationForm::CreateDailySpoolFiles
+    # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_submissions(user_submissions)
       user_submissions.each do |user_uuid, submissions|
         gi_bill_status = if user_uuid == NO_USER
@@ -57,15 +59,12 @@ module EducationForm
                            get_gi_bill_status(user_uuid)
                          end
 
-        # AC7
         if user_uuid == NO_USER || gi_bill_status&.remaining_entitlement&.blank?
           submissions.each { |submission| update_status(submission, DENIED) }
         else
-          # AC 6
           if submissions.count < 1
             check_previous_submissions(submissions, gi_bill_status)
           else
-            # AC 5
             process_submission(submissions.first, gi_bill_status)
           end
         end
@@ -94,7 +93,7 @@ module EducationForm
     # For each unprocessed submission compare benefit_left and pursuing_teaching_cert values
     #     to most recent processed submissions
     # If values are the same set status as PROCESSED
-    # Else check submission data and EVSS data to see if submission can be marked as PROCESSED
+    # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def check_previous_submissions(submissions, gi_bill_status)
       unprocessed_submissions = submissions.find_all { |ebc| ebc.processed_at.nil? && ebc.education_stem_automated_decision&.automated_decision_state == INIT }
       most_recent_processed = submissions.find_all { |ebc| ebc.processed_at.present? && ebc.education_stem_automated_decision&.automated_decision_state != INIT }
@@ -105,10 +104,8 @@ module EducationForm
       unprocessed_submissions.each do |submission|
         unprocessed_form = format_application(submission)
         if unprocessed_form.benefit_left == processed_form.benefit_left && unprocessed_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert
-          # AC 6a
           update_status(submission, PROCESSED)
         else
-          # AC 6b
           process_submission(submission, gi_bill_status)
         end
       end
@@ -118,7 +115,7 @@ module EducationForm
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status)
       submission_form = format_application(submission)
-      status = if submission_form.pursuing_teaching_cert == 'no' || !less_than_six_months?(gi_bill_status)
+      status = if submission_form.pursuing_teaching_cert == 'no' || more_than_six_months?(gi_bill_status)
                  DENIED
                else
                  PROCESSED
@@ -141,13 +138,14 @@ module EducationForm
       nil
     end
 
-    def less_than_six_months?(gi_bill_status)
-      return false if gi_bill_status.remaining_entitlement.blank?
+    # Inverse of less than six months check performed in EducationForm::SendSchoolCertifyingOfficialsEmail
+    def more_than_six_months?(gi_bill_status)
+      return true if gi_bill_status.remaining_entitlement.blank?
 
       months = gi_bill_status.remaining_entitlement.months
       days = gi_bill_status.remaining_entitlement.days
 
-      ((months * 30) + days) <= 180
+      ((months * 30) + days) > 180
     end
 
     def inform_on_error(claim, error = nil)
