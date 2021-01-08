@@ -6,6 +6,11 @@ module AppealsApi
   class DecisionReviewMailer < ApplicationMailer
     RECIPIENTS = %w[
       premal.shah@va.gov
+      kelly@adhocteam.us
+      laura.trager@adhocteam.us
+      drew.fisher@adhocteam.us
+      jack.schuss@oddball.io
+      nathan.wright@oddball.io
     ].freeze
 
     def build(date_from:, date_to:)

@@ -16,6 +16,11 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
       expect(subject.to).to eq(
         %w[
           premal.shah@va.gov
+          kelly@adhocteam.us
+          laura.trager@adhocteam.us
+          drew.fisher@adhocteam.us
+          jack.schuss@oddball.io
+          nathan.wright@oddball.io
         ]
       )
     end
