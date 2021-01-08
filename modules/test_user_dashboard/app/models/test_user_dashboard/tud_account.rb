@@ -2,5 +2,6 @@
 
 module TestUserDashboard
   class TudAccount < ApplicationRecord
+    belongs_to: account
   end
 end

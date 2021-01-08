@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_07_162113) do
+ActiveRecord::Schema.define(version: 2021_01_05_174800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -57,7 +57,6 @@ ActiveRecord::Schema.define(version: 2021_01_07_162113) do
     t.string "status", default: "pending", null: false
     t.string "code"
     t.string "detail"
-    t.string "source"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -567,11 +566,13 @@ ActiveRecord::Schema.define(version: 2021_01_07_162113) do
   end
 
   create_table "tud_accounts", force: :cascade do |t|
+    t.bigint "account_id"
     t.boolean "standard"
     t.boolean "available"
     t.datetime "checkout_time"
     t.integer "loa_level"
     t.integer "accounts_id"
+    t.index ["account_id"], name: "index_tud_accounts_on_account_id"
   end
 
   create_table "user_preferences", id: :serial, force: :cascade do |t|
@@ -670,5 +671,4 @@ ActiveRecord::Schema.define(version: 2021_01_07_162113) do
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
   end
 
-  add_foreign_key "tud_accounts", "accounts", column: "accounts_id"
 end
