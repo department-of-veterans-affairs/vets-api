@@ -21,9 +21,8 @@ they would be when running rails directly.
 
 ### Running tests in parallel
 - NOTE: Running specs in parallel requires that your development database exists, and is up to date. If necessary, you may need to run `bundle exec rake db:create` and `bundle exec rake db:migrate` before the following steps
-- `RAILS_ENV=test bundle exec rake db:reset` - Set up your test database properly first. This just makes sure if your existing test database is named differently than what is expected, it will be resolved first
-- `bundle exec rake parallel:setup` - This prepares all of the test databases. It will create a test database for each processor on your computer
-- `bundle exec rake parallel:spec` - This runs the entire test suite. Optionally, a folder path can be given as a parameter. Each file is assigned a processor, so it probably doesn't make sense to pass an individual file to run it in parallel
+- `RAILS_ENV=test bundle exec rake parallel:setup` - This prepares all of the test databases. It will create a test database for each processor on your computer
+- `RAILS_ENV=test bundle exec rake parallel:spec` - This runs the entire test suite. Optionally, a folder path can be given as a parameter. Each file is assigned a processor, so it probably doesn't make sense to pass an individual file to run it in parallel
 
 ### Running linters
 
