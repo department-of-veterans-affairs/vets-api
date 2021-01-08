@@ -43,6 +43,8 @@ module AppealsApi::V1
                     key :type, :string
                     key :description, '5-digit zipcode. Use "00000" if Veteran is outside the United States'
                     key :example, '20001'
+                    key :maxLength, 5
+                    key :minLength, 5
                   end
                 end
               end

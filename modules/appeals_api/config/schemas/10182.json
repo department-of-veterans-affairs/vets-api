@@ -55,7 +55,7 @@
 
     "nodCreateAddress": {
       "type": "object",
-      "properties": { "zipCode5": { "type": "string", "pattern": "^[0-9]{5}$" } },
+      "properties": { "zipCode5": { "type": "string", "pattern": "^[0-9]{5}$", "minLength": 5, "maxLength": 5 } },
       "additionalProperties": false,
       "required": [ "zipCode5" ]
     },
