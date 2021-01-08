@@ -37,12 +37,15 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
-        let(:json) { JSON.parse response.body }
-        let(:top_level_keys) { json.keys }
-        let(:data) { json['data'] }
+        let(:top_level_keys) { response_body.keys }
+        let(:data) { response_body['data'] }
         let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['how_now'] } }
         let(:metadata_returned_with_the_request) { in_progress_form_with_nested_hash['attributes']['metadata'] }
         let(:metadata_before_the_request) { in_progress_form_edu.metadata }
+
+        def response_body
+          JSON.parse response.body
+        end
 
         it 'returns a 200' do
           subject
@@ -51,7 +54,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
         it 'has the correct shape (JSON:API), with snake_case keys' do
           subject
-          expect(json).to be_a Hash
+          expect(response_body).to be_a Hash
           expect(top_level_keys).to contain_exactly 'data'
           expect(data).to be_an Array
           expect(data.count).to be > 1
@@ -88,7 +91,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           it 'has camelCase keys' do
             subject
-            expect(json).to be_a Hash
+            expect(response_body).to be_a Hash
             expect(top_level_keys).to contain_exactly 'data'
             expect(data).to be_an Array
             expect(data.count).to be > 1
