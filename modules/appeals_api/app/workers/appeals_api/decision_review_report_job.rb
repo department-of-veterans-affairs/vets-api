@@ -9,7 +9,7 @@ module AppealsApi
     def perform
       if Settings.modules_appeals_api.report_enabled
         to = Time.zone.now
-        from = to.monday? ? 7.days.ago : 1.day.ago
+        from = 1.day.ago.utc
 
         DecisionReviewMailer.build(date_from: from, date_to: to).deliver_now
       end

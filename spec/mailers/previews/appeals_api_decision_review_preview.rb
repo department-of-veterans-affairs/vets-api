@@ -3,8 +3,8 @@
 class AppealsApiDecisionReviewPreview < ActionMailer::Preview
   # Preview this email at http://localhost:3000/rails/mailers/appeals_api/decision_review/report
   def build
-    from = 1.week.ago.utc
     to = Time.zone.now
+    from = 1.day.ago.utc
 
     AppealsApi::DecisionReviewMailer.build(date_from: from, date_to: to)
   end
