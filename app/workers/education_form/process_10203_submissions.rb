@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'evss/gi_bill_status/service'
+
 module EducationForm
   NO_USER = 'no_user'
   DENIED = 'denied'
@@ -18,7 +20,7 @@ module EducationForm
 
     # Get all 10203 submissions
     def perform(
-      records: EducationBenefitsClaim.includes(:saved_claim).where(
+      records: EducationBenefitsClaim.includes(:saved_claim, :education_stem_automated_decision).where(
         saved_claims: {
           form_id: '22-10203'
         }
@@ -81,8 +83,7 @@ module EducationForm
     end
 
     def update_status(submission, status)
-      submission.education_stem_automated_decision.automated_decision_state = status
-      submission.education_stem_automated_decision.save
+      submission.education_stem_automated_decision.update(automated_decision_state: status)
     end
 
     # Makes a list of all submissions that have not been processed and have a status of INIT
@@ -97,13 +98,13 @@ module EducationForm
     def check_previous_submissions(submissions, gi_bill_status)
       unprocessed_submissions = submissions.find_all { |ebc| ebc.processed_at.nil? && ebc.education_stem_automated_decision&.automated_decision_state == INIT }
       most_recent_processed = submissions.find_all { |ebc| ebc.processed_at.present? && ebc.education_stem_automated_decision&.automated_decision_state != INIT }
-                                         .max_by(&:submitted_at)
+                                         .max_by(&:processed_at)
 
       processed_form = format_application(most_recent_processed)
 
       unprocessed_submissions.each do |submission|
-        submission_form = format_application(submission)
-        if submission_form.benefit_left == processed_form.benefit_left && submission_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert
+        unprocessed_form = format_application(submission)
+        if unprocessed_form.benefit_left == processed_form.benefit_left && unprocessed_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert
           # AC 6a
           update_status(submission, PROCESSED)
         else
