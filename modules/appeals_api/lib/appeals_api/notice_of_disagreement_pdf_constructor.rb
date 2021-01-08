@@ -113,7 +113,11 @@ module AppealsApi
     end
 
     def insert_additional_page(pdf_options)
-      pdf_options[:additional_pages] << [administrative_page_content, "\n\n", extra_issues_content].join("\n")
+      content = [administrative_page_content, "\n\n", extra_issues_content].join("\n")
+
+      return if content.blank?
+
+      pdf_options[:additional_pages] << content
     end
   end
 end
