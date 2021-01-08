@@ -26,12 +26,24 @@ module AppealsApi::V1
               property :veteran do
                 key :type, :object
                 key :description, 'Veteran Object being submitted in appeal'
-                key :required, %i[homeless]
+                key :required, %i[homeless address]
 
                 property :homeless do
                   key :type, :boolean
                   key :example, false
                   key :description, 'Flag if Veteran is homeless'
+                end
+
+                property :address do
+                  key :type, :object
+                  key :description, 'Address of the Veteran'
+                  key :required, %i[zipCode5]
+
+                  property :zipCode5 do
+                    key :type, :string
+                    key :description, '5-digit zipcode. Use "00000" if Veteran is outside the United States'
+                    key :example, '20001'
+                  end
                 end
               end
 
