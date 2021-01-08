@@ -5,6 +5,8 @@ module V0
     include IgnoreNotFound
 
     def index
+      # :unaltered prevents the keys from being deeply transformed, which might corrupt some keys
+      # see https://github.com/department-of-veterans-affairs/va.gov-team/issues/17595 for more details
       render json: current_users_in_progress_forms, key_transform: :unaltered
     end
 
@@ -15,7 +17,7 @@ module V0
       if form
         render json: form.data_and_metadata
       else
-        render json: FormProfile.for(form_id: form_id, user: @current_user).camelized_prefill
+        render json: camelized_prefill
       end
     end
 
@@ -33,8 +35,21 @@ module V0
       render json: form
     end
 
+    private
+
     def current_users_in_progress_forms
       InProgressForm.where(user_uuid: @current_user.uuid)
+    end
+
+    # the front end is always expecting camelCase
+    # --this ensures that, even if the OliveBranch inflection header isn't used, camelCase keys are sent
+    def camelized_prefill
+      # camelize exactly as OliveBranch would
+      # inspired by vets-api/blob/327b26c76ea7904744014ea35463022e8b50f3fb/lib/tasks/support/schema_camelizer.rb#L27
+      OliveBranch::Transformations.transform(
+        FormProfile.for(form_id: form_id, user: @current_user).prefill,
+        OliveBranch::Transformations.method(:camelize)
+      )
     end
   end
 end

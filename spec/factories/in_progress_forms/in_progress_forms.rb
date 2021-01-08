@@ -7,7 +7,7 @@ FactoryBot.define do
     metadata do
       {
         version: 1,
-        returnUrl: 'foo.com'
+        return_url: 'foo.com'
       }
     end
     trait :with_nested_metadata do

@@ -248,10 +248,10 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expect(in_progress_form.form_data).to eq(new_form.form_data)
           expect(in_progress_form.metadata).to eq(
             'version' => 1,
-            'returnUrl' => 'foo.com',
-            'expiresAt' => 1_488_412_800,
-            'lastUpdated' => 1_483_228_800,
-            'inProgressFormId' => in_progress_form.id
+            'return_url' => 'foo.com', # <- the factory uses snake_case (as most forms are still using OliveBranch)
+            'expiresAt' => 1_488_412_800, # <- these are inserted by the model on access, and will always be camelCase
+            'lastUpdated' => 1_483_228_800, # now so that the front end will always receive camelCase (with or without
+            'inProgressFormId' => in_progress_form.id # the inflection header)
           )
         end
 

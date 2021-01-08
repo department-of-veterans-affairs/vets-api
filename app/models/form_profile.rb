@@ -192,15 +192,6 @@ class FormProfile
     { form_data: form_data, metadata: metadata }
   end
 
-  def camelized_prefill
-    # camelize exactly as OliveBranch would
-    # inspired by vets-api/blob/327b26c76ea7904744014ea35463022e8b50f3fb/lib/tasks/support/schema_camelizer.rb#L27
-    OliveBranch::Transformations.transform(
-      prefill,
-      OliveBranch::Transformations.method(:camelize)
-    )
-  end
-
   private
 
   def initialize_military_information
