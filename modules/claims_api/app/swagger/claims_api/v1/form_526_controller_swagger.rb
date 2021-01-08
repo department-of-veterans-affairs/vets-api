@@ -143,7 +143,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :ClaimsIndex
+                  key :'$ref', :Form526Response
                 end
               end
             end
