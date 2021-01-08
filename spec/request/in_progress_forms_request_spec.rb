@@ -40,7 +40,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         let(:json) { JSON.parse response.body }
         let(:top_level_keys) { json.keys }
         let(:data) { json['data'] }
-        let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['how_now'] } }
+        let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['howNow'] } }
         let(:metadata_returned_with_the_request) { in_progress_form_with_nested_hash['attributes']['metadata'] }
         let(:metadata_before_the_request) { in_progress_form_edu.metadata }
 
@@ -49,7 +49,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'has the correct shape (JSON:API), with snake_case keys' do
+        it 'has the correct shape (JSON:API), and has camelCase keys all the way down to attributes' do
           subject
           expect(json).to be_a Hash
           expect(top_level_keys).to contain_exactly 'data'
@@ -58,22 +58,21 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           data.each do |ipf|
             expect(ipf.keys).to contain_exactly('id', 'type', 'attributes')
             expect(ipf['type']).to eq 'in_progress_forms'
-            expect(ipf['attributes'].keys).to contain_exactly('form_id', 'created_at', 'updated_at', 'metadata')
+            expect(ipf['attributes'].keys).to contain_exactly('formId', 'createdAt', 'updatedAt', 'metadata')
           end
         end
 
-        it 'snake_cased keys *inside* attributes' do
+        it 'does NOT transform keys inside attributes' do
           subject
-          expect(metadata_returned_with_the_request['how_now']['brown_cow']).to be_present
+          expect(metadata_returned_with_the_request['howNow']['brown-cow']).to be_present
         end
 
-        it 'corrupts complicated keys' do
+        it 'does NOT corrupt complicated keys' do
           subject
           expect(metadata_before_the_request['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.'])
             .to be_present
-          expect(metadata_returned_with_the_request['how_now']['brown_cow']['-an eas-i-ly corRupted KEY.'])
-            .not_to be_present
-          puts metadata_returned_with_the_request['how_now']['brown_cow'].keys
+          expect(metadata_returned_with_the_request['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.'])
+            .to be_present
         end
 
         context 'with OliveBranch' do
@@ -86,7 +85,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['howNow'] } }
 
-          it 'has camelCase keys' do
+          it 'still has camelCase keys (twice camelized)' do
             subject
             expect(json).to be_a Hash
             expect(top_level_keys).to contain_exactly 'data'

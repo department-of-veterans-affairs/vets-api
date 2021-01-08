@@ -5,7 +5,7 @@ module V0
     include IgnoreNotFound
 
     def index
-      render json: current_users_in_progress_forms
+      render json: current_users_in_progress_forms, key_transform: :unaltered
     end
 
     def show
