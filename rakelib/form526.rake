@@ -227,8 +227,12 @@ namespace :form526 do
     puts "reuploaded files for #{form_submissions.count} submissions"
   end
 
-  desc 'Convert SIP data to camel case and fix checkboxes'
-  task convert_sip_data: :environment do |_, _args|
+  desc 'Convert SIP data to camel case and fix checkboxes [/export/path.csv, ids]'
+  task :convert_sip_data, [:csv_path] => :environment do |_, args|
+    raise 'No CSV path provided' unless args[:csv_path]
+
+    ids = args.extras || []
+
     def to_olivebranch_case(method, val)
       OliveBranch::Transformations.transform(
         val,
@@ -303,30 +307,36 @@ namespace :form526 do
       transformed
     end
     # get all of the forms that have not yet been converted.
-    in_progress_forms = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
-                                      .where("metadata -> 'return_url' is not null")
+    ipf = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
+    in_progress_forms = ipf.where("metadata -> 'return_url' is not null").or(ipf.where(id: ids))
     @affected_forms = []
-    in_progress_forms.each do |in_progress_form|
-      in_progress_form.metadata = to_olivebranch_case(:camelize, in_progress_form.metadata)
-      form_data_hash = to_olivebranch_case(:camelize, JSON.parse(in_progress_form.form_data))
-      disability_array = get_disability_array(form_data_hash)
-      dis_translation_hash = get_dis_translation_hash(disability_array)
 
-      treatment_facilities_transformed = fix_treatment_facilities_disability_name(form_data_hash, dis_translation_hash,
-                                                                                  disability_array)
-      pow_transformed = fix_pow_disabilities(form_data_hash, dis_translation_hash, disability_array)
-      if treatment_facilities_transformed || pow_transformed
-        @affected_forms << [in_progress_form.id,
-                            in_progress_form.user_uuid,
-                            form_data_hash.dig('phoneAndEmail', 'emailAddress')]
+    CSV.open(args[:csv_path], 'wb') do |csv|
+      csv << %w[in_progress_form_id in_progress_form_user_uuid email_address]
+      in_progress_forms.each do |in_progress_form|
+        in_progress_form.metadata = to_olivebranch_case(:camelize, in_progress_form.metadata)
+        form_data_hash = to_olivebranch_case(:camelize, JSON.parse(in_progress_form.form_data))
+        disability_array = get_disability_array(form_data_hash)
+        dis_translation_hash = get_dis_translation_hash(disability_array)
+
+        treatment_facilities_transformed = fix_treatment_facilities_disability_name(form_data_hash,
+                                                                                    dis_translation_hash,
+                                                                                    disability_array)
+        pow_transformed = fix_pow_disabilities(form_data_hash,
+                                               dis_translation_hash,
+                                               disability_array)
+        if treatment_facilities_transformed || pow_transformed
+          csv << [in_progress_form.id,
+                  in_progress_form.user_uuid,
+                  form_data_hash.dig('phoneAndEmail', 'emailAddress')]
+        end
+
+        in_progress_form.form_data = form_data_hash.to_json
+
+        # forms expire a year after they're last saved by the user so we want to disable updating the expires_at.
+        in_progress_form.skip_exipry_update = true
+        in_progress_form.save!
       end
-
-      in_progress_form.form_data = form_data_hash.to_json
-      # forms expire a year after they're last updated by the user so we want to disable updating the updated_at.
-      # in_progress_form.save!(touch: false)
     end
-
-    puts "Affected form count #{@affected_forms.count}"
-    @affected_forms.each { |f| puts f.join ',' }
   end
 end
