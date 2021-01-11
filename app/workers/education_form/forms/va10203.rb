@@ -3,11 +3,8 @@
 module EducationForm::Forms
   class VA10203 < Base
     def initialize(app)
-      @record = app
-      @form = app.open_struct_form
-      @text = format unless self.class == Base
       @education_stem_automated_decision = app.education_stem_automated_decision
-      super
+      super(app)
     end
 
     def header_form_type
