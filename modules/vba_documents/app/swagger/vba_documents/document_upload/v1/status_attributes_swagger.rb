@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VbaDocuments
+module VBADocuments
   module DocumentUpload
     module V1
       class StatusAttributesSwagger
@@ -19,6 +19,7 @@ module VbaDocuments
               key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'v1', 'status_description.md'))
               key :type, :string
               key :enum, %i[pending uploaded received processing success vbms error]
+              key :example, 'received'
             end
 
             property :code do
