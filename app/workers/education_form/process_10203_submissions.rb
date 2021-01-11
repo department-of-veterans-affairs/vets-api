@@ -37,7 +37,7 @@ module EducationForm
       end
 
       user_submissions = group_user_uuid(records)
-      process_submissions(user_submissions)
+      process_user_submissions(user_submissions)
     end
 
     private
@@ -47,26 +47,30 @@ module EducationForm
       records.group_by { |ebc| ebc.education_stem_automated_decision&.user_uuid || NO_USER }
     end
 
-    # If there is NO_USER or the user doesn't have EVSS data mark the 10203 as DENIED
+    # If there is NO_USER mark the 10203 as PROCESSED
+    # Otherwise check submissions data and EVSS data to see if submission can be marked as PROCESSED
+    def process_user_submissions(user_submissions)
+      user_submissions.each do |user_uuid, submissions|
+        if user_uuid == NO_USER
+          submissions.each { |submission| update_status(submission, PROCESSED) }
+        else
+          process_submissions(get_gi_bill_status(user_uuid), submissions)
+        end
+      end
+    end
+
+    # If the user doesn't have EVSS data mark the 10203 as DENIED
     # If there are multiple submissions for a user compare un-submitted to most recent processed
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
-    def process_submissions(user_submissions)
-      user_submissions.each do |user_uuid, submissions|
-        gi_bill_status = if user_uuid == NO_USER
-                           nil
-                         else
-                           get_gi_bill_status(user_uuid)
-                         end
-
-        if user_uuid == NO_USER || gi_bill_status&.remaining_entitlement&.blank?
-          submissions.each { |submission| update_status(submission, DENIED) }
+    def process_submissions(gi_bill_status, submissions)
+      if gi_bill_status&.remaining_entitlement&.blank?
+        submissions.each { |submission| update_status(submission, DENIED) }
+      else
+        if submissions.count < 1
+          check_previous_submissions(submissions, gi_bill_status)
         else
-          if submissions.count < 1
-            check_previous_submissions(submissions, gi_bill_status)
-          else
-            process_submission(submissions.first, gi_bill_status)
-          end
+          process_submission(submissions.first, gi_bill_status)
         end
       end
     end
