@@ -11,48 +11,11 @@ module AppealsApi
       MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
     end
 
-      # a json schemer error is a hash with this shape:
-      #
-      # {
-      #   "type": "required",
-      #   "details": {
-      #     "missing_keys": ["addressLine1"]
-      #   },
-      #   "data_pointer": "/data/attributes/veteran/address",
-      #   "data": {
-      #     "addressLine2": "Suite #1200",
-      #     "addressLine3": "Box 4",
-      #     "city": "New York",
-      #     "countryName": "United States",
-      #     "stateCode": "NY",
-      #     "zipCode5": "30012",
-      #     "internationalPostalCode": "1"
-      #   },
-      #   "schema_pointer": "/definitions/nodCreateAddress",
-      #   "schema": {
-      #     "type": "object",
-      #     "additionalProperties": false,
-      #     "properties": {
-      #       "addressLine1": {"type": "string"},
-      #       "addressLine2": {"type": "string"},
-      #       "addressLine3": {"type": "string"},
-      #       "city": {"type": "string"},
-      #       "stateCode": {"$ref": "#/definitions/nodCreateStateCode"},
-      #       "countryName": {"type": "string"},
-      #       "zipCode5": {"type": "string", "pattern": "^[0-9]{5}$"},
-      #       "internationalPostalCode": {"type": "string"}
-      #     },
-      #     "required": [
-      #       "addressLine1",
-      #       "city",
-      #       "countryName",
-      #       "zipCode5"
-      #     ]
-      #   },
-      #   "root_schema": {
-      #     ... # entire schema
-      #   }
-      # }
+    def self.date_from_string(string)
+      string.match(/\d{4}-\d{2}-\d{2}/) && Date.parse(string)
+    rescue ArgumentError
+      nil
+    end
 
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)

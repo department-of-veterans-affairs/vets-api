@@ -18,14 +18,14 @@ describe AppealsApi::CentralMailStatus, type: :concern do
     allow(client_stub).to receive(:status).and_return(faraday_response)
   end
 
-  describe ".refresh_statuses_using_central_mail!" do
-    context "when there are no appeals to update" do
-      it "returns nil" do
+  describe '.refresh_statuses_using_central_mail!' do
+    context 'when there are no appeals to update' do
+      it 'returns nil' do
         expect(AppealsApi::HigherLevelReview.refresh_statuses_using_central_mail!([])).to be_nil
       end
     end
 
-    context "when central mail response is unsuccessful" do
+    context 'when central mail response is unsuccessful' do
       before do
         allow(faraday_response).to receive(:success?).and_return(false)
         allow(faraday_response).to receive(:body)
@@ -33,22 +33,19 @@ describe AppealsApi::CentralMailStatus, type: :concern do
         allow(upload).to receive(:log_message_to_sentry)
       end
 
-      it "raises an exception" do
-        expect {
-          AppealsApi::HigherLevelReview.refresh_statuses_using_central_mail!([upload])
-        }.to raise_error(Common::Exceptions::BadGateway)
+      it 'raises an exception' do
+        expect { AppealsApi::HigherLevelReview.refresh_statuses_using_central_mail!([upload]) }
+          .to raise_error(Common::Exceptions::BadGateway)
       end
 
-      it "logs to Sentry" do
-        begin
-          AppealsApi::HigherLevelReview.refresh_statuses_using_central_mail!([upload])
-        rescue Common::Exceptions::BadGateway
-          expect(upload).to have_received(:log_message_to_sentry)
-        end
+      it 'logs to Sentry' do
+        AppealsApi::HigherLevelReview.refresh_statuses_using_central_mail!([upload])
+      rescue Common::Exceptions::BadGateway
+        expect(upload).to have_received(:log_message_to_sentry)
       end
     end
 
-    context "when central mail response is successful" do
+    context 'when central mail response is successful' do
       before do
         allow(faraday_response).to receive(:success?).and_return(true)
         in_process_element[0]['uuid'] = upload.id
@@ -56,32 +53,29 @@ describe AppealsApi::CentralMailStatus, type: :concern do
         allow(upload).to receive(:log_message_to_sentry)
       end
 
-      context "when #update_status_using_central_mail_status!' is called" do
-        it "updates the appeal's attributes" do
+      context 'when #update_status_using_central_mail_status! is called' do
+        it 'updates appeal attributes' do
           with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do
             AppealsApi::HigherLevelReview.refresh_statuses_using_central_mail!([upload])
             expect(upload.status).to eq('processing')
           end
         end
 
-        context "when unknown status passed from central mail" do
-          it "raises an exception" do
-            expect {
-              upload.update_status_using_central_mail_status!(status: "pumpkins")
-            }.to raise_error(Common::Exceptions::BadGateway)
+        context 'when unknown status passed from central mail' do
+          it 'raises an exception' do
+            expect { upload.update_status_using_central_mail_status!(status: 'pumpkins') }
+              .to raise_error(Common::Exceptions::BadGateway)
           end
 
-          it "logs to Sentry" do
-            begin
-              upload.update_status_using_central_mail_status!(status: "pumpkins")
-            rescue Common::Exceptions::BadGateway
-              expect(upload).to have_received(:log_message_to_sentry)
-            end
+          it 'logs to Sentry' do
+            upload.update_status_using_central_mail_status!(status: 'pumpkins')
+          rescue Common::Exceptions::BadGateway
+            expect(upload).to have_received(:log_message_to_sentry)
           end
         end
 
-        context "when appeal object contains an error message" do
-          it "updates appeal details to include error message" do
+        context 'when appeal object contains an error message' do
+          it 'update appeal details to include error message' do
             upload.update_status_using_central_mail_status!('Error', 'You did a bad')
             expect(upload.status).to eq('error')
             expect(upload.detail).to eq('Downstream status: You did a bad')
@@ -91,38 +85,17 @@ describe AppealsApi::CentralMailStatus, type: :concern do
     end
   end
 
-  context "when verifying model status structures" do
-    it "fails if one or more CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES keys or values is mismatched" do
-      expect(status_attributes_valid?).to be true
+  context 'when verifying model status structures' do
+    it 'fails if one or more CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES keys or values is mismatched' do
+      expect(upload.status_attributes_valid?).to be true
     end
 
-    it "fails if error statuses is mismatched" do
-      expect(error_statuses_valid?).to be true
+    it 'fails if error statuses is mismatched' do
+      expect(upload.error_statuses_valid?).to be true
     end
 
-    it "fails if remaining statuses is mismatched" do
-      expect(statuses_valid?).to be true
+    it 'fails if remaining statuses is mismatched' do
+      expect(upload.statuses_valid?).to be true
     end
-  end
-
-  def status_attributes_valid?
-    # TODO: need better solution for the constants here?
-    subject::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.values.all? do |attributes|
-      [:status, 'status'].all? do |status|
-        !attributes.key?(status) || attributes[status].in?(subject::STATUSES)
-      end
-    end
-  end
-
-  def error_statuses_valid?
-    # TODO: need better solution for the constants here?
-    subject::CENTRAL_MAIL_ERROR_STATUSES.all? do |error_status|
-      subject::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.keys.include?(error_status)
-    end
-  end
-
-  def statuses_valid?
-    # TODO: need better solution for the constants here?
-    [*subject::RECEIVED_OR_PROCESSING, *subject::COMPLETE_STATUSES].all? { |status| subject::STATUSES.include?(status) }
   end
 end

@@ -11,6 +11,12 @@ module AppealsApi
       date < Time.zone.today
     end
 
+    def self.date_from_string(string)
+      string.match(/\d{4}-\d{2}-\d{2}/) && Date.parse(string)
+    rescue ArgumentError
+      nil
+    end
+
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
