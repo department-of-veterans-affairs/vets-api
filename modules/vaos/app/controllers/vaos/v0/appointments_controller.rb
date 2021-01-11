@@ -16,6 +16,11 @@ module VAOS
         head :no_content # There is no id associated with the created resource, so no point returning a response body
       end
 
+      def show
+        render json: appointment_service.get_appointment(request.params['id'])
+               #,serializer: VAAppointmentsSerializer
+      end
+
       def cancel
         appointment_service.put_cancel_appointment(cancel_params)
         head :no_content

@@ -5,6 +5,7 @@ VAOS::Engine.routes.draw do
     resources :appointments, only: %i[index create] do
       put 'cancel', on: :collection
     end
+    get '/appointments/:type/:id', to: 'appointments#show', type: /va/
     resources :appointment_requests, only: %i[index create update] do
       resources :messages, only: %i[index create]
     end
@@ -26,6 +27,7 @@ VAOS::Engine.routes.draw do
     resources :direct_booking_eligibility_criteria, only: :index
     resources :request_eligibility_criteria, only: :index
     get 'apidocs', to: 'apidocs#index'
+   
   end
 
   namespace :v1, defaults: { format: :json } do
