@@ -7,10 +7,9 @@ module AppealsApi
   class HigherLevelReview < ApplicationRecord
     include CentralMailStatus
 
-    class << self
-      def past?(date)
-        date < Time.zone.today
-      end
+    def self.past?(date)
+      date < Time.zone.today
+    end
 
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)

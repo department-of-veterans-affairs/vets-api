@@ -7,10 +7,9 @@ module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
     include CentralMailStatus
 
-    class << self
-      def load_json_schema(filename)
-        MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
-      end
+    def self.load_json_schema(filename)
+      MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
+    end
 
       # a json schemer error is a hash with this shape:
       #
