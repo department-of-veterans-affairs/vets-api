@@ -47,7 +47,7 @@ module EducationForm
       records.group_by { |ebc| ebc.education_stem_automated_decision&.user_uuid || NO_USER }
     end
 
-    # If there is NO_USER mark the 10203 as PROCESSED
+    # If there is NO_USER mark the 10203s as PROCESSED
     # Otherwise check submissions data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
       user_submissions.each do |user_uuid, submissions|
@@ -67,7 +67,7 @@ module EducationForm
       if gi_bill_status&.remaining_entitlement&.blank?
         submissions.each { |submission| update_status(submission, DENIED) }
       else
-        if submissions.count < 1
+        if submissions.count > 1
           check_previous_submissions(submissions, gi_bill_status)
         else
           process_submission(submissions.first, gi_bill_status)
