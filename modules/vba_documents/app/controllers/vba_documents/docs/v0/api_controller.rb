@@ -13,16 +13,16 @@ module VBADocuments
         include Swagger::Blocks
 
         SWAGGERED_CLASSES = [
-          VbaDocuments::V0::ControllerSwagger,
-          VbaDocuments::DocumentUpload::StatusReportSwagger,
-          VbaDocuments::DocumentUpload::StatusGuidListSwagger,
-          VbaDocuments::DocumentUpload::FailureSwagger,
-          VbaDocuments::DocumentUpload::MetadataSwagger,
-          VbaDocuments::DocumentUpload::StatusAttributesSwagger,
-          VbaDocuments::DocumentUpload::StatusSwagger,
-          VbaDocuments::DocumentUpload::SubmissionSwagger,
-          VbaDocuments::V0::SecuritySchemeSwagger,
-          VbaDocuments::V0::SwaggerRoot
+          VBADocuments::V0::ControllerSwagger,
+          VBADocuments::DocumentUpload::StatusReportSwagger,
+          VBADocuments::DocumentUpload::StatusGuidListSwagger,
+          VBADocuments::DocumentUpload::FailureSwagger,
+          VBADocuments::DocumentUpload::MetadataSwagger,
+          VBADocuments::DocumentUpload::StatusAttributesSwagger,
+          VBADocuments::DocumentUpload::StatusSwagger,
+          VBADocuments::DocumentUpload::SubmissionSwagger,
+          VBADocuments::V0::SecuritySchemeSwagger,
+          VBADocuments::V0::SwaggerRoot
         ].freeze
 
         def index
