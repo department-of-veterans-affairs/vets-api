@@ -50,22 +50,26 @@ class ModuleGenerator < Rails::Generators::NamedBase
   # :nocov:
   def update_and_install
     # spec helper add group
-    insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}',
-      'modules/#{file_name}/'\n", after: "# Modules\n"
+    # Don't add these entries to the files in test env/running specs
 
-    # simplecov add group
-    insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}',
-      'modules/#{file_name}/'\n", after: "# Modules\n"
+    unless Rails.env.test?
+      insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}',
+        'modules/#{file_name}/'\n", after: "# Modules\n"
 
-    # insert into main app gemfile
-    insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
-    route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
+      # simplecov add group
+      insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}',
+        'modules/#{file_name}/'\n", after: "# Modules\n"
 
-    run 'bundle install'
+      # insert into main app gemfile
+      insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
+      route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
 
-    puts "\n"
-    puts "\u{1F64C} new module generated at ./modules/#{file_name}\n\n"
-    puts "\n"
+      run 'bundle install'
+
+      puts "\n"
+      puts "\u{1F64C} new module generated at ./modules/#{file_name}\n\n"
+      puts "\n"
+    end
   end
 
   def create_commit_message
