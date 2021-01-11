@@ -88,7 +88,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['howNow'] } }
 
-          it 'still has camelCase keys (twice camelized)' do
+          it 'has camelCase keys' do
             subject
             expect(response_body).to be_a Hash
             expect(top_level_keys).to contain_exactly 'data'
