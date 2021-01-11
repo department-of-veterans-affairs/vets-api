@@ -148,19 +148,27 @@ module AppealsApi
     end
 
     def veteran_first_name
-      header_field_as_string 'X-VA-First-Name'
+      header_field_as_string 'X-VA-Veteran-First-Name'
     end
 
     def veteran_last_name
-      header_field_as_string 'X-VA-Last-Name'
+      header_field_as_string 'X-VA-Veteran-Last-Name'
     end
 
     def ssn
-      header_field_as_string 'X-VA-SSN'
+      header_field_as_string 'X-VA-Veteran-SSN'
     end
 
     def file_number
-      header_field_as_string 'X-VA-File-Number'
+      header_field_as_string 'X-VA-Veteran-File-Number'
+    end
+
+    def consumer_name
+      header_field_as_string 'X-Consumer-Username'
+    end
+
+    def consumer_id
+      header_field_as_string 'X-Consumer-ID'
     end
 
     def veteran_homeless_state
@@ -171,20 +179,16 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
-    def consumer_name
-      auth_headers&.dig('X-Consumer-Username')
-    end
-
-    def consumer_id
-      auth_headers&.dig('X-Consumer-ID')
-    end
-
     def board_review_option
       form_data&.dig('data', 'attributes', 'boardReviewOption')
     end
 
     def hearing_type_preference
       form_data&.dig('data', 'attributes', 'hearingTypePreference')
+    end
+
+    def zip_code_5
+      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
     end
 
     private
