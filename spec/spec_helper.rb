@@ -45,6 +45,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/health_quest/lib/health_quest/engine.rb'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
+    add_filter 'rakelib/*'
 
     # Modules
     add_group 'Policies', 'app/policies'
