@@ -92,5 +92,4 @@ class PPMS::Provider < Common::Base
     new_attr[:address_street] ||= new_attr.delete(:care_site_address_street)
     new_attr
   end
-  
 end
