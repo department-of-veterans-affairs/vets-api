@@ -69,7 +69,7 @@ module AppealsApi
           attributes = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES[status] || {}
         rescue ArgumentError
           log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status)
-          raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
+          raise Common::Exceptions::BadGateway
         end
 
         if status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message
