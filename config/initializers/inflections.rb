@@ -37,7 +37,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'VBA'
   inflect.acronym 'VBMS'
   inflect.acronym 'VC'
-  inflect.acronym 'VA'
   inflect.acronym 'VHA'
   inflect.acronym 'VIC'
   inflect.acronym 'VRE'
