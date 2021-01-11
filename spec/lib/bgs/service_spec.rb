@@ -42,10 +42,10 @@ RSpec.describe BGS::Service do
               res = bgs_service.get_ch33_dd_eft_info
               expect(res).to eq(
                 {
-                  :dposit_acnt_nbr=>"123",
-                  :dposit_acnt_type_nm=>"C",
-                  :routng_trnsit_nbr=>routing_number,
-                  :financial_institution_name=>nil
+                  dposit_acnt_nbr: '123',
+                  dposit_acnt_type_nm: 'C',
+                  routng_trnsit_nbr: routing_number,
+                  financial_institution_name: nil
                 }
               )
             end
@@ -59,10 +59,10 @@ RSpec.describe BGS::Service do
             res = bgs_service.get_ch33_dd_eft_info
             expect(res).to eq(
               {
-                :dposit_acnt_nbr=>"123",
-                :dposit_acnt_type_nm=>"C",
-                :routng_trnsit_nbr=>routing_number,
-                :financial_institution_name=>"BANK OF AMERICA, N.A."
+                dposit_acnt_nbr: '123',
+                dposit_acnt_type_nm: 'C',
+                routng_trnsit_nbr: routing_number,
+                financial_institution_name: 'BANK OF AMERICA, N.A.'
               }
             )
           end

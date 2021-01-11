@@ -43,7 +43,7 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
           'attributes' => {
             'account_type' => 'Checking',
             'account_number' => '123',
-            "financial_institution_name" => 'BANK OF AMERICA, N.A.',
+            'financial_institution_name' => 'BANK OF AMERICA, N.A.',
             'financial_institution_routing_number' => '*****0724'
           }
         }
