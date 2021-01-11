@@ -2225,18 +2225,20 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
             VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-              expect(subject).to validate(
-                :put,
-                '/v0/profile/ch33_bank_accounts',
-                200,
-                headers.merge(
-                  '_data' => {
-                    account_type: 'Checking',
-                    account_number: '444',
-                    financial_institution_routing_number: '122239982'
-                  }
+              VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+                expect(subject).to validate(
+                  :put,
+                  '/v0/profile/ch33_bank_accounts',
+                  200,
+                  headers.merge(
+                    '_data' => {
+                      account_type: 'Checking',
+                      account_number: '444',
+                      financial_institution_routing_number: '122239982'
+                    }
+                  )
                 )
-              )
+              end
             end
           end
         end
@@ -2245,12 +2247,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:get, '/v0/profile/ch33_bank_accounts', 401)
 
           VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-            expect(subject).to validate(
-              :get,
-              '/v0/profile/ch33_bank_accounts',
-              200,
-              headers
-            )
+            VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+              expect(subject).to validate(
+                :get,
+                '/v0/profile/ch33_bank_accounts',
+                200,
+                headers
+              )
+            end
           end
         end
       end
