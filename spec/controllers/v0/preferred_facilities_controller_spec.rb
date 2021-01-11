@@ -32,19 +32,47 @@ RSpec.describe V0::PreferredFacilitiesController, type: :controller do
   end
 
   describe '#destroy' do
+    def send_destroy(id)
+      delete(:destroy, params: { id: id })
+    end
+
     context 'with another users preferred facility' do
       it 'doesnt destroy the preferred facility' do
         id = preferred_facility1.id
-        delete(:destroy, params: { id: id })
+        send_destroy(id)
 
         expect(response.ok?).to eq(false)
         expect(PreferredFacility.exists?(id)).to eq(true)
       end
     end
 
+    context 'with an invalid id' do
+      it 'returns 404' do
+        send_destroy(999_999)
+        expect(response.status).to eq(404)
+      end
+    end
+
+    context 'with an invalid preferred facility' do
+      it 'returns validation errors' do
+        id = preferred_facility2.id
+        allow_any_instance_of(PreferredFacility).to receive(:destroy).and_return(
+          false
+        )
+        preferred_facility2.errors.add(:base, 'foo')
+        allow_any_instance_of(PreferredFacility).to receive(:errors).and_return(
+          preferred_facility2.errors
+        )
+        send_destroy(id)
+
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].present?).to eq(true)
+      end
+    end
+
     it 'destroys a users preferred facility' do
       id = preferred_facility2.id
-      delete(:destroy, params: { id: id })
+      send_destroy(id)
 
       expect(response.ok?).to eq(true)
       expect(PreferredFacility.exists?(id)).to eq(false)

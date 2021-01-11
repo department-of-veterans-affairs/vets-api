@@ -10,7 +10,7 @@ module V0
 
     def destroy
       render(
-        json: current_user_preferred_facilities.find(params[:id]).destroy!
+        json: destroy_preferred_facility(params[:id])
       )
     end
 
@@ -29,6 +29,17 @@ module V0
     end
 
     private
+
+    def destroy_preferred_facility(id)
+      preferred_facility = current_user_preferred_facilities.find_by(id: id)
+      raise Common::Exceptions::RecordNotFound, id if preferred_facility.blank?
+
+      if preferred_facility.destroy
+        preferred_facility
+      else
+        raise Common::Exceptions::ValidationErrors, preferred_facility
+      end
+    end
 
     def current_user_preferred_facilities
       current_user.account.preferred_facilities
