@@ -152,8 +152,8 @@ AppsApi::LoadApplications:
   class: AppsApi::DirectoryLoader
   description: "Populates directory_applications table"
 
-Process10203SubmissionsLogging:
+Process10203Submissions:
   cron: "0 6-18 * * * America/New_York"
-  class: EducationForm::Process10203SubmissionsLogging
+  class: EducationForm::Process10203Submissions
   description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
 
