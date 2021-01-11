@@ -67,6 +67,12 @@ class ModuleGenerator < Rails::Generators::NamedBase
     puts "\u{1F64C} new module generated at ./modules/#{file_name}\n\n"
     puts "\n"
   end
+
+  def create_commit_message
+    git add: '.'
+    git commit: "-a -m 'Initial commit of module structure *KEEP THIS COMMIT MESSAGE*'"
+  end
+
   # :nocov:
   # rubocop:enable Rails/Output
 end
