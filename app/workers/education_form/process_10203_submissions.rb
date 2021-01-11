@@ -4,7 +4,6 @@ require 'evss/gi_bill_status/service'
 require 'sentry_logging'
 
 module EducationForm
-  NO_USER = 'no_user'
   DENIED = 'denied'
   PROCESSED = 'processed'
   INIT = 'init'
@@ -19,9 +18,9 @@ module EducationForm
                     unique_for: 30.minutes,
                     retry: 5
 
-    # Get all 10203 submissions
+    # Get all 10203 submissions that have a row in education_stem_automated_decisions
     def perform(
-      records: EducationBenefitsClaim.includes(:saved_claim, :education_stem_automated_decision).where(
+      records: EducationBenefitsClaim.joins(:education_stem_automated_decision).includes(:saved_claim).where(
         saved_claims: {
           form_id: '22-10203'
         }
@@ -42,32 +41,21 @@ module EducationForm
 
     private
 
-    # Group the submissions by user_uuid or NO_USER
+    # Group the submissions by user_uuid
     def group_user_uuid(records)
-      records.group_by { |ebc| ebc.education_stem_automated_decision&.user_uuid || NO_USER }
-    end
-
-    # If there is NO_USER mark the 10203s as PROCESSED
-    # Otherwise check submissions data and EVSS data to see if submission can be marked as PROCESSED
-    def process_user_submissions(user_submissions)
-      user_submissions.each do |user_uuid, submissions|
-        if user_uuid == NO_USER
-          submissions.each { |submission| update_status(submission, PROCESSED) }
-        else
-          process_submissions(get_gi_bill_status(user_uuid), submissions)
-        end
-      end
+      records.group_by { |ebc| ebc.education_stem_automated_decision&.user_uuid }
     end
 
     # If the user doesn't have EVSS data mark the 10203 as DENIED
     # If there are multiple submissions for a user compare un-submitted to most recent processed
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
-    def process_submissions(gi_bill_status, submissions)
-      if gi_bill_status&.remaining_entitlement&.blank?
-        submissions.each { |submission| update_status(submission, DENIED) }
-      else
-        if submissions.count > 1
+    def process_user_submissions(user_submissions)
+      user_submissions.each do |user_uuid, submissions|
+        gi_bill_status = get_gi_bill_status(user_uuid)
+        if gi_bill_status&.remaining_entitlement.blank?
+          submissions.each { |submission| update_status(submission, DENIED) }
+        elsif submissions.count > 1
           check_previous_submissions(submissions, gi_bill_status)
         else
           process_submission(submissions.first, gi_bill_status)
@@ -99,15 +87,20 @@ module EducationForm
     # If values are the same set status as PROCESSED
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def check_previous_submissions(submissions, gi_bill_status)
-      unprocessed_submissions = submissions.find_all { |ebc| ebc.processed_at.nil? && ebc.education_stem_automated_decision&.automated_decision_state == INIT }
-      most_recent_processed = submissions.find_all { |ebc| ebc.processed_at.present? && ebc.education_stem_automated_decision&.automated_decision_state != INIT }
+      unprocessed_submissions = submissions.find_all do |ebc|
+        ebc.processed_at.nil? && ebc.education_stem_automated_decision&.automated_decision_state == INIT
+      end
+      most_recent_processed = submissions.find_all do |ebc|
+        ebc.processed_at.present? && ebc.education_stem_automated_decision&.automated_decision_state != INIT
+      end
                                          .max_by(&:processed_at)
 
       processed_form = format_application(most_recent_processed)
 
       unprocessed_submissions.each do |submission|
         unprocessed_form = format_application(submission)
-        if unprocessed_form.benefit_left == processed_form.benefit_left && unprocessed_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert
+        if unprocessed_form.benefit_left == processed_form.benefit_left &&
+           unprocessed_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert
           update_status(submission, PROCESSED)
         else
           process_submission(submission, gi_bill_status)
@@ -123,7 +116,7 @@ module EducationForm
                  DENIED
                else
                  PROCESSED
-                end
+               end
       update_status(submission, status)
     end
 

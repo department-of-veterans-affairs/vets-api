@@ -66,5 +66,4 @@ namespace :jobs do
   task process_10203_submissions: :environment do
     EducationForm::Process10203Submissions.perform_async
   end
-
 end
