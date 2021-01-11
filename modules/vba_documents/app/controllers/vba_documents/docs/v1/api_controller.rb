@@ -22,6 +22,8 @@ module VBADocuments
           VBADocuments::DocumentUpload::FailureSwagger,
           VBADocuments::DocumentUpload::MetadataSwagger,
           VBADocuments::DocumentUpload::V1::StatusAttributesSwagger,
+          VBADocuments::DocumentUpload::V1::PdfUploadAttributesSwagger,
+          VBADocuments::DocumentUpload::V1::PdfDimensionAttributesSwagger,
           VBADocuments::DocumentUpload::StatusSwagger,
           VBADocuments::DocumentUpload::SubmissionSwagger,
           VBADocuments::V1::SecuritySchemeSwagger,
