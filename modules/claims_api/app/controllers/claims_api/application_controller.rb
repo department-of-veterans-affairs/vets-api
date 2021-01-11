@@ -39,6 +39,8 @@ module ClaimsApi
 
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def find_claim
       claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
@@ -46,12 +48,17 @@ module ClaimsApi
         fetch_errored(claim)
       elsif claim && claim.evss_id.nil?
         render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-      else
+      elsif /^\d{2,20}$/.match?(params[:id])
         evss_claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
         # Note: source doesn't seem to be accessible within a remote evss_claim
         render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
+      else
+        render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
+               status: :not_found
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def fetch_errored(claim)
       if claim.evss_response&.any?

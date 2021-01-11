@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'vaos_backend_service_exception'
-
 module VAOS
   module Middleware
     module Response
