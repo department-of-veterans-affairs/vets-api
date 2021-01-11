@@ -96,21 +96,18 @@ namespace :form526 do
       end
     end
 
-    def clean_message(msg)
-      if msg[1].present?
-        # strip the GUID from BGS errors for grouping purposes
-        "#{msg[0]}: #{msg[1].gsub(/GUID.*/, '')}"
-      else
-        msg[0]
-      end
-    end
+    def message_string(msg)
+      return nil if msg.dig('severity') == 'WARN'
 
-    # This regex will parse out the errors returned from EVSS.
-    # The error message will be in an ugly stringified hash. There can be multiple
-    # errors in a message. Each error will have a `key` and a `text` key. The
-    # following regex will group all key/text pairs together that are present in
-    # the string.
-    MSGS_REGEX = /key\"=>\"(.*?)\".*?text\"=>\"(.*?)\"/.freeze
+      message = msg.dig('key')&.gsub(/\[(\d*)\]|\\/, '')
+      # strip the GUID from BGS errors for grouping purposes
+
+      # don't show disability names, for better grouping. Can be removed after we fix inflection issue
+      unless message == 'form526.treatments.treatedDisabilityNames.isInvalidValue'
+        message += msg.dig('text').gsub(/GUID.*/, '')
+      end
+      message
+    end
 
     start_date = args[:start_date]&.to_date || 30.days.ago.utc
     end_date = args[:end_date]&.to_date || Time.zone.now.utc
@@ -127,13 +124,12 @@ namespace :form526 do
       job_statuses.each do |job_status|
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
-                      job_status.error_class != 'Common::Exceptions::BackendServiceException'
-                     job_status.error_message.gsub(/\[(\d*)\]|\\/, '').scan(MSGS_REGEX)
+                      !job_status.error_message.include?('BackendServiceException')
+                     JSON.parse(job_status.error_message.gsub('=>', ':')).collect { |message| message_string(message) }
                    else
-                     [[job_status.error_message]]
+                     [job_status.error_message]
                    end
-        messages.each do |msg|
-          message = clean_message(msg)
+        messages.each do |message|
           errors[message][:submission_ids].append(
             sub_id: submission.id,
             p_id: submission.auth_headers['va_eauth_pid'],

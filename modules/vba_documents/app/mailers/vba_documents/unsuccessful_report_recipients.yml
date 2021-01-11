@@ -1,0 +1,18 @@
+common:
+  - 'michael.bastos@oddball.io'
+  - 'lydia.vian@thunderyard.com'
+  - 'joshua.jennings@libertyits.com'
+  - 'cristopher.shupp@libertyits.com'
+  - 'gregory.bowman@libertyits.com'
+  - 'mark.viterna@libertyits.com'
+dev:
+staging:
+sandbox:
+prod:
+  - 'david.mazik@va.gov'
+  - 'ryan.link@oddball.io'
+  - 'christopher.stone@libertyits.com'
+  - 'valerie.hase@va.gov'
+  - 'mark.greenburg@adhocteam.us'
+  - 'premal.shah@va.gov'
+  - 'zachary.goldfine@va.gov'
