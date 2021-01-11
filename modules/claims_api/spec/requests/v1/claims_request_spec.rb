@@ -82,7 +82,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
           VCR.use_cassette('evss/claims/claim') do
             get(
-              '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+              '/services/claims/v1/claims/600118851',
               params: nil, headers: request_headers.merge(auth_header)
             )
             expect(response).to match_response_schema('claims_api/claim')
@@ -100,7 +100,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
                  id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
           VCR.use_cassette('evss/claims/claim') do
             get(
-              '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+              '/services/claims/v1/claims/600118851',
               params: nil, headers: request_headers_camel.merge(auth_header)
             )
             expect(response).to match_camelized_response_schema('claims_api/claim')
@@ -121,7 +121,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
             .and_raise(StandardError.new('no claim found'))
           VCR.use_cassette('evss/claims/claim') do
             get(
-              '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+              '/services/claims/v1/claims/600118851',
               params: nil, headers: request_headers.merge(auth_header)
             )
             expect(response.code.to_i).to eq(404)
@@ -184,7 +184,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
           allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
-          get '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers
+          get '/services/claims/v1/claims/600118851', params: nil, headers: headers
           expect(response.status).to eq(200)
         end
       end
