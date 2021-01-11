@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'veteran_verification/mock_open_id_user'
 module VeteranVerification
   class ApplicationController < ::OpenidApplicationController
     skip_before_action :set_tags_and_extra_content, raise: false
@@ -23,7 +22,7 @@ module VeteranVerification
       return false if @session.nil?
 
       open_id = if Settings.vet_verification.mock_emis
-                  MockOpenidUser
+                  MockOpenIdUser
                 else
                   OpenidUser
                 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/client/configuration/soap'
+require 'emis/veteran_status_configuration'
 
 module EMIS
   class MockVeteranStatusConfig < VeteranStatusConfiguration
