@@ -34,7 +34,7 @@ RSpec.describe Rack::Attack do
 
   describe 'covid_vaccine' do
     let(:headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
-    
+
     it 'limits requests for any post and put endpoints to 4 in 5 minutes' do
       post '/covid_vaccine/v0/registration', headers: headers
       expect(last_response.status).not_to eq(429)
