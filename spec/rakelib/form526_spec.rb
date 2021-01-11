@@ -55,6 +55,58 @@ describe 'form526 rake tasks', type: :request do
       expect(response_json['form_data']).to eq(in_progress_form526_original['formData'])
     end
   end
+
+  describe 'rake form526:submissions' do
+    let!(:form526_submission) { create(:form526_submission, :with_mixed_status) }
+    let :run_rake_task do
+      Rake::Task['form526:submissions'].reenable
+      Rake.application.invoke_task 'form526:submissions'
+    end
+
+    it 'runs without errors' do
+      expect { silently { run_rake_task } }.not_to raise_error
+    end
+  end
+
+  describe 'rake form526:errors' do
+    let!(:form526_submission) { create(:form526_submission, :with_one_failed_job) }
+    let :run_rake_task do
+      Rake::Task['form526:errors'].reenable
+      Rake.application.invoke_task 'form526:errors'
+    end
+
+    it 'runs without errors' do
+      expect { silently { run_rake_task } }.not_to raise_error
+    end
+  end
+
+  describe 'rake form526:submission' do
+    let!(:form526_submission) { create(:form526_submission, :with_mixed_status) }
+    let :run_rake_task do
+      Rake::Task['form526:submission'].reenable
+      Rake.application.invoke_task "form526:submission[#{form526_submission.id}]"
+    end
+
+    it 'runs without errors' do
+      expect { silently { run_rake_task } }.not_to raise_error
+    end
+  end
+end
+
+def silently
+  # Store the original stderr and stdout in order to restore them later
+  @original_stderr = $stderr
+  @original_stdout = $stdout
+
+  # Redirect stderr and stdout
+  $stderr = $stdout = StringIO.new
+
+  yield
+
+  $stderr = @original_stderr
+  $stdout = @original_stdout
+  @original_stderr = nil
+  @original_stdout = nil
 end
 
 def to_case(method, val)
