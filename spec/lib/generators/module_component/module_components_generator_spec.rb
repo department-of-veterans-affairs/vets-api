@@ -4,19 +4,19 @@ require 'rails_helper'
 require 'generators/module_component/module_component_generator'
 require 'generators/module/module_generator'
 
-RSpec.describe "ModuleComponents", type: :generator do
+RSpec.describe 'ModuleComponent', type: :generator do
+  describe 'creates a controller' do
+    before(:all) do
+      ModuleGenerator.new(['foo']).create_directory_structure
+      ModuleComponentGenerator.new(%w[foo controller]).create_component
+    end
 
-  describe 'creates one component' do
-    context 'once generated'
-      before(:all) { ModuleGenerator.new(['foo']).create_app }
-      before(:all) { system("rails g module_component foo controller") }
-      after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
-      let(:path) { Rails.root.join('modules', 'foo', 'app') }
+    let(:path) { Rails.root.join('modules', 'foo', 'app', 'controllers') }
 
-      it 'it should create the module controller file' do
-          File.exists?("#{path}/controllers/foo_controller.rb").should be true
-      end
+    it 'creates the module controller file' do
+      File.exist?("#{path}/foo/v0/foo_controller.rb").should be true
     end
   end
 
