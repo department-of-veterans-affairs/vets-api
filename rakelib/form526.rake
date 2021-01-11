@@ -233,11 +233,23 @@ namespace :form526 do
 
     ids = args.extras || []
 
-    def to_olivebranch_case(method, val)
+    def to_olivebranch_case(val)
       OliveBranch::Transformations.transform(
         val,
-        OliveBranch::Transformations.method(method)
+        OliveBranch::Transformations.method(:camelize)
       )
+    end
+
+    def un_camel_va_keys!(hash)
+      json = hash.to_json
+      # rubocop:disable Style/PerlBackrefs
+      # gsub with a block explicitly sets backrefs correctly https://ruby-doc.org/core-2.6.6/String.html#method-i-gsub
+      json.gsub!(OliveBranch::Middleware::VA_KEY_REGEX) do
+        key = $1
+        "#{key.gsub('VA', 'Va')}:"
+      end
+      JSON.parse(json)
+      # rubocop:enable Style/PerlBackrefs
     end
 
     # make a hash that has both the original and corrupted versions of the disability name.
@@ -314,8 +326,8 @@ namespace :form526 do
     CSV.open(args[:csv_path], 'wb') do |csv|
       csv << %w[in_progress_form_id in_progress_form_user_uuid email_address]
       in_progress_forms.each do |in_progress_form|
-        in_progress_form.metadata = to_olivebranch_case(:camelize, in_progress_form.metadata)
-        form_data_hash = to_olivebranch_case(:camelize, JSON.parse(in_progress_form.form_data))
+        in_progress_form.metadata = to_olivebranch_case(in_progress_form.metadata)
+        form_data_hash = un_camel_va_keys!(to_olivebranch_case(JSON.parse(in_progress_form.form_data)))
         disability_array = get_disability_array(form_data_hash)
         dis_translation_hash = get_dis_translation_hash(disability_array)
 
@@ -325,13 +337,15 @@ namespace :form526 do
         pow_transformed = fix_pow_disabilities(form_data_hash,
                                                dis_translation_hash,
                                                disability_array)
+
+        fixed_va_inflection = OliveBranch::Middleware.send(:un_camel_va_keys!, form_data_hash.to_json)
         if treatment_facilities_transformed || pow_transformed
           csv << [in_progress_form.id,
                   in_progress_form.user_uuid,
                   form_data_hash.dig('phoneAndEmail', 'emailAddress')]
         end
 
-        in_progress_form.form_data = form_data_hash.to_json
+        in_progress_form.form_data = fixed_va_inflection
 
         # forms expire a year after they're last saved by the user so we want to disable updating the expires_at.
         in_progress_form.skip_exipry_update = true
