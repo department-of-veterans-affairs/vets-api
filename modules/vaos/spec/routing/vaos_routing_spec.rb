@@ -33,7 +33,7 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
       controller: 'vaos/v0/appointments',
       action: 'show',
       id: '12345',
-      type: 'va',
+      type: 'va'
     )
   end
 

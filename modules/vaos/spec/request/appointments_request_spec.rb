@@ -148,7 +148,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'shows single appointment' do
         it 'returns single appointment based on appointment id' do
-          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do 
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments/va/202006031600983000030800000000000000', params: params
 
             expect(response).to have_http_status(:success)

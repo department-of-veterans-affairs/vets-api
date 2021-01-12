@@ -27,7 +27,6 @@ VAOS::Engine.routes.draw do
     resources :direct_booking_eligibility_criteria, only: :index
     resources :request_eligibility_criteria, only: :index
     get 'apidocs', to: 'apidocs#index'
-   
   end
 
   namespace :v1, defaults: { format: :json } do
