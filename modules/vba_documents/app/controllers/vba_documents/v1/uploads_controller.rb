@@ -53,13 +53,12 @@ module VBADocuments
         at2_name = model.guid + '_' + 'attachment2' + '_' +  at2.original_filename
         metadata = JSON.parse(params['metadata']).merge({guid: model.guid, content: content_name, attachments: [at1_name, at2_name]})
         model.metadata = metadata
-        model.files.attach(io: content.tempfile, filename: content_name) #todo change filename to guid
-        model.files.attach(io: at1.tempfile, filename: at1_name) #todo change filename to guid
-        model.files.attach(io: at2.tempfile, filename: at2_name) #todo change filename to guid
+        # model.files.attach(io: content.tempfile, filename: content_name) #todo change filename to guid
+        # model.files.attach(io: at1.tempfile, filename: at1_name) #todo change filename to guid
+        # model.files.attach(io: at2.tempfile, filename: at2_name) #todo change filename to guid
         model.files.attach(io: StringIO.new(request.raw_post), filename: model.guid) #todo change filename to guid
         model.save!
         render json: metadata
-
       end
 
       def download
