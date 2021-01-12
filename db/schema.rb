@@ -571,7 +571,6 @@ ActiveRecord::Schema.define(version: 2021_01_05_174800) do
     t.boolean "available"
     t.datetime "checkout_time"
     t.integer "loa_level"
-    t.integer "accounts_id"
     t.index ["account_id"], name: "index_tud_accounts_on_account_id"
   end
 
