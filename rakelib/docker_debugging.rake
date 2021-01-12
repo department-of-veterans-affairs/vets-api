@@ -27,7 +27,7 @@ namespace :docker_debugging do
         puts 'Sidekiq debugging is enabled'
         command += ',job=0'
       end
-        sh command
+      sh command
     end
   end
 end
