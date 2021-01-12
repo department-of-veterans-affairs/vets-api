@@ -33,7 +33,7 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
         end
       else
         puts "\n"
-        puts "#{method} is not a known generator command. Commands allowed are controller, model and serializer and service"
+        puts "#{method} is not a known generator command. Commands allowed are controller, model, serializer and service"
         puts "\n"
       end
     end
