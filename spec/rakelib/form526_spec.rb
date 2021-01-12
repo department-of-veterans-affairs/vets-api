@@ -39,9 +39,12 @@ describe 'form526 rake tasks', type: :request do
     it 'fixes the form data with the rake task' do
       # corrupted before, with snake case keys in db
       form_data_json = JSON.parse(in_progress_form.form_data)
-      expect(form_data_json["va_treatment_facilities"].first["treated_disability_names"].keys).to include('aaaaa camelcase nightmareweasdf123_asdf')
-      expect(form_data_json["view:is_pow"]["pow_disabilities"].keys).to include('aaaaa camelcase nightmareweasdf123_asdf')
-
+      expect(form_data_json['va_treatment_facilities'].first['treated_disability_names'].keys).to(
+        include('aaaaa camelcase nightmareweasdf123_asdf')
+      )
+      expect(form_data_json['view:is_pow']['pow_disabilities'].keys).to(
+        include('aaaaa camelcase nightmareweasdf123_asdf')
+      )
 
       expect { run_rake_task }.not_to raise_error
 
@@ -49,8 +52,12 @@ describe 'form526 rake tasks', type: :request do
       fixed_form = InProgressForm.find(in_progress_form.id).form_data
       fixed_form_json = JSON.parse(fixed_form)
 
-      expect(fixed_form_json["vaTreatmentFacilities"].first["treatedDisabilityNames"].keys).to include('aaaaa camelcase nightmareweasdf-123--asdf')
-      expect(fixed_form_json["view:isPow"]["powDisabilities"].keys).to include('aaaaa camelcase nightmareweasdf-123--asdf')
+      expect(fixed_form_json['vaTreatmentFacilities'].first['treatedDisabilityNames'].keys).to(
+        include('aaaaa camelcase nightmareweasdf-123--asdf')
+      )
+      expect(fixed_form_json['view:isPow']['powDisabilities'].keys).to(
+        include('aaaaa camelcase nightmareweasdf-123--asdf')
+      )
       expect(fixed_form).not_to include('aaaaa camel_case nightmare_w_easdf123_asdf')
     end
 

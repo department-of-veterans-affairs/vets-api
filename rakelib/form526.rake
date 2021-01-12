@@ -285,11 +285,8 @@ namespace :form526 do
               new_treated_disability_names[disability_name] = value
             else
               transformed = true
-              original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase rescue binding.pry
-
-              unless original_disability_name.nil?
-                new_treated_disability_names[original_disability_name] = value
-              end
+              original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase
+              new_treated_disability_names[original_disability_name] = value unless original_disability_name.nil?
             end
           end
           va_treatment_facilities['treatedDisabilityNames'] = new_treated_disability_names
@@ -310,9 +307,7 @@ namespace :form526 do
           else
             transformed = true
             original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase
-            unless original_disability_name.nil?
-              new_pow_disability_names[original_disability_name] = value
-            end
+            new_pow_disability_names[original_disability_name] = value unless original_disability_name.nil?
           end
         end
         form_data_hash['view:isPow']['powDisabilities'] = new_pow_disability_names
