@@ -187,6 +187,10 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'hearingTypePreference')
     end
 
+    def zip_code_5
+      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+    end
+
     private
 
     def validate_hearing_type_selection
