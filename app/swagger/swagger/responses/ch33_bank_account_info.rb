@@ -20,6 +20,7 @@ module Swagger
 
                 property :account_type, type: :string
                 property :account_number, type: :string
+                property :financial_institution_name, type: :string
                 property :financial_institution_routing_number, type: :string
               end
             end
