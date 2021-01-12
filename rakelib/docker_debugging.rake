@@ -26,10 +26,8 @@ namespace :docker_debugging do
       if s.enable_sidekiq
         puts 'Sidekiq debugging is enabled'
         command += ',job=0'
-        sh command
-      else
-        sh command
       end
+        sh command
     end
   end
 end
