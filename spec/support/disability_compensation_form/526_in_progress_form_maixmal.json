@@ -61,7 +61,7 @@
                 "cause": "SECONDARY",
                 "condition": "phlebitis",
                 "view:secondaryFollowUp": {
-                    "causedByDisability": "AAAAA CamelCase nightmareWEasdf-123--asdf",
+                    "causedByDisability": "AAAAA CamelCase NightmareWEasdf-123--Asdf",
                     "causedByDisabilityDescription": "Again, this doesn't really make sense."
                 },
                 "view:serviceConnectedDisability": {}
@@ -326,7 +326,7 @@
         "vaTreatmentFacilities": [
             {
                 "treatedDisabilityNames": {
-                    "AAAAA CamelCase nightmareWEasdf-123--asdf": true,
+                    "aaaaa camelcase nightmareweasdf-123--asdf": true,
                     "knee replacement": true,
                     "phlebitis": true
                 },
@@ -381,9 +381,9 @@
                 }
             ],
             "powDisabilities": {
-                "AAAAA CamelCase nightmareWEasdf-123--asdf": true,
+                "aaaaa camelcase nightmareweasdf-123--asdf": true,
                 "knee replacement": true,
-                "myocardial infarction (MI)": true
+                "myocardial infarction (mi)": true
             }
         },
         "view:modifyingCar": true,
