@@ -29,6 +29,15 @@ RSpec.describe 'ModuleComponent', type: :generator do
   end
 
   describe 'it creates the module structure if user selects yes' do
-  end
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
+    let(:path) { Rails.root.join('modules', 'foo') }
+
+    it 'creates the module controller and serializer files' do
+      allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
+      ModuleComponentGenerator.new(%w[foo controller serializer]).create_component
+      expect(Dir.exist?(path.to_s)).to be_truthy
+      expect(File.exist?("#{path}/app/serializers/foo/v0/foo_serializer.rb")).to be_truthy
+    end
+  end
 end
