@@ -2,8 +2,17 @@
 
 module EducationForm::Forms
   class VA10203 < Base
+    def initialize(app)
+      @education_stem_automated_decision = app.education_stem_automated_decision
+      super(app)
+    end
+
     def header_form_type
-      'V10203'
+      @education_stem_automated_decision&.decision_state == 'denied' ? '10203DNY' : 'V10203'
+    end
+
+    def form_identifier
+      @education_stem_automated_decision&.decision_state == 'denied' ? 'VA Form 22-10203DNY' : 'VA Form 22-10203'
     end
 
     def form_benefit

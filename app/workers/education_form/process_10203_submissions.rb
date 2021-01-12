@@ -16,7 +16,8 @@ module EducationForm
     include SentryLogging
     sidekiq_options queue: 'default',
                     unique_for: 30.minutes,
-                    retry: 5
+                    retry: 5,
+                    backtrace: true
 
     # Get all 10203 submissions that have a row in education_stem_automated_decisions
     def perform(
@@ -53,7 +54,7 @@ module EducationForm
     def process_user_submissions(user_submissions)
       user_submissions.each do |user_uuid, submissions|
         gi_bill_status = get_gi_bill_status(user_uuid)
-        if gi_bill_status&.remaining_entitlement.blank?
+        if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each { |submission| update_status(submission, DENIED) }
         elsif submissions.count > 1
           check_previous_submissions(submissions, gi_bill_status)
