@@ -8,7 +8,7 @@ module EducationForm::Forms
     end
 
     def header_form_type
-      @education_stem_automated_decision&.decision_state == 'denied' ? '10203DNY' : 'V10203'
+      @education_stem_automated_decision&.automated_decision_state == 'denied' ? '10203DNY' : 'V10203'
     end
 
     def form_identifier
