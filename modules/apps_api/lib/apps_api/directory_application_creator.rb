@@ -94,8 +94,8 @@ module AppsApi
           "Your Health, Your Life, Your OneRecord.\n\n"\
           'OneRecord is an app that enables you to build a consolidated medical record of your full health history. '\
           'Whether you have medical records from your time in active duty, your treatment at VA facilities, '\
-          "or from doctors and hospitals outside of the military system, '\
-          'secure your medical records in one place — your OneRecord.\n\n"\
+          'or from doctors and hospitals outside of the military system, '\
+          "secure your medical records in one place — your OneRecord.\n\n"\
           'Available on IOS, Android, and on the web at www.onerecord.com'
         app.privacy_url = 'https://onerecord.com/privacy'
         app.tos_url = 'https://onerecord.com/terms'

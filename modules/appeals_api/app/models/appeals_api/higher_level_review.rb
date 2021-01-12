@@ -7,8 +7,6 @@ module AppealsApi
   class HigherLevelReview < ApplicationRecord
     include SentryLogging
 
-    REMOVE_PII = proc { update form_data: nil, auth_headers: nil }
-
     class << self
       def refresh_statuses_using_central_mail!(higher_level_reviews)
         return if higher_level_reviews.empty?
@@ -41,8 +39,6 @@ module AppealsApi
       def past?(date)
         date < Time.zone.today
       end
-
-      define_method :remove_pii, &REMOVE_PII
 
       private
 
@@ -91,10 +87,6 @@ module AppealsApi
     raise unless COMPLETE_STATUSES - STATUSES == []
 
     scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
-    scope :completed, -> { where status: COMPLETE_STATUSES }
-    scope :has_pii, -> { where.not(encrypted_form_data: nil).or(where.not(encrypted_auth_headers: nil)) }
-    scope :has_not_been_updated_in_a_week, -> { where 'updated_at < ?', 1.week.ago }
-    scope :ready_to_have_pii_expunged, -> { has_pii.completed.has_not_been_updated_in_a_week }
 
     INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
     NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
@@ -258,8 +250,6 @@ module AppealsApi
     def consumer_id
       auth_headers&.dig('X-Consumer-ID')
     end
-
-    define_method :remove_pii, &REMOVE_PII
 
     private
 

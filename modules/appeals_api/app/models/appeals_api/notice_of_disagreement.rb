@@ -7,8 +7,6 @@ module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
     include SentryLogging
 
-    REMOVE_PII = proc { update form_data: nil, auth_headers: nil }
-
     class << self
       def refresh_statuses_using_central_mail!(notice_of_disagreement)
         return if notice_of_disagreement.empty?
@@ -85,8 +83,6 @@ module AppealsApi
       #   }
       # }
 
-      define_method :remove_pii, &REMOVE_PII
-
       private
 
       def parse_central_mail_response(response)
@@ -134,10 +130,6 @@ module AppealsApi
     raise unless COMPLETE_STATUSES - STATUSES == []
 
     scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
-    scope :completed, -> { where status: COMPLETE_STATUSES }
-    scope :has_pii, -> { where.not(encrypted_form_data: nil).or(where.not(encrypted_auth_headers: nil)) }
-    scope :has_not_been_updated_in_a_week, -> { where 'updated_at < ?', 1.week.ago }
-    scope :ready_to_have_pii_expunged, -> { has_pii.completed.has_not_been_updated_in_a_week }
 
     validate :validate_hearing_type_selection
 
@@ -156,19 +148,27 @@ module AppealsApi
     end
 
     def veteran_first_name
-      header_field_as_string 'X-VA-First-Name'
+      header_field_as_string 'X-VA-Veteran-First-Name'
     end
 
     def veteran_last_name
-      header_field_as_string 'X-VA-Last-Name'
+      header_field_as_string 'X-VA-Veteran-Last-Name'
     end
 
     def ssn
-      header_field_as_string 'X-VA-SSN'
+      header_field_as_string 'X-VA-Veteran-SSN'
     end
 
     def file_number
-      header_field_as_string 'X-VA-File-Number'
+      header_field_as_string 'X-VA-Veteran-File-Number'
+    end
+
+    def consumer_name
+      header_field_as_string 'X-Consumer-Username'
+    end
+
+    def consumer_id
+      header_field_as_string 'X-Consumer-ID'
     end
 
     def veteran_homeless_state
@@ -179,14 +179,6 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
-    def consumer_name
-      auth_headers&.dig('X-Consumer-Username')
-    end
-
-    def consumer_id
-      auth_headers&.dig('X-Consumer-ID')
-    end
-
     def board_review_option
       form_data&.dig('data', 'attributes', 'boardReviewOption')
     end
@@ -195,7 +187,9 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'hearingTypePreference')
     end
 
-    define_method :remove_pii, &REMOVE_PII
+    def zip_code_5
+      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+    end
 
     private
 
