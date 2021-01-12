@@ -30,6 +30,11 @@ but the following tasks have been aliased to speed development:
 - `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`). Test coverage statistics are in `coverage/index.html` or in [CodeClimate](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/code)
 - `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
 
+## Running tests in parallel
+
+- `make spec_parallel_setup` - This sets up the parallel tests databases. First the existing test database is dropped and reset, then the rest of the test databases are cloned off the standard one
+- `make spec_parallel` - Run the entire test suite in parallel. A spec folder path can optionally be given as an argument to run just the spec folder in parallel
+
 ### Running linters
 
 - `make lint` - Run the full suite of linters on the codebase.

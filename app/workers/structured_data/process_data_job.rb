@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bip_claims/service'
+require 'pension_burial/tag_sentry'
 
 module StructuredData
   class ProcessDataJob

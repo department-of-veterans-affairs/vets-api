@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vaos_backend_service_exception'
 
 class MyEnv
   attr_reader :status, :body, :url, :success
