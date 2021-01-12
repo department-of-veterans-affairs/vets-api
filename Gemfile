@@ -171,6 +171,7 @@ group :development, :test do
   gem 'fuubar'
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
+  gem 'parallel_tests'
   gem 'pry-byebug'
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'

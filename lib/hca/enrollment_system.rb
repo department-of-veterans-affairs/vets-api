@@ -568,16 +568,16 @@ module HCA
     end
 
     def address_from_veteran(veteran)
-      mailing_address = veteran['veteranMailingAddress']
-      home_address = veteran['veteranAddress']
-      address = if mailing_address
-                  [
-                    format_address(mailing_address, type: 'P'),
-                    format_address(home_address, type: 'R')
-                  ]
-                else
-                  format_address(home_address, type: 'P')
-                end
+      veteran_address = veteran['veteranAddress']
+      home_address    = veteran['veteranHomeAddress']
+      address         = if home_address
+                          [
+                            format_address(veteran_address, type: 'P'),
+                            format_address(home_address, type: 'R')
+                          ]
+                        else
+                          format_address(veteran_address, type: 'P')
+                        end
 
       { 'address' => address }
     end
