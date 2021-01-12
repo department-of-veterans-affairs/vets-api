@@ -12,8 +12,8 @@ module EducationForm::Forms
     end
 
     def form_identifier
-      @education_stem_automated_decision&.automated_decision_state == 'denied' ?
-      'VA Form 22-10203DNY' : 'VA Form 22-10203'
+      @education_stem_automated_decision&.automated_decision_state == 'denied' ? 
+          'VA Form 22-10203DNY' : 'VA Form 22-10203'
     end
 
     def form_benefit
