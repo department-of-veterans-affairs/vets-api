@@ -55,7 +55,7 @@ module EducationForm
       user_submissions.each do |user_uuid, submissions|
         gi_bill_status = get_gi_bill_status(user_uuid)
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
-          submissions.each { |submission| update_status(submission, DENIED) }
+          submissions.each { |submission| update_status(submission, PROCESSED) }
         elsif submissions.count > 1
           check_previous_submissions(submissions, gi_bill_status)
         else
