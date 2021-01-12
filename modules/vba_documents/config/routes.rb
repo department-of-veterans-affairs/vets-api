@@ -8,6 +8,7 @@ VBADocuments::Engine.routes.draw do
   match '/v1/upstream_healthcheck', to: 'metadata#upstream_healthcheck', via: [:get]
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
+  match '/v1/uploads/upload', to: 'v1/uploads#upload', via: [:post]
 
   namespace :v0, defaults: { format: 'json' } do
     resources :uploads, only: %i[create show] do
