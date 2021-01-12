@@ -126,6 +126,11 @@ AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
+AppealsApi::DecisionReviewReportJob:
+  cron: "0 0 * * MON-FRI America/New_York"
+  class: AppealsApi::DecisionReviewReportJob
+  description: "Daily report of appeals submissions"
+
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
