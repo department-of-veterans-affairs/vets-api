@@ -54,11 +54,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'pos_codes' => nil,
               'pref_contact' => nil,
               'unique_id' => '1154383230'
-            },
-            'relationships' => {
-              'specialties' => {
-                'data' => []
-              }
             }
           }
         )
@@ -107,11 +102,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                 'pos_codes' => '20',
                 'pref_contact' => nil,
                 'unique_id' => '1487993564'
-              },
-              'relationships' => {
-                'specialties' => {
-                  'data' => []
-                }
               }
             }
           )
@@ -200,15 +190,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'pos_codes' => nil,
               'pref_contact' => nil,
               'unique_id' => '1154383230'
-            },
-            'relationships' => {
-              'specialties' => {
-                'data' => []
-              }
             }
           }
         )
-        expect(bod['included']).to match([])
 
         expect(response).to be_successful
       end
@@ -252,16 +236,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'pos_codes' => nil,
               'pref_contact' => nil,
               'unique_id' => '1225028293'
-            },
-            'relationships' => {
-              'specialties' => {
-                'data' => []
-              }
             }
           }
         )
-
-        expect(bod['included']).to match([])
 
         expect(response).to be_successful
       end
@@ -307,11 +284,6 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'pos_codes' => '20',
               'pref_contact' => nil,
               'unique_id' => '1487993564'
-            },
-            'relationships' => {
-              'specialties' => {
-                'data' => []
-              }
             }
           }
         )
@@ -360,37 +332,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'pos_codes' => nil,
             'pref_contact' => nil,
             'unique_id' => '1225028293'
-          },
-          'relationships' => {
-            'specialties' => {
-              'data' => [
-                {
-                  'id' => '3336C0003X',
-                  'type' => 'specialty'
-                }
-              ]
-            }
           }
-        },
-        'included' => [
-          {
-            'id' => '3336C0003X',
-            'type' => 'specialty',
-            'attributes' => {
-              'classification' => 'Pharmacy',
-              'grouping' => 'Suppliers',
-              'name' => 'Pharmacy - Community/Retail Pharmacy',
-              'specialization' => 'Community/Retail Pharmacy',
-              'specialty_code' => '3336C0003X',
-              'specialty_description' => 'A pharmacy where pharmacists store, prepare, and dispense medicinal ' \
-                'preparations and/or prescriptions for a local patient population in accordance with federal and ' \
-                'state law; counsel patients and caregivers (sometimes independent of the dispensing process); ' \
-                'administer vaccinations; and provide other professional services associated with pharmaceutical ' \
-                'care such as health screenings, consultative services with other health care providers, ' \
-                'collaborative practice, disease state management, and education classes.'
-            }
-          }
-        ]
+        }
       )
     end
   end
