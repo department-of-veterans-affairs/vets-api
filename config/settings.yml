@@ -156,6 +156,7 @@ decision_review:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
+  report_enabled: false
   higher_level_review_updater_enabled: true
   notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
