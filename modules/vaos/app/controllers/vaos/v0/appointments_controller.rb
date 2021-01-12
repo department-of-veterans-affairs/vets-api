@@ -17,8 +17,8 @@ module VAOS
       end
 
       def show
-        render json: appointment_service.get_appointment(request.params['id'])
-               #,serializer: VAAppointmentsSerializer
+        response = appointment_service.get_appointment(params['id'])
+        render json: VAOS::V0::VAAppointmentsSerializer.new(response)
       end
 
       def cancel
@@ -45,6 +45,11 @@ module VAOS
         VAOS::AppointmentService.new(current_user)
       end
 
+      def appointment
+        @appointment ||=
+          appointment_service.get_appointment(id)
+      end
+
       def appointments
         @appointments ||=
           appointment_service.get_appointments(type, start_date, end_date, pagination_params)
@@ -59,6 +64,10 @@ module VAOS
         raise Common::Exceptions::InvalidFieldValue.new('type', type) unless %w[va cc].include?(type)
         raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
         raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
+      end
+
+      def id
+        params[:id]
       end
 
       def type

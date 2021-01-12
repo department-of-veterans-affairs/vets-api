@@ -8,7 +8,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
-    #allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -139,7 +139,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
           get '/vaos/v0/appointments', params: params
 
-          binding.pry
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data'].first['id']).to eq('202006031600983000030800000000000000')
@@ -149,10 +148,9 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'shows single appointment' do
         it 'returns single appointment based on appointment id' do
-          VCR.use_cassette('vaos/appointments/show_appointment', record: :new_episodes ) do #match_requests_on: %i[method uri]
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do 
             get '/vaos/v0/appointments/va/202006031600983000030800000000000000', params: params
-  
-            binding.pry
+
             expect(response).to have_http_status(:success)
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['id']).to eq('202006031600983000030800000000000000')

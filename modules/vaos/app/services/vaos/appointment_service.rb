@@ -7,24 +7,19 @@ module VAOS
   class AppointmentService < VAOS::SessionService
     def get_appointments(type, start_date, end_date, pagination_params = {})
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
-
       with_monitoring do
         response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
         }
-        binding.pry
       end
     end
 
     def get_appointment(id)
       with_monitoring do
         response = perform(:get, show_appointment_base_url(id), params = {}, headers, timeout: 55)
-        {
-          data: OpenStruct.new(response.body)
-        }
-        binding.pry
+        OpenStruct.new(response.body)
       end
     end
 
