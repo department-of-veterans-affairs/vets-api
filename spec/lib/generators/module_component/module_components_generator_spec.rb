@@ -16,7 +16,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'controllers') }
 
     it 'creates the module controller file' do
-      File.exist?("#{path}/foo/v0/foo_controller.rb").should be true
+      expect(File.exist?("#{path}/foo/v0/foo_controller.rb")).to be_truthy
     end
   end
 
