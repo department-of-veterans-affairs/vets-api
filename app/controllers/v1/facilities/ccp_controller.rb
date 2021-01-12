@@ -10,7 +10,7 @@ class V1::Facilities::CcpController < FacilitiesController
   def index
     api_results = index_api_results
 
-    render_json(PPMS::ProviderSerializer, ppms_params, api_results, { include: [:specialties] })
+    render_json(PPMS::ProviderSerializer, ppms_params, api_results)
   end
 
   def show
@@ -21,7 +21,7 @@ class V1::Facilities::CcpController < FacilitiesController
 
     api_result = PPMS::Provider.new(api_result.attributes.transform_keys { |k| k.to_s.snakecase.to_sym })
 
-    render_json(PPMS::ProviderSerializer, ppms_show_params, api_result, { include: [:specialties] })
+    render_json(PPMS::ProviderSerializer, ppms_show_params, api_result)
   end
 
   def specialties
