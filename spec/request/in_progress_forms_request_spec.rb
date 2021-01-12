@@ -30,15 +30,90 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       let(:user) { loa3_user }
-      let!(:in_progress_form_edu) { FactoryBot.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
+      let!(:in_progress_form_edu) do
+        FactoryBot.create(:in_progress_form, :with_nested_metadata, form_id: '22-1990', user_uuid: user.uuid)
+      end
       let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
+        let(:top_level_keys) { response_body.keys }
+        let(:data) { response_body['data'] }
+        let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['how_now'] } }
+        let(:metadata_returned_with_the_request) { in_progress_form_with_nested_hash['attributes']['metadata'] }
+        let(:metadata_before_the_request) { in_progress_form_edu.metadata }
+
+        def response_body
+          JSON.parse response.body
+        end
 
         it 'returns a 200' do
           subject
           expect(response).to have_http_status(:ok)
+        end
+
+        it 'has the correct shape (JSON:API), with snake_case keys' do
+          subject
+          expect(response_body).to be_a Hash
+          expect(top_level_keys).to contain_exactly 'data'
+          expect(data).to be_an Array
+          expect(data.count).to be > 1
+          data.each do |ipf|
+            expect(ipf.keys).to contain_exactly('id', 'type', 'attributes')
+            expect(ipf['type']).to eq 'in_progress_forms'
+            expect(ipf['attributes'].keys).to contain_exactly('form_id', 'created_at', 'updated_at', 'metadata')
+          end
+        end
+
+        it 'snake_cased keys *inside* attributes' do
+          subject
+          expect(metadata_returned_with_the_request['how_now']['brown_cow']).to be_present
+        end
+
+        it 'corrupts complicated keys' do
+          subject
+          expect(metadata_before_the_request['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.'])
+            .to be_present
+          expect(metadata_returned_with_the_request['how_now']['brown_cow']['-an eas-i-ly corRupted KEY.'])
+            .not_to be_present
+        end
+
+        context 'with OliveBranch' do
+          subject do
+            get(
+              v0_in_progress_forms_url,
+              headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
+            )
+          end
+
+          let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['howNow'] } }
+
+          it 'has camelCase keys' do
+            subject
+            expect(response_body).to be_a Hash
+            expect(top_level_keys).to contain_exactly 'data'
+            expect(data).to be_an Array
+            expect(data.count).to be > 1
+            data.each do |ipf|
+              expect(ipf.keys).to contain_exactly('id', 'type', 'attributes')
+              expect(ipf['type']).to eq 'in_progress_forms'
+              expect(ipf['attributes'].keys).to contain_exactly('formId', 'createdAt', 'updatedAt', 'metadata')
+            end
+          end
+
+          it 'camelCased keys *inside* attributes' do
+            subject
+            expect(metadata_returned_with_the_request['howNow']['brownCow']).to be_present
+          end
+
+          it 'corrupts complicated keys' do
+            subject
+            expect(metadata_before_the_request['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.'])
+              .to be_present
+            expect(metadata_returned_with_the_request['howNow']['brownCow']['-an eas-i-ly corRupted KEY.'])
+              .not_to be_present
+            puts metadata_returned_with_the_request['howNow']['brownCow'].keys
+          end
         end
       end
 

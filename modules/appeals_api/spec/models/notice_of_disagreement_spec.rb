@@ -110,4 +110,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   describe '#consumer_id' do
     it { expect(notice_of_disagreement.consumer_id).to eq 'some-guid' }
   end
+
+  describe '#zip_code_5' do
+    it { expect(notice_of_disagreement.zip_code_5).to eq '66002' }
+  end
 end

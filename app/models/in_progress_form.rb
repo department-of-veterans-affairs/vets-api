@@ -9,6 +9,8 @@ class InProgressForm < ApplicationRecord
     alias serialize cast
   end
 
+  attr_accessor :skip_exipry_update
+
   RETURN_URL_SQL = "CAST(metadata -> 'return_url' AS text)"
   scope :has_attempted_submit, -> { where("(metadata -> 'submission' ->> 'has_attempted_submit')::boolean") }
   scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
@@ -23,7 +25,7 @@ class InProgressForm < ApplicationRecord
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)
   before_save :serialize_form_data
-  before_save :set_expires_at
+  before_save :set_expires_at, unless: :skip_exipry_update
 
   def self.form_for_user(form_id, user)
     InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
