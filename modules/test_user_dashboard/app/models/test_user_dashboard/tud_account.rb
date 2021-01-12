@@ -2,6 +2,6 @@
 
 module TestUserDashboard
   class TudAccount < ApplicationRecord
-    belongs_to: account
+    belongs_to :account, optional: false
   end
 end
