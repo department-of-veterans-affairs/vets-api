@@ -5,11 +5,12 @@ require 'rails/generators'
 class ModuleComponentGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('templates', __dir__)
   argument :methods, type: :array, default: [], banner: 'method method'
-  # class_option :types, type: :array, default: []
+  attr_accessor :commit_message_methods
 
   COMPONENT_TYPES = %w[controller model serializer service].freeze
 
   def create_component
+    @commit_message_methods = []
     # check if the module and dir structure exists
     # if not, prompt the user - ask if they'd like to create
     unless Dir.exist?("modules/#{file_name}")
@@ -20,7 +21,9 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
     # and create the corresponding files within the module for each arg
     path = "modules/#{file_name}/app"
     methods.map(&:downcase).each do |method|
+
       if COMPONENT_TYPES.include? method
+        commit_message_methods << method
         template "app/#{method.pluralize}/#{method}.rb.erb",
                  File.join(path, method.pluralize.to_s, file_name, 'v0', "#{file_name}_#{method}.rb")
 
@@ -35,4 +38,15 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
       end
     end
   end
+
+  # rubocop:disable Rails/Output
+  # :nocov:
+  def create_commit_message
+    unless commit_message_methods.nil?
+      git add: '.'
+      git commit: "-a -m 'Initial commit of new module #{commit_message_methods.join(", ")} *KEEP THIS COMMIT MESSAGE*'"
+    end
+  end
+  # :nocov:
+  # rubocop:enable Rails/Output
 end
