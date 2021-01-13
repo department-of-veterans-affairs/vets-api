@@ -50,7 +50,20 @@ RSpec.describe 'ModuleComponent', type: :generator do
     end
   end
 
-  describe 'creates multiple components components' do
+  describe 'creates a service and configuration' do
+    before(:all) do
+      ModuleGenerator.new(['foo']).create_directory_structure
+      ModuleComponentGenerator.new(%w[foo service]).create_component
+    end
+
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
+    let(:path) { Rails.root.join('modules', 'foo', 'app', 'services') }
+
+    it 'creates the module service and configuration files' do
+       expect(File.exist?("#{path}/foo/v0/foo_service.rb")).to be_truthy
+       expect(File.exist?("#{path}/foo/v0/configuration.rb")).to be_truthy
+    end
   end
 
 
