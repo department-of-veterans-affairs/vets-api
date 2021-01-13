@@ -76,7 +76,6 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             .to be_present
           expect(metadata_returned_with_the_request['how_now']['brown_cow']['-an eas-i-ly corRupted KEY.'])
             .not_to be_present
-          puts metadata_returned_with_the_request['how_now']['brown_cow'].keys
         end
 
         context 'with OliveBranch' do

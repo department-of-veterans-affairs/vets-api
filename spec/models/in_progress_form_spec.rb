@@ -25,6 +25,15 @@ RSpec.describe InProgressForm, type: :model do
       expect(in_progress_form.metadata['expires_at']).to eq(1_501_459_200)
       expect(in_progress_form.metadata['in_progress_form_id']).to be_an(Integer)
     end
+
+    context 'skips the expiration_date callback wihen skip_exipry_update is true' do
+      it 'adds the form expiration time and id', run_at: '2017-06-01' do
+        in_progress_form.skip_exipry_update = true
+        in_progress_form.save
+        expect(in_progress_form.metadata['expires_at']).not_to eq(1_501_459_200)
+      end
+    end
+
     context 'when the form is 21-526EZ' do
       before { in_progress_form.form_id = '21-526EZ' }
 
