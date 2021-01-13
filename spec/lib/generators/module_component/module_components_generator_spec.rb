@@ -16,7 +16,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'controllers') }
 
     it 'creates the module controller file' do
-      expect(File.exist?("#{path}/foo/v0/foo_controller.rb")).to be_truthy
+      expect(File).to exist("#{path}/foo/v0/foo_controller.rb")
     end
   end
 
@@ -31,7 +31,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'serializers') }
 
     it 'creates the module serializer file' do
-       expect(File.exist?("#{path}/foo/v0/foo_serializer.rb")).to be_truthy
+      expect(File).to exist("#{path}/foo/v0/foo_serializer.rb")
     end
   end
 
@@ -46,7 +46,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'models') }
 
     it 'creates the module model file' do
-       expect(File.exist?("#{path}/foo/v0/foo_model.rb")).to be_truthy
+      expect(File).to exist("#{path}/foo/v0/foo_model.rb")
     end
   end
 
@@ -61,8 +61,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'services') }
 
     it 'creates the module service and configuration files' do
-       expect(File.exist?("#{path}/foo/v0/foo_service.rb")).to be_truthy
-       expect(File.exist?("#{path}/foo/v0/configuration.rb")).to be_truthy
+      expect(File).to exist("#{path}/foo/v0/foo_service.rb")
+      expect(File).to exist("#{path}/foo/v0/configuration.rb")
     end
   end
 
@@ -77,8 +77,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app') }
 
     it 'creates the module controller and serializer files' do
-       expect(File.exist?("#{path}/controllers/foo/v0/foo_controller.rb")).to be_truthy
-       expect(File.exist?("#{path}/serializers/foo/v0/foo_serializer.rb")).to be_truthy
+      expect(File).to exist("#{path}/controllers/foo/v0/foo_controller.rb")
+      expect(File).to exist("#{path}/serializers/foo/v0/foo_serializer.rb")
     end
   end
 
@@ -91,7 +91,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'bad_components') }
 
     it 'does not create the bad_component' do
-      expect(File.exist?("#{path}/foo/v0/foo_bad_component.rb")).to be_falsey
+      expect(File).not_to exist("#{path}/foo/v0/foo_bad_component.rb")
     end
   end
 
@@ -103,8 +103,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
     it 'creates the module controller and serializer files' do
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
       ModuleComponentGenerator.new(%w[foo controller serializer]).create_component
-      expect(Dir.exist?(path.to_s)).to be_truthy
-      expect(File.exist?("#{path}/app/serializers/foo/v0/foo_serializer.rb")).to be_truthy
+      expect(Dir).to exist(path.to_s)
+      expect(File).to exist("#{path}/app/serializers/foo/v0/foo_serializer.rb")
     end
   end
 end
