@@ -38,7 +38,7 @@ module HealthQuest
       ##
       # Gets the active session from redis for the logged in user
       # or creates a new one in redis by first obtaining
-      # an access_token from lighthouse
+      # an access_token from Lighthouse
       #
       # @return [HealthQuest::SessionStore]
       #
@@ -49,20 +49,36 @@ module HealthQuest
         establish_lighthouse_session
       end
 
-      private
-
+      ##
+      # Gets the active session from redis for the logged in user
+      #
+      # @return [HealthQuest::SessionStore]
+      #
       def session_from_redis
         redis_handler.get
       end
 
+      ##
+      # Makes the call to `lighthouse_access_token` and saves the token
+      # to a SessionStore in Redis
+      #
+      # @return [HealthQuest::SessionStore]
+      #
       def establish_lighthouse_session
         redis_handler.token = lighthouse_access_token
         redis_handler.save
       end
 
+      ##
+      # Fetches a new access_token from Lighthouse for the logged in user
+      #
+      # @return [HealthQuest::SessionStore]
+      #
       def lighthouse_access_token
         token.fetch
       end
+
+      private
 
       def session_id
         @build_session_id ||= "#{lighthouse_prefix}_#{account_uuid}"

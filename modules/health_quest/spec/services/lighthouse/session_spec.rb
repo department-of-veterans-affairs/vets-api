@@ -53,4 +53,44 @@ describe HealthQuest::Lighthouse::Session do
       end
     end
   end
+
+  describe '#session_from_redis' do
+    let(:session_store) { double('HealthQuest::SessionStore') }
+
+    context 'when session exists' do
+      it 'returns an instance of SessionStore' do
+        allow(HealthQuest::SessionStore).to receive(:find).with(anything).and_return(session_store)
+
+        expect(subject.build(user).session_from_redis).to eq(session_store)
+      end
+    end
+
+    context 'when session does not exist' do
+      it 'returns nil' do
+        allow(HealthQuest::SessionStore).to receive(:find).with(anything).and_return(nil)
+
+        expect(subject.build(user).session_from_redis).to eq(nil)
+      end
+    end
+  end
+
+  describe '#lighthouse_access_token' do
+    let(:token) { HealthQuest::Lighthouse::Token.build(user: user) }
+
+    it 'returns a Token instance' do
+      allow_any_instance_of(HealthQuest::Lighthouse::Token).to receive(:fetch).and_return(token)
+
+      expect(subject.build(user).lighthouse_access_token).to eq(token)
+    end
+  end
+
+  describe '#establish_lighthouse_session' do
+    let(:token) { double('Token', access_token: '123', decoded_token: '34568', created_at: 1234, ttl_duration: 5647) }
+
+    it 'returns a session store' do
+      allow_any_instance_of(subject).to receive(:lighthouse_access_token).and_return(token)
+
+      expect(subject.build(user).establish_lighthouse_session).to be_a(HealthQuest::SessionStore)
+    end
+  end
 end
