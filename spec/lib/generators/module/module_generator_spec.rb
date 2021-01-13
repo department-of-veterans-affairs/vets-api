@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'generators/module/module_generator'
 
 describe ModuleGenerator do
-  before(:all) d
+  before(:all) do
     @original_stdout = $stdout
     # Redirect stdout to suppress generator output
     $stdout = File.open(File::NULL, "w")
