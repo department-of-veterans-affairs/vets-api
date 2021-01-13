@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'central_mail/datestamp_pdf'
 
 module AppealsApi
@@ -41,7 +43,7 @@ module AppealsApi
         return @form_fill_path if pdf.blank?
 
         additional_pages_added_path = "/tmp/#{appeal.id}-additional-pages-tmp.pdf"
-        pdf.render_file(additional_pages_added_path) #saves the file
+        pdf.render_file(additional_pages_added_path) # saves the file
 
         combine_form_fill_and_additional_pages(additional_pages_added_path)
       end

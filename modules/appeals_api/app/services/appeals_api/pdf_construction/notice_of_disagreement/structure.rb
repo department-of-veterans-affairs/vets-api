@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'prawn/table'
 
 module AppealsApi
@@ -8,28 +10,32 @@ module AppealsApi
           @notice_of_disagreement = notice_of_disagreement
         end
 
+        # rubocop:disable Metrics/AbcSize
         def form_fill
           options = {
-            form_fields.veteran_name                      => form_data.veteran_name,
-            form_fields.veteran_ssn                       => form_data.veteran_ssn,
-            form_fields.veteran_file_number               => form_data.veteran_file_number,
-            form_fields.date_signed                       => form_data.veteran_dob,
+            form_fields.veteran_name => form_data.veteran_name,
+            form_fields.veteran_ssn => form_data.veteran_ssn,
+            form_fields.veteran_file_number => form_data.veteran_file_number,
+            form_fields.veteran_dob => form_data.veteran_dob,
             form_fields.mailing_address_number_and_street => form_data.mailing_address_number_and_street,
-            form_fields.homeless?                         => form_data.homeless?,
-            form_fields.preferred_phone                   => form_data.preferred_phone,
-            form_fields.preferred_email                   => form_data.preferred_email,
-            form_fields.direct_review?                    => form_data.direct_review?,
-            form_fields.evidence_submission?              => form_data.evidence_submission?,
-            form_fields.hearing?                          => form_data.hearing?,
-            form_fields.additional_pages?                 => form_data.additional_pages?,
-            form_fields.soc_opt_in?                       => form_data.soc_opt_in?,
-            form_fields.signature                         => form_data.signature,
-            form_fields.date_signed                       => form_data.date_signed,
+            form_fields.homeless? => form_data.homeless?,
+            form_fields.preferred_phone => form_data.preferred_phone,
+            form_fields.preferred_email => form_data.preferred_email,
+            form_fields.direct_review? => form_data.direct_review?,
+            form_fields.evidence_submission? => form_data.evidence_submission?,
+            form_fields.hearing? => form_data.hearing?,
+            form_fields.additional_pages? => form_data.additional_pages?,
+            form_fields.soc_opt_in? => form_data.soc_opt_in?,
+            form_fields.signature => form_data.signature,
+            form_fields.date_signed => form_data.date_signed
           }
 
           fill_first_five_issue_dates!(options)
         end
+        # rubocop:enable Metrics/AbcSize
 
+        # rubocop:disable Metrics/MethodLength
+        # rubocop:disable Metrics/BlockLength
         def insert_overlaid_pages(form_fill_path)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
           temp_path = "/#{::Common::FileHelpers.random_file_path}.pdf"
@@ -49,20 +55,21 @@ module AppealsApi
                 at: [350, 512],
                 width: 195,
                 height: 24
-              ))
+              )
+            )
 
-            form_data.
-              contestable_issues.
-              take(5).
-              each_with_index do |issue, index|
+            form_data
+              .contestable_issues
+              .take(5)
+              .each_with_index do |issue, index|
                 ypos = 288 - (45 * index)
                 pdf.text_box issue['attributes']['issue'],
-                  text_opts.merge(
-                    at: [0, ypos],
-                    width: 444,
-                    height: 38,
-                    valign: :top
-                  )
+                             text_opts.merge(
+                               at: [0, ypos],
+                               width: 444,
+                               height: 38,
+                               valign: :top
+                             )
               end
 
             2.times { pdf.start_new_page } # temp file and pdf template must have same num of pages for pdftk.multistamp
@@ -72,6 +79,8 @@ module AppealsApi
 
           output_path
         end
+        # rubocop:enable Metrics/MethodLength
+        # rubocop:enable Metrics/BlockLength
 
         def add_additional_pages
           return unless form_data.additional_pages?
@@ -80,7 +89,7 @@ module AppealsApi
 
           add_hearing_type_and_extra_issues_page
 
-          #additional_pages_pdf.start_new_page before each new page method
+          # additional_pages_pdf.start_new_page before each new page method
 
           additional_pages_pdf
         end
@@ -155,6 +164,10 @@ module AppealsApi
           else
             super
           end
+        end
+
+        def respond_to_missing?(method, include_private = false)
+          notice_of_disagreement.respond_to?(method, include_private) || super
         end
       end
     end
