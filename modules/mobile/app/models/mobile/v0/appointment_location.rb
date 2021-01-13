@@ -12,6 +12,8 @@ module Mobile
     class AppointmentLocation < Common::Resource
       attribute :name, Types::String
       attribute :address, AppointmentAddress
+      attribute :lat, Types::Float.optional
+      attribute :long, Types::Float.optional
       attribute :phone, AppointmentPhone
       attribute :url, Types::String.optional
       attribute :code, Types::String.optional
