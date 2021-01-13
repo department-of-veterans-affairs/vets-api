@@ -53,9 +53,12 @@ module EducationForm
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
       user_submissions.each do |user_uuid, submissions|
-        gi_bill_status = get_gi_bill_status(user_uuid)
+        user = User.find(user_uuid)
+        gi_bill_status = get_gi_bill_status(user)
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
-          submissions.each { |submission| update_status(submission, PROCESSED) }
+          submissions.each do |submission|
+            update_automated_decision(submission, PROCESSED, user.power_of_attorney.blank?)
+          end
         elsif submissions.count > 1
           check_previous_submissions(submissions, gi_bill_status)
         else
@@ -65,8 +68,7 @@ module EducationForm
     end
 
     # Retrieve EVSS gi_bill_status data for a user
-    def get_gi_bill_status(user_uuid)
-      user = User.find(user_uuid)
+    def get_gi_bill_status(user)
       service = EVSS::GiBillStatus::Service.new(user)
       service.get_gi_bill_status
     rescue => e
@@ -74,8 +76,10 @@ module EducationForm
       {}
     end
 
-    def update_status(submission, status)
-      submission.education_stem_automated_decision.update(automated_decision_state: status)
+    def update_automated_decision(submission, status, has_poa)
+      submission.education_stem_automated_decision.update(
+        automated_decision_state: status,
+        has_poa: has_poa)
     end
 
     # Makes a list of all submissions that have not been processed and have a status of INIT
