@@ -68,6 +68,7 @@ class SimpleCovHelper
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
+    add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
