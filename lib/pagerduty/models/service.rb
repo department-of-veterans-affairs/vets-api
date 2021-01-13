@@ -2,6 +2,7 @@
 
 require 'common/models/base'
 require 'common/models/attribute_types/iso8601_time'
+require 'pagerduty/configuration'
 
 module PagerDuty
   module Models
@@ -43,7 +44,7 @@ module PagerDuty
           services.select do |service|
             name_present!(service)
 
-            service['name'].start_with?('External:')
+            service['name'].start_with?(Settings.maintenance.service_query_prefix)
           end
         end
 
@@ -59,7 +60,7 @@ module PagerDuty
         end
 
         def external_service_in(service)
-          service['name'].split('External:').last.strip
+          service['name'].delete_prefix(Settings.maintenance.service_query_prefix).strip
         end
 
         def name_present!(service)

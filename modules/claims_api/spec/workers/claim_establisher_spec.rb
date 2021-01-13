@@ -11,7 +11,9 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    EVSS::DisabilityCompensationAuthHeaders.new(user)
+                                           .add_headers(EVSS::AuthHeaders.new(user).to_h)
+                                           .merge(BGS::AuthHeaders.new(user).to_h)
   end
 
   let(:claim) do
@@ -21,7 +23,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     claim
   end
 
-  it 'submits succesfully' do
+  it 'submits successfully' do
     expect do
       subject.perform_async(claim.id)
     end.to change(subject.jobs, :size).by(1)

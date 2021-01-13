@@ -13,6 +13,8 @@ RSpec.describe SAML::User do
     let(:highest_attained_loa) { '1' }
     let(:multifactor) { false }
     let(:existing_saml_attributes) { nil }
+    let(:callback_url) { 'http://http://127.0.0.1:3000/v1/sessions/callback/v1/sessions/callback' }
+    let(:rubysaml_settings) { build(:rubysaml_settings_v1, assertion_consumer_service_url: callback_url) }
 
     let(:saml_response) do
       build_saml_response(
@@ -20,7 +22,8 @@ RSpec.describe SAML::User do
         level_of_assurance: [highest_attained_loa],
         attributes: saml_attributes,
         existing_attributes: existing_saml_attributes,
-        issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
+        issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20',
+        settings: rubysaml_settings
       )
     end
 
@@ -112,6 +115,9 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: nil,
+          participant_id: nil,
+          birls_id: nil,
+          icn: nil,
           common_name: nil
         )
       end
@@ -148,6 +154,9 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: nil,
+          participant_id: nil,
+          birls_id: nil,
+          icn: nil,
           common_name: nil
         )
       end
@@ -182,6 +191,9 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'idme', account_type: 'N/A' },
           sec_id: '1008830476',
+          participant_id: nil,
+          birls_id: nil,
+          icn: '1008830476V316605',
           common_name: 'vets.gov.user+262@example.com'
         )
       end
@@ -217,6 +229,9 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: nil,
+          participant_id: nil,
+          birls_id: nil,
+          icn: nil,
           multifactor: multifactor,
           common_name: nil
         )
@@ -255,6 +270,9 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           sign_in: { service_name: 'myhealthevet', account_type: 'Advanced' },
           sec_id: '1013183292',
+          participant_id: nil,
+          birls_id: nil,
+          icn: '1013183292V131165',
           multifactor: multifactor,
           common_name: 'alexmac_0@example.com'
         )
@@ -291,6 +309,9 @@ RSpec.describe SAML::User do
             account_type: 'Basic'
           },
           sec_id: nil,
+          birls_id: nil,
+          icn: nil,
+          participant_id: nil,
           multifactor: true,
           common_name: nil
         )
@@ -330,6 +351,9 @@ RSpec.describe SAML::User do
             account_type: 'Premium'
           },
           sec_id: '1012853550',
+          participant_id: nil,
+          birls_id: nil,
+          icn: '1012853550V207686',
           multifactor: multifactor,
           common_name: 'k+tristan@example.com'
         )
@@ -370,6 +394,9 @@ RSpec.describe SAML::User do
             account_type: 'Premium'
           },
           sec_id: '1012853550',
+          participant_id: nil,
+          birls_id: nil,
+          icn: nil,
           multifactor: multifactor,
           common_name: 'k+tristan@example.com'
         )
@@ -647,6 +674,9 @@ RSpec.describe SAML::User do
             account_type: '1'
           },
           sec_id: nil,
+          participant_id: nil,
+          birls_id: nil,
+          icn: nil,
           multifactor: multifactor
         )
       end
@@ -681,6 +711,9 @@ RSpec.describe SAML::User do
             account_type: '2'
           },
           sec_id: '1013173963',
+          participant_id: nil,
+          birls_id: nil,
+          icn: '1013173963V366678',
           multifactor: false,
           common_name: 'iam.tester@example.com'
         )
@@ -721,6 +754,9 @@ RSpec.describe SAML::User do
             account_type: '2'
           },
           sec_id: '0000028007',
+          participant_id: '600043180',
+          birls_id: '796123607',
+          icn: '1012740600V714187',
           multifactor: multifactor,
           common_name: 'dslogon10923109@gmail.com'
         )
@@ -760,9 +796,30 @@ RSpec.describe SAML::User do
             account_type: '2'
           },
           sec_id: '0000028007',
+          participant_id: '600043180',
+          birls_id: '796123607',
+          icn: '1012740600V714187',
           multifactor: multifactor,
           common_name: 'dslogon10923109@gmail.com'
         )
+      end
+    end
+
+    context 'DSLogon premium user without idme uuid' do
+      let(:authn_context) { 'dslogon' }
+      let(:highest_attained_loa) { '3' }
+      let(:multifactor) { true }
+      let(:saml_attributes) do
+        build(:ssoe_idme_dslogon_level2,
+              va_eauth_uid: ['NOT_FOUND'])
+      end
+
+      it 'does not validate' do
+        expect { subject.validate! }.to raise_error { |error|
+          expect(error).to be_a(SAML::UserAttributeError)
+          expect(error.message).to eq('User attributes is missing an ID.me UUID')
+          expect(error.identifier).to eq('1012740600V714187')
+        }
       end
     end
 
@@ -798,6 +855,9 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: '1012779219',
+          participant_id: nil,
+          birls_id: nil,
+          icn: '1012779219V964737',
           multifactor: multifactor,
           common_name: 'SOFIA MCKIBBENS'
         )
@@ -809,12 +869,8 @@ RSpec.describe SAML::User do
                 va_eauth_uid: ['NOT_FOUND'])
         end
 
-        it 'does not validate' do
-          expect { subject.validate! }.to raise_error { |error|
-            expect(error).to be_a(SAML::UserAttributeError)
-            expect(error.message).to eq('User attributes is missing an ID.me UUID')
-            expect(error.identifier).to eq('1012779219V964737')
-          }
+        it 'validates' do
+          expect { subject.validate! }.not_to raise_error
         end
       end
     end
@@ -851,6 +907,9 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: '1013062086',
+          participant_id: nil,
+          birls_id: nil,
+          icn: '1013062086V794840',
           multifactor: multifactor,
           common_name: 'mhvzack@mhv.va.gov'
         )
@@ -889,6 +948,9 @@ RSpec.describe SAML::User do
             account_type: 'N/A'
           },
           sec_id: '1012827134',
+          participant_id: '600152411',
+          birls_id: '666271151',
+          icn: '1012827134V054550',
           multifactor: multifactor,
           common_name: 'vets.gov.user+262@gmail.com'
         )

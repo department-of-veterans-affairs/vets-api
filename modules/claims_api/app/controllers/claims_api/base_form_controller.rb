@@ -4,6 +4,8 @@ require 'json_schema/json_api_missing_attribute'
 require 'claims_api/form_schemas'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
+require 'bgs/auth_headers'
+require 'claims_api/special_issue_mapper'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
@@ -34,6 +36,8 @@ module ClaimsApi
                      .add_headers(
                        EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
                      )
+      evss_headers = evss_headers.merge(BGS::AuthHeaders.new(@current_user).to_h) if @current_user.present?
+
       if request.headers['Mock-Override'] &&
          Settings.claims_api.disability_claims_mock_override
         evss_headers['Mock-Override'] = request.headers['Mock-Override']
@@ -41,6 +45,37 @@ module ClaimsApi
       end
 
       evss_headers
+    end
+
+    def flashes
+      initial_flashes = form_attributes.dig('veteran', 'flashes')
+      homelessness = form_attributes.dig('veteran', 'homelessness')
+      is_terminally_ill = form_attributes.dig('veteran', 'isTerminallyIll')
+
+      initial_flashes.push('Homeless') if homelessness.present?
+      initial_flashes.push('Terminally Ill') if is_terminally_ill.present? && is_terminally_ill
+
+      initial_flashes.present? ? initial_flashes.uniq : []
+    end
+
+    def special_issues_per_disability
+      (form_attributes['disabilities'] || []).map { |disability| special_issues_for_disability(disability) }
+    end
+
+    def special_issues_for_disability(disability)
+      primary_special_issues = disability['specialIssues'] || []
+      secondary_special_issues = []
+      (disability['secondaryDisabilities'] || []).each do |secondary_disability|
+        secondary_special_issues += (secondary_disability['specialIssues'] || [])
+      end
+      special_issues = primary_special_issues + secondary_special_issues
+
+      mapper = ClaimsApi::SpecialIssueMapper.new
+      {
+        code: disability['diagnosticCode'],
+        name: disability['name'],
+        special_issues: special_issues.map { |special_issue| mapper.code_from_name(special_issue) }
+      }
     end
 
     def documents
@@ -74,8 +109,6 @@ module ClaimsApi
     end
 
     def intent_to_file_options
-      participant_claimant_id = form_type == 'burial' ? @current_user.participant_id : target_veteran.participant_id
-
       {
         intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES[form_type],
         participant_claimant_id: form_attributes['participant_claimant_id'] || participant_claimant_id,
@@ -84,6 +117,18 @@ module ClaimsApi
         submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
         ssn: target_veteran.ssn
       }
+    end
+
+    def participant_claimant_id
+      if form_type == 'burial'
+        begin
+          @current_user.participant_id
+        rescue ArgumentError
+          raise ::Common::Exceptions::Forbidden, detail: "Representative cannot file for type 'burial'"
+        end
+      else
+        target_veteran.participant_id
+      end
     end
 
     def received_date

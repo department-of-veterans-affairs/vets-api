@@ -14,6 +14,14 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
   end
 
+  it 'writes flashes and special issues to log on create' do
+    expect(Rails.logger).to receive(:info)
+      .with(/ClaimsApi: Claim\[.+\] contains the following flashes - \["Hardship", "Homeless"\]/)
+    expect(Rails.logger).to receive(:info)
+      .with(%r{ClaimsApi: Claim\[.+\] contains the following special issues - \[.*FDC.*PTSD/2.*\]})
+    pending_record
+  end
+
   describe 'pending?' do
     context 'no pending records' do
       it 'is false' do

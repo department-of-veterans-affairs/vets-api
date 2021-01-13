@@ -23,8 +23,10 @@
           name: "CHY PC VAR2"
           ask_for_check_in: false
           facility_code: "983"
+          phone_number: "5555555555"
           facility:
             display_name: "VDS Facility Display Name"
+            phone_number: "7777777777"
           stop_code: "323"
         patient_id: "7219393"
         type: "REGULAR"

@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema",
   "type": "object",
   "required": [
+    "id",
     "addressLine1",
     "addressLine2",
     "addressLine3",
@@ -15,6 +16,9 @@
     "zipCodeSuffix"
   ],
   "properties": {
+    "id": {
+      "type": "integer"
+    },
     "addressLine1": {
       "type": "string"
     },
@@ -31,6 +35,9 @@
       "type": "string"
     },
     "city": {
+      "type": "string"
+    },
+    "countryCodeIso3": {
       "type": "string"
     },
     "internationalPostalCode": {

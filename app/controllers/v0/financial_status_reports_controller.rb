@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'dmc/fsr_service'
+require 'debt_management_center/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
@@ -36,6 +36,7 @@ module V0
         personal_identification: %i[fsr_reason ssn file_number],
         personal_data: [
           :telephone_number,
+          :email,
           :date_of_birth,
           :married,
           :ages_of_other_dependents,
@@ -120,7 +121,7 @@ module V0
     # rubocop:enable Metrics/MethodLength
 
     def service
-      DMC::FSRService.new
+      DebtManagementCenter::FinancialStatusReportService.new
     end
   end
 end

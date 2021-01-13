@@ -29,6 +29,7 @@ require 'support/vcr_multipart_matcher_helper'
 require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'super_diff/rspec-rails'
+require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -91,7 +92,7 @@ Shrine.storages = {
   store: Shrine::Storage::Memory.new
 }
 
-CarrierWave.root = Rails.root.join('spec', 'support', 'uploads')
+CarrierWave.root = Rails.root.join('spec', 'support', "uploads#{ENV['TEST_ENV_NUMBER']}")
 
 FactoryBot::SyntaxRunner.class_eval do
   include RSpec::Mocks::ExampleMethods
@@ -172,6 +173,6 @@ RSpec.configure do |config|
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
   config.after(:all) do
-    FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
+    FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', "uploads#{ENV['TEST_ENV_NUMBER']}")]) if Rails.env.test?
   end
 end

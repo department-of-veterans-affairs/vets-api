@@ -36,7 +36,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'returns a unsuccessful response without mpi' do
       allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(false)
       post path, params: data, headers: headers
-      expect(response.status).to eq(404)
+      expect(response.status).to eq(400)
     end
 
     it 'creates the sidekick job' do
@@ -49,6 +49,13 @@ RSpec.describe 'Disability Claims ', type: :request do
       token = JSON.parse(response.body)['data']['attributes']['token']
       aec = ClaimsApi::AutoEstablishedClaim.find(token)
       expect(aec.source).to eq('TestConsumer')
+    end
+
+    it 'sets the flashes' do
+      post path, params: data, headers: headers
+      token = JSON.parse(response.body)['data']['attributes']['token']
+      aec = ClaimsApi::AutoEstablishedClaim.find(token)
+      expect(aec.flashes).to eq(%w[Hardship Homeless])
     end
 
     it 'builds the auth headers' do

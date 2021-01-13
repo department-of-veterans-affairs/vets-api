@@ -13,6 +13,9 @@ module Facilities
       # Dev swagger site for testing endpoints
       # https://dev.dws.ppms.va.gov/swagger
       class Client < Common::Client::Base
+        MIN_RESULTS = 1
+        MAX_RESULTS = 50
+
         configuration Facilities::PPMS::V1::Configuration
 
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
@@ -135,12 +138,19 @@ module Facilities
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
 
-          cnr = center_and_radius(params[:bbox])
+          cnr = {}
+          if %i[latitude longitude radius].all? { |k| params.key?(k) }
+            cnr[:latitude] = params[:latitude]
+            cnr[:longitude] = params[:longitude]
+            cnr[:radius] = params[:radius]
+          else
+            cnr = center_and_radius(params[:bbox])
+          end
 
           {
             address: [cnr[:latitude], cnr[:longitude]].join(','),
             radius: cnr[:radius],
-            maxResults: per_page * page + 1
+            maxResults: (per_page * page + 1).clamp(MIN_RESULTS, MAX_RESULTS)
           }
         end
 

@@ -33,7 +33,7 @@
                 "firstName",
                 "middleName",
                 "lastName",
-                "email",
+                "signinEmail",
                 "residentialAddress",
                 "mailingAddress"
               ],
@@ -47,7 +47,10 @@
                 "lastName": {
                   "type": "string"
                 },
-                "email": {
+                "contactEmail": {
+                  "$ref": "email.json"
+                },
+                "signinEmail": {
                   "type": "string"
                 },
                 "birth_date": {

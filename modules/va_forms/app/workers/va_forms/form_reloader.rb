@@ -2,7 +2,7 @@
 
 require 'sidekiq'
 
-module VaForms
+module VAForms
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
@@ -45,12 +45,13 @@ module VaForms
           verify: false
         }
       }
-      options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
+      socks = Settings.docker_debugging&.socks_url ? Settings.docker_debugging.socks_url : 'socks://localhost:2001'
+      options[:proxy] = { uri: URI.parse(socks) } unless Rails.env.production?
       options
     end
 
     def build_and_save_form(form)
-      va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
+      va_form = VAForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
       attrs = init_attributes(form)
       url = form['fieldVaFormUrl']['uri']
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)

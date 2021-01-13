@@ -8,7 +8,9 @@ require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
 require 'pdf_fill/forms/va686c674'
+require 'pdf_fill/forms/va281900'
 require 'pdf_fill/forms/va288832'
+require 'pdf_fill/forms/va21674'
 
 module PdfFill
   module Filler
@@ -24,7 +26,9 @@ module PdfFill
       '21-8940' => PdfFill::Forms::Va218940,
       '10-10CG' => PdfFill::Forms::Va1010cg,
       '686C-674' => PdfFill::Forms::Va686c674,
-      '28-8832' => PdfFill::Forms::Va288832
+      '28-1900' => PdfFill::Forms::Va281900,
+      '28-8832' => PdfFill::Forms::Va288832,
+      '21-674' => PdfFill::Forms::Va21674
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)

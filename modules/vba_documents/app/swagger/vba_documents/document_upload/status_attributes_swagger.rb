@@ -19,6 +19,7 @@ module VBADocuments
             key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'status_description.md'))
             key :type, :string
             key :enum, %i[pending uploaded received processing success error]
+            key :example, 'received'
           end
 
           property :code do

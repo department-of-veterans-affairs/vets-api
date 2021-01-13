@@ -26,20 +26,39 @@ module ClaimsApi
       Settings.oidc.isolated_audience.claims
     end
 
+    protected
+
+    def source_name
+      if v0?
+        request.headers['X-Consumer-Username']
+      else
+        user = header_request? ? @current_user : target_veteran
+        "#{user.first_name} #{user.last_name}"
+      end
+    end
+
     private
 
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def find_claim
-      claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id])
+      claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
       if claim && claim.status == 'errored'
         fetch_errored(claim)
       elsif claim && claim.evss_id.nil?
         render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-      else
+      elsif /^\d{2,20}$/.match?(params[:id])
         evss_claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
+        # Note: source doesn't seem to be accessible within a remote evss_claim
         render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
+      else
+        render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
+               status: :not_found
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/PerceivedComplexity
 
     def fetch_errored(claim)
       if claim.evss_response&.any?
@@ -141,6 +160,8 @@ module ClaimsApi
     def authenticate_token
       super
     rescue => e
+      raise e if e.message == 'Token Validation Error'
+
       log_message_to_sentry('Authentication Error in claims',
                             :warning,
                             body: e.message)
