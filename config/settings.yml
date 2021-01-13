@@ -590,6 +590,15 @@ hqva_mobile:
   key_path: /srv/vets-api/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
+  lighthouse:
+    url: "https://sandbox-api.va.gov"
+    host: "sandbox-api.va.gov"
+    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    redis_session_prefix: "healthquest_lighthouse"
+    mock: false
+    key_path: /srv/vets-api/secret/health-quest.lighthouse.key
+    local_key_path: modules/health_quest/config/rsa/sandbox_rsa
 
 lighthouse:
   api_key: fake_key
