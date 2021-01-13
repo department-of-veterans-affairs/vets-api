@@ -4,7 +4,6 @@ require_dependency 'mobile/application_controller'
 require_relative '../../../models/mobile/v0/adapters/claims_overview'
 require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
-require 'parallel'
 
 module Mobile
   module V0
