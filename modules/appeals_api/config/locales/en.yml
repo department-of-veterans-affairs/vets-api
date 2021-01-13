@@ -1,9 +1,8 @@
 en:
   appeals_api:
       errors:
-        claimant_info: "if any claimant info is present, claimant %{field} must also be present"
-        contact_info_presence: "at least one must be included: '/data/attributes/veteran', '/data/attributes/claimant'"
-        hearing_type_preference_inclusion: "if '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
-        hearing_type_preference_missing: "if '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
+        contact_info_presence: "At least one must be included: '/data/attributes/veteran'"
+        hearing_type_preference_inclusion: "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
+        hearing_type_preference_missing: "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
         nod_not_found: "NoticeOfDisagreement with uuid %{id} not found."
-        not_homeless_address_missing: "at least one must be included: '/data/attributes/veteran/address', '/data/attributes/claimant/address'"
+        not_homeless_address_missing: "If not homeless, address must be provided: '/data/attributes/veteran/address'"

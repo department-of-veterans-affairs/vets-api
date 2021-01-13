@@ -89,7 +89,40 @@ FactoryBot.define do
               ssn: '370947143',
               birth_date: '2010-03-03'
             }
-          ]
+          ],
+          student_name_and_ssn: {
+            full_name: {
+              first: 'Juan',
+              last: 'Barrett'
+            },
+            ssn: '333224444',
+            birth_date: '2001-10-06'
+          },
+          student_address_marriage_tuition: {
+            address: {
+              country_name: 'USA',
+              address_line1: '1900 W Olney Ave.',
+              city: 'Philadelphia',
+              state_code: 'PA',
+              zip_code: '19141'
+            },
+            was_married: false,
+            tuition_is_paid_by_gov_agency: false
+          },
+          program_information: {
+            student_is_enrolled_full_time: true
+          },
+          school_information: {
+            name: 'University of Pennsylvania',
+            address: {
+              country_name: 'USA',
+              address_line1: '4201 Henry Ave',
+              city: 'Philadelphia',
+              state_code: 'PA',
+              zip_code: '19144'
+            }
+          },
+          student_did_attend_school_last_term: false
         }
       }.to_json
     }

@@ -24,7 +24,6 @@ class PPMS::Provider < Common::Base
   attribute :provider_identifier, String
   attribute :provider_name, String
   attribute :provider_type, String
-  attribute :specialties, Array
 
   def initialize(attr = {})
     super(attr)
@@ -43,15 +42,16 @@ class PPMS::Provider < Common::Base
     new_attr[:id] ||= new_attr.delete(:provider_hexdigest) || new_attr[:provider_identifier]
     new_attr[:main_phone] ||= new_attr.delete(:main_phone)
     new_attr[:phone] ||= new_attr.delete(:main_phone)
-    new_attr[:provider_type] ||= new_attr.delete(:provider_type)
-
-    new_attr = cleanup_specialties(new_attr)
+    new_attr[:provider_type] ||= 'GroupPracticeOrAgency'
 
     self.attributes = new_attr
   end
 
   def set_hexdigest_as_id!
-    self.id = Digest::SHA256.hexdigest(attributes.except(:id).to_a.join('|'))
+    self.id = Digest::SHA256.hexdigest(attributes.slice(
+      :address_city, :address_postal_code, :address_state_province, :address_street, :care_site, :caresite_phone,
+      :latitude, :longitude, :provider_identifier
+    ).to_a.join('|'))
   end
 
   def set_group_practive_or_agency!
@@ -64,7 +64,6 @@ class PPMS::Provider < Common::Base
       :email,
       :main_phone,
       :fax,
-      :specialties,
       :provider_type
     )
 
@@ -84,10 +83,6 @@ class PPMS::Provider < Common::Base
     self.attributes = attributes.merge(new_attr)
   end
 
-  def specialty_ids
-    specialties.collect(&:specialty_code)
-  end
-
   private
 
   def cleanup_address_attributes(new_attr)
@@ -95,15 +90,6 @@ class PPMS::Provider < Common::Base
     new_attr[:address_postal_code] ||= new_attr.delete(:care_site_address_zip_code)
     new_attr[:address_state_province] ||= new_attr.delete(:care_site_address_state)
     new_attr[:address_street] ||= new_attr.delete(:care_site_address_street)
-    new_attr
-  end
-
-  def cleanup_specialties(new_attr)
-    new_attr[:specialties] ||= new_attr.delete(:provider_specialties)&.collect do |specialty|
-      PPMS::Specialty.new(
-        specialty.transform_keys { |k| k.to_s.snakecase.to_sym }
-      )
-    end
     new_attr
   end
 end

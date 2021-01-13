@@ -68,7 +68,8 @@ dmc:
   client_secret: "secret"
   mock_debts: false
   mock_fsr: false
-  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
+  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
+  debts_endpoint: debt-letter/get
 
 fsr:
   prefill: true
@@ -110,7 +111,7 @@ pension_burial:
 central_mail:
   upload:
     enabled: true
-    host: "icmhs-api-test.csrarad.com"
+    host: "test2.domaonline.com/EmmsAPI"
     token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
@@ -155,8 +156,12 @@ decision_review:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
+  report_enabled: false
   higher_level_review_updater_enabled: true
+  notice_of_disagreement_updater_enabled: true
   schema_dir: config/schemas
+  documentation:
+    notice_of_disagreements_v1: false
 
 vre_counseling:
   prefill: true
@@ -495,6 +500,8 @@ flipper:
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
+    - draju@governmentcio.com
+    - ed.mangimelli@adhocteam.us
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
@@ -548,7 +555,9 @@ flipper:
     - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
+    - tze@adhocteam.us
     - zurbergram@gmail.com
+    - zmorel@governmentcio.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
@@ -581,6 +590,15 @@ hqva_mobile:
   key_path: /srv/vets-api/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
+  lighthouse:
+    url: "https://sandbox-api.va.gov"
+    host: "sandbox-api.va.gov"
+    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    redis_session_prefix: "healthquest_lighthouse"
+    mock: false
+    key_path: /srv/vets-api/secret/health-quest.lighthouse.key
+    local_key_path: modules/health_quest/config/rsa/sandbox_rsa
 
 lighthouse:
   api_key: fake_key

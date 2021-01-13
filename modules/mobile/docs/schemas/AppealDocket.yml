@@ -1,0 +1,16 @@
+type: object
+properties:
+  month:
+    type: string
+  docketMonth:
+    type: string
+  front:
+    type: boolean
+  total:
+    type: integer
+  ahead:
+    type: integer
+  ready:
+    type: integer
+  eta:
+    type: string, null

@@ -6,17 +6,22 @@ module SAML
   end
 
   class UserAttributeError < SAMLError
+    MULTIPLE_MHV_IDS_CODE = '101'
+    MULTIPLE_EDIPIS_CODE = '102'
+    MHV_ICN_MISMATCH_CODE = '103'
+    IDME_UUID_MISSING_CODE = '104'
+
     ERRORS = {
-      multiple_mhv_ids: { code: '101',
+      multiple_mhv_ids: { code: MULTIPLE_MHV_IDS_CODE,
                           tag: :multiple_mhv_ids,
                           message: 'User attributes contain multiple distinct MHV ID values' }.freeze,
-      multiple_edipis: { code: '102',
+      multiple_edipis: { code: MULTIPLE_EDIPIS_CODE,
                          tag: :multiple_edipis,
                          message: 'User attributes contain multiple distinct EDIPI values' }.freeze,
-      mhv_icn_mismatch: { code: '103',
+      mhv_icn_mismatch: { code: MHV_ICN_MISMATCH_CODE,
                           tag: :mhv_icn_mismatch,
                           message: 'MHV credential ICN does not match MPI record' }.freeze,
-      idme_uuid_missing: { code: '104',
+      idme_uuid_missing: { code: IDME_UUID_MISSING_CODE,
                            tag: :idme_uuid_missing,
                            message: 'User attributes is missing an ID.me UUID' }.freeze
     }.freeze

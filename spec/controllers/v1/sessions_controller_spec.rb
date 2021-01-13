@@ -228,9 +228,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'for a user with semantically invalid SAML attributes' do
         let(:invalid_attributes) do
-          build(:ssoe_idme_mhv_loa3,
-                va_eauth_mhvuuid: ['999888'],
-                va_eauth_mhvien: ['888777'])
+          build(:ssoe_idme_mhv_loa3, va_eauth_dodedipnid: ['999888, 888777'])
         end
         let(:valid_saml_response) do
           build_saml_response(
@@ -244,7 +242,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page' do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=102')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -261,9 +259,9 @@ RSpec.describe V1::SessionsController, type: :controller do
                                                 'context:http://idmanagement.gov/ns/assurance/loa/1/vets',
                                                 'version:v1'])
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
-                                          tags: ['context:idme', 'version:v1', 'error:101'])
+                                          tags: ['context:idme', 'version:v1', 'error:102'])
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
-                                          tags: ['error:multiple_mhv_ids', 'version:v1'])
+                                          tags: ['error:multiple_edipis', 'version:v1'])
 
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -397,6 +395,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'verifying' do
         let(:authn_context) { LOA::IDME_LOA3 }
+        let(:version) { 'v1' }
+        let(:expected_ssn_log) do
+          "SessionsController version:#{version} message:SSN from MPI Lookup does not match UserIdentity cache"
+        end
 
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           SAMLRequestTracker.create(
@@ -410,7 +412,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(existing_user.ssn).to eq('796111863')
           allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
           expect(controller).to receive(:log_message_to_sentry).with(
-            'SSNS DO NOT MATCH!!',
+            expected_ssn_log,
             :warn,
             identity_compared_with_mpi: {
               length: [9, 9],
@@ -649,7 +651,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             .with(
               'Login Failed! Other SAML Response Error(s)',
               :error,
-              extra_context: [{ code: '007',
+              extra_context: [{ code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                 tag: :unknown,
                                 short_message: 'Other SAML Response Error(s)',
                                 level: :error,
@@ -695,17 +697,17 @@ RSpec.describe V1::SessionsController, type: :controller do
               "<fim:FIMStatusDetail MessageID='could_not_perform_token_exchange'/>",
               :error,
               extra_context: [
-                { code: '007',
+                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                   tag: :unknown,
                   short_message: 'Other SAML Response Error(s)',
                   level: :error,
                   full_message: 'Test1' },
-                { code: '007',
+                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                   tag: :unknown,
                   short_message: 'Other SAML Response Error(s)',
                   level: :error,
                   full_message: 'Test2' },
-                { code: '007',
+                { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                   tag: :unknown,
                   short_message: 'Other SAML Response Error(s)',
                   level: :error,
@@ -728,12 +730,12 @@ RSpec.describe V1::SessionsController, type: :controller do
             .with(
               'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
-              extra_context: [{ code: '001',
+              extra_context: [{ code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
                                 tag: :clicked_deny,
                                 short_message: 'Subject did not consent to attribute release',
                                 level: :warn,
                                 full_message: 'Subject did not consent to attribute release' },
-                              { code: '007',
+                              { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
                                 tag: :unknown,
                                 short_message: 'Other SAML Response Error(s)',
                                 level: :error,
@@ -799,7 +801,7 @@ RSpec.describe V1::SessionsController, type: :controller do
               'Login Failed! on User/Session Validation',
               :error,
               extra_context: {
-                code: '004',
+                code: UserSessionForm::VALIDATIONS_FAILED_ERROR_CODE,
                 tag: :validations_failed,
                 short_message: 'on User/Session Validation',
                 level: :error,
@@ -859,11 +861,17 @@ RSpec.describe V1::SessionsController, type: :controller do
           )
         end
         let(:saml_user) { SAML::User.new(saml_response) }
+        let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids][:message] }
+        let(:version) { 'v1' }
+        let(:expected_warn_message) do
+          "SessionsController version:#{version} context:{} message:#{expected_error_message}"
+        end
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'logs a generic user validation error', :aggregate_failures do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(controller).not_to receive(:log_message_to_sentry)
+          expect(Rails.logger).to receive(:warn).with(expected_warn_message)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
 
           expect(response).to have_http_status(:found)

@@ -247,4 +247,63 @@ http_interactions:
         x62160","mental_health_clinic":"206-764-2007","enrollment_coordinator":"800-329-8387
         x76542"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","Urology","WomensHealth"],"last_updated":"2020-11-30"},"satisfaction":{"health":{"primary_care_urgent":0.9100000262260437,"primary_care_routine":0.8500000238418579,"specialty_care_urgent":0.7599999904632568},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Audiology","new":15.979591,"established":16.787234},{"service":"Cardiology","new":28.453125,"established":24.653543},{"service":"Dermatology","new":29.283333,"established":31.7},{"service":"Gastroenterology","new":21.0,"established":14.846153},{"service":"Gynecology","new":12.090909,"established":7.663636},{"service":"MentalHealthCare","new":10.966666,"established":3.161341},{"service":"Ophthalmology","new":12.9,"established":11.241031},{"service":"Optometry","new":22.67647,"established":30.69463},{"service":"Orthopedics","new":14.676056,"established":8.924528},{"service":"PrimaryCare","new":7.3,"established":3.786206},{"service":"SpecialtyCare","new":18.776744,"established":12.030551},{"service":"Urology","new":17.125,"established":5.163461},{"service":"WomensHealth","new":19.333333,"established":6.041666}],"effective_date":"2020-11-30"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"20"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=44.20493&long=-123.54782&type=health&page=1&per_page=30","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=44.20493&long=-123.54782&type=health&page=1&per_page=30","prev":null,"next":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=44.20493&long=-123.54782&type=health&page=2&per_page=30","last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=44.20493&long=-123.54782&type=health&page=44&per_page=30"},"meta":{"pagination":{"current_page":1,"per_page":30,"total_pages":44,"total_entries":1301},"distances":[{"id":"vha_653QA","distance":25.06},{"id":"vha_653BY","distance":25.84},{"id":"vha_648GH","distance":38.65},{"id":"vha_648GB","distance":55.48},{"id":"vha_648GK","distance":59.08},{"id":"vha_653GA","distance":65.10},{"id":"vha_653","distance":68.06},{"id":"vha_648GG","distance":90.46},{"id":"vha_648GF","distance":97.52},{"id":"vha_648","distance":98.80},{"id":"vha_648GI","distance":100.49},{"id":"vha_648GE","distance":106.58},{"id":"vha_648A4","distance":108.30},{"id":"vha_648GA","distance":113.58},{"id":"vha_692GB","distance":124.02},{"id":"vha_692","distance":127.08},{"id":"vha_648GD","distance":133.71},{"id":"vha_648GJ","distance":152.79},{"id":"vha_653GB","distance":153.36},{"id":"vha_692GA","distance":161.66},{"id":"vha_663GD","distance":173.93},{"id":"vha_612GJ","distance":178.01},{"id":"vha_663A4","distance":208.42},{"id":"vha_663HK","distance":208.42},{"id":"vha_687QB","distance":219.76},{"id":"vha_663GF","distance":221.30},{"id":"vha_687HA","distance":221.80},{"id":"vha_531GH","distance":226.95},{"id":"vha_662GC","distance":238.79},{"id":"vha_663","distance":239.47}]}}'
   recorded_at: Thu, 10 Dec 2020 19:30:57 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/nearby?lat=45.544236&lng=-122.643468
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Fri, 11 Dec 2020 23:43:50 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '167'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '750'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS0108eb76=01c8917e48e2a79dce0d38d886cf6ded4169d25055697cfa610de6f6c739374583040fcd9798058baa70573c00c47bfca7404d6320;
+        Max-Age=900; Path=/
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"vha_648","type":"nearby_facility","attributes":{"min_time":10,"max_time":20}},{"id":"vha_648A4","type":"nearby_facility","attributes":{"min_time":10,"max_time":20}},{"id":"vha_648GE","type":"nearby_facility","attributes":{"min_time":10,"max_time":20}},{"id":"vha_648GI","type":"nearby_facility","attributes":{"min_time":10,"max_time":20}},{"id":"vha_648GF","type":"nearby_facility","attributes":{"min_time":20,"max_time":30}},{"id":"vha_648GG","type":"nearby_facility","attributes":{"min_time":20,"max_time":30}},{"id":"vha_648GB","type":"nearby_facility","attributes":{"min_time":60,"max_time":70}},{"id":"vha_648GJ","type":"nearby_facility","attributes":{"min_time":80,"max_time":90}},{"id":"vha_663GD","type":"nearby_facility","attributes":{"min_time":80,"max_time":90}}]}'
+  recorded_at: Fri, 11 Dec 2020 23:43:51 GMT
 recorded_with: VCR 6.0.0

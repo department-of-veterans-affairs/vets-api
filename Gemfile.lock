@@ -42,9 +42,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 05f0ed20453a3952ed90f76ad7d20c80ea56e417
+  revision: 4da926722554116a116b4e02763cad9d104b72bd
   specs:
-    bgs_ext (0.16.0)
+    bgs_ext (0.18.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -65,95 +65,43 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 16deab49594cd8b284c57200f7c1e1b05557a6f9
+  revision: 45901ef6dbc68adc2dfb926c24829e53d1dcf86c
   branch: master
   specs:
-    vets_json_schema (18.2.0)
+    vets_json_schema (18.5.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
 PATH
-  remote: modules/appeals_api
+  remote: modules
   specs:
     appeals_api (0.0.1)
       sidekiq
-
-PATH
-  remote: modules/apps_api
-  specs:
     apps_api (0.0.1)
       faraday
       sidekiq
-
-PATH
-  remote: modules/claims_api
-  specs:
     claims_api (0.0.1)
-
-PATH
-  remote: modules/covid_research
-  specs:
     covid_research (0.1.0)
       rails (~> 6.0.3, >= 6.0.3.2)
       sidekiq
-
-PATH
-  remote: modules/covid_vaccine
-  specs:
     covid_vaccine (0.1.0)
       sidekiq
-
-PATH
-  remote: modules/health_quest
-  specs:
     health_quest (0.1.0)
-
-PATH
-  remote: modules/mobile
-  specs:
     mobile (0.1.0)
-
-PATH
-  remote: modules/openid_auth
-  specs:
     openid_auth (0.0.1)
-
-PATH
-  remote: modules/va_forms
-  specs:
     va_forms (0.0.1)
       faraday
       nokogiri
       paper_trail
       sidekiq
-
-PATH
-  remote: modules/vaos
-  specs:
     vaos (0.1.0)
       sidekiq
-
-PATH
-  remote: modules/vba_documents
-  specs:
     vba_documents (0.0.1)
       aws-sdk-s3 (~> 1)
       sidekiq
-
-PATH
-  remote: modules/veteran_confirmation
-  specs:
-    veteran_confirmation (0.0.1)
-
-PATH
-  remote: modules/veteran_verification
-  specs:
-    veteran_verification (0.0.1)
-
-PATH
-  remote: modules/veteran
-  specs:
     veteran (0.0.1)
+    veteran_confirmation (0.0.1)
+    veteran_verification (0.0.1)
 
 GEM
   remote: https://rubygems.org/
@@ -261,6 +209,8 @@ GEM
       i18n
     benchmark-ips (2.8.2)
     bindex (0.8.1)
+    bootsnap (1.5.1)
+      msgpack (~> 1.0)
     brakeman (4.9.0)
     breakers (0.4.0)
       faraday (>= 0.7.4, < 0.18)
@@ -551,8 +501,9 @@ GEM
     mimemagic (0.3.5)
     mini_magick (4.10.1)
     mini_mime (1.0.2)
-    mini_portile2 (2.4.0)
+    mini_portile2 (2.5.0)
     minitest (5.14.2)
+    msgpack (1.3.3)
     multi_json (1.15.0)
     multi_xml (0.6.0)
     multipart-post (2.1.1)
@@ -564,8 +515,9 @@ GEM
     netrc (0.11.0)
     nio4r (2.5.4)
     no_proxy_fix (0.1.2)
-    nokogiri (1.10.10)
-      mini_portile2 (~> 2.4.0)
+    nokogiri (1.11.1)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
     nori (2.6.0)
     notiffany (0.1.3)
       nenv (~> 0.1)
@@ -619,6 +571,8 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.2)
+    parallel_tests (3.4.0)
+      parallel
     parser (2.7.1.4)
       ast (~> 2.4.1)
     patience_diff (1.1.0)
@@ -636,6 +590,9 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.2.3)
+    pg_query (1.2.0)
+    pghero (2.7.3)
+      activerecord (>= 5)
     prawn (2.2.2)
       pdf-core (~> 0.7.0)
       ttfunk (~> 1.5)
@@ -654,6 +611,7 @@ GEM
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
+    racc (1.5.2)
     rack (2.2.3)
     rack-attack (6.2.2)
       rack (>= 1.0, < 3)
@@ -848,7 +806,7 @@ GEM
     statsd-instrument (2.6.0)
     strong_migrations (0.7.3)
       activerecord (>= 5)
-    super_diff (0.5.1)
+    super_diff (0.5.2)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -884,7 +842,8 @@ GEM
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
       equalizer (~> 0.0, >= 0.0.9)
-    wasabi (3.5.0)
+    wasabi (3.6.1)
+      addressable
       httpi (~> 2.0)
       nokogiri (>= 1.4.2)
     web-console (3.7.0)
@@ -932,6 +891,7 @@ DEPENDENCIES
   benchmark-ips
   betamocks!
   bgs_ext!
+  bootsnap
   brakeman (~> 4.7)
   breakers
   bundler-audit
@@ -988,7 +948,7 @@ DEPENDENCIES
   mini_magick (~> 4.10.1)
   mobile!
   net-sftp
-  nokogiri (~> 1.10)
+  nokogiri (~> 1.11)
   notifications-ruby-client (~> 5.1)
   oj
   olive_branch
@@ -999,10 +959,14 @@ DEPENDENCIES
   pact
   pact-mock_service
   paper_trail
+  parallel
+  parallel_tests
   pdf-forms
   pdf-inspector
   pdf-reader
   pg
+  pg_query (>= 0.9.0)
+  pghero
   prawn
   pry-byebug
   puma (~> 4.3.7)

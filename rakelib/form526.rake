@@ -96,21 +96,18 @@ namespace :form526 do
       end
     end
 
-    def clean_message(msg)
-      if msg[1].present?
-        # strip the GUID from BGS errors for grouping purposes
-        "#{msg[0]}: #{msg[1].gsub(/GUID.*/, '')}"
-      else
-        msg[0]
-      end
-    end
+    def message_string(msg)
+      return nil if msg.dig('severity') == 'WARN'
 
-    # This regex will parse out the errors returned from EVSS.
-    # The error message will be in an ugly stringified hash. There can be multiple
-    # errors in a message. Each error will have a `key` and a `text` key. The
-    # following regex will group all key/text pairs together that are present in
-    # the string.
-    MSGS_REGEX = /key\"=>\"(.*?)\".*?text\"=>\"(.*?)\"/.freeze
+      message = msg.dig('key')&.gsub(/\[(\d*)\]|\\/, '')
+      # strip the GUID from BGS errors for grouping purposes
+
+      # don't show disability names, for better grouping. Can be removed after we fix inflection issue
+      unless message == 'form526.treatments.treatedDisabilityNames.isInvalidValue'
+        message += msg.dig('text').gsub(/GUID.*/, '')
+      end
+      message
+    end
 
     start_date = args[:start_date]&.to_date || 30.days.ago.utc
     end_date = args[:end_date]&.to_date || Time.zone.now.utc
@@ -127,13 +124,12 @@ namespace :form526 do
       job_statuses.each do |job_status|
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
-                      job_status.error_class != 'Common::Exceptions::BackendServiceException'
-                     job_status.error_message.gsub(/\[(\d*)\]|\\/, '').scan(MSGS_REGEX)
+                      !job_status.error_message.include?('BackendServiceException')
+                     JSON.parse(job_status.error_message.gsub('=>', ':')).collect { |message| message_string(message) }
                    else
-                     [[job_status.error_message]]
+                     [job_status.error_message]
                    end
-        messages.each do |msg|
-          message = clean_message(msg)
+        messages.each do |message|
           errors[message][:submission_ids].append(
             sub_id: submission.id,
             p_id: submission.auth_headers['va_eauth_pid'],
@@ -229,5 +225,126 @@ namespace :form526 do
       puts "reuploaded files for saved_claim_id #{form_submission.saved_claim_id}"
     end
     puts "reuploaded files for #{form_submissions.count} submissions"
+  end
+
+  desc 'Convert SIP data to camel case and fix checkboxes [/export/path.csv, ids]'
+  task :convert_sip_data, [:csv_path] => :environment do |_, args|
+    raise 'No CSV path provided' unless args[:csv_path]
+
+    ids = args.extras || []
+
+    def to_olivebranch_case(val)
+      OliveBranch::Transformations.transform(
+        val,
+        OliveBranch::Transformations.method(:camelize)
+      )
+    end
+
+    def un_camel_va_keys!(hash)
+      json = hash.to_json
+      # rubocop:disable Style/PerlBackrefs
+      # gsub with a block explicitly sets backrefs correctly https://ruby-doc.org/core-2.6.6/String.html#method-i-gsub
+      json.gsub!(OliveBranch::Middleware::VA_KEY_REGEX) do
+        key = $1
+        "#{key.gsub('VA', 'Va')}:"
+      end
+      JSON.parse(json)
+      # rubocop:enable Style/PerlBackrefs
+    end
+
+    def get_disability_array(form_data_hash)
+      new_conditions = form_data_hash['newDisabilities']&.collect { |d| d.dig('condition') } || []
+      rated_disabilities = form_data_hash['ratedDisabilities']&.collect { |rd| rd['name'] } || []
+      new_conditions + rated_disabilities
+    end
+
+    # downcase and remove everything but letters and numbers
+    def simplify_string(string)
+      string&.downcase&.gsub(/[^a-z0-9]/, '')
+    end
+
+    def get_dis_translation_hash(disability_array)
+      dis_translation_hash = {}
+      disability_array.each do |dis|
+        dis_translation_hash[simplify_string(dis)] = dis
+      end
+      dis_translation_hash
+    end
+
+    def fix_treatment_facilities_disability_name(form_data_hash, dis_translation_hash, disability_array)
+      transformed = false
+      # fix vaTreatmentFacilities -> treatedDisabilityNames
+      # this should never happen, just want to confirm
+      form_data_hash['vaTreatmentFacilities']&.each do |va_treatment_facilities|
+        new_treated_disability_names = {}
+        if va_treatment_facilities['treatedDisabilityNames']
+          va_treatment_facilities['treatedDisabilityNames'].each do |disability_name, value|
+            if disability_array.include? disability_name
+              new_treated_disability_names[disability_name] = value
+            else
+              transformed = true
+              original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase
+              new_treated_disability_names[original_disability_name] = value unless original_disability_name.nil?
+            end
+          end
+          va_treatment_facilities['treatedDisabilityNames'] = new_treated_disability_names
+        end
+      end
+      transformed
+    end
+
+    def fix_pow_disabilities(form_data_hash, dis_translation_hash, disability_array)
+      transformed = false
+      # just like treatedDisabilityNames fix the same checkbox data for POW disabilities
+      pow_disabilities = form_data_hash.dig('view:isPow', 'powDisabilities')
+      if pow_disabilities
+        new_pow_disability_names = {}
+        pow_disabilities.each do |disability_name, value|
+          if disability_array.include? disability_name
+            new_pow_disability_names[disability_name] = value
+          else
+            transformed = true
+            original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase
+            new_pow_disability_names[original_disability_name] = value unless original_disability_name.nil?
+          end
+        end
+        form_data_hash['view:isPow']['powDisabilities'] = new_pow_disability_names
+      end
+      transformed
+    end
+    # get all of the forms that have not yet been converted.
+    ipf = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
+    in_progress_forms = ipf.where("metadata -> 'return_url' is not null").or(ipf.where(id: ids))
+    @affected_forms = []
+
+    CSV.open(args[:csv_path], 'wb') do |csv|
+      csv << %w[in_progress_form_id in_progress_form_user_uuid email_address]
+      in_progress_forms.each do |in_progress_form|
+        in_progress_form.metadata = to_olivebranch_case(in_progress_form.metadata)
+        form_data_hash = un_camel_va_keys!(to_olivebranch_case(JSON.parse(in_progress_form.form_data)))
+        disability_array = get_disability_array(form_data_hash)
+        dis_translation_hash = get_dis_translation_hash(disability_array)
+
+        treatment_facilities_transformed = fix_treatment_facilities_disability_name(form_data_hash,
+                                                                                    dis_translation_hash,
+                                                                                    disability_array)
+        pow_transformed = fix_pow_disabilities(form_data_hash,
+                                               dis_translation_hash,
+                                               disability_array)
+
+        fixed_va_inflection = OliveBranch::Middleware.send(:un_camel_va_keys!, form_data_hash.to_json)
+        if treatment_facilities_transformed || pow_transformed
+          csv << [in_progress_form.id,
+                  in_progress_form.user_uuid,
+                  form_data_hash.dig('phoneAndEmail', 'emailAddress')]
+        end
+
+        in_progress_form.form_data = fixed_va_inflection
+
+        # forms expire a year after they're last saved by the user so we want to disable updating the expires_at.
+        in_progress_form.skip_exipry_update = true
+        in_progress_form.save!
+      end
+    end
   end
 end

@@ -36,7 +36,7 @@ describe VAOS::AppointmentService do
         VCR.use_cassette('vaos/appointments/post_appointment_409', match_requests_on: %i[method uri]) do
           expect { subject.post_appointment(request_body) }
             .to raise_error(Common::Exceptions::BackendServiceException) do |error|
-              expect(error.status_code).to eq(400)
+              expect(error.status_code).to eq(409)
             end
         end
       end
@@ -71,7 +71,7 @@ describe VAOS::AppointmentService do
       end
 
       it 'returns the bad request with detail in errors' do
-        VCR.use_cassette('vaos/appointments/put_cancel_appointment_400', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointments/put_cancel_appointment_409', match_requests_on: %i[method uri]) do
           expect { subject.put_cancel_appointment(request_body) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
@@ -106,9 +106,9 @@ describe VAOS::AppointmentService do
 
     context 'with 12 va appointments' do
       it 'returns an array of size 12' do
-        VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri], tag: :force_utf8) do
           response = subject.get_appointments(type, start_date, end_date)
-          expect(response[:data].size).to eq(8)
+          expect(response[:data].size).to eq(28)
         end
       end
     end

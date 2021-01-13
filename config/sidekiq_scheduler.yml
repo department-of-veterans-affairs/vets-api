@@ -71,30 +71,6 @@ FacilityAccessBulkUpdate:
   class: Facilities::AccessDataDownload
   description: "Download and cache facility access-to-care metric data"
 
-FacilityLocationBulkUpdateNCA:
-  cron: "35 4 * * * America/New_York"
-  class: Facilities::FacilityLocationDownloadJob
-  args: ['nca']
-  description: "Download and store facility location data"
-
-FacilityLocationBulkUpdateVBA:
-  cron: "40 4 * * * America/New_York"
-  class: Facilities::FacilityLocationDownloadJob
-  args: ['vba']
-  description: "Download and store facility location data"
-
-FacilityLocationBulkUpdateVC:
-  cron: "45 4 * * * America/New_York"
-  class: Facilities::FacilityLocationDownloadJob
-  args: ['vc']
-  description: "Download and store facility location data"
-
-FacilityLocationBulkUpdateVHA:
-  cron: "50 4 * * * America/New_York"
-  class: Facilities::FacilityLocationDownloadJob
-  args: ['vha']
-  description: "Download and store facility location data"
-
 FacilityLocationVHADriveTime:
   cron: "55 4 * * * America/New_York"
   class: Facilities::PSSGDownload
@@ -120,10 +96,10 @@ VBADocuments::UploadRemover:
   class: VBADocuments::UploadRemover
   description: "Clean up submitted documents from S3"
 
-#VBADocuments::UploadStatusBatch:
-#  every: "60m"
-#  class: VBADocuments::UploadStatusBatch
-#  description: "Cache Statuses for VBA Documents"
+VBADocuments::UploadStatusBatch:
+  every: "60m"
+  class: VBADocuments::UploadStatusBatch
+  description: "Cache Statuses for VBA Documents"
 
 VBADocuments::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
@@ -135,10 +111,10 @@ ClaimsApi::ReportUnsuccessfulSubmissions:
   class: ClaimsApi::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful claims submissions"
 
-#VBADocuments::RunUnsuccessfulSubmissions:
-#  cron: "0 0 23 * * America/New_York"
-#  class: VBADocuments::RunUnsuccessfulSubmissions
-#  description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
+VBADocuments::RunUnsuccessfulSubmissions:
+  cron: "0 0 23 * * America/New_York"
+  class: VBADocuments::RunUnsuccessfulSubmissions
+  description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
 AppealsApi::HigherLevelReviewUploadStatusBatch:
   every: "60m"
@@ -149,6 +125,11 @@ AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
   every: ['24h', first_in: '45m']
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
+
+AppealsApi::DecisionReviewReportJob:
+  cron: "0 0 * * MON-FRI America/New_York"
+  class: AppealsApi::DecisionReviewReportJob
+  description: "Daily report of appeals submissions"
 
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
@@ -166,9 +147,9 @@ ExternalServicesStatusJob:
   every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
 
-VaForms::FetchLatest:
+VAForms::FetchLatest:
   cron: "0 0 * * * America/New_York"
-  class: VaForms::FormReloader
+  class: VAForms::FormReloader
   description: "Fetches latest VA Forms"
 
 AppsApi::LoadApplications:

@@ -2,7 +2,7 @@
 
 module Form1010cg
   class Auditor
-    include Singleton
+    attr_reader :logger
 
     STATSD_KEY_PREFIX   = 'api.form1010cg'
     LOGGER_PREFIX       = 'Form 10-10CG'
@@ -23,6 +23,10 @@ module Form1010cg
         ),
         pdf_download: STATSD_KEY_PREFIX + '.pdf_download'
       )
+    end
+
+    def initialize(logger = Rails.logger)
+      @logger = logger
     end
 
     def record(event, **context)
@@ -60,6 +64,15 @@ module Form1010cg
       increment self.class.metrics.pdf_download
     end
 
+    def record_attachments_delivered(claim_guid:, carma_case_id:, attachments:)
+      log(
+        'Attachments Delivered',
+        claim_guid: claim_guid,
+        carma_case_id: carma_case_id,
+        attachments: attachments
+      )
+    end
+
     def log_mpi_search_result(claim_guid:, form_subject:, result:)
       result_label = case result
                      when :found
@@ -80,7 +93,7 @@ module Form1010cg
     end
 
     def log(message, context_hash = {})
-      Rails.logger.send :info, "[#{LOGGER_PREFIX}] #{message}", deep_apply_filter(context_hash)
+      logger.send :info, "[#{LOGGER_PREFIX}] #{message}", deep_apply_filter(context_hash)
     end
 
     def deep_apply_filter(value)
