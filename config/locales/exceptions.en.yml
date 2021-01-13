@@ -577,6 +577,12 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      SEARCH_CLICK_TRACKING_400:
+        <<: *external_defaults
+        title: Missing Parameters
+        code: 'SEARCH_CLICK_TRACKING_400'
+        detail: 'Missing query parameter'
+        status: 400
       VAOS_409A:
         <<: *external_defaults
         title: Conflict

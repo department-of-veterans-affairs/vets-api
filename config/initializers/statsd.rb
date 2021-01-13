@@ -12,6 +12,7 @@ require 'saml/responses/base'
 require 'saml/user'
 require 'stats_d_metric'
 require 'search/service'
+require 'search_click_tracking/service'
 require 'vet360/exceptions/parser'
 require 'vet360/service'
 require 'va_notify/service'
@@ -131,6 +132,9 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
+
+# init SearchClickTracking
+StatsD.increment("#{SearchClickTracking::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:400'])
 
 # init Form1010cg
 StatsD.increment(Form1010cg::Auditor.metrics.submission.attempt, 0)

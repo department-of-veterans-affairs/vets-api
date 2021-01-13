@@ -160,6 +160,7 @@ module V0
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Profile,
       Swagger::Requests::Search,
+      Swagger::Requests::SearchClickTracking,
       Swagger::Requests::TermsAndConditions,
       Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,

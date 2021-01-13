@@ -488,6 +488,14 @@ search:
   mock_search: true
   url: https://search.usa.gov/api/v2
 
+  # Settings for search-click-tracking
+search_click_tracking:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  module_code: I14Y
+  mock: false
+  url: https://api.gsa.gov/technology/searchgov/v2
+
 flipper:
   admin_user_emails:
     - adewitt@thoughtworks.com
