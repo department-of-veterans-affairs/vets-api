@@ -268,7 +268,7 @@ namespace :form526 do
     def get_dis_translation_hash(disability_array)
       dis_translation_hash = {}
       disability_array.each do |dis|
-        dis_translation_hash[simplify_string(dis)] = dis
+        dis_translation_hash[simplify_string(dis)] = dis.downcase
       end
       dis_translation_hash
     end
@@ -281,11 +281,11 @@ namespace :form526 do
         new_treated_disability_names = {}
         if va_treatment_facilities['treatedDisabilityNames']
           va_treatment_facilities['treatedDisabilityNames'].each do |disability_name, value|
-            if disability_array.include? disability_name
+            if dis_translation_hash.values.include? disability_name
               new_treated_disability_names[disability_name] = value
             else
               transformed = true
-              original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase
+              original_disability_name = dis_translation_hash[simplify_string(disability_name)]
               new_treated_disability_names[original_disability_name] = value unless original_disability_name.nil?
             end
           end
@@ -302,11 +302,11 @@ namespace :form526 do
       if pow_disabilities
         new_pow_disability_names = {}
         pow_disabilities.each do |disability_name, value|
-          if disability_array.include? disability_name
+          if dis_translation_hash.values.include? disability_name
             new_pow_disability_names[disability_name] = value
           else
             transformed = true
-            original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase
+            original_disability_name = dis_translation_hash[simplify_string(disability_name)]
             new_pow_disability_names[original_disability_name] = value unless original_disability_name.nil?
           end
         end
@@ -316,8 +316,12 @@ namespace :form526 do
     end
     # get all of the forms that have not yet been converted.
     ipf = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
-    in_progress_forms = ipf.where("metadata -> 'return_url' is not null").or(ipf.where(id: ids))
-    @affected_forms = []
+
+    in_progress_forms = if ids.present?
+      ipf.where(id: ids)
+    else
+      ipf.where("metadata -> 'return_url' is not null")
+    end
 
     CSV.open(args[:csv_path], 'wb') do |csv|
       csv << %w[in_progress_form_id in_progress_form_user_uuid email_address]
