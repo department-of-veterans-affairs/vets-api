@@ -47,7 +47,7 @@ module EducationForm
       records.group_by { |ebc| ebc.education_stem_automated_decision&.user_uuid }
     end
 
-    # If the user doesn't have EVSS data mark the 10203 as DENIED
+    # If the user doesn't have EVSS data mark the 10203 as PROCESSED
     # If there are multiple submissions for a user compare un-submitted to most recent processed
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
@@ -119,11 +119,11 @@ module EducationForm
     end
 
     # Set status to DENIED when isPursuingTeachingCert in form data is 'no' (false)
-    #   or isEnrolledStem is 'no' (false)
+    #   and isEnrolledStem is 'no' (false)
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status)
       submission_form = format_application(submission)
-      status = if !(submission_form.enrolled_stem && submission_form.pursuing_teaching_cert) ||
+      status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
                   more_than_six_months?(gi_bill_status)
                  DENIED
                else

@@ -42,9 +42,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: c0b223ec09d1439442a0a12e6b9467d928648ad5
+  revision: 4da926722554116a116b4e02763cad9d104b72bd
   specs:
-    bgs_ext (0.17.0)
+    bgs_ext (0.18.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -515,7 +515,7 @@ GEM
     netrc (0.11.0)
     nio4r (2.5.4)
     no_proxy_fix (0.1.2)
-    nokogiri (1.11.0)
+    nokogiri (1.11.1)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nori (2.6.0)
@@ -571,6 +571,8 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.2)
+    parallel_tests (3.4.0)
+      parallel
     parser (2.7.1.4)
       ast (~> 2.4.1)
     patience_diff (1.1.0)
@@ -840,7 +842,8 @@ GEM
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
       equalizer (~> 0.0, >= 0.0.9)
-    wasabi (3.5.0)
+    wasabi (3.6.1)
+      addressable
       httpi (~> 2.0)
       nokogiri (>= 1.4.2)
     web-console (3.7.0)
@@ -956,6 +959,7 @@ DEPENDENCIES
   pact
   pact-mock_service
   paper_trail
+  parallel_tests
   pdf-forms
   pdf-inspector
   pdf-reader
