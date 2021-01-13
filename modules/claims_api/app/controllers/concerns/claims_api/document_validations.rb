@@ -23,6 +23,8 @@ module ClaimsApi
       def document_page_size_errors
         @document_page_size_errors ||= documents.reduce([]) do |cur, doc|
           valid_page_size?(doc) ? cur : cur << json_api_page_size_error(doc)
+        rescue
+          cur << json_api_validation_error(doc)
         end
       end
 
@@ -38,6 +40,14 @@ module ClaimsApi
         ['application/pdf', 'text/plain', 'application/octet-stream'].include?(document.content_type) && extension.downcase == 'pdf'
       end
       # rubocop:enable Layout/LineLength
+
+      def json_api_validation_error(document)
+        {
+          status: 400,
+          source: document.original_filename,
+          detail: "#{document.original_filename} is invalid"
+        }
+      end
 
       def json_api_page_size_error(document)
         {
