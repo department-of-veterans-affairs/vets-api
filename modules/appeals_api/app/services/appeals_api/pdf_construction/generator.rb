@@ -9,10 +9,11 @@ module AppealsApi
 
       def generate
         fill_unique_form_fields
+        #=> '{appeal.id}-tmp.pdf' OR '/tmp/#{appeal.id}-overlaid-form-fill-tmp.pdf'
 
-        # insert_additional_pages
+        insert_additional_pages
+        #=> '#{appeal.id}-completed-unstamped-tmp.pdf'
 
-        #this doesn't yet have a valid path to use
         stamp
       end
 
@@ -22,34 +23,52 @@ module AppealsApi
 
       def fill_unique_form_fields
         pdftk = PdfForms.new(Settings.binaries.pdftk)
-        temp_path = "/tmp/#{appeal.id}"
+        form_fill_path = "/tmp/#{appeal.id}-tmp"
 
         pdftk.fill_form(
           "#{pdf_template_path}/#{appeal.form_title}.pdf",
-          temp_path,
+          form_fill_path,
           appeal.form_fill,
           flatten: true
         )
+
+        @form_fill_path = appeal.insert_overlaid_pages(form_fill_path)
+      end
+
+      def insert_additional_pages
+        additional_pages_added_path = "/tmp/#{appeal.id}-additional-pages-tmp.pdf"
+
+        pdf = appeal.add_additional_pages
+        pdf.render_file(additional_pages_added_path) #saves the file
+
+        @unstamped_path = combine_form_fill_and_additional_pages
+      end
+
+      def combine_form_fill_and_additional_pages
+        unstamped_completed_pdf = CombinePDF.load(@form_fill_path) << CombinePDF.load(additional_pages_added_path)
+        unstamped_completed_pdf.save("/tmp/#{appeal.id}-completed-unstamped-tmp.pdf")
       end
 
       def stamp
-        stamper = CentralMail::DatestampPdf.new(pdf_path)
+        stamper = CentralMail::DatestampPdf.new(@unstamped_path)
         bottom_stamped_path = stamper.run(
           text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
           x: 5,
           y: 5,
           text_only: true
         )
-        CentralMail::DatestampPdf.new(bottom_stamped_path).run(
+        stamped_pdf_path = CentralMail::DatestampPdf.new(bottom_stamped_path).run(
           text: "Submitted by #{appeal.consumer_name} via api.va.gov",
           x: 429,
           y: 775,
           text_only: true
         )
-      end
 
-      def pdf_path
-        "/tmp/#{appeal.id}-final.pdf"
+        # This line is due to HLR being live when the updated stamp was added.
+        # Once HLR bumps a version, we should refactor NoD's stamp method to be
+        # generic to HLR/NOD/SC. For now, the HLR#Structure.stamp method will
+        # just return the stamped path.
+        appeal.stamp(stamped_pdf_path)
       end
 
       def pdf_template_path
