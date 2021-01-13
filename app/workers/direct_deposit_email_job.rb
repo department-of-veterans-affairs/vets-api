@@ -2,7 +2,23 @@
 
 class DirectDepositEmailJob
   include Sidekiq::Worker
+  extend SentryLogging
   sidekiq_options expires_in: 1.day
+
+  def self.send_to_all_emails(user_emails, ga_client_id)
+    if user_emails.present?
+      user_emails.each do |email|
+        perform_async(email, ga_client_id)
+      end
+    else
+      log_message_to_sentry(
+        'Direct Deposit info update: no email address present for confirmation email',
+        :info,
+        {},
+        feature: 'direct_deposit'
+      )
+    end
+  end
 
   def perform(email, ga_client_id)
     DirectDepositMailer.build(email, ga_client_id).deliver_now
