@@ -29,6 +29,10 @@ class Rack::Attack
     req.ip if req.path == '/v0/evss_claims_async'
   end
 
+  throttle('covid_vaccine', limit: 4, period: 5.minutes) do |req|
+    req.ip if req.path.starts_with?('/covid_vaccine/v0') && (req.post? || req.put?)
+  end
+
   # Source: https://github.com/kickstarter/rack-attack#x-ratelimit-headers-for-well-behaved-clients
   Rack::Attack.throttled_response = lambda do |env|
     rate_limit = env['rack.attack.match_data']
