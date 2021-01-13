@@ -14,7 +14,7 @@ describe ModuleGenerator do
 
       it 'the directories should exist' do
         %w[controllers models serializers service].each do |module_dir|
-          File.directory?("#{path}/#{module_dir}").should be true
+          expect(File.directory?("#{path}/#{module_dir}")).to be(true)
         end
       end
     end
