@@ -83,6 +83,16 @@ RSpec.describe 'ModuleComponent', type: :generator do
   end
 
   describe 'does not create an invalid component' do
+    before(:all) do
+      ModuleGenerator.new(['foo']).create_directory_structure
+      ModuleComponentGenerator.new(%w[foo bad_component]).create_component
+    end
+
+    let(:path) { Rails.root.join('modules', 'foo', 'app', 'bad_components') }
+
+    it 'does not create the bad_component' do
+      expect(File.exist?("#{path}/foo/v0/foo_bad_component.rb")).to be_falsey
+    end
   end
 
   describe 'it creates the module structure if user selects yes' do
