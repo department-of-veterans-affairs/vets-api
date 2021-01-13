@@ -11,9 +11,9 @@ describe ModuleGenerator do
   end
 
   after(:all) do
-    #restore stdout
+    # restore stdout
     $stdout = @original_stdout
-    #remove generated files
+    # remove generated files
     FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')])
   end
 
