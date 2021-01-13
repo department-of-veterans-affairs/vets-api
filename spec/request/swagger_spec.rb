@@ -8,6 +8,7 @@ require 'support/stub_debt_letters'
 require 'support/stub_efolder_documents'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
+require 'bgs/service'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -422,6 +423,65 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             200,
             headers.merge(
               'id' => CGI.escape(document_id)
+            )
+          )
+        end
+      end
+    end
+
+    context 'preferred facilities' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+      let!(:preferred_facility) { create(:preferred_facility, user: user) }
+
+      it 'validates unauthorized routes' do
+        expect(subject).to validate(:get, '/v0/preferred_facilities', 401)
+        expect(subject).to validate(:delete, '/v0/preferred_facilities/{id}', 401, 'id' => 1)
+        expect(subject).to validate(:post, '/v0/preferred_facilities', 401)
+      end
+
+      context 'preferred facilities index' do
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/preferred_facilities',
+            200,
+            headers
+          )
+        end
+      end
+
+      context 'preferred_facilities destroy' do
+        it 'validates the route' do
+          expect(subject).to validate(
+            :delete,
+            '/v0/preferred_facilities/{id}',
+            200,
+            headers.merge(
+              'id' => preferred_facility.id
+            )
+          )
+        end
+      end
+
+      context 'preferred_facilities create' do
+        it 'validates the route' do
+          allow_any_instance_of(User).to receive(:va_treatment_facility_ids).and_return(
+            %w[983 688]
+          )
+
+          expect(subject).to validate(
+            :post,
+            '/v0/preferred_facilities',
+            200,
+            headers.merge(
+              '_data' => {
+                preferred_facility: {
+                  facility_code: '688'
+                }
+              }
             )
           )
         end
@@ -2183,22 +2243,62 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       context 'ch33 bank accounts methods' do
         let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
 
+        it 'supports the update ch33 bank account api 400 response' do
+          res = {
+            update_ch33_dd_eft_response: {
+              return: {
+                return_code: 'F',
+                error_message: 'Invalid routing number',
+                return_message: 'FAILURE'
+              },
+              "@xmlns:ns0": 'http://services.share.benefits.vba.va.gov/'
+            }
+          }
+
+          expect_any_instance_of(BGS::Service).to receive(:update_ch33_dd_eft).with(
+            '122239982',
+            '444',
+            true
+          ).and_return(
+            OpenStruct.new(
+              body: res
+            )
+          )
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/ch33_bank_accounts',
+            400,
+            headers.merge(
+              '_data' => {
+                account_type: 'Checking',
+                account_number: '444',
+                financial_institution_routing_number: '122239982'
+              }
+            )
+          )
+        end
+
         it 'supports the update ch33 bank account api' do
           expect(subject).to validate(:put, '/v0/profile/ch33_bank_accounts', 401)
 
-          VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-            expect(subject).to validate(
-              :put,
-              '/v0/profile/ch33_bank_accounts',
-              200,
-              headers.merge(
-                '_data' => {
-                  account_type: 'Checking',
-                  account_number: '444',
-                  financial_institution_routing_number: '122239982'
-                }
-              )
-            )
+          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+                expect(subject).to validate(
+                  :put,
+                  '/v0/profile/ch33_bank_accounts',
+                  200,
+                  headers.merge(
+                    '_data' => {
+                      account_type: 'Checking',
+                      account_number: '444',
+                      financial_institution_routing_number: '122239982'
+                    }
+                  )
+                )
+              end
+            end
           end
         end
 
@@ -2206,12 +2306,14 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:get, '/v0/profile/ch33_bank_accounts', 401)
 
           VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-            expect(subject).to validate(
-              :get,
-              '/v0/profile/ch33_bank_accounts',
-              200,
-              headers
-            )
+            VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+              expect(subject).to validate(
+                :get,
+                '/v0/profile/ch33_bank_accounts',
+                200,
+                headers
+              )
+            end
           end
         end
       end

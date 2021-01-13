@@ -28,26 +28,6 @@ RSpec.describe 'request eligibility criteria', type: :request do
     let(:user) { build(:user, :vaos) }
     let(:size) { JSON.parse(response.body)['data'].size }
 
-    context 'with no ids' do
-      it 'returns a 200 with the correct schema' do
-        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria', match_requests_on: %i[method uri]) do
-          get '/vaos/v0/request_eligibility_criteria'
-          expect(response).to have_http_status(:ok)
-          expect(size).to eq(1269)
-          expect(response).to match_response_schema('vaos/request_eligibility_criteria', { strict: false })
-        end
-      end
-
-      it 'returns a 200 with the correct camel-inflected schema' do
-        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria', match_requests_on: %i[method uri]) do
-          get '/vaos/v0/request_eligibility_criteria', headers: inflection_header
-          expect(response).to have_http_status(:ok)
-          expect(size).to eq(1269)
-          expect(response).to match_camelized_response_schema('vaos/request_eligibility_criteria', { strict: false })
-        end
-      end
-    end
-
     context 'with one id' do
       it 'returns a 200 with the correct schema' do
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_id', match_requests_on: %i[method uri]) do
