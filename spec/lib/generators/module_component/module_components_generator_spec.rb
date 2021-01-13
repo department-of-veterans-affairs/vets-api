@@ -8,7 +8,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
   before(:all) do
     @original_stdout = $stdout
     # Redirect stdout to suppress generator output
-    $stdout = File.open(File::NULL, "w")
+    $stdout = File.open(File::NULL, 'w')
   end
 
   after(:all) do
