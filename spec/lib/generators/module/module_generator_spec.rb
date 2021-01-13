@@ -4,15 +4,12 @@ require 'rails_helper'
 require 'generators/module/module_generator'
 
 describe ModuleGenerator do
-  before(:all) do
-    @original_stderr = $stderr
+  before(:all) d
     @original_stdout = $stdout
-    # Redirect stderr and stdout
-    $stderr = File.open(File::NULL, "w")
+    # Redirect stdout to suppress generator output
     $stdout = File.open(File::NULL, "w")
   end
   after(:all) do
-    $stderr = @original_stderr
     $stdout = @original_stdout
   end
   after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
