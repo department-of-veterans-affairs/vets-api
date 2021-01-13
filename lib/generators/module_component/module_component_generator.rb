@@ -11,8 +11,7 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
 
   def create_component
     @commit_message_methods = []
-    # check if the module and dir structure exists
-    # if not, prompt the user - ask if they'd like to create
+
     unless Dir.exist?("modules/#{file_name}")
       `rails g module #{file_name}` if yes?("Module #{file_name} does not exist. Would you like to create it?")
     end
