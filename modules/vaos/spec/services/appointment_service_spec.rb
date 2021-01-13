@@ -8,8 +8,9 @@ describe VAOS::AppointmentService do
   let(:user) { build(:user, :vaos) }
   let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
   let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
+  let(:id) { '202006031600983000030800000000000000' }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  #before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_appointment' do
     context 'when request is mal-formed' do
@@ -149,6 +150,36 @@ describe VAOS::AppointmentService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
           expect { subject.get_appointments(type, start_date, end_date) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
+  describe '#show_appointment of type va' do
+    context 'returns single appointment' do
+      it 'with a 200 success' do
+        VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+          response = subject.get_appointment(id)
+          expect(response[:data][:id]).to eq(id)
+        end
+      end
+    end
+
+    context 'returns error status' do
+      it 'with a 404 not found' do
+        VCR.use_cassette('vaos/appointments/show_appointment_404', match_requests_on: %i[method uri]) do
+          expect { subject.get_appointment('1234567') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+
+      it 'with a 400 bad request' do
+        VCR.use_cassette('vaos/appointments/show_appointment_400', record: :new_episodes) do
+          # subject.get_appointment(true)
+          expect { subject.get_appointment(true) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
