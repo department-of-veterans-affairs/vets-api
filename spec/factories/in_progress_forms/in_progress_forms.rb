@@ -221,7 +221,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          return_url: 'foo.com'
+          returnUrl: 'foo.com'
         }
       end
       form_data do
