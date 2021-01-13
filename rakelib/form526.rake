@@ -252,8 +252,6 @@ namespace :form526 do
       # rubocop:enable Style/PerlBackrefs
     end
 
-    # make a hash that has both the original and corrupted versions of the disability name.
-    # eg {"myocardial infarction (mi)" => "myocardial infarction (MI)"}
     def get_disability_array(form_data_hash)
       new_conditions = form_data_hash['newDisabilities']&.collect { |d| d.dig('condition') } || []
       rated_disabilities = form_data_hash['ratedDisabilities']&.collect { |rd| rd['name'] } || []
