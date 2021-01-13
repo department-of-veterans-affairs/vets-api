@@ -337,15 +337,6 @@ ActiveRecord::Schema.define(version: 2021_01_06_135429) do
     t.index ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true
   end
 
-  create_table "form526_opt_ins", id: :serial, force: :cascade do |t|
-    t.string "user_uuid", null: false
-    t.string "encrypted_email", null: false
-    t.string "encrypted_email_iv", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true
-  end
-
   create_table "form526_submissions", id: :serial, force: :cascade do |t|
     t.string "user_uuid", null: false
     t.integer "saved_claim_id", null: false
