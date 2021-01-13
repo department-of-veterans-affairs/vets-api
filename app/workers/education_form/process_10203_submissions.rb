@@ -119,7 +119,7 @@ module EducationForm
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status)
       submission_form = format_application(submission)
-      status = if !(submission_form.enrolled_stem || submission_form.pursuing_teaching_cert) ||
+      status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
                   more_than_six_months?(gi_bill_status)
                  DENIED
                else
