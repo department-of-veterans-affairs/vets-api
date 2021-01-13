@@ -319,7 +319,7 @@ describe AppsApi::NotificationService do
       expect(returned_hash['app_record']).not_to be(nil)
       expect(returned_hash['user_email']).to eq('johndoe@email.com')
       expect(returned_hash['options'].size).to eq(6)
-      expect(returned_hash['options']['full_name']).to eq('John Doe')
+      expect(returned_hash['options']['first_name']).to eq('John')
       expect(returned_hash['options']['time']).to eq('2020-10-08T18=>08=>41.204')
       expect(returned_hash['options']['privacy_policy']).to eq('123.com')
     end

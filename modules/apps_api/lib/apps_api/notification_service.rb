@@ -49,7 +49,7 @@ module AppsApi
         'app_record' => app_record,
         'user_email' => user.body['profile']['email'],
         'options' => {
-          'full_name' => "#{user.body['profile']['firstName']} #{user.body['profile']['lastName']}",
+          'first_name' => user.body['profile']['firstName'],
           'application' => app_record ? app_record['name'] : nil,
           'time' => published,
           'privacy_policy' => app_record ? app_record['privacy_url'] : nil,
