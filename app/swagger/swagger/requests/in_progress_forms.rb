@@ -102,8 +102,16 @@ module Swagger
           parameter do
             key :name, :form_data
             key :in, :body
-            key :description, 'new data for the form'
-            key :required, true
+            key :description, 'new data for the form (alias "formData")'
+            schema do
+              key :'$ref', :FormInputData
+            end
+          end
+
+          parameter do
+            key :name, :formData
+            key :in, :body
+            key :description, 'new data for the form (alias "form_data")'
             schema do
               key :'$ref', :FormInputData
             end
