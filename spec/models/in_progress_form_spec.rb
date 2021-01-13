@@ -22,8 +22,8 @@ RSpec.describe InProgressForm, type: :model do
   describe '#metadata' do
     it 'adds the form expiration time and id', run_at: '2017-06-01' do
       in_progress_form.save
-      expect(in_progress_form.metadata['expires_at']).to eq(1_501_459_200)
-      expect(in_progress_form.metadata['in_progress_form_id']).to be_an(Integer)
+      expect(in_progress_form.metadata['expiresAt']).to eq(1_501_459_200)
+      expect(in_progress_form.metadata['inProgressFormId']).to be_an(Integer)
     end
 
     context 'skips the expiration_date callback wihen skip_exipry_update is true' do
@@ -39,13 +39,13 @@ RSpec.describe InProgressForm, type: :model do
 
       it 'adds a later form expiration time and id', run_at: '2017-06-01' do
         in_progress_form.save
-        expect(in_progress_form.metadata['expires_at']).to eq(1_527_811_200)
-        expect(in_progress_form.metadata['in_progress_form_id']).to be_an(Integer)
+        expect(in_progress_form.metadata['expiresAt']).to eq(1_527_811_200)
+        expect(in_progress_form.metadata['inProgressFormId']).to be_an(Integer)
       end
 
       it 'adds a later form expiration time when a leap year', run_at: '2020-06-01' do
         in_progress_form.save
-        expect(in_progress_form.metadata['expires_at']).to eq(1_622_505_600)
+        expect(in_progress_form.metadata['expiresAt']).to eq(1_622_505_600)
       end
     end
   end
@@ -65,11 +65,11 @@ RSpec.describe InProgressForm, type: :model do
 
   describe 'scopes' do
     let!(:first_record) do
-      create(:in_progress_form, metadata: { submission: { has_attempted_submit: true,
+      create(:in_progress_form, metadata: { submission: { hasAttemptedSubmit: true,
                                                           errors: 'foo',
-                                                          error_message: 'bar' } })
+                                                          errorMessage: 'bar' } })
     end
-    let!(:second_record) { create(:in_progress_form, metadata: { submission: { has_attempted_submit: false } }) }
+    let!(:second_record) { create(:in_progress_form, metadata: { submission: { hasAttemptedSubmit: false } }) }
 
     it 'includes records within scope' do
       expect(described_class.has_attempted_submit).to include(first_record)

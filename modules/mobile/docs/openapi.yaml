@@ -1467,7 +1467,7 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-  /v0/claims-and-appeals/overview:
+  /v0/claims-and-appeals-overview:
     get:
       summary: /v0/claims-and-appeals-overview
       description: Returns info on all user's claims and appeals for mobile overview page

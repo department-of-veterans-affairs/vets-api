@@ -138,7 +138,7 @@ module Users
         {
           form: form.form_id,
           metadata: form.metadata,
-          last_updated: form.updated_at.to_i
+          lastUpdated: form.updated_at.to_i
         }
       end
     end
