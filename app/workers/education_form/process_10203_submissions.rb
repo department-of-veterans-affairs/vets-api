@@ -83,7 +83,7 @@ module EducationForm
     #
     # Submissions are marked as processed in EducationForm::CreateDailySpoolFiles
     #
-    # For each unprocessed submission compare benefit_left and pursuing_teaching_cert values
+    # For each unprocessed submission compare isEnrolledStem, isPursuingTeachingCert, and benefitLeft values
     #     to most recent processed submissions
     # If values are the same set status as PROCESSED
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
@@ -100,8 +100,7 @@ module EducationForm
 
       unprocessed_submissions.each do |submission|
         unprocessed_form = format_application(submission)
-        if unprocessed_form.benefit_left == processed_form.benefit_left &&
-           unprocessed_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert
+        if repeat_form?(unprocessed_form, processed_form)
           update_status(submission, PROCESSED)
         else
           process_submission(submission, gi_bill_status)
@@ -109,11 +108,19 @@ module EducationForm
       end
     end
 
-    # Set status to DENIED when pursing_teaching_cert in form data is 'no' (false)
+    def repeat_form?(unprocessed_form, processed_form)
+      unprocessed_form.enrolled_stem == processed_form.enrolled_stem &&
+        unprocessed_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert &&
+        unprocessed_form.benefit_left == processed_form.benefit_left
+    end
+
+    # Set status to DENIED when isPursuingTeachingCert in form data is 'no' (false)
+    #   or isEnrolledStem is 'no' (false)
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status)
       submission_form = format_application(submission)
-      status = if !submission_form.pursuing_teaching_cert || more_than_six_months?(gi_bill_status)
+      status = if !(submission_form.enrolled_stem && submission_form.pursuing_teaching_cert) ||
+                  more_than_six_months?(gi_bill_status)
                  DENIED
                else
                  PROCESSED

@@ -40,5 +40,9 @@ module EducationForm::Forms
     def pursuing_teaching_cert
       @applicant.isPursuingTeachingCert
     end
+
+    def enrolled_stem
+      @applicant.isEnrolledStem
+    end
   end
 end
