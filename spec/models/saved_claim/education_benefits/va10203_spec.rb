@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lib/saved_claims_spec_helper'
 
 RSpec.describe SavedClaim::EducationBenefits::VA10203 do
-  let(:instance) { build(:va10203) }
+  let(:instance) { build(:va10203, education_benefits_claim: create(:education_benefits_claim)) }
   let(:user) { create(:evss_user) }
 
   it_behaves_like 'saved_claim'
@@ -26,6 +26,29 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       it 'does not call SendSchoolCertifyingOfficialsEmail' do
         expect { instance.after_submit(user) }
           .to change(EducationForm::SendSchoolCertifyingOfficialsEmail.jobs, :size).by(0)
+      end
+    end
+
+    context 'stem_automated_decision feature disabled' do
+      it 'does not create education_stem_automated_decision' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(false)
+        instance.after_submit(user)
+        expect(instance.education_benefits_claim.education_stem_automated_decision).to be_nil
+      end
+    end
+
+    context 'stem_automated_decision feature enabled' do
+      it 'creates education_stem_automated_decision for user' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(true)
+        instance.after_submit(user)
+        expect(instance.education_benefits_claim.education_stem_automated_decision).not_to be_nil
+        expect(instance.education_benefits_claim.education_stem_automated_decision.user_uuid)
+          .to eq(user.uuid)
+      end
+
+      it 'does not create education_stem_automated_decision without user' do
+        instance.after_submit(nil)
+        expect(instance.education_benefits_claim.education_stem_automated_decision).to be_nil
       end
     end
 
