@@ -20,6 +20,35 @@ RSpec.describe 'ModuleComponent', type: :generator do
     end
   end
 
+  describe 'creates a serializer' do
+    before(:all) do
+      ModuleGenerator.new(['foo']).create_directory_structure
+      ModuleComponentGenerator.new(%w[foo serializer]).create_component
+    end
+
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
+    let(:path) { Rails.root.join('modules', 'foo', 'app', 'serializers') }
+
+    it 'creates the module serializer file' do
+       expect(File.exist?("#{path}/foo/v0/foo_serializer.rb")).to be_truthy
+    end
+  end
+
+  describe 'creates a model' do
+    before(:all) do
+      ModuleGenerator.new(['foo']).create_directory_structure
+      ModuleComponentGenerator.new(%w[foo model]).create_component
+    end
+
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
+    let(:path) { Rails.root.join('modules', 'foo', 'app', 'models') }
+
+    it 'creates the module model file' do
+       expect(File.exist?("#{path}/foo/v0/foo_model.rb")).to be_truthy
+    end
+  end
 
   describe 'creates multiple components components' do
   end
