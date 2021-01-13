@@ -7,12 +7,15 @@ describe ModuleGenerator do
   before(:all) do
     @original_stdout = $stdout
     # Redirect stdout to suppress generator output
-    $stdout = File.open(File::NULL, "w")
+    $stdout = File.open(File::NULL, 'w')
   end
+
   after(:all) do
+    #restore stdout
     $stdout = @original_stdout
+    #remove generated files
+    FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')])
   end
-  after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
   describe 'create_directory_structure' do
     context 'once generated' do
