@@ -66,9 +66,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
 
       run 'bundle install'
 
-      puts "\n"
-      puts "\u{1F64C} new module generated at ./modules/#{file_name}\n\n"
-      puts "\n"
+      puts "\n\u{1F64C} new module generated at ./modules/#{file_name}\n\n\n"
     end
   end
 
