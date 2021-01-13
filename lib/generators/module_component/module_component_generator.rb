@@ -31,9 +31,12 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
                    File.join(path, method.pluralize.to_s, file_name, 'v0', 'configuration.rb')
         end
       else
+        # rubocop:disable Rails/Output
         puts "\n"
-        puts "#{method} is not a known generator command. Commands allowed are controller, model, serializer and service"
+        puts "#{method} is not a known generator command.
+              Commands allowed are controller, model, serializer and service"
         puts "\n"
+        # rubocop:enable Rails/Output
       end
     end
   end
