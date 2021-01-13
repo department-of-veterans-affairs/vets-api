@@ -21,7 +21,6 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
     # and create the corresponding files within the module for each arg
     path = "modules/#{file_name}/app"
     methods.map(&:downcase).each do |method|
-
       if COMPONENT_TYPES.include? method
         commit_message_methods << method
         template "app/#{method.pluralize}/#{method}.rb.erb",
@@ -39,14 +38,12 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
     end
   end
 
-  # rubocop:disable Rails/Output
   # :nocov:
   def create_commit_message
     unless commit_message_methods.nil?
       git add: '.'
-      git commit: "-a -m 'Initial commit of new module #{commit_message_methods.join(", ")} *KEEP THIS COMMIT MESSAGE*'"
+      git commit: "-a -m 'Initial commit of new module #{commit_message_methods.join(', ')} *KEEP THIS COMMIT MESSAGE*'"
     end
   end
   # :nocov:
-  # rubocop:enable Rails/Output
 end
