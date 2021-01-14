@@ -21,7 +21,9 @@ module Mobile
       private
 
       def appointments_with_facilities(va_appointments, facility_ids)
-        facilities = facilities_service.get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" })
+        facilities = facilities_service.get_facilities(
+          ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(',')
+        )
         facilities_by_id = facilities.index_by(&:id)
         va_appointments.map do |appointment|
           facility = facilities_by_id["vha_#{appointment.facility_id}"]
@@ -65,15 +67,15 @@ module Mobile
       end
 
       def start_date
-        DateTime.parse(params[:start_date])
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
+        DateTime.parse(params[:startDate])
+      rescue ArgumentError, TypeError
+        raise Common::Exceptions::InvalidFieldValue.new('startDate', params[:startDate])
       end
 
       def end_date
-        DateTime.parse(params[:end_date])
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
+        DateTime.parse(params[:endDate])
+      rescue ArgumentError, TypeError
+        raise Common::Exceptions::InvalidFieldValue.new('endDate', params[:endDate])
       end
     end
   end

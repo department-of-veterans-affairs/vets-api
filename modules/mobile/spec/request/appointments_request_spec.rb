@@ -22,6 +22,51 @@ RSpec.describe 'appointments', type: :request do
     end
 
     after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+    
+    context 'with a missing params' do
+      it 'returns a bad request error' do
+        get '/mobile/v0/appointments', headers: iam_headers, params: nil
+        
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body).to eq(
+          {
+            "errors" => [
+              {
+                "title" => "Invalid field value",
+                "detail" => "\"\" is not a valid value for \"startDate\"",
+                "code" => "103",
+                "status" => "400"
+              }
+            ]
+          }
+        )
+      end
+    end
+
+    context 'with an invalid date in params' do
+  
+      let(:start_date) { 42 }
+      let(:end_date) { (Time.now.utc + 3.months).iso8601 }
+      let(:params) { { startDate: start_date, endDate: end_date } }
+      
+      it 'returns a bad request error' do
+        get '/mobile/v0/appointments', headers: iam_headers, params: params
+    
+        expect(response).to have_http_status(:bad_request)
+        expect(response.parsed_body).to eq(
+          {
+            "errors" => [
+              {
+                "title" => "Invalid field value",
+                "detail" => "\"42\" is not a valid value for \"startDate\"",
+                "code" => "103",
+                "status" => "400"
+              }
+            ]
+          }
+        )
+      end
+    end
 
     context 'with a user has mixed upcoming appointments' do
       before do
@@ -36,7 +81,7 @@ RSpec.describe 'appointments', type: :request do
 
       let(:start_date) { Time.now.utc.iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { start_date: start_date, end_date: end_date } }
+      let(:params) { { startDate: start_date, endDate: end_date } }
       let(:first_appointment) { response.parsed_body['data'].first['attributes'] }
       let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
 
