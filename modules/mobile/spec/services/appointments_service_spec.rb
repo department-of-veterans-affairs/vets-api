@@ -30,7 +30,7 @@ describe Mobile::V0::Appointments::Service do
       let(:responses) do
         VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
-            service.get_appointments(start_date, end_date, false)
+            service.get_appointments(start_date, end_date)
           end
         end
       end
@@ -86,7 +86,8 @@ describe Mobile::V0::Appointments::Service do
           1,
           { tags: [
             'endpoint:/appointments/v1/patients/xxx/appointments',
-            'method:get'
+            'method:get',
+            'status:200'
           ] }
         )
         expect(StatsD).to receive(:increment).once.with(
@@ -95,7 +96,8 @@ describe Mobile::V0::Appointments::Service do
           { tags: [
             'endpoint:/var/VeteranAppointmentRequestService/v4/rest'\
 '/direct-scheduling/patient/ICN/xxx/booked-cc-appointments',
-            'method:get'
+            'method:get',
+            'status:200'
           ] }
         )
         expect(StatsD).to receive(:increment).once.with(
@@ -104,7 +106,7 @@ describe Mobile::V0::Appointments::Service do
         )
         VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
-            service.get_appointments(start_date, end_date, false)
+            service.get_appointments(start_date, end_date)
           end
         end
       end
@@ -118,7 +120,8 @@ describe Mobile::V0::Appointments::Service do
           { tags: [
             'endpoint:/var/VeteranAppointmentRequestService/v4/rest'\
 '/direct-scheduling/patient/ICN/xxx/booked-cc-appointments',
-            'method:get'
+            'method:get',
+            'status:200'
           ] }
         )
         expect(StatsD).to receive(:increment).once.with(
@@ -128,7 +131,7 @@ describe Mobile::V0::Appointments::Service do
         VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
             expect(Rails.logger).to receive(:error).with('mobile get va appointments call failed')
-            expect { service.get_appointments(start_date, end_date, false) }
+            expect { service.get_appointments(start_date, end_date) }
               .to raise_error(Common::Exceptions::BackendServiceException) do |error|
               expect(error.status_code).to eq(502)
             end
@@ -145,7 +148,8 @@ describe Mobile::V0::Appointments::Service do
           {
             tags: [
               'endpoint:/appointments/v1/patients/xxx/appointments',
-              'method:get'
+              'method:get',
+              'status:200'
             ]
           }
         )
@@ -156,7 +160,7 @@ describe Mobile::V0::Appointments::Service do
         VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
             expect(Rails.logger).to receive(:error).with('mobile get community care appointments call failed')
-            expect { service.get_appointments(start_date, end_date, false) }
+            expect { service.get_appointments(start_date, end_date) }
               .to raise_error(Common::Exceptions::BackendServiceException) do |error|
               expect(error.status_code).to eq(502)
             end
@@ -177,7 +181,7 @@ describe Mobile::V0::Appointments::Service do
           VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
             expect(Rails.logger).to receive(:error).with('mobile get community care appointments call failed')
             expect(Rails.logger).to receive(:error).with('mobile get va appointments call failed')
-            expect { service.get_appointments(start_date, end_date, false) }
+            expect { service.get_appointments(start_date, end_date) }
               .to raise_error(Common::Exceptions::BackendServiceException) do |error|
               expect(error.status_code).to eq(502)
             end
