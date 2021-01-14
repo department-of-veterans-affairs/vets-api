@@ -24,7 +24,7 @@ module <%= class_name %>
     end
 
     def mock_enabled?
-      [true, 'true'].include?(Settings.<%= class_name.downcase %>.mock)
+      [true, 'true'].include?(Settings.<%= class_name.underscore %>.mock)
     end
   end
 end

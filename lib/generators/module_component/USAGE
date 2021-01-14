@@ -22,5 +22,4 @@ Example: Creating multiple components at the same time
     rails generate module_component foo controller serializer
 
     This will create:
-		modules/foo/app/controllers/foo/v0/foo_controller.rb
         modules/foo/app/controllers/foo/v0/foo_controller.rb	
