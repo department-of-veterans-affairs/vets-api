@@ -320,6 +320,7 @@ RSpec/SubjectStub:
   Exclude:
     - 'modules/vaos/spec/services/user_service_spec.rb'
     - 'spec/jobs/education_form/create_daily_spool_files_spec.rb'
+    - 'spec/jobs/education_form/process10203_submissions_spec.rb'
     - 'spec/jobs/education_form/forms/va1990_spec.rb'
     - 'spec/jobs/transactional_email_analytics_job_spec.rb'
     - 'spec/jobs/form526_confirmation_email_job_spec.rb'

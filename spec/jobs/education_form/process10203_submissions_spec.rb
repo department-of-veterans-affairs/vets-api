@@ -5,8 +5,13 @@ require 'rails_helper'
 RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :education_benefits do
   subject { described_class.new }
 
+  let(:evss_user) { create(:evss_user) }
+  let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
+
   let!(:application_10203) do
-    create(:va10203).education_benefits_claim
+    claim = create(:va10203)
+    claim.create_stem_automated_decision(evss_user)
+    claim
   end
 
   context 'scheduling' do
@@ -46,47 +51,30 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
     end
   end
 
-  # describe '#format_application' do
-  #   it 'logs an error if the record is invalid' do
-  #     application_1606.saved_claim.form = {}.to_json
-  #     application_1606.saved_claim.save!(validate: false)
-  #
-  #     expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
-  #
-  #     subject.format_application(EducationBenefitsClaim.find(application_1606.id))
-  #   end
-  #
-  #   context 'with a 1990 form' do
-  #     it 'tracks and returns a form object' do
-  #       expect(subject).to receive(:track_form_type).with('22-1990', 999)
-  #       result = subject.format_application(application_1606, rpo: 999)
-  #       expect(result).to be_a(EducationForm::Forms::VA1990)
-  #     end
-  #   end
-  #
-  #   context 'with a 1995 form' do
-  #     let(:application_1606) { create(:va1995_full_form).education_benefits_claim }
-  #
-  #     it 'tracks the 1995 form' do
-  #       expect(subject).to receive(:track_form_type).with('22-1995', 999)
-  #       result = subject.format_application(application_1606, rpo: 999)
-  #       expect(result).to be_a(EducationForm::Forms::VA1995)
-  #     end
-  #   end
-  #
-  #   context 'result tests' do
-  #     subject { described_class.new.format_application(application_1606).text }
-  #
-  #     it 'outputs a valid spool file fragment' do
-  #       expect(subject.lines.select { |line| line.length > 80 }).to be_empty
-  #     end
-  #
-  #     it 'contains only windows-style newlines' do
-  #       expect(subject).not_to match(/([^\r]\n)/)
-  #     end
-  #   end
-  # end
-  #
+  describe '#format_application' do
+    it 'logs an error if the record is invalid' do
+      application_10203.education_benefits_claim.saved_claim.form = {}.to_json
+      application_10203.education_benefits_claim.saved_claim.save!(validate: false)
+
+      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
+
+      subject.send(:format_application, EducationBenefitsClaim.find(application_10203.education_benefits_claim.id))
+    end
+  end
+
+  describe '#group_user_uuid' do
+    it 'takes a list of records into groups by user_uuid' do
+      application_user2 = create(:va10203)
+      application_user2.create_stem_automated_decision(evss_user2)
+
+      submissions = [application_10203, application_user2]
+      users = [evss_user, evss_user2]
+
+      output = subject.send(:group_user_uuid, submissions.map(&:education_benefits_claim))
+      expect(output.keys).to eq(users.map(&:uuid))
+    end
+  end
+
   # describe '#perform' do
   #   context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
   #     let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
@@ -120,102 +108,6 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
   #       expect(subject).not_to receive(:write_files)
   #       expect(subject).to receive('log_info').with('No records to process.').once
   #       expect(subject.perform).to be(true)
-  #     end
-  #   end
-  # end
-  #
-  # describe '#group_submissions_by_region' do
-  #   it 'takes a list of records into chunked forms' do
-  #     base_form = {
-  #       veteranFullName: {
-  #         first: 'Mark',
-  #         last: 'Olson'
-  #       },
-  #       privacyAgreementAccepted: true
-  #     }
-  #     base_address = { street: 'A', city: 'B', country: 'USA' }
-  #     submissions = []
-  #
-  #     [
-  #       { state: 'MD' },
-  #       { state: 'GA' },
-  #       { state: 'WI' },
-  #       { state: 'OK' },
-  #       { state: 'XX', country: 'PHL' }
-  #     ].each do |address_data|
-  #       submissions << SavedClaim::EducationBenefits::VA1990.create(
-  #         form: base_form.merge(
-  #           educationProgram: {
-  #             address: base_address.merge(address_data)
-  #           }
-  #         ).to_json
-  #       ).education_benefits_claim
-  #     end
-  #
-  #     submissions << SavedClaim::EducationBenefits::VA1990.create(
-  #       form: base_form.to_json
-  #     ).education_benefits_claim
-  #
-  #     output = subject.group_submissions_by_region(submissions)
-  #
-  #     expect(output[:eastern].length).to be(3)
-  #     expect(output[:western].length).to be(3)
-  #   end
-  # end
-  #
-  # context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
-  #   let(:filename) { '307_09172016_070000_vetsgov.spl' }
-  #   let!(:second_record) { FactoryBot.create(:va1995) }
-  #
-  #   context 'in the development env' do
-  #     let(:file_path) { "tmp/spool_files/#{filename}" }
-  #
-  #     before do
-  #       expect(Rails.env).to receive('development?').once.and_return(true)
-  #     end
-  #
-  #     after do
-  #       File.delete(file_path)
-  #     end
-  #
-  #     it 'writes a file to the tmp dir' do
-  #       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-  #       subject.perform
-  #       contents = File.read(file_path)
-  #       expect(contents).to include('APPLICATION FOR VA EDUCATION BENEFITS')
-  #       # Concatenation is done in #write_files, so check for it here in the caller
-  #       expect(contents).to include("*END*#{line_break}*INIT*")
-  #       expect(contents).to include(second_record.education_benefits_claim.confirmation_number)
-  #       expect(contents).to include(application_1606.confirmation_number)
-  #       expect(EducationBenefitsClaim.unprocessed).to be_empty
-  #     end
-  #   end
-  #
-  #   it 'writes files out over sftp' do
-  #     expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-  #
-  #     key_path = "#{::Rails.root}/spec/fixtures/files/idme_cert.crt" # any readable file will work for this spec
-  #     with_settings(Settings.edu.sftp, host: 'localhost', key_path: key_path) do
-  #       sftp_session_mock = instance_double('Net::SSH::Connection::Session')
-  #       sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
-  #
-  #       expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
-  #       expect(sftp_mock).to receive(:open?).once.and_return(true)
-  #       expect(sftp_mock).to receive(:mkdir!).with('spool_files').once.and_return(true)
-  #       expect(sftp_mock).to receive(:upload!) do |contents, path|
-  #         expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
-  #         expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
-  #       end
-  #       expect(sftp_session_mock).to receive(:close)
-  #       expect { subject.perform }.to trigger_statsd_gauge(
-  #         'worker.education_benefits_claim.transmissions.307.22-1990',
-  #         value: 1
-  #       ).and trigger_statsd_gauge(
-  #         'worker.education_benefits_claim.transmissions.307.22-1995',
-  #         value: 1
-  #       )
-  #
-  #       expect(EducationBenefitsClaim.unprocessed).to be_empty
   #     end
   #   end
   # end
