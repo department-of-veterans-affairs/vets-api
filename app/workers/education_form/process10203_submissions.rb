@@ -55,13 +55,18 @@ module EducationForm
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
+      puts user_submissions.keys
+
       user_submissions.each do |user_uuid, submissions|
         gi_bill_status = get_gi_bill_status(user_uuid)
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
+          puts "no evss " +  user_uuid
           submissions.each { |submission| update_status(submission, PROCESSED) }
         elsif submissions.count > 1
+          puts "multiple " + submissions
           check_previous_submissions(submissions, gi_bill_status)
         else
+          puts "single " + user_uuid
           process_submission(submissions.first, gi_bill_status)
         end
       end
@@ -117,18 +122,24 @@ module EducationForm
         unprocessed_form.benefit_left == processed_form.benefit_left
     end
 
+    # Ignore already processed either by CreateDailySpoolFiles or this job
+    #
     # Set status to DENIED when isPursuingTeachingCert in form data is 'no' (false)
     #   and isEnrolledStem is 'no' (false)
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status)
-      submission_form = format_application(submission)
-      status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
-                  more_than_six_months?(gi_bill_status)
-                 DENIED
-               else
-                 PROCESSED
-               end
-      update_status(submission, status)
+      if submission.processed_at.nil? &&
+          submission.education_stem_automated_decision&.automated_decision_state == INIT
+
+        submission_form = format_application(submission)
+        status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
+                    more_than_six_months?(gi_bill_status)
+                   DENIED
+                 else
+                   PROCESSED
+                 end
+        update_status(submission, status)
+      end
     end
 
     def format_application(data)
