@@ -8,7 +8,7 @@ FactoryBot.define do
       {
         savedAt: 1_595_954_803_670,
         version: 6,
-        return_url: '/form-url/review-and-submit'
+        returnUrl: '/form-url/review-and-submit'
       }
     end
     form_data do

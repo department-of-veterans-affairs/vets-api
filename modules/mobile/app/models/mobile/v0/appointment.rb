@@ -28,18 +28,20 @@ module Mobile
         'America/New_York',
         'America/Phoenix',
         'Asia/Manila',
-        'Pacific/Honolulu'
+        'Pacific/Honolulu',
+        nil
       )
 
+      attribute :id, Types::String
       attribute :appointment_type, APPOINTMENT_TYPE
       attribute :comment, Types::String.optional
       attribute :facility_id, Types::String.optional
       attribute :healthcare_service, Types::String.optional
       attribute :location, AppointmentLocation
       attribute :minutes_duration, Types::Integer
-      attribute :start_date, Types::DateTime
+      attribute :start_date_local, Types::DateTime
+      attribute :start_date_utc, Types::DateTime
       attribute :status, STATUS_TYPE
-      attribute :time_zone, TIME_ZONE_TYPE
     end
   end
 end
