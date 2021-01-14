@@ -106,7 +106,7 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'updated form response'
+            key :description, 'update form response'
             schema { key :'$ref', :InProgressFormResponse }
           end
         end
