@@ -103,7 +103,6 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
            params: { id: 'testing', directory_application: invalid_params },
            headers: valid_headers
       expect(response).to have_http_status(:unprocessable_entity)
-
     end
   end
 

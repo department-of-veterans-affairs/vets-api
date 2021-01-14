@@ -65,6 +65,7 @@ module AppsApi
         end
         end
       end
+
       private
 
       def verify_auth
@@ -82,7 +83,6 @@ module AppsApi
           :tos_url, { service_categories: [] }, { platforms: [] }
         )
       end
-
     end
   end
 end
