@@ -76,10 +76,11 @@ module EducationForm
       {}
     end
 
-    def update_automated_decision(submission, status, has_poa)
+    def update_automated_decision(submission, status, poa)
       submission.education_stem_automated_decision.update(
         automated_decision_state: status,
-        has_poa: has_poa)
+        poa: poa
+      )
     end
 
     # Makes a list of all submissions that have not been processed and have a status of INIT
