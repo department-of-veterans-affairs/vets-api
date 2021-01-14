@@ -21,7 +21,7 @@ module BGS
     private
 
     def empty_response
-      { payments: [], return_payments: [] }
+      { payments: {payment: []}}
     end
   end
 end
