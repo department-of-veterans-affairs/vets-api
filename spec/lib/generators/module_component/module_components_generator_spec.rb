@@ -5,16 +5,16 @@ require 'generators/module_component/module_component_generator'
 require 'generators/module/module_generator'
 
 RSpec.describe 'ModuleComponent', type: :generator do
-  
+
   before(:all)
     @original_stdout = $stdout
     # Redirect stdout to suppress generator output
-    $stdout = File.open(File::NULL, "w")
+    $stdout = File.open(File::NULL, 'w')
   end
   after(:all) do
     $stdout = @original_stdout
   end
-  
+
   describe 'creates a controller' do
     before(:all) do
       ModuleGenerator.new(['foo']).create_directory_structure
@@ -110,10 +110,11 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     let(:path) { Rails.root.join('modules', 'foo') }
 
-    it 'creates the module controller files' do
+    it 'creates the module controller and serializer files' do
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
-      ModuleComponentGenerator.new(%w[foo controller]).prompt_user
+      ModuleComponentGenerator.new(%w[foo controller serializer]).create_component
       expect(Dir).to exist(path.to_s)
+      expect(File).to exist("#{path}/app/serializers/foo/v0/foo_serializer.rb")
     end
   end
 end
