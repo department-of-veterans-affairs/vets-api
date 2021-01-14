@@ -5,16 +5,16 @@ require 'generators/module_component/module_component_generator'
 require 'generators/module/module_generator'
 
 RSpec.describe 'ModuleComponent', type: :generator do
-  before(:all) do
+  
+  before(:all)
     @original_stdout = $stdout
     # Redirect stdout to suppress generator output
-    $stdout = File.open(File::NULL, 'w')
+    $stdout = File.open(File::NULL, "w")
   end
-
   after(:all) do
     $stdout = @original_stdout
   end
-
+  
   describe 'creates a controller' do
     before(:all) do
       ModuleGenerator.new(['foo']).create_directory_structure

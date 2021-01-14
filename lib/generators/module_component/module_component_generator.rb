@@ -9,14 +9,12 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
 
   COMPONENT_TYPES = %w[controller model serializer service].freeze
 
-  def prompt_user
+  def create_component
+    @commit_message_methods = []
+
     unless Dir.exist?("modules/#{file_name}")
       `rails g module #{file_name}` if yes?("Module #{file_name} does not exist. Would you like to create it?")
     end
-  end
-
-  def create_component
-    @commit_message_methods = []
 
     # Take each passed in argument (e.g.) controller, serializer, etc
     # and create the corresponding files within the module for each arg
