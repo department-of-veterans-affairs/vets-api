@@ -3,10 +3,7 @@
 module V0
   class EducationCareerCounselingClaimsController < ClaimsBaseController
     def create
-      load_user
-
       claim = SavedClaim::EducationCareerCounselingClaim.new(form: filtered_params[:form])
-      claim.add_claimant_info(current_user) if current_user&.loa3?
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
