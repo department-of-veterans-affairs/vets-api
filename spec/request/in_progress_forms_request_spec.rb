@@ -275,13 +275,15 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         context 'when the user is not loa3' do
           let(:user) { loa1_user }
 
-          it 'returns a 200' do
+          it 'returns a 200 with camelCases JSON' do
             put v0_in_progress_form_url(new_form.form_id), params: {
               form_data: new_form.form_data,
               metadata: new_form.metadata
             }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
             byebug
             expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['data']['attributes'].keys)
+              .to contain_exactly('formId', 'createdAt', 'updatedAt', 'metadata')
           end
         end
 
@@ -337,9 +339,11 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
 
-        it 'returns a 200' do
+        it 'returns a 200 with camelCase JSON' do
           delete v0_in_progress_form_url(in_progress_form.form_id), params: nil
           expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']['attributes'].keys)
+            .to contain_exactly('formId', 'createdAt', 'updatedAt', 'metadata')
         end
       end
 
