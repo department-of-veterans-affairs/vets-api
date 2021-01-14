@@ -79,8 +79,8 @@ module Swagger
 
           key :description, 'Update form data and metadata'
           key :operationId, 'updateInProgressForm'
-          key :tags, %w[
-            in_progress_forms
+          key :tags, [
+            'in_progress_forms'
           ]
 
           parameter :authorization
@@ -96,7 +96,7 @@ module Swagger
           parameter do
             key :name, :payload
             key :in, :body
-            key :description, 'form data and metadata'
+            key :description, 'updated form data and metadata'
             schema do
               property :formData, type: :object, description: '(alias "form_data")'
               property :form_data, type: :object, description: '(alias "formData")'
@@ -105,7 +105,7 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'updated form'
+            key :description, 'updated form response'
             schema { key :'$ref', :InProgressFormResponse }
           end
         end
