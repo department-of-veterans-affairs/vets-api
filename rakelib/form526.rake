@@ -349,6 +349,5 @@ namespace :form526 do
         in_progress_form.save!
       end
     end
-
   end
 end
