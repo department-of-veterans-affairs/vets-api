@@ -17,8 +17,7 @@ module VAOS
       end
 
       def show
-        response = appointment_service.get_appointment(params['id'])
-        render json: VAOS::V0::VAAppointmentsSerializer.new(response)
+        render json: VAOS::V0::VAAppointmentsSerializer.new(appointment)
       end
 
       def cancel
