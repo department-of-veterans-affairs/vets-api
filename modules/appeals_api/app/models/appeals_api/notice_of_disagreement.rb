@@ -22,20 +22,6 @@ module AppealsApi
 
     validate :validate_hearing_type_selection
 
-    def update_status_using_central_mail_status!(status, error_message = nil)
-      begin
-        attributes = CENTRAL_MAIL_STATUS_TO_NOD_ATTRIBUTES[status] || {}
-      rescue ArgumentError
-        self.class.log_unknown_central_mail_status(status)
-        raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
-      end
-      if status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message
-        attributes = attributes.merge(detail: "Downstream status: #{error_message}")
-      end
-
-      update! attributes
-    end
-
     def pdf_structure
       AppealsApi::PdfConstruction::NoticeOfDisagreement::Structure.new(self)
     end
