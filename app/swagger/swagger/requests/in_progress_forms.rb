@@ -33,9 +33,7 @@ module Swagger
           key :tags, [
             'in_progress_forms'
           ]
-
           parameter :authorization
-
           parameter do
             key :name, :id
             key :in, :path
@@ -45,7 +43,7 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'delete form'
+            key :description, 'delete form response'
             schema { key :'$ref', :InProgressFormResponse }
           end
         end
@@ -55,8 +53,8 @@ module Swagger
 
           key :description, 'Get form data'
           key :operationId, 'getInProgressForm'
-          key :tags, %w[
-            in_progress_forms
+          key :tags, [
+            'in_progress_forms'
           ]
 
           parameter :authorization
