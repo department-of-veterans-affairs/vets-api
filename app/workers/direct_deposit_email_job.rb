@@ -5,10 +5,10 @@ class DirectDepositEmailJob
   extend SentryLogging
   sidekiq_options expires_in: 1.day
 
-  def self.send_to_all_emails(user_emails, ga_client_id)
+  def self.send_to_emails(user_emails, ga_client_id, dd_type)
     if user_emails.present?
       user_emails.each do |email|
-        perform_async(email, ga_client_id)
+        perform_async(email, ga_client_id, dd_type)
       end
     else
       log_message_to_sentry(
@@ -20,7 +20,7 @@ class DirectDepositEmailJob
     end
   end
 
-  def perform(email, ga_client_id)
-    DirectDepositMailer.build(email, ga_client_id).deliver_now
+  def perform(email, ga_client_id, dd_type)
+    DirectDepositMailer.build(email, ga_client_id, dd_type).deliver_now
   end
 end

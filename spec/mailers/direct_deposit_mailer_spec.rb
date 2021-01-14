@@ -23,7 +23,7 @@ RSpec.describe DirectDepositMailer, type: [:mailer] do
     end
 
     it 'delivers the mail' do
-      expect { DirectDepositEmailJob.new.perform('test@example.com', 123_456_789) }.to change {
+      expect { DirectDepositEmailJob.new.perform('test@example.com', 123_456_789, :comp_pen) }.to change {
         ActionMailer::Base.deliveries.count
       }.by(1)
     end

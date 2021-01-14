@@ -49,7 +49,7 @@ module V0
     end
 
     def send_confirmation_email
-      DirectDepositEmailJob.send_to_all_emails(current_user.all_emails, params[:ga_client_id])
+      DirectDepositEmailJob.send_to_emails(current_user.all_emails, params[:ga_client_id], :comp_pen)
     end
   end
 end
