@@ -4,7 +4,18 @@ require 'rails_helper'
 require 'generators/module/module_generator'
 
 describe ModuleGenerator do
-  after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+  before(:all) do
+    @original_stdout = $stdout
+    # Redirect stdout to suppress generator output
+    $stdout = File.open(File::NULL, 'w')
+  end
+
+  after(:all) do
+    # restore stdout
+    $stdout = @original_stdout
+    # remove generated files
+    FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')])
+  end
 
   describe 'create_directory_structure' do
     context 'once generated' do
@@ -14,7 +25,7 @@ describe ModuleGenerator do
 
       it 'the directories should exist' do
         %w[controllers models serializers service].each do |module_dir|
-          File.directory?("#{path}/#{module_dir}").should be true
+          expect(File.directory?("#{path}/#{module_dir}")).to be(true)
         end
       end
     end
