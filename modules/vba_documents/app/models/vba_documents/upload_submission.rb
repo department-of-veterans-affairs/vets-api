@@ -116,7 +116,7 @@ module VBADocuments
       when 'Error', 'Processing Error'
         self.status = 'error'
         self.code = 'DOC202'
-        self.detail = "Downstream status: #{response_object['errorMessage']}"
+        self.detail = "Upstream status: #{response_object['errorMessage']}"
       else
         log_message_to_sentry('Unknown status value from Central Mail API',
                               :warning,
