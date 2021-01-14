@@ -1,0 +1,47 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - id
+      - type
+      - attributes
+    properties:
+      id:
+        type: string
+        example: "1.0"
+        description: API Version number
+      type:
+        type: string
+        example: "discovery"
+      attributes:
+        type: object
+        required:
+          - apiEndpoints
+          - oauthBaseUrl
+          - webviews
+        properties:
+          apiEndpoints:
+            type: object
+            additionalProperties:
+              type: string
+            example:
+              appointments: /v0/appointments
+              claimsOverview: /v0/claims-and-appeals-overview
+          oauthBaseUrl:
+            type: string
+            example: "https://sqa.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/"
+          webviews:
+            type: object
+            additionalProperties:
+              type: string
+            example:
+              coronaFAQ: https://www.va.gov/coronavirus-veteran-frequently-asked-questions
+              facilityLocator: https://www.va.gov/find-locations/
+          appAccess:
+            type: boolean
+          displayMessage:
+            type: string
+            example: "Please update the app to continue"
