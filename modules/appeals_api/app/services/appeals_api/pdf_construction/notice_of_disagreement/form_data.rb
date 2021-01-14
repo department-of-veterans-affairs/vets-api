@@ -82,9 +82,7 @@ module AppealsApi
           notice_of_disagreement.veteran_representative.to_s
         end
 
-        def hearing_type_preference
-          notice_of_disagreement.hearing_type_preference
-        end
+        delegate :hearing_type_preference, to: :notice_of_disagreement
 
         private
 

@@ -39,7 +39,7 @@ module AppealsApi
       end
 
       def insert_additional_pages
-        #add_additional_pages should always return a Prawn::Document object
+        # add_additional_pages should always return a Prawn::Document object
         pdf = structure.add_additional_pages
 
         return @form_fill_path if pdf.blank?
@@ -81,7 +81,6 @@ module AppealsApi
 
         path
       end
-
 
       def pdf_template_path
         Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')

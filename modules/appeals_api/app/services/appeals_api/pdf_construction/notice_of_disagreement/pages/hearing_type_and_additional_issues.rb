@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 module AppealsApi
   module PdfConstruction
     module NoticeOfDisagreement
       module Pages
         class HearingTypeAndAdditionalIssues
-
           def initialize(pdf, form_data)
             @pdf = pdf # Prawn::Document
             @form_data = form_data
@@ -42,6 +43,7 @@ module AppealsApi
 
           def hearing_type_text
             return if no_hearing_type?
+
             "\nHearing Type Preference: #{form_data.hearing_type_preference.humanize}\n"
           end
 
