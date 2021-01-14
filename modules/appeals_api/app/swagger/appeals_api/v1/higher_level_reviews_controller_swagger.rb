@@ -62,8 +62,8 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   ).to_swagger['requestBody']
 
   hlr_create_request_body['content']['application/json']['examples'] = {
-    'all fields used': { value: example_all_fields_used },
-    'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_200996_minimum.json']] }
+    'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_200996_minimum.json']] },
+    'all fields used': { value: example_all_fields_used }
   }
 
   swagger_path '/higher_level_reviews' do
@@ -91,44 +91,6 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
         schema { key :'$ref', :uuid }
       end
       key :responses, '200': response_hlr_show_success, '404': response_hlr_show_not_found
-      security do
-        key :apikey, []
-      end
-    end
-  end
-
-  swagger_path '/higher_level_reviews/schema' do
-    operation :get, tags: HLR_TAG do
-      key :operationId, 'getHigherLevelReviewSchema'
-      key :summary, 'Return the JSON Schema for POST /higher_level_reviews'
-      desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` enpdoint.'
-      key :description, desc
-      response '200' do
-        key :description, 'the JSON Schema for POST /higher_level_reviews'
-        schema = JSON.pretty_generate AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(hlr_create_json_schema)
-        key :content, 'application/json': { examples: { default: { value: schema } } }
-      end
-      security do
-        key :apikey, []
-      end
-    end
-  end
-
-  swagger_path '/higher_level_reviews/validate' do
-    operation :post, tags: HLR_TAG do
-      key :operationId, 'postValidateHigherLevelReview'
-      key :summary, 'Validate a POST /higher_level_reviews request body (dry run)'
-      desc = 'Validate a `POST /higher_level_reviews` request body against the JSON Schema. ' \
-        'Like the `POST /higher_level_reviews`, but *only* does the validations **—does not submit anything.**'
-      key :description, desc
-      key :parameters, hlr_create_parameters
-      key :requestBody, hlr_create_request_body
-      type = { type: :string, enum: [:higherLevelReviewValidation] }
-      attrs = { type: OBJ, properties: { status: { type: :string, enum: [:valid] } } }
-      example = { data: { type: type[:enum].first, attributes: { status: :valid } } }
-      schema = { type: OBJ, properties: { data: { type: OBJ, properties: { type: type, attributes: attrs } } } }
-      content = { 'application/json': { schema: schema, examples: { valid: { value: { data: example } } } } }
-      key :responses, '200': { description: 'Valid', content: content }, '422': response_hlr_create_error
       security do
         key :apikey, []
       end
@@ -171,6 +133,44 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       }
       key :responses, responses
 
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/higher_level_reviews/schema' do
+    operation :get, tags: HLR_TAG do
+      key :operationId, 'getHigherLevelReviewSchema'
+      key :summary, 'Return the JSON Schema for POST /higher_level_reviews'
+      desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` enpdoint.'
+      key :description, desc
+      response '200' do
+        key :description, 'the JSON Schema for POST /higher_level_reviews'
+        schema = JSON.pretty_generate AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(hlr_create_json_schema)
+        key :content, 'application/json': { examples: { default: { value: schema } } }
+      end
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/higher_level_reviews/validate' do
+    operation :post, tags: HLR_TAG do
+      key :operationId, 'postValidateHigherLevelReview'
+      key :summary, 'Validate a POST /higher_level_reviews request body (dry run)'
+      desc = 'Validate a `POST /higher_level_reviews` request body against the JSON Schema. ' \
+        'Like the `POST /higher_level_reviews`, but *only* does the validations **—does not submit anything.**'
+      key :description, desc
+      key :parameters, hlr_create_parameters
+      key :requestBody, hlr_create_request_body
+      type = { type: :string, enum: [:higherLevelReviewValidation] }
+      attrs = { type: OBJ, properties: { status: { type: :string, enum: [:valid] } } }
+      example = { data: { type: type[:enum].first, attributes: { status: :valid } } }
+      schema = { type: OBJ, properties: { data: { type: OBJ, properties: { type: type, attributes: attrs } } } }
+      content = { 'application/json': { schema: schema, examples: { valid: { value: { data: example } } } } }
+      key :responses, '200': { description: 'Valid', content: content }, '422': response_hlr_create_error
       security do
         key :apikey, []
       end
