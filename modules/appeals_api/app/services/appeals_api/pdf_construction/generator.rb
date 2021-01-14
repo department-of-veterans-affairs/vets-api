@@ -50,14 +50,6 @@ module AppealsApi
         combine_form_fill_and_additional_pages(additional_pages_added_path)
       end
 
-      def combine_form_fill_and_additional_pages(additional_pages_added_path)
-        path = "/tmp/#{appeal.id}-completed-unstamped-tmp.pdf"
-        unstamped_completed_pdf = CombinePDF.load(@form_fill_path) << CombinePDF.load(additional_pages_added_path)
-        unstamped_completed_pdf.save(path)
-
-        path
-      end
-
       def stamp
         stamper = CentralMail::DatestampPdf.new(@unstamped_path)
 
@@ -81,6 +73,15 @@ module AppealsApi
         # just return the stamped path.
         structure.stamp(stamped_pdf_path)
       end
+
+      def combine_form_fill_and_additional_pages(additional_pages_added_path)
+        path = "/tmp/#{appeal.id}-completed-unstamped-tmp.pdf"
+        unstamped_completed_pdf = CombinePDF.load(@form_fill_path) << CombinePDF.load(additional_pages_added_path)
+        unstamped_completed_pdf.save(path)
+
+        path
+      end
+
 
       def pdf_template_path
         Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')
