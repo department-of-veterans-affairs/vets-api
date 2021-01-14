@@ -110,7 +110,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     let(:path) { Rails.root.join('modules', 'foo') }
 
-    it 'creates the module controller and serializer files' do
+    it 'creates the module controller files' do
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
       ModuleComponentGenerator.new(%w[foo controller]).prompt_user
       expect(Dir).to exist(path.to_s)
