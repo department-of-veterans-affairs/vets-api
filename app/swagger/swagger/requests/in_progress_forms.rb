@@ -98,7 +98,7 @@ module Swagger
             key :in, :body
             key :description, 'updated form data and metadata. one of "form_data" or "formData" must be present'
             key :required, true
-            schema do
+            schema example: { formData: { lastName: 'Smith' }, metadata: { ver: 1 } } do
               property :formData, type: :object, description: '(alias "form_data")'
               property :form_data, type: :object, description: '(alias "formData")'
               property :metadata, type: :object
