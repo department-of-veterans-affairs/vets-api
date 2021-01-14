@@ -112,9 +112,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     it 'creates the module controller and serializer files' do
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
-      ModuleComponentGenerator.new(%w[foo controller serializer]).create_component
+      ModuleComponentGenerator.new(%w[foo controller]).prompt_user
       expect(Dir).to exist(path.to_s)
-      expect(File).to exist("#{path}/app/serializers/foo/v0/foo_serializer.rb")
     end
   end
 end
