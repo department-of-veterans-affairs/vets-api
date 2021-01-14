@@ -24,7 +24,7 @@ module AppealsApi
             form_fields.direct_review? => form_data.direct_review?,
             form_fields.evidence_submission? => form_data.evidence_submission?,
             form_fields.hearing? => form_data.hearing?,
-            form_fields.additional_pages? => form_data.additional_pages?,
+            form_fields.extra_contestable_issues? => form_data.extra_contestable_issues?,
             form_fields.soc_opt_in? => form_data.soc_opt_in?,
             form_fields.signature => form_data.signature,
             form_fields.date_signed => form_data.date_signed
@@ -83,15 +83,13 @@ module AppealsApi
         # rubocop:enable Metrics/BlockLength
 
         def add_additional_pages
-          return unless form_data.additional_pages?
+          return unless additional_pages?
 
-          additional_pages_pdf
+          @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          add_hearing_type_and_extra_issues_page
+          Pages::HearingTypeAndAdditionalIssues.new(@additional_pages_pdf, form_data).build!
 
-          # additional_pages_pdf.start_new_page before each new page method
-
-          additional_pages_pdf
+          @additional_pages_pdf
         end
 
         def form_title
@@ -119,10 +117,6 @@ module AppealsApi
           @form_data ||= NoticeOfDisagreement::FormData.new(notice_of_disagreement)
         end
 
-        def additional_pages_pdf
-          @additional_pages_pdf ||= Prawn::Document.new
-        end
-
         def fill_first_five_issue_dates!(options)
           # this method is a holdover from the previous constructor design,
           # where we use a resizable textbox drawn after the initial form fill
@@ -136,38 +130,9 @@ module AppealsApi
           options
         end
 
-        def add_hearing_type_and_extra_issues_page
-          additional_pages_pdf.text(hearing_type_text, inline_format: true)
-          additional_pages_pdf.text("\n<b>Additional Issues</b>\n", inline_format: true)
-          additional_pages_pdf.table(extra_issues_table_data, header: true)
-        end
-
-        def hearing_type_text
-          return if notice_of_disagreement.hearing_type_preference.blank?
-
-          "\nHearing Type Preference: #{notice_of_disagreement.hearing_type_preference.humanize}\n"
-        end
-
-        def extra_issues_table_data
-          header = ['A. Specific Issue(s)', 'B. Date of Decision']
-
-          data = form_data.contestable_issues.drop(5).map do |issue|
-            [issue['attributes']['issue'], issue['attributes']['decisionDate']]
-          end
-
-          data.unshift(header)
-        end
-
-        def method_missing(method, *args, &block)
-          if notice_of_disagreement.respond_to?(method)
-            notice_of_disagreement.send(method)
-          else
-            super
-          end
-        end
-
-        def respond_to_missing?(method, include_private = false)
-          notice_of_disagreement.respond_to?(method, include_private) || super
+        def additional_pages?
+          form_data.hearing_type_preference.present? ||
+            form_data.contestable_issues.count > 5
         end
       end
     end

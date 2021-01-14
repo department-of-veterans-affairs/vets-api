@@ -52,7 +52,7 @@ module AppealsApi
           board_review_option == 'hearing' ? 1 : 'Off'
         end
 
-        def additional_pages?
+        def extra_contestable_issues?
           contestable_issues.size > 5 ? 1 : 'Off'
         end
 
@@ -65,8 +65,8 @@ module AppealsApi
         end
 
         def date_signed
-          veterans_timezone = notice_of_disagreement.form_data&.dig('data', 'attributes', 'timezone').presence&.strip
-          time = veterans_timezone.present? ? Time.now.in_time_zone(veterans_timezone) : Time.now.utc
+          timezone = notice_of_disagreement.form_data&.dig('data', 'attributes', 'timezone').presence&.strip || 'UTC'
+          time = Time.now.in_time_zone(timezone)
           time.strftime('%Y-%m-%d')
         end
 
@@ -80,6 +80,10 @@ module AppealsApi
 
         def representatives_name
           notice_of_disagreement.veteran_representative.to_s
+        end
+
+        def hearing_type_preference
+          notice_of_disagreement.hearing_type_preference
         end
 
         private

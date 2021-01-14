@@ -36,7 +36,7 @@ module AppealsApi
       update! attributes
     end
 
-    def decorated_for_pdf
+    def pdf_structure
       AppealsApi::PdfConstruction::NoticeOfDisagreement::Structure.new(self)
     end
 

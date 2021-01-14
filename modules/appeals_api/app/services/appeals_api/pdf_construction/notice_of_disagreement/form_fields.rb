@@ -50,7 +50,7 @@ module AppealsApi
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[3]'
         end
 
-        def additional_pages?
+        def extra_contestable_issues?
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[4]'
         end
 

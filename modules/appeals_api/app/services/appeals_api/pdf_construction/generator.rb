@@ -6,7 +6,8 @@ module AppealsApi
   module PdfConstruction
     class Generator
       def initialize(appeal)
-        @appeal = appeal.decorated_for_pdf
+        @appeal = appeal
+        @structure = appeal.pdf_structure
       end
 
       def generate
@@ -21,24 +22,25 @@ module AppealsApi
 
       private
 
-      attr_accessor :appeal
+      attr_accessor :appeal, :structure
 
       def fill_unique_form_fields
         pdftk = PdfForms.new(Settings.binaries.pdftk)
         form_fill_path = "/tmp/#{appeal.id}-tmp"
 
         pdftk.fill_form(
-          "#{pdf_template_path}/#{appeal.form_title}.pdf",
+          "#{pdf_template_path}/#{structure.form_title}.pdf",
           form_fill_path,
-          appeal.form_fill,
+          structure.form_fill,
           flatten: true
         )
 
-        appeal.insert_overlaid_pages(form_fill_path)
+        structure.insert_overlaid_pages(form_fill_path)
       end
 
       def insert_additional_pages
-        pdf = appeal.add_additional_pages
+        #add_additional_pages should always return a Prawn::Document object
+        pdf = structure.add_additional_pages
 
         return @form_fill_path if pdf.blank?
 
@@ -77,7 +79,7 @@ module AppealsApi
         # Once HLR bumps a version, we should refactor NoD's stamp method to be
         # generic to HLR/NOD/SC. For now, the HLR#Structure.stamp method will
         # just return the stamped path.
-        appeal.stamp(stamped_pdf_path)
+        structure.stamp(stamped_pdf_path)
       end
 
       def pdf_template_path
