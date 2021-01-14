@@ -280,6 +280,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               form_data: new_form.form_data,
               metadata: new_form.metadata
             }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
+            byebug
             expect(response).to have_http_status(:ok)
           end
         end

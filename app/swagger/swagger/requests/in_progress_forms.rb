@@ -73,9 +73,7 @@ module Swagger
 
           response 200 do
             key :description, 'get form response'
-            schema do
-              key :'$ref', :FormOutputData
-            end
+            schema { key :'$ref', :InProgressFormShowResponse }
           end
         end
 
@@ -103,22 +101,26 @@ module Swagger
             key :name, :form_data
             key :in, :body
             key :description, 'new data for the form (alias "formData")'
-            schema do
-              key :'$ref', :FormInputData
-            end
+            key :type, :object
           end
 
           parameter do
             key :name, :formData
             key :in, :body
             key :description, 'new data for the form (alias "form_data")'
-            schema do
-              key :'$ref', :FormInputData
-            end
+            key :type, :object
+          end
+
+          parameter do
+            key :name, :metadata
+            key :in, :body
+            key :description, 'metadata for the form'
+            key :type, :object
           end
 
           response 200 do
-            key :description, 'update form response'
+            key :description, 'updated form'
+            schema { key :'$ref', :InProgressFormShowResponse }
           end
         end
       end
@@ -136,9 +138,21 @@ module Swagger
       swagger_schema :FormOutputData do
       end
 
-      swagger_schema :FormInputData, required: [:form_data] do
-        property :form_data do
-          key :type, :string
+      swagger_schema :InProgressFormShowResponse do
+        property :formData, type: :object
+        property :metadata, type: :object
+      end
+
+      swagger_schema :InProgressFormUpdateResponse do
+        property :data, type: :object do
+          property :id, type: :string
+          property :type, type: :string
+          property :attributes, type: :object do
+            property :formId, type: :string
+            property :createdAt, type: :string
+            property :updatedAt, type: :string
+            property :vet360_contact_information, type: %i[object null]
+          end
         end
       end
     end
