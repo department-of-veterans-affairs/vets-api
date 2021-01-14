@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/appointments/v1/patients/24811694708759028/appointments?endDate=2021-02-01T10:30:00Z&pageSize=0&startDate=2020-11-01T10:30:00Z&useCache=false
+    uri: https://veteran.apps.va.gov/appointments/v1/patients/24811694708759028/appointments?endDate=2021-02-01T10:30:00Z&pageSize=0&startDate=2020-11-01T10:30:00Z&useCache=true
     body:
       encoding: US-ASCII
       string: ''
