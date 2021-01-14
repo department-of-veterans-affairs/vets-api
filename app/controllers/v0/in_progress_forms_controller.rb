@@ -24,7 +24,7 @@ module V0
     def update
       form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first_or_initialize
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
-      render json: form
+      render json: form, key_transform: :unaltered
     end
 
     def destroy
@@ -32,7 +32,7 @@ module V0
       raise Common::Exceptions::RecordNotFound, params[:id] if form.blank?
 
       form.destroy
-      render json: form
+      render json: form, key_transform: :unaltered
     end
 
     private
