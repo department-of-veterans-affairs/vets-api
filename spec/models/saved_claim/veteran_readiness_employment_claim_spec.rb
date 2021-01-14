@@ -21,18 +21,40 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     }
   end
 
+  describe '#add_claimant_info' do
+    it 'adds veteran information' do
+      VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
+        claim.add_claimant_info(user_object)
+
+        expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => '796043735')
+      end
+    end
+
+    it 'does not obtain va_file_number' do
+      VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
+        people_service_object = double('people_service')
+        allow(people_service_object).to receive(:find_person_by_participant_id)
+        allow(BGS::PeopleService).to receive(:new) { people_service_object }
+
+        claim.add_claimant_info(user_object)
+        expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => nil)
+      end
+    end
+  end
+
   describe '#send_to_vre' do
     context 'successful submission' do
       it 'successfully sends to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
-
           expect(response['error_occurred']).to eq(false)
         end
       end
 
       it 'ensures appointment time preferences are downcased' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          claim.add_claimant_info(user_object)
           claim.send_to_vre(user_object)
 
           expect(claim.parsed_form['appointmentTimePreferences'].first).to eq('morning')
@@ -41,6 +63,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
       it 'does not successfully send to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
+          claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
 
           expect(response['error_occurred']).to eq(true)
