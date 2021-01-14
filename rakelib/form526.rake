@@ -267,7 +267,7 @@ namespace :form526 do
     def get_dis_translation_hash(disability_array)
       dis_translation_hash = {}
       disability_array.each do |dis|
-        dis_translation_hash[simplify_string(dis)] = dis.downcase
+        dis_translation_hash[simplify_string(dis)] = dis&.downcase
       end
       dis_translation_hash
     end
@@ -349,5 +349,6 @@ namespace :form526 do
         in_progress_form.save!
       end
     end
+
   end
 end
