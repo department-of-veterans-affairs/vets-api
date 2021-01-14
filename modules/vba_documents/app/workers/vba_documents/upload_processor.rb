@@ -18,7 +18,12 @@ module VBADocuments
 
     def perform(guid, retries = 0)
       @retries = retries
-      @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+      @upload =  VBADocuments::UploadSubmission.new
+      @upload.status = 'uploaded'
+      @upload.guid= guid
+      @upload.save!
+      #    @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+      @upload_ac = VBADocuments::UploadFile.find_by(guid: guid)
       if @upload
         Rails.logger.info("VBADocuments: Start Processing: #{@upload.inspect}")
         download_and_process
@@ -29,10 +34,13 @@ module VBADocuments
     private
 
     def download_and_process
-      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
-
+      # tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
+      timestamp = @upload_ac.files.last.created_at
       begin
-        parts = VBADocuments::MultipartParser.parse(tempfile.path)
+        parts = @upload_ac.files.last.open do |file|
+          VBADocuments::MultipartParser.parse(file.path)
+        end
+        # parts = VBADocuments::MultipartParser.parse(tempfile.path)
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
@@ -46,7 +54,7 @@ module VBADocuments
       rescue VBADocuments::UploadError => e
         retry_errors(e, @upload)
       ensure
-        tempfile.close
+        #tempfile.close #auto closed on block completion
         close_part_files(parts) if parts.present?
       end
     end
