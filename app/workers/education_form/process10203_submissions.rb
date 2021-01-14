@@ -59,18 +59,13 @@ module EducationForm
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
-      puts user_submissions.keys
-
       user_submissions.each do |user_uuid, submissions|
         gi_bill_status = get_gi_bill_status(user_uuid)
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
-          puts "no evss " +  user_uuid
           submissions.each { |submission| update_status(submission, PROCESSED) }
         elsif submissions.count > 1
-          puts "multiple " + submissions
           check_previous_submissions(submissions, gi_bill_status)
         else
-          puts "single " + user_uuid
           process_submission(submissions.first, gi_bill_status)
         end
       end
