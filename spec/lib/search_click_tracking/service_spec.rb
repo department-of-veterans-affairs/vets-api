@@ -20,6 +20,7 @@ describe SearchClickTracking::Service do
 
   describe 'when successful ' do
     it 'returns a status of 200', :aggregate_failures do
+      VCR.use_cassette('searsearch_click_trackingch/success', VCR::MATCH_EVERYTHING) do
         response = subject.track_click
         expect(response.status).to eq 200
     end
@@ -28,6 +29,7 @@ describe SearchClickTracking::Service do
   #need to mess up params here
   describe 'error handling ' do
     it 'raises a 400 exception' do
+      VCR.use_cassette('searsearch_click_trackingch/failure', VCR::MATCH_EVERYTHING) do
       expect { subject.track_click }.to raise_error do |e|
         expect(e).to be_a(Common::Exceptions::BackendServiceException)
         expect(e.status_code).to eq(400)
