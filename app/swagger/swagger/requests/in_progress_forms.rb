@@ -11,17 +11,13 @@ module Swagger
 
           key :description, 'Get Saved Form Summaries'
           key :operationId, 'listInProgressForms'
-          key :tags, %w[
-            in_progress_forms
-          ]
+          key :tags, ['in_progress_forms']
 
           parameter :authorization
 
           response 200 do
             key :description, 'get saved form summaries'
-            schema do
-              key :'$ref', :SavedFormSummaries
-            end
+            schema { key :'$ref', :InProgressFormsResponse }
           end
         end
       end
@@ -32,10 +28,10 @@ module Swagger
 
           key :description, 'Delete form data'
           key :operationId, 'deleteInProgressForm'
-          key :tags, [
-            'in_progress_forms'
-          ]
+          key :tags, ['in_progress_forms']
+
           parameter :authorization
+
           parameter do
             key :name, :id
             key :in, :path
@@ -45,10 +41,8 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'delete form response'
-            schema do
-              key :'$ref', :References
-            end
+            key :description, 'delete form'
+            schema { key :'$ref', :InProgressFormResponse }
           end
         end
 
@@ -57,9 +51,7 @@ module Swagger
 
           key :description, 'Get form data'
           key :operationId, 'getInProgressForm'
-          key :tags, [
-            'in_progress_forms'
-          ]
+          key :tags, ['in_progress_forms']
 
           parameter :authorization
 
@@ -81,11 +73,9 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::InternalServerError
 
-          key :description, 'Update form data'
+          key :description, 'Update form data and metadata'
           key :operationId, 'updateInProgressForm'
-          key :tags, [
-            'in_progress_forms'
-          ]
+          key :tags, ['in_progress_forms']
 
           parameter :authorization
 
@@ -98,44 +88,21 @@ module Swagger
           end
 
           parameter do
-            key :name, :form_data
+            key :name, :payload
             key :in, :body
-            key :description, 'new data for the form (alias "formData")'
-            key :type, :object
-          end
-
-          parameter do
-            key :name, :formData
-            key :in, :body
-            key :description, 'new data for the form (alias "form_data")'
-            key :type, :object
-          end
-
-          parameter do
-            key :name, :metadata
-            key :in, :body
-            key :description, 'metadata for the form'
-            key :type, :object
+            key :description, 'form data and metadata'
+            schema do
+              property :formData, type: :object, description: '(alias "form_data")'
+              property :form_data, type: :object, description: '(alias "formData")'
+              property :metadata, type: :object
+            end
           end
 
           response 200 do
             key :description, 'updated form'
-            schema { key :'$ref', :InProgressFormShowResponse }
+            schema { key :'$ref', :InProgressFormResponse }
           end
         end
-      end
-
-      swagger_schema :References do
-        property :data, type: :object do
-          property :id, type: :string
-          property :type, type: :string
-        end
-      end
-
-      swagger_schema :SavedFormSummaries do
-      end
-
-      swagger_schema :FormOutputData do
       end
 
       swagger_schema :InProgressFormShowResponse do
@@ -143,7 +110,7 @@ module Swagger
         property :metadata, type: :object
       end
 
-      swagger_schema :InProgressFormUpdateResponse do
+      swagger_schema :InProgressFormResponse do
         property :data, type: :object do
           property :id, type: :string
           property :type, type: :string
@@ -151,7 +118,22 @@ module Swagger
             property :formId, type: :string
             property :createdAt, type: :string
             property :updatedAt, type: :string
-            property :vet360_contact_information, type: %i[object null]
+            property :metadata, type: :object
+          end
+        end
+      end
+
+      swagger_schema :InProgressFormsResponse do
+        property :data, type: :array do
+          items type: :object do
+            property :id, type: :string
+            property :type, type: :string
+            property :attributes, type: :object do
+              property :formId, type: :string
+              property :createdAt, type: :string
+              property :updatedAt, type: :string
+              property :metadata, type: :object
+            end
           end
         end
       end
