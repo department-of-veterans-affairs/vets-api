@@ -5,15 +5,14 @@ module Swagger
     class InProgressForms
       include Swagger::Blocks
 
+      tags = { tags: ['in_progress_forms'] }
+
       swagger_path '/v0/in_progress_forms' do
-        operation :get do
+        operation :get, **tags do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Get Saved Form Summaries'
           key :operationId, 'listInProgressForms'
-          key :tags, %w[
-            in_progress_forms
-          ]
 
           parameter :authorization
 
@@ -25,15 +24,14 @@ module Swagger
       end
 
       swagger_path '/v0/in_progress_forms/{id}' do
-        operation :delete do
+        operation :delete, **tags do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Delete form data'
           key :operationId, 'deleteInProgressForm'
-          key :tags, [
-            'in_progress_forms'
-          ]
+
           parameter :authorization
+
           parameter do
             key :name, :id
             key :in, :path
@@ -48,14 +46,11 @@ module Swagger
           end
         end
 
-        operation :get do
+        operation :get, **tags do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Get form data'
           key :operationId, 'getInProgressForm'
-          key :tags, [
-            'in_progress_forms'
-          ]
 
           parameter :authorization
 
@@ -73,15 +68,12 @@ module Swagger
           end
         end
 
-        operation :put do
+        operation :put, **tags do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::InternalServerError
 
           key :description, 'Update form data and metadata'
           key :operationId, 'updateInProgressForm'
-          key :tags, [
-            'in_progress_forms'
-          ]
 
           parameter :authorization
 
