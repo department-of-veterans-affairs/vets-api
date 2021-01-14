@@ -61,11 +61,12 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
            params: { id: 'testing', directory_application: valid_params },
            headers: valid_headers
 
-      put '/services/apps/v0/directory',
+      put '/services/apps/v0/directory/testing',
           params: { id: 'testing', directory_application: valid_params },
           headers: valid_headers
       body = JSON.parse(response.body)
       expect(body.length).to be(1)
+      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -95,6 +96,14 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: valid_params },
            headers: valid_headers
+      expect(response).to have_http_status(:ok)
+    end
+    it 'has :unprocessable_entity when given invalid params' do
+      post '/services/apps/v0/directory',
+           params: { id: 'testing', directory_application: invalid_params },
+           headers: valid_headers
+      expect(response).to have_http_status(:unprocessable_entity)
+
     end
   end
 
