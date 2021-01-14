@@ -9,11 +9,13 @@ class InProgressForm < ApplicationRecord
     alias serialize cast
   end
 
-  RETURN_URL_SQL = "CAST(metadata -> 'return_url' AS text)"
-  scope :has_attempted_submit, -> { where("(metadata -> 'submission' ->> 'has_attempted_submit')::boolean") }
+  attr_accessor :skip_exipry_update
+
+  RETURN_URL_SQL = "CAST(metadata -> 'returnUrl' AS text)"
+  scope :has_attempted_submit, -> { where("(metadata -> 'submission' ->> 'hasAttemptedSubmit')::boolean") }
   scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
   scope :has_no_errors,        -> { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
-  scope :has_error_message,    -> { where("(metadata -> 'submission' -> 'error_message')::text !='false'") }
+  scope :has_error_message,    -> { where("(metadata -> 'submission' -> 'errorMessage')::text !='false'") }
   # the double quotes in return_url are part of the value
   scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
 
@@ -23,7 +25,7 @@ class InProgressForm < ApplicationRecord
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)
   before_save :serialize_form_data
-  before_save :set_expires_at
+  before_save :set_expires_at, unless: :skip_exipry_update
 
   def self.form_for_user(form_id, user)
     InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
@@ -31,7 +33,7 @@ class InProgressForm < ApplicationRecord
 
   def data_and_metadata
     {
-      form_data: JSON.parse(form_data),
+      formData: JSON.parse(form_data),
       metadata: metadata
     }
   end
@@ -40,9 +42,9 @@ class InProgressForm < ApplicationRecord
     data = super || {}
     last_accessed = updated_at || Time.current
     data.merge(
-      'expires_at' => expires_at.to_i || (last_accessed + expires_after).to_i,
-      'last_updated' => updated_at.to_i,
-      'in_progress_form_id' => id
+      'expiresAt' => expires_at.to_i || (last_accessed + expires_after).to_i,
+      'lastUpdated' => updated_at.to_i,
+      'inProgressFormId' => id
     )
   end
 
