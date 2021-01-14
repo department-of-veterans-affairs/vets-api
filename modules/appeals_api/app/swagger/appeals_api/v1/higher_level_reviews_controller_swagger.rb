@@ -69,9 +69,9 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   swagger_path '/higher_level_reviews' do
     operation :post, tags: HLR_TAG do
       key :operationId, 'postHigherLevelReviews'
-      key :summary, 'Create a Higher-Level Review'
-      desc = 'Submits a Decision Review request of type *Higher-Level Review*. This endpoint is analogous ' \
-        'to submitting [VA Form 20-0996](https://www.vba.va.gov/pubs/forms/VBA-20-0996-ARE.pdf) via mail or fax.'
+      key :summary, 'Creates a new Higher-Level Review.'
+      desc = 'Submits a Decision Review request of type *Higher-Level Review*. This endpoint is the same as ' \
+        'submitting [VA Form 20-0996](https://www.vba.va.gov/pubs/forms/VBA-20-0996-ARE.pdf) via mail or fax.'
       key :description, desc
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body
@@ -85,8 +85,8 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   swagger_path '/higher_level_reviews/{uuid}' do
     operation :get, tags: HLR_TAG do
       key :operationId, 'getHigherLevelReview'
-      key :summary, 'Show a Higher-Level Review'
-      key :description, 'Returns all of the data associated with a specific Higher-Level Review'
+      key :summary, 'Shows a specific Higher-Level Review.'
+      key :description, 'Returns all of the data associated with a specific Higher-Level Review.'
       parameter name: 'uuid', 'in': 'path', required: true, description: 'Higher-Level Review UUID' do
         schema { key :'$ref', :uuid }
       end
@@ -142,8 +142,8 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   swagger_path '/higher_level_reviews/schema' do
     operation :get, tags: HLR_TAG do
       key :operationId, 'getHigherLevelReviewSchema'
-      key :summary, 'Return the JSON Schema for POST /higher_level_reviews'
-      desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` enpdoint.'
+      key :summary, 'Gets the Higher-Level Review JSON Schema.'
+      desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
       key :description, desc
       response '200' do
         key :description, 'the JSON Schema for POST /higher_level_reviews'
@@ -159,9 +159,8 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   swagger_path '/higher_level_reviews/validate' do
     operation :post, tags: HLR_TAG do
       key :operationId, 'postValidateHigherLevelReview'
-      key :summary, 'Validate a POST /higher_level_reviews request body (dry run)'
-      desc = 'Validate a `POST /higher_level_reviews` request body against the JSON Schema. ' \
-        'Like the `POST /higher_level_reviews`, but *only* does the validations **—does not submit anything.**'
+      key :summary, 'Validates a POST request body against the JSON schema.'
+      desc = 'Like the `POST /higher_level_reviews`, but *only* does the validations **—does not submit anything.**'
       key :description, desc
       key :parameters, hlr_create_parameters
       key :requestBody, hlr_create_request_body

@@ -32,8 +32,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :summary, 'Creates a new Notice of Disagreement.'
 
       description = 'Submits an appeal of type Notice of Disagreement.' \
-      'This endpoint is analogous to submitting VA Form 10182' \
-      'via mail or fax directly to the Board of Veterans’ Appeals.'
+      'This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
+      ' via mail or fax directly to the Board of Veterans’ Appeals.'
       key :description, description
 
       key :operationId, 'nodCreateRoot'
@@ -230,9 +230,10 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     next unless PATH_ENABLED_FOR_ENV
 
     operation :get do
-      key :summary, 'Get Notice of Disagreement JSON Schema'
+      key :summary, 'Gets the Notice of Disagreement JSON Schema.'
       key :operationId, 'getNodJsonSchema'
-      key :description, 'Returns a sample Notice of Disagreements JSON Schema'
+      desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreement` endpoint.'
+      key :description, desc
       key :produces, [
         'application/json'
       ]
@@ -285,10 +286,9 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     next unless PATH_ENABLED_FOR_ENV
 
     operation :post, tags: NOD_TAG do
-      summary = 'Validates the schema provided to create a NOD.'\
-        'This endpoint can be used to test your submission prior to calling the CREATE endpoint.'
-      key :summary, summary
-      key :description, ''
+      key :summary, 'Validates a POST request body against the JSON schema.'
+      desc = 'Like the `POST /notice_of_disagreement`, but *only* does the validations **—does not submit anything.**'
+      key :description, desc
       key :operationId, 'nodValidateSchema'
 
       security do
