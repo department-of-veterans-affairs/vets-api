@@ -19,21 +19,20 @@ EXCLUSIONS = [
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
 changed_files = git.diff.stats[:files]
 
-excluded_changed_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
-filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+excluded_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+included_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
 
 # fetch master for diff comparison
 `git fetch origin master`
 
 # get branch name
-branches = `git branch`
-current_branch = branches.match(/\*\s+([^\s]+)/m)[1]
+current_branch = `git branch --show-current`
 
 # ignores whitespace for the purpose of determining lines of code changed
-diff_changes = `git diff master..#{current_branch} -w --stat`.split("\n")
+diff_changes = `git diff master...#{current_branch} -w --stat`.split("\n")
 
 if diff_changes.empty?
-  lines_of_code = filtered_changed_files.sum { |_file, changes| (changes[:insertions] + changes[:deletions]) }
+  lines_of_code = included_files.sum { |_file, changes| changes[:insertions] + changes[:deletions] }
 else
   lines_of_code = diff_changes.sum(0) do |change|
     if change == diff_changes.last || EXCLUSIONS.any? { |exclusion| change.match(exclusion) } || change.match(/\|\s+Bin/)
@@ -50,11 +49,11 @@ if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
 
     #### Included Files
 
-    - #{filtered_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+    - #{included_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
     #### Exclusions
 
-    - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+    - #{excluded_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
     #### 
 
