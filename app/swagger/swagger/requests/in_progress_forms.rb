@@ -30,8 +30,8 @@ module Swagger
 
           key :description, 'Delete form data'
           key :operationId, 'deleteInProgressForm'
-          key :tags, %w[
-            in_progress_forms
+          key :tags, [
+            'in_progress_forms'
           ]
 
           parameter :authorization
