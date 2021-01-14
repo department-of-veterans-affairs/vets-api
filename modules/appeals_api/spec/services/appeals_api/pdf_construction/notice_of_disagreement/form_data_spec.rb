@@ -60,8 +60,8 @@ describe AppealsApi::PdfConstruction::NoticeOfDisagreement::FormData do
     it { expect(form_data.hearing?).to eq(1) }
   end
 
-  describe '#additional_pages?' do
-    it { expect(form_data.additional_pages?).to eq(1) }
+  describe '#extra_contestable_issues?' do
+    it { expect(form_data.extra_contestable_issues?).to eq(1) }
   end
 
   describe '#soc_opt_in?' do
@@ -80,15 +80,15 @@ describe AppealsApi::PdfConstruction::NoticeOfDisagreement::FormData do
     end
   end
 
-  describe "#contestable_issues" do
+  describe '#contestable_issues' do
     it { expect(form_data.contestable_issues).to eq(notice_of_disagreement.form_data.dig('included')) }
   end
 
+  describe '#stamp_text' do
+    it { expect(form_data.stamp_text).to eq('Doe - 6789') }
+  end
 
-  # contestable_issues
-  # stamp_text
-  # representatives_name
-  #
-
-
+  describe '#representatives_name' do
+    it { expect(form_data.representatives_name).to eq(notice_of_disagreement.veteran_representative) }
+  end
 end
