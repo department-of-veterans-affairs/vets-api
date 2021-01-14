@@ -55,20 +55,21 @@ describe AppealsApi::CentralMailStatus, type: :concern do
 
       context 'when #update_status_using_central_mail_status! is called' do
         it 'updates appeal attributes' do
-          with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do
-            AppealsApi::HigherLevelReview.refresh_statuses_using_central_mail!([upload])
-            expect(upload.status).to eq('processing')
-          end
+          AppealsApi::HigherLevelReview.refresh_statuses_using_central_mail!([upload])
+
+          expect(upload.status).to eq('processing')
         end
 
         context 'when unknown status passed from central mail' do
+          let(:attempt_invalid_update) { upload.update_status_using_central_mail_status!(status: 'pumpkins') }
+
           it 'raises an exception' do
-            expect { upload.update_status_using_central_mail_status!(status: 'pumpkins') }
+            expect { attempt_invalid_update }
               .to raise_error(Common::Exceptions::BadGateway)
           end
 
           it 'logs to Sentry' do
-            upload.update_status_using_central_mail_status!(status: 'pumpkins')
+            attempt_invalid_update
           rescue Common::Exceptions::BadGateway
             expect(upload).to have_received(:log_message_to_sentry)
           end
@@ -77,6 +78,7 @@ describe AppealsApi::CentralMailStatus, type: :concern do
         context 'when appeal object contains an error message' do
           it 'update appeal details to include error message' do
             upload.update_status_using_central_mail_status!('Error', 'You did a bad')
+
             expect(upload.status).to eq('error')
             expect(upload.detail).to eq('Downstream status: You did a bad')
           end
@@ -86,16 +88,28 @@ describe AppealsApi::CentralMailStatus, type: :concern do
   end
 
   context 'when verifying model status structures' do
+    let(:local_statuses) { subject::STATUSES }
+
     it 'fails if one or more CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES keys or values is mismatched' do
-      expect(upload.status_attributes_valid?).to be true
+      status_hashes = subject::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.values
+      status_attr_keys = status_hashes.map(&:keys).flatten
+      status_attr_values = status_hashes.map { |attr| attr[:status] }.uniq
+
+      expect(local_statuses).to include(*status_attr_values)
+      expect(status_attr_keys).not_to include(*status_attr_values)
     end
 
-    it 'fails if error statuses is mismatched' do
-      expect(upload.error_statuses_valid?).to be true
+    it 'fails if error statuses are mismatched' do
+      central_mail_statuses = subject::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.keys
+      error_statuses = subject::CENTRAL_MAIL_ERROR_STATUSES
+
+      expect(central_mail_statuses).to include(*error_statuses)
     end
 
-    it 'fails if remaining statuses is mismatched' do
-      expect(upload.statuses_valid?).to be true
+    it 'fails if remaining statuses are mismatched' do
+      additional_statuses = [*subject::RECEIVED_OR_PROCESSING, *subject::COMPLETE_STATUSES]
+
+      expect(local_statuses).to include(*additional_statuses)
     end
   end
 end
