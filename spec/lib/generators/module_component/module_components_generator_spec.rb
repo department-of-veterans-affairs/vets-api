@@ -6,7 +6,7 @@ require 'generators/module/module_generator'
 
 RSpec.describe 'ModuleComponent', type: :generator do
 
-  before(:all)
+  before(:all) do
     @original_stdout = $stdout
     # Redirect stdout to suppress generator output
     $stdout = File.open(File::NULL, 'w')
