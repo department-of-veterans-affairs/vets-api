@@ -8,6 +8,9 @@ module EducationForm
   PROCESSED = 'processed'
   INIT = 'init'
 
+  class FormattingError < StandardError
+  end
+
   class Process10203SubmissionsLogging < StandardError
   end
 
