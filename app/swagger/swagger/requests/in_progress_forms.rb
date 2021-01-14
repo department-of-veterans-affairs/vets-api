@@ -96,7 +96,8 @@ module Swagger
           parameter do
             key :name, :payload
             key :in, :body
-            key :description, 'updated form data and metadata'
+            key :description, 'updated form data and metadata. one of "form_data" or "formData" must be present'
+            key :required, true
             schema do
               property :formData, type: :object, description: '(alias "form_data")'
               property :form_data, type: :object, description: '(alias "formData")'
