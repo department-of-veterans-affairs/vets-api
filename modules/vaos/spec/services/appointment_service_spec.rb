@@ -10,7 +10,7 @@ describe VAOS::AppointmentService do
   let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
   let(:id) { '202006031600983000030800000000000000' }
 
-  #before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_appointment' do
     context 'when request is mal-formed' do
@@ -162,7 +162,7 @@ describe VAOS::AppointmentService do
       it 'with a 200 success' do
         VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
           response = subject.get_appointment(id)
-          expect(response[:data][:id]).to eq(id)
+          expect(response[:id]).to eq(id)
         end
       end
     end
@@ -176,10 +176,9 @@ describe VAOS::AppointmentService do
         end
       end
 
-      it 'with a 400 bad request' do
-        VCR.use_cassette('vaos/appointments/show_appointment_400', record: :new_episodes) do
-          # subject.get_appointment(true)
-          expect { subject.get_appointment(true) }.to raise_error(
+      it 'with a 500 internal server error' do
+        VCR.use_cassette('vaos/appointments/show_appointment_500', match_requests_on: %i[method uri]) do
+          expect { subject.get_appointment('1234567') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
