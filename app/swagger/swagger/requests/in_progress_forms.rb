@@ -11,7 +11,9 @@ module Swagger
 
           key :description, 'Get Saved Form Summaries'
           key :operationId, 'listInProgressForms'
-          key :tags, ['in_progress_forms']
+          key :tags, %w[
+            in_progress_forms
+          ]
 
           parameter :authorization
 
@@ -28,7 +30,9 @@ module Swagger
 
           key :description, 'Delete form data'
           key :operationId, 'deleteInProgressForm'
-          key :tags, ['in_progress_forms']
+          key :tags, %w[
+            in_progress_forms
+          ]
 
           parameter :authorization
 
@@ -51,7 +55,9 @@ module Swagger
 
           key :description, 'Get form data'
           key :operationId, 'getInProgressForm'
-          key :tags, ['in_progress_forms']
+          key :tags, %w[
+            in_progress_forms
+          ]
 
           parameter :authorization
 
@@ -75,7 +81,9 @@ module Swagger
 
           key :description, 'Update form data and metadata'
           key :operationId, 'updateInProgressForm'
-          key :tags, ['in_progress_forms']
+          key :tags, %w[
+            in_progress_forms
+          ]
 
           parameter :authorization
 
