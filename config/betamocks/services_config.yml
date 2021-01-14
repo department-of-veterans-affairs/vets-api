@@ -520,7 +520,7 @@
   :endpoints:
   # Register Results Click
   - :method: :post
-    :path: "/clicks"
+    :path: "technology/searchgov/v2/clicks"
     :file_path: "/"
 
 # Okta
