@@ -15,6 +15,7 @@ RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
           expect(response.code).to eq('200')
           expect(response).to have_http_status(:ok)
           # not using "eq" for these counts in case additional payments are added for this user
+
           expect(JSON.parse(response.body)['data']['attributes']['payments'].count).to be >= 47
           expect(JSON.parse(response.body)['data']['attributes']['return_payments'].count).to be >= 0
         end
