@@ -134,7 +134,6 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
                    .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
       end
-
     end
     # rubocop:enable Layout/MultilineMethodCallIndentation
 
