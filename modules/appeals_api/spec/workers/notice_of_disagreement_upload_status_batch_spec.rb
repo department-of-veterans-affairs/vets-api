@@ -14,17 +14,30 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
   end
 
   describe '#perform' do
-    it 'updates all the statuses' do
-      expect(CentralMail::Service).to receive(:new) { client_stub }
-      expect(client_stub).to receive(:status).and_return(faraday_response)
-      expect(faraday_response).to receive(:success?).and_return(true)
+    before do
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(client_stub).to receive(:status).and_return(faraday_response)
+      allow(faraday_response).to receive(:success?).and_return(true)
       in_process_element[0]['uuid'] = upload.id
-      expect(faraday_response).to receive(:body).at_least(:once).and_return([in_process_element].to_json)
+      allow(faraday_response).to receive(:body).at_least(:once).and_return([in_process_element].to_json)
+    end
 
-      with_settings(Settings.modules_appeals_api, notice_of_disagreement_updater_enabled: true) do
-        Sidekiq::Testing.inline! { AppealsApi::NoticeOfDisagreementUploadStatusBatch.new.perform }
-        upload.reload
-        expect(upload.status).to eq('processing')
+    context 'when status updater is enabled' do
+      it 'updates all the statuses' do
+        with_settings(Settings.modules_appeals_api, notice_of_disagreement_updater_enabled: true) do
+          Sidekiq::Testing.inline! { AppealsApi::NoticeOfDisagreementUploadStatusBatch.new.perform }
+          upload.reload
+          expect(upload.status).to eq('processing')
+        end
+      end
+    end
+
+    context 'when status updater is disabled' do
+      it 'does not update statuses' do
+        with_settings(Settings.modules_appeals_api, notice_of_disagreement_updater_enabled: false) do
+          Sidekiq::Testing.inline! { AppealsApi::NoticeOfDisagreementUploadStatusBatch.new.perform }
+          expect(upload.status).to eq('received')
+        end
       end
     end
   end
