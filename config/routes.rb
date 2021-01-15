@@ -345,6 +345,8 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  # Modules
+	mount TesterTest::Engine, at: '/tester_test'
   mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
