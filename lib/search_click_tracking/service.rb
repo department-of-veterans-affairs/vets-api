@@ -34,7 +34,7 @@ module SearchClickTracking
       @user_agent = user_agent
     end
 
-    # POSTs click tracking query param data to search.gov 
+    # POSTs click tracking query param data to search.gov
     #
     def track_click
       with_monitoring do
@@ -64,7 +64,7 @@ module SearchClickTracking
           query: query,
           position: position,
           client_ip: client_ip,
-          user_agent: user_agent,
+          user_agent: user_agent
         }
       )
     end
@@ -80,7 +80,6 @@ module SearchClickTracking
     def module_code
       Settings.search_click_tracking.module_code
     end
-
 
     def handle_error(error)
       case error

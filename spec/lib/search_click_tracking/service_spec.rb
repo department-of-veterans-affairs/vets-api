@@ -21,19 +21,11 @@ describe SearchClickTracking::Service do
   # end
 
   describe 'when successful' do
-
     let(:url) { 'https://www.testurl.com' }
     let(:query) { 'testQuery' }
     let(:position) { '0' }
     let(:client_ip) { 'testIP' }
     let(:user_agent) { 'testUserAgent' }
-
-    # it 'returns a status of 200', :aggregate_failures do
-    #   VCR.use_cassette('search_click_tracking/success', VCR::MATCH_EVERYTHING) do
-    #     response = subject.track_click
-    #     expect(response.status).to eq 200
-    #   end
-    # end
 
     it 'returns a status of 200' do
       VCR.use_cassette('search_click_tracking/success') do
@@ -43,23 +35,27 @@ describe SearchClickTracking::Service do
     end
   end
 
-  #need to mess up params here, which I think this does
-  # let(:url) { '' }
-  # let(:query) { '' }
-  # let(:position) { '' }
-  # let(:client_ip) { '' }
-  # let(:user_agent) { '' }
+  describe 'with empty params' do
+    let(:url) { '' }
+    let(:query) { '' }
+    let(:position) { '' }
+    let(:client_ip) { '' }
+    let(:user_agent) { '' }
 
-  # describe 'error handling' do
-  #   it 'raises a 400 exception' do
-  #     VCR.use_cassette('search_click_tracking/failure', VCR::MATCH_EVERYTHING) do
-  #       expect { subject.track_click }.to raise_error do |e|
-  #         expect(e).to be_a(Common::Exceptions::BackendServiceException)
-  #         expect(e.status_code).to eq(400)
-  #         expect(e.errors.first.code).to eq('SEARCH_CLICK_TRACKING_400')
-  #       end
-  #     end
-  #   end
-  # end 
-
+    # it 'raises a 400 exception' do
+    #   VCR.use_cassette('search_click_tracking/failure', VCR::MATCH_EVERYTHING) do
+    #     expect { subject.track_click }.to raise_error do |e|
+    #       expect(e).to be_a(Common::Exceptions::BackendServiceException)
+    #       expect(e.status_code).to eq(400)
+    #       expect(e.errors.first.code).to eq('SEARCH_CLICK_TRACKING_400')
+    #     end
+    #   end
+    # end
+    it 'raises a 400 exception' do
+      VCR.use_cassette('search_click_tracking/failure') do
+        response = subject.track_click
+        expect(response.status).to eq 400
+      end
+    end
+  end
 end

@@ -9,17 +9,18 @@ module V0
     skip_before_action :authenticate
     skip_before_action :verify_authenticity_token
 
-    # Sends click tracking data to search.gov analytics, based on the passed url, query, position, client_ip, and user_agent.
+    # Sends click tracking data to search.gov analytics, based on the passed url,
+    # query, position, client_ip, and user_agent.
     #
     def create
-      response = SearchClickTracking::Service.new(url, query, position, client_ip, user_agent).track_click
+      SearchClickTracking::Service.new(url, query, position, client_ip, user_agent).track_click
       render nothing: true, status: 204
     end
 
     private
 
     def search_params
-      params.permit(:url, :query, :position, :client_ip, :user_agent )
+      params.permit(:url, :query, :position, :client_ip, :user_agent)
     end
 
     # Returns a sanitized, permitted version of the passed url params.
@@ -30,7 +31,7 @@ module V0
     def url
       sanitize search_params['url']
     end
-    
+
     # Returns a sanitized, permitted version of the passed query params.
     #
     # @return [String]
@@ -39,7 +40,7 @@ module V0
     def query
       sanitize search_params['query']
     end
-    
+
     # Returns a sanitized, permitted version of the passed position params.
     #
     # @return [String]
@@ -48,7 +49,7 @@ module V0
     def position
       sanitize search_params['position']
     end
-    
+
     # Returns a sanitized, permitted version of the passed client_ip params.
     #
     # @return [String]
@@ -66,7 +67,5 @@ module V0
     def user_agent
       sanitize search_params['user_agent']
     end
-
-    
   end
 end

@@ -21,7 +21,7 @@ module Swagger
             key :required, true
             key :type, :string
           end
-          
+
           parameter do
             key :name, 'query'
             key :in, :query
@@ -29,7 +29,7 @@ module Swagger
             key :required, true
             key :type, :string
           end
-          
+
           parameter do
             key :name, 'position'
             key :in, :query
@@ -37,7 +37,7 @@ module Swagger
             key :required, true
             key :type, :integer
           end
-          
+
           parameter do
             key :name, 'client_ip'
             key :in, :query
@@ -45,7 +45,7 @@ module Swagger
             key :required, true
             key :type, :string
           end
-          
+
           parameter do
             key :name, 'user_agent'
             key :in, :query
@@ -53,7 +53,6 @@ module Swagger
             key :required, true
             key :type, :string
           end
-
 
           response 200 do
             key :description, 'Response is OK'

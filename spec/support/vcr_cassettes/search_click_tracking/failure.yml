@@ -1,69 +1,66 @@
 ---
 http_interactions:
-- request:
-    method: post
-    uri: https://api.gsa.gov/technology/searchgov/v2/clicks/
-    body:
-      encoding: US-ASCII
-      string: affiliate=va&access_key=TESTKEY&module_code=I14Y&url=https%3A%2F%2Fwww.testurl.com&query=testQuery&position=0&client_ip=testIP&user_agent=testUserAgent
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/x-www-form-urlencoded
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 401
-      message: Unauthorized
-    headers:
-      Date:
-      - Thu, 14 Jan 2021 16:09:53 GMT
-      Content-Type:
-      - application/json; charset=utf-8
-      Content-Length:
-      - '25'
-      Connection:
-      - keep-alive
-      X-Ratelimit-Limit:
-      - '1000'
-      X-Ratelimit-Remaining:
-      - '997'
-      Cache-Control:
-      - no-cache
-      Referrer-Policy:
-      - strict-origin-when-cross-origin
-      Status:
-      - 401 Unauthorized
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubdomains; preload
-      - max-age=31536000; preload
-      Vary:
-      - Origin
-      Via:
-      - 1.1 proxy5.us-east-1.prod.infr.search.usa.gov:8443, https/1.1 api-umbrella
-        (ApacheTrafficServer [cMs f ])
-      X-Content-Type-Options:
-      - nosniff
-      X-Download-Options:
-      - noopen
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Permitted-Cross-Domain-Policies:
-      - none
-      X-Request-Id:
-      - e027e197-224c-40d8-aaf9-737ae3931e8d
-      X-Xss-Protection:
-      - 1; mode=block
-      Age:
-      - '0'
-      X-Cache:
-      - MISS
-    body:
-      encoding: UTF-8
-      string: '["Access key is invalid"]'
-  recorded_at: Thu, 14 Jan 2021 16:09:53 GMT
+  - request:
+      method: post
+      uri: https://api.gsa.gov/technology/searchgov/v2/clicks/
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 400
+        message: Bad Request
+      headers:
+        Date:
+          - Fri, 15 Jan 2021 15:54:29 GMT
+        Content-Type:
+          - application/json; charset=utf-8
+        Content-Length:
+          - "71"
+        Connection:
+          - keep-alive
+        X-Ratelimit-Limit:
+          - "1000"
+        X-Ratelimit-Remaining:
+          - "999"
+        Cache-Control:
+          - no-cache
+        Referrer-Policy:
+          - strict-origin-when-cross-origin
+        Status:
+          - 400 bad Request
+        Strict-Transport-Security:
+          - max-age=31536000; includeSubdomains; preload
+          - max-age=31536000; preload
+        Vary:
+          - Origin
+        Via:
+          - 1.1 proxy8.us-east-1.prod.infr.search.usa.gov:8443, https/1.1 api-umbrella (ApacheTrafficServer [cMs f ])
+        X-Content-Type-Options:
+          - nosniff
+        X-Download-Options:
+          - noopen
+        X-Frame-Options:
+          - SAMEORIGIN
+        X-Permitted-Cross-Domain-Policies:
+          - none
+        X-Request-Id:
+          - 411b2a17-ab3d-4032-bc69-2467dc22a4d3
+        X-Xss-Protection:
+          - 1; mode=block
+        Age:
+          - "0"
+        X-Cache:
+          - MISS
+      body:
+        encoding: UTF-8
+        string: '["Query can't be blank","Position can't be blank","Url can't be blank"]'
+    recorded_at: Fri, 15 Jan 2021 15:54:29 GMT
 recorded_with: VCR 6.0.0
