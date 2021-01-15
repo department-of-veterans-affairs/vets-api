@@ -12,7 +12,7 @@ module <%= class_name %>
       private
 
       def service
-        Service.new
+        @service ||= Service.new
       end
     end
   end
