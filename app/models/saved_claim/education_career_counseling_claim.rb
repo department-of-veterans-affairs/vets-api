@@ -21,14 +21,4 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     process_attachments!
   end
-
-  private
-
-  def claimant_birth_date(current_user)
-    if current_user.birth_date.respond_to?(:strftime)
-      current_user.birth_date.strftime('%Y-%m-%d')
-    else
-      current_user.birth_date
-    end
-  end
 end
