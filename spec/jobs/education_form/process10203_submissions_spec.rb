@@ -74,41 +74,4 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       expect(output.keys).to eq(users.map(&:uuid))
     end
   end
-
-  # describe '#perform' do
-  #   context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
-  #     let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
-  #
-  #     before do
-  #       expect(Rails.env).to receive('development?').once.and_return(true)
-  #       application_1606.saved_claim.form = {}.to_json
-  #       application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
-  #       FactoryBot.create(:va1990_western_region)
-  #       FactoryBot.create(:va1995_full_form)
-  #       FactoryBot.create(:va0994_full_form)
-  #       # clear out old test files
-  #       FileUtils.rm_rf(Dir.glob(spool_files))
-  #       # ensure our test data is spread across 2 regions..
-  #       expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(2)
-  #     end
-  #
-  #     it 'processes the valid messages' do
-  #       expect(subject).to receive(:log_exception_to_sentry).at_least(:once)
-  #       expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
-  #       expect(Dir[spool_files].count).to eq(2)
-  #     end
-  #   end
-  #
-  #   context 'with no records', run_at: '2016-09-16 03:00:00 EDT' do
-  #     before do
-  #       EducationBenefitsClaim.delete_all
-  #     end
-  #
-  #     it 'prints a statement and exits', run_at: '2017-02-21 00:00:00 EDT' do
-  #       expect(subject).not_to receive(:write_files)
-  #       expect(subject).to receive('log_info').with('No records to process.').once
-  #       expect(subject.perform).to be(true)
-  #     end
-  #   end
-  # end
 end

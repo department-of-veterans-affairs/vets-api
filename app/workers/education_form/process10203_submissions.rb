@@ -128,7 +128,7 @@ module EducationForm
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status)
       if submission.processed_at.nil? &&
-          submission.education_stem_automated_decision&.automated_decision_state == INIT
+         submission.education_stem_automated_decision&.automated_decision_state == INIT
 
         submission_form = format_application(submission)
         status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
