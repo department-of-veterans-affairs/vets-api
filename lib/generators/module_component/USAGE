@@ -10,30 +10,30 @@ Example:
     rails generate module_component foo controller
 
     This will create:
-        modules/foo/app/controllers/foo/v0/foo_controller.rb
+	modules/foo/app/controllers/foo/v0/foo_controller.rb
 		
 Example:
     rails generate module_component foo model
 
     This will create:
-        modules/foo/app/controllers/foo/v0/foo_model.rb
+	modules/foo/app/controllers/foo/v0/foo_model.rb
 		
 Example:
     rails generate module_component foo serializer
 
     This will create:
-        modules/foo/app/serializers/foo/v0/foo_serializer.rb
+	modules/foo/app/serializers/foo/v0/foo_serializer.rb
 
 Example:
     rails generate module_component foo service
 
     This will create:
-        modules/foo/app/serializers/foo/v0/foo_service.rb	
-		modules/foo/app/serializers/foo/v0/configuration.rb	
+	modules/foo/app/serializers/foo/v0/foo_service.rb	
+	modules/foo/app/serializers/foo/v0/configuration.rb	
 
 Example: Creating multiple components at the same time
     rails generate module_component foo controller serializer
 
     This will create:
-        modules/foo/app/controllers/foo/v0/foo_controller.rb	
-		modules/foo/app/controllers/foo/v0/foo_serializer.rb
+	modules/foo/app/controllers/foo/v0/foo_controller.rb	
+	modules/foo/app/controllers/foo/v0/foo_serializer.rb
