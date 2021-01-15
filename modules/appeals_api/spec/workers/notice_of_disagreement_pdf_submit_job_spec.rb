@@ -73,30 +73,4 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       Timecop.return
     end
   end
-
-  context 'pdf minimum content verification' do
-    let(:notice_of_disagreement) { create(:minimal_notice_of_disagreement) }
-
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      generated_pdf = described_class.new.generate_pdf(notice_of_disagreement)
-      expected_pdf = fixture_filepath('expected_10182_minimum.pdf')
-      expect(generated_pdf).to match_pdf expected_pdf
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
-      Timecop.return
-    end
-  end
-
-  context 'pdf extra content verification' do
-    let(:notice_of_disagreement) { create(:notice_of_disagreement) }
-
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      generated_pdf = described_class.new.generate_pdf(notice_of_disagreement)
-      expected_pdf = fixture_filepath('expected_10182_extra.pdf')
-      expect(generated_pdf).to match_pdf expected_pdf
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
-      Timecop.return
-    end
-  end
 end

@@ -16,13 +16,9 @@ module AppealsApi
       @retries = retries
       notice_of_disagreement = NoticeOfDisagreement.find(id)
       notice_of_disagreement.update!(status: 'submitting')
-      stamped_pdf = generate_pdf(notice_of_disagreement)
+      stamped_pdf = PdfConstruction::Generator.new(notice_of_disagreement).generate
       upload_to_central_mail(notice_of_disagreement, stamped_pdf)
       File.delete(stamped_pdf) if File.exist?(stamped_pdf)
-    end
-
-    def generate_pdf(notice_of_disagreement)
-      PdfConstruction::Generator.new(notice_of_disagreement).generate
     end
 
     def upload_to_central_mail(notice_of_disagreement, pdf_path)
