@@ -8,12 +8,6 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
   let(:evss_user) { create(:evss_user) }
   let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
 
-  let!(:application_10203) do
-    claim = create(:va10203)
-    claim.create_stem_automated_decision(evss_user)
-    claim
-  end
-
   context 'scheduling' do
     before do
       allow(Rails.env).to receive('development?').and_return(true)
@@ -53,6 +47,8 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
   describe '#format_application' do
     it 'logs an error if the record is invalid' do
+      application_10203 = create(:va10203)
+      application_10203.create_stem_automated_decision(evss_user)
       application_10203.education_benefits_claim.saved_claim.form = {}.to_json
       application_10203.education_benefits_claim.saved_claim.save!(validate: false)
 
@@ -64,6 +60,8 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
   describe '#group_user_uuid' do
     it 'takes a list of records into groups by user_uuid' do
+      application_10203 = create(:va10203)
+      application_10203.create_stem_automated_decision(evss_user)
       application_user2 = create(:va10203)
       application_user2.create_stem_automated_decision(evss_user2)
 
@@ -72,6 +70,85 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
       output = subject.send(:group_user_uuid, submissions.map(&:education_benefits_claim))
       expect(output.keys).to eq(users.map(&:uuid))
+    end
+  end
+
+  describe '#perform' do
+    before do
+      EducationBenefitsClaim.delete_all
+      EducationStemAutomatedDecision.delete_all
+    end
+
+    # rubocop:disable Layout/MultilineMethodCallIndentation
+    context 'sets automated_decision_state' do
+      context 'evss user with less than 180 days of entitlement' do
+        before do
+          gi_bill_status = build(:gi_bill_status_response)
+          allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
+                                                                    .and_return(gi_bill_status)
+        end
+
+        it 'changes from init to processed with good answers' do
+          application_10203 = create(:va10203)
+          application_10203.create_stem_automated_decision(evss_user)
+
+          expect do
+            subject.perform
+          end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                     .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
+        end
+
+        it 'changes from init to denied with bad answers' do
+          application_10203 = create(:va10203, :automated_bad_answers)
+          application_10203.create_stem_automated_decision(evss_user)
+
+          expect do
+            subject.perform
+          end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                     .and change { EducationStemAutomatedDecision.denied.count }.from(0).to(1)
+        end
+      end
+
+      it 'evss user with more than 180 days is denied' do
+        application_10203 = create(:va10203, :automated_bad_answers)
+        application_10203.create_stem_automated_decision(evss_user)
+        gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: { months: 10, days: 12 })
+        allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
+                                                                  .and_return(gi_bill_status)
+
+        expect do
+          subject.perform
+        end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                   .and change { EducationStemAutomatedDecision.denied.count }.from(0).to(1)
+      end
+
+      it 'evss user with no entitlement is processed' do
+        application_10203 = create(:va10203, :automated_bad_answers)
+        application_10203.create_stem_automated_decision(evss_user)
+        gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)
+        allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
+                                                                  .and_return(gi_bill_status)
+
+        expect do
+          subject.perform
+        end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                   .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
+      end
+
+    end
+    # rubocop:enable Layout/MultilineMethodCallIndentation
+
+    context 'with no records' do
+      before do
+        EducationBenefitsClaim.delete_all
+        EducationStemAutomatedDecision.delete_all
+      end
+
+      it 'prints a statement and exits' do
+        expect(subject).not_to receive(:process_user_submissions)
+        expect(subject).to receive('log_info').with('No records to process.').once
+        expect(subject.perform).to be(true)
+      end
     end
   end
 end
