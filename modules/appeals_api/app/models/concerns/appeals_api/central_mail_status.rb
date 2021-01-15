@@ -6,6 +6,23 @@ module AppealsApi
 
     include SentryLogging
 
+    STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
+
+    CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
+    RECEIVED_OR_PROCESSING = %w[received processing].freeze
+    COMPLETE_STATUSES = %w[success error].freeze
+
+    CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES = lambda do
+      hash = Hash.new { |_, _| raise ArgumentError, 'Unknown Central Mail status' }
+      hash['Received'] = { status: 'received' }
+      hash['In Process'] = { status: 'processing' }
+      hash['Processing Success'] = hash['In Process']
+      hash['Success'] = { status: 'success' }
+      hash['Error'] = { status: 'error', code: 'DOC202' }
+      hash['Processing Error'] = hash['Error']
+      hash
+    end.call.freeze
+
     # rubocop:disable Metrics/BlockLength
     class_methods do
       def refresh_statuses_using_central_mail!(appeals)
@@ -40,28 +57,12 @@ module AppealsApi
         end
       end
     end
+    # rubocop:enable Metrics/BlockLength
 
     included do
       scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
 
-      STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
-
       validates :status, inclusion: { 'in': STATUSES }
-
-      CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
-      RECEIVED_OR_PROCESSING = %w[received processing].freeze
-      COMPLETE_STATUSES = %w[success error].freeze
-
-      CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES = lambda do
-        hash = Hash.new { |_, _| raise ArgumentError, 'Unknown Central Mail status' }
-        hash['Received'] = { status: 'received' }
-        hash['In Process'] = { status: 'processing' }
-        hash['Processing Success'] = hash['In Process']
-        hash['Success'] = { status: 'success' }
-        hash['Error'] = { status: 'error', code: 'DOC202' }
-        hash['Processing Error'] = hash['Error']
-        hash
-      end.call.freeze
 
       def update_status_using_central_mail_status!(status, error_message = nil)
         begin
@@ -78,6 +79,5 @@ module AppealsApi
         update! attributes
       end
     end
-    # rubocop:enable Metrics/BlockLength
   end
 end
