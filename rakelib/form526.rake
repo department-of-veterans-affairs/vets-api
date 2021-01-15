@@ -53,14 +53,28 @@ namespace :form526 do
     end
 
     total_jobs = submissions.count
-    success_jobs = submissions.group(:workflow_complete).count[true] || 0
-    fail_jobs = total_jobs - success_jobs
+    success_jobs = submissions.where(workflow_complete: true)
+    success_jobs_count = success_jobs.count
+
+    fail_jobs = total_jobs - success_jobs.count
+
+    total_users_submitting = submissions.count("DISTINCT user_uuid")
+    total_successful_users_submitting = success_jobs.count("DISTINCT user_uuid")
+
+    user_success_rate = ( total_successful_users_submitting.to_f / total_users_submitting.to_f)
 
     puts '------------------------------------------------------------'
     puts "* Job Success/Failure counts between #{start_date} - #{end_date} *"
     print_total('Total Jobs: ', total_jobs)
-    print_total('Successful Jobs: ', success_jobs)
+    print_total('Successful Jobs: ', success_jobs_count)
     print_total('Failed Jobs: ', fail_jobs)
+    print_total('User Success Rate', user_success_rate)
+
+    puts '------------------------------------------------------------'
+    print_total('Total Users Submitted: ', total_users_submitting)
+    print_total('Total Users Submitted Successfully: ', total_successful_users_submitting)
+    print_total('User Success rate', user_success_rate)
+
     puts '------------------------------------------------------------'
     puts '* Failure Counts for form526 Submission Job (not including uploads/cleanup/etc...) *'
     print_total('Outage Failures: ', outage_errors)
