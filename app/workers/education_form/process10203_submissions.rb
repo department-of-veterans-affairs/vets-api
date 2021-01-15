@@ -103,7 +103,7 @@ module EducationForm
       end
                                          .max_by(&:processed_at)
 
-      processed_form = format_application(most_recent_processed)
+      processed_form = format_application(most_recent_processed) if most_recent_processed.present?
 
       unprocessed_submissions.each do |submission|
         unprocessed_form = format_application(submission)

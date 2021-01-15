@@ -107,6 +107,64 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
           end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
                      .and change { EducationStemAutomatedDecision.denied.count }.from(0).to(1)
         end
+
+        context 'multiple submissions' do
+          it 'without any be processed by CreateDailySpoolFiles' do
+            application_10203 = create(:va10203, :automated_bad_answers)
+            application_10203.create_stem_automated_decision(evss_user)
+
+            expect do
+              subject.perform
+            end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                       .and change { EducationStemAutomatedDecision.denied.count }.from(0).to(1)
+
+            application_10203_2 = create(:va10203, :automated_bad_answers)
+            application_10203_2.create_stem_automated_decision(evss_user)
+
+            expect do
+              subject.perform
+            end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                       .and change { EducationStemAutomatedDecision.denied.count }.from(1).to(2)
+          end
+
+          it 'that have same answers' do
+            application_10203 = create(:va10203, :automated_bad_answers)
+            application_10203.create_stem_automated_decision(evss_user)
+
+            expect do
+              subject.perform
+            end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                       .and change { EducationStemAutomatedDecision.denied.count }.from(0).to(1)
+            application_10203.education_benefits_claim.update(processed_at: Time.zone.now)
+
+            application_10203_2 = create(:va10203, :automated_bad_answers)
+            application_10203_2.create_stem_automated_decision(evss_user)
+
+            expect do
+              subject.perform
+            end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                       .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
+          end
+
+          it 'have different answers' do
+            application_10203 = create(:va10203)
+            application_10203.create_stem_automated_decision(evss_user)
+
+            expect do
+              subject.perform
+            end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                       .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
+            application_10203.education_benefits_claim.update(processed_at: Time.zone.now)
+
+            application_10203_2 = create(:va10203, :automated_bad_answers)
+            application_10203_2.create_stem_automated_decision(evss_user)
+
+            expect do
+              subject.perform
+            end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
+                       .and change { EducationStemAutomatedDecision.denied.count }.from(0).to(1)
+          end
+        end
       end
 
       it 'evss user with more than 180 days is denied' do
@@ -123,7 +181,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       end
 
       it 'evss user with no entitlement is processed' do
-        application_10203 = create(:va10203, :automated_bad_answers)
+        application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
         gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)
         allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
