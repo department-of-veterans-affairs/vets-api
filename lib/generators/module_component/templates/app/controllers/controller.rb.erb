@@ -3,7 +3,6 @@
 module <%= class_name %>
   module V0
     class <%= class_name %>Controller < ApplicationController
-      skip_before_action :authenticate
 
       def index
         message = service.get_message
