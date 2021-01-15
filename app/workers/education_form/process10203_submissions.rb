@@ -103,7 +103,7 @@ module EducationForm
       end
                                          .max_by(&:processed_at)
 
-      processed_form = format_application(most_recent_processed)
+      processed_form = format_application(most_recent_processed) if most_recent_processed.present?
 
       unprocessed_submissions.each do |submission|
         unprocessed_form = format_application(submission)
@@ -116,7 +116,8 @@ module EducationForm
     end
 
     def repeat_form?(unprocessed_form, processed_form)
-      unprocessed_form.enrolled_stem == processed_form.enrolled_stem &&
+      processed_form.present? &&
+        unprocessed_form.enrolled_stem == processed_form.enrolled_stem &&
         unprocessed_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert &&
         unprocessed_form.benefit_left == processed_form.benefit_left
     end
