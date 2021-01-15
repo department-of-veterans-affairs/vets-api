@@ -81,23 +81,9 @@ describe Mobile::V0::Appointments::Service do
       end
 
       it 'increments the VAOS and Mobile success metrics' do
-        expect(StatsD).to receive(:increment).once.with(
-          'api.external_http_request.VAOS.success',
-          1,
-          { tags: [
-            'endpoint:/appointments/v1/patients/xxx/appointments',
-            'method:get'
-          ] }
-        )
-        expect(StatsD).to receive(:increment).once.with(
-          'api.external_http_request.VAOS.success',
-          1,
-          { tags: [
-            'endpoint:/var/VeteranAppointmentRequestService/v4/rest'\
-'/direct-scheduling/patient/ICN/xxx/booked-cc-appointments',
-            'method:get'
-          ] }
-        )
+        expect(StatsD).to receive(:increment).with(
+          'api.external_http_request.VAOS.success', any_args
+        ).twice
         expect(StatsD).to receive(:increment).once.with(
           'mobile.appointments.get_appointments.success'
         )
