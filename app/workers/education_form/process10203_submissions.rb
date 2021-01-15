@@ -116,7 +116,8 @@ module EducationForm
     end
 
     def repeat_form?(unprocessed_form, processed_form)
-      unprocessed_form.enrolled_stem == processed_form.enrolled_stem &&
+      processed_form.present? &&
+        unprocessed_form.enrolled_stem == processed_form.enrolled_stem &&
         unprocessed_form.pursuing_teaching_cert == processed_form.pursuing_teaching_cert &&
         unprocessed_form.benefit_left == processed_form.benefit_left
     end
