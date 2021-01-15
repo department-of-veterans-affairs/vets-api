@@ -39,10 +39,12 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     expect(JSON.parse(response.body)).to eq(
       {
         'data' => {
-          'id' => '', 'type' => 'savon_responses',
+          'id' => '', 'type' => 'hashes',
           'attributes' => {
-            'account_type' => 'Checking', 'account_number' => '123',
-            'financial_institution_routing_number' => '*****9982'
+            'account_type' => 'Checking',
+            'account_number' => '123',
+            'financial_institution_name' => 'BANK OF AMERICA, N.A.',
+            'financial_institution_routing_number' => '*****0724'
           }
         }
       }
@@ -52,7 +54,9 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
   describe '#index' do
     it 'returns the right data' do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-        get(:index)
+        VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+          get(:index)
+        end
       end
 
       expect_find_ch33_dd_eft_res
@@ -75,7 +79,9 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
       it 'submits the update req and rerenders index' do
         VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-            send_update
+            VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+              send_update
+            end
           end
         end
 

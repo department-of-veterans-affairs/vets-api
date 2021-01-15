@@ -65,48 +65,64 @@ module Mobile
         def parse(appointments)
           facilities = Set.new
 
-          appointments_list = appointments.dig('data', 'appointmentList')
-          appointments_list.map do |appointment_hash|
-            facility_id = appointment_hash['facilityId']
-            facilities.add(facility_id) if facility_id
-            details, type = parse_by_appointment_type(appointment_hash)
-            start_date = get_start_date(appointment_hash)
-
-            adapted_hash = {
-              appointment_type: type,
-              comment: comment(details, type),
-              facility_id: facility_id,
-              healthcare_service: healthcare_service(details, type),
-              location: get_location(details, type, facility_id),
-              minutes_duration: minutes_duration(details, type),
-              start_date: start_date,
-              status: get_status(details, type, start_date),
-              time_zone: get_time_zone(facility_id)
-            }
-
-            Mobile::V0::Appointment.new(adapted_hash)
+          appointments_list = appointments.dig(:data, :appointment_list)
+          appointments = appointments_list.map do |appointment_hash|
+            build_appointment_model(appointment_hash, facilities)
           end
+
+          [appointments, facilities]
         end
 
         private
 
-        def comment(details, type)
-          va?(type) ? details['bookingNote'] : details['instructionsTitle']
+        def build_appointment_model(appointment_hash, facilities)
+          facility_id = sub_non_prod_id!(appointment_hash[:facility_id])
+          facilities.add(facility_id) if facility_id
+          details, type = parse_by_appointment_type(appointment_hash)
+          start_date_utc = start_date_utc(appointment_hash)
+          time_zone = time_zone(facility_id)
+
+          adapted_hash = {
+            id: SecureRandom.uuid,
+            appointment_type: type,
+            comment: comment(details, type),
+            facility_id: facility_id,
+            healthcare_service: healthcare_service(details, type),
+            location: location(details, type, facility_id),
+            minutes_duration: minutes_duration(details, type),
+            start_date_local: start_date_utc.in_time_zone(time_zone),
+            start_date_utc: start_date_utc,
+            status: status(details, type, start_date_utc)
+          }
+
+          Mobile::V0::Appointment.new(adapted_hash)
         end
 
-        def get_status(details, type, start_date)
-          status = va?(type) ? details['currentStatus'] : details.dig('status', 'code')
+        def sub_non_prod_id!(id)
+          return id if Settings.hostname == 'www.va.gov'
+
+          id.sub!('983', '442') if id.start_with?('983')
+          id.sub!('984', '552') if id.start_with?('984')
+          id
+        end
+
+        def comment(details, type)
+          va?(type) ? details[:booking_note] : details[:instructions_title]
+        end
+
+        def status(details, type, start_date)
+          status = va?(type) ? details[:current_status] : details.dig(:status, :code)
           return nil if should_hide_status?(start_date.past?, status)
           return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
 
           STATUSES[:booked]
         end
 
-        def get_start_date(appointment_hash)
-          DateTime.parse(appointment_hash['startDate'])
+        def start_date_utc(appointment_hash)
+          DateTime.parse(appointment_hash[:start_date])
         end
 
-        def get_location(details, type, facility_id)
+        def location(details, type, facility_id)
           facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
           location = {
             name: facility ? facility[:name] : nil,
@@ -116,6 +132,8 @@ module Mobile
               state: nil,
               zip_code: nil
             },
+            lat: nil,
+            long: nil,
             phone: {
               area_code: nil,
               number: nil,
@@ -141,12 +159,12 @@ module Mobile
           end
         end
 
-        def get_time_zone(facility_id)
+        def time_zone(facility_id)
           facility = Mobile::VA_FACILITIES_BY_ID["dfn-#{facility_id}"]
           facility ? facility[:time_zone] : nil
         end
 
-        def get_video_type(appointment)
+        def video_type(appointment)
           return APPOINTMENT_TYPES[:va_video_connect_atlas] if video_atlas?(appointment)
           return APPOINTMENT_TYPES[:va_video_connect_gfe] if video_gfe?(appointment)
 
@@ -154,47 +172,49 @@ module Mobile
         end
 
         def healthcare_service(details, type)
-          va?(type) ? details.dig('clinic', 'name') : video_healthcare_service(details)
+          va?(type) ? details.dig(:clinic, :name) : video_healthcare_service(details)
         end
 
         def location_home(details, location)
-          location[:url] = details.dig('providers', 'provider').first.dig('virtualMeetingRoom', 'url')
-          location[:code] = details.dig('providers', 'provider').first.dig('virtualMeetingRoom', 'pin')
+          provider = details.dig(:providers, :provider)
+          location[:url] = provider.first.dig(:virtual_meeting_room, :url)
+          location[:code] = provider.first.dig(:virtual_meeting_room, :pin)
           location
         end
 
         def location_atlas(details, location)
-          address = details.dig('tasInfo', 'address')
+          address = details.dig(:tas_info, :address)
           location[:address] = {
-            street: address['streetAddress'],
-            city: address['city'],
-            state: address['state'],
-            zip_code: address['zipCode'],
-            country: address['country']
+            street: address[:street_address],
+            city: address[:city],
+            state: address[:state],
+            zip_code: address[:zip_code],
+            country: address[:country]
           }
-          location[:code] = details.dig('tasInfo', 'confirmationCode')
+          location[:code] = details.dig(:tas_info, :confirmation_code)
           location
         end
 
         def location_gfe(details, location)
-          location[:url] = details['providers'].first.dig('virtualMeetingRoom', 'url')
-          location[:code] = details['providers'].first.dig('virtualMeetingRoom', 'pin')
+          meeting_room = details[:providers].first[:virtual_meeting_room]
+          location[:url] = meeting_room[:url]
+          location[:code] = meeting_room[:pin]
           location
         end
 
         def minutes_duration(details, type)
-          minutes_string = va?(type) ? details['appointmentLength'] : details['duration']
+          minutes_string = va?(type) ? details[:appointment_length] : details[:duration]
           minutes_string&.to_i
         end
 
         def on_site?(appointment)
-          appointment['vdsAppointments']&.size&.positive?
+          appointment[:vds_appointments]&.size&.positive?
         end
 
         def parse_by_appointment_type(appointment)
-          return [appointment['vdsAppointments']&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
+          return [appointment[:vds_appointments]&.first, APPOINTMENT_TYPES[:va]] if on_site?(appointment)
 
-          [appointment['vvsAppointments']&.first, get_video_type(appointment)]
+          [appointment[:vvs_appointments]&.first, video_type(appointment)]
         end
 
         def should_hide_status?(is_past, status)
@@ -206,29 +226,29 @@ module Mobile
         end
 
         def video_atlas?(appointment)
-          return false unless appointment['vvsAppointments']
+          return false unless appointment[:vvs_appointments]
 
-          appointment['vvsAppointments'].first['tasInfo'].present?
+          appointment[:vvs_appointments].first[:tas_info].present?
         end
 
         def video_gfe?(appointment)
-          return false unless appointment['vvsAppointments']
+          return false unless appointment[:vvs_appointments]
 
-          appointment['vvsAppointments'].first['appointmentKind'] == VIDEO_GFE_FLAG
+          appointment[:vvs_appointments].first[:appointment_kind] == VIDEO_GFE_FLAG
         end
 
         def video_healthcare_service(details)
-          providers = details['providers']
+          providers = details[:providers]
           return nil unless providers
 
           provider = if providers.is_a?(Array)
-                       details.dig('providers')
+                       details[:providers]
                      else
-                       details.dig('providers', 'provider')
+                       details.dig(:providers, :provider)
                      end
           return nil unless provider
 
-          provider.first.dig('location', 'facility', 'name')
+          provider.first.dig(:location, :facility, :name)
         end
       end
     end
