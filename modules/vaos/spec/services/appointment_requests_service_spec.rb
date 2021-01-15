@@ -5,7 +5,7 @@ require 'rails_helper'
 describe VAOS::AppointmentRequestsService do
   subject { described_class.new(user) }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  #before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_request' do
     let(:user) { build(:user, :vaos) }
@@ -110,5 +110,19 @@ describe VAOS::AppointmentRequestsService do
         end
       end
     end
+  end
+ 
+   describe '#get_request with id' do
+     let(:user) { build(:user, :mhv) }
+
+     context 'with valid appointment id' do
+       it 'returns a single appointment request' do
+         VCR.use_cassette('vaos/appointment_requests/get_request_with_id', record: :new_episodes) do
+   binding.pry
+            response = subject.get_request("8a4886886e4c8e22016e92be77cb00f9" )
+   binding.pry
+         end
+       end
+     end
   end
 end

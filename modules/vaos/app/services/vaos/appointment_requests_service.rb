@@ -4,12 +4,22 @@ module VAOS
   class AppointmentRequestsService < VAOS::SessionService
     def get_requests(start_date = nil, end_date = nil)
       with_monitoring do
-        response = perform(:get, get_request_url, date_params(start_date, end_date), headers)
+        response = perform(:get, get_requests_url, date_params(start_date, end_date), headers)
 
         {
           data: deserialize(response.body),
           meta: pagination
         }
+      end
+    end
+
+    def get_request(id)
+      params = {}
+
+      with_monitoring do
+ #binding.pry
+        response = perform(:get, get_request_url(id), params, headers)
+	      OpenStruct.new(response.body)
       end
     end
 
@@ -37,8 +47,12 @@ module VAOS
 
     private
 
-    def get_request_url
+    def get_requests_url
       "/var/VeteranAppointmentRequestService/v4/rest/appointment-service/patient/ICN/#{user.icn}/appointments"
+    end
+
+    def get_request_url(id)
+      get_requests_url + "/#{id}"
     end
 
     def put_request_url(id)
