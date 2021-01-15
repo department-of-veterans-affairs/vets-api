@@ -55,10 +55,6 @@ module Mobile
           Mobile::V0::Appointments::Configuration.instance
         end
 
-        def responses_ok?(responses)
-          responses[:cc]&.status == 200 && responses[:va]&.status == 200
-        end
-
         def va_url
           "/appointments/v1/patients/#{@user.icn}/appointments"
         end
