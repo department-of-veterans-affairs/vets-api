@@ -3,15 +3,30 @@
 require 'rails_helper'
 
 describe AppealsApi::HigherLevelReviewCleanUpWeekOldPii, type: :job do
+  let(:service) { instance_double(AppealsApi::RemovePii) }
+
   describe '#perform' do
-    it 'calls AppealsApi::RemovePii' do
-      service = instance_double(AppealsApi::RemovePii)
+    before do
       allow(AppealsApi::RemovePii).to receive(:new).and_return(service)
       allow(service).to receive(:run!)
+    end
 
-      described_class.new.perform
+    context 'when pii_expunge flag is enabled' do
+      it 'calls AppealsApi::RemovePii' do
+        with_settings(Settings.modules_appeals_api, higher_level_review_pii_expunge_enabled: true) do
+          described_class.new.perform
+          expect(service).to have_received(:run!)
+        end
+      end
+    end
 
-      expect(service).to have_received(:run!)
+    context 'when pii_expunge flag is disabled' do
+      it 'does not call AppealsApi::RemovePii' do
+        with_settings(Settings.modules_appeals_api, higher_level_review_pii_expunge_enabled: false) do
+          described_class.new.perform
+          expect(service).not_to have_received(:run!)
+        end
+      end
     end
   end
 end
