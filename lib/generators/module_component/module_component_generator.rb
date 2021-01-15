@@ -30,8 +30,8 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
                    File.join(path, method.pluralize.to_s, file_name, 'v0', 'configuration.rb')
         end
       else
-        $stdout.puts "\n#{method} is not a known generator command.
-              Commands allowed are controller, model, serializer and service\n"
+        $stdout.puts "\n#{method} is not a known generator command."\
+          "Commands allowed are controller, model, serializer and service\n"
       end
     end
   end
