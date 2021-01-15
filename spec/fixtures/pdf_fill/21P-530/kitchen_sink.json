@@ -85,7 +85,7 @@
   "claimantAddress": {
     "city": "Baltimore",
     "country": "US",
-    "postalCode": "21231",
+    "postalCode": "21231-1234",
     "street": "street",
     "street2": "street2",
     "state": "MD"

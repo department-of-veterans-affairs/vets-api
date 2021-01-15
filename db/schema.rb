@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_17_223026) do
+ActiveRecord::Schema.define(version: 2021_01_13_203803) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -44,18 +44,20 @@ ActiveRecord::Schema.define(version: 2020_12_17_223026) do
     t.datetime "updated_at", null: false
     t.string "code"
     t.string "detail"
+    t.string "source"
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "status", default: "pending", null: false
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"
     t.string "encrypted_auth_headers_iv"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "status", default: "pending", null: false
     t.string "code"
     t.string "detail"
+    t.string "source"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -137,6 +139,9 @@ ActiveRecord::Schema.define(version: 2020_12_17_223026) do
     t.string "encrypted_bgs_flash_responses"
     t.string "encrypted_bgs_flash_responses_iv"
     t.string "flashes", default: [], array: true
+    t.jsonb "special_issues", default: []
+    t.string "encrypted_bgs_special_issue_responses"
+    t.string "encrypted_bgs_special_issue_responses_iv"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -199,6 +204,7 @@ ActiveRecord::Schema.define(version: 2020_12_17_223026) do
     t.string "tos_url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_directory_applications_on_name", unique: true
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
@@ -258,6 +264,16 @@ ActiveRecord::Schema.define(version: 2020_12_17_223026) do
     t.index ["created_at"], name: "index_education_benefits_submissions_on_created_at"
     t.index ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true
     t.index ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd"
+  end
+
+  create_table "education_stem_automated_decisions", force: :cascade do |t|
+    t.bigint "education_benefits_claim_id"
+    t.string "automated_decision_state", default: "init"
+    t.string "user_uuid", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
+    t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
 
   create_table "evss_claims", id: :serial, force: :cascade do |t|

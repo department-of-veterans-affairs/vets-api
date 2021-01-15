@@ -10,6 +10,19 @@ FactoryBot.define do
         return_url: 'foo.com'
       }
     end
+    trait :with_nested_metadata do
+      metadata do
+        {
+          version: 1,
+          returnUrl: 'foo.com',
+          howNow: {
+            'brown-cow' => {
+              '-an eas-i-ly corRupted KEY.' => true
+            }
+          }
+        }
+      end
+    end
     form_data do
       {
         chapter1606: true,
@@ -208,7 +221,7 @@ FactoryBot.define do
       metadata do
         {
           version: 1,
-          return_url: 'foo.com'
+          returnUrl: 'foo.com'
         }
       end
       form_data do
