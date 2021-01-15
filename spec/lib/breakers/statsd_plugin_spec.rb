@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe Breakers::StatsdPlugin do
   let(:request) { Faraday::Env.new }
+  let(:response) { Faraday::Env.new }
   let(:test_host) { 'https://test-host.gov' }
 
   describe 'get_tags' do
@@ -16,6 +17,18 @@ describe Breakers::StatsdPlugin do
       it 'returns endpoint tag' do
         request.url = URI(test_host + '/foo')
         expect(subject.get_tags(request)).to include('endpoint:/foo')
+      end
+
+      it 'returns response with status appended' do
+        response.status = :ok
+        expect(subject.get_tags(request, response)).to include('status:ok')
+      end
+
+      context 'response not present' do
+        it 'returns response without status appended' do
+          request.method = :get
+          expect(subject.get_tags(request)).not_to include('status')
+        end
       end
     end
 
@@ -72,6 +85,34 @@ describe Breakers::StatsdPlugin do
       it 'doesnt replace anything' do
         request.url = URI(test_host + '/foo/bar')
         expect(subject.get_tags(request)).to include('endpoint:/foo/bar')
+      end
+    end
+  end
+
+  describe 'send_metric' do
+    let(:abstract_service) { Common::Client::Base }
+
+    context 'request env and response env are not null' do
+      it 'builds metrics with request env and response env' do
+        mock = double(Breakers::StatsdPlugin)
+        mock.stub(:get_tags).with('request_env', 'response_env')
+        allow(response).to receive(:[]).with(:duration).and_return(50)
+
+        expect_any_instance_of(StatsD).to receive('increment').and_return({})
+        expect_any_instance_of(StatsD).to receive('measure').and_return({})
+
+        subject.send_metric('ok', abstract_service, request, response)
+      end
+
+      it 'builds metrics with request env and does not make StatsD measure call' do
+        mock = double(Breakers::StatsdPlugin)
+        mock.stub(:get_tags).with('request_env')
+        response = nil
+
+        expect_any_instance_of(StatsD).to receive('increment').and_return({})
+        expect_any_instance_of(StatsD).not_to receive('measure')
+
+        subject.send_metric('ok', abstract_service, request, response)
       end
     end
   end

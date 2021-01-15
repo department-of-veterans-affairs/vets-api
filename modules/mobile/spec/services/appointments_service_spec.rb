@@ -86,7 +86,8 @@ describe Mobile::V0::Appointments::Service do
           1,
           { tags: [
             'endpoint:/appointments/v1/patients/xxx/appointments',
-            'method:get'
+            'method:get',
+            'status:200'
           ] }
         )
         expect(StatsD).to receive(:increment).once.with(
@@ -95,7 +96,8 @@ describe Mobile::V0::Appointments::Service do
           { tags: [
             'endpoint:/var/VeteranAppointmentRequestService/v4/rest'\
 '/direct-scheduling/patient/ICN/xxx/booked-cc-appointments',
-            'method:get'
+            'method:get',
+            'status:200'
           ] }
         )
         expect(StatsD).to receive(:increment).once.with(
@@ -118,7 +120,8 @@ describe Mobile::V0::Appointments::Service do
           { tags: [
             'endpoint:/var/VeteranAppointmentRequestService/v4/rest'\
 '/direct-scheduling/patient/ICN/xxx/booked-cc-appointments',
-            'method:get'
+            'method:get',
+            'status:200'
           ] }
         )
         expect(StatsD).to receive(:increment).once.with(
@@ -145,7 +148,8 @@ describe Mobile::V0::Appointments::Service do
           {
             tags: [
               'endpoint:/appointments/v1/patients/xxx/appointments',
-              'method:get'
+              'method:get',
+              'status:200'
             ]
           }
         )

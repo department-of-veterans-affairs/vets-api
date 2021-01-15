@@ -2,11 +2,14 @@
 
 module Breakers
   class StatsdPlugin
-    def get_tags(request)
+    def get_tags(request, response = nil)
       tags = []
       if request
         tags.append("endpoint:#{filtered_endpoint_tag(request.url.path)}") if request.url&.path
         tags.append("method:#{request.method}") if request.method
+      end
+      if response
+        tags.append("status:#{response.status}") if response.status
       end
       tags
     end
@@ -24,7 +27,7 @@ module Breakers
     end
 
     def send_metric(status, service, request_env, response_env)
-      tags = get_tags(request_env)
+      tags = get_tags(request_env, response_env)
       metric_base = "api.external_http_request.#{service.name}."
       StatsD.increment(metric_base + status, 1, tags: tags)
       if response_env && response_env[:duration]
