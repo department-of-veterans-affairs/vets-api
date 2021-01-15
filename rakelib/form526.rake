@@ -58,10 +58,10 @@ namespace :form526 do
 
     fail_jobs = total_jobs - success_jobs.count
 
-    total_users_submitting = submissions.count("DISTINCT user_uuid")
-    total_successful_users_submitting = success_jobs.count("DISTINCT user_uuid")
+    total_users_submitting = submissions.count('DISTINCT user_uuid')
+    total_successful_users_submitting = success_jobs.count('DISTINCT user_uuid')
 
-    user_success_rate = ( total_successful_users_submitting.to_f / total_users_submitting.to_f)
+    user_success_rate = (total_successful_users_submitting.to_f / total_users_submitting)
 
     puts '------------------------------------------------------------'
     puts "* Job Success/Failure counts between #{start_date} - #{end_date} *"
