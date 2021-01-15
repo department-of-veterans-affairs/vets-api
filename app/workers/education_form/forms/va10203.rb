@@ -34,15 +34,15 @@ module EducationForm::Forms
     end
 
     def benefit_left
-      @applicant.benefitLeft
+      @benefit_left ||= @applicant.benefitLeft
     end
 
     def pursuing_teaching_cert
-      @applicant.isPursuingTeachingCert
+      @pursuing_teaching_cert ||= @applicant.isPursuingTeachingCert
     end
 
     def enrolled_stem
-      @applicant.isEnrolledStem
+      @enrolled_stem ||= @applicant.isEnrolledStem
     end
   end
 end
