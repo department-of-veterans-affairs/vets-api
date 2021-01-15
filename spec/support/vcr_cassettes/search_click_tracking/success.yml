@@ -1,0 +1,66 @@
+---
+http_interactions:
+  - request:
+      method: post
+      uri: https://api.gsa.gov/technology/searchgov/v2/clicks/
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: OK
+      headers:
+        Date:
+          - Fri, 15 Jan 2021 13:56:38 GMT
+        Content-Type:
+          - application/json; charset=utf-8
+        Content-Length:
+          - "0"
+        Connection:
+          - keep-alive
+        X-Ratelimit-Limit:
+          - "1000"
+        X-Ratelimit-Remaining:
+          - "999"
+        Cache-Control:
+          - no-cache
+        Referrer-Policy:
+          - strict-origin-when-cross-origin
+        Status:
+          - 200 OK
+        Strict-Transport-Security:
+          - max-age=31536000; includeSubdomains; preload
+          - max-age=31536000; preload
+        Vary:
+          - Origin
+        Via:
+          - 1.1 proxy4.us-east-1.prod.infr.search.usa.gov:8443, https/1.1 api-umbrella (ApacheTrafficServer [cMsSf ])
+        X-Content-Type-Options:
+          - nosniff
+        X-Download-Options:
+          - noopen
+        X-Frame-Options:
+          - SAMEORIGIN
+        X-Permitted-Cross-Domain-Policies:
+          - none
+        X-Request-Id:
+          - ace88352-cc23-460d-9e7e-01cb35a9bef4
+        X-Xss-Protection:
+          - 1; mode=block
+        Age:
+          - "0"
+        X-Cache:
+          - MISS
+      body:
+        encoding: UTF-8
+        string: ""
+    recorded_at: Fri, 15 Jan 2021 13:56:38 GMT
+recorded_with: VCR 6.0.0

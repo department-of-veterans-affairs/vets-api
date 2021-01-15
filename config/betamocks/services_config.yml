@@ -514,15 +514,6 @@
     :path: "/api/v2/search/i14y"
     :file_path: "search/default"
 
-# Search Click Tracking
-- :name: 'SearchClickTracking'
-  :base_uri: <%= "#{URI(Settings.search_click_tracking.url).host}:#{URI(Settings.search_click_tracking.url).port}" %>
-  :endpoints:
-  # Register Results Click
-  - :method: :post
-    :path: "technology/searchgov/v2/clicks"
-    :file_path: "/"
-
 # Okta
 - :name: 'Okta'
   :base_uri: <%= "#{URI(Settings.oidc.base_api_url).host}:#{URI(Settings.oidc.base_api_url).port}" %>

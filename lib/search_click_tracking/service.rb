@@ -38,7 +38,7 @@ module SearchClickTracking
     #
     def track_click
       with_monitoring do
-        response = perform(:post, track_click_url, query_params, {'Content-Type' => 'application/x-www-form-urlencoded'})
+        perform(:post, track_click_url, query_params)
       end
     rescue => e
       handle_error(e)
