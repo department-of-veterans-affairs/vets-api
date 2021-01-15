@@ -141,7 +141,9 @@ describe Mobile::V0::Appointments::Service do
 
     context 'when service calls fails due to an internal error' do
       it 'logs an internal error' do
-        allow(Mobile::V0::Appointments::Configuration.instance.parallel_connection).to receive(:get).and_raise(JSON::ParserError)
+        allow(Mobile::V0::Appointments::Configuration.instance.parallel_connection)
+          .to receive(:get)
+          .and_raise(JSON::ParserError)
         expect(Rails.logger).to receive(:error).with(
           'mobile appointments internal exception', any_args
         ).twice
