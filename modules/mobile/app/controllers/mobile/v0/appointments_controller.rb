@@ -7,21 +7,41 @@ module Mobile
   module V0
     class AppointmentsController < ApplicationController
       def index
-        responses = appointments_service.get_appointments(start_date, end_date)
-        va_appointments, facility_ids = va_adapter.parse(responses[:va].body)
-        cc_appointments = cc_adapter.parse(responses[:cc].body)
+        responses, errors = appointments_service.get_appointments(start_date, end_date)
 
-        va_appointments = appointments_with_facilities(va_appointments, facility_ids) if va_appointments.size.positive?
+        va_appointments = []
+        cc_appointments = []
+        options = {
+          meta: {
+            errors: nil
+          }
+        }
+
+        va_appointments = parse_va_appointments(responses[:va].body) unless errors[:va]
+        cc_appointments = cc_adapter.parse(responses[:cc].body) unless errors[:cc]
 
         appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
 
-        render json: Mobile::V0::AppointmentSerializer.new(appointments)
+        errors = errors.values.compact
+        raise Common::Exceptions::BackendServiceException, 'VAOS_502' if errors.size == 2
+
+        options[:meta][:errors] = errors if errors.size.positive?
+
+        render json: Mobile::V0::AppointmentSerializer.new(appointments, options)
       end
 
       private
 
+      def parse_va_appointments(appointments_from_response)
+        appointments, facility_ids = va_adapter.parse(appointments_from_response)
+        appointments = appointments_with_facilities(appointments, facility_ids) if appointments.size.positive?
+        appointments
+      end
+
       def appointments_with_facilities(va_appointments, facility_ids)
-        facilities = facilities_service.get_facilities(ids: facility_ids.to_a.map { |id| "vha_#{id}" })
+        facilities = facilities_service.get_facilities(
+          ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(',')
+        )
         facilities_by_id = facilities.index_by(&:id)
         va_appointments.map do |appointment|
           facility = facilities_by_id["vha_#{appointment.facility_id}"]
@@ -65,15 +85,15 @@ module Mobile
       end
 
       def start_date
-        DateTime.parse(params[:start_date])
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
+        DateTime.parse(params[:startDate])
+      rescue ArgumentError, TypeError
+        raise Common::Exceptions::InvalidFieldValue.new('startDate', params[:startDate])
       end
 
       def end_date
-        DateTime.parse(params[:end_date])
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
+        DateTime.parse(params[:endDate])
+      rescue ArgumentError, TypeError
+        raise Common::Exceptions::InvalidFieldValue.new('endDate', params[:endDate])
       end
     end
   end
