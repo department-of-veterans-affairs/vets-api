@@ -361,3 +361,8 @@ features:
     enable_in_development: true
     description: >
       Enable/disable SCO applicant email per environment
+  edu_form_omb_and_expiration:
+    actor_type: user
+    enable_in_development: true
+    description: >
+       Update OMB # and expiration dates for forms   
