@@ -44,6 +44,8 @@ module AppealsApi
 
         return @form_fill_path if pdf.blank?
 
+        raise InvalidPdfClass if pdf.class != Prawn::Document
+
         additional_pages_added_path = "/tmp/#{appeal.id}-additional-pages-tmp.pdf"
         pdf.render_file(additional_pages_added_path) # saves the file
 
@@ -86,5 +88,7 @@ module AppealsApi
         Rails.root.join('modules', 'appeals_api', 'config', 'pdfs')
       end
     end
+
+    class InvalidPdfClass < StandardError; end
   end
 end
