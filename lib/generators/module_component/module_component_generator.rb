@@ -36,13 +36,11 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
     end
   end
 
-  # :nocov:
   def create_commit_message
     return if commit_message_methods.nil?
-    
+
     git add: '.'
     git commit: "-a -m 'Initial commit of new module #{commit_message_methods.join(', ')}\n\n" \
       "*KEEP THIS COMMIT MESSAGE*'"
   end
-  # :nocov:
 end

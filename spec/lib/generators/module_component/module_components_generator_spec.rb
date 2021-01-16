@@ -117,4 +117,15 @@ RSpec.describe 'ModuleComponent', type: :generator do
       expect(File).to exist("#{path}/app/serializers/foo/v0/foo_serializer.rb")
     end
   end
+
+  describe 'it calls the create_commit_message method' do
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
+    let(:path) { Rails.root.join('modules', 'foo') }
+
+    it 'creates the module controller and serializer files' do
+      allow_any_instance_of(ModuleComponentGenerator).to receive(:create_commit_message).and_return("stub commit method")
+      expect(ModuleComponentGenerator.new(%w[foo controller]).create_commit_message).to eq("stub commit method")
+    end
+  end
 end
