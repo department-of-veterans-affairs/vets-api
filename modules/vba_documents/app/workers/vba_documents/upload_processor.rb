@@ -20,9 +20,11 @@ module VBADocuments
       @retries = retries
       @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
       if @upload
-        Rails.logger.info("VBADocuments: Start Processing: #{@upload.inspect}")
+        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
+        Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
         download_and_process
-        Rails.logger.info("VBADocuments: Stop Processing: #{@upload.inspect}")
+        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
+        Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
       end
     end
 
