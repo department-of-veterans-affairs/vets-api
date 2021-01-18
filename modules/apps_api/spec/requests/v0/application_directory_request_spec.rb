@@ -7,6 +7,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   let(:valid_headers) do
     { 'Authorization' => 'blah' }
   end
+  let(:auth_string) { 'blah' }
   let(:invalid_headers) do
     { 'Authorization' => 'somethingwrong' }
   end
@@ -57,6 +58,10 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   end
 
   describe '#put /services/apps/v0/directory/:name' do
+    before do
+      allow(Settings.directory).to receive(:secret).and_return(auth_string)
+    end
+
     it 'updates the app' do
       allow(Settings.directory).to receive(:secret).and_return('blah')
       post '/services/apps/v0/directory',
@@ -73,6 +78,10 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   end
 
   describe '#destroy /services/apps/v0/directory/:name' do
+    before do
+      allow(Settings.directory).to receive(:secret).and_return(auth_string)
+    end
+
     it 'returns unauthorized if the header is invalid' do
       allow(Settings.directory).to receive(:secret).and_return('blah')
       post '/services/apps/v0/directory',
@@ -96,6 +105,10 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   end
 
   describe '#create /services/apps/v0/directory' do
+    before do
+      allow(Settings.directory).to receive(:secret).and_return(auth_string)
+    end
+
     it 'creates the app' do
       allow(Settings.directory).to receive(:secret).and_return('blah')
       post '/services/apps/v0/directory',
