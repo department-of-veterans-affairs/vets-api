@@ -600,7 +600,6 @@ hqva_mobile:
     redis_session_prefix: "healthquest_lighthouse"
     mock: false
     key_path: /srv/vets-api/secret/health-quest.lighthouse.key
-    local_key_path: modules/health_quest/config/rsa/sandbox_rsa
 
 lighthouse:
   api_key: fake_key
