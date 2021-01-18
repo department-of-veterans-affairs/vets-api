@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'appeals_api/notice_of_disagreement_pdf_constructor'
 require 'appeals_api/upload_error'
 require 'central_mail/utilities'
 require 'central_mail/service'
