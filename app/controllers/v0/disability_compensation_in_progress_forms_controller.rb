@@ -10,18 +10,19 @@ module V0
 
         form_data = JSON.parse(form_for_user.form_data)
 
-        unless sorted_names(form_data.dig("ratedDisabilities")) == sorted_names(rated_disabilities_evss)
-          #todo
+        unless sorted_names(form_data.dig('ratedDisabilities')) == sorted_names(rated_disabilities_evss)
+          # todo
         end
-        render json:  form_for_user.data_and_metadata
+        render json: form_for_user.data_and_metadata
       else
         render json: camelized_prefill_for_user
       end
     end
 
     private
+
     def sorted_names(rated_disabilities)
-      rated_disabilities.collect { |rd| rd["name"] }.sort
+      rated_disabilities.collect { |rd| rd['name'] }.sort
     end
   end
 end
