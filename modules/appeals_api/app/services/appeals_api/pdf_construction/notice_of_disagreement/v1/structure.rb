@@ -4,7 +4,7 @@ require 'prawn/table'
 
 module AppealsApi
   module PdfConstruction
-    module NoticeOfDisagreement
+    module NoticeOfDisagreement::V1
       class Structure
         def initialize(notice_of_disagreement)
           @notice_of_disagreement = notice_of_disagreement
@@ -87,7 +87,9 @@ module AppealsApi
 
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          Pages::HearingTypeAndAdditionalIssues.new(@additional_pages_pdf, form_data).build!
+          NoticeOfDisagreement::Pages::HearingTypeAndAdditionalIssues.new(
+            @additional_pages_pdf, form_data
+          ).build!
 
           @additional_pages_pdf
         end
@@ -110,11 +112,11 @@ module AppealsApi
         attr_accessor :notice_of_disagreement
 
         def form_fields
-          @form_fields ||= NoticeOfDisagreement::FormFields.new
+          @form_fields ||= NoticeOfDisagreement::V1::FormFields.new
         end
 
         def form_data
-          @form_data ||= NoticeOfDisagreement::FormData.new(notice_of_disagreement)
+          @form_data ||= NoticeOfDisagreement::V1::FormData.new(notice_of_disagreement)
         end
 
         def fill_first_five_issue_dates!(options)

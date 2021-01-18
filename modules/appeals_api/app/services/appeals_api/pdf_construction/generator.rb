@@ -5,9 +5,9 @@ require 'central_mail/datestamp_pdf'
 module AppealsApi
   module PdfConstruction
     class Generator
-      def initialize(appeal)
+      def initialize(appeal, version: 'V1')
         @appeal = appeal
-        @structure = appeal.pdf_structure
+        @structure = appeal.pdf_structure(version)
       end
 
       def generate

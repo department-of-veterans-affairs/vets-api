@@ -2,7 +2,7 @@
 
 module AppealsApi
   module PdfConstruction
-    module NoticeOfDisagreement
+    module NoticeOfDisagreement::V1
       class FormData
         def initialize(notice_of_disagreement)
           @notice_of_disagreement = notice_of_disagreement

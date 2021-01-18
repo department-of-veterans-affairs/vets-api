@@ -22,8 +22,10 @@ module AppealsApi
 
     validate :validate_hearing_type_selection
 
-    def pdf_structure
-      AppealsApi::PdfConstruction::NoticeOfDisagreement::Structure.new(self)
+    def pdf_structure(version)
+      Object.const_get(
+        "AppealsApi::PdfConstruction::NoticeOfDisagreement::#{version.upcase}::Structure"
+      ).new(self)
     end
 
     def veteran_first_name

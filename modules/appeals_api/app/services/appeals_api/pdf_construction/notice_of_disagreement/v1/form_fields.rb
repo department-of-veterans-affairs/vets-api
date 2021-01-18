@@ -2,10 +2,8 @@
 
 module AppealsApi
   module PdfConstruction
-    module NoticeOfDisagreement
+    module NoticeOfDisagreement::V1
       class FormFields
-        VERSION = 'v1'
-
         def veteran_name
           'F[0].Page_1[0].VeteransFirstName[0]'
         end
