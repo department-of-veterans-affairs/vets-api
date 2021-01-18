@@ -8,12 +8,12 @@ module CovidVaccine
       attribute :zip_code
 
       def id
-        object.sid
+        nil
       end
 
       %i[vaccine_interest zip_code].each do |attr|
         define_method attr do
-          object.form_data[attr]
+          object.raw_form_data[attr]
         end
       end
     end

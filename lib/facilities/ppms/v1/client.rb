@@ -13,6 +13,9 @@ module Facilities
       # Dev swagger site for testing endpoints
       # https://dev.dws.ppms.va.gov/swagger
       class Client < Common::Client::Base
+        MIN_RESULTS = 1
+        MAX_RESULTS = 50
+
         configuration Facilities::PPMS::V1::Configuration
 
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
@@ -147,7 +150,7 @@ module Facilities
           {
             address: [cnr[:latitude], cnr[:longitude]].join(','),
             radius: cnr[:radius],
-            maxResults: per_page * page + 1
+            maxResults: (per_page * page + 1).clamp(MIN_RESULTS, MAX_RESULTS)
           }
         end
 

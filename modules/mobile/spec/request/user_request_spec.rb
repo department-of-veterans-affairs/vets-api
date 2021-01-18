@@ -107,12 +107,12 @@ RSpec.describe 'user', type: :request do
       it 'includes a mobile phone number' do
         expect(attributes['profile']['mobilePhoneNumber']).to include(
           {
-            'id' => 791,
+            'id' => 790,
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
             'phoneNumber' => '5551234',
-            'phoneType' => 'WORK'
+            'phoneType' => 'MOBILE'
           }
         )
       end
@@ -120,12 +120,12 @@ RSpec.describe 'user', type: :request do
       it 'includes a work phone number' do
         expect(attributes['profile']['workPhoneNumber']).to include(
           {
-            'id' => 790,
+            'id' => 791,
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
             'phoneNumber' => '5551234',
-            'phoneType' => 'MOBILE'
+            'phoneType' => 'WORK'
           }
         )
       end

@@ -11,6 +11,10 @@ module HealthQuest
         render json: factory.get(params[:id]).response[:body]
       end
 
+      def create
+        render json: factory.create(params[questionnaire_response]).response[:body]
+      end
+
       private
 
       def factory

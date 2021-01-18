@@ -19,11 +19,12 @@ module Mobile
       attributes :zip_code_suffix
 
       # rubocop is misinterpreting this, converting to symbol proc will cause specs to fail
-      # rubocop:disable Style/SymbolProc
       meta do |address|
-        address.meta
+        {
+          address: address.address_meta,
+          validation_key: address.validation_key
+        }
       end
-      # rubocop:enable Style/SymbolProc
     end
   end
 end

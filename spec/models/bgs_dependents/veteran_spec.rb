@@ -23,7 +23,7 @@ RSpec.describe BGSDependents::Veteran do
       'phone_number' => '1112223333',
       'email_address' => 'foo@foo.com',
       'country_name' => 'USA',
-      'address_line1' => '8200 Doby LN',
+      'address_line1' => '2037400 twenty ninth St',
       'city' => 'Pasadena',
       'state_code' => 'CA',
       'zip_code' => '21122',

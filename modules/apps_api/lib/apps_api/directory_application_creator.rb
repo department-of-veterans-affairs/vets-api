@@ -47,8 +47,8 @@ module AppsApi
           'Coral Health is a free personal healthcare management app that is used to track medications,'\
           ' get medication reminders, consolidate official medical records,'\
           ' and monitor health trends and issues over time.'
-        app.privacy_url = 'https://mycoralhealth.com/privacy-policy.html'
-        app.tos_url = 'https://mycoralhealth.com/terms-of-service.html'
+        app.privacy_url = 'https://mycoralhealth.com/privacy-policy'
+        app.tos_url = 'https://mycoralhealth.com/terms-of-service'
         app.save
       end
 
@@ -91,16 +91,12 @@ module AppsApi
         app.platforms = %w[Web iOS Android]
         app.app_url = 'https://onerecord.com'
         app.description =
-          'OneRecord is a consumer facing application that enables the user to access and aggregate their medical '\
-          'records from Electronic Health Record Systems through healthcare industry standards and APIs. '\
-          'The platform is secure, scalable and device agnostic.'\
-          'OneRecord is built on a foundation of interoperability so that all data can flow seamlessly. '\
-          'Leveraging IHE XCA/ XCPD and HL7 FHIR transactions, OneRecord is able combine data sets to run '\
-          'through through our proprietary machine learning reconciliation and deduplication process. '\
-          'Users are involved in the deduplication of their own data, creating a unique patient-in-the-loop '\
-          'framework for our algorithms. OneRecord builds a longitudinal health record and while also creating '\
-          'a patient generated data in the tracking portion of the app. '\
-          'OneRecord is focused on women with chronic illnesses.'
+          "Your Health, Your Life, Your OneRecord.\n\n"\
+          'OneRecord is an app that enables you to build a consolidated medical record of your full health history. '\
+          'Whether you have medical records from your time in active duty, your treatment at VA facilities, '\
+          'or from doctors and hospitals outside of the military system, '\
+          "secure your medical records in one place — your OneRecord.\n\n"\
+          'Available on IOS, Android, and on the web at www.onerecord.com'
         app.privacy_url = 'https://onerecord.com/privacy'
         app.tos_url = 'https://onerecord.com/terms'
         app.save

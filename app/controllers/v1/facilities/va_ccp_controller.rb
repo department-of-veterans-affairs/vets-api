@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
-class V1::Facilities::VaCcpController < FacilitiesController
+class V1::Facilities::VACcpController < FacilitiesController
   def urgent_care
     providers_facilities = PPMS::ProviderFacility.new(
       pagination_params: pagination_params,
@@ -22,14 +22,18 @@ class V1::Facilities::VaCcpController < FacilitiesController
   def ppms_params
     params.permit(
       :address,
+      :latitude,
+      :longitude,
       :page,
       :per_page,
+      :radius,
       bbox: []
     )
   end
 
   def lighthouse_params
     params.permit(
+      :exclude_mobile,
       :page,
       :per_page,
       bbox: []

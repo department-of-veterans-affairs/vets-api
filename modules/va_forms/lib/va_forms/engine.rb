@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module VaForms
+module VAForms
   class Engine < ::Rails::Engine
-    isolate_namespace VaForms
+    isolate_namespace VAForms
 
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s

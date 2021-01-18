@@ -17,18 +17,10 @@ module CovidVaccine
         object.sid
       end
 
-      %i[vaccine_interest zip_code phone email first_name last_name].each do |attr|
+      %i[vaccine_interest zip_code zip_code_details phone email first_name last_name birth_date].each do |attr|
         define_method attr do
-          object.form_data[attr]
+          object.raw_form_data[attr.to_s]
         end
-      end
-
-      def zip_code_details
-        object.form_data[:time_at_zip]
-      end
-
-      def birth_date
-        object.form_data[:date_of_birth]
       end
     end
   end

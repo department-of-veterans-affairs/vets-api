@@ -192,5 +192,16 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_processing.status = 'error'
       upload_processing.save
     end
+
+    it 'does not allow the same guid used twice' do
+      upload1 = VBADocuments::UploadSubmission.new
+      upload2 = VBADocuments::UploadSubmission.new
+      saved = upload1.save
+      expect(saved).to eq(true)
+      guid = upload1.guid
+      upload2.guid = guid
+      saved = upload2.save
+      expect(saved).to eq(false)
+    end
   end
 end

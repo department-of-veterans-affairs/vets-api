@@ -10,7 +10,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
   include VBADocuments::Fixtures
 
   describe '#create /v0/uploads' do
-    xit 'returns a UUID and location' do
+    it 'returns a UUID and location' do
       with_settings(Settings.vba_documents.location,
                     'prefix': 'https://fake.s3.url/foo/',
                     'replacement': 'https://api.vets.gov/proxy/') do

@@ -115,7 +115,7 @@ RSpec.describe Form526Submission do
         File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
       end
 
-      xit 'queues a 4142 job' do
+      it 'queues a 4142 job' do
         expect do
           subject.perform_ancillary_jobs('some name')
         end.to change(CentralMail::SubmitForm4142Job.jobs, :size).by(1)

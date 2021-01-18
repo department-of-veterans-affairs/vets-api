@@ -16,6 +16,7 @@ module Form1010cg
                   :submission # Form1010cg::Submission
 
     NOT_FOUND = 'NOT_FOUND'
+    AUDITOR = Form1010cg::Auditor.new
 
     def self.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
       raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?
@@ -233,7 +234,7 @@ module Form1010cg
     end
 
     def log_mpi_search_result(form_subject, result)
-      Form1010cg::Auditor.instance.log_mpi_search_result(
+      self.class::AUDITOR.log_mpi_search_result(
         claim_guid: claim.guid,
         form_subject: form_subject,
         result: result

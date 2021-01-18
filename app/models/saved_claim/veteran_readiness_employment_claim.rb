@@ -7,6 +7,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
   FORM = '28-1900'
 
+  validate :veteran_information, on: :prepare_form_data
+
   def add_claimant_info(user)
     return if form.blank?
 
@@ -31,8 +33,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_to_vre(user)
     prepare_form_data
-    service = VRE::Ch31Form.new(user: user, claim: self)
 
+    service = VRE::Ch31Form.new(user: user, claim: self)
     service.submit
   end
 
@@ -46,13 +48,17 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def prepare_form_data
     form_copy = parsed_form
     appointment_time_preferences = form_copy['appointmentTimePreferences'].map do |key_value|
-      key_value[0] if key_value[1] == true
+      key_value[0].downcase if key_value[1] == true
     end.compact
 
     # VRE now needs an array of times
     form_copy['appointmentTimePreferences'] = appointment_time_preferences
 
     update(form: form_copy.to_json)
+  end
+
+  def veteran_information
+    return errors.add(:form, 'Veteran Information is missing from form') if parsed_form['veteranInformation'].blank?
   end
 
   def veteran_va_file_number(user)

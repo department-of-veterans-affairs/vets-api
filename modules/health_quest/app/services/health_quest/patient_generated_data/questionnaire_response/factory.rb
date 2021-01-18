@@ -56,6 +56,18 @@ module HealthQuest
 
           map_query.search(with_options)
         end
+
+        ##
+        # Create a QuestionnaireResponse resource from the logged in user.
+        #
+        # @param data [Hash] questionnaire answers and appointment data hash.
+        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        #
+        def create(data)
+          questionnaire_response = Resource.manufacture(data, user).prepare
+
+          map_query.create(questionnaire_response)
+        end
       end
     end
   end

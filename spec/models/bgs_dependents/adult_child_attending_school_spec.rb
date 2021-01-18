@@ -21,7 +21,9 @@ RSpec.describe BGSDependents::AdultChildAttendingSchool do
   let(:address_response) do
     {
       'country_name' => 'USA',
-      'address_line1' => '1019 Robin Cir',
+      'address_line1' => '20374 Alexander Hamilton St',
+      'address_line2' => 'apt 4',
+      'address_line3' => 'Bldg 44',
       'city' => 'Arroyo Grande',
       'state_code' => 'CA',
       'zip_code' => '93420'

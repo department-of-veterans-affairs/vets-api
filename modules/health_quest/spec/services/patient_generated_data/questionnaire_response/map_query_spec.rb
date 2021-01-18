@@ -6,6 +6,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
   subject { described_class }
 
   let(:headers) { { 'Accept' => 'application/json+fhir' } }
+  let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
 
   describe 'included modules' do
     it 'includes PatientGeneratedData::FHIRClient' do
@@ -33,7 +34,6 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
 
   describe '#search' do
     context 'with valid options' do
-      let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
       let(:options) do
         {
           search: {
@@ -46,11 +46,31 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
         allow_any_instance_of(subject).to receive(:client).and_return(client)
       end
 
-      it 'returns an instance of Reply' do
+      it 'calls search on the FHIR client' do
         expect(client).to receive(:search).with(FHIR::DSTU2::QuestionnaireResponse, options).exactly(1).time
 
         subject.build(headers).search(author: '123')
       end
+    end
+  end
+
+  describe '#create' do
+    let(:data) do
+      {
+        appointment_id: 'abc123',
+        questionnaire_response: {},
+        questionnaire_id: 'abcd-1234'
+      }
+    end
+
+    before do
+      allow_any_instance_of(subject).to receive(:client).and_return(client)
+    end
+
+    it 'calls create on the FHIR client' do
+      expect(client).to receive(:create).with(data).exactly(1).time
+
+      subject.build(headers).create(data)
     end
   end
 

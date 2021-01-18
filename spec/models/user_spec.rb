@@ -8,6 +8,45 @@ RSpec.describe User, type: :model do
   let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
 
+  describe '#icn' do
+    let(:user) { build(:user, icn: identity_icn) }
+    let(:mpi_profile) { build(:mvi_profile, icn: mpi_icn) }
+    let(:identity_icn) { 'some_identity_icn' }
+    let(:mpi_icn) { 'some_mpi_icn' }
+
+    before do
+      allow(user).to receive(:mpi).and_return(mpi_profile)
+    end
+
+    context 'when icn on User Identity exists' do
+      let(:identity_icn) { 'some_identity_icn' }
+
+      it 'returns icn off the User Identity' do
+        expect(user.icn).to eq(identity_icn)
+      end
+    end
+
+    context 'when icn on identity does not exist' do
+      let(:identity_icn) { nil }
+
+      context 'and icn on MPI Data exists' do
+        let(:mpi_icn) { 'some_mpi_icn' }
+
+        it 'returns icn from the MPI Data' do
+          expect(user.icn).to eq(mpi_icn)
+        end
+      end
+
+      context 'and icn on MPI Data does not exist' do
+        let(:mpi_icn) { nil }
+
+        it 'returns nil' do
+          expect(user.icn).to eq(nil)
+        end
+      end
+    end
+  end
+
   describe '#birls_id' do
     let(:user) { build(:user, birls_id: identity_birls_id) }
     let(:mpi_profile) { build(:mvi_profile, birls_id: mpi_birls_id) }

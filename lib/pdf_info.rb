@@ -19,10 +19,10 @@ module PdfInfo
     def initialize(path)
       @stdout = []
       Open3.popen2e(Settings.binaries.pdfinfo, path) do |_stdin, stdout, wait|
-        @exit_status = wait.value
         stdout.each_line do |line|
           @stdout.push(force_utf8_encoding(line))
         end
+        @exit_status = wait.value
       end
       init_error unless @exit_status.success?
     end

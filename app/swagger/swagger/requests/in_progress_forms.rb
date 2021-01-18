@@ -19,9 +19,7 @@ module Swagger
 
           response 200 do
             key :description, 'get saved form summaries'
-            schema do
-              key :'$ref', :SavedFormSummaries
-            end
+            schema { key :'$ref', :InProgressFormsResponse }
           end
         end
       end
@@ -46,9 +44,7 @@ module Swagger
 
           response 200 do
             key :description, 'delete form response'
-            schema do
-              key :'$ref', :References
-            end
+            schema { key :'$ref', :InProgressFormResponse }
           end
         end
 
@@ -73,9 +69,7 @@ module Swagger
 
           response 200 do
             key :description, 'get form response'
-            schema do
-              key :'$ref', :FormOutputData
-            end
+            schema { key :'$ref', :InProgressFormShowResponse }
           end
         end
 
@@ -83,7 +77,7 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::InternalServerError
 
-          key :description, 'Update form data'
+          key :description, 'Update form data and metadata'
           key :operationId, 'updateInProgressForm'
           key :tags, [
             'in_progress_forms'
@@ -100,37 +94,54 @@ module Swagger
           end
 
           parameter do
-            key :name, :form_data
+            key :name, :payload
             key :in, :body
-            key :description, 'new data for the form'
+            key :description, 'updated form data and metadata. one of "form_data" or "formData" must be present'
             key :required, true
-            schema do
-              key :'$ref', :FormInputData
+            schema example: { formData: { lastName: 'Smith' }, metadata: { ver: 1 } } do
+              property :formData, type: :object, description: '(alias "form_data")'
+              property :form_data, type: :object, description: '(alias "formData")'
+              property :metadata, type: :object
             end
           end
 
           response 200 do
             key :description, 'update form response'
+            schema { key :'$ref', :InProgressFormResponse }
           end
         end
       end
 
-      swagger_schema :References do
+      swagger_schema :InProgressFormShowResponse do
+        property :formData, type: :object
+        property :metadata, type: :object
+      end
+
+      swagger_schema :InProgressFormResponse do
         property :data, type: :object do
           property :id, type: :string
           property :type, type: :string
+          property :attributes, type: :object do
+            property :formId, type: :string
+            property :createdAt, type: :string
+            property :updatedAt, type: :string
+            property :metadata, type: :object
+          end
         end
       end
 
-      swagger_schema :SavedFormSummaries do
-      end
-
-      swagger_schema :FormOutputData do
-      end
-
-      swagger_schema :FormInputData, required: [:form_data] do
-        property :form_data do
-          key :type, :string
+      swagger_schema :InProgressFormsResponse do
+        property :data, type: :array do
+          items type: :object do
+            property :id, type: :string
+            property :type, type: :string
+            property :attributes, type: :object do
+              property :formId, type: :string
+              property :createdAt, type: :string
+              property :updatedAt, type: :string
+              property :metadata, type: :object
+            end
+          end
         end
       end
     end

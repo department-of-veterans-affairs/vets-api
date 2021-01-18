@@ -5,9 +5,7 @@ module VAOS
     class VAAppointmentsSerializer
       include FastJsonapi::ObjectSerializer
 
-      set_id do |object|
-        Digest::MD5.hexdigest(object.start_date)
-      end
+      set_id :id
 
       set_type :va_appointments
 

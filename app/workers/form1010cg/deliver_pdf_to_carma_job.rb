@@ -16,7 +16,15 @@ module Form1010cg
 
       # submit_attachment! does an "upsert" of the document in CARMA,
       # so this job can safely be executed multiple times.
-      Form1010cg::Service.submit_attachment!(submission.carma_case_id, veteran_name, '10-10CG', file_path)
+      carma_attachments = Form1010cg::Service.submit_attachment!(
+        submission.carma_case_id,
+        veteran_name,
+        '10-10CG',
+        file_path
+      )
+
+      record_success(claim_guid, submission.carma_case_id, carma_attachments.to_hash)
+
       delete_file file_path
       submission.destroy! # destroys the submission and claim
     end
@@ -26,13 +34,26 @@ module Form1010cg
     def delete_file(file_path)
       File.delete(file_path) if File.exist?(file_path)
     rescue => e
-      Rails.logger.error(e)
+      logger.error(e)
     end
 
     def missing_claim_error
       MissingClaimException.new(
         'Could not find a claim associated to this submission'
       )
+    end
+
+    def record_success(claim_guid, carma_case_id, attachments_hash)
+      auditor.record(
+        :attachments_delivered,
+        claim_guid: claim_guid,
+        carma_case_id: carma_case_id,
+        attachments: attachments_hash
+      )
+    end
+
+    def auditor
+      Form1010cg::Auditor.new(logger)
     end
   end
 end

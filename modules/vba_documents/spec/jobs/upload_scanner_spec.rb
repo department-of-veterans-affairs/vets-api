@@ -14,7 +14,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
   let(:upload) { FactoryBot.create(:upload_submission) }
 
   describe '#perform' do
-    xit 'spawns processor jobs and updates state' do
+    it 'spawns processor jobs and updates state' do
       with_settings(Settings.vba_documents.s3, 'enabled': true) do
         expect(@s3_bucket).to receive(:object).with(upload.guid).and_return(@s3_object)
         expect(@s3_object).to receive(:exists?).and_return(true)
@@ -52,7 +52,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
       end
     end
 
-    xit 'does not expire objects for which upload has occurred' do
+    it 'does not expire objects for which upload has occurred' do
       with_settings(Settings.vba_documents.s3, 'enabled': true) do
         expect(@s3_bucket).to receive(:object).with(upload.guid).and_return(@s3_object)
         expect(@s3_object).to receive(:exists?).and_return(true)
