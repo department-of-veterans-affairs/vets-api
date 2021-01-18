@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
+    resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
