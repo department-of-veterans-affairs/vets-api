@@ -2,8 +2,17 @@
 
 module EducationForm::Forms
   class VA10203 < Base
+    def initialize(app)
+      @stem_automated_decision = app.education_stem_automated_decision
+      super(app)
+    end
+
     def header_form_type
-      'V10203'
+      @stem_automated_decision&.automated_decision_state == 'denied' ? '10203DNY' : 'V10203'
+    end
+
+    def form_identifier
+      @stem_automated_decision&.automated_decision_state == 'denied' ? 'VA Form 22-10203DNY' : 'VA Form 22-10203'
     end
 
     def form_benefit
@@ -15,13 +24,25 @@ module EducationForm::Forms
     end
 
     def any_remaining_benefit
-      yesno(%w[moreThanSixMonths sixMonthsOrLess].include?(@applicant.benefitLeft))
+      yesno(%w[moreThanSixMonths sixMonthsOrLess].include?(benefit_left))
     end
 
     def receive_text_message
       return false if @applicant.receiveTexts.nil?
 
       @applicant.receiveTexts
+    end
+
+    def benefit_left
+      @benefit_left ||= @applicant.benefitLeft
+    end
+
+    def pursuing_teaching_cert
+      @pursuing_teaching_cert ||= @applicant.isPursuingTeachingCert
+    end
+
+    def enrolled_stem
+      @enrolled_stem ||= @applicant.isEnrolledStem
     end
   end
 end

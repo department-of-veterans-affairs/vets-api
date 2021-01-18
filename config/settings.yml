@@ -156,12 +156,14 @@ decision_review:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
-  report_enabled: false
-  higher_level_review_updater_enabled: true
-  notice_of_disagreement_updater_enabled: true
-  schema_dir: config/schemas
   documentation:
     notice_of_disagreements_v1: false
+  higher_level_review_pii_expunge_enabled: true
+  higher_level_review_updater_enabled: true
+  notice_of_disagreement_pii_expunge_enabled: true
+  notice_of_disagreement_updater_enabled: true
+  report_enabled: false
+  schema_dir: config/schemas
 
 vre_counseling:
   prefill: true
@@ -598,7 +600,6 @@ hqva_mobile:
     redis_session_prefix: "healthquest_lighthouse"
     mock: false
     key_path: /srv/vets-api/secret/health-quest.lighthouse.key
-    local_key_path: modules/health_quest/config/rsa/sandbox_rsa
 
 lighthouse:
   api_key: fake_key
