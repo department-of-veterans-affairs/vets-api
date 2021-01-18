@@ -45,27 +45,27 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
       end
     end
 
-    it 'has an an instance of a FHIR::QuestionnaireResponse' do
+    it 'has an instance of a FHIR::QuestionnaireResponse' do
       expect(subject.manufacture(data, user).model).to be_an_instance_of(FHIR::QuestionnaireResponse)
     end
 
-    it 'has an an instance of a User' do
+    it 'has an instance of a User' do
       expect(subject.manufacture(data, User.new).user).to be_an_instance_of(User)
     end
 
-    it 'has an an instance of a data hash' do
+    it 'has an instance of a data hash' do
       expect(subject.manufacture(data, user).data).to be_an_instance_of(Hash)
     end
 
-    it 'has an an instance of a FHIR::Identifier' do
+    it 'has an instance of a FHIR::Identifier' do
       expect(subject.manufacture(data, user).identifier).to be_an_instance_of(FHIR::Identifier)
     end
 
-    it 'has an an instance of a FHIR::Meta' do
+    it 'has an instance of a FHIR::Meta' do
       expect(subject.manufacture(data, user).meta).to be_an_instance_of(FHIR::Meta)
     end
 
-    it 'has an an instance of a FHIR::Reference' do
+    it 'has an instance of a FHIR::Reference' do
       expect(subject.manufacture(data, user).author_reference).to be_an_instance_of(FHIR::Reference)
     end
 
