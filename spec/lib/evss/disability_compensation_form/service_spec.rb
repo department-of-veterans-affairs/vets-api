@@ -21,6 +21,12 @@ describe EVSS::DisabilityCompensationForm::Service do
             times: 1,
             value: 1
           )
+
+          # cached
+          expect { subject.get_rated_disabilities }.not_to trigger_statsd_increment(
+            'api.external_http_request.EVSS/DisabilityCompensationForm.success'
+          )
+
           expect(@response).to be_ok
           expect(@response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
           expect(@response.rated_disabilities.count).to eq 2
