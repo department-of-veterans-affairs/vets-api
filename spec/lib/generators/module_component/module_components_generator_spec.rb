@@ -195,6 +195,4 @@ RSpec.describe 'ModuleComponent', type: :generator do
       expect(module_component_generator.create_commit_message).to eq('stub commit method')
     end
   end
-
-
 end
