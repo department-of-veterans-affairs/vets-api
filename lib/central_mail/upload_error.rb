@@ -17,7 +17,7 @@ module CentralMail
     DOC107 = 'Empty payload'
     DOC108 = 'Maximum page size exceeded. Limit is 21 in x 21 in.'
 
-    # DOC2xx errors: server errors either local or downstream
+    # DOC2xx errors: server errors either local or upstream
     # not unambiguously related to submitted content
     DOC201 = 'Upload server error. Request will be retried when upstream service is available.'
     DOC202 = 'Error during processing by upstream system'
