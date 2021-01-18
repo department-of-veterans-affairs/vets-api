@@ -107,6 +107,25 @@ RSpec.describe 'ModuleComponent', type: :generator do
     end
   end
 
+  describe 'test message to stdout for an invalid component' do
+    before(:all) do
+      ModuleGenerator.new(['foo']).create_directory_structure
+    end
+
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
+    let(:path) { Rails.root.join('modules', 'foo', 'app', 'bad_components') }
+
+    it 'does not create the bad_component' do
+      expected_stdout = "\nbad_component is not a known generator command.Commands allowed
+                         are controller, model, serializer and service\n"
+      expect do
+        ModuleComponentGenerator.new(%w[foo bad_component]).create_component
+      end.to output(expected_stdout).to_stdout
+      expect(File).not_to exist("#{path}/foo/v0/foo_bad_component.rb")
+    end
+  end
+
   describe 'does not create an invalid component but does create a valid one' do
     before(:all) do
       ModuleGenerator.new(['foo']).create_directory_structure
