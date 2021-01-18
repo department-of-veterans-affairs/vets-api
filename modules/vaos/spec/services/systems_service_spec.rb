@@ -356,27 +356,6 @@ describe VAOS::SystemsService do
   end
 
   describe '#get_request_eligibility_criteria' do
-    context 'with no site_codes or parent_sites param' do
-      it 'returns the full list', :aggregate_failures do
-        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria', match_requests_on: %i[method uri]) do
-          response = subject.get_request_eligibility_criteria
-          expect(response.size).to eq(1269)
-          first_result = response.first
-          expect(first_result.id).to eq('405GC')
-          expect(first_result.request_settings.first).to eq(
-            {
-              id: '502',
-              type_of_care: 'Outpatient Mental Health',
-              patient_history_required: 'No',
-              stop_codes: [{ primary: '502' }],
-              submitted_request_limit: 2,
-              enterprise_submitted_request_limit: 2
-            }
-          )
-        end
-      end
-    end
-
     context 'with a site_codes param array' do
       it 'returns an array', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_site_codes',

@@ -82,8 +82,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
         main_phone: nil,
         miles: 5.477,
         provider_identifier: '1154383230',
-        provider_name: 'GESUALDI, AMY',
-        specialties: []
+        provider_name: 'GESUALDI, AMY'
       )
     end
   end
@@ -110,8 +109,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
         miles: 42.074,
         pos_codes: ['20'],
         provider_identifier: '1487993564',
-        provider_name: 'CITY MD URGENT CARE',
-        specialties: []
+        provider_name: 'CITY MD URGENT CARE'
       )
     end
   end
@@ -138,9 +136,6 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
         provider_identifier: '1154383230',
         provider_name: nil
       )
-      expect(r.specialties.each_with_object(Hash.new(0)) do |specialty, count|
-        count[specialty.specialty_code] += 1
-      end).to match('213E00000X' => 1)
     end
   end
 

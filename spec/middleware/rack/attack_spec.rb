@@ -32,6 +32,24 @@ RSpec.describe Rack::Attack do
     end
   end
 
+  describe 'covid_vaccine' do
+    let(:headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
+
+    it 'limits requests for any post and put endpoints to 4 in 5 minutes' do
+      post '/covid_vaccine/v0/registration', headers: headers
+      expect(last_response.status).not_to eq(429)
+      put '/covid_vaccine/v0/registration/opt_out', headers: headers
+      expect(last_response.status).not_to eq(429)
+      put '/covid_vaccine/v0/registration/opt_in', headers: headers
+      expect(last_response.status).not_to eq(429)
+      put '/covid_vaccine/v0/registration/unauthenticated', headers: headers
+      expect(last_response.status).not_to eq(429)
+
+      put '/covid_vaccine/v0/registration/opt_out', headers: headers
+      expect(last_response.status).to eq(429)
+    end
+  end
+
   describe 'vic rate-limits', run_at: 'Thu, 26 Dec 2015 15:54:20 GMT' do
     let(:headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
 

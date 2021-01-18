@@ -4,7 +4,7 @@
 class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
   include SetAWSConfig
   include ValidatePdf
-  include ValidateEvssFileSize
+  include ValidateEVSSFileSize
 
   def size_range
     1.byte...150.megabytes

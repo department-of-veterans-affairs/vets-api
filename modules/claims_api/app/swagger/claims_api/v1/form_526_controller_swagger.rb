@@ -67,6 +67,9 @@ module ClaimsApi
               Takes in JSON, returns UUID for submission. Asynchronously auto-establishes claim and generates a PDF for VBMS.
               Can accept document binary PDF or base64 string as part of a multi-part payload (as `attachment1`, `attachment2`, etc.).
               **If you are filing an original claim, and the filer is not the veteran** (the oauth token is not the veteran’s), see [PUT /forms/526/{id}](#operations-Disability-upload526Attachment).
+
+              * Claim establishment is handled asynchronously. See [GET /claims/{id}](#operations-Claims-findClaimById) to check status of submission.
+              * Claim establishment does not start if autoCestPDFGenerationDisabled is set to true. [PUT /forms/526/{id}](#operations-Disability-upload526Attachment) is required to begin establishing the claim.
             X
           )
           key :operationId, 'post526Claim'

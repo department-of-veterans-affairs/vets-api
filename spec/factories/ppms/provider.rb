@@ -6,7 +6,6 @@ FactoryBot.define do
     provider_name { Faker::Name.name }
     care_site { Faker::Company.name }
     gender { Faker::Gender.binary_type }
-    specialties { [] }
 
     trait :from_provider_locator do
       address_street { Faker::Address.street_address }

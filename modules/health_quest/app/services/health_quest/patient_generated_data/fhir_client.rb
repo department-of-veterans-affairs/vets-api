@@ -4,7 +4,7 @@ module HealthQuest
   module PatientGeneratedData
     module FHIRClient
       def url
-        "#{Settings.hqva_mobile.url}/smart-pgd-fhir/v1"
+        "#{Settings.hqva_mobile.lighthouse.url}/smart-pgd-fhir/v1"
       end
 
       def client
