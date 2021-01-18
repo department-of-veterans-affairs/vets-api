@@ -229,4 +229,24 @@ RSpec.describe 'ModuleComponent', type: :generator do
       expect(module_component_generator.create_commit_message).to eq('stub commit method')
     end
   end
+
+  describe 'it creates the module structure if user selects yes' do
+    before(:all) do
+      ModuleGenerator.new(['foo']).create_directory_structure
+    end
+
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
+    let(:path) { Rails.root.join('modules', 'foo') }
+
+    it 'creates the module controller and serializer files' do
+      # stub backtick to create a new module
+      allow_any_instance_of(ModuleComponentGenerator).to receive(:git).and_return('stub commit method')
+      module_component_generator = ModuleComponentGenerator.new(%w[foo controller])
+      module_component_generator.create_component
+      expect(module_component_generator.commit_message_methods).to eq(["controller"])
+      expect(module_component_generator.create_commit_message).to eq('stub commit method')
+    end
+  end
+
 end
