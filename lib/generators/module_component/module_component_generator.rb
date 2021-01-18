@@ -37,7 +37,7 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
   end
 
   def create_commit_message
-    return if commit_message_methods.nil?
+    return if commit_message_methods.empty?
 
     git add: '.'
     git commit: "-a -m 'Initial commit of new module #{commit_message_methods.join(', ')}\n\n" \

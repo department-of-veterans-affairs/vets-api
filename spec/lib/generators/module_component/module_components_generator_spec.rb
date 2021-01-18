@@ -173,4 +173,28 @@ RSpec.describe 'ModuleComponent', type: :generator do
       expect(module_component_generator.create_commit_message).to eq('stub commit method')
     end
   end
+
+  describe 'it calls the create_commit_message method with nil commit_message_methods' do
+    before(:all) do
+      ModuleGenerator.new(['foo']).create_directory_structure
+    end
+
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
+    let(:path) { Rails.root.join('modules', 'foo') }
+
+    it 'creates the module controller and serializer files' do
+      allow_any_instance_of(
+        ModuleComponentGenerator
+      ).to receive(:create_commit_message).and_return('stub commit method')
+
+      module_component_generator = ModuleComponentGenerator.new(%w[foo bad_component])
+      module_component_generator.create_component
+
+      expect(module_component_generator.commit_message_methods).to eq([])
+      expect(module_component_generator.create_commit_message).to eq('stub commit method')
+    end
+  end
+
+
 end
