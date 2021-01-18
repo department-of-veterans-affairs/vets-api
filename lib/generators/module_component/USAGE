@@ -28,8 +28,8 @@ Example:
     rails generate module_component foo service
 
     This will create:
-	modules/foo/app/serializers/foo/v0/foo_service.rb	
-	modules/foo/app/serializers/foo/v0/configuration.rb	
+	modules/foo/app/services/foo/v0/foo_service.rb	
+	modules/foo/app/services/foo/v0/configuration.rb	
 
 Example: Creating multiple components at the same time
     rails generate module_component foo controller serializer
