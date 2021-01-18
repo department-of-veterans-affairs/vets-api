@@ -9,7 +9,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
   let(:data) do
     {
       appointment_id: 'abc123',
-      questionnaire_response: {},
+      questionnaire_response: [],
       questionnaire_id: subject::DEFAULT_QUESTIONNAIRE_ID
     }
   end
@@ -45,32 +45,32 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
       end
     end
 
-    it 'has an an instance of a FHIR::DSTU2::QuestionnaireResponse' do
-      expect(subject.manufacture(data, user).model).to be_an_instance_of(FHIR::DSTU2::QuestionnaireResponse)
+    it 'has an instance of a FHIR::QuestionnaireResponse' do
+      expect(subject.manufacture(data, user).model).to be_an_instance_of(FHIR::QuestionnaireResponse)
     end
 
-    it 'has an an instance of a User' do
+    it 'has an instance of a User' do
       expect(subject.manufacture(data, User.new).user).to be_an_instance_of(User)
     end
 
-    it 'has an an instance of a data hash' do
+    it 'has an instance of a data hash' do
       expect(subject.manufacture(data, user).data).to be_an_instance_of(Hash)
     end
 
-    it 'has an an instance of a FHIR::DSTU2::Identifier' do
-      expect(subject.manufacture(data, user).identifier).to be_an_instance_of(FHIR::DSTU2::Identifier)
+    it 'has an instance of a FHIR::Identifier' do
+      expect(subject.manufacture(data, user).identifier).to be_an_instance_of(FHIR::Identifier)
     end
 
-    it 'has an an instance of a FHIR::DSTU2::Meta' do
-      expect(subject.manufacture(data, user).meta).to be_an_instance_of(FHIR::DSTU2::Meta)
+    it 'has an instance of a FHIR::Meta' do
+      expect(subject.manufacture(data, user).meta).to be_an_instance_of(FHIR::Meta)
     end
 
-    it 'has an an instance of a FHIR::DSTU2::Reference' do
-      expect(subject.manufacture(data, user).author_reference).to be_an_instance_of(FHIR::DSTU2::Reference)
+    it 'has an instance of a FHIR::Reference' do
+      expect(subject.manufacture(data, user).author_reference).to be_an_instance_of(FHIR::Reference)
     end
 
-    it 'has an a second instance of a FHIR::DSTU2::Reference' do
-      expect(subject.manufacture(data, user).questionnaire_reference).to be_an_instance_of(FHIR::DSTU2::Reference)
+    it 'has an a second instance of a FHIR::Reference' do
+      expect(subject.manufacture(data, user).questionnaire_reference).to be_an_instance_of(FHIR::Reference)
     end
   end
 
@@ -141,7 +141,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
     end
 
     it 'has a group' do
-      expect(subject.manufacture(data, user).prepare.group).to eq(data[:group])
+      expect(subject.manufacture(data, user).prepare.item).to eq(data[:item])
     end
   end
 
