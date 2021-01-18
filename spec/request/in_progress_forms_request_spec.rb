@@ -313,19 +313,19 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'can\'t have nil formData' do
+        it "can't have nil formData" do
           put v0_in_progress_form_url(new_form.form_id)
           expect(response).to have_http_status(:error)
         end
 
-        it 'can\'t have non-hash formData' do
+        it "can't have non-hash formData" do
           put v0_in_progress_form_url(new_form.form_id),
               params: { form_data: 'Hello!' }.to_json,
               headers: { 'CONTENT_TYPE' => 'application/json' }
           expect(response).to have_http_status(:error)
         end
 
-        it 'can\'t have an empty hash for formData' do
+        it "can't have an empty hash for formData" do
           put v0_in_progress_form_url(new_form.form_id),
               params: {}.to_json,
               headers: { 'CONTENT_TYPE' => 'application/json' }
