@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../../app/controllers/apps_api/v0/directory_controller.rb'
 
 RSpec.describe 'Application Directory Endpoint', type: :request do
   let(:valid_headers) do
-    { 'Authorization' => Settings.directory.secret }
+    { 'Authorization' => 'blah' }
   end
   let(:invalid_headers) do
     { 'Authorization' => 'somethingwrong' }
@@ -57,6 +58,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
 
   describe '#put /services/apps/v0/directory/:name' do
     it 'updates the app' do
+      allow(Settings.directory).to receive(:secret).and_return('blah')
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: valid_params },
            headers: valid_headers
@@ -72,6 +74,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
 
   describe '#destroy /services/apps/v0/directory/:name' do
     it 'returns unauthorized if the header is invalid' do
+      allow(Settings.directory).to receive(:secret).and_return('blah')
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: valid_params },
            headers: valid_headers
@@ -81,6 +84,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
     it 'deletes the app' do
+      allow(Settings.directory).to receive(:secret).and_return('blah')
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: valid_params },
            headers: valid_headers
@@ -93,12 +97,14 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
 
   describe '#create /services/apps/v0/directory' do
     it 'creates the app' do
+      allow(Settings.directory).to receive(:secret).and_return('blah')
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: valid_params },
            headers: valid_headers
       expect(response).to have_http_status(:ok)
     end
     it 'has :unprocessable_entity when given invalid params' do
+      allow(Settings.directory).to receive(:secret).and_return('blah')
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: invalid_params },
            headers: valid_headers

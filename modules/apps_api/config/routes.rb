@@ -11,6 +11,7 @@ AppsApi::Engine.routes.draw do
     get 'directory/scopes', to: 'directory#scopes', defaults: scope_default
     resources 'directory'
   end
+
   namespace :docs do
     namespace :v0 do
       get 'api', to: 'api#index'
