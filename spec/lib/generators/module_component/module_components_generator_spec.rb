@@ -98,6 +98,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
       ModuleComponentGenerator.new(%w[foo bad_component]).create_component
     end
 
+    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
+
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'bad_components') }
 
     it 'does not create the bad_component' do
@@ -111,6 +113,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo') }
 
     it 'creates the module controller and serializer files' do
+      #stub backtick to create a new module
+      allow_any_instance_of(ModuleComponentGenerator).to receive(:`).and_return("stub module creation")
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
       ModuleComponentGenerator.new(%w[foo controller serializer]).create_component
       expect(Dir).to exist(path.to_s)
