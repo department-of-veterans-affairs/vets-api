@@ -290,11 +290,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -319,11 +314,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -348,11 +338,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -377,11 +362,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -406,11 +386,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -435,11 +410,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -464,11 +434,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -493,11 +458,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -522,11 +482,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1326229022'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               },
               {
@@ -551,11 +506,6 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'pos_codes' => '20',
                   'pref_contact' => nil,
                   'unique_id' => '1487993564'
-                },
-                'relationships' => {
-                  'specialties' => {
-                    'data' => []
-                  }
                 }
               }
             ]

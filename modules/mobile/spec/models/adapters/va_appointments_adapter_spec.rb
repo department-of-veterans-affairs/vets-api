@@ -3,13 +3,24 @@
 require 'rails_helper'
 
 describe Mobile::V0::Adapters::VAAppointments do
+  let(:appointment_fixtures) do
+    File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json'))
+  end
+
   let(:adapted_appointments) do
-    file = File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json'))
-    subject.parse(JSON.parse(file))
+    subject.parse(JSON.parse(appointment_fixtures, symbolize_names: true))[0]
+  end
+
+  let(:adapted_facilities) do
+    subject.parse(JSON.parse(appointment_fixtures, symbolize_names: true))[1]
   end
 
   it 'returns a list of appointments at the expected size' do
     expect(adapted_appointments.size).to eq(10)
+  end
+
+  it 'returns a set of the facilities for the appointments' do
+    expect(adapted_facilities).to eq(Set.new(['442']))
   end
 
   context 'with a booked VA appointment' do
@@ -24,7 +35,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(booked_va[:facility_id]).to eq('983')
+      expect(booked_va[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -34,13 +45,15 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a name (address to be filled in by facilities api)' do
       expect(booked_va[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: nil,
             city: nil,
             state: nil,
             zip_code: nil
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -56,16 +69,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_va[:minutes_duration]).to eq(20)
     end
 
-    it 'has a start date' do
-      expect(booked_va[:start_date]).to eq(DateTime.parse('2020-11-03T16:00:00.000+00:00'))
+    it 'has a utc start date' do
+      expect(booked_va[:start_date_utc]).to eq(DateTime.parse('Tue, 03 Nov 2020 16:00:00 +0000'))
+    end
+
+    it 'has a local start date' do
+      expect(booked_va[:start_date_local]).to eq(DateTime.parse('Tue, 03 Nov 2020 09:00:00 MST -07:00'))
     end
 
     it 'has a booked status' do
       expect(booked_va[:status]).to eq('BOOKED')
-    end
-
-    it 'has a time zone' do
-      expect(booked_va[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -81,7 +94,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(cancelled_va[:facility_id]).to eq('983')
+      expect(cancelled_va[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -91,13 +104,15 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a name (address to be filled in by facilities api)' do
       expect(cancelled_va[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: nil,
             city: nil,
             state: nil,
             zip_code: nil
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -113,16 +128,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(cancelled_va[:minutes_duration]).to be_nil
     end
 
-    it 'has a start date' do
-      expect(cancelled_va[:start_date]).to eq(DateTime.parse('2020-11-03T20:20:00.000+00:00'))
+    it 'has a utc start date' do
+      expect(cancelled_va[:start_date_utc]).to eq(DateTime.parse('Tue, 03 Nov 2020 20:20:00 +0000'))
+    end
+
+    it 'has a local start date' do
+      expect(cancelled_va[:start_date_local]).to eq(DateTime.parse('Tue, 03 Nov 2020 13:20:00 MST -07:00'))
     end
 
     it 'has a cancelled status' do
       expect(cancelled_va[:status]).to eq('CANCELLED')
-    end
-
-    it 'has a time zone' do
-      expect(cancelled_va[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -138,7 +153,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_home[:facility_id]).to eq('983')
+      expect(booked_video_home[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -148,13 +163,15 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a url and code' do
       expect(booked_video_home[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: nil,
             city: nil,
             state: nil,
             zip_code: nil
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -170,16 +187,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_home[:minutes_duration]).to eq(20)
     end
 
-    it 'has a start date' do
-      expect(booked_video_home[:start_date]).to eq(DateTime.parse('2020-11-30T17:32:00+00:00'))
+    it 'has a local start date' do
+      expect(booked_video_home[:start_date_local]).to eq(DateTime.parse('2020-11-30 10:32:00.000 MST -07:00'))
+    end
+
+    it 'has a utc start date' do
+      expect(booked_video_home[:start_date_utc]).to eq(DateTime.parse('2020-11-30T17:32:00+00:00'))
     end
 
     it 'has a status' do
       expect(booked_video_home[:status]).to eq('BOOKED')
-    end
-
-    it 'has a time zone' do
-      expect(booked_video_home[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -195,7 +212,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_atlas[:facility_id]).to eq('983')
+      expect(booked_video_atlas[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -205,13 +222,15 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with an address and a code' do
       expect(booked_video_atlas[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: '114 Dewey Ave',
             city: 'Eureka',
             state: 'MT',
             zip_code: '59917'
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -227,16 +246,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_atlas[:minutes_duration]).to eq(30)
     end
 
-    it 'has a start date' do
-      expect(booked_video_atlas[:start_date]).to eq(DateTime.parse('2021-09-23T20:00:00.000+00:00'))
+    it 'has a utc start date' do
+      expect(booked_video_atlas[:start_date_utc]).to eq(DateTime.parse('Thu, 23 Sep 2021 20:00:00 +0000'))
+    end
+
+    it 'has a local start date' do
+      expect(booked_video_atlas[:start_date_local]).to eq(DateTime.parse('Thu, 23 Sep 2021 14:00:00 MDT -06:00'))
     end
 
     it 'has a booked status' do
       expect(booked_video_atlas[:status]).to eq('BOOKED')
-    end
-
-    it 'has a time zone' do
-      expect(booked_video_atlas[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -252,7 +271,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_gfe[:facility_id]).to eq('983')
+      expect(booked_video_gfe[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -262,13 +281,15 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a location with a url and code' do
       expect(booked_video_gfe[:location].to_h).to eq(
         {
-          name: 'CHYSHR-Cheyenne VA Medical Center',
+          name: 'CHEYENNE VAMC',
           address: {
             street: nil,
             city: nil,
             state: nil,
             zip_code: nil
           },
+          lat: nil,
+          long: nil,
           phone: {
             area_code: nil,
             number: nil,
@@ -284,16 +305,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_gfe[:minutes_duration]).to eq(20)
     end
 
-    it 'has a start date' do
-      expect(booked_video_gfe[:start_date]).to eq(DateTime.parse('2020-11-22T13:35:00.000+00:00'))
+    it 'has a local start date' do
+      expect(booked_video_gfe[:start_date_local]).to eq(DateTime.parse('2020-11-22 06:35:00.000 MST -07:00'))
+    end
+
+    it 'has a utc start date' do
+      expect(booked_video_gfe[:start_date_utc]).to eq(DateTime.parse('2020-11-22T13:35:00.000+00:00'))
     end
 
     it 'has a booked status' do
       expect(booked_video_gfe[:status]).to eq('BOOKED')
-    end
-
-    it 'has a time zone' do
-      expect(booked_video_gfe[:time_zone]).to eq('America/Denver')
     end
   end
 end
