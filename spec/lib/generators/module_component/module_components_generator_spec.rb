@@ -113,8 +113,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo') }
 
     it 'creates the module controller and serializer files' do
-      #stub backtick to create a new module
-      allow_any_instance_of(ModuleComponentGenerator).to receive(:`).and_return("stub module creation")
+      # stub backtick to create a new module
+      allow_any_instance_of(ModuleComponentGenerator).to receive(:`).and_return('stub module creation')
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
       ModuleComponentGenerator.new(%w[foo controller serializer]).create_component
       expect(Dir).to exist(path.to_s)
@@ -153,10 +153,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
       module_component_generator = ModuleComponentGenerator.new(%w[foo controller])
       module_component_generator.create_component
 
-      expect(module_component_generator.commit_message_methods).to_not be_nil
+      expect(module_component_generator.commit_message_methods).not_to be_nil
       expect(module_component_generator.create_commit_message).to eq('stub commit method')
     end
   end
-
-
 end
