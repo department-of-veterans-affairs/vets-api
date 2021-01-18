@@ -16,7 +16,7 @@ Example:
     rails generate module_component foo model
 
     This will create:
-	modules/foo/app/controllers/foo/v0/foo_model.rb
+	modules/foo/app/models/foo/v0/foo.rb
 		
 Example:
     rails generate module_component foo serializer
