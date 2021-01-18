@@ -23,6 +23,12 @@ module OktaRedis
       okta_response.body['_links']['logo'].last['href']
     end
 
+    def privacy_url
+      app_name = okta_response.body['label']
+      app_data = DirectoryApplication.find_by(name: app_name)
+      app_data.privacy_url
+    end
+
     # rubocop:disable Rails/FindEach
     def fetch_grants
       raise 'Requires user set!' unless @user
