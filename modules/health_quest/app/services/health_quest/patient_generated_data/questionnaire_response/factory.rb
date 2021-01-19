@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'forwardable'
-
 module HealthQuest
   module PatientGeneratedData
     module QuestionnaireResponse
@@ -17,16 +15,7 @@ module HealthQuest
       # @!attribute options_builder
       #   @return [PatientGeneratedData::QuestionnaireResponse::OptionsBuilder]
       class Factory
-        extend Forwardable
-
         attr_reader :session_service, :user, :map_query, :options_builder
-
-        ##
-        # This delegate method is called with the patient id
-        #
-        # @return [FHIR::QuestionnaireResponse::ClientReply]
-        #
-        def_delegator :@map_query, :get
 
         ##
         # Builds a PatientGeneratedData::QuestionnaireResponse::Factory instance from a given User
@@ -43,6 +32,16 @@ module HealthQuest
           @session_service = HealthQuest::SessionService.new(user)
           @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.headers)
           @options_builder = OptionsBuilder
+        end
+
+        ##
+        # Gets the QuestionnaireResponse from it's unique ID
+        #
+        # @param data [String] a unique string value
+        # @return [FHIR::QuestionnaireResponse::ClientReply]
+        #
+        def get(id) # rubocop:disable Rails/Delegate
+          map_query.get(id)
         end
 
         ##

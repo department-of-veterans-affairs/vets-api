@@ -36,7 +36,7 @@ module HealthQuest
         #
         # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
-        def get_patient
+        def get
           map_query.get(user.icn)
         end
 
@@ -45,7 +45,7 @@ module HealthQuest
         #
         # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
-        def create_patient
+        def create
           map_query.create(user)
         end
       end
