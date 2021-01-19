@@ -13,6 +13,7 @@ module AppealsApi
         end
 
         # rubocop:disable Metrics/AbcSize
+        # rubocop:disable Metrics/MethodLength
         def form_fill
           options = {
             form_fields.first_name => form_data.first_name,
@@ -21,9 +22,9 @@ module AppealsApi
             form_fields.first_three_ssn => form_data.first_three_ssn,
             form_fields.second_two_ssn => form_data.second_two_ssn,
             form_fields.last_four_ssn => form_data.last_four_ssn,
-            form_fields.birth_mm => form_data.birth_mm,
-            form_fields.birth_dd => form_data.birth_dd,
-            form_fields.birth_yyyy => form_data.birth_yyyy,
+            form_fields.birth_month => form_data.birth_month,
+            form_fields.birth_day => form_data.birth_day,
+            form_fields.birth_year => form_data.birth_year,
             form_fields.file_number => form_data.file_number,
             form_fields.service_number => form_data.service_number,
             form_fields.insurance_policy_number => form_data.insurance_policy_number,
@@ -33,7 +34,7 @@ module AppealsApi
             form_fields.claimant_type(3) => form_data.claimant_type(3),
             form_fields.claimant_type(4) => form_data.claimant_type(4),
             form_fields.mailing_address_street => form_data.mailing_address_street,
-            form_fields.mailing_address_unit_number => form_data.mailing_unit_number,
+            form_fields.mailing_address_unit_number => form_data.mailing_address_unit_number,
             form_fields.mailing_address_city => form_data.mailing_address_city,
             form_fields.mailing_address_state => form_data.mailing_address_state,
             form_fields.mailing_address_country => form_data.mailing_address_country,
@@ -60,8 +61,11 @@ module AppealsApi
             form_fields.signature => form_data.signature,
             form_fields.date_signed => form_data.date_signed
           }
+
+          fill_contestable_issues!(options)
         end
         # rubocop:enable Metrics/AbcSize
+        # rubocop:enable Metrics/MethodLength
 
         def insert_overlaid_pages(form_fill_path)
           form_fill_path
@@ -97,12 +101,18 @@ module AppealsApi
           @form_data ||= HigherLevelReview::V1::FormData.new(higher_level_review)
         end
 
+        def additional_pages?
+          form_data.contestable_issues.count > MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM
+        end
+
         def fill_contestable_issues!(options)
           form_issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
-           form_issues.each_with_index do |issue, index|
-             options[form_fields.contestable_issue_fields_array[index]] = issue['attributes']['issue']
-             options[form_fields.form_issue_decision_date_fields_array[index]] = issue['attributes']['decisionDate']
+          form_issues.each_with_index do |issue, index|
+            options[form_fields.contestable_issue_fields_array[index]] = issue['attributes']['issue']
+            options[form_fields.issue_decision_date_fields_array[index]] = issue['attributes']['decisionDate']
           end
+
+          options
         end
       end
     end
