@@ -53,11 +53,11 @@ class ModuleGenerator < Rails::Generators::NamedBase
     # Don't add these entries to the files in test env/running specs
 
     unless Rails.env.test?
-      insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}',
+      insert_into_file 'spec/spec_helper.rb', "  add_group '#{file_name.camelize}'," \
         'modules/#{file_name}/'\n", after: "# Modules\n"
 
       # simplecov add group
-      insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}',
+      insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}'," \
         'modules/#{file_name}/'\n", after: "# Modules\n"
 
       # insert into main app gemfile
