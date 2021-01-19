@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
 require 'evss/gi_bill_status/service'
+require 'evss/vso_search/service'
+require 'evss/common_service'
 require 'sentry_logging'
+require 'evss/service.rb'
 
 module EducationForm
   DENIED = 'denied'
@@ -61,16 +64,16 @@ module EducationForm
     def process_user_submissions(user_submissions)
       user_submissions.each do |user_uuid, submissions|
         user = User.find(user_uuid)
-        user_has_poa = user.power_of_attorney.present?
+        poa = get_user_poa_status(user)
         gi_bill_status = get_gi_bill_status(user)
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each do |submission|
-            update_automated_decision(submission, PROCESSED, user_has_poa)
+            update_automated_decision(submission, PROCESSED, poa)
           end
         elsif submissions.count > 1
-          check_previous_submissions(submissions, gi_bill_status, user_has_poa)
+          check_previous_submissions(submissions, gi_bill_status, poa)
         else
-          process_submission(submissions.first, gi_bill_status, user_has_poa)
+          process_submission(submissions.first, gi_bill_status, poa)
         end
       end
     end
@@ -82,6 +85,15 @@ module EducationForm
     rescue => e
       Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
       {}
+    end
+
+    # Retrieve poa status fromEVSS VSOSearch for a user
+    def get_user_poa_status(user)
+      service = EVSS::VSOSearch::Service.new(user)
+      service.get_current_info.body['userPoaInfoAvailable']
+    rescue => e
+      Rails.logger.error "Failed to retrieve get_current_info data: #{e.message}"
+      nil
     end
 
     def update_automated_decision(submission, status, poa)
