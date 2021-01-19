@@ -8,7 +8,15 @@ required:
 properties:
   branchOfService:
     type: string
-    example: "United States Marine Corps"
+    enum:
+      - United States Army
+      - United States Coast Guard
+      - United States DoD
+      - United States Air Force
+      - United States Public Health Service
+      - United States Marine Corps
+      - United States Navy
+      - United States NOAA
   beginDate:
     type: string
     example: "1997-09-17"

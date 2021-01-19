@@ -356,6 +356,7 @@ features:
       Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
   stem_automated_decision:
     actor_type: user
+    enable_in_development: true
     description: >
       Add automated decision to 10203 application workflow
   stem_applicant_email:
@@ -368,3 +369,8 @@ features:
     enable_in_development: true
     description: >
       Enable/disable custom expiration dates for forms
+  search_representative:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable frontend application and cta for Search Representative application
