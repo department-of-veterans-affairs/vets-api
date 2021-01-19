@@ -22,8 +22,13 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
     methods.map(&:downcase).each do |method|
       if COMPONENT_TYPES.include? method
         commit_message_methods << method
-        template "app/#{method.pluralize}/#{method}.rb.erb",
-                 File.join(path, method.pluralize.to_s, file_name, 'v0', "#{file_name}_#{method}.rb")
+        if method == 'model'
+          template "app/#{method.pluralize}/#{method}.rb.erb",
+                   File.join(path, method.pluralize.to_s, file_name, 'v0', "#{file_name}.rb")
+        else
+          template "app/#{method.pluralize}/#{method}.rb.erb",
+                   File.join(path, method.pluralize.to_s, file_name, 'v0', "#{file_name}_#{method}.rb")
+        end
 
         if method == 'service'
           template "app/#{method.pluralize}/configuration.rb.erb",

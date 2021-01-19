@@ -62,7 +62,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
       module_generator = ModuleComponentGenerator.new(%w[foo model])
       module_generator.create_component
       expect(module_generator.commit_message_methods).to eq(['model'])
-      expect(File).to exist("#{path}/foo/v0/foo_model.rb")
+      expect(File).to exist("#{path}/foo/v0/foo.rb")
     end
   end
 
