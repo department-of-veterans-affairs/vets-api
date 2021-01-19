@@ -176,3 +176,7 @@ RSpec.configure do |config|
     FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', "uploads#{ENV['TEST_ENV_NUMBER']}")]) if Rails.env.test?
   end
 end
+
+BGS.configure do |config|
+  config.logger = Rails.logger
+end

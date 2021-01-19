@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
+describe HealthQuest::PatientGeneratedData::Questionnaire::MapQuery do
   subject { described_class }
 
   let(:headers) { { 'Accept' => 'application/json+fhir' } }
@@ -27,8 +27,8 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
   end
 
   describe '#fhir_model' do
-    it 'is a FHIR::QuestionnaireResponse class' do
-      expect(subject.new({}).fhir_model).to eq(FHIR::QuestionnaireResponse)
+    it 'is a FHIR::Questionnaire class' do
+      expect(subject.new({}).fhir_model).to eq(FHIR::Questionnaire)
     end
   end
 
@@ -47,30 +47,10 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
       end
 
       it 'calls search on the FHIR client' do
-        expect(client).to receive(:search).with(FHIR::QuestionnaireResponse, options).exactly(1).time
+        expect(client).to receive(:search).with(FHIR::Questionnaire, options).exactly(1).time
 
         subject.build(headers).search(author: '123')
       end
-    end
-  end
-
-  describe '#create' do
-    let(:data) do
-      {
-        appointment_id: 'abc123',
-        questionnaire_response: {},
-        questionnaire_id: 'abcd-1234'
-      }
-    end
-
-    before do
-      allow_any_instance_of(subject).to receive(:client).and_return(client)
-    end
-
-    it 'calls create on the FHIR client' do
-      expect(client).to receive(:create).with(data).exactly(1).time
-
-      subject.build(headers).create(data)
     end
   end
 
@@ -92,7 +72,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
       end
 
       it 'returns an instance of Reply' do
-        expect(client).to receive(:read).with(FHIR::QuestionnaireResponse, id).exactly(1).time
+        expect(client).to receive(:read).with(FHIR::Questionnaire, id).exactly(1).time
 
         subject.build(headers).get(id)
       end

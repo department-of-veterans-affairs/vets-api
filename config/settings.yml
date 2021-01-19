@@ -163,6 +163,12 @@ modules_appeals_api:
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
   report_enabled: false
+  report_recipients:
+    - drew.fisher@adhocteam.us
+    - jack.schuss@oddball.io
+    - kelly@adhocteam.us
+    - laura.trager@adhocteam.us
+    - nathan.wright@oddball.io
   schema_dir: config/schemas
 
 vre_counseling:
@@ -600,7 +606,6 @@ hqva_mobile:
     redis_session_prefix: "healthquest_lighthouse"
     mock: false
     key_path: /srv/vets-api/secret/health-quest.lighthouse.key
-    local_key_path: modules/health_quest/config/rsa/sandbox_rsa
 
 lighthouse:
   api_key: fake_key

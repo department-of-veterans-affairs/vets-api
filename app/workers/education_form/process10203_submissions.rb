@@ -30,7 +30,7 @@ module EducationForm
         }
       )
     )
-      return unless Flipper.enabled?(:stem_automated_decision) && evss_is_healthy?
+      return false unless Flipper.enabled?(:stem_automated_decision) && evss_is_healthy?
 
       if records.count.zero?
         log_info('No records to process.')
