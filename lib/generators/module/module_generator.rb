@@ -56,7 +56,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
       existing_entries.pop
       existing_entries.shift
 
-      new_entry = "    add_group '#{file_name.camelize}'," \
+      new_entry = "\tadd_group '#{file_name.camelize}'," \
                        "'modules/#{file_name}/'\n"
 
       existing_entries.each do |entry|
