@@ -10,7 +10,7 @@ module V0
 
     def show
       send_data(
-        service.get_pdf(params[:id]),
+        service.get_pdf,
         type: 'application/pdf',
         filename: 'VA Form 5655 - Submitted'
       )
