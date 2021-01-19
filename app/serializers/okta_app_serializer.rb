@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class OktaAppSerializer < ActiveModel::Serializer
-  attributes :id, :title, :logo, :grants
+  attributes :id, :title, :logo, :privacy_url, :grants
 
   def grants
     object.grants.map do |grant|
