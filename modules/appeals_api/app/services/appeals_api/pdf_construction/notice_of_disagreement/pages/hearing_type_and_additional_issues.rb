@@ -5,6 +5,8 @@ module AppealsApi
     module NoticeOfDisagreement
       module Pages
         class HearingTypeAndAdditionalIssues
+          MAX_ISSUES_ON_FIRST_PAGE = 5
+
           def initialize(pdf, form_data)
             @pdf = pdf # Prawn::Document
             @form_data = form_data
@@ -38,7 +40,7 @@ module AppealsApi
           end
 
           def extra_issues?
-            form_data.contestable_issues.count > 5
+            form_data.contestable_issues.count > MAX_ISSUES_ON_FIRST_PAGE
           end
 
           def hearing_type_text
@@ -50,7 +52,7 @@ module AppealsApi
           def extra_issues_table_data
             header = ['A. Specific Issue(s)', 'B. Date of Decision']
 
-            data = form_data.contestable_issues.drop(5).map do |issue|
+            data = form_data.contestable_issues.drop(MAX_ISSUES_ON_FIRST_PAGE).map do |issue|
               [issue['attributes']['issue'], issue['attributes']['decisionDate']]
             end
 
