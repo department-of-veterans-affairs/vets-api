@@ -49,7 +49,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
   # rubocop:disable Rails/Output
   # :nocov:
   def update_spec_and_simplecov_helper
-    # spec helper add group
+    # spec and simplecov helper add group
     ["spec", "simplecov"].each do |f|
       helper_file             =  File.read("spec/#{f}_helper.rb")
       existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
@@ -60,6 +60,8 @@ class ModuleGenerator < Rails::Generators::NamedBase
                        "'modules/#{file_name}/'\n"
 
       existing_entries.each do |entry|
+        # if the current entry is alphabetically greater
+        # insert new entry before
         if "add_group '#{file_name.camelize}', 'modules/#{file_name}/'" < entry.strip
           insert_into_file "spec/#{f}_helper.rb", "#{new_entry}", before: "#{entry}"
         end
