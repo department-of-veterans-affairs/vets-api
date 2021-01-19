@@ -125,6 +125,7 @@
     "hlrCreatePhone": {
       "$comment": "the phone fields must not exceed 20 chars, when concatenated",
       "type": "object",
+      "description": "The phone number of the veteran. Cannot exceed 20 characters when all fields are concatenated.",
       "properties": {
         "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
         "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$" },
@@ -163,7 +164,13 @@
 
     "hlrCreateAddress": {
       "type": "object",
-      "properties": { "zipCode5": { "type": "string", "pattern": "^[0-9]{5}$" } },
+      "properties": {
+        "zipCode5": {
+          "type": "string",
+          "description": "5-digit zipcode. Use \"00000\" if Veteran is outside the United States",
+          "pattern": "^[0-9]{5}$"
+        }
+      },
       "additionalProperties": false,
       "required": [ "zipCode5" ]
     },
