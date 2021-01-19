@@ -29,7 +29,7 @@ module OktaRedis
       if app_data
         app_data.privacy_url
       else
-        'None Available'
+        ''
       end
     end
 
