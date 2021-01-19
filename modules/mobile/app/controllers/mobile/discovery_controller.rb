@@ -41,83 +41,83 @@ module Mobile
         endpoints: {
           appeal_details: {
             url: '/appeal/:id',
-            verb: 'GET'
+            method: 'GET'
           },
           appointments: {
             url: '/appointments',
-            verb: 'GET'
+            method: 'GET'
           },
           claims_overview: {
             url: '/claims-and-appeals-overview',
-            verb: 'GET'
+            method: 'GET'
           },
           claim_details: {
             url: '/claim/:id',
-            verb: 'GET'
+            method: 'GET'
           },
           upload_claim_documents: {
             url: '/claim/:id/documents',
-            verb: 'POST'
+            method: 'POST'
           },
           available_letters: {
             url: '/letters',
-            verb: 'GET'
+            method: 'GET'
           },
           letters_beneficiary: {
             url: '/letters/beneficiary',
-            verb: 'GET'
+            method: 'GET'
           },
           letters_download: {
             url: '/letters/:type/download',
-            verb: 'POST'
+            method: 'POST'
           },
           service_history: {
             url: '/military-service-history',
-            verb: 'GET'
+            method: 'GET'
           },
           get_payment_info: {
             url: '/payment-information/benefits',
-            verb: 'GET'
+            method: 'GET'
           },
           update_payment_info: {
             url: '/payment-information/benefits',
-            verb: 'PUT'
+            method: 'PUT'
           },
           user: {
             url: '/user',
-            verb: 'GET'
+            method: 'GET'
           },
           logout: {
             url: '/user/logout',
-            verb: 'GET'
+            method: 'GET'
           },
           create_user_addresses: {
             url: '/user/addresses',
-            verb: 'POST'
+            method: 'POST'
           },
           update_user_addresses: {
             url: '/user/addresses',
-            verb: 'PUT'
+            method: 'PUT'
           },
           user_address_validation: {
             url: '/user/addresses/validate',
-            verb: 'POST'
+            method: 'POST'
           },
           create_user_email: {
             url: '/user/emails',
-            verb: 'POST'
+            method: 'POST'
           },
           update_user_email: {
             url: '/user/emails',
-            verb: 'PUT'
+            method: 'PUT'
           },
           create_user_phone: {
             url: '/user/phones',
-            verb: 'POST'
+            method: 'POST'
           },
           update_user_phone: {
             url: '/user/phones',
-            verb: 'PUT'
+            method: 'PUT'
           }
         },
         display_message: '',
