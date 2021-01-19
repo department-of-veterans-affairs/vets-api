@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'forwardable'
-
 module HealthQuest
   module PatientGeneratedData
     module QuestionnaireResponse
@@ -17,16 +15,7 @@ module HealthQuest
       # @!attribute options_builder
       #   @return [PatientGeneratedData::QuestionnaireResponse::OptionsBuilder]
       class Factory
-        extend Forwardable
-
         attr_reader :session_service, :user, :map_query, :options_builder
-
-        ##
-        # This delegate method is called with the patient id
-        #
-        # @return [FHIR::DSTU2::QuestionnaireResponse::ClientReply]
-        #
-        def_delegator :@map_query, :get
 
         ##
         # Builds a PatientGeneratedData::QuestionnaireResponse::Factory instance from a given User
@@ -46,10 +35,20 @@ module HealthQuest
         end
 
         ##
+        # Gets the QuestionnaireResponse from it's unique ID
+        #
+        # @param data [String] a unique string value
+        # @return [FHIR::QuestionnaireResponse::ClientReply]
+        #
+        def get(id) # rubocop:disable Rails/Delegate
+          map_query.get(id)
+        end
+
+        ##
         # Gets Questionnaire Responses from a given set of OptionsBuilder
         #
         # @param filters [PatientGeneratedData::QuestionnaireResponse::OptionsBuilder] the set of query options.
-        # @return [FHIR::DSTU2::QuestionnaireResponse::ClientReply] an instance of ClientReply
+        # @return [FHIR::QuestionnaireResponse::ClientReply] an instance of ClientReply
         #
         def search(filters)
           with_options = options_builder.manufacture(user, filters).to_hash
@@ -61,7 +60,7 @@ module HealthQuest
         # Create a QuestionnaireResponse resource from the logged in user.
         #
         # @param data [Hash] questionnaire answers and appointment data hash.
-        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
         def create(data)
           questionnaire_response = Resource.manufacture(data, user).prepare

@@ -51,19 +51,19 @@ class ModuleGenerator < Rails::Generators::NamedBase
   def update_and_install
     # spec helper add group
     # Don't add these entries to the files in test env/running specs
-
     unless Rails.env.test?
-      # spec helper add group
-      insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}'," \
-                       "'modules/#{file_name}/'\n", after: "# Modules\n"
+      insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}',
+                       'modules/#{file_name}/'\n", after: "# Modules\n"
 
       # simplecov add group
-      insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}'," \
-                       "'modules/#{file_name}/'\n", after: "# Modules\n"
+      insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}',
+                       'modules/#{file_name}/'\n", after: "# Modules\n"
 
       # insert into main app gemfile
       insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
-      route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
+
+      insert_into_file 'config/routes.rb',
+                       "\tmount #{file_name.camelize}::Engine, at: '/#{file_name}'\n", after: "# Modules\n"
 
       run 'bundle install'
 
