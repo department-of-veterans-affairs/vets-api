@@ -230,7 +230,6 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns an ok response' do
-        puts response.body
         expect(response).to have_http_status(:ok)
       end
     end
