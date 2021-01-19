@@ -33,19 +33,19 @@ properties:
             example:
               appointments: {
                 url: "/v0/appointments",
-                verb: "GET"
+                method: "GET"
               }
               uploadClaimDocuments: {
                 url: "/claim/:id/documents",
-                verb: "POST"
+                method: "POST"
               }
               createUserPhone: {
                 url: '/user/phones',
-                verb: 'POST'
+                method: 'POST'
               }
               updateUserPhone: {
                 url: '/user/phones',
-                verb: 'PUT'
+                method: 'PUT'
               }
           oauthBaseUrl:
             type: string
