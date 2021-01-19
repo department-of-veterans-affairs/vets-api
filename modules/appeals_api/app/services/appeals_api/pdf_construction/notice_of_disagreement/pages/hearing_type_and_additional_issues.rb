@@ -22,7 +22,7 @@ module AppealsApi
             return pdf unless extra_issues?
 
             pdf.text("\n<b>Additional Issues</b>\n", inline_format: true)
-            pdf.table(extra_issues_table_data, header: true)
+            pdf.table(extra_issues_table_data, width: 540, header: true)
 
             pdf
           end
