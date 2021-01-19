@@ -21,6 +21,7 @@ properties:
         required:
           - endpoints
           - oauthBaseUrl
+          - apiRootUrl
           - webviews
           - appAccess
           - displayMessage
@@ -38,9 +39,20 @@ properties:
                 url: "/claim/:id/documents",
                 verb: "POST"
               }
+              createUserPhone: {
+                url: '/user/phones',
+                verb: 'POST'
+              }
+              updateUserPhone: {
+                url: '/user/phones',
+                verb: 'PUT'
+              }
           oauthBaseUrl:
             type: string
             example: "https://sqa.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/"
+          apiRootUrl:
+            type: string
+            example: "https://staging-api.va.gov/mobile"
           webviews:
             type: object
             additionalProperties:
