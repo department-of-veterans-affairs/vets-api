@@ -10,7 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
+<<<<<<< HEAD
 ActiveRecord::Schema.define(version: 2021_01_20_175426) do
+=======
+ActiveRecord::Schema.define(version: 2021_01_19_191903) do
+>>>>>>> lateset WIP for review
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -569,6 +573,19 @@ ActiveRecord::Schema.define(version: 2021_01_20_175426) do
     t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
   end
 
+<<<<<<< HEAD
+=======
+  create_table "test_user_dashboard_tud_accounts", force: :cascade do |t|
+    t.bigint "account_id"
+    t.boolean "standard"
+    t.boolean "available"
+    t.datetime "checkout_time"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["account_id"], name: "index_test_user_dashboard_tud_accounts_on_account_id"
+  end
+
+>>>>>>> lateset WIP for review
   create_table "user_preferences", id: :serial, force: :cascade do |t|
     t.integer "account_id", null: false
     t.integer "preference_id", null: false
@@ -665,4 +682,5 @@ ActiveRecord::Schema.define(version: 2021_01_20_175426) do
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
   end
 
+  add_foreign_key "test_user_dashboard_tud_accounts", "accounts"
 end

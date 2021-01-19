@@ -2,6 +2,8 @@
 
 module TestUserDashboard
   class TudAccount < ApplicationRecord
-    belongs_to :account, optional: false
+    attr_accessor :standard, :available, :checkout_time
+
+    belongs_to :account
   end
 end
