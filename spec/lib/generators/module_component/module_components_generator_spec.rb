@@ -166,7 +166,9 @@ RSpec.describe 'ModuleComponent', type: :generator do
       # stub backtick to create a new module
       allow_any_instance_of(ModuleComponentGenerator).to receive(:`).and_return('stub module creation')
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
-      ModuleComponentGenerator.new(%w[foo controller serializer]).create_component
+      module_component_generator = ModuleComponentGenerator.new(%w[foo controller serializer])
+      module_component_generator.prompt_user
+      module_component_generator.create_component
       expect(Dir).to exist(path.to_s)
       expect(File).to exist("#{path}/app/serializers/foo/v0/foo_serializer.rb")
     end

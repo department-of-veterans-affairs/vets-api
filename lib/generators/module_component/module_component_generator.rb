@@ -9,12 +9,14 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
 
   COMPONENT_TYPES = %w[controller model serializer service].freeze
 
-  def create_component
-    @commit_message_methods = []
-
+  def prompt_user
     unless Dir.exist?("modules/#{file_name}")
       `rails g module #{file_name}` if yes?("Module #{file_name} does not exist. Would you like to create it?")
     end
+  end
+
+  def create_component
+    @commit_message_methods = []
 
     # Take each passed in argument (e.g.) controller, serializer, etc
     # and create the corresponding files within the module for each arg
@@ -22,13 +24,10 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
     methods.map(&:downcase).each do |method|
       if COMPONENT_TYPES.include? method
         commit_message_methods << method
-        if method == 'model'
-          template "app/#{method.pluralize}/#{method}.rb.erb",
-                   File.join(path, method.pluralize.to_s, file_name, 'v0', "#{file_name}.rb")
-        else
-          template "app/#{method.pluralize}/#{method}.rb.erb",
-                   File.join(path, method.pluralize.to_s, file_name, 'v0', "#{file_name}_#{method}.rb")
-        end
+
+        template_name = method == 'model' ? "#{file_name}.rb" : "#{file_name}_#{method}.rb"
+        template "app/#{method.pluralize}/#{method}.rb.erb",
+                 File.join(path, method.pluralize.to_s, file_name, 'v0', template_name.to_s)
 
         if method == 'service'
           template "app/#{method.pluralize}/configuration.rb.erb",
