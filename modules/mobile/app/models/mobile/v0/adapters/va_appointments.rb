@@ -50,7 +50,8 @@ module Mobile
 
         STATUSES = {
           booked: 'BOOKED',
-          cancelled: 'CANCELLED'
+          cancelled: 'CANCELLED',
+          hidden: 'HIDDEN'
         }.freeze
 
         VIDEO_GFE_FLAG = 'MOBILE_GFE'
@@ -112,7 +113,7 @@ module Mobile
 
         def status(details, type, start_date)
           status = va?(type) ? details[:current_status] : details.dig(:status, :code)
-          return nil if should_hide_status?(start_date.past?, status)
+          return STATUSES[:hidden] if should_hide_status?(start_date.past?, status)
           return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
 
           STATUSES[:booked]

@@ -116,20 +116,30 @@ VBADocuments::RunUnsuccessfulSubmissions:
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
-AppealsApi::HigherLevelReviewUploadStatusBatch:
-  every: "60m"
-  class: AppealsApi::HigherLevelReviewUploadStatusBatch
-  description: "Update HigherLevelReview statuses with their Central Mail status"
+AppealsApi::DecisionReviewReportJob:
+  cron: "0 0 * * MON-FRI America/New_York"
+  class: AppealsApi::DecisionReviewReportJob
+  description: "Daily report of appeals submissions"
 
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
   every: ['24h', first_in: '45m']
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
-AppealsApi::DecisionReviewReportJob:
-  cron: "0 0 * * MON-FRI America/New_York"
-  class: AppealsApi::DecisionReviewReportJob
-  description: "Daily report of appeals submissions"
+AppealsApi::HigherLevelReviewUploadStatusBatch:
+  every: "60m"
+  class: AppealsApi::HigherLevelReviewUploadStatusBatch
+  description: "Update HigherLevelReview statuses with their Central Mail status"
+
+AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii:
+  every: ['24h', first_in: '45m']
+  class: AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii
+  description: "Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old"
+
+AppealsApi::NoticeOfDisagreementUploadStatusBatch:
+  every: "60m"
+  class: AppealsApi::NoticeOfDisagreementUploadStatusBatch
+  description: "Update NoticeOfDisagreement statuses with their Central Mail status"
 
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
@@ -156,3 +166,9 @@ AppsApi::LoadApplications:
   in: '1m'
   class: AppsApi::DirectoryLoader
   description: "Populates directory_applications table"
+
+EducationForm::Process10203Submissions:
+  cron: "0 6-18 * * * America/New_York"
+  class: EducationForm::Process10203Submissions
+  description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
+
