@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA10203 do
-
   %w[kitchen_sink minimal].each do |test_application|
     test_spool_file('10203', test_application)
   end
@@ -25,7 +24,7 @@ RSpec.describe EducationForm::Forms::VA10203 do
 
     let(:claim) do
       SavedClaim::EducationBenefits::VA10203.create!(
-        form: File.read("spec/fixtures/education_benefits_claims/10203/kitchen_sink.json"),
+        form: File.read('spec/fixtures/education_benefits_claims/10203/kitchen_sink.json')
       ).education_benefits_claim
     end
 
