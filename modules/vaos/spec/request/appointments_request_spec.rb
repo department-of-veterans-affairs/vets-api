@@ -141,6 +141,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data'].first['id']).to eq('202006031600983000030800000000000000')
           expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
         end
       end
@@ -215,7 +216,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'with a response that includes blank providers' do
         it 'parses the data and does not throw an undefined method error' do
-          VCR.use_cassette('vaos/appointments/get_appointments_map_error', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_appointments_map_error',
+                           match_requests_on: %i[method uri], tag: :force_utf8) do
             get '/vaos/v0/appointments', params: params
             expect(response).to have_http_status(:success)
             expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
@@ -223,7 +225,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'parses the data and does not throw an undefined method error when camel-inflected' do
-          VCR.use_cassette('vaos/appointments/get_appointments_map_error', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/appointments/get_appointments_map_error',
+                           match_requests_on: %i[method uri], tag: :force_utf8) do
             get '/vaos/v0/appointments', params: params, headers: inflection_header
             expect(response).to have_http_status(:success)
             expect(response).to match_camelized_response_schema('vaos/va_appointments', { strict: false })

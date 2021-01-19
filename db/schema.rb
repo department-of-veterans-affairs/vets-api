@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_05_181435) do
+ActiveRecord::Schema.define(version: 2021_01_13_203803) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -204,6 +204,7 @@ ActiveRecord::Schema.define(version: 2021_01_05_181435) do
     t.string "tos_url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_directory_applications_on_name", unique: true
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
@@ -263,6 +264,16 @@ ActiveRecord::Schema.define(version: 2021_01_05_181435) do
     t.index ["created_at"], name: "index_education_benefits_submissions_on_created_at"
     t.index ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true
     t.index ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd"
+  end
+
+  create_table "education_stem_automated_decisions", force: :cascade do |t|
+    t.bigint "education_benefits_claim_id"
+    t.string "automated_decision_state", default: "init"
+    t.string "user_uuid", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
+    t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
 
   create_table "evss_claims", id: :serial, force: :cascade do |t|

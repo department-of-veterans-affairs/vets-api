@@ -51,6 +51,7 @@ module ClaimsApi
 
     def to_internal
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
+      form_data['claimSubmissionSource'] = 'Lighthouse'
       {
         "form526": form_data
       }.to_json

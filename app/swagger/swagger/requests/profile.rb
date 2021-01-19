@@ -38,8 +38,10 @@ module Swagger
             end
           end
 
-          response 200 do
-            key :description, 'Response is OK'
+          extend Swagger::Responses::Ch33BankAccountInfo
+
+          response 400 do
+            key :description, 'Update bank account error'
             schema do
               key :type, :object
 
@@ -73,26 +75,7 @@ module Swagger
           key :produces, ['application/json']
           key :consumes, ['application/json']
 
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :type, :object
-
-              property(:data) do
-                key :type, :object
-                property :id, type: :string
-                property :type, type: :string
-
-                property :attributes do
-                  key :type, :object
-
-                  property :account_type, type: :string
-                  property :account_number, type: :string
-                  property :financial_institution_routing_number, type: :string
-                end
-              end
-            end
-          end
+          extend Swagger::Responses::Ch33BankAccountInfo
         end
       end
 

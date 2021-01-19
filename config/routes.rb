@@ -33,6 +33,8 @@ Rails.application.routes.draw do
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
 
+    resources :preferred_facilities, only: %i[index create destroy]
+
     resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
@@ -343,6 +345,7 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  # Modules
   mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'

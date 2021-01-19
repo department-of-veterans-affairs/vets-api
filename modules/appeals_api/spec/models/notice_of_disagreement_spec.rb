@@ -87,7 +87,31 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  describe '#veteran_first_name' do
+    it { expect(notice_of_disagreement.veteran_first_name).to eq 'Jane' }
+  end
+
+  describe '#veteran_last_name' do
+    it { expect(notice_of_disagreement.veteran_last_name).to eq 'Doe' }
+  end
+
+  describe '#ssn' do
+    it { expect(notice_of_disagreement.ssn).to eq '123456789' }
+  end
+
+  describe '#file_number' do
+    it { expect(notice_of_disagreement.file_number).to eq '987654321' }
+  end
+
   describe '#consumer_name' do
-    it { expect(notice_of_disagreement.consumer_name).to eq('va.gov') }
+    it { expect(notice_of_disagreement.consumer_name).to eq 'va.gov' }
+  end
+
+  describe '#consumer_id' do
+    it { expect(notice_of_disagreement.consumer_id).to eq 'some-guid' }
+  end
+
+  describe '#zip_code_5' do
+    it { expect(notice_of_disagreement.zip_code_5).to eq '66002' }
   end
 end

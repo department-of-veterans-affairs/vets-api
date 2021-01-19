@@ -3,8 +3,22 @@
 require 'rails_helper'
 
 RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
-  let(:errored_upload) { FactoryBot.create(:auto_established_claim, :status_errored) }
-  let(:uploaded_upload) { FactoryBot.create(:auto_established_claim, :status_established) }
+  let(:unsuccessful_submissions) do
+    FactoryBot.create(:auto_established_claim, :status_errored)
+    ClaimsApi::AutoEstablishedClaim.where(status: 'errored')
+                                   .order(:source, :status)
+                                   .pluck(:source, :status, :id).map do |source, status, id|
+                                     { id: id, status: status, source: source }
+                                   end
+  end
+  let(:uploaded_upload) do
+    FactoryBot.create(:auto_established_claim, :status_established)
+    ClaimsApi::AutoEstablishedClaim.where(status: 'established')
+                                   .order(:source, :status)
+                                   .pluck(:source, :status, :id).map do |source, status, id|
+                                     { id: id, status: status, source: source }
+                                   end
+  end
   let(:totals) do
     [
       {
@@ -28,20 +42,23 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
       }
     ]
   end
-  let(:flash_statistics) do
+  let(:statistics) do
     [
-      { flash: 'POW', count: 1, percentage: '50.0%' },
-      { flash: 'Homeless', count: 1, percentage: '50.0%' },
-      { flash: 'Terminally Ill', count: 1, percentage: '50.0%' }
+      { code: 'POW', count: 1, percentage: '50.0%' },
+      { code: 'Homeless', count: 1, percentage: '50.0%' },
+      { code: 'Terminally Ill', count: 1, percentage: '50.0%' }
     ]
   end
 
   describe '#build' do
     subject do
       described_class.build(7.days.ago, Time.zone.now, consumer_totals: totals,
-                                                       unsuccessful_submissions: [errored_upload],
-                                                       pending_submissions: [uploaded_upload],
-                                                       flash_statistics: flash_statistics).deliver_now
+                                                       unsuccessful_submissions: unsuccessful_submissions,
+                                                       grouped_errors: statistics,
+                                                       grouped_warnings: statistics,
+                                                       pending_submissions: uploaded_upload,
+                                                       flash_statistics: statistics,
+                                                       special_issues_statistics: statistics).deliver_now
     end
 
     it 'sends the email' do
@@ -51,19 +68,17 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
     it 'sends to the right people' do
       expect(subject.to).to eq(
         %w[
+          zachary.goldfine@va.gov
           david.mazik@va.gov
-          michael.bastos@oddball.io
-          ryan.link@oddball.io
-          christopher.stone@libertyits.com
-          valerie.hase@va.gov
-          mark.greenburg@adhocteam.us
           premal.shah@va.gov
+          valerie.hase@va.gov
+          michael.bastos@oddball.io
+          mark.greenburg@adhocteam.us
+          emily.goodrich@oddball.io
           lee.deboom@oddball.io
           dan.hinze@adhocteam.us
-          seth.johnson@gdit.com
-          kayur.shah@gdit.com
-          tim.barto@gdit.com
-          zachary.goldfine@va.gov
+          ryan.link@oddball.io
+          christopher.stone@libertyits.com
         ]
       )
     end

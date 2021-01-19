@@ -1032,7 +1032,7 @@ describe HCA::EnrollmentSystem do
           'postalCode' => '21231'
         }
 
-        provided_veteran_data['veteranMailingAddress'] = {
+        provided_veteran_data['veteranHomeAddress'] = {
           'street' => '567 SW 9th Ave.',
           'street2' => '#102',
           'street3' => '',
@@ -1052,8 +1052,7 @@ describe HCA::EnrollmentSystem do
             {
               'city' => 'Ontario',
               'country' => 'CAN',
-              'line1' => '567 SW 9th Ave.',
-              'line2' => '#102',
+              'line1' => '123 NW 5th St',
               'provinceCode' => 'ON',
               'postalCode' => '21231',
               # Mailing address is marked as "permanent"
@@ -1062,7 +1061,8 @@ describe HCA::EnrollmentSystem do
             {
               'city' => 'Ontario',
               'country' => 'CAN',
-              'line1' => '123 NW 5th St',
+              'line1' => '567 SW 9th Ave.',
+              'line2' => '#102',
               'provinceCode' => 'ON',
               'postalCode' => '21231',
               # Home address is marked as "residential"
@@ -1133,7 +1133,7 @@ describe HCA::EnrollmentSystem do
             "provinceCode": 'ProvinceName',
             "postalCode": '21231'
           },
-          "veteranMailingAddress": {
+          "veteranHomeAddress": {
             "street": '567 SW 9th Ave.',
             "street2": '#102',
             "street3": '',
@@ -1160,8 +1160,7 @@ describe HCA::EnrollmentSystem do
                 {
                   'city' => 'Ontario',
                   'country' => 'CAN',
-                  'line1' => '567 SW 9th Ave.',
-                  'line2' => '#102',
+                  'line1' => '123 NW 5th St',
                   'provinceCode' => 'ON',
                   'postalCode' => '21231',
                   # Mailing address is marked as "permanent"
@@ -1170,7 +1169,8 @@ describe HCA::EnrollmentSystem do
                 {
                   'city' => 'Ontario',
                   'country' => 'CAN',
-                  'line1' => '123 NW 5th St',
+                  'line1' => '567 SW 9th Ave.',
+                  'line2' => '#102',
                   'provinceCode' => 'ON',
                   'postalCode' => '21231',
                   # Home address is marked as "residential"
