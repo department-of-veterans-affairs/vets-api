@@ -12,7 +12,7 @@ properties:
       - prod
   buildNumber:
     type: string
-    example: "10.2"
+    example: "10"
   os:
     type: string
     enum:
