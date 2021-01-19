@@ -317,4 +317,33 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_gfe[:status]).to eq('BOOKED')
     end
   end
+
+  context 'with appointments that have a missing status' do
+    let(:appointment_fixtures_missing_status) do
+      File.read(
+        Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments_missing_status.json')
+      )
+    end
+
+    let(:adapted_appointments_missing_status) do
+      subject.parse(JSON.parse(appointment_fixtures_missing_status, symbolize_names: true))[0]
+    end
+
+    let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+
+    it 'includes a hidden status' do
+      expect(booked_va_hidden_status.to_hash).to include(
+        {
+          appointment_type: 'VA',
+          comment: 'Follow-up/Routine: sasdfasdf',
+          facility_id: '442',
+          healthcare_service: 'FTC CPAP',
+          minutes_duration: 60,
+          start_date_local: DateTime.parse('2021-01-14 13:00:00.000 MST -07:00'),
+          start_date_utc: DateTime.parse('2021-01-14 20:00:00.000 +00:00 +00:00'),
+          status: 'HIDDEN'
+        }
+      )
+    end
+  end
 end
