@@ -16,7 +16,7 @@ ClaimsApi::Engine.routes.draw do
       get '526', to: 'disability_compensation#schema'
       post '526', to: 'disability_compensation#submit_form_526'
       put '526/:id', to: 'disability_compensation#upload_form_526'
-      post '526/validate', to: 'disability_compensaticlaims_api/health_checkeron#validate_form_526'
+      post '526/validate', to: 'disability_compensation#validate_form_526'
       post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
       ## 0966 Forms
       get '0966', to: 'intent_to_file#schema'
