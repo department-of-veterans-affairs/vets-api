@@ -39,10 +39,9 @@ module EVSS
         if @headers['va_eauth_birlsfilenumber'].blank?
           Rails.logger.info('Missing `birls_id`', edipi: @headers['va_eauth_dodedipnid'])
         end
-
-        Rails.cache.fetch("evss_rated_disabilities/#{@headers['va_eauth_dodedipnid']}-#{@headers['va_eauth_pnid']}",
-                          expires_in: 30.minutes) do
-          with_monitoring_and_error_handling do
+        with_monitoring_and_error_handling do
+          Rails.cache.fetch("evss_rated_disabilities/#{@headers['va_eauth_dodedipnid']}-#{@headers['va_eauth_pnid']}",
+                            expires_in: 30.minutes) do
             raw_response = perform(:get, 'ratedDisabilities')
             RatedDisabilitiesResponse.new(raw_response.status, raw_response)
           end
