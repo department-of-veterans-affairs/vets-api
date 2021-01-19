@@ -21,7 +21,49 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Message.yml"
-
+    post:
+      summary: /
+      description: Returns urls for app use based on app build number, environment, and OS
+      operationId: index
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: App build and environment info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/DiscoveryRequest.yml'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/DiscoveryResponse.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/appointments:
     get:
       summary: /v0/appointments
