@@ -74,7 +74,7 @@ module HealthQuest
       end
 
       def private_key_path
-        Rails.env.development? || Rails.env.test? ? lighthouse.local_key_path : lighthouse.key_path
+        lighthouse.key_path
       end
 
       def lighthouse

@@ -38,20 +38,20 @@ describe HealthQuest::PatientGeneratedData::Patient::Resource do
       end
     end
 
-    it 'has an an instance of a FHIR::DSTU2::Patient' do
-      expect(subject.manufacture(user).model).to be_an_instance_of(FHIR::DSTU2::Patient)
+    it 'has an an instance of a FHIR::Patient' do
+      expect(subject.manufacture(user).model).to be_an_instance_of(FHIR::Patient)
     end
 
     it 'has an an instance of a User' do
       expect(subject.manufacture(User.new).user).to be_an_instance_of(User)
     end
 
-    it 'has an an instance of a FHIR::DSTU2::Identifier' do
-      expect(subject.manufacture(user).identifier).to be_an_instance_of(FHIR::DSTU2::Identifier)
+    it 'has an an instance of a FHIR::Identifier' do
+      expect(subject.manufacture(user).identifier).to be_an_instance_of(FHIR::Identifier)
     end
 
-    it 'has an an instance of a FHIR::DSTU2::Meta' do
-      expect(subject.manufacture(user).meta).to be_an_instance_of(FHIR::DSTU2::Meta)
+    it 'has an an instance of a FHIR::Meta' do
+      expect(subject.manufacture(user).meta).to be_an_instance_of(FHIR::Meta)
     end
   end
 
