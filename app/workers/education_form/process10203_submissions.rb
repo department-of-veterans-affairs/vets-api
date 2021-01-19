@@ -90,9 +90,9 @@ module EducationForm
     # Retrieve poa status fromEVSS VSOSearch for a user
     def get_user_poa_status(user)
       service = EVSS::VSOSearch::Service.new(user)
-      service.get_current_info.body['userPoaInfoAvailable']
+      service.get_current_info['userPoaInfoAvailable']
     rescue => e
-      Rails.logger.error "Failed to retrieve get_current_info data: #{e.message}"
+      Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
       nil
     end
 
