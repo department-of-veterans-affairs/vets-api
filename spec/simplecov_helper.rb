@@ -32,20 +32,20 @@ class SimpleCovHelper
       add_filter 'version.rb'
 
       # Modules
+      add_group 'AppealsApi', 'modules/appeals_api/'
+      add_group 'ClaimsApi', 'modules/claims_api/'
+      add_group 'CovidVaccine', 'modules/covid_vaccine/'
+      add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'Policies', 'app/policies'
       add_group 'Serializers', 'app/serializers'
       add_group 'Services', 'app/services'
       add_group 'Swagger', 'app/swagger'
       add_group 'Uploaders', 'app/uploaders'
-      add_group 'AppealsApi', 'modules/appeals_api/'
-      add_group 'ClaimsApi', 'modules/claims_api/'
-      add_group 'CovidVaccine', 'modules/covid_vaccine/'
-      add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'VBADocuments', 'modules/vba_documents/'
       add_group 'Veteran', 'modules/veteran/'
       add_group 'VeteranVerification', 'modules/veteran_verification/'
-      add_group 'OpenidAuth', 'modules/openid_auth/'
       add_group 'VAOS', 'modules/vaos/'
+      # End Modules
 
       minimum_coverage(90) unless skip_check_coverage
       refuse_coverage_drop unless skip_check_coverage
