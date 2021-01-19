@@ -48,18 +48,46 @@ class ModuleGenerator < Rails::Generators::NamedBase
 
   # rubocop:disable Rails/Output
   # :nocov:
+  def update_spec_helper
+    # spec helper add group
+    spec_helper_file             =  File.read('spec/spec_helper.rb')
+    existing_spec_helper_entries = spec_helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
+    existing_spec_helper_entries.pop
+    existing_spec_helper_entries.shift
+
+    new_entry = "    add_group '#{file_name.camelize}'," \
+                     "'modules/#{file_name}/'\n"
+
+    existing_spec_helper_entries.each do |entry|
+      if "add_group '#{file_name.camelize}', 'modules/#{file_name}/'" < entry.strip
+        before = entry
+        insert_into_file 'spec/spec_helper.rb', "#{new_entry}", before: "#{entry}"
+      end
+    end
+  end
+
+  def update_simplecov_helper
+    # simplecov helper add group
+    simplecov_helper_file             =  File.read('spec/simplecov_helper.rb')
+    existing_simplecov_helper_entries = simplecov_helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
+    existing_simplecov_helper_entries.pop
+    existing_simplecov_helper_entries.shift
+
+    new_entry = "      add_group '#{file_name.camelize}'," \
+                     "'modules/#{file_name}/'\n"
+
+    existing_simplecov_helper_entries.each do |entry|
+      if "add_group '#{file_name.camelize}', 'modules/#{file_name}/'" < entry.strip
+        insert_into_file 'spec/simplecov_helper.rb', "#{new_entry}", before: "#{entry}"
+      end
+    end
+  end
+
   def update_and_install
     # spec helper add group
     # Don't add these entries to the files in test env/running specs
 
     unless Rails.env.test?
-      # spec helper add group
-      insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}'," \
-                       "'modules/#{file_name}/'\n", after: "# Modules\n"
-
-      # simplecov add group
-      insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}'," \
-                       "'modules/#{file_name}/'\n", after: "# Modules\n"
 
       # insert into main app gemfile
       insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
