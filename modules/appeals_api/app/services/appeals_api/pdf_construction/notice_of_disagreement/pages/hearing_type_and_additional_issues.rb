@@ -29,7 +29,7 @@ module AppealsApi
 
           private
 
-          attr_accessor :pdf, :form_data, :notice_of_disagreement
+          attr_accessor :pdf, :form_data
 
           def no_content
             !extra_issues? && no_hearing_type?

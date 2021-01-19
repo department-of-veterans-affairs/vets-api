@@ -14,8 +14,11 @@ module AppealsApi
         @form_fill_path = fill_unique_form_fields
         #=> '{appeal.id}-tmp.pdf' OR '/tmp/#{appeal.id}-overlaid-form-fill-tmp.pdf'
 
-        @unstamped_path = insert_additional_pages
+        @all_pages_path = insert_additional_pages
         #=> '#{appeal.id}-completed-unstamped-tmp.pdf OR @form_fill_path'
+
+        @unstamped_path = rebuild_pages
+        #=> '#{appeal.id}-rebuilt-pages-tmp.pdf OR @all_pages_path'
 
         stamp
       end
@@ -50,6 +53,15 @@ module AppealsApi
         pdf.render_file(additional_pages_added_path) # saves the file
 
         combine_form_fill_and_additional_pages(additional_pages_added_path)
+      end
+
+      def rebuild_pages
+        return @all_pages_path unless structure.final_page_adjustments
+
+        pdftk = PdfForms.new(Settings.binaries.pdftk)
+        adjusted_pages_path = "/tmp/#{appeal.id}-rebuilt-pages-tmp.pdf"
+        pdftk.cat({ @all_pages_path => structure.final_page_adjustments }, adjusted_pages_path)
+        adjusted_pages_path
       end
 
       def stamp
