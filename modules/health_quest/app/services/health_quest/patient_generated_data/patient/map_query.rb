@@ -31,17 +31,17 @@ module HealthQuest
         # Gets patient information from an id
         #
         # @param id [String] the logged in user's ICN.
-        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
         def get(id)
-          client.read(dstu2_model, id)
+          client.read(fhir_model, id)
         end
 
         ##
         # Create a patient resource from the logged in user.
         #
         # @param user [User] the logged in user.
-        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
         def create(user)
           patient = Resource.manufacture(user).prepare
@@ -50,12 +50,12 @@ module HealthQuest
         end
 
         ##
-        # Returns the FHIR::DSTU2::Patient class object
+        # Returns the FHIR::Patient class object
         #
-        # @return [FHIR::DSTU2::Patient]
+        # @return [FHIR::Patient]
         #
-        def dstu2_model
-          FHIR::DSTU2::Patient
+        def fhir_model
+          FHIR::Patient
         end
       end
     end

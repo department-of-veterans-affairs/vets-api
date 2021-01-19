@@ -8,7 +8,11 @@ module VBADocuments
 
     def perform
       guids = VBADocuments::UploadSubmission.where(status: 'uploaded').pluck(:guid)
-      guids.each { |guid| VBADocuments::UploadProcessor.perform_async(guid) }
+      guids.each do |guid|
+        Rails.logger.info("Running VBADocuments::RunUnsuccessfulSubmissions for GUID #{guid}",
+                          { 'job' => 'VBADocuments::RunUnsuccessfulSubmissions', guid: guid })
+        VBADocuments::UploadProcessor.perform_async(guid)
+      end
     end
   end
 end

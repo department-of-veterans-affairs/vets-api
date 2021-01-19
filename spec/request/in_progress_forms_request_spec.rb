@@ -39,7 +39,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         let(:user) { loa1_user }
         let(:top_level_keys) { response_body.keys }
         let(:data) { response_body['data'] }
-        let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['how_now'] } }
+        let(:in_progress_form_with_nested_hash) { data.find { |ipf| ipf['attributes']['metadata']['howNow'] } }
         let(:metadata_returned_with_the_request) { in_progress_form_with_nested_hash['attributes']['metadata'] }
         let(:metadata_before_the_request) { in_progress_form_edu.metadata }
 
@@ -52,7 +52,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'has the correct shape (JSON:API), with snake_case keys' do
+        it 'has the correct shape (JSON:API), and has camelCase keys all the way down to attributes' do
           subject
           expect(response_body).to be_a Hash
           expect(top_level_keys).to contain_exactly 'data'
@@ -61,21 +61,21 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           data.each do |ipf|
             expect(ipf.keys).to contain_exactly('id', 'type', 'attributes')
             expect(ipf['type']).to eq 'in_progress_forms'
-            expect(ipf['attributes'].keys).to contain_exactly('form_id', 'created_at', 'updated_at', 'metadata')
+            expect(ipf['attributes'].keys).to contain_exactly('formId', 'createdAt', 'updatedAt', 'metadata')
           end
         end
 
-        it 'snake_cased keys *inside* attributes' do
+        it 'does NOT transform keys inside attributes' do
           subject
-          expect(metadata_returned_with_the_request['how_now']['brown_cow']).to be_present
+          expect(metadata_returned_with_the_request['howNow']['brown-cow']).to be_present
         end
 
-        it 'corrupts complicated keys' do
+        it 'does NOT corrupt complicated keys' do
           subject
           expect(metadata_before_the_request['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.'])
             .to be_present
-          expect(metadata_returned_with_the_request['how_now']['brown_cow']['-an eas-i-ly corRupted KEY.'])
-            .not_to be_present
+          expect(metadata_returned_with_the_request['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.'])
+            .to be_present
         end
 
         context 'with OliveBranch' do
@@ -112,7 +112,6 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               .to be_present
             expect(metadata_returned_with_the_request['howNow']['brownCow']['-an eas-i-ly corRupted KEY.'])
               .not_to be_present
-            puts metadata_returned_with_the_request['howNow']['brownCow'].keys
           end
         end
       end
@@ -130,13 +129,13 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         subject
         items = JSON.parse(response.body)['data']
         expect(items.size).to eq(2)
-        expect(items.dig(0, 'attributes', 'form_id')).to be_a(String)
+        expect(items.dig(0, 'attributes', 'formId')).to be_a(String)
       end
     end
 
     describe '#show' do
       let(:user) { loa3_user }
-      let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
+      let!(:in_progress_form) { FactoryBot.create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -152,10 +151,10 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           get v0_in_progress_form_url(in_progress_form.form_id), params: nil
 
           expect(response).to have_http_status(:ok)
-          expect(response.body).to eq({
-            'form_data' => JSON.parse(in_progress_form.form_data),
+          expect(JSON.parse(response.body)).to eq(
+            'formData' => JSON.parse(in_progress_form.form_data),
             'metadata' => in_progress_form.metadata
-          }.to_json)
+          )
         end
 
         context 'with the x key inflection header set' do
@@ -164,27 +163,42 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
             in_progress_form.update(form_data: form_data)
             get v0_in_progress_form_url(in_progress_form.form_id),
-                params: nil,
                 headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
             body = JSON.parse(response.body)
             expect(body.keys).to include('formData', 'metadata')
             expect(body['formData'].keys).to include('view:hasVaMedicalRecords')
             expect(body['formData']['view:hasVaMedicalRecords']).to eq form_data['view:hasVaMedicalRecords']
-            expect(body['metadata'])
-              .to eq in_progress_form.metadata.transform_keys { |key| key.underscore.camelize(:lower) }
+            expect(body['formData'].keys).not_to include('Hello, there Sam-I -Am!')
+            expect(body['metadata']['howNow']['brownCow']).to be_present
+            expect(body['metadata']['howNow']['brownCow']['-an eas-i-ly corRupted KEY.']).not_to be_present
+          end
+        end
+
+        context 'without the inflection header' do
+          it 'has camelCase top-level keys, but does not transform nested keys' do
+            form_data = {
+              'view:hasVaMedicalRecords' => true,
+              'Hello, there Sam-I -Am!' => true
+            }
+
+            in_progress_form.update(form_data: form_data)
+            get v0_in_progress_form_url(in_progress_form.form_id)
+            body = JSON.parse(response.body)
+            expect(body.keys).to include('formData', 'metadata')
+            expect(body['formData'].keys).to include('view:hasVaMedicalRecords')
+            expect(body['formData']['view:hasVaMedicalRecords']).to eq form_data['view:hasVaMedicalRecords']
+            expect(body['formData'].keys).to include('Hello, there Sam-I -Am!')
+            expect(body['formData']['Hello, there Sam-I -Am!']).to eq form_data['Hello, there Sam-I -Am!']
+            expect(body['metadata']['howNow']['brown-cow']['-an eas-i-ly corRupted KEY.']).to be_present
+            expect(body['metadata']).to eq in_progress_form.metadata
           end
         end
       end
 
       context 'when a form is not found' do
         let(:street_check) { build(:street_check) }
-
-        it 'returns pre-fill data' do
-          _, phone_response = stub_evss_pciu(user)
-
-          get v0_in_progress_form_url('FAKEFORM'), params: nil
-
-          expected_data = {
+        let(:expected_data) do
+          {
             'veteranFullName' => {
               'first' => user.first_name&.capitalize,
               'last' => user.last_name&.capitalize
@@ -202,12 +216,44 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             },
             'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
           }
+        end
+        let(:phone_response) { stub_evss_pciu(user).second }
+
+        it 'returns pre-fill data' do
+          expected_data
+          get v0_in_progress_form_url('FAKEFORM'), params: nil
 
           if user.va_profile&.normalized_suffix.present?
             expected_data['veteranFullName']['suffix'] = user.va_profile&.normalized_suffix
           end
 
-          expect(JSON.parse(response.body)['form_data']).to eq(expected_data)
+          check_case_of_keys_recursively = lambda do |value|
+            case value
+            when Hash
+              value.each_key do |key|
+                expect(key).not_to include '_' # ensure all keys are camelCase
+                check_case_of_keys_recursively.call(value[key])
+              end
+            when Array
+              value.each { |v| check_case_of_keys_recursively.call(v) }
+            end
+          end
+          check_case_of_keys_recursively.call(JSON.parse(response.body))
+
+          expect(JSON.parse(response.body)['formData']).to eq(expected_data)
+        end
+
+        it 'returns pre-fill data the same way, with or without the Inflection heaader' do
+          expected_data
+
+          get v0_in_progress_form_url('FAKEFORM')
+          without_inflection_header = JSON.parse(response.body)
+
+          get v0_in_progress_form_url('FAKEFORM'),
+              headers: { 'X-Key-Inflection' => 'camel', 'Content-Type' => 'application/json' }
+          with_inflection_header = JSON.parse(response.body)
+
+          expect(without_inflection_header).to eq with_inflection_header
         end
       end
 
@@ -228,19 +274,21 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         context 'when the user is not loa3' do
           let(:user) { loa1_user }
 
-          it 'returns a 200' do
+          it 'returns a 200 with camelCases JSON' do
             put v0_in_progress_form_url(new_form.form_id), params: {
               form_data: new_form.form_data,
               metadata: new_form.metadata
             }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
             expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['data']['attributes'].keys)
+              .to contain_exactly('formId', 'createdAt', 'updatedAt', 'metadata')
           end
         end
 
         it 'inserts the form', run_at: '2017-01-01' do
           expect do
             put v0_in_progress_form_url(new_form.form_id), params: {
-              form_data: new_form.form_data,
+              formData: new_form.form_data,
               metadata: new_form.metadata
             }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
           end.to change(InProgressForm, :count).by(1)
@@ -251,11 +299,37 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expect(in_progress_form.form_data).to eq(new_form.form_data)
           expect(in_progress_form.metadata).to eq(
             'version' => 1,
-            'return_url' => 'foo.com',
-            'expires_at' => 1_488_412_800,
-            'last_updated' => 1_483_228_800,
-            'in_progress_form_id' => in_progress_form.id
+            'return_url' => 'foo.com', # <- the factory uses snake_case (as most forms are still using OliveBranch)
+            'expiresAt' => 1_488_412_800, # <- these are inserted by the model on access, and will always be camelCase
+            'lastUpdated' => 1_483_228_800, # now so that the front end will always receive camelCase (with or without
+            'inProgressFormId' => in_progress_form.id # the inflection header)
           )
+        end
+
+        it 'can have nil metadata' do
+          put v0_in_progress_form_url(new_form.form_id),
+              params: { form_data: { greeting: 'Hello!' } }.to_json,
+              headers: { 'CONTENT_TYPE' => 'application/json' }
+          expect(response).to have_http_status(:ok)
+        end
+
+        it "can't have nil formData" do
+          put v0_in_progress_form_url(new_form.form_id)
+          expect(response).to have_http_status(:error)
+        end
+
+        it "can't have non-hash formData" do
+          put v0_in_progress_form_url(new_form.form_id),
+              params: { form_data: 'Hello!' }.to_json,
+              headers: { 'CONTENT_TYPE' => 'application/json' }
+          expect(response).to have_http_status(:error)
+        end
+
+        it "can't have an empty hash for formData" do
+          put v0_in_progress_form_url(new_form.form_id),
+              params: {}.to_json,
+              headers: { 'CONTENT_TYPE' => 'application/json' }
+          expect(response).to have_http_status(:error)
         end
 
         context 'when an error occurs' do
@@ -289,9 +363,11 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
 
-        it 'returns a 200' do
+        it 'returns a 200 with camelCase JSON' do
           delete v0_in_progress_form_url(in_progress_form.form_id), params: nil
           expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']['attributes'].keys)
+            .to contain_exactly('formId', 'createdAt', 'updatedAt', 'metadata')
         end
       end
 

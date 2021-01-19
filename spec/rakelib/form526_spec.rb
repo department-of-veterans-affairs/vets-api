@@ -68,7 +68,7 @@ describe 'form526 rake tasks', type: :request do
       get '/v0/in_progress_forms/21-526EZ', headers: headers
       response_json = JSON.parse(response.body)
       # TODO: form_data will become form_data soon
-      expect(response_json['form_data']).to eq(in_progress_form526_original['formData'])
+      expect(response_json['formData']).to eq(in_progress_form526_original['formData'])
     end
   end
 

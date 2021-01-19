@@ -27,7 +27,12 @@ module ClaimsApi
             source: source_name
           )
           unless auto_claim.id
-            auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5, source: source_name)
+            existing_auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5, source: source_name)
+            auto_claim = existing_auto_claim if existing_auto_claim.present?
+          end
+
+          if auto_claim.errors.present?
+            raise Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
