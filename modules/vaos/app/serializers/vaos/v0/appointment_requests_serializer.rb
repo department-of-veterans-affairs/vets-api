@@ -10,7 +10,7 @@ module VAOS
       set_type :appointment_requests
 
       attribute :facility do |object|
-        object.facility.reverse_merge(type: nil, address: nil).except(:link, :object_type)
+        object.facility.reverse_merge(type: nil, address: nil, state: nil, city: nil).except(:link, :object_type)
       end
 
       attribute :patient do |object|

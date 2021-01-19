@@ -46,6 +46,12 @@ module VAOS
         render json: VAOS::V0::AppointmentRequestsSerializer.new(response[:data])
       end
 
+      def show
+        response = appointment_requests_service.get_request(id)
+        log_appointment_request(response)
+        render json: VAOS::V0::AppointmentRequestsSerializer.new(response[:data])
+      end
+
       private
 
       def id

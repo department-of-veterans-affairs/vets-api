@@ -15,11 +15,13 @@ module VAOS
 
     def get_request(id)
       params = {}
-
+      binding.pry
       with_monitoring do
- #binding.pry
         response = perform(:get, get_request_url(id), params, headers)
-	      OpenStruct.new(response.body)
+
+        {
+          data: OpenStruct.new(response.body)
+        }
       end
     end
 
@@ -52,7 +54,7 @@ module VAOS
     end
 
     def get_request_url(id)
-      get_requests_url + "/#{id}"
+      get_requests_url + "/system/var/id/#{id}"
     end
 
     def put_request_url(id)
