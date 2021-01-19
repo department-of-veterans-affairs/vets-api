@@ -30,6 +30,14 @@ RSpec.describe 'discovery', type: :request do
         }
       end
 
+      let(:api_root_map) do
+        {
+          dev: 'https://staging-api.va.gov/mobile',
+          staging: 'https://staging-api.va.gov/mobile',
+          prod: 'https://api.va.gov/mobile'
+        }
+      end
+
       it 'returns the welcome message' do
         get '/mobile'
 
@@ -42,6 +50,7 @@ RSpec.describe 'discovery', type: :request do
         post '/mobile', params: params, headers: header
         expect(response.body).to match_json_schema('discovery')
         expect(response.parsed_body.dig('data', 'attributes', 'oauthBaseUrl')).to eq(oauth_map[:dev])
+        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:dev])
         expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
         expect(response).to have_http_status(:ok)
       end
@@ -51,6 +60,7 @@ RSpec.describe 'discovery', type: :request do
         post '/mobile', params: params, headers: header
         expect(response.body).to match_json_schema('discovery')
         expect(response.parsed_body.dig('data', 'attributes', 'oauthBaseUrl')).to eq(oauth_map[:staging])
+        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:staging])
         expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
         expect(response).to have_http_status(:ok)
       end
@@ -60,6 +70,7 @@ RSpec.describe 'discovery', type: :request do
         post '/mobile', params: params, headers: header
         expect(response.body).to match_json_schema('discovery')
         expect(response.parsed_body.dig('data', 'attributes', 'oauthBaseUrl')).to eq(oauth_map[:prod])
+        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:prod])
         expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
         expect(response).to have_http_status(:ok)
       end
@@ -69,6 +80,7 @@ RSpec.describe 'discovery', type: :request do
         post '/mobile', params: params, headers: header
         expect(response.body).to match_json_schema('discovery')
         expect(response.parsed_body.dig('data', 'attributes', 'oauthBaseUrl')).to eq(oauth_map[:prod])
+        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:prod])
         expect(response.parsed_body.dig('data', 'attributes', 'appAccess')).to be(false)
         expect(response.parsed_body.dig('data', 'attributes', 'displayMessage')).to eq('Please update the app.')
         expect(response.parsed_body.dig('data', 'id')).to eq('deprecated')

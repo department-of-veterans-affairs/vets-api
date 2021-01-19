@@ -131,6 +131,12 @@ module Mobile
       prod: 'https://fed.eauth.va.gov/oauthe/sps/oauth/oauth20/'
     }.freeze
 
+    API_ROOT_ENV_MAP = {
+      dev: 'https://staging-api.va.gov/mobile',
+      staging: 'https://staging-api.va.gov/mobile',
+      prod: 'https://api.va.gov/mobile'
+    }.freeze
+
     def welcome
       render json: { data: { attributes: { message: 'Welcome to the mobile API' } } }
     end
@@ -143,7 +149,8 @@ module Mobile
       response.endpoints = versioned_api_info[:endpoints]
       response.display_message = versioned_api_info[:display_message]
       response.app_access = versioned_api_info[:app_access]
-      response.oauth_base_url = get_oauth_url(params[:environment])
+      response.oauth_base_url = get_env_specific_url(params[:environment], OAUTH_ENV_MAP)
+      response.api_root_url = get_env_specific_url(params[:environment], API_ROOT_ENV_MAP)
       render json: Mobile::V0::DiscoverySerializer.new(response)
     end
 
@@ -160,8 +167,8 @@ module Mobile
       os == 'android' ? values[:android] : values[:ios]
     end
 
-    def get_oauth_url(environment)
-      OAUTH_ENV_MAP.each do |key, value|
+    def get_env_specific_url(environment, url_map)
+      url_map.each do |key, value|
         return value if key.to_s.match(environment)
       end
     end

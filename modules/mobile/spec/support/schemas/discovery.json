@@ -21,6 +21,9 @@
             },
             "oauthBaseUrl": {
               "type": "string"
+            },
+            "apiRootUrl": {
+              "type": "string"
             }
           },
           "type": "object"
