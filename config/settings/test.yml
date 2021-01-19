@@ -89,3 +89,18 @@ veteran_readiness_and_employment:
   base_url: https://fake_url.com
   credentials: fake_auth
   auth_endpoint: https://fake_url.com/auth/oauth/token
+
+hqva_mobile:
+  url: "https://veteran.apps.va.gov"
+  mock: false
+  key_path: /srv/vets-api/secret/health-quest.key
+  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
+  timeout: 15
+  lighthouse:
+    url: "https://sandbox-api.va.gov"
+    host: "sandbox-api.va.gov"
+    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    redis_session_prefix: "healthquest_lighthouse"
+    mock: false
+    key_path: modules/health_quest/config/rsa/sandbox_rsa

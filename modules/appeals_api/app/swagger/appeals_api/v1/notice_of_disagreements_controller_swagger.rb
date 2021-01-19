@@ -25,52 +25,15 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     "status": 500
   }.freeze
 
-  swagger_path '/notice_of_disagreements/contestable_issues' do
-    operation :get, tags: NOD_TAG do
-      key :operationId, 'getNODContestableIssues'
-
-      key :summary, 'Returns all contestable issues for a specific veteran.'
-
-      description = 'Returns all issues associated with a Veteran that have' \
-      'not previously been decided by a Notice of Disagreement' \
-      'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
-      'Associate these results when creating a new Notice of Disagreement.'
-      key :description, description
-
-      parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
-        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
-        schema '$ref': 'X-VA-SSN'
-      end
-
-      parameter name: 'X-VA-File-Number', 'in': 'header', description: 'veteran\'s file number' do
-        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
-        schema type: :string
-      end
-
-      parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
-        desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
-          'the receipt date of a hypothetical Decision Review must be specified.'
-        key :description, desc
-
-        schema type: :string, 'format': :date
-      end
-
-      key :responses, read_json_from_same_dir['responses_contestable_issues.json']
-      security do
-        key :apikey, []
-      end
-    end
-  end
-
-  swagger_path '/decision_reviews/notice_of_disagreements' do
+  swagger_path '/notice_of_disagreements' do
     next unless PATH_ENABLED_FOR_ENV
 
     operation :post, tags: NOD_TAG do
       key :summary, 'Creates a new Notice of Disagreement.'
 
       description = 'Submits an appeal of type Notice of Disagreement.' \
-      'This endpoint is analogous to submitting VA Form 10182' \
-      'via mail or fax directly to the Board of Veterans’ Appeals.'
+      'This endpoint is the same as submitting [VA Form 10182](https://www.va.gov/vaforms/va/pdf/VA10182.pdf)' \
+      ' via mail or fax directly to the Board of Veterans’ Appeals.'
       key :description, description
 
       key :operationId, 'nodCreateRoot'
@@ -226,14 +189,106 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     end
   end
 
+  swagger_path '/notice_of_disagreements/contestable_issues' do
+    operation :get, tags: NOD_TAG do
+      key :operationId, 'getNODContestableIssues'
+
+      key :summary, 'Returns all contestable issues for a specific veteran.'
+
+      description = 'Returns all issues associated with a Veteran that have' \
+      'not previously been decided by a Notice of Disagreement' \
+      'as of the `receiptDate`. Not all issues returned are guaranteed to be eligible for appeal.' \
+      'Associate these results when creating a new Notice of Disagreement.'
+      key :description, description
+
+      parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
+        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
+        schema '$ref': 'X-VA-SSN'
+      end
+
+      parameter name: 'X-VA-File-Number', 'in': 'header', description: 'veteran\'s file number' do
+        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
+        schema type: :string
+      end
+
+      parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
+        desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
+          'the receipt date of a hypothetical Decision Review must be specified.'
+        key :description, desc
+
+        schema type: :string, 'format': :date
+      end
+
+      key :responses, read_json_from_same_dir['responses_contestable_issues.json']
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/notice_of_disagreements/schema' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :get do
+      key :summary, 'Gets the Notice of Disagreement JSON Schema.'
+      key :operationId, 'getNodJsonSchema'
+      desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /notice_of_disagreement` endpoint.'
+      key :description, desc
+      key :produces, [
+        'application/json'
+      ]
+      key :tags, [
+        'Notice of Disagreements'
+      ]
+
+      security do
+        key :apikey, []
+      end
+
+      response 200 do
+        key :description, 'schema response'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :type, :array
+              items do
+                key :type, :object
+                key :description, 'Returning JSON Schema Objects'
+                key :example, AppealsApi::FormSchemas.new.schema('10182')
+              end
+            end
+          end
+        end
+      end
+
+      response 500 do
+        key :description, 'Internal Error response'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            key :example, ERROR_500_EXAMPLE
+            property :errors do
+              key :type, :array
+
+              items do
+                key :'$ref', :errorModel
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+
   swagger_path '/notice_of_disagreements/validate' do
     next unless PATH_ENABLED_FOR_ENV
 
     operation :post, tags: NOD_TAG do
-      summary = 'Validates the schema provided to create a NOD.'\
-        'This endpoint can be used to test your submission prior to calling the CREATE endpoint.'
-      key :summary, summary
-      key :description, ''
+      key :summary, 'Validates a POST request body against the JSON schema.'
+      desc = 'Like the `POST /notice_of_disagreement`, but *only* does the validations **—does not submit anything.**'
+      key :description, desc
       key :operationId, 'nodValidateSchema'
 
       security do
@@ -372,61 +427,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
       response 500 do
         key :description, '10182 validation errors'
-        content 'application/json' do
-          schema do
-            key :type, :object
-            key :example, ERROR_500_EXAMPLE
-            property :errors do
-              key :type, :array
-
-              items do
-                key :'$ref', :errorModel
-              end
-            end
-          end
-        end
-      end
-    end
-  end
-
-  swagger_path '/notice_of_disagreements/schema' do
-    next unless PATH_ENABLED_FOR_ENV
-
-    operation :get do
-      key :summary, 'Get Notice of Disagreement JSON Schema'
-      key :operationId, 'getNodJsonSchema'
-      key :description, 'Returns a sample Notice of Disagreements JSON Schema'
-      key :produces, [
-        'application/json'
-      ]
-      key :tags, [
-        'Notice of Disagreements'
-      ]
-
-      security do
-        key :apikey, []
-      end
-
-      response 200 do
-        key :description, 'schema response'
-        content 'application/json' do
-          schema do
-            key :type, :object
-            key :required, [:data]
-            property :data do
-              key :type, :array
-              items do
-                key :type, :object
-                key :description, 'Returning JSON Schema Objects'
-                key :example, AppealsApi::FormSchemas.new.schema('10182')
-              end
-            end
-          end
-        end
-      end
-
-      response 500 do
-        key :description, 'Internal Error response'
         content 'application/json' do
           schema do
             key :type, :object

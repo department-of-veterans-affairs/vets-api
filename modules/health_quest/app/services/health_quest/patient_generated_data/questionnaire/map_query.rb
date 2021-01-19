@@ -2,7 +2,7 @@
 
 module HealthQuest
   module PatientGeneratedData
-    module QuestionnaireResponse
+    module Questionnaire
       ##
       # A service object for querying the PGD for Questionnaire Response resources.
       #
@@ -14,10 +14,10 @@ module HealthQuest
         attr_reader :headers
 
         ##
-        # Builds a PatientGeneratedData::QuestionnaireResponse::MapQuery instance from a given hash of headers.
+        # Builds a PatientGeneratedData::Questionnaire::MapQuery instance from a given hash of headers.
         #
         # @param headers [Hash] the set of headers.
-        # @return [PatientGeneratedData::QuestionnaireResponse::MapQuery] an instance of this class
+        # @return [PatientGeneratedData::Questionnaire::MapQuery] an instance of this class
         #
         def self.build(headers)
           new(headers)
@@ -28,42 +28,32 @@ module HealthQuest
         end
 
         ##
-        # Gets QuestionnaireResponse from provided options
+        # Gets Questionnaire from provided options
         #
         # @param options [Hash] the search options.
-        # @return [FHIR::QuestionnaireResponse::Bundle] an instance of Bundle
+        # @return [FHIR::Questionnaire::Bundle] an instance of Bundle
         #
         def search(options = {})
           client.search(fhir_model, search_options(options))
         end
 
         ##
-        # Gets a QuestionnaireResponse from its id
+        # Gets a Questionnaire from its id
         #
-        # @param id [String] the QuestionnaireResponse ID.
-        # @return [FHIR::QuestionnaireResponse::ClientReply] an instance of ClientReply
+        # @param id [String] the Questionnaire ID.
+        # @return [FHIR::Questionnaire::ClientReply] an instance of ClientReply
         #
         def get(id)
           client.read(fhir_model, id)
         end
 
         ##
-        # Create a QuestionnaireResponse resource from the logged in user.
+        # Returns the FHIR::Questionnaire class object
         #
-        # @param data [Hash] questionnaire answers and appointment data hash.
-        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
-        #
-        def create(data) # rubocop:disable Rails/Delegate
-          client.create(data)
-        end
-
-        ##
-        # Returns the FHIR::QuestionnaireResponse class object
-        #
-        # @return [FHIR::QuestionnaireResponse]
+        # @return [FHIR::Questionnaire]
         #
         def fhir_model
-          FHIR::QuestionnaireResponse
+          FHIR::Questionnaire
         end
 
         ##

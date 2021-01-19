@@ -18,7 +18,7 @@ module Mobile
         'VA_VIDEO_CONNECT_GFE',
         'VA_VIDEO_CONNECT_HOME'
       )
-      STATUS_TYPE = Types::String.enum('BOOKED', 'CANCELLED')
+      STATUS_TYPE = Types::String.enum('BOOKED', 'CANCELLED', 'HIDDEN')
       TIME_ZONE_TYPE = Types::String.enum(
         'America/Argentina/San_Juan',
         'America/Anchorage',
