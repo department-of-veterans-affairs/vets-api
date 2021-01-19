@@ -374,3 +374,8 @@ features:
     enable_in_development: true
     description: >
       Enable frontend application and cta for Search Representative application
+  gibct_state_search:
+    actor_type: user
+    enable_in_development: true
+    description: >
+       Include state abbreviation when searching on comparison tool 
