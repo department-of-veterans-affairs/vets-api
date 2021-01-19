@@ -26,7 +26,11 @@ module OktaRedis
     def privacy_url
       app_name = okta_response.body['label']
       app_data = DirectoryApplication.find_by(name: app_name)
-      app_data.privacy_url
+      if app_data
+        app_data.privacy_url
+      else
+        'None Available'
+      end
     end
 
     # rubocop:disable Rails/FindEach
