@@ -24,7 +24,9 @@ module Mobile
           appointments_list = appointments[:booked_appointment_collections].first[:booked_cc_appointments]
 
           appointments_list.map do |appointment_hash|
-            location = location(appointment_hash[:provider_practice], appointment_hash[:address])
+            location = location(
+              appointment_hash[:provider_practice], appointment_hash[:address], appointment_hash[:provider_phone]
+            )
             start_date_utc = start_date(appointment_hash[:appointment_time], appointment_hash[:time_zone]).utc
             time_zone = time_zone(appointment_hash[:time_zone], location.dig(:address, :state))
             start_date_local = start_date_utc.in_time_zone(time_zone)
@@ -48,7 +50,10 @@ module Mobile
 
         private
 
-        def location(name, address)
+        def location(name, address, phone)
+          # captures area code \((\d{3})\) number (after space) \s(\d{3}-\d{4})
+          # and extension (until the end of the string) (\S*)\z
+          phone_captures = phone.match(/\((\d{3})\)\s(\d{3}-\d{4})(\S*)\z/)
           {
             name: name,
             address: {
@@ -60,9 +65,9 @@ module Mobile
             lat: nil,
             long: nil,
             phone: {
-              area_code: nil,
-              number: nil,
-              extension: nil
+              area_code: phone_captures[1].presence,
+              number: phone_captures[2].presence,
+              extension: phone_captures[3].presence
             },
             url: nil,
             code: nil

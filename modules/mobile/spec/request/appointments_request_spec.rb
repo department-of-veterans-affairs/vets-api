@@ -87,6 +87,7 @@ RSpec.describe 'appointments', type: :request do
         let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
 
         it 'returns an ok response' do
+          File.write('doc.json', response.body)
           expect(response).to have_http_status(:ok)
         end
 
