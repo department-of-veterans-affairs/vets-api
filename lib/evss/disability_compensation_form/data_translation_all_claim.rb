@@ -208,7 +208,7 @@ module EVSS
           }.compact
         }
 
-        if days_until_release > 0
+        if days_until_release.positive?
           service_info['serviceInformation']['separationLocationName'] = input_form.dig('serviceInformation',
                                                                                         'separationLocation',
                                                                                         'separationLocationName')
