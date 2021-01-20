@@ -3,7 +3,8 @@
     "type": "noticeOfDisagreement",
     "attributes": {
       "veteran": {
-        "homeless": false
+        "homeless": false,
+        "address": { "zipCode5":  "66002" }
       },
       "boardReviewOption": "evidence_submission",
       "timezone": "America/Chicago",

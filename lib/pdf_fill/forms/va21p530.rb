@@ -233,10 +233,18 @@ module PdfFill
             question_text: "CLAIMANT'S ADDRESS - COUNTRY"
           },
           'postalCode' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
-            limit: 5,
-            question_num: 5,
-            question_text: "CLAIMANT'S ADDRESS - POSTAL CODE"
+            'firstFive' => {
+              key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]',
+              limit: 5,
+              question_num: 5,
+              question_text: "CLAIMANT'S ADDRESS - POSTAL CODE - FIRST FIVE"
+            },
+            'lastFour' => {
+              key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]',
+              limit: 4,
+              question: 5,
+              question_text: "CLAIMANT's ADDRESS - POSTAL CODE - LAST FOUR"
+            }
           }
         },
         'relationship' => {
@@ -378,6 +386,16 @@ module PdfFill
         }
       end
 
+      def split_postal_code(hash)
+        postal_code = hash['claimantAddress']['postalCode']
+        return if postal_code.blank?
+
+        hash['claimantAddress']['postalCode'] = {
+          'firstFive' => postal_code[0..4],
+          'lastFour' => postal_code[6..10]
+        }
+      end
+
       def expand_checkbox_in_place(hash, key)
         hash.merge!(expand_checkbox(hash[key], StringHelpers.capitalize_only(key)))
       end
@@ -454,6 +472,8 @@ module PdfFill
         end
 
         split_phone(@form_data, 'claimantPhone')
+
+        split_postal_code(@form_data)
 
         expand_relationship(@form_data, 'relationship')
 

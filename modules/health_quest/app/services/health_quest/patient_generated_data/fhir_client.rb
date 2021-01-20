@@ -4,12 +4,12 @@ module HealthQuest
   module PatientGeneratedData
     module FHIRClient
       def url
-        "#{Settings.hqva_mobile.url}/smart-pgd-fhir/v1"
+        "#{Settings.hqva_mobile.lighthouse.url}/smart-pgd-fhir/v1"
       end
 
       def client
         FHIR::Client.new(url).tap do |client|
-          client.use_dstu2
+          client.use_r4
           client.default_json
           client.additional_headers = headers&.merge(accept_headers)
         end

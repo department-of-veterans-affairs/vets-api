@@ -31,39 +31,39 @@ module HealthQuest
         # Gets QuestionnaireResponse from provided options
         #
         # @param options [Hash] the search options.
-        # @return [FHIR::DSTU2::QuestionnaireResponse::Bundle] an instance of Bundle
+        # @return [FHIR::QuestionnaireResponse::Bundle] an instance of Bundle
         #
         def search(options = {})
-          client.search(dstu2_model, search_options(options))
+          client.search(fhir_model, search_options(options))
         end
 
         ##
         # Gets a QuestionnaireResponse from its id
         #
         # @param id [String] the QuestionnaireResponse ID.
-        # @return [FHIR::DSTU2::QuestionnaireResponse::ClientReply] an instance of ClientReply
+        # @return [FHIR::QuestionnaireResponse::ClientReply] an instance of ClientReply
         #
         def get(id)
-          client.read(dstu2_model, id)
+          client.read(fhir_model, id)
         end
 
         ##
         # Create a QuestionnaireResponse resource from the logged in user.
         #
         # @param data [Hash] questionnaire answers and appointment data hash.
-        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
         def create(data) # rubocop:disable Rails/Delegate
           client.create(data)
         end
 
         ##
-        # Returns the FHIR::DSTU2::QuestionnaireResponse class object
+        # Returns the FHIR::QuestionnaireResponse class object
         #
-        # @return [FHIR::DSTU2::QuestionnaireResponse]
+        # @return [FHIR::QuestionnaireResponse]
         #
-        def dstu2_model
-          FHIR::DSTU2::QuestionnaireResponse
+        def fhir_model
+          FHIR::QuestionnaireResponse
         end
 
         ##

@@ -266,6 +266,30 @@ describe HCA::EnrollmentSystem do
       )
     end
 
+    context 'with "Address Type Code" specified' do
+      it 'sets the "addressTypeCode" attribute' do
+        expect(described_class.format_address(test_address, type: 'P')).to eq(
+          'city' => 'Dulles',
+          'country' => 'USA',
+          'line1' => '123 NW 8th St',
+          'state' => 'VA',
+          'zipCode' => '20101',
+          'zipPlus4' => '0101',
+          'addressTypeCode' => 'P'
+        )
+
+        expect(described_class.format_address(test_address, type: 'R')).to eq(
+          'city' => 'Dulles',
+          'country' => 'USA',
+          'line1' => '123 NW 8th St',
+          'state' => 'VA',
+          'zipCode' => '20101',
+          'zipPlus4' => '0101',
+          'addressTypeCode' => 'R'
+        )
+      end
+    end
+
     context 'with a non american address' do
       before do
         test_address['country'] = 'COM'
@@ -948,6 +972,108 @@ describe HCA::EnrollmentSystem do
     ]
   )
 
+  describe '#address_from_veteran' do
+    let(:provided_veteran_data) do
+      {
+        'wantsInitialVaContact' => true,
+        'email' => 'foo@example.com',
+        'homePhone' => '1231241234',
+        'isSpanishHispanicLatino' => true,
+        'isWhite' => true,
+        'maritalStatus' => 'Married',
+        'vaMedicalFacility' => '608',
+        'isEssentialAcaCoverage' => true
+      }
+    end
+
+    context 'with one address' do
+      before do
+        provided_veteran_data['veteranAddress'] = {
+          'street' => '123 NW 5th St',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Ontario',
+          'country' => 'CAN',
+          'state' => 'ON',
+          'provinceCode' => 'ProvinceName',
+          'postalCode' => '21231'
+        }
+      end
+
+      it 'transforms address and sets "type code"' do
+        expect(
+          described_class.address_from_veteran(provided_veteran_data)
+        ).to eq(
+          {
+            'address' => {
+              'city' => 'Ontario',
+              'country' => 'CAN',
+              'line1' => '123 NW 5th St',
+              'provinceCode' => 'ON',
+              'postalCode' => '21231',
+              # When only one address present, set as "permanent"
+              'addressTypeCode' => 'P'
+            }
+          }
+        )
+      end
+    end
+
+    context 'with two addresses' do
+      before do
+        provided_veteran_data['veteranAddress'] = {
+          'street' => '123 NW 5th St',
+          'street2' => '',
+          'street3' => '',
+          'city' => 'Ontario',
+          'country' => 'CAN',
+          'state' => 'ON',
+          'provinceCode' => 'ProvinceName',
+          'postalCode' => '21231'
+        }
+
+        provided_veteran_data['veteranHomeAddress'] = {
+          'street' => '567 SW 9th Ave.',
+          'street2' => '#102',
+          'street3' => '',
+          'city' => 'Ontario',
+          'country' => 'CAN',
+          'state' => 'ON',
+          'provinceCode' => 'ProvinceName',
+          'postalCode' => '21231'
+        }
+      end
+
+      it 'transforms address and sets "type code"' do
+        expect(
+          described_class.address_from_veteran(provided_veteran_data)
+        ).to eq(
+          'address' => [
+            {
+              'city' => 'Ontario',
+              'country' => 'CAN',
+              'line1' => '123 NW 5th St',
+              'provinceCode' => 'ON',
+              'postalCode' => '21231',
+              # Mailing address is marked as "permanent"
+              'addressTypeCode' => 'P'
+            },
+            {
+              'city' => 'Ontario',
+              'country' => 'CAN',
+              'line1' => '567 SW 9th Ave.',
+              'line2' => '#102',
+              'provinceCode' => 'ON',
+              'postalCode' => '21231',
+              # Home address is marked as "residential"
+              'addressTypeCode' => 'R'
+            }
+          ]
+        )
+      end
+    end
+  end
+
   test_method(
     described_class,
     'veteran_to_demographics_info',
@@ -988,6 +1114,77 @@ describe HCA::EnrollmentSystem do
             'phones' => {
               'phone' => [{ 'phoneNumber' => '1231241234', 'type' => '1' }]
             } },
+          'ethnicity' => '2135-2',
+          'maritalStatus' => 'M',
+          'preferredFacility' => '608',
+          'races' => { 'race' => ['2106-3'] },
+          'acaIndicator' => true
+        }
+      ],
+      [
+        {
+          "veteranAddress": {
+            "street": '123 NW 5th St',
+            "street2": '',
+            "street3": '',
+            "city": 'Ontario',
+            "country": 'CAN',
+            "state": 'ON',
+            "provinceCode": 'ProvinceName',
+            "postalCode": '21231'
+          },
+          "veteranHomeAddress": {
+            "street": '567 SW 9th Ave.',
+            "street2": '#102',
+            "street3": '',
+            "city": 'Ontario',
+            "country": 'CAN',
+            "state": 'ON',
+            "provinceCode": 'ProvinceName',
+            "postalCode": '21231'
+          },
+          wantsInitialVaContact: true,
+          "email": 'foo@example.com',
+          "homePhone": '1231241234',
+          "isSpanishHispanicLatino": true,
+          "isWhite": true,
+          "maritalStatus": 'Married',
+          "vaMedicalFacility": '608',
+          "isEssentialAcaCoverage": true
+        }.deep_stringify_keys,
+        {
+          'appointmentRequestResponse' => true,
+          'contactInfo' => {
+            'addresses' => {
+              'address' => [
+                {
+                  'city' => 'Ontario',
+                  'country' => 'CAN',
+                  'line1' => '123 NW 5th St',
+                  'provinceCode' => 'ON',
+                  'postalCode' => '21231',
+                  # Mailing address is marked as "permanent"
+                  'addressTypeCode' => 'P'
+                },
+                {
+                  'city' => 'Ontario',
+                  'country' => 'CAN',
+                  'line1' => '567 SW 9th Ave.',
+                  'line2' => '#102',
+                  'provinceCode' => 'ON',
+                  'postalCode' => '21231',
+                  # Home address is marked as "residential"
+                  'addressTypeCode' => 'R'
+                }
+              ]
+            },
+            'emails' => [
+              { 'email' => { 'address' => 'foo@example.com', 'type' => '1' } }
+            ],
+            'phones' => {
+              'phone' => [{ 'phoneNumber' => '1231241234', 'type' => '1' }]
+            }
+          },
           'ethnicity' => '2135-2',
           'maritalStatus' => 'M',
           'preferredFacility' => '608',

@@ -27,14 +27,16 @@ class SavedClaim::DependencyClaim < SavedClaim
     report_stepchild_not_in_household
     report_marriage_of_child_under18
     child_marriage
-    not_attending_school
+    report_child18_or_older_is_not_attending_school
     add_spouse
   ].freeze
 
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
-  def upload_pdf
+  def upload_pdf(form_id)
+    self.form_id = form_id
+
     form_path = PdfFill::Filler.fill_form(self)
     upload_to_vbms(form_path)
   end

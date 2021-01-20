@@ -46,9 +46,18 @@
       "additionalProperties": false,
       "properties": {
         "homeless":            { "type": "boolean" },
-        "representativesName": { "type": "string" }
+        "representativesName": { "type": "string", "maxLength": 120 },
+        "address": { "$ref": "#/definitions/nodCreateAddress" }
       },
-      "required": [ "homeless" ]
+      "required": [ "homeless", "address" ]
+    },
+
+
+    "nodCreateAddress": {
+      "type": "object",
+      "properties": { "zipCode5": { "type": "string", "pattern": "^[0-9]{5}$", "minLength": 5, "maxLength": 5 } },
+      "additionalProperties": false,
+      "required": [ "zipCode5" ]
     },
 
 
@@ -75,7 +84,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString" },
+        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString", "maxLength": 368 },
         "decisionDate":              { "$ref": "#/definitions/nodCreateDate" },
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },
@@ -85,7 +94,7 @@
     },
 
 
-    "nodCreateDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "nodCreateDate": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", "maxLength": 10, "minLength": 10 },
 
 
     "nodCreateNonBlankString": {

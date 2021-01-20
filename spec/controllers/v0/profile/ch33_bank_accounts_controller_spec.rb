@@ -35,43 +35,87 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     end
   end
 
+  def expect_find_ch33_dd_eft_res
+    expect(JSON.parse(response.body)).to eq(
+      {
+        'data' => {
+          'id' => '', 'type' => 'hashes',
+          'attributes' => {
+            'account_type' => 'Checking',
+            'account_number' => '123',
+            'financial_institution_name' => 'BANK OF AMERICA, N.A.',
+            'financial_institution_routing_number' => '*****0724'
+          }
+        }
+      }
+    )
+  end
+
   describe '#index' do
     it 'returns the right data' do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-        get(:index)
+        VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+          get(:index)
+        end
       end
 
-      expect(JSON.parse(response.body)).to eq(
-        {
-          'data' => {
-            'id' => '', 'type' => 'savon_responses',
-            'attributes' => {
-              'account_type' => 'Checking', 'account_number' => '123',
-              'financial_institution_routing_number' => '*****9982'
-            }
-          }
-        }
-      )
+      expect_find_ch33_dd_eft_res
     end
   end
 
   describe '#update' do
-    it 'sends the update req' do
-      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-        put(
-          :update,
-          params: {
-            account_type: 'Checking',
-            account_number: '444',
-            financial_institution_routing_number: '122239982'
+    def send_update
+      put(
+        :update,
+        params: {
+          account_type: 'Checking',
+          account_number: '444',
+          financial_institution_routing_number: '122239982'
+        }
+      )
+    end
+
+    context 'with a successful update' do
+      it 'submits the update req and rerenders index' do
+        VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+              send_update
+            end
+          end
+        end
+
+        expect_find_ch33_dd_eft_res
+      end
+    end
+
+    context 'when there is an update error' do
+      it 'renders the error message' do
+        res = {
+          update_ch33_dd_eft_response: {
+            return: {
+              return_code: 'F',
+              error_message: 'Invalid routing number',
+              return_message: 'FAILURE'
+            },
+            "@xmlns:ns0": 'http://services.share.benefits.vba.va.gov/'
           }
+        }
+
+        expect_any_instance_of(BGS::Service).to receive(:update_ch33_dd_eft).with(
+          '122239982',
+          '444',
+          true
+        ).and_return(
+          OpenStruct.new(
+            body: res
+          )
         )
 
-        expect(
-          JSON.parse(response.body)['update_ch33_dd_eft_response']['return']['return_message']
-        ).to eq(
-          'SUCCESS'
-        )
+        send_update
+
+        expect(response.status).to eq(400)
+        expect(JSON.parse(response.body)).to eq(res.deep_stringify_keys)
       end
     end
   end

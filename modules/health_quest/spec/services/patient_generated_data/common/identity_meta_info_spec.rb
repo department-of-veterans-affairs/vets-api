@@ -77,7 +77,7 @@ describe HealthQuest::PatientGeneratedData::Common::IdentityMetaInfo do
           }
         ]
       }
-      allow(resource).to receive(:meta).and_return(FHIR::DSTU2::Meta.new)
+      allow(resource).to receive(:meta).and_return(FHIR::Meta.new)
 
       expect(resource.set_meta.to_hash).to eq(meta_hash)
     end
@@ -98,7 +98,7 @@ describe HealthQuest::PatientGeneratedData::Common::IdentityMetaInfo do
         'system' => 'urn:uuid:2.16.840.1.113883.4.349',
         'value' => '123456'
       }
-      allow(resource).to receive(:identifier).and_return(FHIR::DSTU2::Identifier.new)
+      allow(resource).to receive(:identifier).and_return(FHIR::Identifier.new)
       allow(resource).to receive(:identifier_value).and_return('123456')
       allow(resource).to receive(:identifier_type).and_return(identifier_type_hash)
 
