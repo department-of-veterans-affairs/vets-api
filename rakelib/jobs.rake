@@ -61,4 +61,9 @@ namespace :jobs do
   task pull_drive_time_bands: :environment do
     Facilities::PSSGDownload.perform_async
   end
+
+  desc 'Process 10203 submissions for automated decision'
+  task process_10203_submissions: :environment do
+    EducationForm::Process10203Submissions.perform_async
+  end
 end

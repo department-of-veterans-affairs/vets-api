@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ValidateEvssFileSize
+module ValidateEVSSFileSize
   extend ActiveSupport::Concern
 
   included do

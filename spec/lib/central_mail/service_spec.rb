@@ -150,6 +150,26 @@ RSpec.describe CentralMail::Service do
               response_helper.call(metadata, key, false)
             end
           end
+          it "Returns a 412 error when #{key} is not enough digits" do
+            VCR.use_cassette(
+              "central_mail/bad_metadata_less_#{key}_digits",
+              match_requests_on: [multipart_request_matcher, :method, :uri]
+            ) do
+              metadata = valid_metadata.call
+              metadata[key] = '111'
+              response_helper.call(metadata, key, false)
+            end
+          end
+          it "Returns a 412 error when #{key} is too many digits" do
+            VCR.use_cassette(
+              "central_mail/bad_metadata_more_#{key}_digits",
+              match_requests_on: [multipart_request_matcher, :method, :uri]
+            ) do
+              metadata = valid_metadata.call
+              metadata[key] = '555551'
+              response_helper.call(metadata, key, false)
+            end
+          end
         end
       end
     end
@@ -246,6 +266,36 @@ RSpec.describe CentralMail::Service do
           regex_match = regex_match_expectation.call(msg)
           expect(response.body.strip).to match(regex_match)
           expect(response.status).to eq(400)
+        end
+      end
+
+      it 'upload succeeds when XXXXX zip code used' do
+        VCR.use_cassette(
+          'central_mail/upload_XXXXX_zip',
+          match_requests_on: [multipart_request_matcher, :method, :uri]
+        ) do
+          metadata = valid_metadata.call
+          metadata['zipCode'] = '47250'
+          response = upload_form.call(metadata, valid_doc, valid_attach)
+          msg = 'Request was received successfully'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
+          expect(response.status).to eq(200)
+        end
+      end
+
+      it 'upload succeeds when XXXXX-XXXX zip code used' do
+        VCR.use_cassette(
+          'central_mail/upload_XXXXX-XXXX_zip',
+          match_requests_on: [multipart_request_matcher, :method, :uri]
+        ) do
+          metadata = valid_metadata.call
+          metadata['zipCode'] = '47250-1111'
+          response = upload_form.call(metadata, valid_doc, valid_attach)
+          msg = 'Request was received successfully'
+          regex_match = regex_match_expectation.call(msg)
+          expect(response.body.strip).to match(regex_match)
+          expect(response.status).to eq(200)
         end
       end
     end

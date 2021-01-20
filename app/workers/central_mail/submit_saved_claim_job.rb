@@ -2,6 +2,7 @@
 
 require 'central_mail/service'
 require 'central_mail/datestamp_pdf'
+require 'pension_burial/tag_sentry'
 require 'pdf_info'
 
 module CentralMail

@@ -57,6 +57,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: A fast and dirty way to get the operating status from lighthouse
+  facility_locator_lighthouse_covid_vaccine_query:
+    actor_type: user
+    enable_in_development: true
+    description: enable covid search/display
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
@@ -352,6 +356,7 @@ features:
       Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
   stem_automated_decision:
     actor_type: user
+    enable_in_development: true
     description: >
       Add automated decision to 10203 application workflow
   stem_applicant_email:
@@ -359,8 +364,23 @@ features:
     enable_in_development: true
     description: >
       Enable/disable SCO applicant email per environment
+  edu_form_omb_and_expiration:
+    actor_type: user
+    enable_in_development: true
+    description: >
+       Update OMB # and expiration dates for forms   
   in_progress_form_custom_expiration:
     actor_type: user
     enable_in_development: true
     description: >
       Enable/disable custom expiration dates for forms
+  search_representative:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable frontend application and cta for Search Representative application
+  gibct_state_search:
+    actor_type: user
+    enable_in_development: true
+    description: >
+       Include state abbreviation when searching on comparison tool 

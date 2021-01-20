@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
+    resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
@@ -32,6 +33,8 @@ Rails.application.routes.draw do
     resources :financial_status_reports, only: :create
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
+
+    resources :preferred_facilities, only: %i[index create destroy]
 
     resources :letters, only: [:index] do
       collection do
@@ -338,11 +341,12 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VaForms::Engine, at: '/va_forms'
+    mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  # Modules
   mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'

@@ -117,6 +117,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     context 'with an auto established claim' do
+      let(:evss_claim_id) { 600_118_851 }
       let(:auto_established_claim_id) { 'd5536c5c-0465-4038-a368-1a9d9daf65c9' }
       let(:wesley_ford_headers) do
         {
@@ -131,14 +132,14 @@ RSpec.describe 'EVSS Claims management', type: :request do
         create(:auto_established_claim,
                source: 'TestConsumer',
                auth_headers: { some: 'data' },
-               evss_id: 600_118_851,
+               evss_id: evss_claim_id,
                id: auto_established_claim_id)
       end
 
       it 'shows a single Claim through it', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim') do
           get(
-            "/services/claims/v0/claims/#{auto_established_claim_id}",
+            "/services/claims/v0/claims/#{evss_claim_id}",
             params: nil,
             headers: wesley_ford_headers
           )
@@ -149,7 +150,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       it 'shows a single Claim through it when camel-inflected', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim') do
           get(
-            "/services/claims/v0/claims/#{auto_established_claim_id}",
+            "/services/claims/v0/claims/#{evss_claim_id}",
             params: nil,
             headers: wesley_ford_headers.merge(camel_inflection_header)
           )

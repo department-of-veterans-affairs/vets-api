@@ -1,0 +1,164 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "attributes"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "appointmentType",
+              "comment",
+              "facilityId",
+              "healthcareService",
+              "location",
+              "minutesDuration",
+              "startDateLocal",
+              "startDateUtc",
+              "status"
+            ],
+            "properties": {
+              "appointmentType": {
+                "type": "string"
+              },
+              "comment": {
+                "type": ["string", "null"]
+              },
+              "facilityId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "healthcareService": {
+                "type": "string"
+              },
+              "location": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "address",
+                  "lat",
+                  "long",
+                  "phone",
+                  "url",
+                  "code"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "id": "#/properties/data/items/anyOf/0/properties/attributes/properties/location/properties/address",
+                    "type": "object",
+                    "required": [
+                      "street",
+                      "city",
+                      "state",
+                      "zipCode"
+                    ],
+                    "properties": {
+                      "street": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "zipCode": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "lat": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "long": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "phone": {
+                    "type": "object",
+                    "required": [
+                      "areaCode",
+                      "number",
+                      "extension"
+                    ],
+                    "properties": {
+                      "areaCode": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "number": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "extension": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  },
+                  "url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "code": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "minutesDuration": {
+                "type": ["integer", "null"]
+              },
+              "startDateLocal": {
+                "type": "string"
+              },
+              "startDateUtc": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
