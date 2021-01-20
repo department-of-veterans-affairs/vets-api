@@ -8,7 +8,7 @@ module V0
       render json: service.submit_financial_status_report(fsr_form)
     end
 
-    def show
+    def download_pdf
       send_data(
         service.get_pdf,
         type: 'application/pdf',
@@ -129,7 +129,7 @@ module V0
     # rubocop:enable Metrics/MethodLength
 
     def service
-      DebtManagementCenter::FinancialStatusReportService.new
+      DebtManagementCenter::FinancialStatusReportService.new(current_user)
     end
   end
 end
