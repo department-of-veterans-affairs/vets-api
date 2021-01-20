@@ -25,6 +25,52 @@ module VAForms
         next
       end
     end
+    # load('./modules/va_forms/app/workers/va_forms/form_reloader.rb')
+    def perform_curl
+      query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
+      body = { query: query }
+
+      curl_command2 = <<CURL_COMMAND
+curl -i -X POST -k -u  api:drupal8 --proxy "socks5h://host.docker.internal:2001" -d '{"query":"{\n  nodeQuery(limit: 1000, offset: 0, filter: {conditions: [{field: \"type\", value: [\"va_form\"]}]}) {\n    entities {\n      ... on NodePage {\n        fieldRelatedLinks {\n          entity {\n            parentFieldName\n          }\n        }\n      }\n      ...vaForm\n    }\n  }\n}\nfragment vaForm on NodeVaForm {\n  entityBundle\n  entityId\n  entityPublished\n  entityUrl {\n    path\n  }\n  entityTranslations {\n    entityCreated\n    entityLabel\n    entityId\n    entityChanged\n    entityBundle\n    entityType\n    entityUuid\n  }\n  entityRevisions {\n    entities {\n      entityChanged\n      ... on NodeVaForm {\n        fieldVaFormName\n      }\n    }\n  }\n  title\n  status\n  revisionLog\n  fieldVaFormDeleted\n  fieldVaFormDeletedDate {\n    value\n  }\n  langcode {\n    value\n  }\n  title\n  fieldVaFormName\n  fieldVaFormTitle\n  fieldVaFormType\n  fieldVaFormUrl {\n    uri\n  }\n  fieldVaFormUsage {\n    value\n    format\n    processed\n  }\n  fieldVaFormNumber\n  fieldVaFormToolIntro\n  fieldVaFormToolUrl {\n    uri\n    title\n    options\n  }\n  fieldBenefitCategories {\n    targetId\n    entity {\n      entityLabel\n      ... on NodeLandingPage {\n        fieldHomePageHubLabel\n      }\n    }\n  }\n  fieldVaFormRevisionDate {\n    value\n    date\n  }\n  fieldVaFormIssueDate {\n    value\n    date\n  }\n  fieldVaFormNumPages\n\n  fieldVaFormLinkTeasers {\n    entity {\n      entityLabel\n      parentFieldName\n      ... on ParagraphLinkTeaser {\n        entityId\n    \t\tfieldLink {\n          url {\n            path\n          }\n          title\n          options\n        }\n        fieldLinkSummary\n      }\n    }\n  }\n  fieldVaFormRelatedForms {\n    entity {\n      ... on NodeVaForm {\n        fieldVaFormNumber\n      }\n    }\n  }\n  changed\n  status\n}","variables":null,"operationName":null}' https://dev.cms.va.gov/graphql
+CURL_COMMAND
+      curl_command2 = curl_command2.chomp
+
+      curl_command = <<CURL_COMMAND
+curl -i -X POST -k -u  api:drupal8 --proxy "socks5h://host.docker.internal:2001" -d '#{body.to_json}' https://dev.cms.va.gov/graphql
+CURL_COMMAND
+      results, error, exit_code = nil
+      puts "starting..."
+      Open3.popen3(curl_command) {|stdin, stdout, stderr, wait_thr|
+        results = stdout.read
+        error = stderr.read
+        exit_code = wait_thr.value
+      }
+      puts "Result is:"
+      puts results[0..2000] rescue "nada"
+      results =~ /(\{\"data.*)/m
+      data = $1
+      puts 'data is:'
+      puts data
+      puts '-----------------'
+      puts "error is:"
+      puts error
+      puts '-----------------'
+      puts "exit is:"
+      puts exit_code
+      puts '-----------------'
+      #puts curl_command
+      # return
+      puts "parsing data"
+      forms_data = JSON.parse(data)
+      puts "parsing data -- dun!"
+      forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
+        build_and_save_form(form)
+      rescue => e
+        puts "#{form['fieldVaFormNumber']} failed to import into forms database"
+        puts e.message
+        next
+      end
+    end
 
     def connection
       basic_auth_class = Faraday::Request::BasicAuthentication
