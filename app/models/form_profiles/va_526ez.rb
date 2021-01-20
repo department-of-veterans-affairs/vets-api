@@ -87,6 +87,20 @@ class FormProfiles::VA526ez < FormProfile
     }
   end
 
+  def initialize_rated_disabilities_information
+    return {} unless user.authorize :evss, :access?
+
+    service = EVSS::DisabilityCompensationForm::Service.new(
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    )
+    response = service.get_rated_disabilities
+
+    # Remap response object to schema fields
+    VA526ez::FormRatedDisabilities.new(
+      rated_disabilities: response.rated_disabilities
+    )
+  end
+
   private
 
   def initialize_vets360_contact_info
@@ -116,20 +130,6 @@ class FormProfiles::VA526ez < FormProfile
 
     VA526ez::FormVeteranContactInformation.new(
       veteran: contact_info
-    )
-  end
-
-  def initialize_rated_disabilities_information
-    return {} unless user.authorize :evss, :access?
-
-    service = EVSS::DisabilityCompensationForm::Service.new(
-      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-    )
-    response = service.get_rated_disabilities
-
-    # Remap response object to schema fields
-    VA526ez::FormRatedDisabilities.new(
-      rated_disabilities: response.rated_disabilities
     )
   end
 
