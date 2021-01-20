@@ -117,6 +117,56 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       expect(subject).to validate(:delete, '/v0/in_progress_forms/{id}', 401, 'id' => form.form_id)
     end
 
+    it 'supports getting an disability_compensation_in_progress form' do
+      FactoryBot.create(:in_progress_526_form, user_uuid: mhv_user.uuid)
+      stub_evss_pciu(mhv_user)
+      VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_in_progress_forms/{id}',
+          200,
+          headers.merge('id' => FormProfiles::VA526ez::FORM_ID)
+        )
+      end
+      expect(subject).to validate(:get, '/v0/disability_compensation_in_progress_forms/{id}',
+                                  401,
+                                  'id' => FormProfiles::VA526ez::FORM_ID)
+    end
+
+    it 'supports updating an disability_compensation_in_progress form' do
+      expect(subject).to validate(
+        :put,
+        '/v0/disability_compensation_in_progress_forms/{id}',
+        200,
+        headers.merge(
+          'id' => FormProfiles::VA526ez::FORM_ID,
+          '_data' => { 'form_data' => { wat: 'foo' } }
+        )
+      )
+      expect(subject).to validate(
+        :put,
+        '/v0/disability_compensation_in_progress_forms/{id}',
+        500,
+        headers.merge('id' => FormProfiles::VA526ez::FORM_ID)
+      )
+      expect(subject).to validate(:put, '/v0/disability_compensation_in_progress_forms/{id}',
+                                  401,
+                                  'id' => FormProfiles::VA526ez::FORM_ID)
+    end
+
+    it 'supports deleting an disability_compensation_in_progress form' do
+      form = FactoryBot.create(:in_progress_526_form, user_uuid: mhv_user.uuid)
+      expect(subject).to validate(
+        :delete,
+        '/v0/disability_compensation_in_progress_forms/{id}',
+        200,
+        headers.merge('id' => FormProfiles::VA526ez::FORM_ID)
+      )
+      expect(subject).to validate(:delete, '/v0/disability_compensation_in_progress_forms/{id}',
+                                  401,
+                                  'id' => form.form_id)
+    end
+
     it 'supports adding an education benefits form' do
       expect(subject).to validate(
         :post,
