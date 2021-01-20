@@ -26,7 +26,7 @@ included_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.
 `git fetch origin master`
 
 # get branch name
-current_branch = `git branch --show-current`
+current_branch = `git branch --show-current`.chomp
 
 # ignores whitespace for the purpose of determining lines of code changed
 diff_changes = `git diff master...#{current_branch} -w --stat`.split("\n")
