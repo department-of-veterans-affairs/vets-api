@@ -47,8 +47,6 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(Struct.new(:status).new(200))
           get "/services/claims/#{version}/upstream_healthcheck"
           expect(response).to have_http_status(:ok)
-
-          parsed_response = JSON.parse(response.body)
         end
 
         %w[evss mpi bgs vbms].each do |upstream_service|
