@@ -1,0 +1,43 @@
+type: object
+required:
+  - file
+  - trackedItemId
+  - documentType
+properties:
+  file:
+    type: string
+    description: base64 string of file to upload
+  trackedItemId:
+    type: string
+    description: item id from claim eventsTimeline
+  documentType:
+    type: string
+    enum:
+      - L015
+      - L018
+      - L023
+      - L029
+      - L034
+      - L048
+      - L049
+      - L070
+      - L102
+      - L107
+      - L115
+      - L117
+      - L133
+      - L139
+      - L149
+      - L159
+      - L222
+      - L228
+      - L229
+      - L450
+      - L451
+      - L478
+      - L702
+      - L703
+      - L827
+  password:
+    type: string
+    description: password for file if file to upload is locked

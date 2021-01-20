@@ -1,0 +1,20 @@
+type: object
+required:
+  - environment
+  - buildNumber
+  - os
+properties:
+  environment:
+    type: string
+    enum:
+      - dev
+      - staging
+      - prod
+  buildNumber:
+    type: string
+    example: "10"
+  os:
+    type: string
+    enum:
+      - android
+      - ios
