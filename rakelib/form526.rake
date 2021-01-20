@@ -279,6 +279,8 @@ namespace :form526 do
       puts @retryable_form_ids
       puts 'retryable_participants'
       puts @retryable_participants
+    end
+  end
 
   desc 'Convert SIP data to camel case and fix checkboxes [/export/path.csv, ids]'
   task :convert_sip_data, [:csv_path] => :environment do |_, args|
