@@ -26,7 +26,7 @@ included_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.
 `git fetch origin master`
 
 # get branch name
-current_branch = `git branch --show-current`
+current_branch = `git branch --show-current`.chomp
 
 # ignores whitespace for the purpose of determining lines of code changed
 diff_changes = `git diff master...#{current_branch} -w --stat`.split("\n")
@@ -44,26 +44,32 @@ else
 end
 
 if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
+
+  exclusion_text = <<~EXCLUSIONS_TEXT
+
+  #### Exclusions
+
+  - #{excluded_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+
+  ####
+
+  _Note: We exclude the following files when considering PR size_
+
+  ```
+  #{EXCLUSIONS}
+
+  ```
+
+  EXCLUSIONS_TEXT
+
+
   file_summary = <<~HTML
     <details><summary>File Summary</summary>
 
     #### Included Files
 
     - #{included_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
-
-    #### Exclusions
-
-    - #{excluded_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
-
-    #### 
-
-    _Note: We exclude the following files when considering PR size_
-
-    ```
-    #{EXCLUSIONS}
-
-    ```
-
+    #{exclusion_text if excluded_files.any?}
     </details>
   HTML
 
@@ -71,7 +77,7 @@ if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
 
   if lines_of_code > PR_SIZE[:ABSOLUTE_MAXIMUM]
     msg = "This PR changes `#{lines_of_code}` LoC (not counting whitespace changes). In order to ensure each PR receives the proper attention it deserves, those exceeding `#{PR_SIZE[:ABSOLUTE_MAXIMUM]}` will not be reviewed, nor will they be allowed to merge. Please break this PR up into smaller ones. If you have reason to believe that this PR should be granted an exception, please see the [Code Review Guidelines FAQ](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/code_review_guidelines.md#faq).\n"
-    fail(msg + file_summary + footer) 
+    fail(msg + file_summary + footer)
   else
     msg = "This PR changes `#{lines_of_code}` LoC (not counting whitespace changes). In order to ensure each PR receives the proper attention it deserves, we recommend not exceeding `#{PR_SIZE[:RECOMMENDED_MAXIMUM]}`. Expect some delays getting reviews.\n"
     warn(msg + file_summary + footer)
@@ -91,11 +97,11 @@ if !db_files.empty? && !app_files.empty?
 
     #### db file(s)
 
-    - #{db_files.collect { |filepath| "#{filepath}" }.join("\n- ")} 
+    - #{db_files.collect { |filepath| "#{filepath}" }.join("\n- ")}
 
     #### app file(s)
 
-    - #{app_files.collect { |filepath| "#{filepath}" }.join("\n- ")} 
+    - #{app_files.collect { |filepath| "#{filepath}" }.join("\n- ")}
 
     </details>
 
