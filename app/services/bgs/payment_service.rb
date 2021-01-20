@@ -9,7 +9,6 @@ module BGS
         '00', # payee code
         person[:ssn_nbr]
       )
-
       return empty_response if response[:payments].nil?
 
       response
@@ -21,7 +20,7 @@ module BGS
     private
 
     def empty_response
-      { payments: [], return_payments: [] }
+      { payments: { payment: [] } }
     end
   end
 end
