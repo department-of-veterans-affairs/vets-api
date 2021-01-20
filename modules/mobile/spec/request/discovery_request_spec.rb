@@ -22,7 +22,7 @@ RSpec.describe 'discovery', type: :request do
         { 'X-Key-Inflection' => 'camel' }
       end
 
-      let(:oauth_map) do
+      let(:auth_map) do
         {
           dev: 'https://sqa.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/',
           staging: 'https://int.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/',
@@ -49,7 +49,7 @@ RSpec.describe 'discovery', type: :request do
         params = { environment: 'dev', buildNumber: '22', os: 'android' }
         post '/mobile', params: params, headers: header
         expect(response.body).to match_json_schema('discovery')
-        expect(response.parsed_body.dig('data', 'attributes', 'oauthBaseUrl')).to eq(oauth_map[:dev])
+        expect(response.parsed_body.dig('data', 'attributes', 'authBaseUrl')).to eq(auth_map[:dev])
         expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:dev])
         expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
         expect(response).to have_http_status(:ok)
@@ -59,7 +59,7 @@ RSpec.describe 'discovery', type: :request do
         params = { environment: 'staging', buildNumber: '27', os: 'ios' }
         post '/mobile', params: params, headers: header
         expect(response.body).to match_json_schema('discovery')
-        expect(response.parsed_body.dig('data', 'attributes', 'oauthBaseUrl')).to eq(oauth_map[:staging])
+        expect(response.parsed_body.dig('data', 'attributes', 'authBaseUrl')).to eq(auth_map[:staging])
         expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:staging])
         expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
         expect(response).to have_http_status(:ok)
@@ -69,7 +69,7 @@ RSpec.describe 'discovery', type: :request do
         params = { environment: 'prod', buildNumber: '55', os: 'android' }
         post '/mobile', params: params, headers: header
         expect(response.body).to match_json_schema('discovery')
-        expect(response.parsed_body.dig('data', 'attributes', 'oauthBaseUrl')).to eq(oauth_map[:prod])
+        expect(response.parsed_body.dig('data', 'attributes', 'authBaseUrl')).to eq(auth_map[:prod])
         expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:prod])
         expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
         expect(response).to have_http_status(:ok)
@@ -79,8 +79,8 @@ RSpec.describe 'discovery', type: :request do
         params = { environment: 'prod', buildNumber: '10', os: 'ios' }
         post '/mobile', params: params, headers: header
         expect(response.body).to match_json_schema('discovery')
-        expect(response.parsed_body.dig('data', 'attributes', 'oauthBaseUrl')).to eq(oauth_map[:prod])
-        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:prod])
+        expect(response.parsed_body.dig('data', 'attributes', 'authBaseUrl')).to eq('')
+        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq('')
         expect(response.parsed_body.dig('data', 'attributes', 'appAccess')).to be(false)
         expect(response.parsed_body.dig('data', 'attributes', 'displayMessage')).to eq('Please update the app.')
         expect(response.parsed_body.dig('data', 'id')).to eq('deprecated')

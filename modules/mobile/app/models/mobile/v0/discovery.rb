@@ -10,9 +10,8 @@ module Mobile
       attribute :endpoints, Types::Hash
       attribute :display_message, Types::String
       attribute :app_access, Types::Bool
-      attribute :oauth_base_url, Types::String
+      attribute :auth_base_url, Types::String
       attribute :api_root_url, Types::String
     end
   end
 end
-
