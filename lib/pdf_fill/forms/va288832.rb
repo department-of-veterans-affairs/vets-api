@@ -78,7 +78,7 @@ module PdfFill
               question_text: 'DATE OF BIRTH'
             }
           },
-          'VAFileNumber' => {
+          'vaFileNumber' => {
             key: 'F[0].Page_1[0].VAFileNumber[0]',
             limit: 8,
             question_num: 1,
@@ -235,7 +235,7 @@ module PdfFill
             question_text: 'DATE OF BIRTH'
           }
         },
-        'VAFileNumber' => {
+        'vaFileNumber' => {
           key: 'F[0].Page_1[0].VETERANS_VAFileNumber[0]',
           limit: 8,
           question_num: 6,
