@@ -22,18 +22,15 @@ module DebtManagementCenter
     end
 
     def download_pdf
-      byebug
       uri = URI.parse(
-        "#{Settings.dmc.url}/financial-status-report/documentstream/#{@financial_status_report.filenet_id}"
+        "#{Settings.dmc.url}financial-status-report/documentstream?objectId=#{@financial_status_report.filenet_id}"
       )
       http = Net::HTTP.new(uri.host, uri.port)
-      request = Net::HTTP::GET.new(uri.request_uri)
+      request = Net::HTTP::Get.new(uri.request_uri)
 
-      request_headers.each do |header, value|
-        request[header] = value
-      end
-
-      http.request(request)
+      request_headers.each { |header, value| request[header] = value }
+      response = http.request(request)
+      response.body
     end
   end
 end

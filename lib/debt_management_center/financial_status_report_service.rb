@@ -44,7 +44,6 @@ module DebtManagementCenter
     #
     def get_pdf
       financial_status_report = DebtManagementCenter::FinancialStatusReport.find(@user.uuid)
-      byebug
       downloader = DebtManagementCenter::FinancialStatusReportDownloader.new(financial_status_report)
       downloader.download_pdf
     end
