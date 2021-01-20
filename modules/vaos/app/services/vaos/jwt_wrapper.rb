@@ -46,15 +46,15 @@ module VAOS
     end
 
     def first_name
-      user.mpi&.profile&.given_names&.first
+      user.va_profile&.given_names&.first
     end
 
     def last_name
-      user.mpi&.profile&.family_name
+      user.va_profile&.family_name
     end
 
     def gender
-      type = user.mpi&.profile&.gender
+      type = user.va_profile&.gender
       return '' unless type.is_a?(String)
 
       case type.upcase[0, 1]
@@ -66,15 +66,15 @@ module VAOS
     end
 
     def dob
-      user.mpi&.profile&.birth_date
+      user.va_profile&.birth_date
     end
 
     def edipi
-      user.mpi&.profile&.edipi
+      user.va_profile&.edipi
     end
 
     def ssn
-      user.mpi&.profile&.ssn
+      user.va_profile&.ssn
     end
   end
 end
