@@ -20,7 +20,7 @@ module DebtManagementCenter
       @user = user
     end
 
-    ## 
+    ##
     # Submit a financial status report to the Debt Management Center
     #
     # @param form [JSON] JSON serialized form data of a Financial Status Report form (VA-5655)
@@ -36,7 +36,7 @@ module DebtManagementCenter
         { status: response.status }
       end
     end
-    
+
     ##
     # Downloads a copy of a user's filled Financial Status Report (VA-5655)
     #
