@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
 module VBMS
-  class SubmitDependentsPdfJob
+  class SubmitDependentsDocumentJob
     class Invalid686cClaim < StandardError; end
     include Sidekiq::Worker
     include SentryLogging
 
     # Generates PDF for 686c form and uploads to VBMS
     def perform(saved_claim_id:, va_file_number_with_payload:, submittable_686:, submittable_674:)
+      Rails.logger.warn("*** Here is saved_claim_id: #{saved_claim_id} ***")
+      Rails.logger.warn("*** Here is va_file_number_with_payload: #{va_file_number_with_payload} ***")
+      Rails.logger.warn("*** Here is submittable_686: #{submittable_686} ***")
+      Rails.logger.warn("*** Here is submittable_674: #{submittable_674} ***")
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(va_file_number_with_payload)
-
+      Rails.logger.warn("*** Here is claim: #{claim.parsed_form} ***")
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim.persistent_attachments.each do |attachment|

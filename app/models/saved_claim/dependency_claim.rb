@@ -107,7 +107,9 @@ class SavedClaim::DependencyClaim < SavedClaim
   def partitioned_686_674_params
     dependent_data = parsed_form
 
-    college_student_data = dependent_data['dependents_application'].extract!(*STUDENT_ATTENDING_COLLEGE_KEYS)
+    student_data = dependent_data['dependents_application'].extract!(*STUDENT_ATTENDING_COLLEGE_KEYS)
+    veteran_data = dependent_data['dependents_application'].slice('household_income', 'veteran_contact_information')
+    college_student_data = { 'dependents_application' => student_data.merge!(veteran_data) }
 
     { college_student_data: college_student_data, dependent_data: dependent_data }
   end
