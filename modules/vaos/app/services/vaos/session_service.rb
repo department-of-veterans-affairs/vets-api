@@ -11,7 +11,6 @@ module VAOS
     private
 
     def perform(method, path, params, headers = nil, options = nil)
-binding.pry
       response = super(method, path, params, headers, options)
       user_service.extend_session(@user.account_uuid)
       response

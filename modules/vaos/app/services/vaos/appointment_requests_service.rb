@@ -15,7 +15,6 @@ module VAOS
 
     def get_request(id)
       params = {}
-      binding.pry
       with_monitoring do
         response = perform(:get, get_request_url(id), params, headers)
 

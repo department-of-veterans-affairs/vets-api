@@ -136,6 +136,7 @@ http_interactions:
                   "createdDate": "08/28/2019 09:17:40",
                   "detailCode": {
                     "code": "DETCODE24",
+                    "codeNumeric": 1,
                     "providerMessage": "Cancelled - Other",
                     "veteranMessage": "Your requested has been cancelled. Please contact the facility if you have questions regarding this request or scheduling a related appointment.",
                     "objectType": "VARDetailCode",

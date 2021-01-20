@@ -11,7 +11,7 @@
       "minItems": 1,
       "uniqueItems": true,
       "items": {
-        "$ref": "appointment_request_raw.json"
+        "$ref": "appointment_request.json"
       }
     },
     "meta": {

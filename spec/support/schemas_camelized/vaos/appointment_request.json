@@ -87,10 +87,16 @@
               ]
             },
             "state": {
-              "type": "string"
+              "type": [
+                "string",
+                null
+              ]
             },
             "city": {
-              "type": "string"
+              "type": [
+                "string",
+                null
+              ]
             },
             "parentSiteCode": {
               "type": "string"
@@ -169,6 +175,12 @@
                   "properties": {
                     "code": {
                       "type": "string"
+                    },
+                    "codeNumeric": {
+                      "type": [
+                        "integer",
+                        null
+                      ]
                     },
                     "providerMessage": {
                       "type": "string"
