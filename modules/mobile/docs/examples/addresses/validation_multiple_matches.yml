@@ -1,6 +1,6 @@
 data:
   - id: "8e07b8ff-6b36-4110-9225-a1a9e785ee13"
-    type: "suggested_address"
+    type: "suggested_addresses"
     attributes:
       addressLine1: "37 N 1st St"
       addressLine2: null
