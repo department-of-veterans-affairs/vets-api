@@ -13,7 +13,7 @@ module AppealsApi
           end
 
           def build!
-            return pdf if no_content
+            return pdf unless extra_issues?
 
             pdf.start_new_page
 
@@ -26,10 +26,6 @@ module AppealsApi
           private
 
           attr_accessor :pdf, :form_data
-
-          def no_content
-            !extra_issues?
-          end
 
           def extra_issues?
             form_data.contestable_issues.count > MAX_ISSUES_ON_FIRST_PAGE
