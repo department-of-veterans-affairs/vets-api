@@ -87,7 +87,6 @@ RSpec.describe 'appointments', type: :request do
         let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
 
         it 'returns an ok response' do
-          File.write('doc.json', response.body)
           expect(response).to have_http_status(:ok)
         end
 
@@ -160,8 +159,8 @@ RSpec.describe 'appointments', type: :request do
                   'lat' => nil,
                   'long' => nil,
                   'phone' => {
-                    'areaCode' => nil,
-                    'number' => nil,
+                    'areaCode' => '999',
+                    'number' => '999-9999',
                     'extension' => nil
                   },
                   'url' => nil,
