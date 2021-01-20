@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bgs/service'
 require 'mpi/service'
 require 'evss/service'
