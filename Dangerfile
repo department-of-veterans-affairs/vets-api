@@ -19,16 +19,27 @@ EXCLUSIONS = [
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
 changed_files = git.diff.stats[:files]
 
-excluded_changed_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
-filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+excluded_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+included_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+
+# fetch master for diff comparison
+`git fetch origin master`
+
+# get branch name
+current_branch = `git branch --show-current`
 
 # ignores whitespace for the purpose of determining lines of code changed
-changes = `git diff master... -w --stat`.split("\n")
-lines_of_code = changes.sum(0) do |change|
-  if change == changes.last || EXCLUSIONS.any? { |exclusion| change.match(exclusion) }
-    0
-  else
-    change.match(/\|\s+(\d+)/)[1].to_i
+diff_changes = `git diff master...#{current_branch} -w --stat`.split("\n")
+
+if diff_changes.empty?
+  lines_of_code = included_files.sum { |_file, changes| changes[:insertions] + changes[:deletions] }
+else
+  lines_of_code = diff_changes.sum(0) do |change|
+    if change == diff_changes.last || EXCLUSIONS.any? { |exclusion| change.match(exclusion) } || change.match(/\|\s+Bin/)
+      0
+    else
+      change.match(/\|\s+(\d+)/)[1].to_i
+    end
   end
 end
 
@@ -38,11 +49,11 @@ if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
 
     #### Included Files
 
-    - #{filtered_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+    - #{included_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
     #### Exclusions
 
-    - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+    - #{excluded_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
 
     #### 
 

@@ -130,6 +130,7 @@ module V0
       Swagger::Requests::DebtLetters,
       Swagger::Requests::DependentsApplications,
       Swagger::Requests::DisabilityCompensationForm,
+      Swagger::Requests::DisabilityCompensationInProgressForms,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Efolder,
       Swagger::Requests::FeatureToggles,

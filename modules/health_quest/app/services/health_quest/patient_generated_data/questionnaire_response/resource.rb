@@ -9,17 +9,17 @@ module HealthQuest
       # @!attribute user
       #   @return [User]
       # @!attribute model
-      #   @return [FHIR::DSTU2::Patient]
+      #   @return [FHIR::Patient]
       # @!attribute identifier
-      #   @return [FHIR::DSTU2::Identifier]
+      #   @return [FHIR::Identifier]
       # @!attribute meta
-      #   @return [FHIR::DSTU2::Meta]
+      #   @return [FHIR::Meta]
       # @!attribute data
       #   @return [Hash]
       # @!attribute author_reference
-      #   @return [FHIR::DSTU2::Reference]
+      #   @return [FHIR::Reference]
       # @!attribute questionnaire_reference
-      #   @return [FHIR::DSTU2::Reference]
+      #   @return [FHIR::Reference]
       class Resource
         include PatientGeneratedData::Common::IdentityMetaInfo
         ##
@@ -49,19 +49,19 @@ module HealthQuest
         end
 
         def initialize(data, user)
-          @model = FHIR::DSTU2::QuestionnaireResponse.new
+          @model = FHIR::QuestionnaireResponse.new
           @data = data
           @user = user
-          @identifier = FHIR::DSTU2::Identifier.new
-          @meta = FHIR::DSTU2::Meta.new
-          @author_reference = FHIR::DSTU2::Reference.new
-          @questionnaire_reference = FHIR::DSTU2::Reference.new
+          @identifier = FHIR::Identifier.new
+          @meta = FHIR::Meta.new
+          @author_reference = FHIR::Reference.new
+          @questionnaire_reference = FHIR::Reference.new
         end
 
         ##
-        # Builds the FHIR::DSTU2::QuestionnaireResponse object for the PGD.
+        # Builds the FHIR::QuestionnaireResponse object for the PGD.
         #
-        # @return [FHIR::DSTU2::QuestionnaireResponse]
+        # @return [FHIR::QuestionnaireResponse]
         #
         def prepare
           model.tap do |p|
@@ -73,12 +73,12 @@ module HealthQuest
             p.author = set_author
             p.subject = set_subject
             p.questionnaire = set_questionnaire
-            p.group = set_group
+            p.item = set_item
           end
         end
 
         ##
-        # Builds the text hash attribute for the FHIR::DSTU2::QuestionnaireResponse object.
+        # Builds the text hash attribute for the FHIR::QuestionnaireResponse object.
         #
         # @return [Hash] text information
         #
@@ -90,16 +90,16 @@ module HealthQuest
         end
 
         ##
-        # Sets the author reference for the FHIR::DSTU2::Reference object.
+        # Sets the author reference for the FHIR::Reference object.
         #
-        # @return [FHIR::DSTU2::Reference] a reference for the author
+        # @return [FHIR::Reference] a reference for the author
         #
         def set_author
           author_reference.reference = "Patient/#{user.icn}"
         end
 
         ##
-        # Builds the subject hash attribute for the FHIR::DSTU2::QuestionnaireResponse object.
+        # Builds the subject hash attribute for the FHIR::QuestionnaireResponse object.
         #
         # @return [Hash] subject information
         #
@@ -115,21 +115,21 @@ module HealthQuest
         end
 
         ##
-        # Sets the questionnaire reference for the FHIR::DSTU2::Reference object.
+        # Sets the questionnaire reference for the FHIR::Reference object.
         #
-        # @return [FHIR::DSTU2::Reference] a reference for the questionnaire
+        # @return [FHIR::Reference] a reference for the questionnaire
         #
         def set_questionnaire
           questionnaire_reference.reference = "Questionnaire/#{DEFAULT_QUESTIONNAIRE_ID}"
         end
 
         ##
-        # Builds the group hash attribute for the FHIR::DSTU2::QuestionnaireResponse object.
+        # Builds the item array attribute for the FHIR::QuestionnaireResponse object.
         #
-        # @return [Hash] group information
+        # @return [Array] item information
         #
-        def set_group
-          data[:group]
+        def set_item
+          data[:item]
         end
 
         ##

@@ -9,7 +9,7 @@ module HealthQuest
 
       def client
         FHIR::Client.new(url).tap do |client|
-          client.use_dstu2
+          client.use_r4
           client.default_json
           client.additional_headers = headers&.merge(accept_headers)
         end
