@@ -5,7 +5,7 @@ namespace :test_user_account do
   task load: :environment do
     file_path = File.join(Rails.root, "modules/test_user_dashboard/db/seeds/test_users.csv")
     CSV.foreach(file_path, headers: true) do |row|
-      CreateTestUserAccount.new(row).call
+      ::TestUserDashboard::CreateTestUserAccount.new(row).call
     end
   end
 end
