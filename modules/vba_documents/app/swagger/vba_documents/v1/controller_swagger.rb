@@ -7,6 +7,10 @@ module VBADocuments
 
       swagger_path '/uploads' do
         operation :post do
+          extend VBADocuments::V1::Responses::ForbiddenError
+          extend VBADocuments::V1::Responses::InternalServerError
+          extend VBADocuments::V1::Responses::UnexpectedError
+          extend VBADocuments::V1::Responses::UnauthorizedError
           key :summary, 'Get a location for subsequent document upload PUT request'
           key :operationId, 'postBenefitsDocumentUpload'
           security do
@@ -24,39 +28,19 @@ module VBADocuments
                 key :required, [:data]
                 property :data do
                   key :'$ref', :DocumentUploadSubmission
+                  key :PdfUploadAttributes, nil
                 end
               end
             end
           end
 
-          response 401 do
-            key :description, 'Unauthorized Request'
-          end
-
-          response 403 do
-            key :description, 'Bad API Token'
-          end
-
-          response :default do
-            key :description, 'unexpected error'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:errors]
-                property :errors do
-                  key :type, :array
-                  items do
-                    key :'$ref', :ErrorModel
-                  end
-                end
-              end
-            end
-          end
         end
       end
 
       swagger_path '/path' do
         operation :put do
+          extend VBADocuments::V1::Responses::InternalServerError
+          extend VBADocuments::V1::Responses::UnauthorizedError
           key :summary, 'Accepts document upload.'
           key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'put_description.md'))
           key :operationId, 'putBenefitsDocumentUpload'
@@ -93,6 +77,11 @@ module VBADocuments
 
       swagger_path '/uploads/{id}' do
         operation :get do
+          extend VBADocuments::V1::Responses::NotFoundError
+          extend VBADocuments::V1::Responses::UnexpectedError
+          extend VBADocuments::V1::Responses::InternalServerError
+          extend VBADocuments::V1::Responses::UnauthorizedError
+          extend VBADocuments::V1::Responses::ForbiddenError
           key :summary, 'Get status for a previous benefits document upload'
           key :operationId, 'getBenefitsDocumentUploadStatus'
 
@@ -128,38 +117,15 @@ module VBADocuments
             end
           end
 
-          response 401 do
-            key :description, 'Unauthorized request'
-          end
-
-          response 403 do
-            key :description, 'Bad API Token'
-          end
-
-          response 404 do
-            key :description, 'Not Found'
-          end
-
-          response :default do
-            key :description, 'unexpected error'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:errors]
-                property :errors do
-                  key :type, :array
-                  items do
-                    key :'$ref', :ErrorModel
-                  end
-                end
-              end
-            end
-          end
         end
       end
 
       swagger_path '/uploads/{id}/download' do
         operation :get do
+          extend VBADocuments::V1::Responses::UnauthorizedError
+          extend VBADocuments::V1::Responses::ForbiddenError
+          extend VBADocuments::V1::Responses::NotFoundError
+          extend VBADocuments::V1::Responses::InternalServerError
           key :summary, 'Download zip of "what the server sees"'
           key :description, 'An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Only available in sandbox'
           key :operationId, 'getBenefitsDocumentUploadDownload'
@@ -191,23 +157,15 @@ module VBADocuments
               end
             end
           end
-
-          response 401 do
-            key :description, 'Unauthorized request'
-          end
-
-          response 403 do
-            key :description, 'Bad API Token'
-          end
-
-          response 404 do
-            key :description, 'Not Found'
-          end
         end
       end
 
       swagger_path '/uploads/report' do
         operation :post do
+          extend VBADocuments::V1::Responses::UnauthorizedError
+          extend VBADocuments::V1::Responses::ForbiddenError
+          extend VBADocuments::V1::Responses::UnexpectedError
+          extend VBADocuments::V1::Responses::InternalServerError
           key :tags, %i[document_uploads]
 
           key :summary, 'Get a bulk status report for a list of previous uploads'
@@ -245,29 +203,6 @@ module VBADocuments
             key :description, 'Bad Request - invalid or missing list of guids'
           end
 
-          response 401 do
-            key :description, 'Unauthorized Request'
-          end
-
-          response 403 do
-            key :description, 'Bad API Token'
-          end
-
-          response :default do
-            key :description, 'unexpected error'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:errors]
-                property :errors do
-                  key :type, :array
-                  items do
-                    key :'$ref', :ErrorModel
-                  end
-                end
-              end
-            end
-          end
         end
       end
     end
