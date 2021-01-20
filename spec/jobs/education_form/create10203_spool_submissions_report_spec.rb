@@ -11,11 +11,15 @@ RSpec.describe EducationForm::Create10203SpoolSubmissionsReport, type: :aws_help
 
   context 'with some sample claims', run_at: '2017-07-27 00:00:00 -0400' do
     let!(:education_benefits_claim_1) do
-      create(:education_benefits_claim_10203, processed_at: time.beginning_of_day)
+      create(:education_benefits_claim_10203,
+             processed_at: time.beginning_of_day,
+             education_stem_automated_decision: build(:education_stem_automated_decision, :with_poa, :denied))
     end
 
     let!(:education_benefits_claim_2) do
-      create(:education_benefits_claim_10203, processed_at: time.beginning_of_day)
+      create(:education_benefits_claim_10203,
+             processed_at: time.beginning_of_day,
+             education_stem_automated_decision: build(:education_stem_automated_decision, :processed))
     end
 
     before do
@@ -30,10 +34,11 @@ RSpec.describe EducationForm::Create10203SpoolSubmissionsReport, type: :aws_help
           csv_array: [['Submitted VA.gov Applications - Report YYYY-MM-DD', 'Claimant Name',
                        'Veteran Name', 'Confirmation #', 'Time Submitted', 'Denied (Y/N)',
                        'POA (Y/N)', 'RPO'],
-                      ['', 'Mark Olson', nil, education_benefits_claim_1.confirmation_number, '2017-07-27 00:00:00 UTC',
-                       'eastern'],
+                      ['', nil, 'Mark Olson', education_benefits_claim_1.confirmation_number, '2017-07-27 00:00:00 UTC',
+                       'Y', 'Y', 'eastern'],
                       ['', nil, 'Mark Olson', education_benefits_claim_2.confirmation_number, '2017-07-27 00:00:00 UTC',
-                       'eastern']]
+                       'N', 'N', 'eastern'],
+                      ['Total Submissions and Denials', '', '', '', 2, 1, '']]
         )
       end
     end

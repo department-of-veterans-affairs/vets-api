@@ -58,7 +58,7 @@ module EducationForm
     end
 
     def processed_submissions
-      EducationBenefitsClaim.where(
+      EducationBenefitsClaim.includes(:saved_claim, :education_stem_automated_decision).where(
         processed_at: processed_at_range,
         saved_claims: {
           form_id: '22-10203'
@@ -74,13 +74,13 @@ module EducationForm
        format_name(parsed_form['veteranFullName']),
        ebc.confirmation_number,
        ebc.processed_at.to_s,
-       denied(education_benefits_claim.education_stem_automated_decision&.automated_decision_state),
-       poa?(education_benefits_claim.education_stem_automated_decision&.poa),
+       denied(ebc.education_stem_automated_decision&.automated_decision_state),
+       poa?(ebc.education_stem_automated_decision&.poa),
        ebc.regional_processing_office]
     end
 
     def perform
-      return false unless FeatureFlipper.send_edu_report_email? &&  Flipper.enabled?(:stem_automated_decision)
+      return false unless Flipper.enabled?(:stem_automated_decision)
 
       @time = Time.zone.now
       folder = 'tmp/spool10203_reports'
@@ -93,6 +93,8 @@ module EducationForm
           csv << row
         end
       end
+
+      return false unless FeatureFlipper.send_edu_report_email?
 
       Spool10203SubmissionsReportMailer.build(filename).deliver_now
     end
