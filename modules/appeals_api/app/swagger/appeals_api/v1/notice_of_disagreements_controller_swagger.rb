@@ -8,10 +8,40 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   PATH_ENABLED_FOR_ENV = Settings.modules_appeals_api.documentation.notice_of_disagreements_v1
 
   NOD_TAG = ['Notice of Disagreements'].freeze
+  OBJ = :object
 
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
   read_json_from_same_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
+
+  response_nod_show_not_found = read_json_from_same_dir['response_nod_show_not_found.json']
+  example_all_fields_used = read_json[['spec', 'fixtures', 'valid_10182.json']]
+
+  response_nod_show_success = lambda do
+    properties = {
+      status: { '$ref': '#/components/schemas/nodStatus' },
+      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
+      createdAt: { '$ref': '#/components/schemas/timeStamp' },
+      formData: { '$ref': '#/components/schemas/nodCreate' }
+    }
+    type = :noticeOfDisagreement
+    schema = {
+      type: OBJ,
+      properties: {
+        id: { '$ref': '#/components/schemas/uuid' },
+        type: { type: :string, enum: [type] },
+        attributes: { type: OBJ, properties: properties }
+      }
+    }
+    time = '2020-04-23T21:06:12.531Z'
+    attrs = { status: :processing, updatedAt: time, createdAt: time, formData: example_all_fields_used }
+    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
+
+    {
+      description: 'Info about a single Notice of Disagreement',
+      content: { 'application/json': { schema: schema, examples: { 'NodFound': { value: example } } } }
+    }
+  end.call
 
   ERROR_500_EXAMPLE = {
     "errors": [
@@ -185,6 +215,23 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
             end
           end
         end
+      end
+    end
+  end
+
+  swagger_path '/notice_of_disagreements/{uuid}' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :get, tags: NOD_TAG do
+      key :operationId, 'getNoticeOfDisagreement'
+      key :summary, 'Shows a specific Notice of Disagreement.'
+      key :description, 'Returns all of the data associated with a specific Notice of Disagreement.'
+      parameter name: 'uuid', 'in': 'path', required: true, description: 'Notice of Disagreement UUID' do
+        schema { key :'$ref', :uuid }
+      end
+      key :responses, '200': response_nod_show_success, '404': response_nod_show_not_found
+      security do
+        key :apikey, []
       end
     end
   end
