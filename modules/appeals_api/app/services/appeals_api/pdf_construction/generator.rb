@@ -17,7 +17,7 @@ module AppealsApi
         @all_pages_path = insert_additional_pages
         #=> '#{appeal.id}-completed-unstamped-tmp.pdf OR @form_fill_path'
 
-        @unstamped_path = rebuild_pages
+        @unstamped_path = finalize_pages
         #=> '#{appeal.id}-rebuilt-pages-tmp.pdf OR @all_pages_path'
 
         stamp
@@ -55,7 +55,7 @@ module AppealsApi
         combine_form_fill_and_additional_pages(additional_pages_added_path)
       end
 
-      def rebuild_pages
+      def finalize_pages
         return @all_pages_path unless structure.final_page_adjustments
 
         pdftk = PdfForms.new(Settings.binaries.pdftk)
