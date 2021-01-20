@@ -273,7 +273,7 @@ ActiveRecord::Schema.define(version: 2021_01_20_175426) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "poa"
-    t.string "encrypted_auth_headers_json", null: false
+    t.string "encrypted_auth_headers_json"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
