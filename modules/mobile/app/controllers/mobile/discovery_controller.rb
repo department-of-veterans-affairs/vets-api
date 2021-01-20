@@ -11,7 +11,7 @@ module Mobile
     end
 
     def index
-      render json: Mobile::V0::DiscoverySerializer.new(Mobile::V0::Adapters::Discovery.new.generate_response(params))
+      render json: Mobile::V0::DiscoverySerializer.new(Mobile::V0::Discovery.new(params))
     end
   end
 end
