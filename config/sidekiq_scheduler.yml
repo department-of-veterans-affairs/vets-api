@@ -21,7 +21,7 @@ EducationForm::CreateSpoolSubmissionsReport:
 
 EducationForm::Create10203SpoolSubmissionsReport:
   cron: "30 4 * * MON-FRI America/New_York"
-  description: "Send the daily report to the call center about spool file submissions"
+  description: "Send the daily 10203 report to the call center about spool file submissions"
 
 Preneeds::DeleteOldUploads:
   cron: "15 2 * * * America/New_York"
