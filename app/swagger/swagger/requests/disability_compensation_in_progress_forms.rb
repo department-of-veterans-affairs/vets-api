@@ -8,22 +8,6 @@ module Swagger
       tags = { tags: %w[in_progress_forms form_526] }
 
       swagger_path '/v0/disability_compensation_in_progress_forms/{id}' do
-        operation :get, **tags do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Get Saved Form Summaries'
-          key :operationId, 'listInProgressForms'
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'get saved form summaries'
-            schema { key :'$ref', :InProgressFormsResponse }
-          end
-        end
-      end
-
-      swagger_path '/v0/disability_compensation_in_progress_forms/{id}' do
         operation :delete, **tags do
           extend Swagger::Responses::AuthenticationError
 
