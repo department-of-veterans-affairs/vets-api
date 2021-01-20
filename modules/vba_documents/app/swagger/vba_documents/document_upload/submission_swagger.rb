@@ -32,16 +32,15 @@ module VBADocuments
             schema do
               key :type, :object
               key :required, %i[location]
-
+            end
+            schema do
+              key :$ref, :DocumentUploadStatusAttributes
               property :location do
                 key :description, 'Location to which to PUT document Payload'
                 key :type, :string
                 key :format, :uri
                 key :example, 'https://sandbox-api.va.gov/services_user_content/vba_documents/{idpath}'
               end
-            end
-            schema do
-              key :$ref, :DocumentUploadStatusAttributes
             end
           end
         end

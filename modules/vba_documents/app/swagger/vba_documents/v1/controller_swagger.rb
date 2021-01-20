@@ -28,12 +28,10 @@ module VBADocuments
                 key :required, [:data]
                 property :data do
                   key :'$ref', :DocumentUploadSubmission
-                  key :PdfUploadAttributes, nil
                 end
               end
             end
           end
-
         end
       end
 
@@ -116,7 +114,6 @@ module VBADocuments
               end
             end
           end
-
         end
       end
 
@@ -202,7 +199,6 @@ module VBADocuments
           response 400 do
             key :description, 'Bad Request - invalid or missing list of guids'
           end
-
         end
       end
     end
