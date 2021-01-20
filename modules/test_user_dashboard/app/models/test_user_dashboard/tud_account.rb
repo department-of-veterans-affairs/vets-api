@@ -2,8 +2,10 @@
 
 module TestUserDashboard
   class TudAccount < ApplicationRecord
-    attr_accessor :standard, :available, :checkout_time
+    ID_PROVIDERS = %w(id_me dslogon mhv)
 
-    belongs_to :account
+    validates :first_name, :last_name, :email, :gener, :id_provider, presence: true
+    validates :id_provider, inclusion: { in: ID_PROVIDERS }
+
   end
 end
