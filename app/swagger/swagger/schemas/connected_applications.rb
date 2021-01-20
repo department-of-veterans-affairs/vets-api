@@ -15,6 +15,7 @@ module Swagger
               property :title, type: :string
               property :created, type: :string
               property :logo, type: :string
+              property :privacy_url, type: :string
               property :grants, type: :array do
                 items do
                   property :id, type: :string

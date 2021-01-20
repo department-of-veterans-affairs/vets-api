@@ -127,8 +127,6 @@ RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
         it 'returns a path' do
           with_settings(Settings.evss.s3, uploads_enabled: true) do
             allow(URI).to receive(:parse).and_return(OpenStruct.new(open: StringIO.new))
-            puts Settings.evss.s3.uploads_enabled
-            puts subject
             expect(subject).to be_a String
             expect(subject).not_to be_empty
           end
@@ -139,8 +137,6 @@ RSpec.describe ClaimsApi::VBMSUploadJob, type: :job do
         it 'returns a path' do
           with_settings(Settings.evss.s3, 'uploads_enabled' => true) do
             allow(URI).to receive(:parse).and_return(OpenStruct.new(open: Tempfile.new))
-            puts Settings.evss.s3.uploads_enabled
-            puts subject
             expect(subject).to be_a String
             expect(subject).not_to be_empty
           end
