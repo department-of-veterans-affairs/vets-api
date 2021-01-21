@@ -12,15 +12,13 @@ data:
       location:
         name: VA Long Beach Healthcare System
         address:
-          line1: 5901 East 7th Street
-          line2: Building 165
-          line3: null
+          street: 5901 East 7th Street, Building 165
           city: Long Beach
           state: CA
           zipCode: "90822"
         phone:
-          areaCode: 562
-          number: 826-8000
+          areaCode: "562"
+          number: "826-8000"
           extension: null
         url: null
         code: GL45678

@@ -57,22 +57,14 @@ properties:
           address:
             type: object
             required:
-              - line1
-              - line2
-              - line3
+              - street
               - city
               - state
               - zipCode
             properties:
-              line1:
+              street:
                 type: string
-                example: 5901 East 7th Street
-              line2:
-                type: string
-                example: Building 166
-              line3:
-                type: string
-                example: null
+                example: 5901 East 7th Street, Building 166
               city:
                 type: string
                 example: Long Beach
