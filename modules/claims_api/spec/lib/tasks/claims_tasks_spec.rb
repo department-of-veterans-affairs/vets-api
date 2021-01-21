@@ -10,7 +10,8 @@ describe 'rake claims:export', type: :task do # rubocop:disable RSpec/DescribeCl
   let(:tasks) { Rake::Task }
 
   before do
-    Rails.application.load_tasks
+    load File.expand_path('../../../lib/tasks/claims_tasks.rake', __dir__)
+    Rake::Task.define_task(:environment)
   end
 
   it 'preloads the Rails environment' do
