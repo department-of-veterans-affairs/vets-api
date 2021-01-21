@@ -31,24 +31,28 @@ module Mobile
             time_zone = time_zone(appointment_hash[:time_zone], location.dig(:address, :state))
             start_date_local = start_date_utc.in_time_zone(time_zone)
 
-            adapted_hash = {
-              id: appointment_hash[:appointment_request_id],
-              appointment_type: COMMUNITY_CARE_TYPE,
-              comment: appointment_hash[:instructions_to_veteran],
-              facility_id: nil, # not a VA location
-              healthcare_service: appointment_hash[:provider_practice],
-              location: location,
-              minutes_duration: 60, # not in raw data, matches va.gov default for cc appointments
-              start_date_local: start_date_local,
-              start_date_utc: start_date_utc,
-              status: BOOKED_STATUS
-            }
+            adapted_hash = generate_hash(appointment_hash, location, start_date_local, start_date_utc)
 
             Mobile::V0::Appointment.new(adapted_hash)
           end
         end
 
         private
+
+        def generate_hash(appointment_hash, location, start_date_local, start_date_utc)
+          {
+            id: appointment_hash[:appointment_request_id],
+            appointment_type: COMMUNITY_CARE_TYPE,
+            comment: appointment_hash[:instructions_to_veteran],
+            facility_id: nil, # not a VA location
+            healthcare_service: appointment_hash[:provider_practice],
+            location: location,
+            minutes_duration: 60, # not in raw data, matches va.gov default for cc appointments
+            start_date_local: start_date_local,
+            start_date_utc: start_date_utc,
+            status: BOOKED_STATUS
+          }
+        end
 
         def location(name, address, phone)
           # captures area code \((\d{3})\) number (after space) \s(\d{3}-\d{4})
