@@ -1,5 +1,3 @@
-# rubocop:disable Naming/FileName
-# rubocop:enable Naming/FileName
 # frozen_string_literal: true
 
 module VSPDanger
@@ -193,7 +191,7 @@ module VSPDanger
 
     class ChangeLimiterTest < MiniTest::Test
       def test_rubocop
-        assert system("rubocop #{__FILE__} --format simple")
+        assert system('rubocop --format simple')
       end
 
       # TODO: Remove dummy test
