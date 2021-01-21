@@ -4,8 +4,9 @@ module TestUserDashboard
   class CreateTestUserAccount
     attr_accessor :row, :test_user_account
 
-    def initialize(row={})
-      @test_user_account = ::TestUserDashboard::TudAccount.new(row)
+    def initialize(row = {})
+      account_hash = row.to_h
+      @test_user_account = ::TestUserDashboard::TudAccount.new(account_hash)
     end
 
     def call
