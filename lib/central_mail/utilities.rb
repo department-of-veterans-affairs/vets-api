@@ -47,7 +47,8 @@ module CentralMail
                         'source' => uploaded_object.consumer_name,
                         'consumer_id' => uploaded_object.consumer_id,
                         'consumer_username' => uploaded_object.consumer_name,
-                        'uuid' => uploaded_object.id,
+                        'id' => uploaded_object.id,
+                        'guid' => uploaded_object.guid,
                         'code' => e.code,
                         'detail' => e.detail)
     end

@@ -43,9 +43,11 @@ module VBADocuments
         response = submit(metadata, parts)
         process_response(response)
         log_submission(@upload, metadata)
-      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError
+      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError => e
+        Rails.logger.warning("Exception in download_and_process for guid #{@upload.guid}.", e)
         VBADocuments::UploadSubmission.refresh_statuses!([@upload])
       rescue VBADocuments::UploadError => e
+        Rails.logger.warning("UploadError download_and_process for guid #{@upload.guid}.", e)
         retry_errors(e, @upload)
       ensure
         tempfile.close
