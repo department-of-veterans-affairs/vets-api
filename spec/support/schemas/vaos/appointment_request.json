@@ -176,9 +176,6 @@
                     "code": {
                       "type": "string"
                     },
-                    "code_numeric": {
-                      "type": "integer"
-                    },
                     "provider_message": {
                       "type": "string"
                     },
