@@ -159,8 +159,8 @@ RSpec.describe 'appointments', type: :request do
                   'lat' => nil,
                   'long' => nil,
                   'phone' => {
-                    'areaCode' => nil,
-                    'number' => nil,
+                    'areaCode' => '999',
+                    'number' => '999-9999',
                     'extension' => nil
                   },
                   'url' => nil,

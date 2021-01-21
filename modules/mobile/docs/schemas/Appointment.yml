@@ -28,21 +28,21 @@ properties:
         example: VA
       status:
         type: string
-        enum: [ BOOKED, CANCELLED ]
+        description: Booking status of the appointment. Note that 'HIDDEN' means that the status should be hidden, the appointment should still be visible.
+        enum: [ BOOKED, CANCELLED, HIDDEN ]
         example: BOOKED
-      startTime:
+      startDateLocal:
         type: datetime
-        example: 2020-10-29T10:30:00-07:00
+        example: 2019-04-20T14:15:00.000-04:00
+      startDateUtc:
+        type: datetime
+        example: 2019-04-20T18:15:00.000Z
       minutesDuration:
         type: integer
         example: 60
       comment:
         type: string
         example: Please arrive 20 minutes before the start of your appointment
-      timeZone:
-        type: string
-        enum: [ Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York ]
-        example: America/Los_Angeles
       healthcareService:
         type: string
         example: Blind Rehabilitation Center
@@ -82,15 +82,24 @@ properties:
               zipCode:
                 type: string
                 example: 90822
+          lat:
+            type: float
+            example: 33.770050
+          long:
+            type: float
+            example: -118.193741
           phone:
             type: object
             required:
               - number
               - extension
             properties:
+              areaCode:
+                type: string
+                example: 562
               number:
                 type: string
-                example: 562-434-6008
+                example: 434-6008
               extension:
                 type: string
                 example: 1001
