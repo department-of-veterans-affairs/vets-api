@@ -2,9 +2,7 @@
 
 require 'evss/gi_bill_status/service'
 require 'evss/vso_search/service'
-require 'evss/common_service'
 require 'sentry_logging'
-require 'evss/service.rb'
 
 module EducationForm
   DENIED = 'denied'
