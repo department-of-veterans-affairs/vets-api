@@ -19,7 +19,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
       expect(booked_cc[:appointment_type]).to eq('COMMUNITY_CARE')
     end
 
-    it 'has a location with a name and address' do
+    it 'has a location with a name, address, and phone number' do
       expect(booked_cc[:location].to_h).to eq(
         {
           name: 'Atlantic Medical Care',
@@ -32,8 +32,8 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
           lat: nil,
           long: nil,
           phone: {
-            area_code: nil,
-            number: nil,
+            area_code: '407',
+            number: '555-1212',
             extension: nil
           },
           url: nil,
