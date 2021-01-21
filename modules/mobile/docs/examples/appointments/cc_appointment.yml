@@ -4,10 +4,10 @@ data:
     attributes:
       appointmentType: COMMUNITY_CARE
       status: CANCELLED
-      startTime: 2020-10-29T10:30:00-07:00
+      startDateLocal: 2019-04-20T14:15:00.000-04:00
+      startDateUtc: 2019-04-20T18:15:00.000Z
       minutesDuration: 60
       comment: Please arrive 20 minutes before the start of your appointment
-      timeZone: America/Los_Angeles
       healthcareService: null
       location:
         name: Kaiser Shoreline Treatment Center
@@ -19,7 +19,8 @@ data:
           state: CA
           zipCode: "90803"
         phone:
-          number: 562-434-6008
+          areaCode: 562
+          number: 434-6008
           extension: null
         url: null
         code: null
