@@ -173,7 +173,7 @@ end
 # init Facilities Jobs
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
 
-ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_, start_time, end_time, _, payload|
+ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_name, start_time, end_time, _id, payload|
   duration = end_time - start_time
   measurement = case payload[:url].path
                 when /ProviderLocator/
@@ -185,8 +185,17 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_,
                 when /Providers\(\d+\)/
                   'facilities.ppms.providers'
                 end
-  StatsD.measure(measurement, duration, tags: ['facilities.ppms']) if measurement
+  if measurement
+    params = Rack::Utils.parse_nested_query payload[:url].query
+    tags = {
+      'facilities.ppms.radius': params['radius'],
+      'facilities.ppms.results': payload[:body].count
+    }.collect {|pair| pair.join(':')}
+    tags << 'facilities.ppms'
+    StatsD.measure(measurement, duration, tags: tags)
+  end
 end
+
 ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, _|
   duration = end_time - start_time
 

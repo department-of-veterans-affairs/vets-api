@@ -116,7 +116,11 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
           'facilities.ppms.provider_locator',
           kind_of(Numeric),
           hash_including(
-            tags: ['facilities.ppms']
+            tags: [
+                    'facilities.ppms.radius:200',
+                    'facilities.ppms.results:11',
+                    'facilities.ppms'
+                  ]
           )
         )
 
