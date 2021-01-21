@@ -76,8 +76,6 @@ fsr:
 
 review_instance_slug: ~
 
-sidekiq_admin_panel: false
-
 salesforce-gibft:
   url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
@@ -496,6 +494,11 @@ search:
   affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
+
+
+sidekiq_web:
+  admin_user_emails:
+    - kmircovich@governmentcio.com
 
 flipper:
   admin_user_emails:
