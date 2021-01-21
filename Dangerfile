@@ -120,7 +120,7 @@ module VSPDanger
     end
 
     def base_sha
-      'master'
+      'origin/master'
     end
   end
 
@@ -182,7 +182,7 @@ module VSPDanger
     end
 
     def base_sha
-      'master'
+      'origin/master'
     end
   end
 
