@@ -21,7 +21,7 @@ module VAOS
       params = {}
 
       with_monitoring do
-        response = perform(:get, show_appointment_url(id), params, headers, timeout: 55)
+        response = perform(:get, show_appointment_url(id), params, headers)
         OpenStruct.new(response.body)
       end
     end
