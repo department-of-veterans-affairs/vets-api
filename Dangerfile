@@ -122,13 +122,6 @@ module VSPDanger
     end
 
     def base_sha
-      # TODO: decide if it's better to get this info from Danger
-      # show_branch = `git show-branch`.split "\n"
-      # ancestors = show_branch.grep(/\*/)
-      # commits_excluding_current = ancestors.grep_v(/#{head_sha}/)
-      # nearest_ancestor = commits_excluding_current.first
-      # matched_branch_name = nearest_ancestor.match(/\[(.*)\]/)
-      # matched_branch_name.captures.first
       'master'
     end
   end
