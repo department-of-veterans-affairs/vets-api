@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-def stub_financial_status_report
+def stub_financial_status_report(method)
   let!(:financial_status_report_service) do
     financial_status_report_service = double
     expect(
