@@ -14,7 +14,7 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       authenticated: true,
       first_name: 'Jane',
       last_name: 'Doe',
-      birth_date: '2/2/1952',
+      birth_date: '1952-02-02',
       phone: '555-555-1234',
       email: 'jane.doe@email.com',
       ssn: '000-00-0022',
@@ -52,7 +52,14 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
     end
 
     context 'when encountering an Internal Server Error' do
-      let(:registration_attributes) { { date_vaccine_reeceived: '' } }
+      let(:registration_attributes) do
+        {
+          vaccine_interest: 'yes',
+          email: 'jane.doe@email.com',
+          zip_code: '94402',
+          date_vaccine_reeceived: ''
+        }
+      end
 
       it 'raises a BackendServiceException' do
         expect(CovidVaccine::V0::RegistrationSubmission).to receive(:create!)
@@ -67,6 +74,57 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
       around do |example|
         VCR.use_cassette('covid_vaccine/vetext/post_vaccine_registry_unauth',
                          match_requests_on: %i[method path], &example)
+      end
+
+      it 'returns errors if form validation fails' do
+        post '/covid_vaccine/v0/registration', params: { registration: {} }
+        expect(response).to have_http_status(:unprocessable_entity)
+        body = JSON.parse(response.body)
+        expect(body).to eq(
+          {
+            'errors' => [
+              {
+                'title' => 'Email is invalid',
+                'detail' => 'email - is invalid',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/email'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => "Vaccine interest can't be blank",
+                'detail' => "vaccine-interest - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/vaccine-interest'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => 'Zip code should be in the form 12345 or 12345-1234',
+                'detail' => 'zip-code - should be in the form 12345 or 12345-1234',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/zip-code'
+                },
+                'status' => '422'
+              }
+            ]
+          }
+        )
+      end
+
+      it 'returns an error on a malformed date' do
+        invalid_date_attributes = registration_attributes.merge({ birth_date: '2000-01-XX' })
+        post '/covid_vaccine/v0/registration', params: { registration: invalid_date_attributes }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'allows a non-existent date' do
+        blank_date_attributes = registration_attributes.merge({ birth_date: '' })
+        post '/covid_vaccine/v0/registration', params: { registration: blank_date_attributes }
+        expect(response).to have_http_status(:created)
       end
 
       it 'returns a submission summary' do
@@ -272,6 +330,44 @@ RSpec.describe 'Covid Vaccine Registration', type: :request do
           expect(response).to have_http_status(:ok)
           body = JSON.parse(response.body)
           expect(body['data']['id']).to eq(submission2.sid)
+        end
+      end
+
+      context 'opting out of submission' do
+        before do
+          sign_in_as(loa3_user)
+        end
+
+        it 'opts email out' do
+          Sidekiq::Testing.inline! do
+            VCR.use_cassette('covid_vaccine/vetext/create_and_opt_out', match_requests_on: %i[method path]) do
+              post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+              get '/covid_vaccine/v0/registration'
+              body = JSON.parse(response.body)
+              sid = body['data']['id']
+              put "/covid_vaccine/v0/registration/opt_out?sid=#{sid}"
+              expect(response).to have_http_status(:no_content)
+            end
+          end
+        end
+      end
+
+      context 'opting in on previously opted out submission' do
+        before do
+          sign_in_as(loa3_user)
+        end
+
+        it 'opts email in' do
+          Sidekiq::Testing.inline! do
+            VCR.use_cassette('covid_vaccine/vetext/create_and_opt_in', match_requests_on: %i[method path]) do
+              post '/covid_vaccine/v0/registration', params: { registration: registration_attributes }
+              get '/covid_vaccine/v0/registration'
+              body = JSON.parse(response.body)
+              sid = body['data']['id']
+              put "/covid_vaccine/v0/registration/opt_in?sid=#{sid}"
+              expect(response).to have_http_status(:no_content)
+            end
+          end
         end
       end
     end

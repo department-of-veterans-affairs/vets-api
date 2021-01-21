@@ -43,7 +43,7 @@ RSpec.describe BGS::Dependents do
             a_hash_including(
               divorce_state: 'FL',
               divorce_city: 'Tampa',
-              end_date: Time.new('2020-01-01').iso8601,
+              end_date: DateTime.parse('2020-01-01 12:00:00').to_time.iso8601,
               type: 'divorce'
             )
           )

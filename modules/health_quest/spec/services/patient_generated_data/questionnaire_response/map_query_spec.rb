@@ -26,9 +26,9 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
     end
   end
 
-  describe '#dstu2_model' do
-    it 'is a FHIR::DSTU2::QuestionnaireResponse class' do
-      expect(subject.new({}).dstu2_model).to eq(FHIR::DSTU2::QuestionnaireResponse)
+  describe '#fhir_model' do
+    it 'is a FHIR::QuestionnaireResponse class' do
+      expect(subject.new({}).fhir_model).to eq(FHIR::QuestionnaireResponse)
     end
   end
 
@@ -47,7 +47,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
       end
 
       it 'calls search on the FHIR client' do
-        expect(client).to receive(:search).with(FHIR::DSTU2::QuestionnaireResponse, options).exactly(1).time
+        expect(client).to receive(:search).with(FHIR::QuestionnaireResponse, options).exactly(1).time
 
         subject.build(headers).search(author: '123')
       end
@@ -92,7 +92,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
       end
 
       it 'returns an instance of Reply' do
-        expect(client).to receive(:read).with(FHIR::DSTU2::QuestionnaireResponse, id).exactly(1).time
+        expect(client).to receive(:read).with(FHIR::QuestionnaireResponse, id).exactly(1).time
 
         subject.build(headers).get(id)
       end

@@ -64,8 +64,8 @@ module Mobile
           residential_address: filter_keys(user.vet360_contact_info&.residential_address, ADDRESS_KEYS),
           mailing_address: filter_keys(user.vet360_contact_info&.mailing_address, ADDRESS_KEYS),
           home_phone_number: filter_keys(user.vet360_contact_info&.home_phone, PHONE_KEYS),
-          mobile_phone_number: filter_keys(user.vet360_contact_info&.work_phone, PHONE_KEYS),
-          work_phone_number: filter_keys(user.vet360_contact_info&.mobile_phone, PHONE_KEYS),
+          mobile_phone_number: filter_keys(user.vet360_contact_info&.mobile_phone, PHONE_KEYS),
+          work_phone_number: filter_keys(user.vet360_contact_info&.work_phone, PHONE_KEYS),
           fax_number: filter_keys(user.vet360_contact_info&.fax_number, PHONE_KEYS)
         }
       end

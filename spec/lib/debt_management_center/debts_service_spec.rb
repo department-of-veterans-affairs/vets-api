@@ -34,7 +34,7 @@ RSpec.describe DebtManagementCenter::DebtsService do
             )
             expect(Raven).to receive(:tags_context).once.with(external_service: described_class.to_s.underscore)
             expect(Raven).to receive(:extra_context).once.with(
-              url: "#{Settings.dmc.url}/api/v1/digital-services/",
+              url: Settings.dmc.url,
               message: 'the server responded with status 400',
               body: { 'message' => 'Bad request' }
             )

@@ -13,6 +13,39 @@ RSpec.describe Account, type: :model do
     expect(account.reload.uuid).to eq uuid
   end
 
+  describe '.idme_uuid_match' do
+    it 'returns only accounts with matching idme_uuid' do
+      find_me = create :account
+      dont_find_me = create :account
+      accounts = Account.idme_uuid_match(find_me.idme_uuid)
+      expect(accounts).to include(find_me)
+      expect(accounts).not_to include(dont_find_me)
+    end
+    it 'returns no records with a nil idme_uuid' do
+      create :account # account to not find
+      expect(Account.idme_uuid_match(nil)).to be_empty
+    end
+  end
+
+  describe '.sec_id_match' do
+    it 'returns only accounts with matching sec_id' do
+      find_me = create :account
+      find_me.sec_id = SecureRandom.uuid
+      find_me.save!
+      dont_find_me = create :account
+      dont_find_me.sec_id = SecureRandom.uuid
+      dont_find_me.save!
+      accounts = Account.sec_id_match(find_me.sec_id)
+      expect(accounts).to include(find_me)
+      expect(accounts).not_to include(dont_find_me)
+    end
+
+    it 'returns no records with a nil sec_id' do
+      create :account # account to not find
+      expect(Account.sec_id_match(nil)).to be_empty
+    end
+  end
+
   describe '.create_if_needed!' do
     it 'creates an Account if one does not exist' do
       expect(Account.count).to eq 0

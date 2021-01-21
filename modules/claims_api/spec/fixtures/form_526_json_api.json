@@ -23,11 +23,13 @@
           "diagnosticCode": 9999,
           "disabilityActionType": "NEW",
           "name": "PTSD (post traumatic stress disorder)",
+          "specialIssues": ["Fully Developed Claim", "PTSD/2"],
           "secondaryDisabilities": [
             {
               "name": "PTSD personal trauma",
               "disabilityActionType": "SECONDARY",
-              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
+              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description",
+              "specialIssues": ["Radiation", "Emergency Care – CH17 Determination"]
             }
           ]
         }

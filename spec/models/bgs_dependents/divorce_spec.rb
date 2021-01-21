@@ -21,7 +21,7 @@ RSpec.describe BGSDependents::Divorce do
       'birth_date' => '1990-03-03',
       'divorce_country' => nil,
       'marriage_termination_type_code' => 'Divorce',
-      'end_date' => Date.parse(divorce_info['date']).to_time.iso8601,
+      'end_date' => DateTime.parse(divorce_info['date'] + ' 12:00:00').to_time.iso8601,
       'vet_ind' => 'N',
       'type' => 'divorce',
       'first' => 'Billy',

@@ -14,9 +14,11 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
   end
 
-  it 'writes flashes to log on create' do
+  it 'writes flashes and special issues to log on create' do
     expect(Rails.logger).to receive(:info)
       .with(/ClaimsApi: Claim\[.+\] contains the following flashes - \["Hardship", "Homeless"\]/)
+    expect(Rails.logger).to receive(:info)
+      .with(%r{ClaimsApi: Claim\[.+\] contains the following special issues - \[.*FDC.*PTSD/2.*\]})
     pending_record
   end
 
@@ -46,6 +48,11 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       pending_record.form_data.delete('claimDate')
       payload = JSON.parse(pending_record.to_internal)
       expect(payload['form526']['claimDate']).to eq(pending_record.created_at.to_date.to_s)
+    end
+
+    it 'adds an identifier for Lighthouse submissions' do
+      payload = JSON.parse(pending_record.to_internal)
+      expect(payload['form526']['claimSubmissionSource']).to eq('Lighthouse')
     end
   end
 

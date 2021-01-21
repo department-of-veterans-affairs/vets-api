@@ -13,3 +13,4 @@ Metrics/BlockLength:
   Exclude:
     - spec/**/*.rb
     - config/**/*.rb
+    - app/swagger/**/*.rb

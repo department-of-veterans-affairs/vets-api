@@ -9,11 +9,11 @@ module HealthQuest
       # @!attribute user
       #   @return [User]
       # @!attribute model
-      #   @return [FHIR::DSTU2::Patient]
+      #   @return [FHIR::Patient]
       # @!attribute identifier
-      #   @return [FHIR::DSTU2::Identifier]
+      #   @return [FHIR::Identifier]
       # @!attribute meta
-      #   @return [FHIR::DSTU2::Meta]
+      #   @return [FHIR::Meta]
       class Resource
         include PatientGeneratedData::Common::IdentityMetaInfo
         ##
@@ -34,16 +34,16 @@ module HealthQuest
         end
 
         def initialize(user)
-          @model = FHIR::DSTU2::Patient.new
+          @model = FHIR::Patient.new
           @user = user
-          @identifier = FHIR::DSTU2::Identifier.new
-          @meta = FHIR::DSTU2::Meta.new
+          @identifier = FHIR::Identifier.new
+          @meta = FHIR::Meta.new
         end
 
         ##
-        # Builds the FHIR::DSTU2::Patient object for the PGD.
+        # Builds the FHIR::Patient object for the PGD.
         #
-        # @return [FHIR::DSTU2::Patient]
+        # @return [FHIR::Patient]
         #
         def prepare
           model.tap do |p|

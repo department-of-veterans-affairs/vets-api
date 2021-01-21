@@ -6,6 +6,10 @@ require_relative '../../../serializers/covid_vaccine/v0/registration_summary_ser
 module CovidVaccine
   module V0
     class RegistrationController < CovidVaccine::ApplicationController
+      include IgnoreNotFound
+
+      before_action :validate_raw_form_data, only: :create
+
       def create
         raw_form_data = params[:registration].merge(attributes_from_user)
         account_id = @current_user&.account_uuid
@@ -23,7 +27,26 @@ module CovidVaccine
         render json: submission, serializer: CovidVaccine::V0::RegistrationSubmissionSerializer
       end
 
+      def opt_out
+        CovidVaccine::V0::VetextService.new.put_email_opt_out(sid)
+        head :no_content
+      end
+
+      def opt_in
+        CovidVaccine::V0::VetextService.new.put_email_opt_in(sid)
+        head :no_content
+      end
+
       private
+
+      def sid
+        params.require(:sid)
+      end
+
+      def validate_raw_form_data
+        form_data = CovidVaccine::V0::RawFormData.new(params[:registration] || {})
+        raise Common::Exceptions::ValidationErrors, form_data unless form_data.valid?
+      end
 
       # Merge in these attributes from the authenticated user, since
       # we won't have access to that object from the submission worker

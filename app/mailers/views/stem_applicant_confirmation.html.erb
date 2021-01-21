@@ -4,7 +4,7 @@
     <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
   </head>
   <body>
-    <p>Dear <%= first_and_last_name %>,</p>
+    <p>Dear <%= first_and_last_name(@applicant.veteranFullName) %>,</p>
 
     <p>VA received your application for the Rogers STEM scholarship on <%= application_date %>.</p>
 
@@ -13,7 +13,7 @@
     <p>
       <b>Rogers STEM Scholarship (Form 22-10203)</b>
       <br>
-      for <%= first_and_last_name %>
+      for <%= first_and_last_name(@applicant.veteranFullName) %>
       <br>
       Confirmation number <%= confirmation_number %>
       <br>

@@ -90,7 +90,10 @@
   "claimantAddress": {
     "city": "Baltimore",
     "country": "US",
-    "postalCode": "21231",
+    "postalCode": {
+      "firstFive": "21231",
+      "lastFour": "1234"
+    },
     "street": "street",
     "street2": "street2",
     "state": "MD"
@@ -111,8 +114,8 @@
   },
   "placeOfDeath": "VA MEDICAL CENTER",
   "firmNameAndAddr": {
-    "value": "firmName, street, street2, Baltimore, MD, 21231, US",
-    "extras_value": "firmName\nstreet\nstreet2\nBaltimore, MD, 21231\nUS"
+    "value": "firmName, street, street2, Baltimore, MD, 21231-1234, US",
+    "extras_value": "firmName\nstreet\nstreet2\nBaltimore, MD, 21231-1234\nUS"
   },
   "hasPreviouslyReceivedAllowance": false,
   "noPreviouslyReceivedAllowance": true,

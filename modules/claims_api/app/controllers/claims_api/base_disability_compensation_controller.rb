@@ -10,30 +10,6 @@ module ClaimsApi
     STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
     STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
 
-    before_action :validate_documents_content_type, only: %i[upload_form_526]
-    before_action :validate_documents_page_size, only: %i[upload_form_526]
-
-    def upload_form_526
-      pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
-
-      if pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == true)
-        pending_claim.set_file_data!(documents.first, params[:doc_type])
-        pending_claim.save!
-
-        ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
-
-        render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-      elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
-        # rubocop:disable Layout/LineLength
-        render json: { status: 422, message: 'Claim submission requires that the "autoCestPDFGenerationDisabled" field must be set to "true" in order to allow a 526 PDF to be uploaded' }.to_json, status: :unprocessable_entity
-        # rubocop:enable Layout/LineLength
-      else
-        render json: { status: 404, message: 'Claim not found' }.to_json, status: :not_found
-      end
-    rescue => e
-      render json: unprocessable_response(e), status: :unprocessable_entity
-    end
-
     # rubocop:disable Metrics/MethodLength
     def validate_form_526
       service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
