@@ -5,6 +5,8 @@ require_relative './base_pdf_constructor'
 
 module AppealsApi
   class HigherLevelReviewPdfConstructor < BasePdfConstructor
+    MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM = 6
+
     def initialize(higher_level_review_id)
       @higher_level_review_id = higher_level_review_id
     end
@@ -74,7 +76,7 @@ module AppealsApi
       }
 
       appeal.contestable_issues.each_with_index do |issue, index|
-        if index < 6
+        if index < MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM
           if index.zero?
             options[:"F[0].#subform[3].SPECIFICISSUE#{index + 1}[1]"] = issue['attributes']['issue']
             options[:'F[0].#subform[3].DateofDecision[5]'] = issue['attributes']['decisionDate']
@@ -87,7 +89,7 @@ module AppealsApi
           end
         else
           text = "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
-          options[:additional_page] = "#{text}\n#{options[:additional_page]}"
+          options[:additional_pages] = "#{text}\n#{options[:additional_pages]}"
         end
       end
       @pdf_options = options

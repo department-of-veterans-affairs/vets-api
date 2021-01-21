@@ -47,6 +47,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
   describe '#show /v1/uploads/{id}' do
     let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload_large_detail) { FactoryBot.create(:upload_submission_large_detail) }
 
     it 'returns status of an upload submission' do
       get "/services/vba_documents/v1/uploads/#{upload.guid}"
@@ -65,6 +66,17 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(json['errors'].size).to eq(1)
       status = json['errors'][0]
       expect(status['detail']).to include('non_existent_guid')
+    end
+
+    it 'keeps the displayed detail to 200 characters or less' do
+      get "/services/vba_documents/v1/uploads/#{upload_large_detail.guid}"
+      json = JSON.parse(response.body)
+      length = VBADocuments::UploadSerializer::MAX_DETAIL_DISPLAY_LENGTH
+      expect(json['data']['attributes']['detail'].length).to be <= length + 3
+      expect(json['data']['attributes']['detail']).to match(/.*\.\.\.$/)
+      get "/services/vba_documents/v1/uploads/#{upload.guid}"
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']['detail']).to eql(upload.detail.to_s)
     end
 
     it 'returns not_found for an expired submission' do

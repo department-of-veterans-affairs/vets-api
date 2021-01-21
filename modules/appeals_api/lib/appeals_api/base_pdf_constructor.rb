@@ -23,7 +23,7 @@ module AppealsApi
 
     def fill_pdf
       pdftk = PdfForms.new(Settings.binaries.pdftk)
-      temp_path = "#{Rails.root}/tmp/#{appeal.id}"
+      temp_path = "/tmp/#{appeal.id}"
       output_path = temp_path + '-final.pdf'
       pdftk.fill_form(
         "#{PDF_TEMPLATE}/#{self.class.form_title}.pdf",
@@ -35,22 +35,22 @@ module AppealsApi
     end
 
     def merge_page(temp_path, output_path)
-      new_path = if pdf_options[:additional_page]
-                   pdf = CombinePDF.new
-                   pdf << CombinePDF.load(temp_path)
-                   pdf << CombinePDF.load(add_page(pdf_options[:additional_page], temp_path))
-                   pdf.save(output_path)
-                   output_path
-                 else
-                   temp_path
-                 end
-      new_path
+      return temp_path if pdf_options[:additional_pages].blank?
+
+      additional_pages_path = add_pages(pdf_options[:additional_pages])
+
+      pdf = CombinePDF.load(temp_path) << CombinePDF.load(additional_pages_path)
+      pdf.save(output_path)
+      output_path
     end
 
-    def add_page(text, temp_path)
-      output_path = temp_path + '-additional_page.pdf'
-      Prawn::Document.generate output_path do
-        text text
+    def add_pages(additional_text_pages)
+      output_path = "/#{Common::FileHelpers.random_file_path}.pdf"
+      Prawn::Document.generate(output_path) do |pdf|
+        Array(additional_text_pages).each_with_index do |txt, index|
+          pdf.start_new_page unless index.zero?
+          pdf.text txt, inline_format: true
+        end
       end
       output_path
     end

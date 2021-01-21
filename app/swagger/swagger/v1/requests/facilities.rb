@@ -101,7 +101,7 @@ class Swagger::V1::Requests::Facilities
         key :description, 'Bounding box Lat/Long coordinates in the form minLong, minLat, maxLong, maxLat'
         key :in, :query
         key :type, :array
-        key :required, true
+        key :required, false
         key :collectionFormat, :multi
         key :minItems, 4
         key :maxItems, 4
@@ -112,9 +112,28 @@ class Swagger::V1::Requests::Facilities
       parameter do
         key :name, :type
         key :description, 'Optional facility type'
+        key :required, false
         key :in, :query
         key :type, :string
         key :enum, %w[provider pharmacy urgent_care]
+      end
+      parameter do
+        key :name, :latitude
+        key :description, 'Latitude'
+        key :in, :query
+        key :type, :number
+      end
+      parameter do
+        key :name, :longitude
+        key :description, 'Longitude'
+        key :in, :query
+        key :type, :number
+      end
+      parameter do
+        key :name, :radius
+        key :description, 'Search Radius'
+        key :in, :query
+        key :type, :number
       end
       parameter do
         key :name, 'specialties[]'

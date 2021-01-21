@@ -6,17 +6,19 @@ module Form1010cg
   #
   # More information about CARMA can be found in lib/carma/README.md
   #
-  class Submission
-    attr_accessor :carma_case_id, # The id of the Case returned by CARMA (from the submission response)
-                  :submitted_at, # The timestamp of when this record was created by CARMA (from the submission response)
-                  :attachments, # The raw response body (from the attachments upload request)
-                  :metadata # The raw metadata send to CARMA (on the submission request)
+  class Submission < ApplicationRecord
+    self.table_name = 'form1010cg_submissions'
 
-    def initialize(args = {})
-      @carma_case_id = args[:carma_case_id]
-      @submitted_at = args[:submitted_at]
-      @attachments = args[:attachments] || {}
-      @metadata = args[:metadata]
-    end
+    belongs_to :claim,
+               class_name: 'SavedClaim::CaregiversAssistanceClaim',
+               foreign_key: 'claim_guid',
+               primary_key: 'guid',
+               inverse_of: :submission,
+               dependent: :destroy
+
+    # Allows us to call #save with a nested (and unsaved) claim attached, so both are save simultaneously.
+    accepts_nested_attributes_for :claim
+
+    attr_accessor :attachments_job_id
   end
 end

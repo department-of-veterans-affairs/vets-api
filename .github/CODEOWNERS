@@ -23,3 +23,7 @@ app/models/user.rb @department-of-veterans-affairs/vsp-identity
 app/models/user_identity.rb @department-of-veterans-affairs/vsp-identity
 app/models/user_session_form.rb @department-of-veterans-affairs/vsp-identity
 lib/saml @department-of-veterans-affairs/vsp-identity
+
+# covid_vaccine product
+modules/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
+spec/support/*/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group

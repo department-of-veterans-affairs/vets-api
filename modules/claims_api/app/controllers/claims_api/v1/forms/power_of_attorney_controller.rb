@@ -93,9 +93,19 @@ module ClaimsApi
         def source_data
           {
             name: source_name,
-            icn: current_user.icn,
+            icn: nullable_icn,
             email: current_user.email
           }
+        end
+
+        def nullable_icn
+          current_user.icn
+        rescue => e
+          log_message_to_sentry('Failed to retrieve icn for consumer',
+                                :warning,
+                                body: e.message)
+
+          nil
         end
 
         def find_poa_by_id

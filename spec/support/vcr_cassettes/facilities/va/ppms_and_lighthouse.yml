@@ -2,246 +2,51 @@
 http_interactions:
 - request:
     method: get
-    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=%2758+Leonard+Ave%2C+Leonardo%2C+NJ+07737%27&driveTime=10000&maxResults=11&network=0&posCodes=17&radius=197
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-72.19&bbox%5B%5D=-75.91&bbox%5B%5D=38.55&bbox%5B%5D=42.27&services%5B%5D=UrgentCare&type=health
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v1.0.1
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      cache-control:
-      - no-cache
-      pragma:
-      - no-cache
-      content-length:
-      - '2024'
-      content-type:
-      - application/json; odata.metadata=minimal
-      expires:
-      - "-1"
-      vary:
-      - Accept-Encoding
-      server:
-      - Microsoft-IIS/10.0
-      odata-version:
-      - '4.0'
-      x-aspnet-version:
-      - 4.0.30319
-      request-context:
-      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
-      access-control-expose-headers:
-      - Request-Context
-      x-powered-by:
-      - ASP.NET
-      x-content-type-options:
-      - nosniff
-      set-cookie:
-      - ARRAffinity=58b57fca871ae732cfd15cd2a22c8b0fde19fd6c67976c4c5219eae0ae281f0c;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
-      date:
-      - Tue, 11 Aug 2020 05:32:30 GMT
-    body:
-      encoding: ASCII-8BIT
-      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":3.2290000000000001,"Minutes":8.2829999999999995,"ProviderName":"MINUTECLINIC
-        DIAG OF NEW JERSEY","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTECLINIC
-        LOCATED INSIDE CVS","CareSiteAddress":"470 STATE ROUTE 36 HIGHLANDS, NJ 07732-1315","CareSiteAddressStreet":"470
-        STATE ROUTE 36","CareSiteAddressCity":"HIGHLANDS","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07732-1315","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1053353615","Latitude":40.405653000000001,"Longitude":-74.004138999999995,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":8.4879999999999995,"Minutes":17.132999999999999,"ProviderName":"MINUTECLINIC
-        DIAG OF NEW JERSEY","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTECLINIC
-        LOCATED INSIDE CVS","CareSiteAddress":"3391 STATE ROUTE 35 HAZLET, NJ 07730-1521","CareSiteAddressStreet":"3391
-        STATE ROUTE 35","CareSiteAddressCity":"HAZLET","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07730-1521","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1053353615","Latitude":40.423831,"Longitude":-74.193928999999997,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":16.893000000000001,"Minutes":29.533000000000001,"ProviderName":"MINUTECLINIC
-        DIAG OF NEW JERSEY","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTECLINIC
-        LOCATED INSIDE CVS","CareSiteAddress":"2988 HIGHWAY 516 OLD BRIDGE, NJ 08857-2325","CareSiteAddressStreet":"2988
-        HIGHWAY 516","CareSiteAddressCity":"OLD BRIDGE","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"08857-2325","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1053353615","Latitude":40.40240833,"Longitude":-74.312814500000002,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":17.989000000000001,"Minutes":34.866999999999997,"ProviderName":"MINUTECLINIC
-        DIAG OF NEW JERSEY","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTECLINIC
-        LOCATED INSIDE CVS","CareSiteAddress":"4 RYAN RD MARLBORO, NJ 07746-2445","CareSiteAddressStreet":"4
-        RYAN RD","CareSiteAddressCity":"MARLBORO","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07746-2445","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1053353615","Latitude":40.303730000000002,"Longitude":-74.253767999999994,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":19.106000000000002,"Minutes":38.049999999999997,"ProviderName":"MINUTECLINIC
-        DIAG OF NEW JERSEY","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Yes","CareSite":"MINUTECLINIC
-        LOCATED INSIDE CVS","CareSiteAddress":"253 GORDONS CORNER RD MANALAPAN, NJ
-        07726-3357","CareSiteAddressStreet":"253 GORDONS CORNER RD","CareSiteAddressCity":"MANALAPAN","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07726-3357","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1053353615","Latitude":40.309426999999999,"Longitude":-74.320929000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":22.818999999999999,"Minutes":41.700000000000003,"ProviderName":"MINUTECLINIC
-        DIAG OF NEW JERSEY","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTECLINIC
-        LOCATED INSIDE CVS","CareSiteAddress":"330 RUES LN EAST BRUNSWICK, NJ 08816-3608","CareSiteAddressStreet":"330
-        RUES LN","CareSiteAddressCity":"EAST BRUNSWICK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"08816-3608","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1053353615","Latitude":40.417748000000003,"Longitude":-74.411744999999996,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":37.103000000000002,"Minutes":50.232999999999997,"ProviderName":"George
-        Safran MD PC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTECLINIC","CareSiteAddress":"1361
-        HYLAN BLVD STATEN ISLAND, NY 10305-1956","CareSiteAddressStreet":"1361 HYLAN
-        BLVD","CareSiteAddressCity":"STATEN ISLAND","CareSiteAddressState":"NY","CareSiteAddressZipCode":"10305-1956","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487983516","Latitude":40.595404000000002,"Longitude":-74.086494000000002,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":44.097999999999999,"Minutes":59.350000000000001,"ProviderName":"George
-        Safran MD PC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"GEORGE
-        SAFRAN MD","CareSiteAddress":"341 9TH ST BROOKLYN, NY 11215-4007","CareSiteAddressStreet":"341
-        9TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-4007","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487983516","Latitude":40.668799999999997,"Longitude":-73.984808999999998,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":44.628999999999998,"Minutes":60.649999999999999,"ProviderName":"George
-        Safran MD PC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTECLINIC","CareSiteAddress":"1402
-        SHEEPSHEAD BAY RD BROOKLYN, NY 11235-3814","CareSiteAddressStreet":"1402 SHEEPSHEAD
-        BAY RD","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-3814","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487983516","Latitude":40.587170999999998,"Longitude":-73.954894999999993,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":45.600999999999999,"Minutes":59.466999999999999,"ProviderName":"George
-        Safran MD PC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTECLINIC","CareSiteAddress":"156
-        HENRY ST BROOKLYN, NY 11201-2504","CareSiteAddressStreet":"156 HENRY ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11201-2504","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487983516","Latitude":40.696196,"Longitude":-73.994259999999997,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":46.595999999999997,"Minutes":67.266999999999996,"ProviderName":"George
-        Safran MD PC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"GEORGE
-        SAFRAN MD","CareSiteAddress":"2925 KINGS HWY BROOKLYN, NY 11229-1805","CareSiteAddressStreet":"2925
-        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1805","CareSitePhoneNumber":"866-389-2727","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487983516","Latitude":40.616253999999998,"Longitude":-73.945149999999998,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]}]}'
-  recorded_at: Tue, 11 Aug 2020 05:32:30 GMT
-- request:
-    method: get
-    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=%2758+Leonard+Ave%2C+Leonardo%2C+NJ+07737%27&driveTime=10000&maxResults=11&network=0&posCodes=20&radius=197
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      User-Agent:
-      - Faraday v1.0.1
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      cache-control:
-      - no-cache
-      pragma:
-      - no-cache
-      content-length:
-      - '2191'
-      content-type:
-      - application/json; odata.metadata=minimal
-      expires:
-      - "-1"
-      vary:
-      - Accept-Encoding
-      server:
-      - Microsoft-IIS/10.0
-      odata-version:
-      - '4.0'
-      x-aspnet-version:
-      - 4.0.30319
-      request-context:
-      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
-      access-control-expose-headers:
-      - Request-Context
-      x-powered-by:
-      - ASP.NET
-      x-content-type-options:
-      - nosniff
-      set-cookie:
-      - ARRAffinity=58b57fca871ae732cfd15cd2a22c8b0fde19fd6c67976c4c5219eae0ae281f0c;Path=/;HttpOnly;Domain=np.dws.ppms.va.gov
-      date:
-      - Tue, 11 Aug 2020 05:32:31 GMT
-    body:
-      encoding: ASCII-8BIT
-      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":2.9580000000000002,"Minutes":6.0330000000000004,"ProviderName":"INTEGRATED
-        MEDICINE ALLIANCE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Yes","CareSite":"MINUTE
-        CLINIC","CareSiteAddress":"363 STATE ROUTE 36 PORT MONMOUTH, NJ 07758-1359","CareSiteAddressStreet":"363
-        STATE ROUTE 36","CareSiteAddressCity":"PORT MONMOUTH","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07758-1359","CareSitePhoneNumber":"732-471-0400","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1427432244","Latitude":40.428809000000001,"Longitude":-74.106750000000005,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":6.1790000000000003,"Minutes":16.600000000000001,"ProviderName":"SJH
-        CARDIAC CATHETERIZAT","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Yes","CareSite":"NORTH
-        MEDICAL URGENT CARE","CareSiteAddress":"41 RECKLESS PL RED BANK, NJ 07701-1703","CareSiteAddressStreet":"41
-        RECKLESS PL","CareSiteAddressCity":"RED BANK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07701-1703","CareSitePhoneNumber":"315-637-7878","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1942501747","Latitude":40.346670000000003,"Longitude":-74.066950000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":6.8739999999999997,"Minutes":17.899999999999999,"ProviderName":"Urgent
-        Care Physicians of New Jersey LLC","ProviderSpecialty":"Clinic/Center - Urgent
-        Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"IMMEDIATE
-        CARE MEDICAL WALK IN RED BANK","CareSiteAddress":"46 NEWMAN SPRINGS RD E STE
-        F RED BANK, NJ 07701-1531","CareSiteAddressStreet":"46 NEWMAN SPRINGS RD E
-        STE F","CareSiteAddressCity":"RED BANK","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07701-1531","CareSitePhoneNumber":"732-281-3201","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1447622402","Latitude":40.338489000000003,"Longitude":-74.065758000000002,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":7.4189999999999996,"Minutes":16.582999999999998,"ProviderName":"Medexpress
-        Urgent Care NJ Inc","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Yes","CareSite":"MEDEXPRESS
-        URGENT CARE NEW JERSEY","CareSiteAddress":"2880 STATE ROUTE 35 HAZLET, NJ
-        07730-1504","CareSiteAddressStreet":"2880 STATE ROUTE 35","CareSiteAddressCity":"HAZLET","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07730-1504","CareSitePhoneNumber":"732-888-1238","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1205183894","Latitude":40.416925999999997,"Longitude":-74.173469999999995,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":7.5940000000000003,"Minutes":17.283000000000001,"ProviderName":"INTEGRATED
-        MEDICINE ALLIANCE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Yes","CareSite":"MINUTE
-        CLINIC","CareSiteAddress":"3253 STATE ROUTE 35 STE 2 HAZLET, NJ 07730-1544","CareSiteAddressStreet":"3253
-        STATE ROUTE 35 STE 2","CareSiteAddressCity":"HAZLET","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07730-1544","CareSitePhoneNumber":"732-888-7646","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1427432244","Latitude":40.422500999999997,"Longitude":-74.187783999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":8.6240000000000006,"Minutes":22.949999999999999,"ProviderName":"INTEGRATED
-        MEDICINE ALLIANCE","ProviderSpecialty":"Multi-Specialty","SpecialtyCode":"193200000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"MINUTE
-        CLINIC","CareSiteAddress":"30 SHREWSBURY PLZ SHREWSBURY, NJ 07702-4322","CareSiteAddressStreet":"30
-        SHREWSBURY PLZ","CareSiteAddressCity":"SHREWSBURY","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07702-4322","CareSitePhoneNumber":"732-542-0002","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1649252776","Latitude":40.31595033,"Longitude":-74.064036000000002,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":8.6240000000000006,"Minutes":22.949999999999999,"ProviderName":"INTEGRATED
-        MEDICINE ALLIANCE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"MINUTE
-        CLINIC","CareSiteAddress":"30 SHREWSBURY PLZ SHREWSBURY, NJ 07702-4322","CareSiteAddressStreet":"30
-        SHREWSBURY PLZ","CareSiteAddressCity":"SHREWSBURY","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07702-4322","CareSitePhoneNumber":"732-542-0002","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1427432244","Latitude":40.31595033,"Longitude":-74.064036000000002,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":11.077,"Minutes":21.417000000000002,"ProviderName":"Browne
-        Medical LLC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"DOCTORS
-        EXPRESS","CareSiteAddress":"1140 STATE ROUTE 34 ABERDEEN, NJ 07747-2167","CareSiteAddressStreet":"1140
-        STATE ROUTE 34","CareSiteAddressCity":"ABERDEEN","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07747-2167","CareSitePhoneNumber":"732-583-5100","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1851733349","Latitude":40.396520000000002,"Longitude":-74.224742000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":11.077,"Minutes":21.417000000000002,"ProviderName":"Browne
-        Medical LLC","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"DOCTORS
-        EXPRESS","CareSiteAddress":"1140 STATE ROUTE 34 MATAWAN, NJ 07747-2167","CareSiteAddressStreet":"1140
-        STATE ROUTE 34","CareSiteAddressCity":"MATAWAN","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07747-2167","CareSitePhoneNumber":"732-583-5100","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1851733349","Latitude":40.396520000000002,"Longitude":-74.224742000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":11.877000000000001,"Minutes":24.867000000000001,"ProviderName":"Monmouth
-        Medical Center Inc","ProviderSpecialty":"General Acute Care Hospital","SpecialtyCode":"282N00000X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Yes","CareSite":"MONMOUTH
-        MEDICAL CENTER SOUTHERN CAMPUS","CareSiteAddress":"300 2ND AVE LONG BRANCH,
-        NJ 07740-6303","CareSiteAddressStreet":"300 2ND AVE","CareSiteAddressCity":"LONG
-        BRANCH","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07740-6303","CareSitePhoneNumber":"732-222-5200","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1609983790","Latitude":40.295630000000003,"Longitude":-73.98518,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":11.877000000000001,"Minutes":24.867000000000001,"ProviderName":"Monmouth
-        Medical Center Inc","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"MONMOUTH
-        MEDICAL CENTER SOUTHERN CAMPUS","CareSiteAddress":"300 2ND AVE LONG BRANCH,
-        NJ 07740-6303","CareSiteAddressStreet":"300 2ND AVE","CareSiteAddressCity":"LONG
-        BRANCH","CareSiteAddressState":"NJ","CareSiteAddressZipCode":"07740-6303","CareSitePhoneNumber":"732-222-5200","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
-        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1609983790","Latitude":40.295630000000003,"Longitude":-73.98518,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]}]}'
-  recorded_at: Tue, 11 Aug 2020 05:32:31 GMT
-- request:
-    method: get
-    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-72.240&bbox%5B%5D=-75.877&bbox%5B%5D=38.543&bbox%5B%5D=42.236&per_page=10&services%5B%5D=UrgentCare&type=health
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
       Apikey:
-      - "<LIGHTHOUSE_API_KEY>"
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - yoRRtE1m5rIrAMFFYPvkua4GmMPu5Zpg
+      User-Agent:
+      - Faraday v1.1.0
   response:
     status:
       code: 200
       message: ''
     headers:
-      Date:
-      - Tue, 11 Aug 2020 19:20:58 GMT
-      Content-Type:
+      date:
+      - Thu, 10 Dec 2020 16:43:27 GMT
+      content-type:
       - application/json
-      Connection:
-      - keep-alive
-      Access-Control-Allow-Origin:
-      - "*"
-      Strict-Transport-Security:
-      - max-age=15724800; includeSubDomains
-      - max-age=31536000; includeSubDomains; preload
-      Vary:
-      - Accept-Encoding
-      Via:
-      - kong/1.2.2
-      X-Kong-Proxy-Latency:
-      - '1'
-      X-Kong-Upstream-Latency:
-      - '24'
-      X-Ratelimit-Limit-Minute:
-      - '60'
-      X-Ratelimit-Remaining-Minute:
-      - '59'
-      Cache-Control:
-      - ''
-      - no-cache, no-store
-      Pragma:
-      - no-cache
-      Set-Cookie:
-      - TS0108eb76=01c16e2d81e64d3bbd24a6bbfb6a333d9468b874a1cb3a96330f0804e3d65fd2d094cbd782a12d537bdc2262d33713ec1daa218921;
-        Max-Age=900; Path=/
-      Transfer-Encoding:
+      transfer-encoding:
       - chunked
+      connection:
+      - keep-alive
+      server:
+      - openresty
+      access-control-allow-origin:
+      - "*"
+      strict-transport-security:
+      - max-age=15724800; includeSubDomains, max-age=31536000; includeSubDomains;
+        preload
+      vary:
+      - Accept-Encoding
+      via:
+      - kong/1.2.2
+      x-kong-proxy-latency:
+      - '1'
+      x-kong-upstream-latency:
+      - '82'
+      x-ratelimit-limit-minute:
+      - '60'
+      x-ratelimit-remaining-minute:
+      - '59'
+      cache-control:
+      - ", no-cache, no-store"
+      pragma:
+      - no-cache
     body:
       encoding: ASCII-8BIT
       string: '{"data":[{"id":"vha_561","type":"va_facilities","attributes":{"name":"East
@@ -249,30 +54,1066 @@ http_interactions:
         Medical Center (VAMC)","website":"https://www.newjersey.va.gov/locations/directions.asp","lat":40.75380161,"long":-74.23432989,"address":{"mailing":{},"physical":{"zip":"07018-1023","city":"East
         Orange","state":"NJ","address_1":"385 Tremont Avenue","address_2":null,"address_3":null}},"phone":{"fax":"973-676-4226","main":"973-676-1000","pharmacy":"800-480-5590","after_hours":"973-676-1000","patient_advocate":"973-676-1000
         x3399","mental_health_clinic":"973-676-1000 x 1421","enrollment_coordinator":"973-676-1000
-        x3044"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology"],"last_updated":"2020-07-27"},"satisfaction":{"health":{"primary_care_urgent":0.7400000095367432,"primary_care_routine":0.7699999809265137,"specialty_care_urgent":0.800000011920929,"specialty_care_routine":0.8999999761581421},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Audiology","new":49.823529,"established":22.705882},{"service":"Cardiology","new":17.736842,"established":14.652173},{"service":"Dermatology","new":4.185185,"established":2.0},{"service":"Gastroenterology","new":3.875,"established":13.333333},{"service":"Gynecology","new":22.461538,"established":11.230769},{"service":"MentalHealthCare","new":6.891304,"established":0.957575},{"service":"Ophthalmology","new":4.090909,"established":8.266666},{"service":"Optometry","new":0.0,"established":60.053763},{"service":"Orthopedics","new":5.130434,"established":0.445945},{"service":"PrimaryCare","new":5.95,"established":2.883495},{"service":"SpecialtyCare","new":17.447457,"established":10.865472},{"service":"Urology","new":63.333333,"established":0.6}],"effective_date":"2020-07-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"2"}},{"id":"vha_620","type":"va_facilities","attributes":{"name":"Franklin
-        Delano Roosevelt Hospital","facility_type":"va_health_facility","classification":"VA
-        Medical Center (VAMC)","website":"https://www.hudsonvalley.va.gov/locations/directions.asp","lat":41.24466,"long":-73.926261,"address":{"mailing":{},"physical":{"zip":"10548-1454","city":"Montrose","state":"NY","address_1":"2094
-        Albany Post Road","address_2":null,"address_3":null}},"phone":{"fax":"914-788-4244","main":"914-737-4400","pharmacy":"888-389-6528","after_hours":"914-737-4400","patient_advocate":"914-737-4400
-        x2020","mental_health_clinic":"914-737-4400 x 2330","enrollment_coordinator":"914-737-4400
-        x2306"},"hours":{"friday":"800AM-800PM","monday":"800AM-800PM","sunday":"800AM-600PM","tuesday":"800AM-800PM","saturday":"800AM-600PM","thursday":"800AM-800PM","wednesday":"800AM-800PM"},"services":{"other":[],"health":["Cardiology","DentalServices","MentalHealthCare","Nutrition","Optometry","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare"],"last_updated":"2020-07-27"},"satisfaction":{"health":{"primary_care_urgent":0.949999988079071,"primary_care_routine":0.8500000238418579,"specialty_care_urgent":0.9200000166893005,"specialty_care_routine":0.949999988079071},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Cardiology","new":2.0,"established":1.5},{"service":"MentalHealthCare","new":4.0,"established":0.63},{"service":"Optometry","new":5.272727,"established":1.448717},{"service":"PrimaryCare","new":3.09375,"established":0.961904},{"service":"SpecialtyCare","new":8.652173,"established":17.077319}],"effective_date":"2020-07-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"2"}},{"id":"vha_620A4","type":"va_facilities","attributes":{"name":"Castle
-        Point VA Medical Center","facility_type":"va_health_facility","classification":"VA
-        Medical Center (VAMC)","website":"https://www.hudsonvalley.va.gov/locations/Castle_Point_Campus.asp","lat":41.54039811,"long":-73.96220178,"address":{"mailing":{},"physical":{"zip":"12590-7004","city":"Wappingers
-        Falls","state":"NY","address_1":"41 Castle Point Road","address_2":null,"address_3":null}},"phone":{"fax":"845-838-5193","main":"845-831-2000","pharmacy":"888-389-6528","after_hours":"845-831-2000","patient_advocate":"845-831-2000
-        x5795","mental_health_clinic":"845-831-2000 x 5116","enrollment_coordinator":"845-831-2000
-        x5100"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Optometry","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology"],"last_updated":"2020-07-27"},"satisfaction":{"health":{"primary_care_urgent":0.800000011920929,"primary_care_routine":0.9100000262260437},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Audiology","new":5.066666,"established":0.35},{"service":"Cardiology","new":9.764705,"established":3.943925},{"service":"Dermatology","new":28.833333,"established":11.771929},{"service":"Gastroenterology","new":5.6,"established":11.34375},{"service":"Gynecology","new":null,"established":4.666666},{"service":"MentalHealthCare","new":4.2,"established":0.41},{"service":"Optometry","new":2.636363,"established":0.252631},{"service":"PrimaryCare","new":10.795918,"established":1.840206},{"service":"SpecialtyCare","new":10.532374,"established":4.791898},{"service":"Urology","new":13.954545,"established":7.5}],"effective_date":"2020-07-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"2"}},{"id":"vha_689","type":"va_facilities","attributes":{"name":"West
-        Haven VA Medical Center","facility_type":"va_health_facility","classification":"VA
-        Medical Center (VAMC)","website":"https://www.connecticut.va.gov/locations/directions.asp","lat":41.28432479,"long":-72.95730126,"address":{"mailing":{},"physical":{"zip":"06516-2770","city":"West
-        Haven","state":"CT","address_1":"950 Campbell Avenue","address_2":null,"address_3":null}},"phone":{"fax":"203-937-3868","main":"203-932-5711","pharmacy":"860-667-6750","after_hours":"203-932-5711
-        x3131","patient_advocate":"203-937-3877","mental_health_clinic":"203-932-5711
-        x 2570","enrollment_coordinator":"203-932-5711 x4246"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology","WomensHealth"],"last_updated":"2020-07-27"},"satisfaction":{"health":{"primary_care_urgent":0.9200000166893005,"primary_care_routine":0.9300000071525574,"specialty_care_urgent":0.8399999737739563,"specialty_care_routine":0.9200000166893005},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Audiology","new":11.121212,"established":8.549295},{"service":"Cardiology","new":24.466666,"established":7.717842},{"service":"Dermatology","new":22.533333,"established":2.569892},{"service":"Gastroenterology","new":18.8,"established":8.92},{"service":"Gynecology","new":7.142857,"established":1.482758},{"service":"MentalHealthCare","new":4.352941,"established":1.651348},{"service":"Ophthalmology","new":14.846153,"established":8.893081},{"service":"Optometry","new":21.830188,"established":5.345104},{"service":"Orthopedics","new":16.818181,"established":8.085714},{"service":"PrimaryCare","new":4.55,"established":3.487752},{"service":"SpecialtyCare","new":17.755555,"established":8.987563},{"service":"Urology","new":16.023809,"established":12.819819},{"service":"WomensHealth","new":null,"established":0.784615}],"effective_date":"2020-07-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"1"}},{"id":"vha_542","type":"va_facilities","attributes":{"name":"Coatesville
-        VA Medical Center","facility_type":"va_health_facility","classification":"VA
-        Medical Center (VAMC)","website":"https://www.coatesville.va.gov/locations/directions.asp","lat":39.998097,"long":-75.7963125,"address":{"mailing":{},"physical":{"zip":"19320-2096","city":"Coatesville","state":"PA","address_1":"1400
-        Black Horse Hill Road","address_2":null,"address_3":null}},"phone":{"fax":"610-383-0248","main":"610-384-7711","pharmacy":"800-290-6172","after_hours":"610-383-0290","patient_advocate":"610-384-7711
-        x2103","mental_health_clinic":"610-384-7711 x 4918","enrollment_coordinator":"610-383-0266"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","DentalServices","Gynecology","MentalHealthCare","Nutrition","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology"],"last_updated":"2020-07-27"},"satisfaction":{"health":{"primary_care_urgent":0.8399999737739563,"primary_care_routine":0.9700000286102295,"specialty_care_urgent":0.8299999833106995,"specialty_care_routine":0.9300000071525574},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Audiology","new":16.25,"established":1.083333},{"service":"Gynecology","new":83.333333,"established":0.0},{"service":"MentalHealthCare","new":7.90909,"established":2.996632},{"service":"Optometry","new":8.714285,"established":6.458515},{"service":"Orthopedics","new":15.6,"established":7.0},{"service":"PrimaryCare","new":15.647058,"established":1.120622},{"service":"SpecialtyCare","new":12.903225,"established":5.359633},{"service":"Urology","new":null,"established":0.0}],"effective_date":"2020-07-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"4"}},{"id":"vha_689A4","type":"va_facilities","attributes":{"name":"Newington
-        VA Clinic","facility_type":"va_health_facility","classification":"Multi-Specialty
-        CBOC","website":"https://www.connecticut.va.gov/locations/Newington_Campus.asp","lat":41.702148,"long":-72.737856,"address":{"mailing":{},"physical":{"zip":"06111-2631","city":"Newington","state":"CT","address_1":"555
-        Willard Avenue","address_2":null,"address_3":null}},"phone":{"fax":"860-667-6764","main":"860-666-6951","pharmacy":"860-667-6750","after_hours":"203-932-5711
-        x3131","patient_advocate":"203-937-3877","mental_health_clinic":"860-666-6951
-        x 6763","enrollment_coordinator":"203-932-5711 x4246"},"hours":{"friday":"700AM-430PM","monday":"700AM-430PM","sunday":"Closed","tuesday":"700AM-430PM","saturday":"Closed","thursday":"700AM-430PM","wednesday":"700AM-430PM"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology"],"last_updated":"2020-07-27"},"satisfaction":{"health":{"primary_care_urgent":0.8700000047683716,"primary_care_routine":0.9800000190734863},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Audiology","new":3.237288,"established":1.447368},{"service":"Cardiology","new":20.0,"established":12.163265},{"service":"Dermatology","new":5.15,"established":8.788461},{"service":"Gynecology","new":15.25,"established":14.0},{"service":"MentalHealthCare","new":6.166666,"established":2.442307},{"service":"Ophthalmology","new":3.0,"established":8.466666},{"service":"Optometry","new":6.727272,"established":1.186256},{"service":"PrimaryCare","new":9.0,"established":3.810309},{"service":"SpecialtyCare","new":12.875846,"established":10.416932},{"service":"Urology","new":26.565217,"established":14.492647}],"effective_date":"2020-07-27"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"1"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-75.877&bbox%5B%5D=38.543&bbox%5B%5D=-72.240&bbox%5B%5D=42.236&services%5B%5D=UrgentCare&type=health&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-75.877&bbox%5B%5D=38.543&bbox%5B%5D=-72.240&bbox%5B%5D=42.236&services%5B%5D=UrgentCare&type=health&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-75.877&bbox%5B%5D=38.543&bbox%5B%5D=-72.240&bbox%5B%5D=42.236&services%5B%5D=UrgentCare&type=health&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":6},"distances":[]}}'
-  recorded_at: Tue, 11 Aug 2020 19:20:58 GMT
+        x3044"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology"],"last_updated":"2020-11-30"},"satisfaction":{"health":{"primary_care_urgent":0.7400000095367432,"primary_care_routine":0.7699999809265137,"specialty_care_urgent":0.800000011920929,"specialty_care_routine":0.8999999761581421},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Audiology","new":39.456,"established":32.118421},{"service":"Cardiology","new":27.711538,"established":20.4},{"service":"Dermatology","new":19.785714,"established":13.75},{"service":"Gastroenterology","new":22.470588,"established":16.355555},{"service":"Gynecology","new":22.962962,"established":5.612903},{"service":"MentalHealthCare","new":3.964285,"established":1.37902},{"service":"Ophthalmology","new":8.25,"established":18.841726},{"service":"Optometry","new":33.75,"established":21.683168},{"service":"Orthopedics","new":11.133333,"established":1.142857},{"service":"PrimaryCare","new":19.391304,"established":18.299295},{"service":"SpecialtyCare","new":22.659012,"established":16.878493},{"service":"Urology","new":26.1875,"established":2.166666}],"effective_date":"2020-11-30"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"2"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-74.81&bbox%5B%5D=39.66&bbox%5B%5D=-73.31&bbox%5B%5D=41.16&services%5B%5D=UrgentCare&type=health&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-74.81&bbox%5B%5D=39.66&bbox%5B%5D=-73.31&bbox%5B%5D=41.16&services%5B%5D=UrgentCare&type=health&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-74.81&bbox%5B%5D=39.66&bbox%5B%5D=-73.31&bbox%5B%5D=41.16&services%5B%5D=UrgentCare&type=health&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":1},"distances":[]}}'
+  recorded_at: Thu, 10 Dec 2020 16:43:27 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-74.81&bbox%5B%5D=39.66&bbox%5B%5D=-73.31&bbox%5B%5D=41.16&services%5B%5D=UrgentCare&type=health
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Apikey:
+      - yoRRtE1m5rIrAMFFYPvkua4GmMPu5Zpg
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      date:
+      - Thu, 10 Dec 2020 16:43:27 GMT
+      content-type:
+      - application/json
+      transfer-encoding:
+      - chunked
+      connection:
+      - keep-alive
+      server:
+      - openresty
+      access-control-allow-origin:
+      - "*"
+      strict-transport-security:
+      - max-age=15724800; includeSubDomains, max-age=31536000; includeSubDomains;
+        preload
+      vary:
+      - Accept-Encoding
+      via:
+      - kong/1.2.2
+      x-kong-proxy-latency:
+      - '2'
+      x-kong-upstream-latency:
+      - '17'
+      x-ratelimit-limit-minute:
+      - '60'
+      x-ratelimit-remaining-minute:
+      - '58'
+      cache-control:
+      - ", no-cache, no-store"
+      pragma:
+      - no-cache
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"vha_561","type":"va_facilities","attributes":{"name":"East
+        Orange VA Medical Center","facility_type":"va_health_facility","classification":"VA
+        Medical Center (VAMC)","website":"https://www.newjersey.va.gov/locations/directions.asp","lat":40.75380161,"long":-74.23432989,"address":{"mailing":{},"physical":{"zip":"07018-1023","city":"East
+        Orange","state":"NJ","address_1":"385 Tremont Avenue","address_2":null,"address_3":null}},"phone":{"fax":"973-676-4226","main":"973-676-1000","pharmacy":"800-480-5590","after_hours":"973-676-1000","patient_advocate":"973-676-1000
+        x3399","mental_health_clinic":"973-676-1000 x 1421","enrollment_coordinator":"973-676-1000
+        x3044"},"hours":{"friday":"24/7","monday":"24/7","sunday":"24/7","tuesday":"24/7","saturday":"24/7","thursday":"24/7","wednesday":"24/7"},"services":{"other":[],"health":["Audiology","Cardiology","DentalServices","Dermatology","EmergencyCare","Gastroenterology","Gynecology","MentalHealthCare","Nutrition","Ophthalmology","Optometry","Orthopedics","Podiatry","PrimaryCare","SpecialtyCare","UrgentCare","Urology"],"last_updated":"2020-11-30"},"satisfaction":{"health":{"primary_care_urgent":0.7400000095367432,"primary_care_routine":0.7699999809265137,"specialty_care_urgent":0.800000011920929,"specialty_care_routine":0.8999999761581421},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"Audiology","new":39.456,"established":32.118421},{"service":"Cardiology","new":27.711538,"established":20.4},{"service":"Dermatology","new":19.785714,"established":13.75},{"service":"Gastroenterology","new":22.470588,"established":16.355555},{"service":"Gynecology","new":22.962962,"established":5.612903},{"service":"MentalHealthCare","new":3.964285,"established":1.37902},{"service":"Ophthalmology","new":8.25,"established":18.841726},{"service":"Optometry","new":33.75,"established":21.683168},{"service":"Orthopedics","new":11.133333,"established":1.142857},{"service":"PrimaryCare","new":19.391304,"established":18.299295},{"service":"SpecialtyCare","new":22.659012,"established":16.878493},{"service":"Urology","new":26.1875,"established":2.166666}],"effective_date":"2020-11-30"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"2"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-74.81&bbox%5B%5D=39.66&bbox%5B%5D=-73.31&bbox%5B%5D=41.16&services%5B%5D=UrgentCare&type=health&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-74.81&bbox%5B%5D=39.66&bbox%5B%5D=-73.31&bbox%5B%5D=41.16&services%5B%5D=UrgentCare&type=health&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-74.81&bbox%5B%5D=39.66&bbox%5B%5D=-73.31&bbox%5B%5D=41.16&services%5B%5D=UrgentCare&type=health&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":1},"distances":[]}}'
+  recorded_at: Thu, 10 Dec 2020 16:43:27 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=%2758%20Leonard%20Ave,%20Leonardo,%20NJ%2007737%27&driveTime=10000&maxResults=11&network=0&posCodes=17&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1228'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:28 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":156.43899999999999,"Minutes":154.333,"ProviderName":"PINNACLE
+        HEALTH FAST CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"No","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-867-4671","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1073974622","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":156.43899999999999,"Minutes":154.333,"ProviderName":"NOVACARE
+        PA","ProviderSpecialty":"Clinic/Center - Physical Therapy","SpecialtyCode":"261QP2000X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-867-1514","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1912300096","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]},{"Miles":156.43899999999999,"Minutes":154.333,"ProviderName":"ADVOCATE
+        MEDICAL GROUP","ProviderSpecialty":"Multi-Specialty","SpecialtyCode":"193200000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-731-0101","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1285903849","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]},{"Miles":174.18199999999999,"Minutes":161.93299999999999,"ProviderName":"PINNACLE
+        HEALTH MEDICAL SVCS","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"PINNACLE
+        HEALTH MEDICAL SVCS","CareSiteAddress":"5400 CHAMBERS HILL RD HARRISBURG,
+        PA 17111-2545","CareSiteAddressStreet":"5400 CHAMBERS HILL RD","CareSiteAddressCity":"HARRISBURG","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17111-2545","CareSitePhoneNumber":"717-564-5400","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1932143427","Latitude":40.249572000000001,"Longitude":-76.794049999999999,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:28 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=%2758%20Leonard%20Ave,%20Leonardo,%20NJ%2007737%27&maxResults=11&posCodes=17&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1228'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:28 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":156.43899999999999,"Minutes":154.333,"ProviderName":"PINNACLE
+        HEALTH FAST CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"No","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-867-4671","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1073974622","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":156.43899999999999,"Minutes":154.333,"ProviderName":"NOVACARE
+        PA","ProviderSpecialty":"Clinic/Center - Physical Therapy","SpecialtyCode":"261QP2000X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-867-1514","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1912300096","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]},{"Miles":156.43899999999999,"Minutes":154.333,"ProviderName":"ADVOCATE
+        MEDICAL GROUP","ProviderSpecialty":"Multi-Specialty","SpecialtyCode":"193200000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-731-0101","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1285903849","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]},{"Miles":174.18199999999999,"Minutes":161.93299999999999,"ProviderName":"PINNACLE
+        HEALTH MEDICAL SVCS","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"PINNACLE
+        HEALTH MEDICAL SVCS","CareSiteAddress":"5400 CHAMBERS HILL RD HARRISBURG,
+        PA 17111-2545","CareSiteAddressStreet":"5400 CHAMBERS HILL RD","CareSiteAddressCity":"HARRISBURG","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17111-2545","CareSitePhoneNumber":"717-564-5400","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1932143427","Latitude":40.249572000000001,"Longitude":-76.794049999999999,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:28 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=%2758%20Leonard%20Ave,%20Leonardo,%20NJ%2007737%27&driveTime=10000&maxResults=11&network=0&posCodes=20&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1843'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:28 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":42.070999999999998,"Minutes":53.049999999999997,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"5024 5TH AVE BROOKLYN, NY 11220-1909","CareSiteAddressStreet":"5024
+        5TH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11220-1909","CareSitePhoneNumber":"718-571-9251","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.644795000000002,"Longitude":-74.011054999999999,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":42.177999999999997,"Minutes":53.200000000000003,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2175 86TH ST BROOKLYN, NY 11214-3205","CareSiteAddressStreet":"2175
+        86TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11214-3205","CareSitePhoneNumber":"646-828-6401","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.602322000000001,"Longitude":-73.993869000000004,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.200000000000003,"Minutes":57.067,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"418 5TH AVE # 420 BROOKLYN, NY 11215-3316","CareSiteAddressStreet":"418
+        5TH AVE # 420","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-3316","CareSitePhoneNumber":"718-965-2273","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669841699999999,"Longitude":-73.98545,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.427,"Minutes":55.183,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"712 BRIGHTON BEACH AVE BROOKLYN, NY 11235-6412","CareSiteAddressStreet":"712
+        BRIGHTON BEACH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-6412","CareSitePhoneNumber":"718-571-9291","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.577696299999999,"Longitude":-73.960224999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":45.707999999999998,"Minutes":59.667000000000002,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"1305 KINGS HWY BROOKLYN, NY 11229-1903","CareSiteAddressStreet":"1305
+        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1903","CareSitePhoneNumber":"718-280-5172","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.608378000000002,"Longitude":-73.959851,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.219000000000001,"Minutes":60.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"874 FLATBUSH AVE BROOKLYN, NY 11226-3102","CareSiteAddressStreet":"874
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11226-3102","CareSitePhoneNumber":"718-571-9372","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.650747000000003,"Longitude":-73.959134000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.954000000000001,"Minutes":61.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"288 FLATBUSH AVE BROOKLYN, NY 11217-2812","CareSiteAddressStreet":"288
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11217-2812","CareSitePhoneNumber":"718-656-1290","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.678175000000003,"Longitude":-73.973730000000003,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.289000000000001,"Minutes":64.183000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2125 NOSTRAND AVE BROOKLYN, NY 11210-3001","CareSiteAddressStreet":"2125
+        NOSTRAND AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11210-3001","CareSitePhoneNumber":"718-489-3557","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.633454999999998,"Longitude":-73.947401999999997,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.377000000000002,"Minutes":68.417000000000002,"ProviderName":"ASJS
+        MEDICAL","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-240-2644","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1326229022","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":47.377000000000002,"Minutes":68.417000000000002,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-571-9355","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":50.43,"Minutes":66.716999999999999,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2183A RALPH AVE BROOKLYN, NY 11234-5405","CareSiteAddressStreet":"2183A
+        RALPH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11234-5405","CareSitePhoneNumber":"718-571-9225","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.626734999999996,"Longitude":-73.916939299999996,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:29 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=%2758%20Leonard%20Ave,%20Leonardo,%20NJ%2007737%27&maxResults=11&posCodes=20&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1843'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:29 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":42.070999999999998,"Minutes":53.049999999999997,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"5024 5TH AVE BROOKLYN, NY 11220-1909","CareSiteAddressStreet":"5024
+        5TH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11220-1909","CareSitePhoneNumber":"718-571-9251","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.644795000000002,"Longitude":-74.011054999999999,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":42.177999999999997,"Minutes":53.200000000000003,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2175 86TH ST BROOKLYN, NY 11214-3205","CareSiteAddressStreet":"2175
+        86TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11214-3205","CareSitePhoneNumber":"646-828-6401","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.602322000000001,"Longitude":-73.993869000000004,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.200000000000003,"Minutes":57.067,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"418 5TH AVE # 420 BROOKLYN, NY 11215-3316","CareSiteAddressStreet":"418
+        5TH AVE # 420","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-3316","CareSitePhoneNumber":"718-965-2273","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669841699999999,"Longitude":-73.98545,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.427,"Minutes":55.183,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"712 BRIGHTON BEACH AVE BROOKLYN, NY 11235-6412","CareSiteAddressStreet":"712
+        BRIGHTON BEACH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-6412","CareSitePhoneNumber":"718-571-9291","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.577696299999999,"Longitude":-73.960224999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":45.707999999999998,"Minutes":59.667000000000002,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"1305 KINGS HWY BROOKLYN, NY 11229-1903","CareSiteAddressStreet":"1305
+        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1903","CareSitePhoneNumber":"718-280-5172","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.608378000000002,"Longitude":-73.959851,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.219000000000001,"Minutes":60.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"874 FLATBUSH AVE BROOKLYN, NY 11226-3102","CareSiteAddressStreet":"874
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11226-3102","CareSitePhoneNumber":"718-571-9372","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.650747000000003,"Longitude":-73.959134000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.954000000000001,"Minutes":61.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"288 FLATBUSH AVE BROOKLYN, NY 11217-2812","CareSiteAddressStreet":"288
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11217-2812","CareSitePhoneNumber":"718-656-1290","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.678175000000003,"Longitude":-73.973730000000003,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.289000000000001,"Minutes":64.183000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2125 NOSTRAND AVE BROOKLYN, NY 11210-3001","CareSiteAddressStreet":"2125
+        NOSTRAND AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11210-3001","CareSitePhoneNumber":"718-489-3557","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.633454999999998,"Longitude":-73.947401999999997,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.377000000000002,"Minutes":68.417000000000002,"ProviderName":"ASJS
+        MEDICAL","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-240-2644","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1326229022","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":47.377000000000002,"Minutes":68.417000000000002,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-571-9355","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":50.43,"Minutes":66.716999999999999,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2183A RALPH AVE BROOKLYN, NY 11234-5405","CareSiteAddressStreet":"2183A
+        RALPH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11234-5405","CareSitePhoneNumber":"718-571-9225","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.626734999999996,"Longitude":-73.916939299999996,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:29 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=%2758%20Leonard%20Ave,%20Leonardo,%20NJ%2007737%27&driveTime=10000&maxResults=11&network=0&posCodes=17,20&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1843'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:30 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":42.070999999999998,"Minutes":53.049999999999997,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"5024 5TH AVE BROOKLYN, NY 11220-1909","CareSiteAddressStreet":"5024
+        5TH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11220-1909","CareSitePhoneNumber":"718-571-9251","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.644795000000002,"Longitude":-74.011054999999999,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":42.177999999999997,"Minutes":53.200000000000003,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2175 86TH ST BROOKLYN, NY 11214-3205","CareSiteAddressStreet":"2175
+        86TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11214-3205","CareSitePhoneNumber":"646-828-6401","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.602322000000001,"Longitude":-73.993869000000004,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.200000000000003,"Minutes":57.067,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"418 5TH AVE # 420 BROOKLYN, NY 11215-3316","CareSiteAddressStreet":"418
+        5TH AVE # 420","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-3316","CareSitePhoneNumber":"718-965-2273","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669841699999999,"Longitude":-73.98545,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.427,"Minutes":55.183,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"712 BRIGHTON BEACH AVE BROOKLYN, NY 11235-6412","CareSiteAddressStreet":"712
+        BRIGHTON BEACH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-6412","CareSitePhoneNumber":"718-571-9291","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.577696299999999,"Longitude":-73.960224999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":45.707999999999998,"Minutes":59.667000000000002,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"1305 KINGS HWY BROOKLYN, NY 11229-1903","CareSiteAddressStreet":"1305
+        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1903","CareSitePhoneNumber":"718-280-5172","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.608378000000002,"Longitude":-73.959851,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.219000000000001,"Minutes":60.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"874 FLATBUSH AVE BROOKLYN, NY 11226-3102","CareSiteAddressStreet":"874
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11226-3102","CareSitePhoneNumber":"718-571-9372","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.650747000000003,"Longitude":-73.959134000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.954000000000001,"Minutes":61.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"288 FLATBUSH AVE BROOKLYN, NY 11217-2812","CareSiteAddressStreet":"288
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11217-2812","CareSitePhoneNumber":"718-656-1290","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.678175000000003,"Longitude":-73.973730000000003,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.289000000000001,"Minutes":64.183000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2125 NOSTRAND AVE BROOKLYN, NY 11210-3001","CareSiteAddressStreet":"2125
+        NOSTRAND AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11210-3001","CareSitePhoneNumber":"718-489-3557","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.633454999999998,"Longitude":-73.947401999999997,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.377000000000002,"Minutes":68.417000000000002,"ProviderName":"ASJS
+        MEDICAL","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-240-2644","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1326229022","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":47.377000000000002,"Minutes":68.417000000000002,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-571-9355","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":50.43,"Minutes":66.716999999999999,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2183A RALPH AVE BROOKLYN, NY 11234-5405","CareSiteAddressStreet":"2183A
+        RALPH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11234-5405","CareSitePhoneNumber":"718-571-9225","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.626734999999996,"Longitude":-73.916939299999996,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:30 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=%2758%20Leonard%20Ave,%20Leonardo,%20NJ%2007737%27&maxResults=11&posCodes=17,20&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1843'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:30 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":42.070999999999998,"Minutes":53.049999999999997,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"5024 5TH AVE BROOKLYN, NY 11220-1909","CareSiteAddressStreet":"5024
+        5TH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11220-1909","CareSitePhoneNumber":"718-571-9251","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.644795000000002,"Longitude":-74.011054999999999,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":42.177999999999997,"Minutes":53.200000000000003,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2175 86TH ST BROOKLYN, NY 11214-3205","CareSiteAddressStreet":"2175
+        86TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11214-3205","CareSitePhoneNumber":"646-828-6401","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.602322000000001,"Longitude":-73.993869000000004,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.200000000000003,"Minutes":57.067,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"418 5TH AVE # 420 BROOKLYN, NY 11215-3316","CareSiteAddressStreet":"418
+        5TH AVE # 420","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-3316","CareSitePhoneNumber":"718-965-2273","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669841699999999,"Longitude":-73.98545,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.427,"Minutes":55.183,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"712 BRIGHTON BEACH AVE BROOKLYN, NY 11235-6412","CareSiteAddressStreet":"712
+        BRIGHTON BEACH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-6412","CareSitePhoneNumber":"718-571-9291","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.577696299999999,"Longitude":-73.960224999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":45.707999999999998,"Minutes":59.667000000000002,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"1305 KINGS HWY BROOKLYN, NY 11229-1903","CareSiteAddressStreet":"1305
+        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1903","CareSitePhoneNumber":"718-280-5172","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.608378000000002,"Longitude":-73.959851,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.219000000000001,"Minutes":60.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"874 FLATBUSH AVE BROOKLYN, NY 11226-3102","CareSiteAddressStreet":"874
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11226-3102","CareSitePhoneNumber":"718-571-9372","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.650747000000003,"Longitude":-73.959134000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.954000000000001,"Minutes":61.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"288 FLATBUSH AVE BROOKLYN, NY 11217-2812","CareSiteAddressStreet":"288
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11217-2812","CareSitePhoneNumber":"718-656-1290","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.678175000000003,"Longitude":-73.973730000000003,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.289000000000001,"Minutes":64.183000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2125 NOSTRAND AVE BROOKLYN, NY 11210-3001","CareSiteAddressStreet":"2125
+        NOSTRAND AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11210-3001","CareSitePhoneNumber":"718-489-3557","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.633454999999998,"Longitude":-73.947401999999997,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.377000000000002,"Minutes":68.417000000000002,"ProviderName":"ASJS
+        MEDICAL","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-240-2644","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1326229022","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":47.377000000000002,"Minutes":68.417000000000002,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-571-9355","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":50.43,"Minutes":66.716999999999999,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2183A RALPH AVE BROOKLYN, NY 11234-5405","CareSiteAddressStreet":"2183A
+        RALPH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11234-5405","CareSitePhoneNumber":"718-571-9225","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.626734999999996,"Longitude":-73.916939299999996,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:31 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=40.415217,-74.057114&driveTime=10000&maxResults=11&network=0&posCodes=17&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1233'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:31 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":156.44300000000001,"Minutes":154.34999999999999,"ProviderName":"PINNACLE
+        HEALTH FAST CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"No","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-867-4671","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1073974622","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":156.44300000000001,"Minutes":154.34999999999999,"ProviderName":"NOVACARE
+        PA","ProviderSpecialty":"Clinic/Center - Physical Therapy","SpecialtyCode":"261QP2000X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-867-1514","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1912300096","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]},{"Miles":156.44300000000001,"Minutes":154.34999999999999,"ProviderName":"ADVOCATE
+        MEDICAL GROUP","ProviderSpecialty":"Multi-Specialty","SpecialtyCode":"193200000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-731-0101","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1285903849","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]},{"Miles":174.18600000000001,"Minutes":161.93299999999999,"ProviderName":"PINNACLE
+        HEALTH MEDICAL SVCS","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"PINNACLE
+        HEALTH MEDICAL SVCS","CareSiteAddress":"5400 CHAMBERS HILL RD HARRISBURG,
+        PA 17111-2545","CareSiteAddressStreet":"5400 CHAMBERS HILL RD","CareSiteAddressCity":"HARRISBURG","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17111-2545","CareSitePhoneNumber":"717-564-5400","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1932143427","Latitude":40.249572000000001,"Longitude":-76.794049999999999,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:31 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=40.415217,-74.057114&maxResults=11&posCodes=17&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1233'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:31 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":156.44300000000001,"Minutes":154.34999999999999,"ProviderName":"PINNACLE
+        HEALTH FAST CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"No","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-867-4671","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1073974622","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":null,"SubServices":[]},{"Miles":156.44300000000001,"Minutes":154.34999999999999,"ProviderName":"NOVACARE
+        PA","ProviderSpecialty":"Clinic/Center - Physical Therapy","SpecialtyCode":"261QP2000X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-867-1514","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1912300096","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]},{"Miles":156.44300000000001,"Minutes":154.34999999999999,"ProviderName":"ADVOCATE
+        MEDICAL GROUP","ProviderSpecialty":"Multi-Specialty","SpecialtyCode":"193200000X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"SELECT
+        PT PA","CareSiteAddress":"1251 E MAIN ST ANNVILLE, PA 17003-1643","CareSiteAddressStreet":"1251
+        E MAIN ST","CareSiteAddressCity":"ANNVILLE","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17003-1643","CareSitePhoneNumber":"717-731-0101","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1285903849","Latitude":40.335990000000002,"Longitude":-76.492607000000007,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]},{"Miles":174.18600000000001,"Minutes":161.93299999999999,"ProviderName":"PINNACLE
+        HEALTH MEDICAL SVCS","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"PINNACLE
+        HEALTH MEDICAL SVCS","CareSiteAddress":"5400 CHAMBERS HILL RD HARRISBURG,
+        PA 17111-2545","CareSiteAddressStreet":"5400 CHAMBERS HILL RD","CareSiteAddressCity":"HARRISBURG","CareSiteAddressState":"PA","CareSiteAddressZipCode":"17111-2545","CareSitePhoneNumber":"717-564-5400","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1932143427","Latitude":40.249572000000001,"Longitude":-76.794049999999999,"GeoWarning":null,"POSCodes":["17"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:32 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=40.415217,-74.057114&driveTime=10000&maxResults=11&network=0&posCodes=20&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1847'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:32 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":42.073999999999998,"Minutes":53.067,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"5024 5TH AVE BROOKLYN, NY 11220-1909","CareSiteAddressStreet":"5024
+        5TH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11220-1909","CareSitePhoneNumber":"718-571-9251","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.644795000000002,"Longitude":-74.011054999999999,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":42.182000000000002,"Minutes":53.216999999999999,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2175 86TH ST BROOKLYN, NY 11214-3205","CareSiteAddressStreet":"2175
+        86TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11214-3205","CareSitePhoneNumber":"646-828-6401","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.602322000000001,"Longitude":-73.993869000000004,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.204000000000001,"Minutes":57.082999999999998,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"418 5TH AVE # 420 BROOKLYN, NY 11215-3316","CareSiteAddressStreet":"418
+        5TH AVE # 420","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-3316","CareSitePhoneNumber":"718-965-2273","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669841699999999,"Longitude":-73.98545,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.430999999999997,"Minutes":55.183,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"712 BRIGHTON BEACH AVE BROOKLYN, NY 11235-6412","CareSiteAddressStreet":"712
+        BRIGHTON BEACH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-6412","CareSitePhoneNumber":"718-571-9291","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.577696299999999,"Longitude":-73.960224999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":45.712000000000003,"Minutes":59.683,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"1305 KINGS HWY BROOKLYN, NY 11229-1903","CareSiteAddressStreet":"1305
+        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1903","CareSitePhoneNumber":"718-280-5172","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.608378000000002,"Longitude":-73.959851,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.222999999999999,"Minutes":60.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"874 FLATBUSH AVE BROOKLYN, NY 11226-3102","CareSiteAddressStreet":"874
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11226-3102","CareSitePhoneNumber":"718-571-9372","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.650747000000003,"Longitude":-73.959134000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.957999999999998,"Minutes":61.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"288 FLATBUSH AVE BROOKLYN, NY 11217-2812","CareSiteAddressStreet":"288
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11217-2812","CareSitePhoneNumber":"718-656-1290","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.678175000000003,"Longitude":-73.973730000000003,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.292999999999999,"Minutes":64.183000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2125 NOSTRAND AVE BROOKLYN, NY 11210-3001","CareSiteAddressStreet":"2125
+        NOSTRAND AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11210-3001","CareSitePhoneNumber":"718-489-3557","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.633454999999998,"Longitude":-73.947401999999997,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.381,"Minutes":68.433000000000007,"ProviderName":"ASJS
+        MEDICAL","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-240-2644","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1326229022","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":47.381,"Minutes":68.433000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-571-9355","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":50.433999999999997,"Minutes":66.733000000000004,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2183A RALPH AVE BROOKLYN, NY 11234-5405","CareSiteAddressStreet":"2183A
+        RALPH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11234-5405","CareSitePhoneNumber":"718-571-9225","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.626734999999996,"Longitude":-73.916939299999996,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:32 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=40.415217,-74.057114&maxResults=11&posCodes=20&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1847'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:33 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":42.073999999999998,"Minutes":53.067,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"5024 5TH AVE BROOKLYN, NY 11220-1909","CareSiteAddressStreet":"5024
+        5TH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11220-1909","CareSitePhoneNumber":"718-571-9251","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.644795000000002,"Longitude":-74.011054999999999,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":42.182000000000002,"Minutes":53.216999999999999,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2175 86TH ST BROOKLYN, NY 11214-3205","CareSiteAddressStreet":"2175
+        86TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11214-3205","CareSitePhoneNumber":"646-828-6401","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.602322000000001,"Longitude":-73.993869000000004,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.204000000000001,"Minutes":57.082999999999998,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"418 5TH AVE # 420 BROOKLYN, NY 11215-3316","CareSiteAddressStreet":"418
+        5TH AVE # 420","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-3316","CareSitePhoneNumber":"718-965-2273","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669841699999999,"Longitude":-73.98545,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.430999999999997,"Minutes":55.183,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"712 BRIGHTON BEACH AVE BROOKLYN, NY 11235-6412","CareSiteAddressStreet":"712
+        BRIGHTON BEACH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-6412","CareSitePhoneNumber":"718-571-9291","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.577696299999999,"Longitude":-73.960224999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":45.712000000000003,"Minutes":59.683,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"1305 KINGS HWY BROOKLYN, NY 11229-1903","CareSiteAddressStreet":"1305
+        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1903","CareSitePhoneNumber":"718-280-5172","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.608378000000002,"Longitude":-73.959851,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.222999999999999,"Minutes":60.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"874 FLATBUSH AVE BROOKLYN, NY 11226-3102","CareSiteAddressStreet":"874
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11226-3102","CareSitePhoneNumber":"718-571-9372","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.650747000000003,"Longitude":-73.959134000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.957999999999998,"Minutes":61.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"288 FLATBUSH AVE BROOKLYN, NY 11217-2812","CareSiteAddressStreet":"288
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11217-2812","CareSitePhoneNumber":"718-656-1290","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.678175000000003,"Longitude":-73.973730000000003,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.292999999999999,"Minutes":64.183000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2125 NOSTRAND AVE BROOKLYN, NY 11210-3001","CareSiteAddressStreet":"2125
+        NOSTRAND AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11210-3001","CareSitePhoneNumber":"718-489-3557","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.633454999999998,"Longitude":-73.947401999999997,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.381,"Minutes":68.433000000000007,"ProviderName":"ASJS
+        MEDICAL","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-240-2644","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1326229022","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":47.381,"Minutes":68.433000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-571-9355","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":50.433999999999997,"Minutes":66.733000000000004,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2183A RALPH AVE BROOKLYN, NY 11234-5405","CareSiteAddressStreet":"2183A
+        RALPH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11234-5405","CareSitePhoneNumber":"718-571-9225","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.626734999999996,"Longitude":-73.916939299999996,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:33 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=40.415217,-74.057114&driveTime=10000&maxResults=11&network=0&posCodes=17,20&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1847'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:32 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":42.073999999999998,"Minutes":53.067,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"5024 5TH AVE BROOKLYN, NY 11220-1909","CareSiteAddressStreet":"5024
+        5TH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11220-1909","CareSitePhoneNumber":"718-571-9251","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.644795000000002,"Longitude":-74.011054999999999,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":42.182000000000002,"Minutes":53.216999999999999,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2175 86TH ST BROOKLYN, NY 11214-3205","CareSiteAddressStreet":"2175
+        86TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11214-3205","CareSitePhoneNumber":"646-828-6401","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.602322000000001,"Longitude":-73.993869000000004,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.204000000000001,"Minutes":57.082999999999998,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"418 5TH AVE # 420 BROOKLYN, NY 11215-3316","CareSiteAddressStreet":"418
+        5TH AVE # 420","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-3316","CareSitePhoneNumber":"718-965-2273","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669841699999999,"Longitude":-73.98545,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.430999999999997,"Minutes":55.183,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"712 BRIGHTON BEACH AVE BROOKLYN, NY 11235-6412","CareSiteAddressStreet":"712
+        BRIGHTON BEACH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-6412","CareSitePhoneNumber":"718-571-9291","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.577696299999999,"Longitude":-73.960224999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":45.712000000000003,"Minutes":59.683,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"1305 KINGS HWY BROOKLYN, NY 11229-1903","CareSiteAddressStreet":"1305
+        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1903","CareSitePhoneNumber":"718-280-5172","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.608378000000002,"Longitude":-73.959851,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.222999999999999,"Minutes":60.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"874 FLATBUSH AVE BROOKLYN, NY 11226-3102","CareSiteAddressStreet":"874
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11226-3102","CareSitePhoneNumber":"718-571-9372","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.650747000000003,"Longitude":-73.959134000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.957999999999998,"Minutes":61.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"288 FLATBUSH AVE BROOKLYN, NY 11217-2812","CareSiteAddressStreet":"288
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11217-2812","CareSitePhoneNumber":"718-656-1290","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.678175000000003,"Longitude":-73.973730000000003,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.292999999999999,"Minutes":64.183000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2125 NOSTRAND AVE BROOKLYN, NY 11210-3001","CareSiteAddressStreet":"2125
+        NOSTRAND AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11210-3001","CareSitePhoneNumber":"718-489-3557","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.633454999999998,"Longitude":-73.947401999999997,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.381,"Minutes":68.433000000000007,"ProviderName":"ASJS
+        MEDICAL","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-240-2644","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1326229022","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":47.381,"Minutes":68.433000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-571-9355","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":50.433999999999997,"Minutes":66.733000000000004,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2183A RALPH AVE BROOKLYN, NY 11234-5405","CareSiteAddressStreet":"2183A
+        RALPH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11234-5405","CareSitePhoneNumber":"718-571-9225","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.626734999999996,"Longitude":-73.916939299999996,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:33 GMT
+- request:
+    method: get
+    uri: https://np.dws.ppms.va.gov/v1.0/PlaceOfServiceLocator?address=40.415217,-74.057114&maxResults=11&posCodes=17,20&radius=200
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v1.1.0
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      cache-control:
+      - no-cache
+      pragma:
+      - no-cache
+      content-length:
+      - '1847'
+      content-type:
+      - application/json; odata.metadata=minimal
+      expires:
+      - "-1"
+      vary:
+      - Accept-Encoding
+      server:
+      - Microsoft-IIS/10.0
+      odata-version:
+      - '4.0'
+      x-aspnet-version:
+      - 4.0.30319
+      request-context:
+      - appId=cid-v1:5b1c6caa-ff3e-4ca1-843f-1841a83703d4
+      access-control-expose-headers:
+      - Request-Context
+      x-powered-by:
+      - ASP.NET
+      x-content-type-options:
+      - nosniff
+      set-cookie:
+      - ARRAffinity=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;Secure;Domain=np.dws.ppms.va.gov,
+        ARRAffinitySameSite=3d15955dbb3ae948d97f99668b2f8e7d0da69760a7a60c59ac60dcf8438af508;Path=/;HttpOnly;SameSite=None;Secure;Domain=np.dws.ppms.va.gov
+      date:
+      - Thu, 10 Dec 2020 16:43:34 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"@odata.context":"https://np.dws.ppms.va.gov/v1.0/$metadata#Collection(PpmsDwsApis.NetFramework.Models.V10.CosmosPlaceOfServiceLocatorResult)","value":[{"Miles":42.073999999999998,"Minutes":53.067,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"5024 5TH AVE BROOKLYN, NY 11220-1909","CareSiteAddressStreet":"5024
+        5TH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11220-1909","CareSitePhoneNumber":"718-571-9251","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.644795000000002,"Longitude":-74.011054999999999,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":42.182000000000002,"Minutes":53.216999999999999,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2175 86TH ST BROOKLYN, NY 11214-3205","CareSiteAddressStreet":"2175
+        86TH ST","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11214-3205","CareSitePhoneNumber":"646-828-6401","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.602322000000001,"Longitude":-73.993869000000004,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.204000000000001,"Minutes":57.082999999999998,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"418 5TH AVE # 420 BROOKLYN, NY 11215-3316","CareSiteAddressStreet":"418
+        5TH AVE # 420","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11215-3316","CareSitePhoneNumber":"718-965-2273","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669841699999999,"Longitude":-73.98545,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":44.430999999999997,"Minutes":55.183,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"712 BRIGHTON BEACH AVE BROOKLYN, NY 11235-6412","CareSiteAddressStreet":"712
+        BRIGHTON BEACH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11235-6412","CareSitePhoneNumber":"718-571-9291","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.577696299999999,"Longitude":-73.960224999999994,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":45.712000000000003,"Minutes":59.683,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"1305 KINGS HWY BROOKLYN, NY 11229-1903","CareSiteAddressStreet":"1305
+        KINGS HWY","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11229-1903","CareSitePhoneNumber":"718-280-5172","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.608378000000002,"Longitude":-73.959851,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.222999999999999,"Minutes":60.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"874 FLATBUSH AVE BROOKLYN, NY 11226-3102","CareSiteAddressStreet":"874
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11226-3102","CareSitePhoneNumber":"718-571-9372","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.650747000000003,"Longitude":-73.959134000000006,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":46.957999999999998,"Minutes":61.433,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"288 FLATBUSH AVE BROOKLYN, NY 11217-2812","CareSiteAddressStreet":"288
+        FLATBUSH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11217-2812","CareSitePhoneNumber":"718-656-1290","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.678175000000003,"Longitude":-73.973730000000003,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.292999999999999,"Minutes":64.183000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2125 NOSTRAND AVE BROOKLYN, NY 11210-3001","CareSiteAddressStreet":"2125
+        NOSTRAND AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11210-3001","CareSitePhoneNumber":"718-489-3557","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.633454999999998,"Longitude":-73.947401999999997,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":47.381,"Minutes":68.433000000000007,"ProviderName":"ASJS
+        MEDICAL","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":true,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":true,"PreferredMeansReceivingReferralFax":true,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-240-2644","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":true,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1326229022","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":null,"SubServices":[]},{"Miles":47.381,"Minutes":68.433000000000007,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"256 UTICA AVE BROOKLYN, NY 11213-4029","CareSiteAddressStreet":"256
+        UTICA AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11213-4029","CareSitePhoneNumber":"718-571-9355","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.669966000000002,"Longitude":-73.931421999999998,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]},{"Miles":50.433999999999997,"Minutes":66.733000000000004,"ProviderName":"CITY
+        MD URGENT CARE","ProviderSpecialty":"Clinic/Center - Urgent Care","SpecialtyCode":"261QU0200X","PreferredMeansReceivingReferralHSRM":false,"PreferredMeansReceivingReferralSecuredEmail":false,"PreferredMeansReceivingReferralMail":false,"PreferredMeansReceivingReferralDirectMessaging":false,"PreferredMeansReceivingReferralFax":false,"HPP":"Unknown","CareSite":"CITY
+        MD URGENT CARE","CareSiteAddress":"2183A RALPH AVE BROOKLYN, NY 11234-5405","CareSiteAddressStreet":"2183A
+        RALPH AVE","CareSiteAddressCity":"BROOKLYN","CareSiteAddressState":"NY","CareSiteAddressZipCode":"11234-5405","CareSitePhoneNumber":"718-571-9225","WorkHours":null,"ProviderGender":"NotSpecified","ProviderNetwork":"CCN
+        Region 1","NetworkId":14,"ProviderAcceptingNewPatients":false,"ProviderPrimaryCare":false,"QualityRanking":null,"ProviderIdentifier":"1487993564","Latitude":40.626734999999996,"Longitude":-73.916939299999996,"GeoWarning":null,"POSCodes":["20"],"Telehealth":false,"SubServices":[]}]}'
+  recorded_at: Thu, 10 Dec 2020 16:43:34 GMT
 recorded_with: VCR 6.0.0

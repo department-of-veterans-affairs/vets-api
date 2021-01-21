@@ -15,21 +15,21 @@ describe HealthQuest::PatientGeneratedData::Patient::Factory do
       allow(HealthQuest::SessionService).to receive(:new).with(user).and_return(session_service)
     end
 
-    describe '#get_patient' do
+    describe '#get' do
       it 'returns a ClientReply' do
         allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
           .to receive(:get).with(user.icn).and_return(client_reply)
 
-        expect(subject.new(user).get_patient).to eq(client_reply)
+        expect(subject.new(user).get).to eq(client_reply)
       end
     end
 
-    describe '#create_patient' do
+    describe '#create' do
       it 'returns a ClientReply' do
         allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
           .to receive(:create).with(user).and_return(client_reply)
 
-        expect(subject.new(user).create_patient).to eq(client_reply)
+        expect(subject.new(user).create).to eq(client_reply)
       end
     end
   end

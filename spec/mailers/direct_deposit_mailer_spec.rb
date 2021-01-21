@@ -4,9 +4,10 @@ require 'rails_helper'
 
 RSpec.describe DirectDepositMailer, type: [:mailer] do
   subject do
-    described_class.build(email, google_analytics_client_id).deliver_now
+    described_class.build(email, google_analytics_client_id, dd_type).deliver_now
   end
 
+  let(:dd_type) { :comp_pen }
   let(:email) { 'foo@example.com' }
   let(:google_analytics_client_id) { '123456543' }
 
@@ -21,9 +22,28 @@ RSpec.describe DirectDepositMailer, type: [:mailer] do
     end
 
     it 'delivers the mail' do
-      expect { DirectDepositEmailJob.new.perform('test@example.com', 123_456_789) }.to change {
+      expect { DirectDepositEmailJob.new.perform('test@example.com', 123_456_789, :comp_pen) }.to change {
         ActionMailer::Base.deliveries.count
       }.by(1)
+    end
+
+    context 'comp and pen email' do
+      it 'includes the right text' do
+        expect(subject.body.raw_source).to include(
+          "We'll use your updated information to deposit any disability compensation or pension benefits "\
+          'you may receive'
+        )
+      end
+    end
+
+    context 'ch33 email' do
+      let(:dd_type) { :ch33 }
+
+      it 'includes the right text' do
+        expect(subject.body.raw_source).to include(
+          "We'll use your updated information to deposit any education benefits you may receive"
+        )
+      end
     end
   end
 end

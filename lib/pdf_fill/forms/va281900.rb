@@ -2,7 +2,7 @@
 
 module PdfFill
   module Forms
-    class Vba281900 < FormBase
+    class Va281900 < FormBase
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR

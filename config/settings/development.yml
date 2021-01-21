@@ -20,3 +20,7 @@ locators:
   mock_gis: true
 
 web_origin_regex: \Ahttps?:\/\/.*\z
+
+modules_appeals_api:
+  documentation:
+    notice_of_disagreements_v1: true

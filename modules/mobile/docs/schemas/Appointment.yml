@@ -1,0 +1,121 @@
+type: object
+required:
+  - type
+  - id
+  - attributes
+properties:
+  type:
+    type: string
+    example: "appointment"
+  id:
+    type: string
+    example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+  attributes:
+    type: object
+    required:
+      - appointmentType
+      - status
+      - startTime
+      - minutesDuration
+      - comment
+      - timeZone
+      - healthcareService
+      - location
+    properties:
+      appointmentType:
+        type: string
+        enum: [ COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_GFE, VA_VIDEO_CONNECT_ONSITE ]
+        example: VA
+      status:
+        type: string
+        enum: [ BOOKED, CANCELLED ]
+        example: BOOKED
+      startTime:
+        type: datetime
+        example: 2020-10-29T10:30:00-07:00
+      minutesDuration:
+        type: integer
+        example: 60
+      comment:
+        type: string
+        example: Please arrive 20 minutes before the start of your appointment
+      timeZone:
+        type: string
+        enum: [ Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York ]
+        example: America/Los_Angeles
+      healthcareService:
+        type: string
+        example: Blind Rehabilitation Center
+      location:
+        type: object
+        required:
+          - address
+          - phoneNumber
+          - url
+          - code
+        properties:
+          address:
+            type: object
+            required:
+              - line1
+              - line2
+              - line3
+              - city
+              - state
+              - zipCode
+            properties:
+              line1:
+                type: string
+                example: 5901 East 7th Street
+              line2:
+                type: string
+                example: Building 166
+              line3:
+                type: string
+                example: null
+              city:
+                type: string
+                example: Long Beach
+              state:
+                type: string
+                example: CA
+              zipCode:
+                type: string
+                example: 90822
+          phone:
+            type: object
+            required:
+              - number
+              - extension
+            properties:
+              number:
+                type: string
+                example: 562-434-6008
+              extension:
+                type: string
+                example: 1001
+          url:
+            type: string
+            example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+          code:
+            type: string
+            example: GL32CA
+      practitioner:
+        required:
+          - prefix
+          - firstName
+          - middleName
+          - lastName
+        properties:
+          prefix:
+            type: string
+            example: "Dr."
+          firstName:
+            type: string
+            example: "John"
+          middleName:
+            type: string
+            example: "A."
+          lastName:
+            type: string
+            example: "Smith"

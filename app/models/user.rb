@@ -129,10 +129,8 @@ class User < Common::RedisStore
   delegate :common_name, to: :identity, allow_nil: true
 
   # mpi attributes
-  delegate :birls_id, to: :mpi
   delegate :icn, to: :mpi
   delegate :icn_with_aaid, to: :mpi
-  delegate :participant_id, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
 
@@ -146,6 +144,18 @@ class User < Common::RedisStore
 
   def sec_id
     identity.sec_id || va_profile&.sec_id
+  end
+
+  def icn
+    identity&.icn || mpi&.icn
+  end
+
+  def birls_id
+    identity&.birls_id || mpi&.birls_id
+  end
+
+  def participant_id
+    identity&.participant_id || mpi&.participant_id
   end
 
   def va_profile

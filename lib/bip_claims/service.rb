@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require 'mpi/attr_service'
 require_relative 'configuration'
 require_relative 'veteran'
 

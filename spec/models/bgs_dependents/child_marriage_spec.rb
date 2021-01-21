@@ -19,7 +19,8 @@ RSpec.describe BGSDependents::ChildMarriage do
       'last' => 'Johnson',
       'suffix' => 'Sr.',
       'ssn' => '555612341',
-      'birth_date' => '2020-01-01'
+      'birth_date' => '2020-01-01',
+      'ever_married_ind' => 'Y'
     }
   end
 

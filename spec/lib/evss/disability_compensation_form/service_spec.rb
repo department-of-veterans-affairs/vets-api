@@ -51,6 +51,22 @@ describe EVSS::DisabilityCompensationForm::Service do
       File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
     end
 
+    context 'with a 503 error' do
+      it 'raises a service unavailable exception' do
+        expect_any_instance_of(described_class).to receive(:perform).and_raise(
+          Common::Client::Errors::ClientError.new(
+            'the server responded with status 503',
+            503,
+            '<html><body><h1>503 Service Unavailable</h1>No server is available to handle this request.</body></html>'
+          )
+        )
+
+        expect do
+          subject.submit_form526(valid_form_content)
+        end.to raise_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+      end
+    end
+
     context 'with valid input' do
       it 'returns a form submit response object' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do

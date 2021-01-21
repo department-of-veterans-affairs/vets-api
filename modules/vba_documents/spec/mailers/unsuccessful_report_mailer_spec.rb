@@ -33,31 +33,59 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
   end
 
   describe '#build' do
-    subject do
-      described_class.build(totals, [error_upload], [uploaded_upload], 7.days.ago, Time.zone.now).deliver_now
+    module MailerHelper
+      class << self
+        attr_reader :env_hash
+      end
+
+      @env_hash = {
+        staging: 'https://dsva-vetsgov-staging-benefits-documents.s3.us-gov-west-1.amazonaws.com/',
+        dev: 'https://dsva-vetsgov-dev-benefits-documents.s3.us-gov-west-1.amazonaws.com/',
+        sandbox: 'https://dsva-vagov-sandbox-benefits-documents.s3.us-gov-west-1.amazonaws.com/',
+        prod: 'https://dsva-vetsgov-prod-benefits-documents.s3.us-gov-west-1.amazonaws.com/'
+      }
     end
 
-    it 'sends the email' do
-      expect(subject.subject).to eq('Benefits Intake Unsuccessful Submission Report')
+    before do
+      current_env_url = env_url.last
+      Settings.vba_documents.location.prefix = current_env_url
+      VBADocuments::Deployment.environment = VBADocuments::Deployment.fetch_environment
+      if VBADocuments::UnsuccessfulReportMailer.const_defined?(:RECIPIENTS)
+        VBADocuments::UnsuccessfulReportMailer.send(:remove_const, :RECIPIENTS)
+      end
+      load './modules/vba_documents/app/mailers/vba_documents/unsuccessful_report_mailer.rb'
+      @email = described_class.build(totals, [error_upload], [uploaded_upload], 7.days.ago, Time.zone.now).deliver_now
     end
 
-    it 'sends to the right people' do
-      expect(subject.to).to eq(
-        %w[
-          david.mazik@va.gov
-          michael.bastos@oddball.io
-          ryan.link@oddball.io
-          christopher.stone@libertyits.com
-          valerie.hase@va.gov
-          mark.greenburg@adhocteam.us
-          premal.shah@va.gov
-          lydia.vian@thunderyard.com
-          joshua.jennings@libertyits.com
-          cristopher.shupp@libertyits.com
-          gregory.bowman@libertyits.com
-          zachary.goldfine@va.gov
-        ]
-      )
+    MailerHelper.env_hash.each_pair do |k, v|
+      context 'environments' do
+        let(:env_url) { [k, v] }
+
+        it "sends the email for #{k}" do
+          expect(@email.subject).to eq("Benefits Intake Unsuccessful Submission Report for #{k}")
+        end
+      end
+    end
+
+    MailerHelper.env_hash.each_pair do |k, v|
+      context 'environments' do
+        let(:env_url) { [k, v] }
+
+        it "sends to the right people for #{k}" do
+          people = VBADocuments::UnsuccessfulReportMailer.fetch_recipients
+          expect(@email.to).to eq(people)
+        end
+      end
+    end
+
+    MailerHelper.env_hash.each_pair do |k, v|
+      context 'environments' do
+        let(:env_url) { [k, v] }
+
+        it "State the environment #{k.to_s.upcase} in the body" do
+          expect(@email.body.to_s.split("\n").first).to match(/.*#{k.to_s.upcase}.*/)
+        end
+      end
     end
   end
 end

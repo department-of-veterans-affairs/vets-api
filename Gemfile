@@ -9,22 +9,25 @@ ruby '2.6.6'
 gem 'websocket-extensions', '>= 0.1.5'
 
 # Modules
-gem 'appeals_api', path: 'modules/appeals_api'
-gem 'apps_api', path: 'modules/apps_api'
-gem 'claims_api', path: 'modules/claims_api'
-gem 'covid_research', path: 'modules/covid_research'
-gem 'health_quest', path: 'modules/health_quest'
-gem 'mobile', path: 'modules/mobile'
-gem 'openid_auth', path: 'modules/openid_auth'
-gem 'va_forms', path: 'modules/va_forms'
-gem 'vaos', path: 'modules/vaos'
-gem 'vba_documents', path: 'modules/vba_documents'
-gem 'veteran', path: 'modules/veteran'
-gem 'veteran_confirmation', path: 'modules/veteran_confirmation'
-gem 'veteran_verification', path: 'modules/veteran_verification'
+path 'modules' do
+  gem 'appeals_api'
+  gem 'apps_api'
+  gem 'claims_api'
+  gem 'covid_research'
+  gem 'covid_vaccine'
+  gem 'health_quest'
+  gem 'mobile'
+  gem 'openid_auth'
+  gem 'va_forms'
+  gem 'vaos'
+  gem 'vba_documents'
+  gem 'veteran'
+  gem 'veteran_confirmation'
+  gem 'veteran_verification'
+end
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.5'
+gem 'puma', '~> 4.3.7'
 gem 'puma-plugin-statsd', '~> 0.1.0'
 gem 'rails', '~> 6.0.2'
 
@@ -78,17 +81,21 @@ gem 'mail', '2.7.1'
 gem 'memoist'
 gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
-gem 'nokogiri', '~> 1.10'
+gem 'nokogiri', '~> 1.11'
 gem 'notifications-ruby-client', '~> 5.1'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
 gem 'operating_hours'
 gem 'ox'
 gem 'paper_trail'
+gem 'parallel'
 gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
+gem 'pg_query', '>= 0.9.0'
+gem 'pghero'
 gem 'prawn'
+gem 'prawn-table'
 gem 'pundit'
 gem 'rack'
 gem 'rack-attack'
@@ -107,13 +114,13 @@ gem 'sentry-raven'
 gem 'shrine'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
+gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
-gem 'zero_downtime_migrations'
 
 group :development do
   gem 'benchmark-ips'
@@ -151,6 +158,7 @@ end
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
+  gem 'bootsnap', require: false
   gem 'brakeman', '~> 4.7'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -165,6 +173,7 @@ group :development, :test do
   gem 'fuubar'
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
+  gem 'parallel_tests'
   gem 'pry-byebug'
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'

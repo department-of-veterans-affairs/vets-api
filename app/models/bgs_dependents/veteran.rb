@@ -50,6 +50,7 @@ module BGSDependents
         address_zip_code: address[:zip_prefix_nbr],
         type: 'veteran',
         benefit_claim_type_end_product: claim_info[:claim_type_end_product],
+        regional_office_number: claim_info[:regional_office_number],
         location_id: claim_info[:location_id],
         net_worth_over_limit_ind: claim_info[:net_worth_over_limit_ind]
       }

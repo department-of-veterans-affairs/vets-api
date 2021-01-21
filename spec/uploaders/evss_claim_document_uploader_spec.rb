@@ -7,17 +7,14 @@ RSpec.describe EVSSClaimDocumentUploader do
 
   let(:document_uploader) { described_class.new('1234', ['11', nil]) }
   let(:uploader_with_tiff) do
-    File.open('spec/fixtures/evss_claim/image.TIF') do |f|
-      document_uploader.store!(f)
-    end
-
+    f = Rack::Test::UploadedFile.new('spec/fixtures/evss_claim/image.TIF', 'image/tiff')
+    document_uploader.store!(f)
     document_uploader
   end
-  let(:uploader_with_jpg) do
-    File.open('spec/fixtures/evss_claim/converted_image.TIF.jpg') do |f|
-      document_uploader.store!(f)
-    end
 
+  let(:uploader_with_jpg) do
+    f = Rack::Test::UploadedFile.new('spec/fixtures/evss_claim/converted_image.TIF.jpg', 'image/jpeg')
+    document_uploader.store!(f)
     document_uploader
   end
 

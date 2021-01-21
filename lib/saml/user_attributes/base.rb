@@ -7,9 +7,10 @@ module SAML
 
       attr_reader :attributes, :authn_context, :warnings
 
-      def initialize(saml_attributes, authn_context)
+      def initialize(saml_attributes, authn_context, saml_settings = nil)
         @attributes = saml_attributes # never default this to {}
         @authn_context = authn_context
+        @saml_settings = saml_settings
         @warnings = []
       end
 
