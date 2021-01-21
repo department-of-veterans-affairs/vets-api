@@ -140,7 +140,7 @@ module Vet360
           raw_response = perform(:get, "status/#{transaction_id}")
           Vet360::Stats.increment_transaction_results(raw_response, 'init_vet360_id')
 
-          Vet360::ContactInformation::PersonTransactionResponse.from(raw_response)
+          Vet360::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
         end
       rescue => e
         handle_error(e)
