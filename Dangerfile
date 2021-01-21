@@ -1,3 +1,5 @@
+# rubocop:disable Naming/FileName
+# rubocop:enable Naming/FileName
 # frozen_string_literal: true
 
 module VSPDanger
@@ -31,7 +33,18 @@ module VSPDanger
 
     def error_message
       <<~EMSG
-        Tooo many lines
+        This PR changes `#{lines_changed}` LoC (not counting whitespace/newlines).
+
+        In order to ensure each PR receives the proper attention it deserves, those exceeding
+        `#{PR_SIZE[:maximum]}` will not be reviewed, nor will they be allowed to merge. Please break this PR up into
+        smaller ones.
+
+        If you have reason to believe that this PR should be granted an exception, please see the
+        [Code Review Guidelines FAQ](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/code_review_guidelines.md#faq).
+
+        #{file_summary}
+
+        Big PRs are difficult to review, often become stale, and cause delays.
       EMSG
     end
 
@@ -41,7 +54,14 @@ module VSPDanger
 
     def warning_message
       <<~EMSG
-        Little too many lines
+        This PR changes `#{lines_changed}` LoC (not counting whitespace/newlines).
+
+        In order to ensure each PR receives the proper attention it deserves, we recommend not exceeding
+        `#{PR_SIZE[:recommended]}`. Expect some delays getting reviews.
+
+        #{file_summary}
+
+        Big PRs are difficult to review, often become stale, and cause delays.
       EMSG
     end
 
@@ -49,8 +69,26 @@ module VSPDanger
       { severity: :info, message: 'Good job' }
     end
 
+    def file_summary
+      <<~MSG
+        <details>
+          <summary>File Summary</summary>
+
+          #### Files
+          #{changes.collect { |change| "- #{change.file_name} (+#{change.insertions}/-#{change.deletions})" }.join "\n"}
+
+          ####
+          _Note: We exclude files matching the following when considering PR size:_
+
+          ```
+          #{EXCLUSIONS.join ', '}
+          ```
+        </details>
+      MSG
+    end
+
     def lines_changed
-      changes.sum(&:total_changes)
+      @lines_changed ||= changes.sum(&:total_changes)
     end
 
     def changes
@@ -110,7 +148,25 @@ module VSPDanger
 
     def error_message
       <<~EMSG
-        db/ no no
+        Modified files in `db/` should be the only files checked into this PR.
+
+        <details>
+          <summary>File Summary</summary>
+
+          #### DB File(s)
+
+          - #{db_files.join "\n- "}
+
+          #### App File(s)
+
+          - #{app_files.join "\n- "}
+        </details>
+
+        Database migrations do not run automatically with vets-api deployments. Application code must always be
+        backwards compatible with the DB, both before and after migrations have been run. For more info:
+
+        - [Guidance on Safe DB Migrations](https://github.com/ankane/strong_migrations#checks)
+        - [`vets-api` Deployment Process](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/deployment.md)
       EMSG
     end
 
@@ -118,8 +174,16 @@ module VSPDanger
       { severity: :info, message: 'Good job' }
     end
 
+    def app_files
+      files - db_files
+    end
+
+    def db_files
+      files.select { |file| file.include? 'db/' }
+    end
+
     def files
-      `git diff #{base_sha}...#{head_sha} --name-only`.split("\n")
+      @files ||= `git diff #{base_sha}...#{head_sha} --name-only`.split("\n")
     end
 
     def head_sha
@@ -136,7 +200,7 @@ module VSPDanger
 
     class ChangeLimiterTest < MiniTest::Test
       def test_rubocop
-        assert system("rubocop #{__FILE__} --format simple --except Naming/FileName")
+        assert system("rubocop #{__FILE__} --format simple")
       end
 
       # TODO: Remove dummy test
