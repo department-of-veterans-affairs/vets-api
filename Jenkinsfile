@@ -73,22 +73,11 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
-      steps {
-        sh 'env=$RAILS_ENV make spec'
-      }
-      post {
-        success {
-          archiveArtifacts artifacts: "coverage/**"
-          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
-          junit 'log/*.xml'
-        }
-      }
-    }
-
     stage('Run Danger Bot') {
       steps {
         withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
+          sh 'git checkout master'
+          sh 'git checkout $THE_BRANCH'
           sh 'env=$RAILS_ENV make danger'
         }
       }
