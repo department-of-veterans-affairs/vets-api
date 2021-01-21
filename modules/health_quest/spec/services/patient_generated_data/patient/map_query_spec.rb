@@ -25,9 +25,9 @@ describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
     end
   end
 
-  describe '#dstu2_model' do
-    it 'is a FHIR::DSTU2::Patient class' do
-      expect(subject.new({}).dstu2_model).to eq(FHIR::DSTU2::Patient)
+  describe '#fhir_model' do
+    it 'is a FHIR::Patient class' do
+      expect(subject.new({}).fhir_model).to eq(FHIR::Patient)
     end
   end
 
@@ -40,7 +40,7 @@ describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
       end
 
       it 'returns an instance of Reply' do
-        expect(client).to receive(:read).with(FHIR::DSTU2::Patient, '123').exactly(1).time
+        expect(client).to receive(:read).with(FHIR::Patient, '123').exactly(1).time
 
         subject.build(headers).get('123')
       end
