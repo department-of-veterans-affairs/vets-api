@@ -31,7 +31,7 @@ Rails.application.configure do
   # Raise an error on page load if there are pending migrations.
   # config.active_record.migration_error = :page_load
 
-  config.cache_store = :redis_cache_store
+  config.cache_store = :redis_cache_store, {url: Settings.redis.app_data.url }
 
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
