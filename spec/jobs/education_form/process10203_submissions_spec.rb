@@ -7,6 +7,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
   let(:evss_user) { create(:evss_user) }
   let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
+  let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
   context 'scheduling' do
     before do
@@ -84,6 +85,8 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       context 'evss user with less than 180 days of entitlement' do
         before do
           gi_bill_status = build(:gi_bill_status_response)
+          allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
+                                                                  .and_return(evss_response_with_poa.body)
           allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
                                                                     .and_return(gi_bill_status)
         end
@@ -171,6 +174,8 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         application_10203 = create(:va10203, :automated_bad_answers)
         application_10203.create_stem_automated_decision(evss_user)
         gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: { months: 10, days: 12 })
+        allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
+                                                             .and_return(evss_response_with_poa.body)
         allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
                                                                   .and_return(gi_bill_status)
 
@@ -184,6 +189,8 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
         gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)
+        allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
+                                                             .and_return(evss_response_with_poa.body)
         allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
                                                                   .and_return(gi_bill_status)
 
@@ -191,6 +198,35 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
           subject.perform
         end.to change { EducationStemAutomatedDecision.init.count }.from(1).to(0)
                    .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
+      end
+
+      it 'sets claim poa for evss user without poa' do
+        application_10203 = create(:va10203)
+        application_10203.create_stem_automated_decision(evss_user)
+        evss_response_without_poa = OpenStruct.new({ 'userPoaInfoAvailable' => false })
+        allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
+                                                             .and_return(evss_response_without_poa)
+        gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)
+        allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
+                                                                .and_return(gi_bill_status)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(false)
+      end
+
+      it 'sets claim poa for evss user with poa' do
+        application_10203 = create(:va10203)
+        application_10203.create_stem_automated_decision(evss_user)
+        gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)
+        allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
+                                                             .and_return(evss_response_with_poa.body)
+        allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
+                                                                .and_return(gi_bill_status)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(true)
       end
     end
     # rubocop:enable Layout/MultilineMethodCallIndentation
