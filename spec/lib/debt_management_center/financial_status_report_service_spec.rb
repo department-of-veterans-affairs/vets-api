@@ -6,6 +6,7 @@ require 'debt_management_center/financial_status_report_service'
 RSpec.describe DebtManagementCenter::FinancialStatusReportService do
   describe '#submit_financial_status_report' do
     let(:valid_form_data) { get_fixture('dmc/fsr_submission') }
+    let(:user) { build(:user, :loa3) }
     let(:malformed_form_data) do
       { 'bad' => 'data' }
     end
@@ -13,7 +14,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService do
     context 'with valid form data' do
       it 'accepts the submission' do
         VCR.use_cassette('dmc/submit_fsr') do
-          service = described_class.new
+          service = described_class.new(user)
           res = service.submit_financial_status_report(valid_form_data)
           expect(res.status).to eq('Document created successfully and uploaded to File Net.')
         end
@@ -23,7 +24,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService do
     context 'with malformed form' do
       it 'does not accept the submission' do
         VCR.use_cassette('dmc/submit_fsr_error') do
-          service = described_class.new
+          service = described_class.new(user)
           expect { service.submit_financial_status_report(malformed_form_data) }.to raise_error(
             Common::Exceptions::BackendServiceException
           ) do |e|

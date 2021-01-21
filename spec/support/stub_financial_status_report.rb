@@ -9,7 +9,7 @@ def stub_financial_status_report(method)
     financial_status_report_service
   end
 
-  if method == :get_pdf
+  if method == :download_pdf
     let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
     let(:content) { File.read('spec/fixtures/files/error_message.txt') }
 
