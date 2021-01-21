@@ -4,10 +4,10 @@ data:
     attributes:
       appointmentType: VA_VIDEO_CONNECT_ATLAS
       status: BOOKED
-      startTime: 2020-10-29T10:30:00-07:00
+      startDateLocal: 2019-04-20T14:15:00.000-04:00
+      startDateUtc: 2019-04-20T18:15:00.000Z
       minutesDuration: 60
       comment: Please log on 5 minutes before the start of your appointment
-      timeZone: America/Los_Angeles
       healthcareService: ATLAS Conference Center
       location:
         name: VA Long Beach Healthcare System
@@ -19,7 +19,8 @@ data:
           state: CA
           zipCode: "90822"
         phone:
-          number: 562-826-8000
+          areaCode: 562
+          number: 826-8000
           extension: null
         url: null
         code: GL45678
