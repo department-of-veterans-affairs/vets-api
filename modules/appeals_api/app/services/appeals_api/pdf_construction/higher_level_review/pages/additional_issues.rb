@@ -17,8 +17,7 @@ module AppealsApi
 
             pdf.start_new_page
 
-            pdf.text("\n<b>Additional Issues</b>\n", inline_format: true)
-            pdf.table(extra_issues_table_data, width: 540, header: true)
+            pdf.text(extra_issues_text, inline_format: true)
 
             pdf
           end
@@ -31,14 +30,14 @@ module AppealsApi
             form_data.contestable_issues.count > MAX_ISSUES_ON_FIRST_PAGE
           end
 
-          def extra_issues_table_data
-            header = ['A. Specific Issue(s)', 'B. Date of Decision']
+          def extra_issues_text
+            issues = []
 
-            data = form_data.contestable_issues.drop(MAX_ISSUES_ON_FIRST_PAGE).map do |issue|
-              [issue['attributes']['issue'], issue['attributes']['decisionDate']]
+            form_data.contestable_issues.drop(MAX_ISSUES_ON_FIRST_PAGE).map do |issue|
+              issues << "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
             end
 
-            data.unshift(header)
+            issues.join("\n")
           end
         end
       end
