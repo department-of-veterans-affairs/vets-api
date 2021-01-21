@@ -20,7 +20,7 @@ properties:
         type: object
         required:
           - endpoints
-          - oauthBaseUrl
+          - authBaseUrl
           - apiRootUrl
           - webviews
           - appAccess
@@ -47,7 +47,7 @@ properties:
                 url: '/user/phones',
                 method: 'PUT'
               }
-          oauthBaseUrl:
+          authBaseUrl:
             type: string
             example: "https://sqa.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/"
           apiRootUrl:
