@@ -24,7 +24,7 @@ RSpec.describe V0::FinancialStatusReportsController, type: :controller do
     stub_financial_status_report(:download_pdf)
 
     it 'downloads the filled financial status report pdf' do
-      get(:show, params: { id: document_id })
+      get(:download_pdf, params: { id: document_id })
 
       expect(response.header['Content-Type']).to eq('application/pdf')
       expect(response.body).to eq(content)
