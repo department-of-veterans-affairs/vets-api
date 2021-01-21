@@ -20,8 +20,8 @@ RSpec.describe V0::FinancialStatusReportsController, type: :controller do
     end
   end
 
-  describe '#show' do
-    stub_financial_status_report(:show)
+  describe '#download_pdf' do
+    stub_financial_status_report(:download_pdf)
 
     it 'downloads the filled financial status report pdf' do
       get(:show, params: { id: document_id })

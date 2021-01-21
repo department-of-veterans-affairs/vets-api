@@ -40,7 +40,7 @@ module DebtManagementCenter
     ##
     # Downloads a copy of a user's filled Financial Status Report (VA-5655)
     #
-    # @return TODO
+    # @return [String]
     #
     def get_pdf
       financial_status_report = DebtManagementCenter::FinancialStatusReport.find(@user.uuid)
