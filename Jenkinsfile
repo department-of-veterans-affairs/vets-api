@@ -37,42 +37,6 @@ pipeline {
       }
     }
 
-    stage('Setup Testing DB') {
-      steps {
-        sh 'env=$RAILS_ENV make db'
-      }
-    }
-
-    stage('Lint Changed Files') {
-      when { changeRequest() }
-      steps {
-        script {
-          files_to_lint = ''
-          try {
-            files_to_lint = getGithubChangedFiles('vets-api', env.CHANGE_ID.toInteger(),
-                              change_types: ['modified', 'added']).join(' ')
-          } catch(IOException e) {
-            echo "WARNING: Unable to fetch changed PR files from Github!"
-            echo "${e}"           
-          }
-        }
-        sh """env=$RAILS_ENV make files='${files_to_lint}' lint"""
-      }
-    }
-
-    stage('Lint All Files') {
-      when { branch 'master' }
-      steps {
-        sh 'env=$RAILS_ENV make lint'
-      }
-    }
-
-    stage('Security Scan') {
-      steps {
-        sh 'env=$RAILS_ENV make security'
-      }
-    }
-
     stage('Run Danger Bot') {
       steps {
         withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
