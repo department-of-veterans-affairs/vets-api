@@ -116,7 +116,7 @@ module VSPDanger
     end
 
     def head_sha
-      `git branch --show-current`.chomp
+      `git rev-parse --abbrev-ref HEAD`.chomp
     end
 
     def base_sha
@@ -178,7 +178,7 @@ module VSPDanger
     end
 
     def head_sha
-      `git branch --show-current`.chomp
+      `git rev-parse --abbrev-ref HEAD`.chomp
     end
 
     def base_sha
