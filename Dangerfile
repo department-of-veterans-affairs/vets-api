@@ -64,7 +64,7 @@ module VSPDanger
     end
 
     def info
-      { severity: :info, message: 'Good job' }
+      { severity: :info, message: 'All set.' }
     end
 
     def file_summary
@@ -162,7 +162,7 @@ module VSPDanger
     end
 
     def info
-      { severity: :info, message: 'Good job' }
+      { severity: :info, message: 'All set.' }
     end
 
     def app_files
@@ -209,8 +209,6 @@ if $PROGRAM_NAME != __FILE__
       fail output[:message] # rubocop:disable Style/SignalException
     when :warning
       warn output[:message]
-    when :info
-      message output[:message]
     end
   end
 end
