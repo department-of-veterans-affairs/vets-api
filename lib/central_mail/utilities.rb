@@ -43,7 +43,7 @@ module CentralMail
     end
 
     def log_error(e, uploaded_object)
-      uuid = (uploaded_object.respond_to? :guid) ? uploaded_object.guid : uploaded_object.id
+      uuid = uploaded_object.respond_to?(:guid) ? uploaded_object.guid : uploaded_object.id
       Rails.logger.info("#{uploaded_object.class.to_s.gsub('::', ' ')}: Submission failure",
                         'source' => uploaded_object.consumer_name,
                         'consumer_id' => uploaded_object.consumer_id,
