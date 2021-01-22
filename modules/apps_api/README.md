@@ -2,21 +2,19 @@
 
 This project uses MIT-LICENSE.
 
-## Local Testing
+## Endpoints
+Publically this app exposes an `#index` method for returning all applications in the directory, and a `#show` endpoint to get an individual application. The routes for each are shown below. If the `APP_NAME` contains whitespace, replace each whitespace character with `%20` in the URL.
 
-### Populating Rails DB
-
-The applications stored in the Application Directory are stored in the `directory_applications` table. If running `sidekiq`, the job to populate the table runs `1m` after server start.
-In order to populate the table locally without running `sidekiq`, open a `rails console` and do the following.
 ```
-a = AppsApi::DirectoryLoader.new
-a.perform
+# index
+GET /services/apps/v0/directory
+# show
+GET /services/apps/v0/directory/{APP_NAME}
+  EX:
+  GET /services/apps/v0/directory/Apple%20Health
+
 ```
-Check for success by calling `DirectoryApplication.all`, each application listed in `modules/apps_api/lib/apps_api/directory_application_creator.rb` should be displayed.
 
-### Testing Okta Notification Event Hook
+For internal usage, there is a (CLI)[https://github.com/department-of-veterans-affairs/app_directory_cli] available to allow for interacting with the `#create`, `#update`, and `#destroy` methods. For syntax and usage of that CLI, see the linked repo.
+In order to access these methods, you must pass the proper secret in the `Authorization` header. The credstash keys where these secrets are stored are referenced in the `devops` repo under `{ENV}-settings.local.yml.j2`. See repo [here](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible/deployment/config/vets-api).
 
-1. Install [ngrok](https://ngrok.com/)
-2. `ngrok http http://localhost:3000 -host-header=localhost`
-3. Use forwarding url given by ngrok as base url for HTTP requests.
-     - Example: `https://f1ce959387d9.ngrok.io`
