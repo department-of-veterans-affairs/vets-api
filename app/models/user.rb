@@ -64,6 +64,34 @@ class User < Common::RedisStore
     identity.first_name || (mhv_icn.present? ? va_profile&.given_names&.first : nil)
   end
 
+  def given_names
+    mpi.profile&.given_names
+  end
+
+  def suffix
+    mpi.profile&.suffix
+  end
+
+  def normalized_suffix
+    mpi.profile&.normalized_suffix
+  end
+
+  def historical_icns
+    mpi.profile&.historical_icns
+  end
+
+  def cerner_id
+    mpi.profile&.cerner_id
+  end
+
+  def cerner_facility_ids
+    mpi.profile&.cerner_facility_ids
+  end
+
+  def home_phone
+    mpi.profile&.home_phone
+  end
+
   def full_name_normalized
     {
       first: first_name&.capitalize,
@@ -78,11 +106,15 @@ class User < Common::RedisStore
   end
 
   def middle_name
-    identity.middle_name || (mhv_icn.present? ? va_profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
+    identity.middle_name || (mhv_icn.present? ? mpi.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
 
   def last_name
     identity.last_name || (mhv_icn.present? ? va_profile&.family_name : nil)
+  end
+
+  def family_name
+    mpi.profile&.family_name
   end
 
   def gender
@@ -90,7 +122,11 @@ class User < Common::RedisStore
   end
 
   def birth_date
-    identity.birth_date || (mhv_icn.present? ? va_profile&.birth_date&.to_date&.to_s : nil)
+    if identity.birth_date
+      identity.birth_date.to_s
+    elsif mhv_icn.present?
+      va_profile&.birth_date&.to_date.to_s
+    end
   end
 
   def zip
@@ -99,6 +135,18 @@ class User < Common::RedisStore
 
   def ssn
     identity.ssn || (mhv_icn.present? ? va_profile&.ssn : nil)
+  end
+
+  def address
+    mpi.profile&.address
+  end
+
+  def active_mhv_ids
+    mpi.profile&.active_mhv_ids
+  end
+
+  def mhv_ids
+    mpi.profile&.mhv_ids
   end
 
   def mhv_correlation_id

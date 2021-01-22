@@ -30,14 +30,14 @@ module EVSS
     end
 
     def gender
-      case @user.gender || @user.va_profile&.gender
+      case @user.gender || @user.gender
       when 'F'
         'FEMALE'
       when 'M'
         'MALE'
       else
         Raven.extra_context(user_gender: @user.gender,
-                            mvi_gender: @user.va_profile&.gender)
+                            mvi_gender: @user.gender)
         raise Common::Exceptions::UnprocessableEntity,
               detail: 'Gender is required & must be "F" or "M"',
               source: self.class,

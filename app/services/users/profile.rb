@@ -107,11 +107,11 @@ module Users
       if status == RESPONSE_STATUS[:ok]
         {
           status: status,
-          birth_date: user.va_profile.birth_date,
-          family_name: user.va_profile.family_name,
-          gender: user.va_profile.gender,
-          given_names: user.va_profile.given_names,
-          is_cerner_patient: !user.va_profile.cerner_id.nil?,
+          birth_date: user.mpi.profile.birth_date,
+          family_name: user.family_name,
+          gender: user.mpi.profile.gender,
+          given_names: user.given_names,
+          is_cerner_patient: !user.cerner_id.nil?,
           facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
           va_patient: user.va_patient?,
           mhv_account_state: user.mhv_account_state
@@ -162,7 +162,7 @@ module Users
     end
 
     def facility(facility_id)
-      cerner_facility_ids = user.va_profile.cerner_facility_ids || []
+      cerner_facility_ids = user.cerner_facility_ids || []
       {
         facility_id: facility_id,
         is_cerner: cerner_facility_ids.include?(facility_id)

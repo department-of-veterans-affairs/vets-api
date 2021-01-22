@@ -53,10 +53,6 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
   private
 
   def claimant_birth_date(current_user)
-    if current_user.birth_date.respond_to?(:strftime)
-      current_user.birth_date.strftime('%Y-%m-%d')
-    else
-      current_user.birth_date
-    end
+    Time.parse(current_user.birth_date).to_date.iso8601
   end
 end

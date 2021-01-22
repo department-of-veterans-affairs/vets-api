@@ -78,14 +78,14 @@ module V0
         participant_id: user.participant_id,
         vet360_id: user.vet360_id,
         ssn: user.ssn,
-        birth_date: iso8601_birth_date(user)
+        birth_date: iso8601_birth_date(user.birth_date)
       }.to_json
     end
 
-    def iso8601_birth_date(user)
-      return nil unless user&.va_profile&.birth_date
+    def iso8601_birth_date(birth_date)
+      return unless birth_date
 
-      Time.parse(user.va_profile.birth_date).iso8601
+      Time.parse(birth_date).iso8601
     end
 
     def skip_sentry_exception_types

@@ -436,7 +436,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches birth_date from IDENTITY' do
-          expect(user.birth_date).to be_nil
+          expect(user.birth_date).to eq('')
         end
 
         it 'fetches zip from IDENTITY' do

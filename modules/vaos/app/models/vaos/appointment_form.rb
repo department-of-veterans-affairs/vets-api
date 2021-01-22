@@ -99,8 +99,8 @@ module VAOS
 
     def name
       {
-        first_name: @user.va_profile&.given_names&.first,
-        last_name: @user.va_profile&.family_name
+        first_name: @user.given_names&.first,
+        last_name: @user.family_name
       }
     end
   end

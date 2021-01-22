@@ -258,7 +258,7 @@ class FormProfile
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
 
-    opt[:address] ||= va_profile_address_hash
+    opt[:address] ||= user_address_hash
 
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
@@ -286,15 +286,15 @@ class FormProfile
     vet360_contact_info&.mailing_address
   end
 
-  def va_profile_address_hash
-    user.va_profile&.address &&
+  def user_address_hash
+    user.address &&
       {
-        street: user.va_profile.address.street,
+        street: user.address.street,
         street2: nil,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        country: user.va_profile.address.country,
-        postal_code: user.va_profile.address.postal_code
+        city: user.address.city,
+        state: user.address.state,
+        country: user.address.country,
+        postal_code: user.address.postal_code
       }
   end
 

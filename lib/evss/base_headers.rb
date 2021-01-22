@@ -10,11 +10,9 @@ module EVSS
     private
 
     def iso8601_birth_date
-      birth_date = @user&.va_profile&.birth_date
-      birth_date = @user.identity.birth_date if !birth_date && @user.is_a?(User)
-      return nil unless birth_date
+      return unless @user.birth_date
 
-      DateTime.parse(birth_date).iso8601
+      DateTime.parse(@user.birth_date).iso8601
     end
   end
 end
