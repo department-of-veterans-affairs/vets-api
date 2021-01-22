@@ -40,7 +40,7 @@ pipeline {
     stage('Run Danger Bot') {
       steps {
         withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
-          sh 'git checkout ${THE_BRANCH} && env=$RAILS_ENV make danger'
+          sh 'git checkout origin/${THE_BRANCH} && env=$RAILS_ENV make danger'
         }
       }
     }
