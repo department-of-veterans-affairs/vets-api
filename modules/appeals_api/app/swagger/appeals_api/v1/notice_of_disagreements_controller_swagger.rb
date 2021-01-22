@@ -189,6 +189,86 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     end
   end
 
+  swagger_path '/notice_of_disagreements/{uuid}' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :get, tags: NOD_TAG do
+      key :operationId, 'getNoticeOfDisagreement'
+      key :summary, 'Shows a specific Notice of Disagreement.'
+      key :description, 'Returns all of the data associated with a specific Notice of Disagreement.'
+      parameter name: 'uuid', 'in': 'path', required: true, description: 'Notice of Disagreement UUID' do
+        schema { key :'$ref', :uuid }
+      end
+
+      response 200 do
+        key :description, 'Info about a single Notice of Disagreement.'
+
+        content 'application/json' do
+          schema do
+            key :type, :object
+
+            property :data do
+              property :id do
+                key :'$ref', :uuid
+              end
+
+              property :type do
+                key :type, :string
+                key :enum, [:noticeOfDisagreement]
+              end
+
+              property :attributes do
+                key :type, :object
+
+                property :status do
+                  key :type, :string
+                  key :description, 'nodStatus'
+                  key :'$ref', '#/components/schemas/nodStatus'
+                end
+                property :updatedAt do
+                  key :'$ref', '#/components/schemas/timeStamp'
+                end
+                property :createdAt do
+                  key :'$ref', '#/components/schemas/timeStamp'
+                end
+                property :formData do
+                  key :'$ref', '#/components/schemas/nodCreateInput'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      response 404 do
+        key :description, 'Notice of Disagreement not found'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            property :errors do
+              key :type, :array
+
+              items do
+                property :status do
+                  key :type, :integer
+                  key :example, 404
+                end
+                property :detail do
+                  key :type, :string
+                  key :example, 'NoticeOfDisagreement with uuid {uuid} not found.'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
   swagger_path '/notice_of_disagreements/contestable_issues' do
     operation :get, tags: NOD_TAG do
       key :operationId, 'getNODContestableIssues'
