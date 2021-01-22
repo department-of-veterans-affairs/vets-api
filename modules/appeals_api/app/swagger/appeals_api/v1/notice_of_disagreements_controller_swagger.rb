@@ -8,7 +8,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   PATH_ENABLED_FOR_ENV = Settings.modules_appeals_api.documentation.notice_of_disagreements_v1
 
   NOD_TAG = ['Notice of Disagreements'].freeze
-  OBJ = :object
 
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
