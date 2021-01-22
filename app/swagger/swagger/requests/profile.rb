@@ -35,6 +35,7 @@ module Swagger
               property :account_type, type: :string, enum: %w[Checking Savings]
               property :account_number, type: :string
               property :financial_institution_routing_number, type: :string
+              property :ga_client_id, type: :string
             end
           end
 

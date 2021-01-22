@@ -419,6 +419,35 @@ reports:
     bucket: ~
     region: ~
     secret_access_key: ~
+  spool10203_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - Joseph.Preisser@va.gov
+      - Lucas.Tickner@va.gov
+      - tammy.hurley1@va.gov
+      - Ricardo.DaSilva@va.gov
+      - kyle.pietrosanto@va.gov
+      - Joshua.Lashbrook@va.gov
+      - shay.norton@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - kathleen.dalfonso@va.gov
+      - lihan@adhocteam.us
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Joseph.Preisser@va.gov
+      - Lucas.Tickner@va.gov
+      - tammy.hurley1@va.gov
+      - Ricardo.DaSilva@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Delli-Gatti_Michael@bah.com
+      - Darrell.Neel@va.gov
+      - Neel_Darrell@bah.com
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - Turner_Desiree@bah.com
+
 
 oidc:
   auth_server_metadata_url: ~
@@ -496,6 +525,14 @@ search:
   affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
+
+  # Settings for search-click-tracking
+search_click_tracking:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  module_code: I14Y
+  mock: false
+  url: https://api.gsa.gov/technology/searchgov/v2
 
 flipper:
   admin_user_emails:

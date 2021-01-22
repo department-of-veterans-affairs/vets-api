@@ -18,10 +18,10 @@ module BGS
       BGS::SubmitForm686cJob.perform_async(@user.uuid, claim.id, vet_info.to_686c_form_hash) if claim.submittable_686?
       BGS::SubmitForm674Job.perform_async(@user.uuid, claim.id, vet_info.to_686c_form_hash) if claim.submittable_674?
       VBMS::SubmitDependentsPdfJob.perform_async(
-        saved_claim_id: claim.id,
-        va_file_number_with_payload: vet_info.to_686c_form_hash,
-        submittable_686: claim.submittable_686?,
-        submittable_674: claim.submittable_674?
+        claim.id,
+        vet_info.to_686c_form_hash,
+        claim.submittable_686?,
+        claim.submittable_674?
       )
     rescue => e
       report_error(e)
