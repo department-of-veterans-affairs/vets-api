@@ -119,8 +119,8 @@ RSpec.describe 'appointments', type: :request do
                   'lat' => 41.148027,
                   'long' => -104.7862575,
                   'phone' => {
-                    'areaCode' => nil,
-                    'number' => nil,
+                    'areaCode' => '307',
+                    'number' => '778-7550',
                     'extension' => nil
                   },
                   'url' => nil,
@@ -129,7 +129,8 @@ RSpec.describe 'appointments', type: :request do
                 'minutesDuration' => 20,
                 'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
                 'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
-                'status' => 'BOOKED'
+                'status' => 'BOOKED',
+                'timeZone' => 'America/Denver'
               }
             }
           )
@@ -169,7 +170,8 @@ RSpec.describe 'appointments', type: :request do
                 'minutesDuration' => 60,
                 'startDateLocal' => '2020-01-10T13:00:00.000-05:00',
                 'startDateUtc' => '2020-01-10T18:00:00.000Z',
-                'status' => 'BOOKED'
+                'status' => 'BOOKED',
+                'timeZone' => 'America/New_York'
               }
             }
           )
