@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 # spec/simplecov_helper.rb
 require 'active_support/inflector'
 require 'simplecov'
@@ -77,5 +75,3 @@ class SimpleCovHelper
     add_group 'VAOS', 'modules/vaos/'
   end
 end
-
-# rubocop:enable Metrics/MethodLength
