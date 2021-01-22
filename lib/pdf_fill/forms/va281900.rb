@@ -284,7 +284,8 @@ module PdfFill
       end
 
       def set_appointment_time_preferences
-        times = @form_data['appointment_time_preferences'] # ex. {'morning'=>true, 'mid_day'=>false, 'afternoon'=>false}
+        times = @form_data['appointment_time_preferences']
+        # ex. {'morning'=>true, 'mid_day'=>false, 'afternoon'=>false}
         counseling_hours = {
           'morning' => "Mornings 6:00 to 10:00 a.m.\n",
           'mid_day' => "Midday 10:00 a.m. to 2:00 p.m.\n",
