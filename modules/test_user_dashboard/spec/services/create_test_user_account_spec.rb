@@ -1,4 +1,4 @@
 # frozen_string_literal: true
 
-describe CreateTestUserAccount do
+describe TestUserDashboard::CreateTestUserAccount do
 end
