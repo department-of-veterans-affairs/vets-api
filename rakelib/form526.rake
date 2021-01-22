@@ -53,14 +53,28 @@ namespace :form526 do
     end
 
     total_jobs = submissions.count
-    success_jobs = submissions.group(:workflow_complete).count[true] || 0
-    fail_jobs = total_jobs - success_jobs
+    success_jobs = submissions.where(workflow_complete: true)
+    success_jobs_count = success_jobs.count
+
+    fail_jobs = total_jobs - success_jobs.count
+
+    total_users_submitting = submissions.count('DISTINCT user_uuid')
+    total_successful_users_submitting = success_jobs.count('DISTINCT user_uuid')
+
+    user_success_rate = (total_successful_users_submitting.to_f / total_users_submitting)
 
     puts '------------------------------------------------------------'
     puts "* Job Success/Failure counts between #{start_date} - #{end_date} *"
     print_total('Total Jobs: ', total_jobs)
-    print_total('Successful Jobs: ', success_jobs)
+    print_total('Successful Jobs: ', success_jobs_count)
     print_total('Failed Jobs: ', fail_jobs)
+    print_total('User Success Rate', user_success_rate)
+
+    puts '------------------------------------------------------------'
+    print_total('Total Users Submitted: ', total_users_submitting)
+    print_total('Total Users Submitted Successfully: ', total_successful_users_submitting)
+    print_total('User Success rate', user_success_rate)
+
     puts '------------------------------------------------------------'
     puts '* Failure Counts for form526 Submission Job (not including uploads/cleanup/etc...) *'
     print_total('Outage Failures: ', outage_errors)
@@ -252,8 +266,6 @@ namespace :form526 do
       # rubocop:enable Style/PerlBackrefs
     end
 
-    # make a hash that has both the original and corrupted versions of the disability name.
-    # eg {"myocardial infarction (mi)" => "myocardial infarction (MI)"}
     def get_disability_array(form_data_hash)
       new_conditions = form_data_hash['newDisabilities']&.collect { |d| d.dig('condition') } || []
       rated_disabilities = form_data_hash['ratedDisabilities']&.collect { |rd| rd['name'] } || []
@@ -265,15 +277,16 @@ namespace :form526 do
       string&.downcase&.gsub(/[^a-z0-9]/, '')
     end
 
+    # We want the original version of the string, downcased as the json key for checkboxes
     def get_dis_translation_hash(disability_array)
       dis_translation_hash = {}
       disability_array.each do |dis|
-        dis_translation_hash[simplify_string(dis)] = dis
+        dis_translation_hash[simplify_string(dis)] = dis&.downcase
       end
       dis_translation_hash
     end
 
-    def fix_treatment_facilities_disability_name(form_data_hash, dis_translation_hash, disability_array)
+    def fix_treatment_facilities_disability_name(form_data_hash, dis_translation_hash)
       transformed = false
       # fix vaTreatmentFacilities -> treatedDisabilityNames
       # this should never happen, just want to confirm
@@ -281,11 +294,11 @@ namespace :form526 do
         new_treated_disability_names = {}
         if va_treatment_facilities['treatedDisabilityNames']
           va_treatment_facilities['treatedDisabilityNames'].each do |disability_name, value|
-            if disability_array.include? disability_name
+            if dis_translation_hash.values.include? disability_name
               new_treated_disability_names[disability_name] = value
             else
               transformed = true
-              original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase
+              original_disability_name = dis_translation_hash[simplify_string(disability_name)]
               new_treated_disability_names[original_disability_name] = value unless original_disability_name.nil?
             end
           end
@@ -295,18 +308,18 @@ namespace :form526 do
       transformed
     end
 
-    def fix_pow_disabilities(form_data_hash, dis_translation_hash, disability_array)
+    def fix_pow_disabilities(form_data_hash, dis_translation_hash)
       transformed = false
       # just like treatedDisabilityNames fix the same checkbox data for POW disabilities
       pow_disabilities = form_data_hash.dig('view:isPow', 'powDisabilities')
       if pow_disabilities
         new_pow_disability_names = {}
         pow_disabilities.each do |disability_name, value|
-          if disability_array.include? disability_name
+          if dis_translation_hash.values.include? disability_name
             new_pow_disability_names[disability_name] = value
           else
             transformed = true
-            original_disability_name = dis_translation_hash[simplify_string(disability_name)]&.downcase
+            original_disability_name = dis_translation_hash[simplify_string(disability_name)]
             new_pow_disability_names[original_disability_name] = value unless original_disability_name.nil?
           end
         end
@@ -316,8 +329,12 @@ namespace :form526 do
     end
     # get all of the forms that have not yet been converted.
     ipf = InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID)
-    in_progress_forms = ipf.where("metadata -> 'return_url' is not null").or(ipf.where(id: ids))
-    @affected_forms = []
+
+    in_progress_forms = if ids.present?
+                          ipf.where(id: ids)
+                        else
+                          ipf.where("metadata -> 'return_url' is not null")
+                        end
 
     CSV.open(args[:csv_path], 'wb') do |csv|
       csv << %w[in_progress_form_id in_progress_form_user_uuid email_address]
@@ -328,11 +345,9 @@ namespace :form526 do
         dis_translation_hash = get_dis_translation_hash(disability_array)
 
         treatment_facilities_transformed = fix_treatment_facilities_disability_name(form_data_hash,
-                                                                                    dis_translation_hash,
-                                                                                    disability_array)
+                                                                                    dis_translation_hash)
         pow_transformed = fix_pow_disabilities(form_data_hash,
-                                               dis_translation_hash,
-                                               disability_array)
+                                               dis_translation_hash)
 
         fixed_va_inflection = OliveBranch::Middleware.send(:un_camel_va_keys!, form_data_hash.to_json)
         if treatment_facilities_transformed || pow_transformed

@@ -6,7 +6,7 @@ VAOS::Engine.routes.draw do
       put 'cancel', on: :collection
     end
     get '/appointments/:type/:id', to: 'appointments#show', type: /va/
-    resources :appointment_requests, only: %i[index create update] do
+    resources :appointment_requests, only: %i[index create update show] do
       resources :messages, only: %i[index create]
     end
     get 'community_care/eligibility/:service_type', to: 'cc_eligibility#show'

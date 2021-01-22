@@ -75,15 +75,27 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
       )
     end
 
-    context 'with a successful update' do
-      it 'submits the update req and rerenders index' do
-        VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
-              send_update
-            end
+    def send_successful_update
+      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+            send_update
           end
         end
+      end
+    end
+
+    context 'with a successful update' do
+      it 'sends confirmation emails' do
+        expect(DirectDepositEmailJob).to receive(:send_to_emails).with(
+          user.all_emails, nil, :ch33
+        )
+
+        send_successful_update
+      end
+
+      it 'submits the update req and rerenders index' do
+        send_successful_update
 
         expect_find_ch33_dd_eft_res
       end

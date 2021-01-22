@@ -170,6 +170,11 @@ features:
     enable_in_development: true
     description: >
       Enables Project Cheetah discovery work
+  va_online_scheduling_homepage_refresh:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Set up toggle in anticipation of the next iteration of the homepage and appointment cards.
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -356,6 +361,7 @@ features:
       Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
   stem_automated_decision:
     actor_type: user
+    enable_in_development: true
     description: >
       Add automated decision to 10203 application workflow
   stem_applicant_email:
@@ -363,8 +369,23 @@ features:
     enable_in_development: true
     description: >
       Enable/disable SCO applicant email per environment
+  edu_form_omb_and_expiration:
+    actor_type: user
+    enable_in_development: true
+    description: >
+       Update OMB # and expiration dates for forms   
   in_progress_form_custom_expiration:
     actor_type: user
     enable_in_development: true
     description: >
       Enable/disable custom expiration dates for forms
+  search_representative:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable frontend application and cta for Search Representative application
+  gibct_state_search:
+    actor_type: user
+    enable_in_development: true
+    description: >
+       Include state abbreviation when searching on comparison tool 

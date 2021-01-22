@@ -156,12 +156,20 @@ decision_review:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
-  report_enabled: false
-  higher_level_review_updater_enabled: true
-  notice_of_disagreement_updater_enabled: true
-  schema_dir: config/schemas
   documentation:
     notice_of_disagreements_v1: false
+  higher_level_review_pii_expunge_enabled: true
+  higher_level_review_updater_enabled: true
+  notice_of_disagreement_pii_expunge_enabled: true
+  notice_of_disagreement_updater_enabled: true
+  report_enabled: false
+  report_recipients:
+    - drew.fisher@adhocteam.us
+    - jack.schuss@oddball.io
+    - kelly@adhocteam.us
+    - laura.trager@adhocteam.us
+    - nathan.wright@oddball.io
+  schema_dir: config/schemas
 
 vre_counseling:
   prefill: true
@@ -411,6 +419,35 @@ reports:
     bucket: ~
     region: ~
     secret_access_key: ~
+  spool10203_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - Joseph.Preisser@va.gov
+      - Lucas.Tickner@va.gov
+      - tammy.hurley1@va.gov
+      - Ricardo.DaSilva@va.gov
+      - kyle.pietrosanto@va.gov
+      - Joshua.Lashbrook@va.gov
+      - shay.norton@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - kathleen.dalfonso@va.gov
+      - lihan@adhocteam.us
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Joseph.Preisser@va.gov
+      - Lucas.Tickner@va.gov
+      - tammy.hurley1@va.gov
+      - Ricardo.DaSilva@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Delli-Gatti_Michael@bah.com
+      - Darrell.Neel@va.gov
+      - Neel_Darrell@bah.com
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - Turner_Desiree@bah.com
+
 
 oidc:
   auth_server_metadata_url: ~
@@ -488,6 +525,14 @@ search:
   affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
+
+  # Settings for search-click-tracking
+search_click_tracking:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  module_code: I14Y
+  mock: false
+  url: https://api.gsa.gov/technology/searchgov/v2
 
 flipper:
   admin_user_emails:
@@ -590,6 +635,14 @@ hqva_mobile:
   key_path: /srv/vets-api/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
+  lighthouse:
+    url: "https://sandbox-api.va.gov"
+    host: "sandbox-api.va.gov"
+    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    redis_session_prefix: "healthquest_lighthouse"
+    mock: false
+    key_path: /srv/vets-api/secret/health-quest.lighthouse.key
 
 lighthouse:
   api_key: fake_key

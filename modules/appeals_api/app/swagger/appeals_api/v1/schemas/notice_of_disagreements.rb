@@ -66,6 +66,7 @@ module AppealsApi::V1
           property :included do
             key :type, :array
             key :minItems, 1
+            key :maxItems, 100
 
             items do
               key :'$ref', :contestableIssue

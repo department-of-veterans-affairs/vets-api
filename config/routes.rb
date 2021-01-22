@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
+    resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
@@ -255,6 +256,7 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
+    resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'
 
@@ -345,6 +347,7 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  # Modules
   mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'

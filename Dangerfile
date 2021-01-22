@@ -19,40 +19,57 @@ EXCLUSIONS = [
 # takes form {"some/file.rb"=>{:insertions=>4, :deletions=>1}}
 changed_files = git.diff.stats[:files]
 
-excluded_changed_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
-filtered_changed_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+excluded_files = changed_files.select { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+included_files = changed_files.reject { |key| EXCLUSIONS.any? { |exclusion| key.include?(exclusion) } }
+
+# fetch master for diff comparison
+`git fetch origin master`
+
+# get branch name
+current_branch = `git branch --show-current`.chomp
 
 # ignores whitespace for the purpose of determining lines of code changed
-changes = `git diff master... -w --stat`.split("\n")
-lines_of_code = changes.sum(0) do |change|
-  if change == changes.last || EXCLUSIONS.any? { |exclusion| change.match(exclusion) }
-    0
-  else
-    change.match(/\|\s+(\d+)/)[1].to_i
+diff_changes = `git diff master...#{current_branch} -w --stat`.split("\n")
+
+if diff_changes.empty?
+  lines_of_code = included_files.sum { |_file, changes| changes[:insertions] + changes[:deletions] }
+else
+  lines_of_code = diff_changes.sum(0) do |change|
+    if change == diff_changes.last || EXCLUSIONS.any? { |exclusion| change.match(exclusion) } || change.match(/\|\s+Bin/)
+      0
+    else
+      change.match(/\|\s+(\d+)/)[1].to_i
+    end
   end
 end
 
 if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
+
+  exclusion_text = <<~EXCLUSIONS_TEXT
+
+  #### Exclusions
+
+  - #{excluded_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+
+  ####
+
+  _Note: We exclude the following files when considering PR size_
+
+  ```
+  #{EXCLUSIONS}
+
+  ```
+
+  EXCLUSIONS_TEXT
+
+
   file_summary = <<~HTML
     <details><summary>File Summary</summary>
 
     #### Included Files
 
-    - #{filtered_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
-
-    #### Exclusions
-
-    - #{excluded_changed_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
-
-    #### 
-
-    _Note: We exclude the following files when considering PR size_
-
-    ```
-    #{EXCLUSIONS}
-
-    ```
-
+    - #{included_files.collect { |key, val| "#{key} (+#{val[:insertions]}/-#{val[:deletions]} )" }.join("\n- ")}
+    #{exclusion_text if excluded_files.any?}
     </details>
   HTML
 
@@ -60,7 +77,7 @@ if lines_of_code > PR_SIZE[:RECOMMENDED_MAXIMUM]
 
   if lines_of_code > PR_SIZE[:ABSOLUTE_MAXIMUM]
     msg = "This PR changes `#{lines_of_code}` LoC (not counting whitespace changes). In order to ensure each PR receives the proper attention it deserves, those exceeding `#{PR_SIZE[:ABSOLUTE_MAXIMUM]}` will not be reviewed, nor will they be allowed to merge. Please break this PR up into smaller ones. If you have reason to believe that this PR should be granted an exception, please see the [Code Review Guidelines FAQ](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/code_review_guidelines.md#faq).\n"
-    fail(msg + file_summary + footer) 
+    fail(msg + file_summary + footer)
   else
     msg = "This PR changes `#{lines_of_code}` LoC (not counting whitespace changes). In order to ensure each PR receives the proper attention it deserves, we recommend not exceeding `#{PR_SIZE[:RECOMMENDED_MAXIMUM]}`. Expect some delays getting reviews.\n"
     warn(msg + file_summary + footer)
@@ -80,11 +97,11 @@ if !db_files.empty? && !app_files.empty?
 
     #### db file(s)
 
-    - #{db_files.collect { |filepath| "#{filepath}" }.join("\n- ")} 
+    - #{db_files.collect { |filepath| "#{filepath}" }.join("\n- ")}
 
     #### app file(s)
 
-    - #{app_files.collect { |filepath| "#{filepath}" }.join("\n- ")} 
+    - #{app_files.collect { |filepath| "#{filepath}" }.join("\n- ")}
 
     </details>
 
