@@ -27,7 +27,7 @@ module AppealsApi
             end
           end
 
-          describe 'add_additional_pages' do
+          describe '#add_additional_pages' do
             it 'returns a Prawn::Document' do
               result = described_class.new(notice_of_disagreement).add_additional_pages
               expect(result.class).to eq(Prawn::Document)
@@ -39,7 +39,20 @@ module AppealsApi
             end
           end
 
-          describe 'stamp' do
+          describe '#final_page_adjustments' do
+            it 'returns nil when no additional pages are needed' do
+              min_notice_of_disagreement = create(:minimal_notice_of_disagreement)
+              result = described_class.new(min_notice_of_disagreement).final_page_adjustments
+              expect(result).to be_nil
+            end
+
+            it 'returns an array of rearranged pages' do
+              result = described_class.new(notice_of_disagreement).final_page_adjustments
+              expect(result).to eq [1, '4-end', '2-3']
+            end
+          end
+
+          describe '#stamp' do
             it 'returns a pdf path' do
               allow(File).to receive(:delete)
               result = described_class.new(notice_of_disagreement).stamp('dummy_path.pdf')
