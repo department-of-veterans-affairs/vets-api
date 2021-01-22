@@ -16,7 +16,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportService do
         VCR.use_cassette('dmc/submit_fsr') do
           service = described_class.new(user)
           res = service.submit_financial_status_report(valid_form_data)
-          expect(res.status).to eq('Document created successfully and uploaded to File Net.')
+          expect(res[:status]).to eq('Document created successfully and uploaded to File Net.')
         end
       end
     end

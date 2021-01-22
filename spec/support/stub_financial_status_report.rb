@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'debt_management_center/financial_status_report_service'
+
 def stub_financial_status_report(method)
   let!(:financial_status_report_service) do
     financial_status_report_service = double
@@ -10,11 +12,10 @@ def stub_financial_status_report(method)
   end
 
   if method == :download_pdf
-    let(:document_id) { '{93631483-E9F9-44AA-BB55-3552376400D8}' }
-    let(:content) { File.read('spec/fixtures/files/error_message.txt') }
+    let(:content) { File.read('spec/fixtures/dmc/5655.pdf') }
 
     before do
-      expect(financial_status_report_service).to receive(:get_pdf).with(document_id).and_return(content)
+      expect(financial_status_report_service).to receive(:get_pdf).and_return(content)
     end
   end
 end

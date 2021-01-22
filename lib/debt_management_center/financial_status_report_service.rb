@@ -13,7 +13,7 @@ module DebtManagementCenter
   #
   class FinancialStatusReportService < DebtManagementCenter::BaseService
     configuration DebtManagementCenter::FinancialStatusReportConfiguration
-    include Common::Client::Concerns::StreamingClient
+
     STATSD_KEY_PREFIX = 'api.dmc'
 
     def initialize(user)
