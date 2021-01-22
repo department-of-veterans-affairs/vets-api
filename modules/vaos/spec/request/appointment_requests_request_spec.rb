@@ -10,6 +10,8 @@ RSpec.describe 'vaos appointment requests', type: :request do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
+  let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
+
   describe 'GET /vaos/v0/appointment_requests' do
     context 'loa1 user with flipper enabled' do
       let(:current_user) { build(:user, :loa1) }
@@ -89,7 +91,7 @@ RSpec.describe 'vaos appointment requests', type: :request do
 
       it 'has access and returns va appointments when camel-inflected' do
         VCR.use_cassette('vaos/appointment_requests/get_requests_with_params', match_requests_on: %i[method uri]) do
-          get '/vaos/v0/appointment_requests', params: params, headers: { 'X-Key-Inflection' => 'camel' }
+          get '/vaos/v0/appointment_requests', params: params, headers: inflection_header
           expect(response).to have_http_status(:success)
           expect(response.body).to be_a(String)
           expect(response).to match_camelized_response_schema('vaos/appointment_requests')
@@ -170,6 +172,33 @@ RSpec.describe 'vaos appointment requests', type: :request do
                                                           type_of_care_id: '323')
 
         expect(json_body_for(response)).to match_schema('vaos/appointment_request')
+      end
+    end
+  end
+
+  describe 'GET /vaos/v0/appointment_requests/:id', skip_mvi: true do
+    let(:current_user) { build(:user, :vaos) }
+    let(:id) { '8a4829dc7281184e017285000ab700cf' }
+
+    it 'gets an appointment request by id' do
+      VCR.use_cassette('vaos/appointment_requests/get_request_with_id', match_requests_on: %i[method uri]) do
+        allow(Rails.logger).to receive(:info)
+        get "/vaos/v0/appointment_requests/#{id}"
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to be_a(String)
+        expect(json_body_for(response)).to match_schema('vaos/appointment_request')
+      end
+    end
+
+    it 'gets an appointment request by id when camel-inflected' do
+      VCR.use_cassette('vaos/appointment_requests/get_request_with_id', match_requests_on: %i[method uri]) do
+        allow(Rails.logger).to receive(:info)
+        get "/vaos/v0/appointment_requests/#{id}", params: {}, headers: inflection_header
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to be_a(String)
+        expect(json_body_for(response)).to match_camelized_schema('vaos/appointment_request')
       end
     end
   end
