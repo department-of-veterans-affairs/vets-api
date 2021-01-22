@@ -37,7 +37,8 @@ module AppealsApi
               issues << "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
             end
 
-            issues.join("\n")
+            #keep parity between original HLR and new generator
+            issues.reverse.join("\n")
           end
         end
       end
