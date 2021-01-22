@@ -3,10 +3,16 @@
 module VSPDanger
   class Runner
     def self.run
+      prepare_git
+
       [
         ChangeLimiter.new.run,
         MigrationIsolator.new.run
       ]
+    end
+
+    def self.prepare_git
+      `git fetch --depth=1000000 --prune origin +refs/heads/master:refs/remotes/origin/master`
     end
   end
 
@@ -120,7 +126,7 @@ module VSPDanger
     end
 
     def base_sha
-      'master'
+      'origin/master'
     end
   end
 
@@ -182,7 +188,7 @@ module VSPDanger
     end
 
     def base_sha
-      'master'
+      'origin/master'
     end
   end
 
