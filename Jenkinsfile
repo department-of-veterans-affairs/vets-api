@@ -45,19 +45,6 @@ pipeline {
       }
     }
 
-    stage('Review') {
-      when { not { branch 'master' } }
-
-      steps {
-        build job: 'deploys/vets-review-instance-deploy', parameters: [
-          stringParam(name: 'devops_branch', value: 'master'),
-          stringParam(name: 'api_branch', value: env.THE_BRANCH),
-          stringParam(name: 'web_branch', value: 'master'),
-          stringParam(name: 'source_repo', value: 'vets-api'),
-        ], wait: false
-      }
-    }
-
     stage('Build AMI') {
       when { anyOf { branch dev_branch; branch staging_branch; branch main_branch } }
 
