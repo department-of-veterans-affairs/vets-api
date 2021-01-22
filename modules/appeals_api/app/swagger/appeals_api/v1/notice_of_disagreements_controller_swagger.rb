@@ -14,35 +14,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
   read_json_from_same_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
-  response_nod_show_not_found = read_json_from_same_dir['response_nod_show_not_found.json']
-  example_all_fields_used = read_json[['spec', 'fixtures', 'valid_10182.json']]
-
-  response_nod_show_success = lambda do
-    properties = {
-      status: { '$ref': '#/components/schemas/nodStatus' },
-      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
-      createdAt: { '$ref': '#/components/schemas/timeStamp' },
-      formData: { '$ref': '#/components/schemas/nodCreate' }
-    }
-    type = :noticeOfDisagreement
-    schema = {
-      type: OBJ,
-      properties: {
-        id: { '$ref': '#/components/schemas/uuid' },
-        type: { type: :string, enum: [type] },
-        attributes: { type: OBJ, properties: properties }
-      }
-    }
-    time = '2020-04-23T21:06:12.531Z'
-    attrs = { status: :processing, updatedAt: time, createdAt: time, formData: example_all_fields_used }
-    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
-
-    {
-      description: 'Info about a single Notice of Disagreement',
-      content: { 'application/json': { schema: schema, examples: { 'NodFound': { value: example } } } }
-    }
-  end.call
-
   ERROR_500_EXAMPLE = {
     "errors": [
       {
@@ -229,7 +200,70 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       parameter name: 'uuid', 'in': 'path', required: true, description: 'Notice of Disagreement UUID' do
         schema { key :'$ref', :uuid }
       end
-      key :responses, '200': response_nod_show_success, '404': response_nod_show_not_found
+
+      response 200 do
+        key :description, 'Info about a single Notice of Disagreement.'
+
+        content 'application/json' do
+          schema do
+            key :type, :object
+
+            property :data do
+              property :id do
+                key :'$ref', :uuid
+              end
+
+              property :type do
+                key :type, :string
+                key :enum, [:noticeOfDisagreement]
+              end
+
+              property :attributes do
+                key :type, :object
+
+                property :status do
+                  key :type, :string
+                  key :description, 'nodStatus'
+                  key :'$ref', '#/components/schemas/nodStatus'
+                end
+                property :updatedAt do
+                  key :'$ref', '#/components/schemas/timeStamp'
+                end
+                property :createdAt do
+                  key :'$ref', '#/components/schemas/timeStamp'
+                end
+                property :formData do
+                  key :'$ref', '#/components/schemas/nodCreateInput'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      response 404 do
+        key :description, 'Notice of Disagreement not found'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            property :errors do
+              key :type, :array
+
+              items do
+                property :status do
+                  key :type, :integer
+                  key :example, 404
+                end
+                property :detail do
+                  key :type, :string
+                  key :example, 'NoticeOfDisagreement with uuid {uuid} not found.'
+                end
+              end
+            end
+          end
+        end
+      end
+
       security do
         key :apikey, []
       end
