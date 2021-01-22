@@ -153,7 +153,7 @@ module ClaimsApi
       vet.mpi_record?
       vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
       vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
-      vet.participant_id = header('X-VA-PID') || vet.mpi.profile&.participant_id
+      vet.participant_id = vet.mpi.profile&.participant_id
       vet
     end
 
