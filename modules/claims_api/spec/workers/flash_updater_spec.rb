@@ -12,6 +12,9 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
   let(:flashes) { %w[Homeless POW] }
   let(:claim) { create(:auto_established_claim) }
+  let(:assigned_flashes) do
+    { flashes: flashes.map { |flash| { assigned_indicator: nil, flash_name: flash, flash_type: nil } } }
+  end
 
   it 'submits successfully without claim id' do
     expect do
@@ -30,6 +33,8 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
       expect_any_instance_of(BGS::ClaimantWebService)
         .to receive(:add_flash).with(file_number: user.ssn, flash_name: flash_name)
     end
+    expect_any_instance_of(BGS::ClaimantWebService)
+      .to receive(:find_assigned_flashes).with(user.ssn).and_return(assigned_flashes)
 
     subject.new.perform(user, flashes)
   end
@@ -44,6 +49,8 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
           .to receive(:add_flash).with(file_number: user.ssn, flash_name: flash_name)
       end
     end
+    expect_any_instance_of(BGS::ClaimantWebService)
+      .to receive(:find_assigned_flashes).with(user.ssn).and_return(assigned_flashes)
 
     subject.new.perform(user, flashes, auto_claim_id: claim.id)
   end
@@ -53,8 +60,10 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
       expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
         .with(file_number: user.ssn, flash_name: flash_name).and_raise(BGS::ShareError.new('failed', 500))
     end
+    expect_any_instance_of(BGS::ClaimantWebService)
+      .to receive(:find_assigned_flashes).with(user.ssn).and_return({ flashes: [] })
 
     subject.new.perform(user, flashes, auto_claim_id: claim.id)
-    expect(ClaimsApi::AutoEstablishedClaim.find(claim.id).bgs_flash_responses.count).to eq(flashes.count)
+    expect(ClaimsApi::AutoEstablishedClaim.find(claim.id).bgs_flash_responses.count).to eq(flashes.count * 2)
   end
 end
