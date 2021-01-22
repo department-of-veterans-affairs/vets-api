@@ -25,7 +25,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       'pid' => user.participant_id,
       'edipi' => user.edipi,
       'vet360ID' => user.vet360_id,
-      'dob' => parsed_birth_date(user)
+      'dob' => parsed_birth_date(user.birth_date)
     }
 
     update(form: updated_form.to_json)
@@ -70,7 +70,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     nil
   end
 
-  def parsed_birth_date(user)
-    Time.parse(user.birth_date).to_date.iso8601
+  def parsed_birth_date(birth_date)
+    Time.parse(birth_date).to_date.iso8601
   end
 end

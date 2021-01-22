@@ -20,7 +20,7 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
         'last' => current_user.last_name
       },
       'veteranSocialSecurityNumber' => current_user.ssn,
-      'dateOfBirth' => claimant_birth_date(current_user)
+      'dateOfBirth' => claimant_birth_date(current_user.birth_date)
     }
 
     # only populate the veteran information with the current user info
@@ -52,7 +52,7 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
 
   private
 
-  def claimant_birth_date(current_user)
-    Time.parse(current_user.birth_date).to_date.iso8601
+  def claimant_birth_date(birth_date)
+    Time.parse(birth_date).to_date.iso8601
   end
 end

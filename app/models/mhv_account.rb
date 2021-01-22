@@ -197,11 +197,9 @@ class MHVAccount < ApplicationRecord
   end
 
   def multiple_active_mhv_ids?
-    if previously_upgraded? || previously_registered?
-      false
-    else
-      user.active_mhv_ids.size > 1
-    end
+    return false if previously_upgraded? || previously_registered?
+
+    user.active_mhv_ids.size > 1
   end
 
   def deactivated_mhv_ids?

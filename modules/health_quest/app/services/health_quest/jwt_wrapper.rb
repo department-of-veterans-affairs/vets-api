@@ -46,7 +46,7 @@ module HealthQuest
     end
 
     def first_name
-      user.given_names&.first
+      user.first_name
     end
 
     def last_name

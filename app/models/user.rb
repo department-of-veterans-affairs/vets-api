@@ -122,11 +122,8 @@ class User < Common::RedisStore
   end
 
   def birth_date
-    if identity.birth_date
-      identity.birth_date.to_s
-    elsif mhv_icn.present?
-      va_profile&.birth_date&.to_date.to_s
-    end
+    return identity.birth_date.to_s if identity.birth_date
+    return va_profile&.birth_date&.to_date.to_s if mhv_icn.present?
   end
 
   def zip
