@@ -742,12 +742,12 @@ RSpec.describe FormProfile, type: :model do
   let(:v28_8832_expected) do
     {
       'claimantAddress' => {
-        'addressLine1' => street_check[:street],
-        'addressLine2' => street_check[:street2],
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
-        'stateCode' => user.va_profile[:address][:state],
-        'countryName' => user.va_profile[:address][:country],
-        'zipCode' => user.va_profile[:address][:postal_code][0..4]
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhoneNumber' => us_phone,
       'claimantEmailAddress' => user.pciu_email
