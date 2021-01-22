@@ -16,9 +16,12 @@ data:
           city: Long Beach
           state: CA
           zipCode: "90803"
+        lat: 33.7700504
+        long: -118.1937395
         phone:
           areaCode: "562"
           number: "434-6008"
           extension: null
         url: null
         code: null
+      timeZone: America/Los_Angeles

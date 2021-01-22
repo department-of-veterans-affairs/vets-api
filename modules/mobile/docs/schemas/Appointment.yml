@@ -49,11 +49,15 @@ properties:
       location:
         type: object
         required:
+          - name
           - address
           - phoneNumber
           - url
           - code
         properties:
+          name:
+            type: string
+            example: VA Long Beach Healthcare System
           address:
             type: object
             required:
@@ -100,23 +104,7 @@ properties:
             example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
           code:
             type: string
-            example: GL32CA
-      practitioner:
-        required:
-          - prefix
-          - firstName
-          - middleName
-          - lastName
-        properties:
-          prefix:
-            type: string
-            example: "Dr."
-          firstName:
-            type: string
-            example: "John"
-          middleName:
-            type: string
-            example: "A."
-          lastName:
-            type: string
-            example: "Smith"
+            example: GL32C
+      timeZone:
+        type: string
+        example: "America/Los_Angeles"
