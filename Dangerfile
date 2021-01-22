@@ -108,7 +108,7 @@ module VSPDanger
     end
 
     def files_command
-      "git diff #{base_sha}...#{head_sha} --numstat -w --ignore-blank-lines -- . #{exclusions}"
+      "git checkout origin/${BRANCH_NAME} && git diff #{base_sha}...#{head_sha} --numstat -w --ignore-blank-lines -- . #{exclusions}"
     end
 
     def exclusions
@@ -120,7 +120,7 @@ module VSPDanger
     end
 
     def base_sha
-      'master'
+      'origin/master'
     end
   end
 
