@@ -25,9 +25,9 @@ module VBADocuments
             content 'application/json' do
               schema do
                 key :type, :object
-                key :required, [:data]
+                key :required, %i[data]
                 property :data do
-                  key :'$ref', :DocumentUploadSubmission
+                  key :$ref, :DocumentUploadPath
                 end
               end
             end
@@ -151,6 +151,7 @@ module VBADocuments
               schema do
                 key :type, :string
                 key :format, :binary
+                key :example, 'Binary File'
               end
             end
           end
