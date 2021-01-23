@@ -84,6 +84,10 @@ module AppealsApi
           @additional_pages_pdf
         end
 
+        def final_page_adjustments
+          # no-op
+        end
+
         def form_title
           '200996'
         end
