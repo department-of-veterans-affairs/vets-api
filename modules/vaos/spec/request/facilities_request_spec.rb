@@ -358,22 +358,20 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
-  describe 'GET /vaos/v0/facilities/limits' do
-    let(:user) { build(:user, :mhv) }
+  describe 'GET /vaos/v0/facilities/limits', :skip_mvi do
+    let(:user) { build(:user, :vaos) }
 
     context 'with a valid GET facility limits response' do
       it 'returns a 200 with the correct schema' do
-        VCR.use_cassette('vaos/systems/get_facilities_limits_multiple', match_requests_on: %i[method path]) do
-          get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323', facility_ids: %w[688 405] }
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323', facility_ids: %w[688 442] }
 
           expect(response).to have_http_status(:ok)
           data_json = JSON.parse(response.body)
-          expect(data_json[0]['number_of_requests']).to eq(0)
-          expect(data_json[0]['request_limit']).to eq(1)
-          expect(data_json[0]['institution_code']).to eq(688)
-          expect(data_json[1]['number_of_requests']).to eq(1)
-          expect(data_json[1]['request_limit']).to eq(1)
-          expect(data_json[1]['institution_code']).to eq(405)
+          expect(data_json.size).to eq(2)
+          expect(data_json.first['number_of_requests']).to eq(0)
+          expect(data_json.first['request_limit']).to eq(1)
+          expect(data_json.first['institution_code']).to eq('688')
         end
       end
     end

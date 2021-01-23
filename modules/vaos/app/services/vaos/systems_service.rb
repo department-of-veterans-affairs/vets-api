@@ -72,7 +72,6 @@ module VAOS
           'clinical-service' => type_of_care_id
         }
         options = { params_encoder: Faraday::FlatParamsEncoder }
-        # make the call to the enpoint and return the response body
         perform(:get, url, url_params, headers, options)
       end
     end
