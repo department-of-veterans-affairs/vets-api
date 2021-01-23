@@ -5,39 +5,97 @@ require 'set'
 
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
-  task :submissions, %i[start_date end_date] => [:environment] do |_, args|
+  task :submissions, %i[first_arg second_arg] => [:environment] do |_, args|
     # rubocop:disable Style/FormatStringToken
     # This forces string token formatting. Our examples don't match
     # what this style is enforcing
     # rubocop: format('%<greeting>s', greeting: 'Hello')
     # vets-api example: printf "%-20s %s\n", header, total
 
-    def print_row(created_at, updated_at, id, c_id, p_id, complete, version) # rubocop:disable Metrics/ParameterLists
-      printf "%-24s %-24s %-15s %-10s %-15s %-18s %s\n", created_at, updated_at, id, c_id, p_id, complete, version
-    end
-
-    def print_total(header, total)
-      printf "%-20s %s\n", header, total
-    end
-
-    start_date = args[:start_date]&.to_date || 30.days.ago.utc
-    end_date = args[:end_date]&.to_date || Time.zone.now.utc
-
-    puts '------------------------------------------------------------'
-    print_row(
-      'created at:', 'updated at:', 'submission id:', 'claim id:',
-      'participant id:', 'workflow complete:', 'form version:'
+    ROW = {
+      order: %i[created_at updated_at id c_id p_id complete version],
+      format_strings: {
+        created_at: '%-24s',
+        updated_at: '%-24s',
+        id: '%-15s',
+        c_id: '%-10s',
+        p_id: '%-15s',
+        complete: '%-18s',
+        version: '%s'
+      },
+      headers: {
+        created_at: 'created at:',
+        updated_at: 'updated at:',
+        id: 'submission id:',
+        c_id: 'claim id:',
+        p_id: 'participant id:',
+        complete: 'workflow complete:',
+        version: 'form version:'
+      }
+    }.freeze
+    OPTIONS_STRUCT = Struct.new(
+      :print_header,
+      :print_hr,
+      :print_row,
+      :print_total,
+      :submission_filter,
+      :submissions,
+      keyword_init: true
     )
+    def date_range_mode(start_date:, end_date:)
+      separator = ' '
+      printf_string = ROW[:order].map { |key| ROW[:format_strings][key] }.join(separator) + "\n"
+      print_row = ->(**fields) { printf(printf_string, *ROW[:order].map { |key| fields[key] }) }
+      OPTIONS_STRUCT.new(
+        print_header: -> { print_row.call(**ROW[:headers]) },
+        print_hr: -> { puts '------------------------------------------------------------' },
+        print_row: print_row,
+        print_total: ->(header, total) { printf "%-20s#{separator}%s\n", header, total },
+        submission_filter: ->(_) { true },
+        submissions: Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day])
+      )
+    end
 
-    submissions = Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day])
+    def bdd_stats_mode(redact_participant_id:)
+      separator = ','
+      print_row = ->(**fields) { puts ROW[:order].map { |key| fields[key].inspect }.join(separator) }
+      print_row_with_redacted_participant_id = lambda do |**fields|
+        print_row.call(**fields.merge(p_id: '*****' + fields[:p_id].to_s[5..]))
+      end
+      OPTIONS_STRUCT.new(
+        print_header: -> { puts ROW[:order].map { |key| ROW[:headers][key] }.join(separator) },
+        print_hr: -> { puts },
+        print_row: redact_participant_id ? print_row_with_redacted_participant_id : print_row,
+        print_total: ->(header, total) { puts "#{header}#{separator}#{total}" },
+        submission_filter: :bdd?.to_proc,
+        submissions: Form526Submission.where('created_at >= ?', '2020-11-01'.to_date.beginning_of_day)
+      )
+    end
+
+    options = if args[:first_arg]&.downcase&.include? 'bdd'
+                bdd_stats_mode(redact_participant_id: true)
+              else
+                date_range_mode(
+                  start_date: args[:first_arg]&.to_date || 30.days.ago.utc,
+                  end_date: args[:second_arg]&.to_date || Time.zone.now.utc
+                )
+              end
+
+    options.print_hr.call
+    options.print_header.call
 
     outage_errors = 0
-    ancillary_job_errors = Hash.new { |hash, job_class| hash[job_class] = 0 }
+    ancillary_job_errors = Hash.new 0
     other_errors = 0
+    submissions_per_day = Hash.new 0
 
     # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
     # This should be fine as created_at dates correlate directly to PKs
-    submissions.find_each do |submission|
+    options.submissions.find_each do |submission|
+      next unless options.submission_filter.call(submission)
+
+      submissions_per_day[submission.created_at.to_date.iso8601] += 1
+
       submission.form526_job_statuses.where.not(error_message: [nil, '']).each do |job_status|
         if job_status.job_class == 'SubmitForm526AllClaim'
           job_status.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
@@ -46,28 +104,38 @@ namespace :form526 do
         end
       end
       version = submission.bdd? ? 'BDD' : 'ALL'
-      print_row(
-        submission.created_at, submission.updated_at, submission.id, submission.submitted_claim_id,
-        submission.auth_headers['va_eauth_pid'], submission.workflow_complete, version
+      options.print_row.call(
+        created_at: submission.created_at,
+        updated_at: submission.updated_at,
+        id: submission.id,
+        c_id: submission.submitted_claim_id,
+        p_id: submission.auth_headers['va_eauth_pid'],
+        complete: submission.workflow_complete,
+        version: version
       )
     end
 
-    total_jobs = submissions.count
-    success_jobs = submissions.group(:workflow_complete).count[true] || 0
+    total_jobs = options.submissions.count
+    success_jobs = options.submissions.group(:workflow_complete).count[true] || 0
     fail_jobs = total_jobs - success_jobs
 
-    puts '------------------------------------------------------------'
+    options.print_hr.call
     puts "* Job Success/Failure counts between #{start_date} - #{end_date} *"
-    print_total('Total Jobs: ', total_jobs)
-    print_total('Successful Jobs: ', success_jobs)
-    print_total('Failed Jobs: ', fail_jobs)
-    puts '------------------------------------------------------------'
+    options.print_total.call('Total Jobs: ', total_jobs)
+    options.print_total.call('Successful Jobs: ', success_jobs)
+    options.print_total.call('Failed Jobs: ', fail_jobs)
+    options.print_hr.call
     puts '* Failure Counts for form526 Submission Job (not including uploads/cleanup/etc...) *'
-    print_total('Outage Failures: ', outage_errors)
-    print_total('Other Failures: ', other_errors)
+    options.print_total.call('Outage Failures: ', outage_errors)
+    options.print_total.call('Other Failures: ', other_errors)
     puts 'Ancillary Job Errors:'
     ancillary_job_errors.each do |class_name, error_count|
-      puts "    #{class_name}: #{error_count}"
+      options.print_total.call "    #{class_name}:", error_count
+    end
+    options.print_hr.call
+    puts '* Daily Totals *'
+    submissions_per_day.each do |date, submission_count|
+      options.print_total.call date, submission_count
     end
   end
 
