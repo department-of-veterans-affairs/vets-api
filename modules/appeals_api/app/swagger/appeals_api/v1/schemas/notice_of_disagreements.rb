@@ -6,6 +6,12 @@ module AppealsApi::V1
       include Swagger::Blocks
 
       swagger_component do
+        schema :nodStatus do
+          key :type, :string
+          key :enum, AppealsApi::CentralMailStatus::STATUSES
+          key :example, 'submitted'
+        end
+
         schema :nodCreateInput do
           key :required, %i[type attributes]
           key :description, 'Form 10182 with minimum required to establish.'
@@ -66,6 +72,7 @@ module AppealsApi::V1
           property :included do
             key :type, :array
             key :minItems, 1
+            key :maxItems, 100
 
             items do
               key :'$ref', :contestableIssue

@@ -3,8 +3,8 @@
   "use_telecounseling": true,
   "appointment_time_preferences": {
     "morning": true,
-    "mid_day": false,
-    "afternoon": false,
+    "mid_day": true,
+    "afternoon": true,
     "other": false
   },
   "years_of_education": "12",

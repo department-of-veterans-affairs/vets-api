@@ -29,7 +29,7 @@ module Vet360
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
 
-          Vet360::ContactInformation::PersonTransactionResponse.from(raw_response)
+          Vet360::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
         end
       rescue => e
         handle_error(e)

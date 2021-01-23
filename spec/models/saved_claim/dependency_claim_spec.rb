@@ -52,7 +52,8 @@ RSpec.describe SavedClaim::DependencyClaim do
       claim = described_class.new(form: all_flows_payload.to_json)
 
       formatted_data = claim.formatted_674_data(va_file_number_with_payload)
-      expect(formatted_data).to include(:student_name_and_ssn)
+      expect(formatted_data).to include(:dependents_application)
+      expect(formatted_data[:dependents_application]).to include(:student_name_and_ssn)
     end
   end
 

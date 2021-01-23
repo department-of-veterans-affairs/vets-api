@@ -9,7 +9,7 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
     end
 
     it 'sends the email' do
-      expect(subject.subject).to eq('Decision Review API report')
+      expect(subject.subject).to eq('Decision Review API report (Test)')
     end
 
     it 'sends to the right people' do

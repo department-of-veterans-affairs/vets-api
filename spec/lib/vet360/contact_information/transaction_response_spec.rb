@@ -9,6 +9,44 @@ describe Vet360::ContactInformation::TransactionResponse do
 
     let(:raw_response) { OpenStruct.new(body: body) }
 
+    describe Vet360::ContactInformation::PersonTransactionResponse do
+      context 'with a MVI201 response error' do
+        let(:body) do
+          {
+            'status' => 'COMPLETED_SUCCESS',
+            'tx_audit_id' => '3b4633be-dc81-4cb9-874a-b9fc06fb4e21',
+            'tx_interaction_type' => 'ATTENDED',
+            'tx_messages' => [
+              {
+                'code' => 'MVI201',
+                'key' => 'MVI not found',
+                'potentially_self_correcting_on_retry' => false,
+                'severity' => 'ERROR',
+                'text' => 'The person with the identifier requested was not found in MVI.'
+              }
+            ],
+            'tx_status' => 'COMPLETED_FAILURE'
+          }
+        end
+        let(:user) { build(:user, :loa3) }
+
+        it 'logs that error to sentry' do
+          allow(described_class).to receive(:log_message_to_sentry)
+          expect(described_class).to receive(:log_message_to_sentry).with(
+            'va profile mpi not found',
+            :error,
+            {
+              icn: user.icn,
+              edipi: user.edipi,
+              response_body: raw_response.body
+            },
+            error: :va_profile
+          )
+          described_class.from(raw_response, user)
+        end
+      end
+    end
+
     context 'with a response error' do
       let(:body) do
         { 'tx_audit_id' => '1a44d122-176e-45a2-8726-083e89fdeb15',

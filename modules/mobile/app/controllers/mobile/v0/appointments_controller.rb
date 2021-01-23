@@ -49,6 +49,7 @@ module Mobile
           appointment.new(
             location: appointment.location.new(
               address: address_from_facility(facility),
+              phone: phone_from_facility(facility),
               lat: facility.lat,
               long: facility.long
             )
@@ -65,6 +66,18 @@ module Mobile
           city: address['city'],
           state: address['state'],
           zip_code: address['zip']
+        )
+      end
+
+      def phone_from_facility(facility)
+        # captures area code (\d{3}) number \s(\d{3}-\d{4})
+        # and extension (until the end of the string) (\S*)\z
+        phone_captures = facility.phone['main'].match(/(\d{3})-(\d{3}-\d{4})(\S*)\z/)
+
+        Mobile::V0::AppointmentPhone.new(
+          area_code: phone_captures[1].presence,
+          number: phone_captures[2].presence,
+          extension: phone_captures[3].presence
         )
       end
 
