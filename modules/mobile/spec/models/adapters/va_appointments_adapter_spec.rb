@@ -80,6 +80,10 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a booked status' do
       expect(booked_va[:status]).to eq('BOOKED')
     end
+
+    it 'has a time zone' do
+      expect(booked_va[:time_zone]).to eq('America/Denver')
+    end
   end
 
   context 'with a cancelled VA appointment' do
@@ -138,6 +142,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has a cancelled status' do
       expect(cancelled_va[:status]).to eq('CANCELLED')
+    end
+
+    it 'has a time zone' do
+      expect(cancelled_va[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -198,6 +206,10 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a status' do
       expect(booked_video_home[:status]).to eq('BOOKED')
     end
+
+    it 'has a time zone' do
+      expect(booked_video_home[:time_zone]).to eq('America/Denver')
+    end
   end
 
   context 'with a booked atlas appointment' do
@@ -257,6 +269,10 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a booked status' do
       expect(booked_video_atlas[:status]).to eq('BOOKED')
     end
+
+    it 'has a time zone' do
+      expect(booked_video_atlas[:time_zone]).to eq('America/Denver')
+    end
   end
 
   context 'with a booked video appointment on VA furnished equipment' do
@@ -315,6 +331,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has a booked status' do
       expect(booked_video_gfe[:status]).to eq('BOOKED')
+    end
+
+    it 'has a time zone' do
+      expect(booked_video_gfe[:time_zone]).to eq('America/Denver')
     end
   end
 

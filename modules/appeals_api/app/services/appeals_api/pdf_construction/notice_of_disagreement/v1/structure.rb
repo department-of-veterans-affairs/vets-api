@@ -98,6 +98,14 @@ module AppealsApi
           '10182'
         end
 
+        # returns nil or a `pdftk.cat` array of page adjustments
+        def final_page_adjustments
+          return unless additional_pages?
+
+          # moves pages 2 & 3 of the original form to the end of the document. Keeps all other pages.
+          [1, '4-end', '2-3']
+        end
+
         def stamp(stamped_pdf_path)
           CentralMail::DatestampPdf.new(stamped_pdf_path).run(
             text: form_data.stamp_text,

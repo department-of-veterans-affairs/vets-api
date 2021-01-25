@@ -36,6 +36,12 @@ module AppealsApi
       if: proc { |a| a.form_data.present? }
     )
 
+    def pdf_structure(version)
+      Object.const_get(
+        "AppealsApi::PdfConstruction::HigherLevelReview::#{version.upcase}::Structure"
+      ).new(self)
+    end
+
     # 1. VETERAN'S NAME
     def first_name
       header_field_as_string 'X-VA-First-Name'

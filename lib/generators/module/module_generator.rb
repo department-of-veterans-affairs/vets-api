@@ -57,7 +57,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
 
       # simplecov add group
       insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}',
-                       'modules/#{file_name}/'\n", after: "# Modules\n"
+                       'modules/#{file_name}/'\n", after: "def add_modules\n"
 
       # insert into main app gemfile
       insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
