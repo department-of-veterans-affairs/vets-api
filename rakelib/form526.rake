@@ -13,12 +13,18 @@ namespace :form526 do
     # vets-api example: printf "%-20s %s\n", header, total
 
     #####  RUN-IN-CONSOLE HELPER CODE  ####
-    # OUTPUT = ""
+    ## When pasting this task into a console, this snippet saves up the output to
+    ## print at the very end (instead of being printed within the code your pasting).
+    ## After playing around with $stdout, I found temporarily redefining "puts" more
+    ## closely accomplishes the behavior I was trying to achieve.
     #
+    # OUTPUT = ""
     # def puts(string = "")
     #   OUTPUT << string
     #   OUTPUT << "\n"
     # end
+    #
+    ## Set the args:
     #
     # args = { first: '2020-12-25' }
     # args[:second] = args[:first]
