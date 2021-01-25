@@ -78,7 +78,7 @@ module HealthQuest
           grant_type: 'client_credentials',
           client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
           client_assertion: claims_token,
-          scope: 'launch/patient patient/Patient.read',
+          scope: 'launch/patient patient/Patient.read patient/Questionnaire.read patient/QuestionnaireResponse.read',
           launch: user&.icn
         }
 

@@ -6,25 +6,29 @@ module HealthQuest
       ##
       # A service object for querying the PGD for Questionnaire Response resources.
       #
+      # @!attribute access_token
+      #   @return [String]
       # @!attribute headers
       #   @return [Hash]
       class MapQuery
         include PatientGeneratedData::FHIRClient
+        include PatientGeneratedData::FHIRHeaders
 
-        attr_reader :headers
+        attr_reader :access_token, :headers
 
         ##
-        # Builds a PatientGeneratedData::Questionnaire::MapQuery instance from a given hash of headers.
+        # Builds a PatientGeneratedData::Questionnaire::MapQuery instance from a redis session.
         #
-        # @param headers [Hash] the set of headers.
+        # @param session_store [HealthQuest::SessionStore] the users redis session.
         # @return [PatientGeneratedData::Questionnaire::MapQuery] an instance of this class
         #
-        def self.build(headers)
-          new(headers)
+        def self.build(session_store)
+          new(session_store)
         end
 
-        def initialize(headers)
-          @headers = headers
+        def initialize(session_store)
+          @access_token = session_store.token
+          @headers = auth_header
         end
 
         ##
