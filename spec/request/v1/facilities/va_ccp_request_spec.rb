@@ -29,7 +29,13 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
         expect(StatsD).to receive(:measure).with(
           'facilities.ppms.place_of_service_locator',
           kind_of(Numeric),
-          hash_including(tags: ['facilities.ppms'])
+          hash_including(
+            tags: [
+              'facilities.ppms',
+              'facilities.ppms.radius:200',
+              'facilities.ppms.results:11'
+            ]
+          )
         )
 
         expect do
