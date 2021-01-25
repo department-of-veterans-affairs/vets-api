@@ -185,13 +185,16 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_n
                 when /Providers\(\d+\)/
                   'facilities.ppms.providers'
                 end
+
   if measurement
+    tags = ['facilities.ppms']
     params = Rack::Utils.parse_nested_query payload[:url].query
-    tags = {
-      'facilities.ppms.radius': params['radius'],
-      'facilities.ppms.results': payload[:body].count
-    }.collect { |pair| pair.join(':') }
-    tags << 'facilities.ppms'
+
+    if params['radius']
+      tags << "facilities.ppms.radius:#{params['radius']}"
+      tags << "facilities.ppms.results:#{payload[:body].count}"
+    end
+
     StatsD.measure(measurement, duration, tags: tags)
   end
 end
