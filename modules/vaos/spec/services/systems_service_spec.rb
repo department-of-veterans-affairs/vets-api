@@ -5,7 +5,7 @@ require 'rails_helper'
 describe VAOS::SystemsService do
   subject { VAOS::SystemsService.new(user) }
 
-  let(:user) { build(:user, :vaos) }
+  let(:user) { build(:user, :mhv) }
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
@@ -242,6 +242,8 @@ describe VAOS::SystemsService do
   end
 
   describe '#get_facilities_limits with multiple institution_codes' do
+    let(:user) { build(:user, :vaos) }
+
     context 'with a 200 response' do
       it 'returns a number of requests and limits for multiple facilities' do
         VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method uri]) do
@@ -254,6 +256,16 @@ describe VAOS::SystemsService do
           expect(response.body.second[:request_limit]).to eq(1)
           expect(response.body.second[:institution_code]).to eq('442')
           expect(response.body.size).to eq(2)
+        end
+      end
+    end
+
+    context 'with a 500 response' do
+      it 'returns a number of requests and limits for multiple facilities' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple_500', match_requests_on: %i[method uri]) do
+          expect { subject.get_facility_limits(%w[688 442], '323') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
         end
       end
     end

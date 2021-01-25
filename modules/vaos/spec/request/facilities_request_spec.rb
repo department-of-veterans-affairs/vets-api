@@ -375,6 +375,42 @@ RSpec.describe 'facilities', type: :request do
         end
       end
     end
+
+    context 'when type_of_care_id parameter is missing' do
+      it 'returns an error message with the missing param, type_of_care_id' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: { facility_ids: %w[688 442] }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "type_of_care_id", is missing')
+        end
+      end
+    end
+
+    context 'when facility_ids parameter is missing' do
+      it 'returns an error message with the missing param, facility_ids' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323' }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "facility_ids", is missing')
+        end
+      end
+    end
+
+    context 'when no parameters are present' do
+      it 'returns an error message with the missing param, facility_ids' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: {}
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "facility_ids", is missing')
+        end
+      end
+    end
   end
 
   describe 'GET /vaos/v0/facilities/:facility_id/visits/:schedule_type' do
