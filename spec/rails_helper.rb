@@ -115,7 +115,9 @@ RSpec.configure do |config|
     config.include(MDOTHelpers, type: type)
   end
 
+  # Allows setting of filenet_id in the FinancialStatusReport model
   config.include FinancialStatusReportHelpers, type: :controller
+  config.include FinancialStatusReportHelpers, type: :service
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
