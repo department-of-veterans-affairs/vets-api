@@ -4,7 +4,14 @@ require 'pp'
 require 'set'
 
 namespace :form526 do
-  desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
+  desc <<~HEREDOC
+    Get all submissions within a date period:
+      rake form526:submissions[2021-01-23,2021-01-24]
+    Last 30 days:
+      rake form526:submissions[]
+    BDD stats mode:
+      rake form526:submissions[bdd]
+  HEREDOC
   task :submissions, %i[first second] => [:environment] do |_, args|
     # rubocop:disable Style/FormatStringToken
     # This forces string token formatting. Our examples don't match
