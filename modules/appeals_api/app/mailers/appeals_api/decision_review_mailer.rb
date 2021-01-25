@@ -12,7 +12,7 @@ module AppealsApi
 
       mail(
         to: Settings.modules_appeals_api.report_recipients,
-        subject: 'Decision Review API report',
+        subject: "Decision Review API report (#{Rails.env.titleize})",
         content_type: 'text/html',
         body: body
       )
