@@ -312,7 +312,6 @@ with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as
                 key :example, 'Doe'
                 key :description, 'Power of Attorney representative last name submitted for Veteran'
               end
-
             end
 
             property :previous_poa do
