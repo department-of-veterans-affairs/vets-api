@@ -103,6 +103,8 @@ namespace :form526 do
 
     def missing_dates_as_zero(hash_with_date_keys)
       dates = hash_with_date_keys.keys.sort
+      return {} if dates.blank?
+
       earliest_date = dates.first
       latest_date = dates.last
       raise unless earliest_date.to_date <= latest_date.to_date
@@ -120,7 +122,7 @@ namespace :form526 do
     end
 
     def to_date_string(value)
-      value.to_date.iso8601
+      value.try(:to_date)&.iso8601
     end
 
     def tomorrow(date_string)
