@@ -5,30 +5,34 @@ require 'rails_helper'
 describe HealthQuest::PatientGeneratedData::Questionnaire::MapQuery do
   subject { described_class }
 
-  let(:headers) { { 'Accept' => 'application/json+fhir' } }
+  let(:session_store) { double('SessionStore', token: '123abc') }
   let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
 
   describe 'included modules' do
     it 'includes PatientGeneratedData::FHIRClient' do
       expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRClient)
     end
+
+    it 'includes PatientGeneratedData::FHIRHeaders' do
+      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRHeaders)
+    end
   end
 
   describe '.build' do
     it 'returns an instance of MapQuery' do
-      expect(subject.build(headers)).to be_an_instance_of(subject)
+      expect(subject.build(session_store)).to be_an_instance_of(subject)
     end
   end
 
   describe 'object initialization' do
     it 'has a headers attribute' do
-      expect(subject.new({}).respond_to?(:headers)).to eq(true)
+      expect(subject.new(session_store).respond_to?(:headers)).to eq(true)
     end
   end
 
   describe '#fhir_model' do
     it 'is a FHIR::Questionnaire class' do
-      expect(subject.new({}).fhir_model).to eq(FHIR::Questionnaire)
+      expect(subject.new(session_store).fhir_model).to eq(FHIR::Questionnaire)
     end
   end
 
@@ -49,7 +53,7 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::MapQuery do
       it 'calls search on the FHIR client' do
         expect(client).to receive(:search).with(FHIR::Questionnaire, options).exactly(1).time
 
-        subject.build(headers).search(author: '123')
+        subject.build(session_store).search(author: '123')
       end
     end
   end
@@ -58,7 +62,7 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::MapQuery do
     let(:options) { { search: { parameters: { author: 'abc' } } } }
 
     it 'builds options' do
-      expect(subject.new({}).search_options(author: 'abc')).to eq(options)
+      expect(subject.new(session_store).search_options(author: 'abc')).to eq(options)
     end
   end
 
@@ -74,7 +78,16 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::MapQuery do
       it 'returns an instance of Reply' do
         expect(client).to receive(:read).with(FHIR::Questionnaire, id).exactly(1).time
 
-        subject.build(headers).get(id)
+        subject.build(session_store).get(id)
+      end
+
+      it 'has request headers' do
+        allow(client).to receive(:read).with(FHIR::Questionnaire, id).and_return(anything)
+
+        map_query = subject.build(session_store)
+        map_query.get(id)
+
+        expect(map_query.headers).to eq({ 'Authorization' => 'Bearer 123abc' })
       end
     end
   end
