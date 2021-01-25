@@ -656,7 +656,7 @@ vanotify:
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
-    password_reset: https://www.va.gov/resources/signing-in-to-vagov/
+    password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
