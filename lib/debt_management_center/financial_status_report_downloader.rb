@@ -24,10 +24,6 @@ module DebtManagementCenter
 
     private
 
-    def base_url
-      Settings.dmc.url
-    end
-
     def request_headers
       {
         Accept: 'application/pdf',
