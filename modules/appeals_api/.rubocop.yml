@@ -14,3 +14,7 @@ Metrics/BlockLength:
     - spec/**/*.rb
     - config/**/*.rb
     - app/swagger/**/*.rb
+
+Metrics/ClassLength:
+  Exclude:
+    - app/swagger/**/*.rb
