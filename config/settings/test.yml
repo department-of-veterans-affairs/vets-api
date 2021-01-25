@@ -101,6 +101,7 @@ hqva_mobile:
   timeout: 15
   lighthouse:
     url: "https://sandbox-api.va.gov"
+    pgd_path: "/services/pgd/v0/r4"
     host: "sandbox-api.va.gov"
     aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
     claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
