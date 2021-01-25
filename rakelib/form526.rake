@@ -5,12 +5,24 @@ require 'set'
 
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
-  task :submissions, %i[first_arg second_arg] => [:environment] do |_, args|
+  task :submissions, %i[first second] => [:environment] do |_, args|
     # rubocop:disable Style/FormatStringToken
     # This forces string token formatting. Our examples don't match
     # what this style is enforcing
     # rubocop: format('%<greeting>s', greeting: 'Hello')
     # vets-api example: printf "%-20s %s\n", header, total
+
+    #####  RUN-IN-CONSOLE HELPER CODE  ####
+    # OUTPUT = ""
+    #
+    # def puts(string = "")
+    #   OUTPUT << string
+    #   OUTPUT << "\n"
+    # end
+    #
+    # args = { first: '2020-12-25' }
+    # args[:second] = args[:first]
+    #######################################
 
     ROW = {
       order: %i[created_at updated_at id c_id p_id complete version],
@@ -38,48 +50,78 @@ namespace :form526 do
       :print_hr,
       :print_row,
       :print_total,
-      :submission_filter,
+      :ignore_submission,
       :submissions,
+      :success_failure_totals_header_string,
       keyword_init: true
     )
-    def date_range_mode(start_date:, end_date:)
+    def date_range_mode(args)
+      start_date = args[:first]&.to_date || 30.days.ago.utc
+      end_date = args[:second]&.to_date || Time.zone.now.utc
       separator = ' '
-      printf_string = ROW[:order].map { |key| ROW[:format_strings][key] }.join(separator) + "\n"
-      print_row = ->(**fields) { printf(printf_string, *ROW[:order].map { |key| fields[key] }) }
+      printf_string = ROW[:order].map { |key| ROW[:format_strings][key] }.join(separator)
+      print_row = ->(**fields) { puts format(printf_string, *ROW[:order].map { |key| fields[key] }) }
+
       OPTIONS_STRUCT.new(
         print_header: -> { print_row.call(**ROW[:headers]) },
         print_hr: -> { puts '------------------------------------------------------------' },
         print_row: print_row,
-        print_total: ->(header, total) { printf "%-20s#{separator}%s\n", header, total },
-        submission_filter: ->(_) { true },
-        submissions: Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day])
+        print_total: ->(header, total) { puts format("%-20s#{separator}%s", header, total) },
+        ignore_submission: ->(_) { false },
+        submissions: Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day]),
+        success_failure_totals_header_string: "* Job Success/Failure counts between #{start_date} - #{end_date} *"
       )
     end
 
-    def bdd_stats_mode(redact_participant_id:)
+    def bdd_stats_mode(args)
+      return nil unless args[:first]&.downcase&.include? 'bdd'
+
+      redact_participant_id = true
       separator = ','
       print_row = ->(**fields) { puts ROW[:order].map { |key| fields[key].inspect }.join(separator) }
       print_row_with_redacted_participant_id = lambda do |**fields|
         print_row.call(**fields.merge(p_id: '*****' + fields[:p_id].to_s[5..]))
       end
+      start_date = '2020-11-01'
+
       OPTIONS_STRUCT.new(
         print_header: -> { puts ROW[:order].map { |key| ROW[:headers][key] }.join(separator) },
         print_hr: -> { puts },
         print_row: redact_participant_id ? print_row_with_redacted_participant_id : print_row,
         print_total: ->(header, total) { puts "#{header}#{separator}#{total}" },
-        submission_filter: :bdd?.to_proc,
-        submissions: Form526Submission.where('created_at >= ?', '2020-11-01'.to_date.beginning_of_day)
+        ignore_submission: ->(submission) { submission.bdd? ? false : submission.id },
+        submissions: Form526Submission.where('created_at >= ?', start_date.to_date.beginning_of_day),
+        success_failure_totals_header_string: '* Job Success/Failure counts *'
       )
     end
 
-    options = if args[:first_arg]&.downcase&.include? 'bdd'
-                bdd_stats_mode(redact_participant_id: true)
-              else
-                date_range_mode(
-                  start_date: args[:first_arg]&.to_date || 30.days.ago.utc,
-                  end_date: args[:second_arg]&.to_date || Time.zone.now.utc
-                )
-              end
+    def missing_dates_as_zero(hash_with_date_keys)
+      dates = hash_with_date_keys.keys.sort
+      earliest_date = dates.first
+      latest_date = dates.last
+      raise unless earliest_date.to_date <= latest_date.to_date
+
+      new_hash = {}
+      date = earliest_date
+      loop do
+        new_hash[date] = hash_with_date_keys[date] || 0
+        break if date == latest_date
+
+        date = tomorrow date
+      end
+
+      new_hash
+    end
+
+    def to_date_string(value)
+      value.to_date.iso8601
+    end
+
+    def tomorrow(date_string)
+      to_date_string date_string.to_date.tomorrow
+    end
+
+    options = bdd_stats_mode(args) || date_range_mode(args)
 
     options.print_hr.call
     options.print_header.call
@@ -88,13 +130,17 @@ namespace :form526 do
     ancillary_job_errors = Hash.new 0
     other_errors = 0
     submissions_per_day = Hash.new 0
+    ids_to_ignore = []
 
     # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
     # This should be fine as created_at dates correlate directly to PKs
     options.submissions.find_each do |submission|
-      next unless options.submission_filter.call(submission)
+      if (id_to_ignore = options.ignore_submission.call(submission))
+        ids_to_ignore << id_to_ignore
+        next
+      end
 
-      submissions_per_day[submission.created_at.to_date.iso8601] += 1
+      submissions_per_day[to_date_string(submission.created_at)] += 1
 
       submission.form526_job_statuses.where.not(error_message: [nil, '']).each do |job_status|
         if job_status.job_class == 'SubmitForm526AllClaim'
@@ -114,6 +160,7 @@ namespace :form526 do
         version: version
       )
     end
+    options.submissions = options.submissions.where.not(id: ids_to_ignore) if ids_to_ignore.present?
 
     total_jobs = options.submissions.count
     success_jobs = options.submissions.where(workflow_complete: true)
@@ -127,7 +174,7 @@ namespace :form526 do
     user_success_rate = (total_successful_users_submitting.to_f / total_users_submitting)
 
     options.print_hr.call
-    puts "* Job Success/Failure counts between #{start_date} - #{end_date} *"
+    puts options.success_failure_totals_header_string
     options.print_total.call('Total Jobs: ', total_jobs)
     options.print_total.call('Successful Jobs: ', success_jobs_count)
     options.print_total.call('Failed Jobs: ', fail_jobs)
@@ -149,9 +196,13 @@ namespace :form526 do
 
     options.print_hr.call
     puts '* Daily Totals *'
-    submissions_per_day.each do |date, submission_count|
+    missing_dates_as_zero(submissions_per_day).each do |date, submission_count|
       options.print_total.call date, submission_count
     end
+
+    ####  RUN-IN-CONSOLE HELPER CODE  ####
+    # STDOUT.puts OUTPUT;nil
+    ######################################
   end
 
   desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>,<flag>]'
