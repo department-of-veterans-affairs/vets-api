@@ -17,7 +17,6 @@ spec/support/*/mobile/               @department-of-veterans-affairs/mobile-api-
 
 rakelib/form526.rake @department-of-veterans-affairs/vsa-bam-1-backend @department-of-veterans-affairs/backend-review-group
 
-
 # authentication
 app/controllers/*/sessions_controller.rb @department-of-veterans-affairs/vsp-identity
 app/models/account.rb @department-of-veterans-affairs/vsp-identity
