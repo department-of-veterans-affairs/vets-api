@@ -96,7 +96,7 @@ module VSPDanger
     end
 
     def changes
-      `#{files_command}`.split("\n").map do |line|
+      @changes ||= `#{files_command}`.split("\n").map do |line|
         insertions, deletions, file_name = line.split "\t"
         insertions = insertions.to_i
         deletions = deletions.to_i
