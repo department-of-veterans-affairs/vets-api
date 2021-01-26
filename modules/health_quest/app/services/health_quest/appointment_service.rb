@@ -17,13 +17,21 @@ module HealthQuest
       end
     end
 
-    def get_appointment_by_id(_id)
-      with_monitoring do
-        response =
-          YAML.load_file(Rails.root.join(*appointment_file)).with_indifferent_access
+    def get_appointment_by_id(id)
+      return mock_appointment if Rails.env.development?
 
-        { data: OpenStruct.new(response[:body][:data]) }
+      with_monitoring do
+        response = perform(:get, "#{get_appointments_base_url}/#{id}", {}, headers, timeout: 55)
+
+        { data: OpenStruct.new(response.body) }
       end
+    end
+
+    def mock_appointment
+      response =
+        YAML.load_file(Rails.root.join(*appointment_file)).with_indifferent_access
+
+      { data: OpenStruct.new(response[:body][:data]) }
     end
 
     private
