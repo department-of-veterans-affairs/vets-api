@@ -228,6 +228,18 @@ module VSPDanger
         More details about Sidekiq Enterprise can be found in the [README](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md).
       EMSG
     end
+
+    def gemfile_diff
+      @gemfile_diff ||= `git diff #{base_sha}:Gemfile.lock #{head_sha}:Gemfile.lock`
+    end
+
+    def head_sha
+      `git rev-parse --abbrev-ref HEAD`.chomp
+    end
+
+    def base_sha
+      'origin/master'
+    end
   end
 
   if $PROGRAM_NAME == __FILE__
