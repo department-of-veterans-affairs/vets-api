@@ -6,6 +6,7 @@ require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
 require 'support/stub_efolder_documents'
+require 'support/stub_financial_status_report'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
 require 'bgs/service'
@@ -424,6 +425,37 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             headers.merge(
               'id' => CGI.escape(document_id)
             )
+          )
+        end
+      end
+    end
+
+    context 'Financial Status Reports' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+
+      context '#create' do
+        it 'validates the route' do
+          expect(subject).to validate(
+            :post,
+            '/v0/financial_status_reports',
+            200,
+            headers
+          )
+        end
+      end
+
+      context '#download_pdf' do
+        stub_financial_status_report(:download_pdf)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/financial_status_reports/download_pdf',
+            200,
+            headers
           )
         end
       end
