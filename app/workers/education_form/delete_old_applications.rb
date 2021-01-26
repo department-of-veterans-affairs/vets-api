@@ -40,7 +40,7 @@ module EducationForm
 
       EducationBenefitsClaim.delete(edu_claim_ids)
       SavedClaim::EducationBenefits.delete(saved_claim_ids)
-      EducationStemAutomatedDecision.delete(stem_automated_decision_ids)\
+      EducationStemAutomatedDecision.delete(stem_automated_decision_ids)
     end
   end
 end
