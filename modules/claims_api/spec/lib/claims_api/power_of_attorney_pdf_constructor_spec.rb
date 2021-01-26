@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'claims_api/power_of_attorney_pdf_constructor'
-require_relative '../support/pdf_matcher'
+require_relative '../../support/pdf_matcher'
 
 describe ClaimsApi::PowerOfAttorneyPdfConstructor do
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
