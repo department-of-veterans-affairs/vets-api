@@ -39,14 +39,6 @@ module VSPDanger
     def self.success(message)
       Result.new(SUCCESS, message)
     end
-
-    def <=>(other)
-      return 0 if severity == other.severity
-      return -1 if severity == ERROR
-      return 1 if other.severity == ERROR
-      return -1 if severity == WARNING
-      return 1 if other.severity == WARNING
-    end
   end
 
   class ChangeLimiter
@@ -225,12 +217,15 @@ module VSPDanger
 end
 
 if $PROGRAM_NAME != __FILE__
-  VSPDanger::Runner.run.sort.each do |result|
-    case result.severity
-    when VSPDanger::Result::ERROR
-      fail result.message # rubocop:disable Style/SignalException
-    when VSPDanger::Result::WARNING
-      warn result.message
-    end
+  results = VSPDanger::Runner.run
+
+  errors = results.select { |result| result.severity == VSPDanger::Result::ERROR }
+  if errors.any?
+    fail(errors.collect(&:message)) # rubocop:disable Style/SignalException
+  end
+
+  warnings = results.select { |result| result.severity == VSPDanger::Result::WARNING }
+  if warnings.any? # rubocop:disable Style/IfUnlessModifier
+    warn(warnings.collect(&:message))
   end
 end
