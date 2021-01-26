@@ -73,13 +73,24 @@ describe 'form526 rake tasks', type: :request do
 
   describe 'rake form526:submissions' do
     let!(:form526_submission) { create(:form526_submission, :with_mixed_status) }
-    let :run_rake_task do
+
+    def run_rake_task(args_string)
       Rake::Task['form526:submissions'].reenable
-      Rake.application.invoke_task 'form526:submissions'
+      Rake.application.invoke_task "form526:submissions[#{args_string}]"
     end
 
-    it 'runs without errors' do
-      expect { silently { run_rake_task } }.not_to raise_error
+    context 'runs without errors' do
+      [
+        ['', 'no args'],
+        ['2020-12-25', 'just a start date'],
+        [',2020-12-25', 'just an end date'],
+        ['2020-12-24,2020-12-25', 'two dates'],
+        ['bdd', 'bdd stats mode']
+      ].each do |(args_string, desc)|
+        it desc do
+          expect { silently { run_rake_task(args_string) } }.not_to raise_error
+        end
+      end
     end
   end
 
