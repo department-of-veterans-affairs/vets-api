@@ -534,6 +534,7 @@ GEM
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.9.0)
+    okcomputer (1.18.2)
     olive_branch (3.0.0)
       multi_json
       oj
@@ -953,6 +954,7 @@ DEPENDENCIES
   nokogiri (~> 1.11)
   notifications-ruby-client (~> 5.1)
   oj
+  okcomputer
   olive_branch
   openid_auth!
   operating_hours
