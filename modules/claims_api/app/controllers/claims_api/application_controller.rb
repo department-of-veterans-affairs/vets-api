@@ -9,6 +9,7 @@ module ClaimsApi
     include ClaimsApi::HeaderValidation
     include ClaimsApi::JsonFormatValidation
 
+    before_action :verify_mpi
     skip_before_action :set_tags_and_extra_context, raise: false
     before_action :validate_json_format, if: -> { request.post? }
 

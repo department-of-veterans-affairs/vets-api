@@ -13,17 +13,6 @@ module Lighthouse
       configuration Lighthouse::Facilities::Configuration
 
       ##
-      # Request a single facility
-      # @param id [String] the id of the facility created by combining the type of facility and station number
-      # @example  client.get_by_id(vha_358)
-      # @return [Lighthouse::Facilities::Facility]
-      #
-      def get_by_id(id)
-        response = perform(:get, "/services/va_facilities/v0/facilities/#{id}", nil)
-        Lighthouse::Facilities::Response.new(response.body, response.status).facility
-      end
-
-      ##
       # Request a list of facilities matching the params provided
       # @param params [Hash] a hash of parameter objects that must include bbox, ids, or lat and long
       #   see https://developer.va.gov/explore/facilities/docs/facilities for more options

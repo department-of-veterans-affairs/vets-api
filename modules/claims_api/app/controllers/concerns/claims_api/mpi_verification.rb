@@ -5,8 +5,6 @@ module ClaimsApi
     extend ActiveSupport::Concern
 
     included do
-      before_action :verify_mpi
-
       def verify_mpi
         raise 'MPI user not found' unless target_veteran.mpi_record?
       rescue => e

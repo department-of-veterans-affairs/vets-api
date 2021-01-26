@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require_relative 'facility'
 
 module Lighthouse
   module Facilities
@@ -28,23 +27,6 @@ module Lighthouse
           self.per_page = meta['pagination']['per_page']
           self.total_entries = meta['pagination']['total_entries']
         end
-      end
-
-      def facilities
-        facilities = data.each_with_index.map do |facility, index|
-          fac = Lighthouse::Facilities::Facility.new(facility)
-          fac.distance = meta['distances'][index]['distance'] unless meta['distances'].empty?
-          fac
-        end
-
-        WillPaginate::Collection.create(current_page, per_page) do |pager|
-          pager.replace(facilities)
-          pager.total_entries = total_entries
-        end
-      end
-
-      def facility
-        Lighthouse::Facilities::Facility.new(data)
       end
     end
   end

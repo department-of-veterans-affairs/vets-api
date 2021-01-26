@@ -59,6 +59,12 @@ ClaimsApi::Engine.routes.draw do
     end
   end
 
+  namespace :v2, defaults: { format: 'json' } do
+    mount OkComputer::Engine, at: '/healthcheck'
+
+    mount ClaimsApi::V2::Claims => '/'
+  end
+
   namespace :docs do
     namespace :v0 do
       get 'api', to: 'api#index'
