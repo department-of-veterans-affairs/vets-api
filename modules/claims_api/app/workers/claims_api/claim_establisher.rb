@@ -20,7 +20,7 @@ module ClaimsApi
       response = service(auth_headers).submit_form526(form_data)
       auto_claim.evss_id = response.claim_id
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
-      auto_claim.save
+      auto_claim.save!
 
       queue_flash_updater(auth_headers, auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auth_headers, auto_claim.special_issues, auto_claim)
@@ -61,13 +61,9 @@ module ClaimsApi
 
     def service(auth_headers)
       if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
-        ClaimsApi::DisabilityCompensation::MockOverrideService.new(
-          auth_headers
-        )
+        ClaimsApi::DisabilityCompensation::MockOverrideService.new(auth_headers)
       else
-        EVSS::DisabilityCompensationForm::Service.new(
-          auth_headers
-        )
+        EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       end
     end
 
