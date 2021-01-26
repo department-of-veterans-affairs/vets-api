@@ -42,6 +42,7 @@ module Mobile
       attribute :start_date_local, Types::DateTime
       attribute :start_date_utc, Types::DateTime
       attribute :status, STATUS_TYPE
+      attribute :time_zone, TIME_ZONE_TYPE
     end
   end
 end

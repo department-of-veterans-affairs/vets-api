@@ -7,12 +7,16 @@ module EducationForm::Forms
       super(app)
     end
 
+    def denied?
+      @stem_automated_decision&.automated_decision_state == 'denied'
+    end
+
     def header_form_type
-      @stem_automated_decision&.automated_decision_state == 'denied' ? '10203DNY' : 'V10203'
+      denied? ? '10203DNY' : 'V10203'
     end
 
     def form_identifier
-      @stem_automated_decision&.automated_decision_state == 'denied' ? 'VA Form 22-10203DNY' : 'VA Form 22-10203'
+      denied? ? 'VA Form 22-10203DNY' : 'VA Form 22-10203'
     end
 
     def form_benefit

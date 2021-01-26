@@ -170,6 +170,11 @@ features:
     enable_in_development: true
     description: >
       Enables Project Cheetah discovery work
+  va_online_scheduling_homepage_refresh:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Set up toggle in anticipation of the next iteration of the homepage and appointment cards.
   va_global_downtime_notification:
     actor_type: user
     description: >

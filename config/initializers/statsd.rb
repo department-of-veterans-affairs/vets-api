@@ -12,6 +12,7 @@ require 'saml/responses/base'
 require 'saml/user'
 require 'stats_d_metric'
 require 'search/service'
+require 'search_click_tracking/service'
 require 'vet360/exceptions/parser'
 require 'vet360/service'
 require 'va_notify/service'
@@ -132,6 +133,9 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
 
+# init SearchClickTracking
+StatsD.increment("#{SearchClickTracking::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:400'])
+
 # init Form1010cg
 StatsD.increment(Form1010cg::Auditor.metrics.submission.attempt, 0)
 StatsD.increment(Form1010cg::Auditor.metrics.submission.success, 0)
@@ -173,7 +177,7 @@ end
 # init Facilities Jobs
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
 
-ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_, start_time, end_time, _, payload|
+ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_name, start_time, end_time, _id, payload|
   duration = end_time - start_time
   measurement = case payload[:url].path
                 when /ProviderLocator/
@@ -185,8 +189,20 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_,
                 when /Providers\(\d+\)/
                   'facilities.ppms.providers'
                 end
-  StatsD.measure(measurement, duration, tags: ['facilities.ppms']) if measurement
+
+  if measurement
+    tags = ['facilities.ppms']
+    params = Rack::Utils.parse_nested_query payload[:url].query
+
+    if params['radius']
+      tags << "facilities.ppms.radius:#{params['radius']}"
+      tags << "facilities.ppms.results:#{payload[:body].count}"
+    end
+
+    StatsD.measure(measurement, duration, tags: tags)
+  end
 end
+
 ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, _|
   duration = end_time - start_time
 

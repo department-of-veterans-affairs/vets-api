@@ -22,6 +22,10 @@ module SchemaMatchers
     match { |json| valid_against_schema?(json, schema_name, opts) }
   end
 
+  matcher :match_camelized_schema do |schema_name, opts = {}|
+    match { |json| valid_against_olivebranched_schema?(json, schema_name, opts) }
+  end
+
   matcher :match_response_schema do |schema_name, opts = {}|
     match { |response| valid_against_schema?(response.body, schema_name, opts) }
   end
