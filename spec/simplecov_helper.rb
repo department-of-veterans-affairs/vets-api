@@ -53,7 +53,6 @@ class SimpleCovHelper
     add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
-    add_filter 'modules/claims_api/lib/claims_api/health_checker.rb'
     add_filter 'lib/bip_claims/configuration.rb'
     add_filter 'version.rb'
   end
