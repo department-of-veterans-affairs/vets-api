@@ -22,10 +22,8 @@ module HealthQuest
 
       with_monitoring do
         response = perform(:get, "#{get_appointments_base_url}/#{id}", {}, headers, timeout: 55)
-        {
-          data: OpenStruct.new(response.body),
-          meta: pagination({})
-        }
+
+        { data: OpenStruct.new(response.body) }
       end
     end
 

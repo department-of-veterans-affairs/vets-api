@@ -15,7 +15,7 @@ describe HealthQuest::AppointmentService do
   describe '#get_appointment_by_id' do
     let(:appointment) { subject.get_appointment_by_id(132) }
     let(:appt_body) { subject.mock_appointment }
-    let(:appt_response) { double('Faraday::Response', body: appt_body) }
+    let(:appt_response) { double('Faraday::Response', body: appt_body[:data]) }
 
     before do
       allow_any_instance_of(HealthQuest::AppointmentService).to receive(:perform).and_return(appt_response)
@@ -30,7 +30,7 @@ describe HealthQuest::AppointmentService do
     end
 
     it 'data openstruct object has expected keys' do
-      data = appointment[:data].data
+      data = appointment[:data]
       attributes = %i[
         id start_date clinic_id clinic_friendly_name facility_id sta6aid
         station_name patient_icn community_care vds_appointments
