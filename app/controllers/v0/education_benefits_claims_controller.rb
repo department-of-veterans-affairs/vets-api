@@ -15,7 +15,7 @@ module V0
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
       load_user
-      claim.after_submit(@current_user)
+      claim.after_submit(@current_user, auth_headers)
       clear_saved_form(claim.in_progress_form_id)
       render(json: claim.education_benefits_claim)
     end
@@ -32,6 +32,10 @@ module V0
 
     def stats_key
       "api.education_benefits_claim.22#{form_type}"
+    end
+
+    def auth_headers
+      @auth_headers ||= EVSS::AuthHeaders.new(@current_user).to_h
     end
   end
 end

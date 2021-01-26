@@ -17,7 +17,7 @@ class SavedClaim::EducationBenefits < SavedClaim
     form_id
   end
 
-  def after_submit(user); end
+  def after_submit(user, auth_headers); end
 
   private
 
