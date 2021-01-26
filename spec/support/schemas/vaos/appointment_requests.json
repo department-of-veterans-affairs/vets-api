@@ -1,7 +1,10 @@
 {
-  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data", "meta"],
+  "required": [
+    "data",
+    "meta"
+  ],
   "properties": {
     "data": {
       "type": "array",
@@ -13,16 +16,31 @@
     },
     "meta": {
       "type": "object",
-      "required": ["pagination"],
+      "required": [
+        "pagination"
+      ],
       "properties": {
         "pagination": {
           "type": "object",
-          "required": ["current_page", "per_page", "total_pages", "total_entries"],
+          "required": [
+            "current_page",
+            "per_page",
+            "total_pages",
+            "total_entries"
+          ],
           "properties": {
-            "current_page": { "type": "integer" },
-            "per_page": { "type": "integer" },
-            "total_pages": { "type": "integer" },
-            "total_entries": { "type": "integer" }
+            "current_page": {
+              "type": "integer"
+            },
+            "per_page": {
+              "type": "integer"
+            },
+            "total_pages": {
+              "type": "integer"
+            },
+            "total_entries": {
+              "type": "integer"
+            }
           }
         }
       }

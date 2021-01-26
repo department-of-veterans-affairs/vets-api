@@ -42,5 +42,44 @@ describe AppealsApi::PdfConstruction::Generator do
         end
       end
     end
+
+    context 'Higher Level Review' do
+      let(:higher_level_review) { create(:higher_level_review) }
+      let(:extra_higher_level_review) { create(:extra_higher_level_review) }
+      let(:minimal_higher_level_review) { create(:minimal_higher_level_review) }
+
+      context 'pdf content verification' do
+        it 'generates the expected pdf' do
+          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+          generated_pdf = described_class.new(higher_level_review).generate
+          expected_pdf = fixture_filepath('expected_200996.pdf')
+          expect(generated_pdf).to match_pdf expected_pdf
+          File.delete(generated_pdf) if File.exist?(generated_pdf)
+          Timecop.return
+        end
+      end
+
+      context 'pdf extra content verification' do
+        it 'generates the expected pdf' do
+          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+          generated_pdf = described_class.new(extra_higher_level_review).generate
+          expected_pdf = fixture_filepath('expected_200996_extra.pdf')
+          expect(generated_pdf).to match_pdf expected_pdf
+          File.delete(generated_pdf) if File.exist?(generated_pdf)
+          Timecop.return
+        end
+      end
+
+      context 'pdf minimum content verification' do
+        it 'generates the expected pdf' do
+          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+          generated_pdf = described_class.new(minimal_higher_level_review).generate
+          expected_pdf = fixture_filepath('expected_200996_minimum.pdf')
+          expect(generated_pdf).to match_pdf(expected_pdf)
+          File.delete(generated_pdf) if File.exist?(generated_pdf)
+          Timecop.return
+        end
+      end
+    end
   end
 end

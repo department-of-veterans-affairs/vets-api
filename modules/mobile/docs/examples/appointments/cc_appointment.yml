@@ -12,15 +12,16 @@ data:
       location:
         name: Kaiser Shoreline Treatment Center
         address:
-          line1: 191 Argonne Ave
-          line2: Ste 3
-          line3: null
+          street: 191 Argonne Ave, Ste 3
           city: Long Beach
           state: CA
           zipCode: "90803"
+        lat: 33.7700504
+        long: -118.1937395
         phone:
-          areaCode: 562
-          number: 434-6008
+          areaCode: "562"
+          number: "434-6008"
           extension: null
         url: null
         code: null
+      timeZone: America/Los_Angeles

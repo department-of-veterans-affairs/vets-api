@@ -10,6 +10,7 @@ require:
 AllCops:
   TargetRailsVersion: 6.0
   Include:
+    - '**/Dangerfile'
     - '**/Gemfile'
     - '**/config.ru'
     - '**/Rakefile'

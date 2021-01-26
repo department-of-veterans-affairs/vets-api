@@ -72,6 +72,10 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
     end
 
+    def lob
+      'BVA'
+    end
+
     private
 
     def validate_hearing_type_selection

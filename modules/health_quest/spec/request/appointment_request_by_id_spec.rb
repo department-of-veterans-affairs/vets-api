@@ -8,11 +8,14 @@ RSpec.describe 'health_quest appointments', type: :request, skip_mvi: true do
     Flipper.enable('show_healthcare_experience_questionnaire')
     sign_in_as(current_user)
     allow_any_instance_of(HealthQuest::UserService).to receive(:session).and_return('stubbed_token')
+    allow_any_instance_of(HealthQuest::AppointmentService).to receive(:get_appointment_by_id)
+      .with(anything).and_return(appt_body)
   end
 
   describe 'GET appointments' do
     context 'health_quest user' do
       let(:current_user) { build(:user, :health_quest) }
+      let(:appt_body) { HealthQuest::AppointmentService.new(current_user).mock_appointment }
 
       it 'has an instance of a va appointment serializer' do
         expect(HealthQuest::V0::VAAppointmentsSerializer).to receive(:new).once
