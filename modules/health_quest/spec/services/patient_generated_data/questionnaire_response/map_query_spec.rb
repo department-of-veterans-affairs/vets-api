@@ -5,30 +5,34 @@ require 'rails_helper'
 describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
   subject { described_class }
 
-  let(:headers) { { 'Accept' => 'application/json+fhir' } }
+  let(:session_store) { double('SessionStore', token: '123abc') }
   let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
 
   describe 'included modules' do
     it 'includes PatientGeneratedData::FHIRClient' do
       expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRClient)
     end
+
+    it 'includes PatientGeneratedData::FHIRHeaders' do
+      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRHeaders)
+    end
   end
 
   describe '.build' do
     it 'returns an instance of MapQuery' do
-      expect(subject.build(headers)).to be_an_instance_of(subject)
+      expect(subject.build(session_store)).to be_an_instance_of(subject)
     end
   end
 
   describe 'object initialization' do
     it 'has a headers attribute' do
-      expect(subject.new({}).respond_to?(:headers)).to eq(true)
+      expect(subject.new(session_store).respond_to?(:headers)).to eq(true)
     end
   end
 
   describe '#fhir_model' do
     it 'is a FHIR::QuestionnaireResponse class' do
-      expect(subject.new({}).fhir_model).to eq(FHIR::QuestionnaireResponse)
+      expect(subject.new(session_store).fhir_model).to eq(FHIR::QuestionnaireResponse)
     end
   end
 
@@ -49,18 +53,24 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
       it 'calls search on the FHIR client' do
         expect(client).to receive(:search).with(FHIR::QuestionnaireResponse, options).exactly(1).time
 
-        subject.build(headers).search(author: '123')
+        subject.build(session_store).search(author: '123')
       end
     end
   end
 
   describe '#create' do
-    let(:data) do
+    let(:user) { double('User', icn: '1008596379V859838', first_name: 'Bob', last_name: 'Smith') }
+    let(:questionnaire_response) do
       {
         appointment_id: 'abc123',
         questionnaire_response: {},
         questionnaire_id: 'abcd-1234'
       }
+    end
+    let(:data) do
+      HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource
+        .manufacture(questionnaire_response, user)
+        .prepare
     end
 
     before do
@@ -70,7 +80,19 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
     it 'calls create on the FHIR client' do
       expect(client).to receive(:create).with(data).exactly(1).time
 
-      subject.build(headers).create(data)
+      subject.build(session_store).create(questionnaire_response, user)
+    end
+
+    it 'has request headers' do
+      request_headers =
+        { 'Authorization' => 'Bearer 123abc', 'Content-Type' => 'application/fhir+json' }
+
+      allow(client).to receive(:create).with(data).and_return(anything)
+
+      map_query = subject.build(session_store)
+      map_query.create(questionnaire_response, user)
+
+      expect(map_query.headers).to eq(request_headers)
     end
   end
 
@@ -78,7 +100,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
     let(:options) { { search: { parameters: { author: 'abc' } } } }
 
     it 'builds options' do
-      expect(subject.new({}).search_options(author: 'abc')).to eq(options)
+      expect(subject.new(session_store).search_options(author: 'abc')).to eq(options)
     end
   end
 
@@ -94,7 +116,16 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
       it 'returns an instance of Reply' do
         expect(client).to receive(:read).with(FHIR::QuestionnaireResponse, id).exactly(1).time
 
-        subject.build(headers).get(id)
+        subject.build(session_store).get(id)
+      end
+
+      it 'has request headers' do
+        allow(client).to receive(:read).with(FHIR::QuestionnaireResponse, id).and_return(anything)
+
+        map_query = subject.build(session_store)
+        map_query.get(id)
+
+        expect(map_query.headers).to eq({ 'Authorization' => 'Bearer 123abc' })
       end
     end
   end

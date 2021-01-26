@@ -61,7 +61,11 @@ module AppealsApi
         end
 
         def signature
-          [first_name('Veteran'), last_name('Veteran')].map(&:presence).compact.map(&:strip).join(' ')
+          first_last = [first_name('Veteran'), last_name('Veteran')]
+          formatted_name = first_last.map(&:presence).compact.map(&:strip).join(' ')
+          auth_statement = 'signed by digital authentication to api.va.gov'
+
+          "#{formatted_name} - #{auth_statement}"
         end
 
         def date_signed

@@ -419,6 +419,35 @@ reports:
     bucket: ~
     region: ~
     secret_access_key: ~
+  spool10203_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - Joseph.Preisser@va.gov
+      - Lucas.Tickner@va.gov
+      - tammy.hurley1@va.gov
+      - Ricardo.DaSilva@va.gov
+      - kyle.pietrosanto@va.gov
+      - Joshua.Lashbrook@va.gov
+      - shay.norton@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - kathleen.dalfonso@va.gov
+      - lihan@adhocteam.us
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Joseph.Preisser@va.gov
+      - Lucas.Tickner@va.gov
+      - tammy.hurley1@va.gov
+      - Ricardo.DaSilva@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Delli-Gatti_Michael@bah.com
+      - Darrell.Neel@va.gov
+      - Neel_Darrell@bah.com
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - Turner_Desiree@bah.com
+
 
 oidc:
   auth_server_metadata_url: ~
@@ -496,6 +525,14 @@ search:
   affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
+
+  # Settings for search-click-tracking
+search_click_tracking:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  module_code: I14Y
+  mock: false
+  url: https://api.gsa.gov/technology/searchgov/v2
 
 flipper:
   admin_user_emails:
@@ -600,6 +637,7 @@ hqva_mobile:
   timeout: 15
   lighthouse:
     url: "https://sandbox-api.va.gov"
+    pgd_path: "/services/pgd/v0/r4"
     host: "sandbox-api.va.gov"
     aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
     claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
