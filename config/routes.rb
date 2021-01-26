@@ -256,6 +256,7 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
+    resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'
 
@@ -360,6 +361,8 @@ Rails.application.routes.draw do
     require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 

@@ -2,35 +2,105 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
-    "id": { "type": "string" },
-    "type": { "type": "string" },
+    "id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
     "attributes": {
       "type": "object",
       "properties": {
-        "last_updated_at": { "type": "null" },
-        "appointment_date": { "type": ["string", null] },
-        "appointment_time": { "type": ["string", null] },
-        "option_date1": { "type": "string" },
-        "option_time1": { "type": "string" },
-        "option_date2": { "type": "string" },
-        "option_time2": { "type": "string" },
-        "option_date3": { "type": "string" },
-        "option_time3": { "type": "string" },
-        "status": { "type": "string" },
-        "appointment_type": { "type": "string" },
-        "visit_type": { "type": "string" },
-        "reason_for_visit": { "type": ["string", null] },
-        "additional_information": { "type": ["string", null] },
+        "last_updated_at": {
+          "type": "null"
+        },
+        "appointment_date": {
+          "type": [
+            "string",
+            null
+          ]
+        },
+        "appointment_time": {
+          "type": [
+            "string",
+            null
+          ]
+        },
+        "option_date1": {
+          "type": "string"
+        },
+        "option_time1": {
+          "type": "string"
+        },
+        "option_date2": {
+          "type": "string"
+        },
+        "option_time2": {
+          "type": "string"
+        },
+        "option_date3": {
+          "type": "string"
+        },
+        "option_time3": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "appointment_type": {
+          "type": "string"
+        },
+        "visit_type": {
+          "type": "string"
+        },
+        "reason_for_visit": {
+          "type": [
+            "string",
+            null
+          ]
+        },
+        "additional_information": {
+          "type": [
+            "string",
+            null
+          ]
+        },
         "facility": {
           "type": "object",
           "properties": {
-            "name": { "type": "string" },
-            "facility_code": { "type": "string" },
-            "type": { "type": ["string", null] },
-            "address": { "type": ["string", null] },
-            "state": { "type": "string" },
-            "city": { "type": "string" },
-            "parent_site_code": { "type": "string" }
+            "name": {
+              "type": "string"
+            },
+            "facility_code": {
+              "type": "string"
+            },
+            "type": {
+              "type": [
+                "string",
+                null
+              ]
+            },
+            "address": {
+              "type": [
+                "string",
+                null
+              ]
+            },
+            "state": {
+              "type": [
+                "string",
+                null
+              ]
+            },
+            "city": {
+              "type": [
+                "string",
+                null
+              ]
+            },
+            "parent_site_code": {
+              "type": "string"
+            }
           },
           "required": [
             "name",
@@ -40,18 +110,40 @@
             "parent_site_code"
           ]
         },
-        "email": { "type": ["string", null] },
-        "text_messaging_allowed": { "type": "boolean" },
-        "phone_number": { "type": "string" },
-        "purpose_of_visit": { "type": "string" },
-        "provider_id": { "type": "string" },
-        "second_request": { "type": "boolean" },
-        "second_request_submitted": { "type": "boolean" },
+        "email": {
+          "type": [
+            "string",
+            null
+          ]
+        },
+        "text_messaging_allowed": {
+          "type": "boolean"
+        },
+        "phone_number": {
+          "type": "string"
+        },
+        "purpose_of_visit": {
+          "type": "string"
+        },
+        "provider_id": {
+          "type": "string"
+        },
+        "second_request": {
+          "type": "boolean"
+        },
+        "second_request_submitted": {
+          "type": "boolean"
+        },
         "patient": {
           "type": "object",
           "properties": {
-            "inpatient": { "type": "boolean" },
-            "text_messaging_allowed": { "type": "boolean", "required": false }
+            "inpatient": {
+              "type": "boolean"
+            },
+            "text_messaging_allowed": {
+              "type": "boolean",
+              "required": false
+            }
           },
           "required": [
             "inpatient",
@@ -61,7 +153,9 @@
         "best_timeto_call": {
           "type": "array",
           "items": [
-            { "type": "string" }
+            {
+              "type": "string"
+            }
           ]
         },
         "appointment_request_detail_code": {
@@ -70,14 +164,24 @@
             {
               "type": "object",
               "properties": {
-                "appointment_request_detail_code_id": { "type": "string" },
-                "created_date": { "type": "string" },
+                "appointment_request_detail_code_id": {
+                  "type": "string"
+                },
+                "created_date": {
+                  "type": "string"
+                },
                 "detail_code": {
                   "type": "object",
                   "properties": {
-                    "code": { "type": "string" },
-                    "provider_message": { "type": "string" },
-                    "veteran_message": { "type": "string" }
+                    "code": {
+                      "type": "string"
+                    },
+                    "provider_message": {
+                      "type": "string"
+                    },
+                    "veteran_message": {
+                      "type": "string"
+                    }
                   },
                   "required": [
                     "code",
@@ -94,22 +198,52 @@
             }
           ]
         },
-        "has_veteran_new_message": { "type": "boolean" },
-        "has_provider_new_message": { "type": "boolean" },
-        "provider_seen_appointment_request": { "type": "boolean" },
-        "requested_phone_call": { "type": "boolean" },
-        "booked_appt_date_time": { "type": ["string", null] },
-        "type_of_care_id": { "type": "string" },
-        "friendly_location_name": { "type": ["string", null] },
-        "cc_appointment_request": {
-          "oneOf": [
-            {"type": "null"},
-            {"$ref": "cc_appointment_request.json"}
+        "has_veteran_new_message": {
+          "type": "boolean"
+        },
+        "has_provider_new_message": {
+          "type": "boolean"
+        },
+        "provider_seen_appointment_request": {
+          "type": "boolean"
+        },
+        "requested_phone_call": {
+          "type": "boolean"
+        },
+        "booked_appt_date_time": {
+          "type": [
+            "string",
+            null
           ]
         },
-        "date": { "type": "string" },
-        "assigning_authority": { "type": "string" },
-        "created_date": { "type": "string" }
+        "type_of_care_id": {
+          "type": "string"
+        },
+        "friendly_location_name": {
+          "type": [
+            "string",
+            null
+          ]
+        },
+        "cc_appointment_request": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "cc_appointment_request.json"
+            }
+          ]
+        },
+        "date": {
+          "type": "string"
+        },
+        "assigning_authority": {
+          "type": "string"
+        },
+        "created_date": {
+          "type": "string"
+        }
       },
       "required": [
         "last_updated_at",

@@ -19,6 +19,10 @@ EducationForm::CreateSpoolSubmissionsReport:
   cron: "15 4 * * MON-FRI America/New_York"
   description: "Send the daily report to the call center about spool file submissions"
 
+EducationForm::Create10203SpoolSubmissionsReport:
+  cron: "30 4 * * MON-FRI America/New_York"
+  description: "Send the daily 10203 report to the call center about spool file submissions"
+
 Preneeds::DeleteOldUploads:
   cron: "15 2 * * * America/New_York"
   description: "Clear out preneeds file uploads older than 2 months"
@@ -112,7 +116,7 @@ ClaimsApi::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful claims submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
-  cron: "0 0 23 * * America/New_York"
+  every: "60m"
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 

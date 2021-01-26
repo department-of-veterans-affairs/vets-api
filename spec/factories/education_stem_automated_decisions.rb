@@ -13,5 +13,9 @@ FactoryBot.define do
     trait :denied do
       automated_decision_state { 'denied' }
     end
+
+    trait :processed do
+      automated_decision_state { 'processed' }
+    end
   end
 end
