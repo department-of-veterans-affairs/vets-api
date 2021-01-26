@@ -218,7 +218,7 @@ module VSPDanger
     end
 
     def bad_gemfile_changes?
-      true
+      gemfile_diff.include?('-  remote: https://enterprise.contribsys.com/')
     end
 
     def error_message
@@ -230,7 +230,7 @@ module VSPDanger
     end
 
     def gemfile_diff
-      @gemfile_diff ||= `git diff #{base_sha}:Gemfile.lock #{head_sha}:Gemfile.lock`
+      `git diff #{base_sha}:Gemfile.lock #{head_sha}:Gemfile.lock`
     end
 
     def head_sha
