@@ -27,11 +27,8 @@ module Mobile
             location = location(
               appointment_hash[:provider_practice], appointment_hash[:address], appointment_hash[:provider_phone]
             )
-            start_date_utc = start_date(appointment_hash[:appointment_time], appointment_hash[:time_zone]).utc
-            time_zone = time_zone(appointment_hash[:time_zone], location.dig(:address, :state))
-            start_date_local = start_date_utc.in_time_zone(time_zone)
 
-            adapted_hash = generate_hash(appointment_hash, location, start_date_local, start_date_utc)
+            adapted_hash = generate_hash(appointment_hash, location)
 
             Mobile::V0::Appointment.new(adapted_hash)
           end
@@ -39,7 +36,11 @@ module Mobile
 
         private
 
-        def generate_hash(appointment_hash, location, start_date_local, start_date_utc)
+        def generate_hash(appointment_hash, location)
+          start_date_utc = start_date(appointment_hash[:appointment_time], appointment_hash[:time_zone]).utc
+          time_zone = time_zone(appointment_hash[:time_zone], location.dig(:address, :state))
+          start_date_local = start_date_utc.in_time_zone(time_zone)
+
           {
             id: appointment_hash[:appointment_request_id],
             appointment_type: COMMUNITY_CARE_TYPE,
@@ -50,7 +51,8 @@ module Mobile
             minutes_duration: 60, # not in raw data, matches va.gov default for cc appointments
             start_date_local: start_date_local,
             start_date_utc: start_date_utc,
-            status: BOOKED_STATUS
+            status: BOOKED_STATUS,
+            time_zone: time_zone
           }
         end
 

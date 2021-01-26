@@ -93,7 +93,8 @@ module Mobile
             minutes_duration: minutes_duration(details, type),
             start_date_local: start_date_utc.in_time_zone(time_zone),
             start_date_utc: start_date_utc,
-            status: status(details, type, start_date_utc)
+            status: status(details, type, start_date_utc),
+            time_zone: time_zone
           }
 
           Mobile::V0::Appointment.new(adapted_hash)

@@ -7,7 +7,7 @@ module HealthQuest
       # A service object for isolating dependencies from the questionnaire_responses controller.
       #
       # @!attribute session_service
-      #   @return [HealthQuest::SessionService]
+      #   @return [HealthQuest::Lighthouse::Session]
       # @!attribute user
       #   @return [User]
       # @!attribute map_query
@@ -29,8 +29,8 @@ module HealthQuest
 
         def initialize(user)
           @user = user
-          @session_service = HealthQuest::SessionService.new(user)
-          @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.headers)
+          @session_service = HealthQuest::Lighthouse::Session.build(user)
+          @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.retrieve)
           @options_builder = OptionsBuilder
         end
 
@@ -63,9 +63,7 @@ module HealthQuest
         # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
         def create(data)
-          questionnaire_response = Resource.manufacture(data, user).prepare
-
-          map_query.create(questionnaire_response)
+          map_query.create(data, user)
         end
       end
     end
