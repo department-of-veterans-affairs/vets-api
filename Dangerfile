@@ -7,8 +7,8 @@ module VSPDanger
 
       [
         GemfileProtector.new.run,
-        # ChangeLimiter.new.run,
-        # MigrationIsolator.new.run
+        ChangeLimiter.new.run,
+        MigrationIsolator.new.run
       ].sort(&method(:severity_sort))
     end
 
