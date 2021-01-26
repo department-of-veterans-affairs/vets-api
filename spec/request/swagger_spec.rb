@@ -436,7 +436,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
       end
 
-      context '#create' do
+      context 'financial status report create' do
         it 'validates the route' do
           expect(subject).to validate(
             :post,
@@ -447,7 +447,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      context '#download_pdf' do
+      context 'financial status report download pdf' do
         stub_financial_status_report(:download_pdf)
 
         it 'validates the route' do
