@@ -208,7 +208,7 @@ module VSPDanger
     def run
       return error if bad_gemfile_changes?
 
-      info
+      gemfile_ok_message
     end
 
     private
@@ -227,6 +227,10 @@ module VSPDanger
 
         More details about Sidekiq Enterprise can be found in the [README](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md).
       EMSG
+    end
+
+    def gemfile_ok_message
+      { severity: :info, message: 'Gemfile changes acceptable.' }
     end
 
     def gemfile_diff
