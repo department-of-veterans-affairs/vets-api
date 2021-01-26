@@ -7,13 +7,13 @@ module VSPDanger
 
       [
         GemfileProtector.new.run,
-        ChangeLimiter.new.run,
-        MigrationIsolator.new.run
-      ].sort(&:severity_sort)
+        # ChangeLimiter.new.run,
+        # MigrationIsolator.new.run
+      ].sort(&method(:severity_sort))
     end
 
     # expects severities of :error > :warning > :info
-    def severity_sort(result_a, result_b)
+    def self.severity_sort(result_a, result_b)
       severity_a = result_a[:severity]
       severity_b = result_b[:severity]
       return 0 if severity_a == severity_b
