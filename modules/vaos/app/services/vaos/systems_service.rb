@@ -66,7 +66,7 @@ module VAOS
 
     def get_facilities_limits(facility_ids, type_of_care_id)
       with_monitoring do
-        url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{@user.icn}/request-limits"
+        url = get_facilities_limits_url
         url_params = {
           'institution-code' => facility_ids,
           'clinical-service' => type_of_care_id
@@ -161,6 +161,10 @@ module VAOS
     end
 
     private
+
+    def get_facilities_limits_url
+      "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{@user.icn}/request-limits"
+    end
 
     def available_appointments_url(facility_id)
       "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}" \
