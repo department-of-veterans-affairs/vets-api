@@ -66,4 +66,16 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     expect(claim.evss_response).to eq(body)
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
   end
+
+  it 'fails current job if record fails to persist to the database' do
+    evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::Service')
+    allow(EVSS::DisabilityCompensationForm::Service).to receive(:new) { evss_service_stub }
+    allow(evss_service_stub).to receive(:submit_form526) { OpenStruct.new(claim_id: 1337) }
+    expect_any_instance_of(ClaimsApi::AutoEstablishedClaim).to receive(:save!)
+      .and_raise(ActiveRecord::RecordInvalid.new(claim))
+
+    expect do
+      subject.new.perform(claim.id)
+    end.to raise_error(ActiveRecord::RecordInvalid)
+  end
 end
