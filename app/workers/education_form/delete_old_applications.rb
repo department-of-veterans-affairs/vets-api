@@ -9,15 +9,10 @@ module EducationForm
       saved_claim_ids = []
       stem_automated_decision_ids = []
 
-      clauses = [
-        "(saved_claims.form_id != '22-10203' AND processed_at < '#{2.months.ago}')",
-        "(saved_claims.form_id = '22-10203' AND processed_at < '#{1.year.ago}')"
-      ]
-
       # Remove old education benefits claims and saved claims older than 2 months
       EducationBenefitsClaim.eager_load(:saved_claim)
                             .eager_load(:education_stem_automated_decision)
-                            .where(clauses.join(' OR '))
+                            .where(form_clauses)
                             .find_each do |record|
         edu_claim_ids << record.id
         saved_claim_ids << record.saved_claim&.id
@@ -29,6 +24,13 @@ module EducationForm
       stem_automated_decision_ids.compact!
 
       delete_records_by_id(edu_claim_ids, saved_claim_ids, stem_automated_decision_ids)
+    end
+
+    def form_clauses
+      [
+        "(saved_claims.form_id != '22-10203' AND processed_at < '#{2.months.ago}')",
+        "(saved_claims.form_id = '22-10203' AND processed_at < '#{1.year.ago}')"
+      ].join(' OR ')
     end
 
     def delete_records_by_id(edu_claim_ids, saved_claim_ids, stem_automated_decision_ids)
