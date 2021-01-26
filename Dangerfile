@@ -6,6 +6,7 @@ module VSPDanger
       prepare_git
 
       [
+        GemfileProtector.new.run,
         ChangeLimiter.new.run,
         MigrationIsolator.new.run
       ].sort(&:severity_sort)
@@ -200,6 +201,32 @@ module VSPDanger
 
     def base_sha
       'origin/master'
+    end
+  end
+
+  class GemfileProtector
+    def run
+      return error if bad_gemfile_changes?
+
+      info
+    end
+
+    private
+
+    def error
+      { severity: :error, message: error_message }
+    end
+
+    def bad_gemfile_changes?
+      true
+    end
+
+    def error_message
+      <<~EMSG
+        You've removed Sidekiq Enterprise from the gemfile!  You must restore it before merging this PR.
+
+        More details about Sidekiq Enterprise can be found in the [README](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md).
+      EMSG
     end
   end
 
