@@ -277,6 +277,8 @@ GEM
     date_validator (0.9.0)
       activemodel
       activesupport
+    ddtrace (0.44.0)
+      msgpack
     debase (0.2.4.1)
       debase-ruby_core_source (>= 0.10.2)
     debase-ruby_core_source (0.10.11)
@@ -913,6 +915,7 @@ DEPENDENCIES
   danger
   database_cleaner
   date_validator
+  ddtrace
   debase
   dry-struct
   dry-types
