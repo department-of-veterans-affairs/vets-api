@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 Mobile::Engine.routes.draw do
-  get '/', to: 'discovery#index'
+  get '/', to: 'discovery#welcome'
+  post '/', to: 'discovery#index'
 
   namespace :v0 do
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'

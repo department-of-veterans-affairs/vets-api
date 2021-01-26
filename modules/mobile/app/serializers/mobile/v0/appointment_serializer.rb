@@ -13,7 +13,8 @@ module Mobile
                  :minutes_duration,
                  :start_date_local,
                  :start_date_utc,
-                 :status
+                 :status,
+                 :time_zone
     end
   end
 end
