@@ -11,7 +11,7 @@ module Swagger
         property :last, type: :string
       end
 
-      swagger :Address, type: :object do
+      swagger_schema :Address, type: :object do
         property :address_line_one, type: :string
         property :address_line_two, type: :string
         property :address_line_three, type: :string
