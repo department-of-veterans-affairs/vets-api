@@ -35,12 +35,12 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
         subject
         expect(personal_information_logs.count).to be 1
         pil = personal_information_logs.first
-        expect(pil.data['user']).to be_a Hash
-        expect(pil.data['user']).not_to be_empty
-        expect(pil.data['error']).to be_a Hash
-        expect(pil.data['error']).not_to be_empty
-        expect(pil.data['request_data']).to be_a Hash
-        expect(pil.data['request_data']['body']).to be_a Hash
+        %w[
+          first_name last_name birls_id icn edipi mhv_correlation_id
+          participant_id vet360_id ssn assurance_level birth_date
+        ].each { |key| expect(pil.data['user'][key]).to be_truthy }
+        %w[message backtrace key response_values original_status original_body]
+          .each { |key| expect(pil.data['error'][key]).to be_truthy }
         expect(pil.data['request_data']['body']).not_to be_empty
       end
     end
