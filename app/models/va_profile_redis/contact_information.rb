@@ -8,7 +8,7 @@ require 'vet360/models/permission'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
-module Vet360Redis
+module VaProfileRedis
   # Facade for Vet360::ContactInformation::Service. The user_serializer delegates
   # to this class through the User model.
   #
@@ -153,7 +153,7 @@ module Vet360Redis
     end
 
     # This method allows us to populate the local instance of a
-    # Vet360Redis::ContactInformation object with the uuid necessary
+    # VaProfileRedis::ContactInformation object with the uuid necessary
     # to perform subsequent actions on the key such as deletion.
     def populate_from_redis
       response_from_redis_or_service

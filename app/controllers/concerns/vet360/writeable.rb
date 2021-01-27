@@ -26,7 +26,7 @@ module Vet360
     end
 
     def invalidate_cache
-      Vet360Redis::Cache.invalidate(@current_user)
+      VaProfileRedis::Cache.invalidate(@current_user)
     end
 
     private
