@@ -14,6 +14,17 @@ module VAOS
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
         }
+        binding.pry
+        response.status == 200 && response.data[:errors].each do |error|
+          log_message_to_sentry(
+            'Error retrieving appointment data',
+            :info,
+            status: response.status,
+            body: error # body may need to be error:
+          )
+        end
+
+        return response
       end
     end
 

@@ -104,6 +104,16 @@ describe VAOS::AppointmentService do
   describe '#get_appointments of type va' do
     let(:type) { 'va' }
 
+    context 'when appointments return a 200 with a partial error' do
+      it 'logs those partials to sentry' do
+        VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error', match_requests_on: %i[method uri]) do
+          response = subject.get_appointments(type, start_date, end_date)
+          binding.pry
+          expect(response.body[:errors].size).to eq(2)
+        end
+      end
+    end
+
     context 'with 12 va appointments' do
       it 'returns an array of size 12' do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri], tag: :force_utf8) do
