@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 module VSPDanger
+  HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
+  BASE_SHA = 'origin/master'
+
   class Runner
     def self.run
       prepare_git
 
       [
+        SidekiqEnterpriseGaurantor.new.run,
         ChangeLimiter.new.run,
         MigrationIsolator.new.run
       ]
@@ -114,19 +118,11 @@ module VSPDanger
     end
 
     def files_command
-      "git diff #{base_sha}...#{head_sha} --numstat -w --ignore-blank-lines -- . #{exclusions}"
+      "git diff #{BASE_SHA}...#{HEAD_SHA} --numstat -w --ignore-blank-lines -- . #{exclusions}"
     end
 
     def exclusions
       EXCLUSIONS.map { |exclusion| "':!#{exclusion}'" }.join ' '
-    end
-
-    def head_sha
-      `git rev-parse --abbrev-ref HEAD`.chomp
-    end
-
-    def base_sha
-      'origin/master'
     end
   end
 
@@ -180,15 +176,41 @@ module VSPDanger
     end
 
     def files
-      @files ||= `git diff #{base_sha}...#{head_sha} --name-only`.split("\n")
+      @files ||= `git diff #{BASE_SHA}...#{HEAD_SHA} --name-only`.split("\n")
+    end
+  end
+
+  class SidekiqEnterpriseGaurantor
+    def run
+      return error if bad_gemfile_changes?
+
+      gemfile_ok_message
     end
 
-    def head_sha
-      `git rev-parse --abbrev-ref HEAD`.chomp
+    private
+
+    def error
+      { severity: :error, message: error_message }
     end
 
-    def base_sha
-      'origin/master'
+    def bad_gemfile_changes?
+      gemfile_diff.include?('-  remote: https://enterprise.contribsys.com/')
+    end
+
+    def error_message
+      <<~EMSG
+        You've removed Sidekiq Enterprise from the gemfile!  You must restore it before merging this PR.
+
+        More details about Sidekiq Enterprise can be found in the [README](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md).
+      EMSG
+    end
+
+    def gemfile_ok_message
+      { severity: :info, message: 'Gemfile changes acceptable.' }
+    end
+
+    def gemfile_diff
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -- Gemfile.lock`
     end
   end
 
