@@ -86,6 +86,7 @@ module Mobile
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
         jid = evss_claim_service.upload_document(document_data)
+        log_message_to_sentry('Document Upload jid for claim ' + params[:id] + ' = ' + jid, :debug)
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
