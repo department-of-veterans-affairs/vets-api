@@ -4,6 +4,11 @@ require 'rails_helper'
 
 describe VAProfileRedis::ContactInformation do
   let(:user) { build :user, :loa3 }
+  let(:person_response) do
+    raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
+
+    Vet360::ContactInformation::PersonResponse.from(raw_response)
+  end
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
   let(:person) { build :person, telephones: telephones, permissions: permissions }
   let(:telephones) do
@@ -23,12 +28,6 @@ describe VAProfileRedis::ContactInformation do
 
   before do
     allow(Vet360::Models::Person).to receive(:build_from).and_return(person)
-  end
-
-  let(:person_response) do
-    raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-
-    Vet360::ContactInformation::PersonResponse.from(raw_response)
   end
 
   context 'with a 404 from get_person', skip_vet360: true do
