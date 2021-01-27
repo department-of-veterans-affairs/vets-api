@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module VSPDanger
+  HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
+  BASE_SHA = 'origin/master'
+
   class Runner
     def self.run
       prepare_git
@@ -115,19 +118,11 @@ module VSPDanger
     end
 
     def files_command
-      "git diff #{base_sha}...#{head_sha} --numstat -w --ignore-blank-lines -- . #{exclusions}"
+      "git diff #{BASE_SHA}...#{HEAD_SHA} --numstat -w --ignore-blank-lines -- . #{exclusions}"
     end
 
     def exclusions
       EXCLUSIONS.map { |exclusion| "':!#{exclusion}'" }.join ' '
-    end
-
-    def head_sha
-      `git rev-parse --abbrev-ref HEAD`.chomp
-    end
-
-    def base_sha
-      'origin/master'
     end
   end
 
@@ -181,15 +176,7 @@ module VSPDanger
     end
 
     def files
-      @files ||= `git diff #{base_sha}...#{head_sha} --name-only`.split("\n")
-    end
-
-    def head_sha
-      `git rev-parse --abbrev-ref HEAD`.chomp
-    end
-
-    def base_sha
-      'origin/master'
+      @files ||= `git diff #{BASE_SHA}...#{HEAD_SHA} --name-only`.split("\n")
     end
   end
 
@@ -223,15 +210,7 @@ module VSPDanger
     end
 
     def gemfile_diff
-      `git diff #{base_sha}:Gemfile.lock #{head_sha}:Gemfile.lock`
-    end
-
-    def head_sha
-      `git rev-parse --abbrev-ref HEAD`.chomp
-    end
-
-    def base_sha
-      'origin/master'
+      `git diff #{BASE_SHA}:Gemfile.lock #{HEAD_SHA}:Gemfile.lock`
     end
   end
 
