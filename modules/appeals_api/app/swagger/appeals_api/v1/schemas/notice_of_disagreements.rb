@@ -264,7 +264,7 @@ module AppealsApi::V1
               key :type, :string
               key :example, 'tinnitus'
               key :example, 'the type of issue being contested'
-              key :maxLength, 368
+              key :maxLength, 255
             end
 
             property :decisionDate do
