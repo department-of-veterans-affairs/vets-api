@@ -190,18 +190,14 @@ module VSPDanger
 
   class SidekiqEnterpriseGaurantor
     def run
-      return error if bad_gemfile_changes?
+      return Result.error(error_message) if enterprise_remote_removed?
 
-      gemfile_ok_message
+      Result.success('Sidekiq Enterprise is preserved.')
     end
 
     private
 
-    def error
-      { severity: :error, message: error_message }
-    end
-
-    def bad_gemfile_changes?
+    def enterprise_remote_removed?
       gemfile_diff.include?('-  remote: https://enterprise.contribsys.com/')
     end
 
@@ -211,10 +207,6 @@ module VSPDanger
 
         More details about Sidekiq Enterprise can be found in the [README](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md).
       EMSG
-    end
-
-    def gemfile_ok_message
-      { severity: :info, message: 'Gemfile changes acceptable.' }
     end
 
     def gemfile_diff
