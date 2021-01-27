@@ -220,12 +220,8 @@ if $PROGRAM_NAME != __FILE__
   results = VSPDanger::Runner.run
 
   errors = results.select { |result| result.severity == VSPDanger::Result::ERROR }
-  if errors.any?
-    fail(errors.collect(&:message)) # rubocop:disable Style/SignalException
-  end
+  failure(errors.collect(&:message)) if errors.any?
 
   warnings = results.select { |result| result.severity == VSPDanger::Result::WARNING }
-  if warnings.any? # rubocop:disable Style/IfUnlessModifier
-    warn(warnings.collect(&:message))
-  end
+  warn(warnings.collect(&:message)) if warnings.any?
 end
