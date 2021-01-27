@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-describe VaProfileRedis::Cache do
+describe VAProfileRedis::Cache do
   let(:user) { build :user, :loa3 }
-  let(:contact_info) { VaProfileRedis::ContactInformation.for_user(user) }
+  let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
 
   describe '.invalidate' do
     context 'when user.vet360_contact_info is present' do
@@ -13,7 +13,7 @@ describe VaProfileRedis::Cache do
 
         expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-        VaProfileRedis::Cache.invalidate(user)
+        VAProfileRedis::Cache.invalidate(user)
       end
     end
 
@@ -25,13 +25,13 @@ describe VaProfileRedis::Cache do
       it 'does not call #destroy' do
         expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
 
-        VaProfileRedis::Cache.invalidate(user)
+        VAProfileRedis::Cache.invalidate(user)
       end
 
       it 'logs to sentry' do
         expect_any_instance_of(described_class).to receive(:log_message_to_sentry).once
 
-        VaProfileRedis::Cache.invalidate(user)
+        VAProfileRedis::Cache.invalidate(user)
       end
     end
   end

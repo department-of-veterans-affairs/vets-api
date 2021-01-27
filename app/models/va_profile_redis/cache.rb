@@ -2,11 +2,11 @@
 
 require 'sentry_logging'
 
-module VaProfileRedis
+module VAProfileRedis
   class Cache
     include SentryLogging
 
-    # Invalidates the cache set in VaProfileRedis::ContactInformation through
+    # Invalidates the cache set in VAProfileRedis::ContactInformation through
     # our Common::RedisStore#destroy method.
     #
     # @param user [User] The current user

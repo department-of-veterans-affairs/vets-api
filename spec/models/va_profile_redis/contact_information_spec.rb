@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-describe VaProfileRedis::ContactInformation do
+describe VAProfileRedis::ContactInformation do
   let(:user) { build :user, :loa3 }
-  let(:contact_info) { VaProfileRedis::ContactInformation.for_user(user) }
+  let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
   let(:person) { build :person, telephones: telephones, permissions: permissions }
   let(:telephones) do
     [
@@ -56,9 +56,9 @@ describe VaProfileRedis::ContactInformation do
 
       it 'makes a new request' do
         expect(contact_info.email).to eq(nil)
-        VaProfileRedis::Cache.invalidate(user)
+        VAProfileRedis::Cache.invalidate(user)
 
-        expect(VaProfileRedis::ContactInformation.for_user(user).email).to eq(nil)
+        expect(VAProfileRedis::ContactInformation.for_user(user).email).to eq(nil)
       end
     end
   end
