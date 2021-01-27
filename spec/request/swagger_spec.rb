@@ -435,28 +435,20 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       let(:headers) do
         { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
       end
+      let(:fsr_data) { get_fixture('dmc/fsr_submission') }
 
       context 'financial status report create' do
         it 'validates the route' do
-          expect(subject).to validate(
-            :post,
-            '/v0/financial_status_reports',
-            200,
-            headers
-          )
-        end
-      end
-
-      context 'financial status report download pdf' do
-        stub_financial_status_report(:download_pdf)
-
-        it 'validates the route' do
-          expect(subject).to validate(
-            :get,
-            '/v0/financial_status_reports/download_pdf',
-            200,
-            headers
-          )
+          VCR.use_cassette('dmc/submit_fsr') do
+            expect(subject).to validate(
+              :post,
+              '/v0/financial_status_reports',
+              200,
+              headers.merge(
+                '_data' => fsr_data.to_json
+              )
+            )
+          end
         end
       end
     end

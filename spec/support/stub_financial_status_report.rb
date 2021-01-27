@@ -12,7 +12,7 @@ def stub_financial_status_report(method)
   end
 
   if method == :download_pdf
-    let(:content) { File.read('spec/fixtures/dmc/5655.pdf') }
+    let(:content) { File.read('spec/fixtures/dmc/5655.pdf').force_encoding('ASCII-8BIT') }
 
     before do
       expect(financial_status_report_service).to receive(:get_pdf).and_return(content)

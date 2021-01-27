@@ -118,6 +118,7 @@ RSpec.configure do |config|
   # Allows setting of filenet_id in the FinancialStatusReport model
   config.include FinancialStatusReportHelpers, type: :controller
   config.include FinancialStatusReportHelpers, type: :service
+  config.include FinancialStatusReportHelpers, type: :request
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
