@@ -30,17 +30,17 @@ module AppealsApi
             it { expect(form_data.mailing_address_number_and_street).to eq('USE ADDRESS ON FILE') }
           end
 
-          describe '#homeless?' do
+          describe '#homeless' do
             context 'when true' do
               before { notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = true }
 
-              it { expect(form_data.homeless?).to eq(1) }
+              it { expect(form_data.homeless).to eq(1) }
             end
 
             context 'when false' do
               before { notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = false }
 
-              it { expect(form_data.homeless?).to eq('Off') }
+              it { expect(form_data.homeless).to eq('Off') }
             end
           end
 
@@ -52,24 +52,24 @@ module AppealsApi
             it { expect(form_data.preferred_email).to eq('USE EMAIL ON FILE') }
           end
 
-          describe '#direct_review?' do
-            it { expect(form_data.direct_review?).to eq('Off') }
+          describe '#direct_review' do
+            it { expect(form_data.direct_review).to eq('Off') }
           end
 
-          describe '#evidence_submission?' do
-            it { expect(form_data.evidence_submission?).to eq('Off') }
+          describe '#evidence_submission' do
+            it { expect(form_data.evidence_submission).to eq('Off') }
           end
 
-          describe '#hearing?' do
-            it { expect(form_data.hearing?).to eq(1) }
+          describe '#hearing' do
+            it { expect(form_data.hearing).to eq(1) }
           end
 
-          describe '#extra_contestable_issues?' do
-            it { expect(form_data.extra_contestable_issues?).to eq(1) }
+          describe '#extra_contestable_issues' do
+            it { expect(form_data.extra_contestable_issues).to eq(1) }
           end
 
-          describe '#soc_opt_in?' do
-            it { expect(form_data.soc_opt_in?).to eq('Off') }
+          describe '#soc_opt_in' do
+            it { expect(form_data.soc_opt_in).to eq('Off') }
           end
 
           describe '#signature' do
