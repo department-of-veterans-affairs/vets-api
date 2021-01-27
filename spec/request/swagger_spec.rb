@@ -3192,6 +3192,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
   context 'and' do
     it 'tests all documented routes' do
       subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
+      subject.unteted_mappings.delete('/v0/financial_status_reports/download_pdf') # exclude this route as it returns a binary
       expect(subject).to validate_all_paths
     end
   end
