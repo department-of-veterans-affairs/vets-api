@@ -92,12 +92,12 @@ module AppealsApi
           benefit_type_form_codes[benefit_type]
         end
 
-        def same_office?
-          higher_level_review.same_office? ? 1 : 'Off'
+        def same_office
+          higher_level_review.same_office ? 1 : 'Off'
         end
 
-        def informal_conference?
-          higher_level_review.informal_conference? ? 1 : 'Off'
+        def informal_conference
+          higher_level_review.informal_conference ? 1 : 'Off'
         end
 
         def informal_conference_times(time)
