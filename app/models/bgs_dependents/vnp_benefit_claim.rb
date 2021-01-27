@@ -42,7 +42,8 @@ module BGSDependents
         pgm_type_cd: benefit_claim_record[:program_type_code],
         ptcpnt_clmant_id: vnp_benefit_claim_record[:participant_claimant_id],
         status_type_cd: benefit_claim_record[:status_type_code],
-        svc_type_cd: 'CP'
+        svc_type_cd: 'CP',
+        net_worth_over_limit_ind: @veteran[:net_worth_over_limit_ind]
       }.merge
     end
 
