@@ -210,7 +210,7 @@ module VSPDanger
     end
 
     def gemfile_diff
-      `git diff #{BASE_SHA}:Gemfile.lock #{HEAD_SHA}:Gemfile.lock`
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -- Gemfile.lock`
     end
   end
 
