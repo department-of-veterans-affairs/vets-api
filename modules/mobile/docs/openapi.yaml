@@ -1057,12 +1057,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#./schemas/Phone.yml"
-            example:
-              areaCode: "704"
-              countryCode: "1"
-              phoneNumber: "7749069"
-              phoneType: "HOME"
+              $ref: "./schemas/Phone.yml"
       responses:
         '200':
           description: OK
@@ -1131,13 +1126,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#./schemas/PhoneUpdate.yml"
-            example:
-              id: 157032
-              areaCode: "704"
-              countryCode: "1"
-              phoneNumber: "7749069"
-              phoneType: "HOME"
+              $ref: "./schemas/PhoneUpdate.yml"
       responses:
         '200':
           description: OK
