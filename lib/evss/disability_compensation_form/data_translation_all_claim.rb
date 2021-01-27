@@ -53,6 +53,7 @@ module EVSS
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
+        output_form['claimSubmissionSource'] = 'VA.gov'
         output_form.compact!
 
         output_form.update(translate_banking_info)
