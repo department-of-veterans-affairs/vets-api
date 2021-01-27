@@ -5,12 +5,6 @@ require 'rails_helper'
 describe HealthQuest::PatientGeneratedData::FHIRClient do
   include HealthQuest::PatientGeneratedData::FHIRClient
 
-  describe '#accept_headers' do
-    it 'has default Accept header' do
-      expect(accept_headers).to eq({ 'Accept' => 'application/json+fhir' })
-    end
-  end
-
   describe '#headers' do
     it 'raises NotImplementedError' do
       expect { headers }.to raise_error(NoMethodError, /NotImplementedError/)
@@ -27,7 +21,7 @@ describe HealthQuest::PatientGeneratedData::FHIRClient do
 
   describe '#url' do
     it 'has a pgd path' do
-      expect(url).to match('/smart-pgd-fhir/v1')
+      expect(url).to match(Settings.hqva_mobile.lighthouse.pgd_path)
     end
   end
 end

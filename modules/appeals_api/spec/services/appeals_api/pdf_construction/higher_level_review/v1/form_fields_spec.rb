@@ -133,12 +133,12 @@ module AppealsApi
             it { expect(form_fields.benefit_type(3)).to eq('F[0].#subform[2].BenefitType[3]') }
           end
 
-          describe '#same_office?' do
-            it { expect(form_fields.same_office?).to eq('F[0].#subform[2].HIGHERLEVELREVIEWCHECKBOX[0]') }
+          describe '#same_office' do
+            it { expect(form_fields.same_office).to eq('F[0].#subform[2].HIGHERLEVELREVIEWCHECKBOX[0]') }
           end
 
-          describe '#informal_conference?' do
-            it { expect(form_fields.informal_conference?).to eq('F[0].#subform[2].INFORMALCONFERENCECHECKBOX[0]') }
+          describe '#informal_conference' do
+            it { expect(form_fields.informal_conference).to eq('F[0].#subform[2].INFORMALCONFERENCECHECKBOX[0]') }
           end
 
           describe '#conference_8_to_10' do
