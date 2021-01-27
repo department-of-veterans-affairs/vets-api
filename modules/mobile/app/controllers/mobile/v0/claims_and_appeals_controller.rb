@@ -64,7 +64,10 @@ module Mobile
       def request_decision
         claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
         jid = evss_claim_service.request_decision(claim)
-        Rails.logger.info('Request Decision jid for claim ' + params[:id] + ' = ' + jid)
+        Rails.logger.info('Mobile Request', {
+            claim_id: params[:id],
+            job_id: jid
+        })
         claim.update(requested_decision: true)
         render json: { data: { job_id: jid } }, status: :accepted
       end
@@ -86,7 +89,10 @@ module Mobile
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
         jid = evss_claim_service.upload_document(document_data)
-        Rails.logger.info('Document Upload jid for claim ' + params[:id] + ' = ' + jid)
+        Rails.logger.info('Mobile Request', {
+            claim_id: params[:id],
+            job_id: jid
+        })
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
