@@ -37,7 +37,7 @@ module HealthQuest
         # @param options [Hash] the search options.
         # @return [FHIR::QuestionnaireResponse::Bundle] an instance of Bundle
         #
-        def search(options = {})
+        def search(options)
           client.search(fhir_model, search_options(options))
         end
 
