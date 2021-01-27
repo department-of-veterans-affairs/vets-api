@@ -20,7 +20,7 @@ module VAProfileRedis
 
     # Redis settings for ttl and namespacing reside in config/redis.yml
     #
-    redis_config_key :vet360_contact_info_response
+    redis_config_key :va_profile_contact_info_response
 
     # @return [User] the user being queried in Vet360
     #
