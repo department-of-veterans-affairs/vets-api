@@ -65,9 +65,9 @@ module Mobile
         claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
         jid = evss_claim_service.request_decision(claim)
         Rails.logger.info('Mobile Request', {
-            claim_id: params[:id],
-            job_id: jid
-        })
+                            claim_id: params[:id],
+                            job_id: jid
+                          })
         claim.update(requested_decision: true)
         render json: { data: { job_id: jid } }, status: :accepted
       end
@@ -90,9 +90,9 @@ module Mobile
 
         jid = evss_claim_service.upload_document(document_data)
         Rails.logger.info('Mobile Request', {
-            claim_id: params[:id],
-            job_id: jid
-        })
+                            claim_id: params[:id],
+                            job_id: jid
+                          })
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
