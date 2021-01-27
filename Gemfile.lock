@@ -1018,7 +1018,6 @@ DEPENDENCIES
   strong_migrations
   super_diff
   swagger-blocks
-  test_user_dashboard!
   timecop
   typhoeus
   tzinfo-data
