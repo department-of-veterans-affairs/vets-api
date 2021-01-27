@@ -9,7 +9,7 @@ module VSPDanger
       prepare_git
 
       [
-        EnsureSidekiqEnterprise.new.run,
+        SidekiqEnterpriseGaurantor.new.run,
         ChangeLimiter.new.run,
         MigrationIsolator.new.run
       ]
@@ -180,7 +180,7 @@ module VSPDanger
     end
   end
 
-  class EnsureSidekiqEnterprise
+  class SidekiqEnterpriseGaurantor
     def run
       return error if bad_gemfile_changes?
 
