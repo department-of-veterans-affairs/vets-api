@@ -23,6 +23,7 @@ require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/vcr'
 require 'support/mdot_helpers'
+require 'support/financial_status_report_helpers'
 require 'support/poa_stub'
 require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
@@ -113,6 +114,11 @@ RSpec.configure do |config|
   %i[controller mdot_helpers request].each do |type|
     config.include(MDOTHelpers, type: type)
   end
+
+  # Allows setting of filenet_id in the FinancialStatusReport model
+  config.include FinancialStatusReportHelpers, type: :controller
+  config.include FinancialStatusReportHelpers, type: :service
+  config.include FinancialStatusReportHelpers, type: :request
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
