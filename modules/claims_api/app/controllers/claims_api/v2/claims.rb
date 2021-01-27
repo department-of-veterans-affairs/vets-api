@@ -1,6 +1,8 @@
 module ClaimsApi
   module V2
     class Claims < ClaimsApi::V2::Base
+      version 'v2'
+
       helpers do
         def claims_service
           ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
@@ -8,6 +10,7 @@ module ClaimsApi
       end
 
       before do
+        authenticate
         permit_scopes %w[claim.read]
       end
 

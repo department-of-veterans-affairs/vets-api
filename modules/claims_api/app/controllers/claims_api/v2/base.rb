@@ -34,9 +34,18 @@ module ClaimsApi
         end
       end
 
-      before do
-        authenticate
-      end
+      mount ClaimsApi::V2::Claims
+
+      add_swagger_documentation \
+        mount_path: '/docs/v2/api',
+        info: {
+          version: '2.0.0',
+          title: 'Benefits Claims',
+          description: '',
+          contact_name: 'VA API Benefits Team',
+          terms_of_service_url: 'https://developer.va.gov/terms-of-service',
+          license: 'Creative Commons'
+        }
     end
   end
 end
