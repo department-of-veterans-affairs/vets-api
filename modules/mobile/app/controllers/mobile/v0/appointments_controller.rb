@@ -29,6 +29,12 @@ module Mobile
 
         render json: Mobile::V0::AppointmentSerializer.new(appointments, options)
       end
+      
+      def cancel
+        params = cancel_params.merge({ cancel_reason: '5', cancel_code: 'PC' })
+        appointments_service.put_cancel_appointment(params)
+        head :no_content
+      end
 
       private
 
@@ -107,6 +113,10 @@ module Mobile
         DateTime.parse(params[:endDate])
       rescue ArgumentError, TypeError
         raise Common::Exceptions::InvalidFieldValue.new('endDate', params[:endDate])
+      end
+
+      def cancel_params
+        params.permit(:appointment_time, :clinic_id, :facility_id, :cancel_reason, :cancel_code, :remarks, :clinic_name)
       end
     end
   end

@@ -40,6 +40,22 @@ module Mobile
           [responses, errors]
         end
 
+        def put_cancel_appointment(request_object_body)
+          params = VAOS::CancelForm.new(request_object_body).params
+          params.merge!(patient_identifier: { unique_id: @user.icn, assigning_authority: 'ICN' })
+          site_code = params[:facility_id]
+  
+          with_monitoring do
+            perform(:put, cancel_appointment_url(site_code), params, headers)
+            ''
+          rescue Common::Exceptions::BackendServiceException => e
+            log_clinic_details(:cancel, params[:clinic_id], site_code) if e.key == 'VAOS_409A' || e.key == 'VAOS_400'
+            raise e
+          end
+        rescue Common::Client::Errors::ClientError => e
+          raise_backend_exception('VAOS_502', self.class, e)
+        end
+
         private
 
         def get(url, params)
@@ -62,6 +78,11 @@ module Mobile
         def cc_url
           '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling' \
             "/patient/ICN/#{@user.icn}/booked-cc-appointments"
+        end
+
+        def cancel_appointment_url(site)
+          "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}/patient/ICN/" \
+        "#{@user.icn}/cancel-appointment"
         end
 
         def internal_error(e, url)
@@ -94,6 +115,14 @@ module Mobile
 
           StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
+        end
+
+        def log_clinic_details(action, clinic_id, site_code)
+          Rails.logger.warn(
+            "Clinic does not support VAOS appointment #{action}",
+            clinic_id: clinic_id,
+            site_code: site_code
+          )
         end
       end
     end

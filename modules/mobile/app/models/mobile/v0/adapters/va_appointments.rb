@@ -82,11 +82,12 @@ module Mobile
           details, type = parse_by_appointment_type(appointment_hash)
           start_date_utc = start_date_utc(appointment_hash)
           time_zone = time_zone(facility_id)
-
+          
           adapted_hash = {
             id: SecureRandom.uuid,
             appointment_type: type,
             comment: comment(details, type),
+            clinic_id: appointment_hash[:clinic_id],
             facility_id: facility_id,
             healthcare_service: healthcare_service(details, type),
             location: location(details, type, facility_id),

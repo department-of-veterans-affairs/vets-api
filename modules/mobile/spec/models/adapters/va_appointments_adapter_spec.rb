@@ -34,6 +34,10 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_va[:comment]).to eq('RP test')
     end
 
+    it 'has a clinic_id' do
+      expect(booked_va[:clinic_id]).to eq('308')
+    end
+
     it 'has a facility_id that matches the parent facility id' do
       expect(booked_va[:facility_id]).to eq('442')
     end
@@ -95,6 +99,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'does not have comment' do
       expect(cancelled_va[:comment]).to be_nil
+    end
+
+    it 'has a clinic_id' do
+      expect(cancelled_va[:clinic_id]).to eq('308')
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -160,6 +168,10 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_home[:comment]).to be_nil
     end
 
+    it 'does not have a clinic_id' do
+      expect(booked_video_home[:clinic_id]).to be_nil
+    end
+
     it 'has a facility_id that matches the parent facility id' do
       expect(booked_video_home[:facility_id]).to eq('442')
     end
@@ -223,6 +235,10 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_atlas[:comment]).to be_nil
     end
 
+    it 'has a clinic_id' do
+      expect(booked_video_atlas[:clinic_id]).to eq('1234')
+    end
+
     it 'has a facility_id that matches the parent facility id' do
       expect(booked_video_atlas[:facility_id]).to eq('442')
     end
@@ -284,6 +300,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has a comment' do
       expect(booked_video_gfe[:comment]).to eq('Medication Review')
+    end
+    
+    it 'has does not have a clinic_id' do
+      expect(booked_video_gfe[:clinic_id]).to be_nil
     end
 
     it 'has a facility_id that matches the parent facility id' do

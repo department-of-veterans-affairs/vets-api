@@ -26,6 +26,7 @@
             "required": [
               "appointmentType",
               "comment",
+              "clinicId",
               "facilityId",
               "healthcareService",
               "location",
@@ -40,6 +41,12 @@
               },
               "comment": {
                 "type": ["string", "null"]
+              },
+              "clinicId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "facilityId": {
                 "type": [
