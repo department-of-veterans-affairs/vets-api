@@ -74,10 +74,7 @@ class AppealsBaseController < ApplicationController
   def log_exception_to_personal_information_log(exception, error_class:, data: {})
     PersonalInformationLog.create!(
       error_class: error_class,
-      data: {
-        user: current_user_hash,
-        error: self.class.exception_hash(exception)
-      }.merge(data)
+      data: { user: current_user_hash, error: self.class.exception_hash(exception) }.merge(data)
     )
   end
 end
