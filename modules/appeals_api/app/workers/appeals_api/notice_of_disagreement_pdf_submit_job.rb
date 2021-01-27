@@ -32,7 +32,8 @@ module AppealsApi
         'numberAttachments' => 0,
         'receiveDt' => notice_of_disagreement.created_at.strftime('%Y-%m-%d %H:%M:%S'),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
-        'docType' => '10182'
+        'docType' => '10182',
+        'lob' => notice_of_disagreement.lob
       }
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '10182-document.pdf') }
       process_response(CentralMail::Service.new.upload(body), notice_of_disagreement)

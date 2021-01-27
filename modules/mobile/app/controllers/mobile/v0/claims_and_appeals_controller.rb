@@ -4,6 +4,7 @@ require_dependency 'mobile/application_controller'
 require_relative '../../../models/mobile/v0/adapters/claims_overview'
 require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
+require 'sentry_logging'
 
 module Mobile
   module V0
@@ -60,6 +61,17 @@ module Mobile
         end
       end
 
+      def request_decision
+        claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
+        jid = evss_claim_service.request_decision(claim)
+        Rails.logger.info('Mobile Request', {
+                            claim_id: params[:id],
+                            job_id: jid
+                          })
+        claim.update(requested_decision: true)
+        render json: { data: { job_id: jid } }, status: :accepted
+      end
+
       def upload_documents
         params.require :file
         claim = claims_scope.find_by(evss_id: params[:id])
@@ -76,7 +88,11 @@ module Mobile
         )
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
-        jid = document_upload_service.upload_document(document_data)
+        jid = evss_claim_service.upload_document(document_data)
+        Rails.logger.info('Mobile Request', {
+                            claim_id: params[:id],
+                            job_id: jid
+                          })
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
@@ -130,8 +146,8 @@ module Mobile
         @claims_scope ||= EVSSClaim.for_user(@current_user)
       end
 
-      def document_upload_service
-        @document_upload_service ||= EVSSClaimService.new(@current_user)
+      def evss_claim_service
+        @evss_claim_service ||= EVSSClaimService.new(@current_user)
       end
 
       def create_or_update_claim(raw_claim)
