@@ -27,5 +27,12 @@ RSpec.describe AppsApi::FetchConnections, type: :worker do
         .with('app.oauth2.as.consent.grant', 'fake_template_id').and_return(1)
       fetch_connections.perform
     end
+
+    it 'goes into the jobs array for testing environment' do
+      expect do
+        described_class.perform_async
+      end.to change(described_class.jobs, :size).by(1)
+      described_class.new.perform
+    end
   end
 end
