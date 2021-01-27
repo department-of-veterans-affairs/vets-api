@@ -17,8 +17,8 @@ module ClaimsApi
         expose :type, documentation: { type: 'String' } do |_instance, _options|
           'evss_claims'
         end
-        expose :attributes do
-          expose :evss_id, as: :gov_id
+        expose :attributes, documentation: { type: Hash, desc: 'Additional attributes' } do
+          expose :evss_id, as: :gov_id, documentation: { type: Integer }
           expose :status, documentation: { type: 'String' } do |instance, _options|
             instance.list_data['status']
           end

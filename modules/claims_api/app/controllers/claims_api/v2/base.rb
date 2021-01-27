@@ -35,6 +35,9 @@ module ClaimsApi
       end
 
       mount ClaimsApi::V2::Claims
+      mount ClaimsApi::V2::Forms::DisabilityCompensation
+      mount ClaimsApi::V2::Forms::IntentToFile
+      mount ClaimsApi::V2::Forms::PowerOfAttorney
 
       add_swagger_documentation \
         mount_path: '/docs/v2/api',
