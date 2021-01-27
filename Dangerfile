@@ -6,21 +6,10 @@ module VSPDanger
       prepare_git
 
       [
-        GemfileProtector.new.run,
+        EnsureSidekiqEnterprise.new.run,
         ChangeLimiter.new.run,
         MigrationIsolator.new.run
-      ].sort(&method(:severity_sort))
-    end
-
-    # expects severities of :error > :warning > :info
-    def self.severity_sort(result_a, result_b)
-      severity_a = result_a[:severity]
-      severity_b = result_b[:severity]
-      return 0 if severity_a == severity_b
-      return -1 if severity_a == :error
-      return 1 if severity_b == :error
-      return -1 if severity_a == :warning
-      return 1 if severity_b == :warning
+      ]
     end
 
     def self.prepare_git
@@ -204,7 +193,7 @@ module VSPDanger
     end
   end
 
-  class GemfileProtector
+  class EnsureSidekiqEnterprise
     def run
       return error if bad_gemfile_changes?
 
