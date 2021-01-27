@@ -217,11 +217,12 @@ module VSPDanger
 end
 
 if $PROGRAM_NAME != __FILE__
-  results = VSPDanger::Runner.run
-
-  errors = results.select { |result| result.severity == VSPDanger::Result::ERROR }
-  failure(errors.collect(&:message)) if errors.any?
-
-  warnings = results.select { |result| result.severity == VSPDanger::Result::WARNING }
-  warn(warnings.collect(&:message)) if warnings.any?
+  VSPDanger::Runner.run.each do |result|
+    case result.severity
+    when VSPDanger::Result::ERROR
+      failure result.message
+    when VSPDanger::Result::WARNING
+      warn result.message
+    end
+  end
 end
