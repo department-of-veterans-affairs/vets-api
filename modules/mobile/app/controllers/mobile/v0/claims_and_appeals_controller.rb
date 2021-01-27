@@ -4,6 +4,7 @@ require_dependency 'mobile/application_controller'
 require_relative '../../../models/mobile/v0/adapters/claims_overview'
 require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
+require 'sentry_logging'
 
 module Mobile
   module V0
@@ -63,6 +64,7 @@ module Mobile
       def request_decision
         claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
         jid = evss_claim_service.request_decision(claim)
+        log_message_to_sentry('Request Decision jid for claim ' + params[:id] + ' = ' + jid, :debug)
         claim.update(requested_decision: true)
         render json: { data: { job_id: jid } }, status: :accepted
       end
