@@ -17,7 +17,7 @@ module VAProfileRedis
       if contact_info.present?
         contact_info.destroy
       else
-        new.log_message_to_sentry('Vet360: Cannot invalidate a nil response cache', :info)
+        new.log_message_to_sentry('VA Profile: Cannot invalidate a nil response cache', :info)
       end
     end
   end
