@@ -45,10 +45,10 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
   end
 
   describe '#context_type_value' do
-    let(:filters) { q_filter.with_indifferent_access }
+    let(:filters) { q_filter.merge!(use_context: 'venue$534/12975,venue$534/12976').with_indifferent_access }
 
     it 'has a context_type_value' do
-      expect(options_builder.context_type_value).to eq('')
+      expect(options_builder.context_type_value).to eq('venue$534/12975,venue$534/12976')
     end
   end
 
