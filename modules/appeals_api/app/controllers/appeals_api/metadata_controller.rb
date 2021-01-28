@@ -54,7 +54,7 @@ module AppealsApi
 
       render json: {
         description: 'Appeals API upstream health check',
-        status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
+        status: health_checker.appeals_services_are_healthy? ? 'UP' : 'DOWN',
         time: time,
         details: {
           name: 'All upstream services',
@@ -62,7 +62,7 @@ module AppealsApi
                               upstream_service_details(service, health_checker, time)
                             end
         }
-      }, status: health_checker.services_are_healthy? ? 200 : 503
+      }, status: health_checker.appeals_services_are_healthy? ? 200 : 503
     end
 
     def decision_reviews_upstream_healthcheck
