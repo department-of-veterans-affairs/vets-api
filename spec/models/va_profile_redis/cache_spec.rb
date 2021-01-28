@@ -8,7 +8,7 @@ describe VAProfileRedis::Cache do
 
   describe '.invalidate' do
     context 'when user.vet360_contact_info is present' do
-      it 'invalidates the vet360-contact-info-response cache' do
+      it 'invalidates the va-profile-contact-info-response cache' do
         contact_info.cache(user.uuid, 'cache data')
 
         expect_any_instance_of(Common::RedisStore).to receive(:destroy)
