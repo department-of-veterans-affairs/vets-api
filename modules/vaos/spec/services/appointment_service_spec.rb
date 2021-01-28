@@ -105,11 +105,23 @@ describe VAOS::AppointmentService do
     let(:type) { 'va' }
 
     context 'when appointments return a 200 with a partial error' do
-      it 'logs those partials to sentry' do
+      around do |example|
+        Settings.sentry.dsn = true
+        example.run
+        Settings.sentry.dsn = nil
+      end
+
+      it 'logs those partial responses to sentry' do
         VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error', match_requests_on: %i[method uri]) do
-          response = subject.get_appointments(type, start_date, end_date)
-          binding.pry
-          expect(response.body[:errors].size).to eq(2)
+          expect(Raven).to receive(:capture_message).with(
+            'VAOS::AppointmentService#get_appointments has response errors.',
+            level: 'info'
+          )
+          expect(Raven).to receive(:extra_context).with(
+            errors: '[{"code":1,"source":"test result","summary":"test summary"}' \
+                    ',{"code":2,"source":"test result 2","summary":"test summary 2"}]'
+          )
+          subject.get_appointments(type, start_date, end_date)
         end
       end
     end
