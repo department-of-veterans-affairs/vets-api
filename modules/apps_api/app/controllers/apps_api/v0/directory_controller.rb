@@ -70,7 +70,7 @@ module AppsApi
 
       def verify_auth
         # put this secret in settings.local.yml
-        head :unauthorized unless request.authorization == Settings.directory.secret
+        head :unauthorized unless request.authorization == Settings.directory.key
       end
 
       def set_directory_application
