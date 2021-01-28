@@ -6,6 +6,7 @@ require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
 require 'support/stub_efolder_documents'
+require 'support/stub_financial_status_report'
 require 'support/sm_client_helpers'
 require 'support/rx_client_helpers'
 require 'bgs/service'
@@ -475,6 +476,29 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               'id' => CGI.escape(document_id)
             )
           )
+        end
+      end
+    end
+
+    context 'Financial Status Reports' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+      let(:fsr_data) { get_fixture('dmc/fsr_submission') }
+
+      context 'financial status report create' do
+        it 'validates the route' do
+          VCR.use_cassette('dmc/submit_fsr') do
+            expect(subject).to validate(
+              :post,
+              '/v0/financial_status_reports',
+              200,
+              headers.merge(
+                '_data' => fsr_data.to_json
+              )
+            )
+          end
         end
       end
     end
@@ -3241,7 +3265,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
   context 'and' do
     it 'tests all documented routes' do
-      subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
+      # exclude these route as they return binaries
+      subject.untested_mappings.delete('/v0/letters/{id}')
+      subject.untested_mappings.delete('/v0/financial_status_reports/download_pdf')
       expect(subject).to validate_all_paths
     end
   end
