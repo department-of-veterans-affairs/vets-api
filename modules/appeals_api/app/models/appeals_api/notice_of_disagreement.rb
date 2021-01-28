@@ -52,28 +52,32 @@ module AppealsApi
       header_field_as_string 'X-Consumer-ID'
     end
 
+    def veteran_contact_info
+      form_data&.dig('data', 'attributes', 'veteran')
+    end
+
     def mailing_address
       address_combined = [
-        contact_info.dig('address', 'addressLine1'),
-        contact_info.dig('address', 'addressLine2'),
-        contact_info.dig('address', 'addressLine3')
+        veteran_contact_info.dig('address', 'addressLine1'),
+        veteran_contact_info.dig('address', 'addressLine2'),
+        veteran_contact_info.dig('address', 'addressLine3')
       ].compact.map(&:strip).join(' ')
 
       [
       address_combined,
-        contact_info.dig('address', 'city'),
-        contact_info.dig('address', 'stateCode'),
-        contact_info.dig('address', 'zipCode5'),
-        contact_info.dig('address', 'countryName')
+        veteran_contact_info.dig('address', 'city'),
+        veteran_contact_info.dig('address', 'stateCode'),
+        veteran_contact_info.dig('address', 'zipCode5'),
+        veteran_contact_info.dig('address', 'countryName')
       ].compact.map(&:strip).join(', ')
     end
 
     def phone
-      AppealsApi::HigherLevelReview::Phone.new(contact_info&.dig('phone')).to_s
+      AppealsApi::HigherLevelReview::Phone.new(veteran_contact_info&.dig('phone')).to_s
     end
 
     def email
-      contact_info.dig('emailAddressText')
+      veteran_contact_info.dig('emailAddressText')
     end
 
     def veteran_homeless?
