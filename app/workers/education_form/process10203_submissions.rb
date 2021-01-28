@@ -79,8 +79,8 @@ module EducationForm
 
     # Retrieve EVSS gi_bill_status data for a user
     def get_gi_bill_status(auth_headers)
-      service = EVSS::GiBillStatus::Service.new(auth_headers)
-      service.get_gi_bill_status
+      service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
+      service.get_gi_bill_status(auth_headers)
     rescue => e
       Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
       {}
@@ -88,8 +88,8 @@ module EducationForm
 
     # Retrieve poa status fromEVSS VSOSearch for a user
     def get_user_poa_status(auth_headers)
-      service = EVSS::VSOSearch::Service.new(auth_headers)
-      service.get_current_info['userPoaInfoAvailable']
+      service = EVSS::VSOSearch::Service.new(nil, auth_headers)
+      service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
       Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
       nil

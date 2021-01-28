@@ -30,4 +30,11 @@ describe EVSS::Service do
       service.send(:save_error_details, Common::Client::Errors::ClientError.new)
     end
   end
+
+  describe 'initializes from headers' do
+    it 'sets the tags_context and extra_context' do
+      headers = EVSS::AuthHeaders.new(build(:user)).to_h
+      expect(EVSS::Service.new(nil, headers).transaction_id).to eq(headers['va_eauth_service_transaction_id'])
+    end
+  end
 end
