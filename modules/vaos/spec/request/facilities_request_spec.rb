@@ -358,6 +358,61 @@ RSpec.describe 'facilities', type: :request do
     end
   end
 
+  describe 'GET /vaos/v0/facilities/limits', :skip_mvi do
+    let(:user) { build(:user, :vaos) }
+
+    context 'with a valid GET facility limits response' do
+      it 'returns a 200 with the correct schema' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323', facility_ids: %w[688 442] }
+
+          expect(response).to have_http_status(:ok)
+          data_json = JSON.parse(response.body)
+          expect(data_json.size).to eq(2)
+          expect(data_json.first['number_of_requests']).to eq(0)
+          expect(data_json.first['request_limit']).to eq(1)
+          expect(data_json.first['institution_code']).to eq('688')
+        end
+      end
+    end
+
+    context 'when type_of_care_id parameter is missing' do
+      it 'returns an error message with the missing param, type_of_care_id' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: { facility_ids: %w[688 442] }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "type_of_care_id", is missing')
+        end
+      end
+    end
+
+    context 'when facility_ids parameter is missing' do
+      it 'returns an error message with the missing param, facility_ids' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323' }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "facility_ids", is missing')
+        end
+      end
+    end
+
+    context 'when no parameters are present' do
+      it 'returns an error message with the missing param, facility_ids' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method path]) do
+          get '/vaos/v0/facilities/limits', params: {}
+
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'].first['detail'])
+            .to eq('The required parameter "facility_ids", is missing')
+        end
+      end
+    end
+  end
+
   describe 'GET /vaos/v0/facilities/:facility_id/visits/:schedule_type' do
     let(:user) { build(:user, :mhv) }
 

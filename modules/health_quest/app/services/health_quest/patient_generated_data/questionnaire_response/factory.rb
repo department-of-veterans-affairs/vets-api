@@ -47,12 +47,13 @@ module HealthQuest
         ##
         # Gets Questionnaire Responses from a given set of OptionsBuilder
         #
-        # @param filters [PatientGeneratedData::QuestionnaireResponse::OptionsBuilder] the set of query options.
+        # @param filters [Hash] the set of query options.
         # @return [FHIR::QuestionnaireResponse::ClientReply] an instance of ClientReply
         #
-        def search(filters)
-          with_options = options_builder.manufacture(user, filters).to_hash
+        def search(filters = {})
+          filters.merge!(resource_name)
 
+          with_options = options_builder.manufacture(user, filters).to_hash
           map_query.search(with_options)
         end
 
@@ -64,6 +65,15 @@ module HealthQuest
         #
         def create(data)
           map_query.create(data, user)
+        end
+
+        ##
+        # Builds the key/value pair for identifying the resource
+        #
+        # @return [Hash] a key value pair
+        #
+        def resource_name
+          { resource_name: 'questionnaire_response' }
         end
       end
     end

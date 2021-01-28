@@ -180,6 +180,11 @@ features:
     enable_in_development: true
     description: >
       Set up toggle in anticipation of the next iteration of the homepage and appointment cards.
+  va_online_scheduling_facility_selection_v2_2:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Set up toggle in anticipation of the next iteration of facility selection, version 2.2.
   va_global_downtime_notification:
     actor_type: user
     description: >
