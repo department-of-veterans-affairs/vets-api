@@ -17,6 +17,7 @@ module ClaimsApi
       resource :claims do
         desc 'Return all claims.' do
           success ClaimsApi::Entities::V2::ClaimEntity
+          failure [[401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity']]
         end
         get '/' do
           non_established_claims = ClaimsApi::AutoEstablishedClaim.where(source: source_name)
@@ -38,6 +39,7 @@ module ClaimsApi
 
         desc 'Return a claim.' do
           success ClaimsApi::Entities::V2::ClaimEntity
+          failure [[401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity']]
         end
         params do
           requires :id, type: String, desc: 'Claim ID.'

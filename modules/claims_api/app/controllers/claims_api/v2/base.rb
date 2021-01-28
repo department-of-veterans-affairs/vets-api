@@ -14,6 +14,14 @@ module ClaimsApi
   module V2
     class Base < Grape::API
       format :json
+      rescue_from ::Common::Exceptions::Unauthorized do |e|
+        error!({ errors: ClaimsApi::Entities::V2::ErrorEntity.represent(e.errors) }, 401)
+      end
+      rescue_from :all do |e|
+        base_error = { title: 'Internal server error', detail: e.message, code: '500', status: '500' }
+        error!({ errors: [ClaimsApi::Entities::V2::ErrorEntity.represent(base_error)] }, 500)
+      end
+
       helpers ClaimsApi::MPIVerification
       helpers ClaimsApi::HeaderValidation
       helpers ClaimsApi::JsonFormatValidation
@@ -21,8 +29,10 @@ module ClaimsApi
       helpers do
         def authenticate
           super
+        rescue ::Common::Exceptions::Unauthorized => e
+          raise e
         rescue => e
-          error!({ errors: e.respond_to?(:errors) ? e.errors : ::Common::Exceptions::Unauthorized.new.errors }, 401)
+          raise ::Common::Exceptions::Unauthorized, detail: 'Signature has expired'
         end
 
         def token
@@ -36,7 +46,7 @@ module ClaimsApi
         end
 
         def render_unauthorized
-          error!({ errors: ::Common::Exceptions::Unauthorized.new.errors }, 401)
+          raise ::Common::Exceptions::Unauthorized
         end
 
         def source_name
