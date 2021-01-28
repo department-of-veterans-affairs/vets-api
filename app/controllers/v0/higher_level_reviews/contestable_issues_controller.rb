@@ -11,7 +11,7 @@ module V0
         log_exception_to_personal_information_log(
           e,
           error_class: "#{self.class.name}#index exception",
-          data: { request_data: { benefit_type: params[:benefit_type] } }
+          benefit_type: params[:benefit_type]
         )
         raise
       end

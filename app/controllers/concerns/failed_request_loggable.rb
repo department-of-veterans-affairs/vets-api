@@ -32,10 +32,13 @@ module FailedRequestLoggable
     hash
   end
 
-  def log_exception_to_personal_information_log(exception, error_class:, data: {})
-    PersonalInformationLog.create!(
-      error_class: error_class,
-      data: { user: current_user_hash, error: self.class.exception_hash(exception) }.merge(data)
-    )
+  def log_exception_to_personal_information_log(exception, error_class:, **additional_data)
+    data = {
+      user: current_user_hash,
+      error: self.class.exception_hash(exception)
+    }
+    data[:additional_data] = additional_data if additional_data.present?
+
+    PersonalInformationLog.create! error_class: error_class, data: data
   end
 end

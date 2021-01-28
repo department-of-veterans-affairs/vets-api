@@ -39,7 +39,7 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
         ].each { |key| expect(pil.data['user'][key]).to be_truthy }
         %w[message backtrace key response_values original_status original_body]
           .each { |key| expect(pil.data['error'][key]).to be_truthy }
-        expect(pil.data['request_data']['body']).not_to be_empty
+        expect(pil.data['additional_data']['request']['body']).not_to be_empty
       end
     end
   end
