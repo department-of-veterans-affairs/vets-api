@@ -38,6 +38,10 @@ module ClaimsApi
         def render_unauthorized
           error!({ errors: ::Common::Exceptions::Unauthorized.new.errors }, 401)
         end
+
+        def source_name
+          "#{target_veteran.first_name} #{target_veteran.last_name}"
+        end
       end
 
       mount ClaimsApi::V2::Claims

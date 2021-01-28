@@ -7,10 +7,6 @@ module ClaimsApi
         def claims_service
           ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
         end
-
-        def source
-          "#{target_veteran.first_name} #{target_veteran.last_name}"
-        end
       end
 
       before do
@@ -23,11 +19,11 @@ module ClaimsApi
           success ClaimsApi::Entities::V2::ClaimEntity
         end
         get '/' do
-          our_claims = ClaimsApi::AutoEstablishedClaim.where(source: "#{source}")
+          our_claims = ClaimsApi::AutoEstablishedClaim.where(source: "#{source_name}")
           evss_claims = claims_service.all
           # TODO: merge our established claims with evss's
 
-          present our_claims + evss_claims, with: ClaimsApi::Entities::V2::ClaimEntity
+          present our_claims + evss_claims, with: ClaimsApi::Entities::V2::ClaimEntity, base_url: request.base_url
         end
 
         desc 'Return a claim.' do
@@ -43,7 +39,7 @@ module ClaimsApi
             # TODO: figure out all these statuses
             #   seems statuses are different based on whether we processed the claim or not
 
-            present claim, with: ClaimsApi::Entities::V2::ClaimEntity
+            present claim, with: ClaimsApi::Entities::V2::ClaimEntity, base_url: request.base_url
           end
         end
       end

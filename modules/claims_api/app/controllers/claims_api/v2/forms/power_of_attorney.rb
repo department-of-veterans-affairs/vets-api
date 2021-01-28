@@ -4,8 +4,8 @@ module ClaimsApi
       class PowerOfAttorney < ClaimsApi::V2::Base
         version 'v2'
 
-        resource '2122' do
-          desc 'Submit claim.'
+        resource 'forms/2122' do
+          desc 'Submit a claim.'
           post '/' do
             raise 'NotImplemented'
           end

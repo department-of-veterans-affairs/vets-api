@@ -3,9 +3,9 @@ module ClaimsApi
     module Forms
       class IntentToFile < ClaimsApi::V2::Base
         version 'v2'
-        
-        resource '0966' do
-          desc 'Submit claim.'
+
+        resource 'forms/0966' do
+          desc 'Submit a claim.'
           post '/' do
             raise 'NotImplemented'
           end
