@@ -21,7 +21,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   def create_stem_automated_decision(user)
     education_benefits_claim.build_education_stem_automated_decision(
       user_uuid: user.uuid,
-      auth_headers_json: EVSS::AuthHeaders.new(user).to_h.to_json,
+      auth_headers_json: EVSS::AuthHeaders.new(user).to_h.to_json
     ).save
   end
 

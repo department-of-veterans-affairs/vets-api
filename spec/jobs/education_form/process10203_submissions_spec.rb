@@ -218,6 +218,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       it 'sets claim poa for evss user with poa' do
         application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
+
         gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)
         allow_any_instance_of(EVSS::VSOSearch::Service).to receive(:get_current_info)
                                                              .and_return(evss_response_with_poa.body)

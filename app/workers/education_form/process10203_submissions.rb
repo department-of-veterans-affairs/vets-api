@@ -60,10 +60,11 @@ module EducationForm
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
-      user_submissions.each do |user_uuid, submissions|
-        user = User.find(user_uuid)
-        poa = get_user_poa_status(user)
-        gi_bill_status = get_gi_bill_status(user)
+      user_submissions.each_value do |submissions|
+        auth_headers = submissions.first.education_stem_automated_decision.auth_headers
+        gi_bill_status = get_gi_bill_status(auth_headers)
+        poa = get_user_poa_status(auth_headers)
+
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each do |submission|
             update_automated_decision(submission, PROCESSED, poa)
@@ -77,8 +78,8 @@ module EducationForm
     end
 
     # Retrieve EVSS gi_bill_status data for a user
-    def get_gi_bill_status(user)
-      service = EVSS::GiBillStatus::Service.new(user)
+    def get_gi_bill_status(auth_headers)
+      service = EVSS::GiBillStatus::Service.new(auth_headers)
       service.get_gi_bill_status
     rescue => e
       Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
@@ -86,8 +87,8 @@ module EducationForm
     end
 
     # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(user)
-      service = EVSS::VSOSearch::Service.new(user)
+    def get_user_poa_status(auth_headers)
+      service = EVSS::VSOSearch::Service.new(auth_headers)
       service.get_current_info['userPoaInfoAvailable']
     rescue => e
       Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
