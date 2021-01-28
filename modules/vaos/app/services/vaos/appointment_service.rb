@@ -17,6 +17,15 @@ module VAOS
       end
     end
 
+    def get_appointment(id)
+      params = {}
+
+      with_monitoring do
+        response = perform(:get, show_appointment_url(id), params, headers)
+        OpenStruct.new(response.body)
+      end
+    end
+
     def post_appointment(request_object_body)
       params = VAOS::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
       site_code = params[:clinic][:site_code]
@@ -69,7 +78,7 @@ module VAOS
                          end
       return [] unless appointment_list
 
-      appointment_list.map { |appointments| OpenStruct.new(appointments) }
+      appointment_list.map { |appointment| OpenStruct.new(appointment) }
     end
 
     # TODO: need underlying APIs to support pagination consistently
@@ -90,6 +99,10 @@ module VAOS
       else
         "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
       end
+    end
+
+    def show_appointment_url(id)
+      "/appointments/v1/patients/#{user.icn}/appointments/#{id}"
     end
 
     def post_appointment_url(site)
