@@ -37,7 +37,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   end
 
   before do
-    allow(Settings.directory).to receive(:secret).and_return(auth_string)
+    allow(Settings.directory).to receive(:key).and_return(auth_string)
   end
 
   describe '#get /services/apps/v0/directory' do
