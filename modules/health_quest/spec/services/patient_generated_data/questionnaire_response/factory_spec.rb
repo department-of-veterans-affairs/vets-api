@@ -31,7 +31,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
   end
 
   describe '#search' do
-    let(:filters) { { appointment_id: nil }.with_indifferent_access }
+    let(:filters) { { resource_name: 'questionnaire_response', appointment_id: nil }.with_indifferent_access }
     let(:options_builder) { HealthQuest::PatientGeneratedData::OptionsBuilder.manufacture(user, filters) }
 
     it 'returns a ClientReply' do
