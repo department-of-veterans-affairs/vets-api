@@ -31,13 +31,13 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::Factory do
   end
 
   describe '#search' do
-    let(:filters) { { appointment_id: nil }.with_indifferent_access }
+    let(:filters) { { resource_name: 'questionnaire', appointment_id: nil }.with_indifferent_access }
     let(:options_builder) { HealthQuest::PatientGeneratedData::OptionsBuilder.manufacture(user, filters) }
 
     it 'returns a ClientReply' do
       allow_any_instance_of(FHIR::Client).to receive(:search).with(anything, anything).and_return(client_reply)
 
-      expect(subject.new(user).search(options_builder.to_hash)).to eq(client_reply)
+      expect(subject.new(user).search(filters)).to eq(client_reply)
     end
   end
 

@@ -140,12 +140,12 @@ module AppealsApi
     end
 
     # 13. IF YOU WOULD LIKE THE SAME OFFICE...
-    def same_office?
+    def same_office
       data_attributes&.dig('sameOffice')
     end
 
     # 14. ...INFORMAL CONFERENCE...
-    def informal_conference?
+    def informal_conference
       data_attributes&.dig('informalConference')
     end
 

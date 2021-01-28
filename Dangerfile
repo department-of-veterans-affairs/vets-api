@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 module VSPDanger
+  HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
+  BASE_SHA = 'origin/master'
+
   class Runner
     def self.run
       prepare_git
 
       [
+        SidekiqEnterpriseGaurantor.new.run,
         ChangeLimiter.new.run,
         MigrationIsolator.new.run
       ]
@@ -16,6 +20,31 @@ module VSPDanger
     end
   end
 
+  class Result
+    ERROR = :error
+    WARNING = :warning
+    SUCCESS = :success
+
+    attr_reader :severity, :message
+
+    def initialize(severity, message)
+      @severity = severity
+      @message = message
+    end
+
+    def self.error(message)
+      Result.new(ERROR, message)
+    end
+
+    def self.warn(message)
+      Result.new(WARNING, message)
+    end
+
+    def self.success(message)
+      Result.new(SUCCESS, message)
+    end
+  end
+
   class ChangeLimiter
     EXCLUSIONS = %w[
       *.csv *.json *.tsv *.txt Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
@@ -23,17 +52,13 @@ module VSPDanger
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
 
     def run
-      return error if lines_changed > PR_SIZE[:maximum]
-      return warning if lines_changed > PR_SIZE[:recommended]
+      return Result.error(error_message) if lines_changed > PR_SIZE[:maximum]
+      return Result.warn(warning_message) if lines_changed > PR_SIZE[:recommended]
 
-      info
+      Result.success('All set.')
     end
 
     private
-
-    def error
-      { severity: :error, message: error_message }
-    end
 
     def error_message
       <<~EMSG
@@ -52,10 +77,6 @@ module VSPDanger
       EMSG
     end
 
-    def warning
-      { severity: :warning, message: warning_message }
-    end
-
     def warning_message
       <<~EMSG
         This PR changes `#{lines_changed}` LoC (not counting whitespace/newlines).
@@ -67,10 +88,6 @@ module VSPDanger
 
         Big PRs are difficult to review, often become stale, and cause delays.
       EMSG
-    end
-
-    def info
-      { severity: :info, message: 'All set.' }
     end
 
     def file_summary
@@ -114,34 +131,25 @@ module VSPDanger
     end
 
     def files_command
-      "git diff #{base_sha}...#{head_sha} --numstat -w --ignore-blank-lines -- . #{exclusions}"
+      "git diff #{BASE_SHA}...#{HEAD_SHA} --numstat -w --ignore-blank-lines -- . #{exclusions}"
     end
 
     def exclusions
       EXCLUSIONS.map { |exclusion| "':!#{exclusion}'" }.join ' '
     end
-
-    def head_sha
-      `git rev-parse --abbrev-ref HEAD`.chomp
-    end
-
-    def base_sha
-      'origin/master'
-    end
   end
 
   class MigrationIsolator
     def run
-      return error if files.any? { |file| file.include? 'db/' } && !files.all? { |file| file.include? 'db/' }
+      if files.any? { |file| file.include? 'db/' } && !files.all? { |file| file.include? 'db/' }
+        # one of the changed files was in 'db/' but not all of them
+        return Result.error(error_message)
+      end
 
-      info
+      Result.success('All set.')
     end
 
     private
-
-    def error
-      { severity: :error, message: error_message }
-    end
 
     def error_message
       <<~EMSG
@@ -167,10 +175,6 @@ module VSPDanger
       EMSG
     end
 
-    def info
-      { severity: :info, message: 'All set.' }
-    end
-
     def app_files
       files - db_files
     end
@@ -180,15 +184,33 @@ module VSPDanger
     end
 
     def files
-      @files ||= `git diff #{base_sha}...#{head_sha} --name-only`.split("\n")
+      @files ||= `git diff #{BASE_SHA}...#{HEAD_SHA} --name-only`.split("\n")
+    end
+  end
+
+  class SidekiqEnterpriseGaurantor
+    def run
+      return Result.error(error_message) if enterprise_remote_removed?
+
+      Result.success('Sidekiq Enterprise is preserved.')
     end
 
-    def head_sha
-      `git rev-parse --abbrev-ref HEAD`.chomp
+    private
+
+    def enterprise_remote_removed?
+      gemfile_diff.include?('-  remote: https://enterprise.contribsys.com/')
     end
 
-    def base_sha
-      'origin/master'
+    def error_message
+      <<~EMSG
+        You've removed Sidekiq Enterprise from the gemfile!  You must restore it before merging this PR.
+
+        More details about Sidekiq Enterprise can be found in the [README](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md).
+      EMSG
+    end
+
+    def gemfile_diff
+      `git diff #{BASE_SHA}...#{HEAD_SHA} -- Gemfile.lock`
     end
   end
 
@@ -209,12 +231,12 @@ module VSPDanger
 end
 
 if $PROGRAM_NAME != __FILE__
-  VSPDanger::Runner.run.each do |output|
-    case output[:severity]
-    when :error
-      fail output[:message] # rubocop:disable Style/SignalException
-    when :warning
-      warn output[:message]
+  VSPDanger::Runner.run.each do |result|
+    case result.severity
+    when VSPDanger::Result::ERROR
+      failure result.message
+    when VSPDanger::Result::WARNING
+      warn result.message
     end
   end
 end
