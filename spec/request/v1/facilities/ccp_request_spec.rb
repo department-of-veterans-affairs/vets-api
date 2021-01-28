@@ -36,14 +36,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'id' => '1154383230',
             'type' => 'provider',
             'attributes' => {
-              'acc_new_patients' => 'true',
+              'accNewPatients' => 'true',
               'address' => {
                 'street' => '176 RIVERSIDE AVE',
                 'city' => 'RED BANK',
                 'state' => 'NJ',
                 'zip' => '07701-1063'
               },
-              'caresite_phone' => '732-219-6625',
+              'caresitePhone' => '732-219-6625',
               'email' => nil,
               'fax' => nil,
               'gender' => 'Female',
@@ -51,9 +51,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'long' => -74.07492,
               'name' => 'GESUALDI, AMY',
               'phone' => nil,
-              'pos_codes' => nil,
-              'pref_contact' => nil,
-              'unique_id' => '1154383230'
+              'posCodes' => nil,
+              'prefContact' => nil,
+              'uniqueId' => '1154383230'
             }
           }
         )
@@ -84,14 +84,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'id' => sha256,
               'type' => 'provider',
               'attributes' => {
-                'acc_new_patients' => 'false',
+                'accNewPatients' => 'false',
                 'address' => {
                   'street' => '5024 5TH AVE',
                   'city' => 'BROOKLYN',
                   'state' => 'NY',
                   'zip' => '11220-1909'
                 },
-                'caresite_phone' => '718-571-9251',
+                'caresitePhone' => '718-571-9251',
                 'email' => nil,
                 'fax' => nil,
                 'gender' => 'NotSpecified',
@@ -99,9 +99,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                 'long' => -74.011055,
                 'name' => 'CITY MD URGENT CARE',
                 'phone' => nil,
-                'pos_codes' => '20',
-                'pref_contact' => nil,
-                'unique_id' => '1487993564'
+                'posCodes' => '20',
+                'prefContact' => nil,
+                'uniqueId' => '1487993564'
               }
             }
           )
@@ -176,14 +176,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'id' => '1154383230',
             'type' => 'provider',
             'attributes' => {
-              'acc_new_patients' => 'true',
+              'accNewPatients' => 'true',
               'address' => {
                 'street' => '176 RIVERSIDE AVE',
                 'city' => 'RED BANK',
                 'state' => 'NJ',
                 'zip' => '07701-1063'
               },
-              'caresite_phone' => '732-219-6625',
+              'caresitePhone' => '732-219-6625',
               'email' => nil,
               'fax' => nil,
               'gender' => 'Female',
@@ -191,9 +191,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'long' => -74.07492,
               'name' => 'GESUALDI, AMY',
               'phone' => nil,
-              'pos_codes' => nil,
-              'pref_contact' => nil,
-              'unique_id' => '1154383230'
+              'posCodes' => nil,
+              'prefContact' => nil,
+              'uniqueId' => '1154383230'
             }
           }
         )
@@ -222,14 +222,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'id' => '1225028293',
             'type' => 'provider',
             'attributes' => {
-              'acc_new_patients' => 'false',
+              'accNewPatients' => 'false',
               'address' => {
                 'street' => '2 BAYSHORE PLZ',
                 'city' => 'ATLANTIC HIGHLANDS',
                 'state' => 'NJ',
                 'zip' => '07716'
               },
-              'caresite_phone' => '732-291-2900',
+              'caresitePhone' => '732-291-2900',
               'email' => nil,
               'fax' => nil,
               'gender' => 'NotSpecified',
@@ -237,9 +237,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'long' => -74.041849,
               'name' => 'BAYSHORE PHARMACY',
               'phone' => nil,
-              'pos_codes' => nil,
-              'pref_contact' => nil,
-              'unique_id' => '1225028293'
+              'posCodes' => nil,
+              'prefContact' => nil,
+              'uniqueId' => '1225028293'
             }
           }
         )
@@ -270,14 +270,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'id' => sha256,
             'type' => 'provider',
             'attributes' => {
-              'acc_new_patients' => 'false',
+              'accNewPatients' => 'false',
               'address' => {
                 'street' => '5024 5TH AVE',
                 'city' => 'BROOKLYN',
                 'state' => 'NY',
                 'zip' => '11220-1909'
               },
-              'caresite_phone' => '718-571-9251',
+              'caresitePhone' => '718-571-9251',
               'email' => nil,
               'fax' => nil,
               'gender' => 'NotSpecified',
@@ -285,9 +285,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'long' => -74.011055,
               'name' => 'CITY MD URGENT CARE',
               'phone' => nil,
-              'pos_codes' => '20',
-              'pref_contact' => nil,
-              'unique_id' => '1487993564'
+              'posCodes' => '20',
+              'prefContact' => nil,
+              'uniqueId' => '1487993564'
             }
           }
         )
@@ -318,14 +318,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
           'id' => '1225028293',
           'type' => 'provider',
           'attributes' => {
-            'acc_new_patients' => nil,
+            'accNewPatients' => nil,
             'address' => {
               'street' => '2 BAYSHORE PLZ',
               'city' => 'ATLANTIC HIGHLANDS',
               'state' => 'NJ',
               'zip' => '07716'
             },
-            'caresite_phone' => nil,
+            'caresitePhone' => nil,
             'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
             'fax' => nil,
             'gender' => nil,
@@ -333,9 +333,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'long' => -74.041849,
             'name' => 'BAYSHORE PHARMACY',
             'phone' => nil,
-            'pos_codes' => nil,
-            'pref_contact' => nil,
-            'unique_id' => '1225028293'
+            'posCodes' => nil,
+            'prefContact' => nil,
+            'uniqueId' => '1225028293'
           }
         }
       )

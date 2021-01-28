@@ -3,6 +3,8 @@
 class Lighthouse::Facilities::FacilitySerializer
   include FastJsonapi::ObjectSerializer
 
+  set_key_transform :camel_lower
+
   attributes  :access,
               :active_status,
               :address,

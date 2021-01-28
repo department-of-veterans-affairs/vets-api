@@ -214,7 +214,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                 ],
                 effective_date: '2020-09-14'
               },
-              active_status: 'A',
+              activeStatus: 'A',
               address: {
                 mailing: {},
                 physical: {
@@ -227,7 +227,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                 }
               },
               classification: 'VA Medical Center (VAMC)',
-              facility_type: 'va_health_facility',
+              facilityType: 'va_health_facility',
               feedback: {
                 health: {
                   primary_care_urgent: 0.8100000023841858,
@@ -249,7 +249,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
               long: -122.65538544,
               mobile: false,
               name: 'Portland VA Medical Center-Vancouver',
-              operating_status: {
+              operatingStatus: {
                 code: 'NORMAL'
               },
               phone: {
@@ -277,7 +277,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                 ],
                 last_updated: '2020-09-14'
               },
-              unique_id: '648A4',
+              uniqueId: '648A4',
               visn: '20',
               website: 'https://www.portland.va.gov/locations/vancouver.asp'
             }

@@ -19,7 +19,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, te
   end
 
   it 'includes facility_type' do
-    expect(data['attributes']['facility_type']).to eq('va_health_facility')
+    expect(data['attributes']['facilityType']).to eq('va_health_facility')
   end
 
   it 'includes classification' do
@@ -81,7 +81,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, te
   end
 
   it 'includes active_status' do
-    expect(data['attributes']['active_status']).to eq('A')
+    expect(data['attributes']['activeStatus']).to eq('A')
   end
 
   it 'includes visn' do
