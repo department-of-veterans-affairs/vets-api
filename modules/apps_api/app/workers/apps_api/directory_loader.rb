@@ -7,7 +7,7 @@ module AppsApi
   class DirectoryLoader
     include Sidekiq::Worker
     include SentryLogging
-
+# TODO: remove class after testing that cli works
     def perform
       AppsApi::DirectoryApplicationCreator.new.call
     end

@@ -16,5 +16,5 @@ GET /services/apps/v0/directory/{APP_NAME}
 ```
 
 For internal usage, there is a (CLI)[https://github.com/department-of-veterans-affairs/app_directory_cli] available to allow for interacting with the `#create`, `#update`, and `#destroy` methods. For syntax and usage of that CLI, see the linked repo.
-In order to access these methods, you must pass the proper secret in the `Authorization` header. The credstash keys where these secrets are stored are referenced in the `devops` repo under `{ENV}-settings.local.yml.j2`. See repo [here](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible/deployment/config/vets-api).
+In order to access these methods, you must pass the proper secret as the value of the `Authorization` header. The credstash keys where these secrets are stored are referenced in the `devops` repo in the `{ENV}-settings.local.yml.j2` files under the `directory.key` value. See repo [here](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible/deployment/config/vets-api).
 

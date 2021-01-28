@@ -166,6 +166,7 @@ VAForms::FetchLatest:
   class: VAForms::FormReloader
   description: "Fetches latest VA Forms"
 
+# TODO: remove this now that the CLI is done
 AppsApi::LoadApplications:
   in: '1m'
   class: AppsApi::DirectoryLoader
