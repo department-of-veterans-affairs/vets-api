@@ -52,7 +52,31 @@ module AppealsApi
       header_field_as_string 'X-Consumer-ID'
     end
 
-    def veteran_homeless_state
+    def mailing_address
+      address_combined = [
+        contact_info.dig('address', 'addressLine1'),
+        contact_info.dig('address', 'addressLine2'),
+        contact_info.dig('address', 'addressLine3')
+      ].compact.map(&:strip).join(' ')
+
+      [
+      address_combined,
+        contact_info.dig('address', 'city'),
+        contact_info.dig('address', 'stateCode'),
+        contact_info.dig('address', 'zipCode5'),
+        contact_info.dig('address', 'countryName')
+      ].compact.map(&:strip).join(', ')
+    end
+
+    def phone
+      AppealsApi::HigherLevelReview::Phone.new(contact_info&.dig('phone')).to_s
+    end
+
+    def email
+      contact_info.dig('emailAddressText')
+    end
+
+    def veteran_homeless?
       form_data&.dig('data', 'attributes', 'veteran', 'homeless')
     end
 
@@ -77,6 +101,12 @@ module AppealsApi
     end
 
     private
+
+    def validate_address_unless_homeless
+      return if veteran_homeless?
+
+      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') if !veteran_homeless? && mailing_address.nil?
+    end
 
     def validate_hearing_type_selection
       return if board_review_hearing_selected? && includes_hearing_type_preference?

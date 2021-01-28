@@ -24,20 +24,20 @@ module AppealsApi
           dob 'Veteran'
         end
 
-        def mailing_address_number_and_street
-          'USE ADDRESS ON FILE'
+        def mailing_address
+          notice_of_disagreement.mailing_address
         end
 
         def homeless
-          notice_of_disagreement.veteran_homeless_state ? 1 : 'Off'
+          notice_of_disagreement.veteran_homeless? ? 1 : 'Off'
         end
 
         def preferred_phone
-          'USE PHONE NUMBER ON FILE'
+          notice_of_disagreement.phone
         end
 
         def preferred_email
-          'USE EMAIL ON FILE'
+          notice_of_disagreement.email
         end
 
         def direct_review
