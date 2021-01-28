@@ -19,6 +19,12 @@ module ClaimsApi
       helpers ClaimsApi::JsonFormatValidation
       helpers ::OAuthConcerns
       helpers do
+        def authenticate
+          super
+        rescue => e
+          error!({ errors: e.respond_to?(:errors) ? e.errors : ::Common::Exceptions::Unauthorized.new.errors }, 401)
+        end
+
         def token
           return if headers['Authorization'].blank?
 
@@ -30,7 +36,7 @@ module ClaimsApi
         end
 
         def render_unauthorized
-          raise 'you be unauthorized yo'
+          error!({ errors: ::Common::Exceptions::Unauthorized.new.errors }, 401)
         end
       end
 

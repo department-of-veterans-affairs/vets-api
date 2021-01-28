@@ -7,6 +7,10 @@ module ClaimsApi
         def claims_service
           ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
         end
+
+        def source
+          "#{target_veteran.first_name} #{target_veteran.last_name}"
+        end
       end
 
       before do
@@ -15,20 +19,29 @@ module ClaimsApi
       end
 
       resource :claims do
-        desc 'Return all claims.'
+        desc 'Return all claims.' do
+          success ClaimsApi::Entities::V2::ClaimEntity
+        end
         get '/' do
+          our_claims = ClaimsApi::AutoEstablishedClaim.where(source: "#{source}")
           evss_claims = claims_service.all
-          present evss_claims, with: ClaimsApi::Entities::V2::ClaimEntity
+          # TODO: merge our established claims with evss's
+
+          present our_claims + evss_claims, with: ClaimsApi::Entities::V2::ClaimEntity
         end
 
-        desc 'Return a claim.'
+        desc 'Return a claim.' do
+          success ClaimsApi::Entities::V2::ClaimEntity
+        end
         params do
-          requires :id, type: Integer, desc: 'Claim ID.'
+          requires :id, type: String, desc: 'Claim ID.'
         end
         route_param :id do
           get do
             claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
             claim = claims_service.update_from_remote(params[:id]) if claim.blank?
+            # TODO: figure out all these statuses
+            #   seems statuses are different based on whether we processed the claim or not
 
             present claim, with: ClaimsApi::Entities::V2::ClaimEntity
           end
