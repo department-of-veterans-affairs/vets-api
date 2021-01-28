@@ -28,9 +28,9 @@ module AppealsApi
             it { expect(form_fields.veteran_dob).to eq('F[0].Page_1[0].DateSigned[0]') }
           end
 
-          describe '#mailing_address_number_and_street' do
+          describe '#mailing_address' do
             it do
-              expect(form_fields.mailing_address_number_and_street)
+              expect(form_fields.mailing_address)
                 .to eq('F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]')
             end
           end
