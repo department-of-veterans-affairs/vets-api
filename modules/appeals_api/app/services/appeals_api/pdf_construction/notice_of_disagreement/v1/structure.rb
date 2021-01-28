@@ -17,7 +17,7 @@ module AppealsApi
             form_fields.veteran_ssn => form_data.veteran_ssn,
             form_fields.veteran_file_number => form_data.veteran_file_number,
             form_fields.veteran_dob => form_data.veteran_dob,
-            form_fields.mailing_address_number_and_street => form_data.mailing_address_number_and_street,
+            form_fields.mailing_address => form_data.mailing_address,
             form_fields.homeless => form_data.homeless,
             form_fields.preferred_phone => form_data.preferred_phone,
             form_fields.preferred_email => form_data.preferred_email,

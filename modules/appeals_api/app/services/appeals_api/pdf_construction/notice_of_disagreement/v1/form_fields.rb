@@ -20,7 +20,7 @@ module AppealsApi
           'F[0].Page_1[0].DateSigned[0]'
         end
 
-        def mailing_address_number_and_street
+        def mailing_address
           'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]'
         end
 
