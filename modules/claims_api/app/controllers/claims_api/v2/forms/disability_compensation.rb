@@ -63,6 +63,17 @@ module ClaimsApi
           desc 'Submit a claim.' do
             success ClaimsApi::Entities::V2::ClaimSubmittedEntity
           end
+          params do
+            requires :data, type: Hash do
+              optional :type, type: String
+              requires :attributes, type: Hash do
+                requires :veteran, type: Hash do
+                  requires :currentlyVAEmployee, type: Boolean
+                  # TODO: define necessary schema here
+                end
+              end
+            end
+          end
           post '/' do
             auto_claim = ClaimsApi::AutoEstablishedClaim.create(
               status: ClaimsApi::AutoEstablishedClaim::PENDING,

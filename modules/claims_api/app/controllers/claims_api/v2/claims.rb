@@ -19,11 +19,21 @@ module ClaimsApi
           success ClaimsApi::Entities::V2::ClaimEntity
         end
         get '/' do
-          our_claims = ClaimsApi::AutoEstablishedClaim.where(source: "#{source_name}")
+          non_established_claims = ClaimsApi::AutoEstablishedClaim.where(source: source_name)
+                                                                  .where('evss_id is null')
+          established_claims = ClaimsApi::AutoEstablishedClaim.where(source: source_name)
+                                                              .where('evss_id is not null')
           evss_claims = claims_service.all
-          # TODO: merge our established claims with evss's
 
-          present our_claims + evss_claims, with: ClaimsApi::Entities::V2::ClaimEntity, base_url: request.base_url
+          merged_claims = non_established_claims.to_a
+          evss_claims.each do |evss_claim|
+            our_claim = established_claims.find do |established_claim|
+                          established_claim.evss_id.to_i == evss_claim.evss_id
+                        end
+            our_claim.present? ? merged_claims.push(our_claim) : merged_claims.push(evss_claim)
+          end
+
+          present merged_claims, with: ClaimsApi::Entities::V2::ClaimEntity, base_url: request.base_url
         end
 
         desc 'Return a claim.' do
