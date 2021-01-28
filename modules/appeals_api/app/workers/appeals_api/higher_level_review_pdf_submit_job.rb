@@ -11,7 +11,8 @@ module AppealsApi
     include Sidekiq::Worker
     include CentralMail::Utilities
 
-    def perform(higher_level_review, retries = 0)
+    def perform(higher_level_review_id, retries = 0)
+      higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
       @retries = retries
       stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
       higher_level_review.update!(status: 'submitting')
