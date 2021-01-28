@@ -84,7 +84,7 @@ RSpec.describe 'health_quest questionnaire_responses', type: :request do
       end
 
       it 'returns a FHIR bundle' do
-        get '/health_quest/v0/questionnaire_responses'
+        get '/health_quest/v0/questionnaire_responses?patient=123dfgh'
 
         expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'Bundle' })
       end

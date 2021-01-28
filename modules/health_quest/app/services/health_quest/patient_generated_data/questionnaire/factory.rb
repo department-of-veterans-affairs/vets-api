@@ -39,12 +39,13 @@ module HealthQuest
         ##
         # Gets Questionnaires from a given set of options
         #
-        # @param filters [PatientGeneratedData::OptionsBuilder] a set of query options
+        # @param filters [Hash] a set of query options
         # @return [FHIR::Questionnaire::ClientReply] an instance of ClientReply
         #
-        def search(filters)
-          with_options = options_builder.manufacture(user, filters).to_hash
+        def search(filters = {})
+          filters.merge!(resource_name)
 
+          with_options = options_builder.manufacture(user, filters).to_hash
           map_query.search(with_options)
         end
 
@@ -56,6 +57,15 @@ module HealthQuest
         #
         def get(id) # rubocop:disable Rails/Delegate
           map_query.get(id)
+        end
+
+        ##
+        # Builds the key/value pair for identifying the resource
+        #
+        # @return [Hash] a key value pair
+        #
+        def resource_name
+          { resource_name: 'questionnaire' }
         end
       end
     end

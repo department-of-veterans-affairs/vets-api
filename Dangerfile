@@ -20,6 +20,31 @@ module VSPDanger
     end
   end
 
+  class Result
+    ERROR = :error
+    WARNING = :warning
+    SUCCESS = :success
+
+    attr_reader :severity, :message
+
+    def initialize(severity, message)
+      @severity = severity
+      @message = message
+    end
+
+    def self.error(message)
+      Result.new(ERROR, message)
+    end
+
+    def self.warn(message)
+      Result.new(WARNING, message)
+    end
+
+    def self.success(message)
+      Result.new(SUCCESS, message)
+    end
+  end
+
   class ChangeLimiter
     EXCLUSIONS = %w[
       *.csv *.json *.tsv *.txt Gemfile.lock app/swagger modules/mobile/docs spec/fixtures/ spec/support/vcr_cassettes/
@@ -27,17 +52,13 @@ module VSPDanger
     PR_SIZE = { recommended: 200, maximum: 500 }.freeze
 
     def run
-      return error if lines_changed > PR_SIZE[:maximum]
-      return warning if lines_changed > PR_SIZE[:recommended]
+      return Result.error(error_message) if lines_changed > PR_SIZE[:maximum]
+      return Result.warn(warning_message) if lines_changed > PR_SIZE[:recommended]
 
-      info
+      Result.success('All set.')
     end
 
     private
-
-    def error
-      { severity: :error, message: error_message }
-    end
 
     def error_message
       <<~EMSG
@@ -56,10 +77,6 @@ module VSPDanger
       EMSG
     end
 
-    def warning
-      { severity: :warning, message: warning_message }
-    end
-
     def warning_message
       <<~EMSG
         This PR changes `#{lines_changed}` LoC (not counting whitespace/newlines).
@@ -71,10 +88,6 @@ module VSPDanger
 
         Big PRs are difficult to review, often become stale, and cause delays.
       EMSG
-    end
-
-    def info
-      { severity: :info, message: 'All set.' }
     end
 
     def file_summary
@@ -128,16 +141,15 @@ module VSPDanger
 
   class MigrationIsolator
     def run
-      return error if files.any? { |file| file.include? 'db/' } && !files.all? { |file| file.include? 'db/' }
+      if files.any? { |file| file.include? 'db/' } && !files.all? { |file| file.include? 'db/' }
+        # one of the changed files was in 'db/' but not all of them
+        return Result.error(error_message)
+      end
 
-      info
+      Result.success('All set.')
     end
 
     private
-
-    def error
-      { severity: :error, message: error_message }
-    end
 
     def error_message
       <<~EMSG
@@ -163,10 +175,6 @@ module VSPDanger
       EMSG
     end
 
-    def info
-      { severity: :info, message: 'All set.' }
-    end
-
     def app_files
       files - db_files
     end
@@ -182,18 +190,14 @@ module VSPDanger
 
   class SidekiqEnterpriseGaurantor
     def run
-      return error if bad_gemfile_changes?
+      return Result.error(error_message) if enterprise_remote_removed?
 
-      gemfile_ok_message
+      Result.success('Sidekiq Enterprise is preserved.')
     end
 
     private
 
-    def error
-      { severity: :error, message: error_message }
-    end
-
-    def bad_gemfile_changes?
+    def enterprise_remote_removed?
       gemfile_diff.include?('-  remote: https://enterprise.contribsys.com/')
     end
 
@@ -203,10 +207,6 @@ module VSPDanger
 
         More details about Sidekiq Enterprise can be found in the [README](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md).
       EMSG
-    end
-
-    def gemfile_ok_message
-      { severity: :info, message: 'Gemfile changes acceptable.' }
     end
 
     def gemfile_diff
@@ -231,12 +231,12 @@ module VSPDanger
 end
 
 if $PROGRAM_NAME != __FILE__
-  VSPDanger::Runner.run.each do |output|
-    case output[:severity]
-    when :error
-      fail output[:message] # rubocop:disable Style/SignalException
-    when :warning
-      warn output[:message]
+  VSPDanger::Runner.run.each do |result|
+    case result.severity
+    when VSPDanger::Result::ERROR
+      failure result.message
+    when VSPDanger::Result::WARNING
+      warn result.message
     end
   end
 end
