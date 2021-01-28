@@ -71,13 +71,6 @@ class ModuleGenerator < Rails::Generators::NamedBase
     end
   end
 
-  def create_commit_message
-    if Dir.exist?("modules/#{file_name}")
-      git add: '.'
-      git commit: "-a -m 'Initial commit of module structure *KEEP THIS COMMIT MESSAGE*'"
-    end
-  end
-
   # :nocov:
   # rubocop:enable Rails/Output
 end
