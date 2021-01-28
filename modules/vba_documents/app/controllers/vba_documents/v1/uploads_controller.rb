@@ -35,31 +35,31 @@ module VBADocuments
         else
           submission.refresh_status! unless submission.status == 'expired'
         end
-
+        status = submission.status.eql?('error') ? 400 : 200
         render json: submission,
                serializer: VBADocuments::V1::UploadSerializer,
-               render_location: false
+               render_location: false, status: status
       end
 
       def upload
-        model = UploadFile.new
+        @model = UploadFile.new
         #content = params[:content]
-        at1 = params[:attachment1]
+        #at1 = params[:attachment1]
         #at2 = params[:attachment2]
-        raise "give me a file numbnuts!" if at1.nil?
-        content_name = model.guid + '_' + 'content'
-        at1_name = model.guid + '_' + 'attachment1'
-        at2_name = model.guid + '_' + 'attachment2'
-        metadata = JSON.parse(params['metadata']).merge({guid: model.guid, content: content_name, attachments: [at1_name, at2_name]})
-        model.metadata = metadata
+        #raise "give me a file numbnuts!" if at1.nil?
+        content_name = @model.guid + '_' + 'content'
+        at1_name = @model.guid + '_' + 'attachment1'
+        at2_name = @model.guid + '_' + 'attachment2'
+        metadata = JSON.parse(params['metadata']).merge({guid: @model.guid, content: content_name, attachments: [at1_name, at2_name]}) rescue {} #for base 64, metadat comes from the parse, so get it later for everyone
+        @model.metadata = metadata
         # model.files.attach(io: content.tempfile, filename: content_name) #todo change filename to guid
         # model.files.attach(io: at1.tempfile, filename: at1_name) #todo change filename to guid
         # model.files.attach(io: at2.tempfile, filename: at2_name) #todo change filename to guid
-        model.files.attach(io: StringIO.new(request.raw_post), filename: model.guid) #todo change filename to guid
-        model.save!
+        @model.files.attach(io: StringIO.new(request.raw_post), filename: @model.guid) #todo change filename to guid
+        @model.save!
         # model.parse_and_upload!
-        VBADocuments::UploadProcessor.new.perform(model.guid)
-        params[:id] = model.guid
+        VBADocuments::UploadProcessor.new.perform(@model.guid)
+        params[:id] = @model.guid
         # @upload = VBADocuments::UploadSubmission.find_by(guid: guid)
         show
       end
