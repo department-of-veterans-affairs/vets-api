@@ -10,6 +10,15 @@ module VAOS
 
       with_monitoring do
         response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
+
+        if response.status == 200 && response.body[:errors]
+          log_message_to_sentry(
+            'VAOS::AppointmentService#get_appointments has response errors.',
+            :info,
+            errors: response.body[:errors].to_json
+          )
+        end
+
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
