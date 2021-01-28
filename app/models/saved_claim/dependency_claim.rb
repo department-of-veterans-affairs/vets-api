@@ -34,11 +34,11 @@ class SavedClaim::DependencyClaim < SavedClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
-  def upload_pdf(form_id)
+  def upload_pdf(form_id, doc_type: '148')
     self.form_id = form_id
 
     form_path = PdfFill::Filler.fill_form(self)
-    upload_to_vbms(form_path)
+    upload_to_vbms(form_path, doc_type)
   end
 
   def add_veteran_info(va_file_number_with_payload)

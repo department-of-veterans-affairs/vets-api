@@ -36,7 +36,7 @@ module VBMS
 
     def generate_pdf(claim, submittable_686, submittable_674)
       claim.upload_pdf('686C-674') if submittable_686
-      claim.upload_pdf('21-674') if submittable_674
+      claim.upload_pdf('21-674', doc_type: '143') if submittable_674
     end
   end
 end
