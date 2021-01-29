@@ -103,6 +103,23 @@ RSpec.describe 'Appeals Metadata Endpoint', type: :request do
     end
 
     context 'v1' do
+
+      it 'checks the status of both services individually' do
+        VCR.use_cassette('caseflow/health-check') do
+          allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)
+
+          get '/services/appeals/v1/upstream_healthcheck'
+          parsed_response = JSON.parse(response.body)
+
+          caseflow = parsed_response['details']['upstreamServices'].first
+          central_mail = parsed_response['details']['upstreamServices'].last
+
+          expect(response).to have_http_status(:service_unavailable)
+          expect(caseflow['status']).to eq('UP')
+          expect(central_mail['status']).to eq('DOWN')
+        end
+      end
+
       it 'returns correct response and status when healthy' do
         VCR.use_cassette('caseflow/health-check') do
           allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
