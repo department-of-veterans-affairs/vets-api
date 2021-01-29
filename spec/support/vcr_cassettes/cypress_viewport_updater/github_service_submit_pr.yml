@@ -1,0 +1,98 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://api.github.com/repos/holdenhinkle/vets-website/pulls
+    body:
+      encoding: UTF-8
+      string: '{"base":"master","head":"01272021165145459_update_cypress_viewport_data","title":"Update
+        Cypress Viewport Data (Automatic Update)","body":"Updates `config/cypress.json`
+        and `src/platform/testing/e2e/cypress/support/commands/viewportPreset.js`
+        with Google Analytics viewport data from last month (12/2020).\n\nThese files
+        are updated automatically via a Sidekiq job in `vets-api` that runs at noon
+        on the 2nd day of each month to get the analytics data for the previous month.
+        (Google Analytics updates every 24 hours.)"}'
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 4.20.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Wed, 27 Jan 2021 16:51:50 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '16436'
+      Status:
+      - 201 Created
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP
+      - Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - '"b54d060718d0ce3b5036899b3bf9e4c59c3dbc0d9f9a220be65c1c3b3be3c2b2"'
+      X-Oauth-Scopes:
+      - public_repo
+      X-Accepted-Oauth-Scopes:
+      - ''
+      Location:
+      - https://api.github.com/repos/holdenhinkle/vets-website/pulls/76
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4939'
+      X-Ratelimit-Reset:
+      - '1611768779'
+      X-Ratelimit-Used:
+      - '61'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      X-Github-Request-Id:
+      - DEE5:22BA:117DFD:30804C:60119A25
+    body:
+      encoding: UTF-8
+      string: '{"url":"https://api.github.com/repos/holdenhinkle/vets-website/pulls/76","id":562647845,"node_id":"MDExOlB1bGxSZXF1ZXN0NTYyNjQ3ODQ1","html_url":"https://github.com/holdenhinkle/vets-website/pull/76","diff_url":"https://github.com/holdenhinkle/vets-website/pull/76.diff","patch_url":"https://github.com/holdenhinkle/vets-website/pull/76.patch","issue_url":"https://api.github.com/repos/holdenhinkle/vets-website/issues/76","number":76,"state":"open","locked":false,"title":"Update
+        Cypress Viewport Data (Automatic Update)","user":{"login":"holdenhinkle","id":9326247,"node_id":"MDQ6VXNlcjkzMjYyNDc=","avatar_url":"https://avatars.githubusercontent.com/u/9326247?v=4","gravatar_id":"","url":"https://api.github.com/users/holdenhinkle","html_url":"https://github.com/holdenhinkle","followers_url":"https://api.github.com/users/holdenhinkle/followers","following_url":"https://api.github.com/users/holdenhinkle/following{/other_user}","gists_url":"https://api.github.com/users/holdenhinkle/gists{/gist_id}","starred_url":"https://api.github.com/users/holdenhinkle/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/holdenhinkle/subscriptions","organizations_url":"https://api.github.com/users/holdenhinkle/orgs","repos_url":"https://api.github.com/users/holdenhinkle/repos","events_url":"https://api.github.com/users/holdenhinkle/events{/privacy}","received_events_url":"https://api.github.com/users/holdenhinkle/received_events","type":"User","site_admin":false},"body":"Updates
+        `config/cypress.json` and `src/platform/testing/e2e/cypress/support/commands/viewportPreset.js`
+        with Google Analytics viewport data from last month (12/2020).\n\nThese files
+        are updated automatically via a Sidekiq job in `vets-api` that runs at noon
+        on the 2nd day of each month to get the analytics data for the previous month.
+        (Google Analytics updates every 24 hours.)","created_at":"2021-01-27T16:51:49Z","updated_at":"2021-01-27T16:51:49Z","closed_at":null,"merged_at":null,"merge_commit_sha":null,"assignee":null,"assignees":[],"requested_reviewers":[],"requested_teams":[],"labels":[],"milestone":null,"draft":false,"commits_url":"https://api.github.com/repos/holdenhinkle/vets-website/pulls/76/commits","review_comments_url":"https://api.github.com/repos/holdenhinkle/vets-website/pulls/76/comments","review_comment_url":"https://api.github.com/repos/holdenhinkle/vets-website/pulls/comments{/number}","comments_url":"https://api.github.com/repos/holdenhinkle/vets-website/issues/76/comments","statuses_url":"https://api.github.com/repos/holdenhinkle/vets-website/statuses/84b88f1a936dc8b9a44879c9f76dd72604ce3452","head":{"label":"holdenhinkle:01272021165145459_update_cypress_viewport_data","ref":"01272021165145459_update_cypress_viewport_data","sha":"84b88f1a936dc8b9a44879c9f76dd72604ce3452","user":{"login":"holdenhinkle","id":9326247,"node_id":"MDQ6VXNlcjkzMjYyNDc=","avatar_url":"https://avatars.githubusercontent.com/u/9326247?v=4","gravatar_id":"","url":"https://api.github.com/users/holdenhinkle","html_url":"https://github.com/holdenhinkle","followers_url":"https://api.github.com/users/holdenhinkle/followers","following_url":"https://api.github.com/users/holdenhinkle/following{/other_user}","gists_url":"https://api.github.com/users/holdenhinkle/gists{/gist_id}","starred_url":"https://api.github.com/users/holdenhinkle/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/holdenhinkle/subscriptions","organizations_url":"https://api.github.com/users/holdenhinkle/orgs","repos_url":"https://api.github.com/users/holdenhinkle/repos","events_url":"https://api.github.com/users/holdenhinkle/events{/privacy}","received_events_url":"https://api.github.com/users/holdenhinkle/received_events","type":"User","site_admin":false},"repo":{"id":331099435,"node_id":"MDEwOlJlcG9zaXRvcnkzMzEwOTk0MzU=","name":"vets-website","full_name":"holdenhinkle/vets-website","private":false,"owner":{"login":"holdenhinkle","id":9326247,"node_id":"MDQ6VXNlcjkzMjYyNDc=","avatar_url":"https://avatars.githubusercontent.com/u/9326247?v=4","gravatar_id":"","url":"https://api.github.com/users/holdenhinkle","html_url":"https://github.com/holdenhinkle","followers_url":"https://api.github.com/users/holdenhinkle/followers","following_url":"https://api.github.com/users/holdenhinkle/following{/other_user}","gists_url":"https://api.github.com/users/holdenhinkle/gists{/gist_id}","starred_url":"https://api.github.com/users/holdenhinkle/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/holdenhinkle/subscriptions","organizations_url":"https://api.github.com/users/holdenhinkle/orgs","repos_url":"https://api.github.com/users/holdenhinkle/repos","events_url":"https://api.github.com/users/holdenhinkle/events{/privacy}","received_events_url":"https://api.github.com/users/holdenhinkle/received_events","type":"User","site_admin":false},"html_url":"https://github.com/holdenhinkle/vets-website","description":"Frontend
+        for VA.gov","fork":true,"url":"https://api.github.com/repos/holdenhinkle/vets-website","forks_url":"https://api.github.com/repos/holdenhinkle/vets-website/forks","keys_url":"https://api.github.com/repos/holdenhinkle/vets-website/keys{/key_id}","collaborators_url":"https://api.github.com/repos/holdenhinkle/vets-website/collaborators{/collaborator}","teams_url":"https://api.github.com/repos/holdenhinkle/vets-website/teams","hooks_url":"https://api.github.com/repos/holdenhinkle/vets-website/hooks","issue_events_url":"https://api.github.com/repos/holdenhinkle/vets-website/issues/events{/number}","events_url":"https://api.github.com/repos/holdenhinkle/vets-website/events","assignees_url":"https://api.github.com/repos/holdenhinkle/vets-website/assignees{/user}","branches_url":"https://api.github.com/repos/holdenhinkle/vets-website/branches{/branch}","tags_url":"https://api.github.com/repos/holdenhinkle/vets-website/tags","blobs_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/blobs{/sha}","git_tags_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/tags{/sha}","git_refs_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/refs{/sha}","trees_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/trees{/sha}","statuses_url":"https://api.github.com/repos/holdenhinkle/vets-website/statuses/{sha}","languages_url":"https://api.github.com/repos/holdenhinkle/vets-website/languages","stargazers_url":"https://api.github.com/repos/holdenhinkle/vets-website/stargazers","contributors_url":"https://api.github.com/repos/holdenhinkle/vets-website/contributors","subscribers_url":"https://api.github.com/repos/holdenhinkle/vets-website/subscribers","subscription_url":"https://api.github.com/repos/holdenhinkle/vets-website/subscription","commits_url":"https://api.github.com/repos/holdenhinkle/vets-website/commits{/sha}","git_commits_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/commits{/sha}","comments_url":"https://api.github.com/repos/holdenhinkle/vets-website/comments{/number}","issue_comment_url":"https://api.github.com/repos/holdenhinkle/vets-website/issues/comments{/number}","contents_url":"https://api.github.com/repos/holdenhinkle/vets-website/contents/{+path}","compare_url":"https://api.github.com/repos/holdenhinkle/vets-website/compare/{base}...{head}","merges_url":"https://api.github.com/repos/holdenhinkle/vets-website/merges","archive_url":"https://api.github.com/repos/holdenhinkle/vets-website/{archive_format}{/ref}","downloads_url":"https://api.github.com/repos/holdenhinkle/vets-website/downloads","issues_url":"https://api.github.com/repos/holdenhinkle/vets-website/issues{/number}","pulls_url":"https://api.github.com/repos/holdenhinkle/vets-website/pulls{/number}","milestones_url":"https://api.github.com/repos/holdenhinkle/vets-website/milestones{/number}","notifications_url":"https://api.github.com/repos/holdenhinkle/vets-website/notifications{?since,all,participating}","labels_url":"https://api.github.com/repos/holdenhinkle/vets-website/labels{/name}","releases_url":"https://api.github.com/repos/holdenhinkle/vets-website/releases{/id}","deployments_url":"https://api.github.com/repos/holdenhinkle/vets-website/deployments","created_at":"2021-01-19T20:20:45Z","updated_at":"2021-01-19T20:20:48Z","pushed_at":"2021-01-27T16:51:48Z","git_url":"git://github.com/holdenhinkle/vets-website.git","ssh_url":"git@github.com:holdenhinkle/vets-website.git","clone_url":"https://github.com/holdenhinkle/vets-website.git","svn_url":"https://github.com/holdenhinkle/vets-website","homepage":"","size":353869,"stargazers_count":0,"watchers_count":0,"language":null,"has_issues":false,"has_projects":true,"has_downloads":true,"has_wiki":false,"has_pages":false,"forks_count":0,"mirror_url":null,"archived":false,"disabled":false,"open_issues_count":75,"license":{"key":"cc0-1.0","name":"Creative
+        Commons Zero v1.0 Universal","spdx_id":"CC0-1.0","url":"https://api.github.com/licenses/cc0-1.0","node_id":"MDc6TGljZW5zZTY="},"forks":0,"open_issues":75,"watchers":0,"default_branch":"master"}},"base":{"label":"holdenhinkle:master","ref":"master","sha":"7f31c1e1ba2fc7ec7de66242c7420bc522150a01","user":{"login":"holdenhinkle","id":9326247,"node_id":"MDQ6VXNlcjkzMjYyNDc=","avatar_url":"https://avatars.githubusercontent.com/u/9326247?v=4","gravatar_id":"","url":"https://api.github.com/users/holdenhinkle","html_url":"https://github.com/holdenhinkle","followers_url":"https://api.github.com/users/holdenhinkle/followers","following_url":"https://api.github.com/users/holdenhinkle/following{/other_user}","gists_url":"https://api.github.com/users/holdenhinkle/gists{/gist_id}","starred_url":"https://api.github.com/users/holdenhinkle/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/holdenhinkle/subscriptions","organizations_url":"https://api.github.com/users/holdenhinkle/orgs","repos_url":"https://api.github.com/users/holdenhinkle/repos","events_url":"https://api.github.com/users/holdenhinkle/events{/privacy}","received_events_url":"https://api.github.com/users/holdenhinkle/received_events","type":"User","site_admin":false},"repo":{"id":331099435,"node_id":"MDEwOlJlcG9zaXRvcnkzMzEwOTk0MzU=","name":"vets-website","full_name":"holdenhinkle/vets-website","private":false,"owner":{"login":"holdenhinkle","id":9326247,"node_id":"MDQ6VXNlcjkzMjYyNDc=","avatar_url":"https://avatars.githubusercontent.com/u/9326247?v=4","gravatar_id":"","url":"https://api.github.com/users/holdenhinkle","html_url":"https://github.com/holdenhinkle","followers_url":"https://api.github.com/users/holdenhinkle/followers","following_url":"https://api.github.com/users/holdenhinkle/following{/other_user}","gists_url":"https://api.github.com/users/holdenhinkle/gists{/gist_id}","starred_url":"https://api.github.com/users/holdenhinkle/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/holdenhinkle/subscriptions","organizations_url":"https://api.github.com/users/holdenhinkle/orgs","repos_url":"https://api.github.com/users/holdenhinkle/repos","events_url":"https://api.github.com/users/holdenhinkle/events{/privacy}","received_events_url":"https://api.github.com/users/holdenhinkle/received_events","type":"User","site_admin":false},"html_url":"https://github.com/holdenhinkle/vets-website","description":"Frontend
+        for VA.gov","fork":true,"url":"https://api.github.com/repos/holdenhinkle/vets-website","forks_url":"https://api.github.com/repos/holdenhinkle/vets-website/forks","keys_url":"https://api.github.com/repos/holdenhinkle/vets-website/keys{/key_id}","collaborators_url":"https://api.github.com/repos/holdenhinkle/vets-website/collaborators{/collaborator}","teams_url":"https://api.github.com/repos/holdenhinkle/vets-website/teams","hooks_url":"https://api.github.com/repos/holdenhinkle/vets-website/hooks","issue_events_url":"https://api.github.com/repos/holdenhinkle/vets-website/issues/events{/number}","events_url":"https://api.github.com/repos/holdenhinkle/vets-website/events","assignees_url":"https://api.github.com/repos/holdenhinkle/vets-website/assignees{/user}","branches_url":"https://api.github.com/repos/holdenhinkle/vets-website/branches{/branch}","tags_url":"https://api.github.com/repos/holdenhinkle/vets-website/tags","blobs_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/blobs{/sha}","git_tags_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/tags{/sha}","git_refs_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/refs{/sha}","trees_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/trees{/sha}","statuses_url":"https://api.github.com/repos/holdenhinkle/vets-website/statuses/{sha}","languages_url":"https://api.github.com/repos/holdenhinkle/vets-website/languages","stargazers_url":"https://api.github.com/repos/holdenhinkle/vets-website/stargazers","contributors_url":"https://api.github.com/repos/holdenhinkle/vets-website/contributors","subscribers_url":"https://api.github.com/repos/holdenhinkle/vets-website/subscribers","subscription_url":"https://api.github.com/repos/holdenhinkle/vets-website/subscription","commits_url":"https://api.github.com/repos/holdenhinkle/vets-website/commits{/sha}","git_commits_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/commits{/sha}","comments_url":"https://api.github.com/repos/holdenhinkle/vets-website/comments{/number}","issue_comment_url":"https://api.github.com/repos/holdenhinkle/vets-website/issues/comments{/number}","contents_url":"https://api.github.com/repos/holdenhinkle/vets-website/contents/{+path}","compare_url":"https://api.github.com/repos/holdenhinkle/vets-website/compare/{base}...{head}","merges_url":"https://api.github.com/repos/holdenhinkle/vets-website/merges","archive_url":"https://api.github.com/repos/holdenhinkle/vets-website/{archive_format}{/ref}","downloads_url":"https://api.github.com/repos/holdenhinkle/vets-website/downloads","issues_url":"https://api.github.com/repos/holdenhinkle/vets-website/issues{/number}","pulls_url":"https://api.github.com/repos/holdenhinkle/vets-website/pulls{/number}","milestones_url":"https://api.github.com/repos/holdenhinkle/vets-website/milestones{/number}","notifications_url":"https://api.github.com/repos/holdenhinkle/vets-website/notifications{?since,all,participating}","labels_url":"https://api.github.com/repos/holdenhinkle/vets-website/labels{/name}","releases_url":"https://api.github.com/repos/holdenhinkle/vets-website/releases{/id}","deployments_url":"https://api.github.com/repos/holdenhinkle/vets-website/deployments","created_at":"2021-01-19T20:20:45Z","updated_at":"2021-01-19T20:20:48Z","pushed_at":"2021-01-27T16:51:48Z","git_url":"git://github.com/holdenhinkle/vets-website.git","ssh_url":"git@github.com:holdenhinkle/vets-website.git","clone_url":"https://github.com/holdenhinkle/vets-website.git","svn_url":"https://github.com/holdenhinkle/vets-website","homepage":"","size":353869,"stargazers_count":0,"watchers_count":0,"language":null,"has_issues":false,"has_projects":true,"has_downloads":true,"has_wiki":false,"has_pages":false,"forks_count":0,"mirror_url":null,"archived":false,"disabled":false,"open_issues_count":75,"license":{"key":"cc0-1.0","name":"Creative
+        Commons Zero v1.0 Universal","spdx_id":"CC0-1.0","url":"https://api.github.com/licenses/cc0-1.0","node_id":"MDc6TGljZW5zZTY="},"forks":0,"open_issues":75,"watchers":0,"default_branch":"master"}},"_links":{"self":{"href":"https://api.github.com/repos/holdenhinkle/vets-website/pulls/76"},"html":{"href":"https://github.com/holdenhinkle/vets-website/pull/76"},"issue":{"href":"https://api.github.com/repos/holdenhinkle/vets-website/issues/76"},"comments":{"href":"https://api.github.com/repos/holdenhinkle/vets-website/issues/76/comments"},"review_comments":{"href":"https://api.github.com/repos/holdenhinkle/vets-website/pulls/76/comments"},"review_comment":{"href":"https://api.github.com/repos/holdenhinkle/vets-website/pulls/comments{/number}"},"commits":{"href":"https://api.github.com/repos/holdenhinkle/vets-website/pulls/76/commits"},"statuses":{"href":"https://api.github.com/repos/holdenhinkle/vets-website/statuses/84b88f1a936dc8b9a44879c9f76dd72604ce3452"}},"author_association":"OWNER","active_lock_reason":null,"merged":false,"mergeable":null,"rebaseable":null,"mergeable_state":"unknown","merged_by":null,"comments":0,"review_comments":0,"maintainer_can_modify":false,"commits":2,"additions":2,"deletions":264,"changed_files":2}'
+  recorded_at: Wed, 27 Jan 2021 16:51:50 GMT
+recorded_with: VCR 6.0.0

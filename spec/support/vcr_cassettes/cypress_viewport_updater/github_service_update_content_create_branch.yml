@@ -1,0 +1,163 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.github.com/repos/holdenhinkle/vets-website/git/refs/heads/master
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 4.20.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Wed, 27 Jan 2021 16:51:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Status:
+      - 200 OK
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP
+      - Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - W/"ebc8880bf4f8d75b30f56eebd5e324bca0cf78a79a390852cbc7d3c81d7374b7"
+      Last-Modified:
+      - Tue, 19 Jan 2021 20:20:48 GMT
+      X-Poll-Interval:
+      - '300'
+      X-Oauth-Scopes:
+      - public_repo
+      X-Accepted-Oauth-Scopes:
+      - repo
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4934'
+      X-Ratelimit-Reset:
+      - '1611768779'
+      X-Ratelimit-Used:
+      - '66'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      X-Github-Request-Id:
+      - DEEA:7E47:1BB1213:2C7D564:60119A28
+    body:
+      encoding: ASCII-8BIT
+      string: '{"ref":"refs/heads/master","node_id":"MDM6UmVmMzMxMDk5NDM1OnJlZnMvaGVhZHMvbWFzdGVy","url":"https://api.github.com/repos/holdenhinkle/vets-website/git/refs/heads/master","object":{"sha":"7f31c1e1ba2fc7ec7de66242c7420bc522150a01","type":"commit","url":"https://api.github.com/repos/holdenhinkle/vets-website/git/commits/7f31c1e1ba2fc7ec7de66242c7420bc522150a01"}}'
+  recorded_at: Wed, 27 Jan 2021 16:51:52 GMT
+- request:
+    method: post
+    uri: https://api.github.com/repos/holdenhinkle/vets-website/git/refs
+    body:
+      encoding: UTF-8
+      string: '{"ref":"refs/heads/01272021165152485_update_cypress_viewport_data","sha":"7f31c1e1ba2fc7ec7de66242c7420bc522150a01"}'
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 4.20.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Wed, 27 Jan 2021 16:51:53 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '497'
+      Status:
+      - 201 Created
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP
+      - Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - '"9319588e96e24686eecbc9b9885dc312c6ce6c2a3e7f2d82cc9aa7296bc016da"'
+      X-Oauth-Scopes:
+      - public_repo
+      X-Accepted-Oauth-Scopes:
+      - repo
+      Location:
+      - https://api.github.com/repos/holdenhinkle/vets-website/git/refs/heads/01272021165152485_update_cypress_viewport_data
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4933'
+      X-Ratelimit-Reset:
+      - '1611768779'
+      X-Ratelimit-Used:
+      - '67'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      X-Github-Request-Id:
+      - DEEB:343B:14FD89:3D5ACD:60119A28
+    body:
+      encoding: UTF-8
+      string: '{"ref":"refs/heads/01272021165152485_update_cypress_viewport_data","node_id":"MDM6UmVmMzMxMDk5NDM1OnJlZnMvaGVhZHMvMDEyNzIwMjExNjUxNTI0ODVfdXBkYXRlX2N5cHJlc3Nfdmlld3BvcnRfZGF0YQ==","url":"https://api.github.com/repos/holdenhinkle/vets-website/git/refs/heads/01272021165152485_update_cypress_viewport_data","object":{"sha":"7f31c1e1ba2fc7ec7de66242c7420bc522150a01","type":"commit","url":"https://api.github.com/repos/holdenhinkle/vets-website/git/commits/7f31c1e1ba2fc7ec7de66242c7420bc522150a01"}}'
+  recorded_at: Wed, 27 Jan 2021 16:51:53 GMT
+recorded_with: VCR 6.0.0

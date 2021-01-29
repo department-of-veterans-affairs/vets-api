@@ -1,0 +1,329 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.github.com/repos/holdenhinkle/vets-website/contents/config/cypress.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 4.20.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Wed, 27 Jan 2021 16:51:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Status:
+      - 200 OK
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP
+      - Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - W/"57622995106a464ab8bc123ae6704ac833439aee"
+      Last-Modified:
+      - Tue, 19 Jan 2021 18:43:52 GMT
+      X-Oauth-Scopes:
+      - public_repo
+      X-Accepted-Oauth-Scopes:
+      - ''
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4936'
+      X-Ratelimit-Reset:
+      - '1611768779'
+      X-Ratelimit-Used:
+      - '64'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      X-Github-Request-Id:
+      - DEE8:1F42:1C30C6D:2CF9438:60119A27
+    body:
+      encoding: ASCII-8BIT
+      string: '{"name":"cypress.json","path":"config/cypress.json","sha":"57622995106a464ab8bc123ae6704ac833439aee","size":5481,"url":"https://api.github.com/repos/holdenhinkle/vets-website/contents/config/cypress.json?ref=master","html_url":"https://github.com/holdenhinkle/vets-website/blob/master/config/cypress.json","git_url":"https://api.github.com/repos/holdenhinkle/vets-website/git/blobs/57622995106a464ab8bc123ae6704ac833439aee","download_url":"https://raw.githubusercontent.com/holdenhinkle/vets-website/master/config/cypress.json","type":"file","content":"ewogICJiYXNlVXJsIjogImh0dHA6Ly9sb2NhbGhvc3Q6MzAwMSIsCiAgImlu\ndGVncmF0aW9uRm9sZGVyIjogIi4vc3JjIiwKICAibW9kaWZ5T2JzdHJ1Y3Rp\ndmVDb2RlIjogZmFsc2UsCiAgIm5vZGVWZXJzaW9uIjogInN5c3RlbSIsCiAg\nInBsdWdpbnNGaWxlIjogInNyYy9wbGF0Zm9ybS90ZXN0aW5nL2UyZS9jeXBy\nZXNzL3BsdWdpbnMvaW5kZXguanMiLAogICJzdXBwb3J0RmlsZSI6ICJzcmMv\ncGxhdGZvcm0vdGVzdGluZy9lMmUvY3lwcmVzcy9zdXBwb3J0L2luZGV4Lmpz\nIiwKICAidGVzdEZpbGVzIjogIioqL3Rlc3RzLyoqLyouY3lwcmVzcy5zcGVj\nLmpzPyh4KSIsCiAgIndhaXRGb3JBbmltYXRpb25zIjogZmFsc2UsCiAgImVu\ndiI6IHsKICAgICJ2YVRvcE1vYmlsZVZpZXdwb3J0cyI6IFsKICAgICAgewog\nICAgICAgICJsaXN0IjogIlZBIFRvcCBNb2JpbGUgVmlld3BvcnRzIiwKICAg\nICAgICAicmFuayI6IDEsCiAgICAgICAgImRldmljZXNXaXRoVmlld3BvcnQi\nOiAiaVBob25lIFhTIE1heCwgaVBob25lIFhSLCBpUGhvbmUgMTEsIGlQaG9u\nZSAxMSBQcm8gTWF4IiwKICAgICAgICAicGVyY2VudFRyYWZmaWMiOiA3LjIs\nCiAgICAgICAgInBlcmNlbnRUcmFmZmljUGVyaW9kIjogIkRlY2VtYmVyLCAy\nMDIwIiwKICAgICAgICAidmlld3BvcnRQcmVzZXQiOiAidmEtdG9wLW1vYmls\nZS0xIiwKICAgICAgICAid2lkdGgiOiA0MTQsCiAgICAgICAgImhlaWdodCI6\nIDg5NgogICAgICB9LAogICAgICB7CiAgICAgICAgImxpc3QiOiAiVkEgVG9w\nIE1vYmlsZSBWaWV3cG9ydHMiLAogICAgICAgICJyYW5rIjogMiwKICAgICAg\nICAiZGV2aWNlc1dpdGhWaWV3cG9ydCI6ICJpUGhvbmUgWCwgaVBob25lIFhT\nLCBpUGhvbmUgMTEgUHJvIiwKICAgICAgICAicGVyY2VudFRyYWZmaWMiOiA0\nLjExLAogICAgICAgICJwZXJjZW50VHJhZmZpY1BlcmlvZCI6ICJEZWNlbWJl\nciwgMjAyMCIsCiAgICAgICAgInZpZXdwb3J0UHJlc2V0IjogInZhLXRvcC1t\nb2JpbGUtMiIsCiAgICAgICAgIndpZHRoIjogMzc1LAogICAgICAgICJoZWln\naHQiOiA4MTIKICAgICAgfSwKICAgICAgewogICAgICAgICJsaXN0IjogIlZB\nIFRvcCBNb2JpbGUgVmlld3BvcnRzIiwKICAgICAgICAicmFuayI6IDMsCiAg\nICAgICAgImRldmljZXNXaXRoVmlld3BvcnQiOiAiaVBob25lIDYsIGlQaG9u\nZSA2cywgaVBob25lIDcsIGlQaG9uZSA4IiwKICAgICAgICAicGVyY2VudFRy\nYWZmaWMiOiA0LjA3LAogICAgICAgICJwZXJjZW50VHJhZmZpY1BlcmlvZCI6\nICJEZWNlbWJlciwgMjAyMCIsCiAgICAgICAgInZpZXdwb3J0UHJlc2V0Ijog\nInZhLXRvcC1tb2JpbGUtMyIsCiAgICAgICAgIndpZHRoIjogMzc1LAogICAg\nICAgICJoZWlnaHQiOiA2NjcKICAgICAgfSwKICAgICAgewogICAgICAgICJs\naXN0IjogIlZBIFRvcCBNb2JpbGUgVmlld3BvcnRzIiwKICAgICAgICAicmFu\nayI6IDQsCiAgICAgICAgImRldmljZXNXaXRoVmlld3BvcnQiOiAiaVBob25l\nIDYgUGx1cywgaVBob25lIDZzIFBsdXMsIGlQaG9uZSA3IFBsdXMsIGlQaG9u\nZSA4IFBsdXMiLAogICAgICAgICJwZXJjZW50VHJhZmZpYyI6IDIuMTMsCiAg\nICAgICAgInBlcmNlbnRUcmFmZmljUGVyaW9kIjogIkRlY2VtYmVyLCAyMDIw\nIiwKICAgICAgICAidmlld3BvcnRQcmVzZXQiOiAidmEtdG9wLW1vYmlsZS00\nIiwKICAgICAgICAid2lkdGgiOiA0MTQsCiAgICAgICAgImhlaWdodCI6IDcz\nNgogICAgICB9LAogICAgICB7CiAgICAgICAgImxpc3QiOiAiVkEgVG9wIE1v\nYmlsZSBWaWV3cG9ydHMiLAogICAgICAgICJyYW5rIjogNSwKICAgICAgICAi\nZGV2aWNlc1dpdGhWaWV3cG9ydCI6ICJWYXJpb3VzIFNhbXN1bmcgR2FsYXh5\nLCBNb3Rvcm9sYSwgSHVhd2VpLCBhbmQgb3RoZXIgcGhvbmVzIiwKICAgICAg\nICAicGVyY2VudFRyYWZmaWMiOiAxLjM0LAogICAgICAgICJwZXJjZW50VHJh\nZmZpY1BlcmlvZCI6ICJEZWNlbWJlciwgMjAyMCIsCiAgICAgICAgInZpZXdw\nb3J0UHJlc2V0IjogInZhLXRvcC1tb2JpbGUtNSIsCiAgICAgICAgIndpZHRo\nIjogMzYwLAogICAgICAgICJoZWlnaHQiOiA2NDAKICAgICAgfQogICAgXSwK\nICAgICJ2YVRvcFRhYmxldFZpZXdwb3J0cyI6IFsKICAgICAgewogICAgICAg\nICJsaXN0IjogIlZBIFRvcCBUYWJsZXQgVmlld3BvcnRzIiwKICAgICAgICAi\ncmFuayI6IDEsCiAgICAgICAgImRldmljZXNXaXRoVmlld3BvcnQiOiAiaVBh\nZCAxLTYsIGlQYWQgbWluaSwgaVBhZCBBaXIgMS0yLCBpUGFkIFBybyAoMXN0\nIGdlbiA5LjcgaW5jaCkiLAogICAgICAgICJwZXJjZW50VHJhZmZpYyI6IDEu\nMTksCiAgICAgICAgInBlcmNlbnRUcmFmZmljUGVyaW9kIjogIkRlY2VtYmVy\nLCAyMDIwIiwKICAgICAgICAidmlld3BvcnRQcmVzZXQiOiAidmEtdG9wLXRh\nYmxldC0xIiwKICAgICAgICAid2lkdGgiOiA3NjgsCiAgICAgICAgImhlaWdo\ndCI6IDEwMjQKICAgICAgfSwKICAgICAgewogICAgICAgICJsaXN0IjogIlZB\nIFRvcCBUYWJsZXQgVmlld3BvcnRzIiwKICAgICAgICAicmFuayI6IDIsCiAg\nICAgICAgImRldmljZXNXaXRoVmlld3BvcnQiOiAiTWljcm9zb2Z0IFdpbmRv\nd3MgUlQgVGFibGV0IiwKICAgICAgICAicGVyY2VudFRyYWZmaWMiOiAwLjQx\nLAogICAgICAgICJwZXJjZW50VHJhZmZpY1BlcmlvZCI6ICJEZWNlbWJlciwg\nMjAyMCIsCiAgICAgICAgInZpZXdwb3J0UHJlc2V0IjogInZhLXRvcC10YWJs\nZXQtMiIsCiAgICAgICAgIndpZHRoIjogMTkyMCwKICAgICAgICAiaGVpZ2h0\nIjogMTA4MAogICAgICB9LAogICAgICB7CiAgICAgICAgImxpc3QiOiAiVkEg\nVG9wIFRhYmxldCBWaWV3cG9ydHMiLAogICAgICAgICJyYW5rIjogMywKICAg\nICAgICAiZGV2aWNlc1dpdGhWaWV3cG9ydCI6ICJNaWNyb3NvZnQgV2luZG93\ncyBSVCBUYWJsZXQiLAogICAgICAgICJwZXJjZW50VHJhZmZpYyI6IDAuMjIs\nCiAgICAgICAgInBlcmNlbnRUcmFmZmljUGVyaW9kIjogIkRlY2VtYmVyLCAy\nMDIwIiwKICAgICAgICAidmlld3BvcnRQcmVzZXQiOiAidmEtdG9wLXRhYmxl\ndC0zIiwKICAgICAgICAid2lkdGgiOiAxMjgwLAogICAgICAgICJoZWlnaHQi\nOiA3MjAKICAgICAgfSwKICAgICAgewogICAgICAgICJsaXN0IjogIlZBIFRv\ncCBUYWJsZXQgVmlld3BvcnRzIiwKICAgICAgICAicmFuayI6IDQsCiAgICAg\nICAgImRldmljZXNXaXRoVmlld3BvcnQiOiAiQW1hem9uIEtTRlVXSSBGaXJl\nIEhEIDEwICgyMDE3KSwgQW1hem9uIEtGTUFXSSBGaXJlIEhEIDEwICgyMDE5\nKSwgU2Ftc3VuZyBTTS1UNTgwIEdhbGF4eSBUYWIgQSAxMC4xLCBTYW1zdW5n\nIFNNLVQ1MTAgR2FsYXh5IFRhYiBBIDEwLjEgKDIwMTkpLCBTYW1zdW5nIFNN\nLVQ1NjBOVSBHYWxheHkgVGFiIEUiLAogICAgICAgICJwZXJjZW50VHJhZmZp\nYyI6IDAuMTcsCiAgICAgICAgInBlcmNlbnRUcmFmZmljUGVyaW9kIjogIkRl\nY2VtYmVyLCAyMDIwIiwKICAgICAgICAidmlld3BvcnRQcmVzZXQiOiAidmEt\ndG9wLXRhYmxldC00IiwKICAgICAgICAid2lkdGgiOiA4MDAsCiAgICAgICAg\nImhlaWdodCI6IDEyODAKICAgICAgfSwKICAgICAgewogICAgICAgICJsaXN0\nIjogIlZBIFRvcCBUYWJsZXQgVmlld3BvcnRzIiwKICAgICAgICAicmFuayI6\nIDUsCiAgICAgICAgImRldmljZXNXaXRoVmlld3BvcnQiOiAiQW1hem9uIEtG\nR0lXSSBLaW5kbGUgRmlyZSBIRCA4IDIwMTYsIEFtYXpvbiBLRkRPV0kgS2lu\nZGxlIEZpcmUgSEQgOCAoMjAxNyksIEFtYXpvbiBLRktBV0kgRmlyZSBIRCA4\nICgyMDE4KSwgQW1hem9uIEtGS0FXSSBGaXJlIEhEIDggKDIwMTgpIiwKICAg\nICAgICAicGVyY2VudFRyYWZmaWMiOiAwLjE0LAogICAgICAgICJwZXJjZW50\nVHJhZmZpY1BlcmlvZCI6ICJEZWNlbWJlciwgMjAyMCIsCiAgICAgICAgInZp\nZXdwb3J0UHJlc2V0IjogInZhLXRvcC10YWJsZXQtNSIsCiAgICAgICAgIndp\nZHRoIjogNjAxLAogICAgICAgICJoZWlnaHQiOiA5NjIKICAgICAgfQogICAg\nXSwKICAgICJ2YVRvcERlc2t0b3BWaWV3cG9ydHMiOiBbCiAgICAgIHsKICAg\nICAgICAibGlzdCI6ICJWQSBUb3AgRGVza3RvcCBWaWV3cG9ydHMiLAogICAg\nICAgICJyYW5rIjogMSwKICAgICAgICAiZGV2aWNlc1dpdGhWaWV3cG9ydCI6\nICJVbmtub3duIiwKICAgICAgICAicGVyY2VudFRyYWZmaWMiOiAyNy42MSwK\nICAgICAgICAicGVyY2VudFRyYWZmaWNQZXJpb2QiOiAiRGVjZW1iZXIsIDIw\nMjAiLAogICAgICAgICJ2aWV3cG9ydFByZXNldCI6ICJ2YS10b3AtZGVza3Rv\ncC0xIiwKICAgICAgICAid2lkdGgiOiAxMjgwLAogICAgICAgICJoZWlnaHQi\nOiA5NjAKICAgICAgfSwKICAgICAgewogICAgICAgICJsaXN0IjogIlZBIFRv\ncCBEZXNrdG9wIFZpZXdwb3J0cyIsCiAgICAgICAgInJhbmsiOiAyLAogICAg\nICAgICJkZXZpY2VzV2l0aFZpZXdwb3J0IjogIlVua25vd24iLAogICAgICAg\nICJwZXJjZW50VHJhZmZpYyI6IDcuOTcsCiAgICAgICAgInBlcmNlbnRUcmFm\nZmljUGVyaW9kIjogIkRlY2VtYmVyLCAyMDIwIiwKICAgICAgICAidmlld3Bv\ncnRQcmVzZXQiOiAidmEtdG9wLWRlc2t0b3AtMiIsCiAgICAgICAgIndpZHRo\nIjogMTkyMCwKICAgICAgICAiaGVpZ2h0IjogMTA4MAogICAgICB9LAogICAg\nICB7CiAgICAgICAgImxpc3QiOiAiVkEgVG9wIERlc2t0b3AgVmlld3BvcnRz\nIiwKICAgICAgICAicmFuayI6IDMsCiAgICAgICAgImRldmljZXNXaXRoVmll\nd3BvcnQiOiAiVW5rbm93biIsCiAgICAgICAgInBlcmNlbnRUcmFmZmljIjog\nNC42NCwKICAgICAgICAicGVyY2VudFRyYWZmaWNQZXJpb2QiOiAiRGVjZW1i\nZXIsIDIwMjAiLAogICAgICAgICJ2aWV3cG9ydFByZXNldCI6ICJ2YS10b3At\nZGVza3RvcC0zIiwKICAgICAgICAid2lkdGgiOiAxMzY2LAogICAgICAgICJo\nZWlnaHQiOiA3NjgKICAgICAgfSwKICAgICAgewogICAgICAgICJsaXN0Ijog\nIlZBIFRvcCBEZXNrdG9wIFZpZXdwb3J0cyIsCiAgICAgICAgInJhbmsiOiA0\nLAogICAgICAgICJkZXZpY2VzV2l0aFZpZXdwb3J0IjogIlVua25vd24iLAog\nICAgICAgICJwZXJjZW50VHJhZmZpYyI6IDMuNjYsCiAgICAgICAgInBlcmNl\nbnRUcmFmZmljUGVyaW9kIjogIkRlY2VtYmVyLCAyMDIwIiwKICAgICAgICAi\ndmlld3BvcnRQcmVzZXQiOiAidmEtdG9wLWRlc2t0b3AtNCIsCiAgICAgICAg\nIndpZHRoIjogMTQ0MCwKICAgICAgICAiaGVpZ2h0IjogOTAwCiAgICAgIH0s\nCiAgICAgIHsKICAgICAgICAibGlzdCI6ICJWQSBUb3AgRGVza3RvcCBWaWV3\ncG9ydHMiLAogICAgICAgICJyYW5rIjogNSwKICAgICAgICAiZGV2aWNlc1dp\ndGhWaWV3cG9ydCI6ICJVbmtub3duIiwKICAgICAgICAicGVyY2VudFRyYWZm\naWMiOiAyLjQ2LAogICAgICAgICJwZXJjZW50VHJhZmZpY1BlcmlvZCI6ICJE\nZWNlbWJlciwgMjAyMCIsCiAgICAgICAgInZpZXdwb3J0UHJlc2V0IjogInZh\nLXRvcC1kZXNrdG9wLTUiLAogICAgICAgICJ3aWR0aCI6IDE1MzYsCiAgICAg\nICAgImhlaWdodCI6IDg2NAogICAgICB9CiAgICBdCiAgfQp9\n","encoding":"base64","_links":{"self":"https://api.github.com/repos/holdenhinkle/vets-website/contents/config/cypress.json?ref=master","git":"https://api.github.com/repos/holdenhinkle/vets-website/git/blobs/57622995106a464ab8bc123ae6704ac833439aee","html":"https://github.com/holdenhinkle/vets-website/blob/master/config/cypress.json"}}'
+  recorded_at: Wed, 27 Jan 2021 16:51:52 GMT
+- request:
+    method: get
+    uri: https://api.github.com/repos/holdenhinkle/vets-website/contents/config/cypress.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.V3.raw
+      User-Agent:
+      - Octokit Ruby Gem 4.20.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Wed, 27 Jan 2021 16:51:52 GMT
+      Content-Type:
+      - application/vnd.github.V3.raw; charset=utf-8
+      Content-Length:
+      - '5481'
+      Status:
+      - 200 OK
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP
+      - Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - '"57622995106a464ab8bc123ae6704ac833439aee"'
+      Last-Modified:
+      - Tue, 19 Jan 2021 18:43:52 GMT
+      X-Oauth-Scopes:
+      - public_repo
+      X-Accepted-Oauth-Scopes:
+      - ''
+      X-Github-Media-Type:
+      - github.v3; param=V3.raw
+      X-Ratelimit-Limit:
+      - '5000'
+      X-Ratelimit-Remaining:
+      - '4935'
+      X-Ratelimit-Reset:
+      - '1611768779'
+      X-Ratelimit-Used:
+      - '65'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      X-Github-Request-Id:
+      - DEE9:0239:EFB754:1F6759D:60119A28
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "baseUrl": "http://localhost:3001",
+          "integrationFolder": "./src",
+          "modifyObstructiveCode": false,
+          "nodeVersion": "system",
+          "pluginsFile": "src/platform/testing/e2e/cypress/plugins/index.js",
+          "supportFile": "src/platform/testing/e2e/cypress/support/index.js",
+          "testFiles": "**/tests/**/*.cypress.spec.js?(x)",
+          "waitForAnimations": false,
+          "env": {
+            "vaTopMobileViewports": [
+              {
+                "list": "VA Top Mobile Viewports",
+                "rank": 1,
+                "devicesWithViewport": "iPhone XS Max, iPhone XR, iPhone 11, iPhone 11 Pro Max",
+                "percentTraffic": 7.2,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-mobile-1",
+                "width": 414,
+                "height": 896
+              },
+              {
+                "list": "VA Top Mobile Viewports",
+                "rank": 2,
+                "devicesWithViewport": "iPhone X, iPhone XS, iPhone 11 Pro",
+                "percentTraffic": 4.11,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-mobile-2",
+                "width": 375,
+                "height": 812
+              },
+              {
+                "list": "VA Top Mobile Viewports",
+                "rank": 3,
+                "devicesWithViewport": "iPhone 6, iPhone 6s, iPhone 7, iPhone 8",
+                "percentTraffic": 4.07,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-mobile-3",
+                "width": 375,
+                "height": 667
+              },
+              {
+                "list": "VA Top Mobile Viewports",
+                "rank": 4,
+                "devicesWithViewport": "iPhone 6 Plus, iPhone 6s Plus, iPhone 7 Plus, iPhone 8 Plus",
+                "percentTraffic": 2.13,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-mobile-4",
+                "width": 414,
+                "height": 736
+              },
+              {
+                "list": "VA Top Mobile Viewports",
+                "rank": 5,
+                "devicesWithViewport": "Various Samsung Galaxy, Motorola, Huawei, and other phones",
+                "percentTraffic": 1.34,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-mobile-5",
+                "width": 360,
+                "height": 640
+              }
+            ],
+            "vaTopTabletViewports": [
+              {
+                "list": "VA Top Tablet Viewports",
+                "rank": 1,
+                "devicesWithViewport": "iPad 1-6, iPad mini, iPad Air 1-2, iPad Pro (1st gen 9.7 inch)",
+                "percentTraffic": 1.19,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-tablet-1",
+                "width": 768,
+                "height": 1024
+              },
+              {
+                "list": "VA Top Tablet Viewports",
+                "rank": 2,
+                "devicesWithViewport": "Microsoft Windows RT Tablet",
+                "percentTraffic": 0.41,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-tablet-2",
+                "width": 1920,
+                "height": 1080
+              },
+              {
+                "list": "VA Top Tablet Viewports",
+                "rank": 3,
+                "devicesWithViewport": "Microsoft Windows RT Tablet",
+                "percentTraffic": 0.22,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-tablet-3",
+                "width": 1280,
+                "height": 720
+              },
+              {
+                "list": "VA Top Tablet Viewports",
+                "rank": 4,
+                "devicesWithViewport": "Amazon KSFUWI Fire HD 10 (2017), Amazon KFMAWI Fire HD 10 (2019), Samsung SM-T580 Galaxy Tab A 10.1, Samsung SM-T510 Galaxy Tab A 10.1 (2019), Samsung SM-T560NU Galaxy Tab E",
+                "percentTraffic": 0.17,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-tablet-4",
+                "width": 800,
+                "height": 1280
+              },
+              {
+                "list": "VA Top Tablet Viewports",
+                "rank": 5,
+                "devicesWithViewport": "Amazon KFGIWI Kindle Fire HD 8 2016, Amazon KFDOWI Kindle Fire HD 8 (2017), Amazon KFKAWI Fire HD 8 (2018), Amazon KFKAWI Fire HD 8 (2018)",
+                "percentTraffic": 0.14,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-tablet-5",
+                "width": 601,
+                "height": 962
+              }
+            ],
+            "vaTopDesktopViewports": [
+              {
+                "list": "VA Top Desktop Viewports",
+                "rank": 1,
+                "devicesWithViewport": "Unknown",
+                "percentTraffic": 27.61,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-desktop-1",
+                "width": 1280,
+                "height": 960
+              },
+              {
+                "list": "VA Top Desktop Viewports",
+                "rank": 2,
+                "devicesWithViewport": "Unknown",
+                "percentTraffic": 7.97,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-desktop-2",
+                "width": 1920,
+                "height": 1080
+              },
+              {
+                "list": "VA Top Desktop Viewports",
+                "rank": 3,
+                "devicesWithViewport": "Unknown",
+                "percentTraffic": 4.64,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-desktop-3",
+                "width": 1366,
+                "height": 768
+              },
+              {
+                "list": "VA Top Desktop Viewports",
+                "rank": 4,
+                "devicesWithViewport": "Unknown",
+                "percentTraffic": 3.66,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-desktop-4",
+                "width": 1440,
+                "height": 900
+              },
+              {
+                "list": "VA Top Desktop Viewports",
+                "rank": 5,
+                "devicesWithViewport": "Unknown",
+                "percentTraffic": 2.46,
+                "percentTrafficPeriod": "December, 2020",
+                "viewportPreset": "va-top-desktop-5",
+                "width": 1536,
+                "height": 864
+              }
+            ]
+          }
+        }
+  recorded_at: Wed, 27 Jan 2021 16:51:52 GMT
+recorded_with: VCR 6.0.0
