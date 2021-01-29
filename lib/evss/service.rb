@@ -11,12 +11,13 @@ module EVSS
 
     def initialize(user = nil, auth_headers = nil)
       @user = user
-      @headers = EVSS::AuthHeaders.new(user)
-      @transaction_id = if auth_headers.nil?
-                          @headers.transaction_id
-                        else
-                          auth_headers['va_eauth_service_transaction_id']
-                        end
+      if auth_headers.nil?
+        @headers = EVSS::AuthHeaders.new(user)
+        @transaction_id = @headers.transaction_id
+      else
+        @headers = auth_headers
+        @transaction_id = auth_headers['va_eauth_service_transaction_id']
+      end
     end
 
     def perform(method, path, body = nil, headers = {}, options = {})
