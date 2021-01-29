@@ -61,6 +61,7 @@ module ClaimsApi
 
       add_swagger_documentation \
         mount_path: '/docs/v2/api',
+        openapi_version: '3.0',
         info: {
           version: '2.0.0',
           title: 'Benefits Claims',
@@ -68,7 +69,23 @@ module ClaimsApi
           contact_name: 'VA API Benefits Team',
           terms_of_service_url: 'https://developer.va.gov/terms-of-service',
           license: 'Creative Commons'
-        }
+        },
+        tags: [
+          { name: 'Claims', description: 'Benefits Claims' },
+          { name: 'Disability', description: '526 Claim Submissions' },
+          { name: 'Intent to File', description: '0966 Submissions' },
+          { name: 'Power of Attorney', description: '2122 Submissions' }
+        ],
+        servers: [
+          {
+            url: 'https://sandbox-api.va.gov/services/claims',
+            description: 'VA.gov API sandbox environment'
+          },
+          {
+            url: 'https://api.va.gov/services/claims',
+            description: 'VA.gov API production environment'
+          }
+        ]
     end
   end
 end

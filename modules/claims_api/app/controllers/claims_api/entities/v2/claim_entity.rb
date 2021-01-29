@@ -2,7 +2,10 @@ module ClaimsApi
   module Entities
     module V2
       class ClaimEntity < Grape::Entity
-        expose :id, documentation: { type: String } do |instance, _options|
+        expose :id, documentation: {
+                      type: String,
+                      example: '6dca620c-e737-4168-a9d1-5aac85fec915'
+                    } do |instance, _options|
           valid_identifier(instance)
         end
         expose :self do |instance, options|
@@ -16,8 +19,8 @@ module ClaimsApi
           end
         end
         expose :attributes, documentation: { type: Hash, desc: 'Additional attributes' } do
-          expose :evss_id, as: :vbms_claim_id, documentation: { type: Integer }
-          expose :claim_type, documentation: { type: String } do |instance, _options|
+          expose :evss_id, as: :vbmsClaimId, documentation: { type: Integer }
+          expose :claimType, documentation: { type: String } do |instance, _options|
             if instance.respond_to?(:list_data)
               instance.list_data['status_type']
             end

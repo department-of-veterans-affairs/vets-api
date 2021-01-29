@@ -15,9 +15,15 @@ module ClaimsApi
       end
 
       resource :claims do
-        desc 'Return all claims.' do
+        desc 'Return all claims associated with Veteran.' do
+          detail <<~X
+            Returns pending claims submitted through this API as well as any established claims submitted
+            from other sources.
+          X
           success ClaimsApi::Entities::V2::ClaimEntity
           failure [[401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity']]
+          tags ['Claims']
+          security [{ bearer_token: [] }]
         end
         get '/' do
           non_established_claims = ClaimsApi::AutoEstablishedClaim.where(source: source_name)
@@ -37,12 +43,18 @@ module ClaimsApi
           present merged_claims, with: ClaimsApi::Entities::V2::ClaimEntity, base_url: request.base_url
         end
 
-        desc 'Return a claim.' do
+        desc 'Return a claim for a Veteran by id.' do
+          detail <<~X
+            Accepts this API's uuid claim identifier to search claims submitted through this API.
+            This endpoint also accepts a VBMS id to search for an established claim from any source.
+          X
           success ClaimsApi::Entities::V2::ClaimEntity
           failure [[401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity']]
+          tags ['Claims']
+          security [{ bearer_token: [] }]
         end
         params do
-          requires :id, type: String, desc: 'Claim ID.'
+          requires :id, type: String, desc: 'Unique claim identifier. Accepts either uuid or VBMS id.'
         end
         route_param :id do
           get do

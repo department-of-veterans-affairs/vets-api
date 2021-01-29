@@ -62,6 +62,8 @@ module ClaimsApi
         resource 'forms/526' do
           desc 'Submit a claim.' do
             success ClaimsApi::Entities::V2::ClaimSubmittedEntity
+            tags ['Disability']
+            security [{ bearer_token: [] }]
           end
           params do
             requires :data, type: Hash do

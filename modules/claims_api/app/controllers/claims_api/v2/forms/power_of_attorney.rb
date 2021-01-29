@@ -5,7 +5,10 @@ module ClaimsApi
         version 'v2'
 
         resource 'forms/2122' do
-          desc 'Submit a claim.'
+          desc 'Submit a claim.' do
+            tags ['Power of Attorney']
+            security [{ bearer_token: [] }]
+          end
           post '/' do
             raise 'NotImplemented'
           end

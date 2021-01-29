@@ -11,9 +11,16 @@ module ClaimsApi
         meta: {
           versions: [
             {
-              version: '1.0.0',
+              version: '2.0.0',
               internal_only: false,
               status: VERSION_STATUS[:current],
+              path: '/services/claims/docs/v2/api',
+              healthcheck: '/services/claims/v2/healthcheck'
+            },
+            {
+              version: '1.0.0',
+              internal_only: false,
+              status: VERSION_STATUS[:deprecated],
               path: '/services/claims/docs/v1/api',
               healthcheck: '/services/claims/v1/healthcheck'
             },
