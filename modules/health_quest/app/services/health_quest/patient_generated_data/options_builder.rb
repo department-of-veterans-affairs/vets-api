@@ -92,7 +92,7 @@ module HealthQuest
       # @return [String]
       #
       def context_type_value
-        '' # blank temp value
+        @context_type_value ||= filters&.fetch(:use_context, nil)
       end
 
       private
