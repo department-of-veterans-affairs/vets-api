@@ -103,7 +103,6 @@ RSpec.describe 'Appeals Metadata Endpoint', type: :request do
     end
 
     context 'v1' do
-
       it 'checks the status of both services individually' do
         VCR.use_cassette('caseflow/health-check') do
           allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)
