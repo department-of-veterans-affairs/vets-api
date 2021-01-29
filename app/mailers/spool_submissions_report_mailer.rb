@@ -4,40 +4,10 @@ require 'reports/uploader'
 
 class SpoolSubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Spool submissions report'
-  RECIPIENTS = %w[
-    Brian.Grubb@va.gov
-    dana.kuykendall@va.gov
-    Jennifer.Waltz2@va.gov
-    Joseph.Preisser@va.gov
-    Joshua.Lashbrook@va.gov
-    kathleen.dalfonso@va.gov
-    kyle.pietrosanto@va.gov
-    lihan@adhocteam.us
-    Lucas.Tickner@va.gov
-    Ricardo.DaSilva@va.gov
-    shay.norton@va.gov
-    tammy.hurley1@va.gov
-  ].freeze
 
   STEM_RECIPIENTS = %w[
     kyle.pietrosanto@va.gov
     robert.shinners@va.gov
-  ].freeze
-
-  STAGING_RECIPIENTS = %w[
-     Brian.Grubb@va.gov
-     Darrell.Neel@va.gov
-     Delli-Gatti_Michael@bah.com
-     Joseph.Preisser@va.gov
-     kyle.pietrosanto@va.gov
-     lihan@adhocteam.us
-     Lucas.Tickner@va.gov
-     Neel_Darrell@bah.com
-     Ricardo.DaSilva@va.gov
-     shawkey_daniel@bah.com
-     sonntag_adam@bah.com
-     tammy.hurley1@va.gov
-     Turner_Desiree@bah.com
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
@@ -56,11 +26,11 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     opt = {}
 
     opt[:to] =
-      if FeatureFlipper.staging_email?
-        STAGING_RECIPIENTS.dup
-      else
-        RECIPIENTS.dup
-      end
+    if FeatureFlipper.staging_email?
+      Settings.reports.spool_submission.staging_emails.dup
+    else
+      Settings.reports.spool_submission.emails.dup
+    end
 
     opt[:to] << add_stem_recipients if stem_exists
 
@@ -72,3 +42,4 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     )
   end
 end
+
