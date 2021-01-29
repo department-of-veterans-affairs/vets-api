@@ -8,10 +8,16 @@ module ClaimsApi
                     } do |instance, _options|
           valid_identifier(instance)
         end
-        expose :self do |instance, options|
+        expose :self, documentation: {
+                        type: String,
+                        example: 'https://api.va.gov/services/claims/v2/claims/6dca620c-e737-4168-a9d1-5aac85fec915'
+                      } do |instance, options|
           "#{options[:base_url]}/services/claims/v2/claims/#{valid_identifier(instance)}"
         end
-        expose :status, documentation: { type: String } do |instance, _options|
+        expose :status, documentation: {
+                          type: String,
+                          example: 'pending'
+                        } do |instance, _options|
           if instance.respond_to?(:status)
             instance.status
           elsif instance.respond_to?(:list_data)
@@ -19,8 +25,8 @@ module ClaimsApi
           end
         end
         expose :attributes, documentation: { type: Hash, desc: 'Additional attributes' } do
-          expose :evss_id, as: :vbmsClaimId, documentation: { type: Integer }
-          expose :claimType, documentation: { type: String } do |instance, _options|
+          expose :evss_id, as: :vbmsClaimId, documentation: { type: Integer, example: 8347210 }
+          expose :claimType, documentation: { type: String, example: 'Compensation' } do |instance, _options|
             if instance.respond_to?(:list_data)
               instance.list_data['status_type']
             end
