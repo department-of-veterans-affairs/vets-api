@@ -358,7 +358,12 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+      Enhances Find A Forms MVP.
+  yellow_ribbon_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Yellow Ribbon MVP.
   stem_automated_decision:
     actor_type: user
     enable_in_development: true
