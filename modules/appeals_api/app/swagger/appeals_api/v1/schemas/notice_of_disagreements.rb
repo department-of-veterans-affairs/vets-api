@@ -32,7 +32,7 @@ module AppealsApi::V1
               property :veteran do
                 key :type, :object
                 key :description, 'Veteran Object being submitted in appeal'
-                key :required, %i[homeless address]
+                key :required, %i[homeless phone emailAddressText]
 
                 property :homeless do
                   key :type, :boolean
@@ -42,8 +42,8 @@ module AppealsApi::V1
 
                 property :address do
                   key :type, :object
-                  key :description, 'Address of the Veteran'
-                  key :required, %i[zipCode5]
+                  key :description, 'Address of the Veteran if not homeless'
+                  key :required, %i[addressLine1 city countryName zipCode5]
 
                   property :zipCode5 do
                     key :type, :string
@@ -52,6 +52,17 @@ module AppealsApi::V1
                     key :maxLength, 5
                     key :minLength, 5
                   end
+                end
+
+                property :phone do
+                  key :type, :object
+                  key :description, 'Phone number of the Veteran'
+                  key :required, %i[areaCode phoneNumber]
+                end
+
+                property :emailAddressText do
+                  key :type, :string
+                  key :description, 'Email of the Veteran'
                 end
               end
 
@@ -143,6 +154,22 @@ module AppealsApi::V1
                       key :description, 'value of submitted homeless key'
                     end
 
+                    property :address do
+                      key :type, :object
+                      key :example, false
+                      key :description, 'value of submitted address if not homeless'
+                    end
+
+                    property :phone do
+                      key :type, :object
+                      key :description, 'value of submitted phone number'
+                    end
+
+                    property :emailAddressText do
+                      key :type, :string
+                      key :description, 'value of submitted email'
+                    end
+
                     property :representativesName do
                       key :type, :string
                       key :example, 'Mr. Wiggles'
@@ -194,7 +221,7 @@ module AppealsApi::V1
           property :detail do
             key :type, :string
             key :example, 'invalidType is not an available option'
-            key :description, 'A more detailed message about why an error occured'
+            key :description, 'A more detailed message about why an error occurred'
           end
 
           property :code do
