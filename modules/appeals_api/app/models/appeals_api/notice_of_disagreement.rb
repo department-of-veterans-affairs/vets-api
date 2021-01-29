@@ -20,7 +20,8 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    validate(:validate_address_unless_homeless, :validate_hearing_type_selection)
+    validate :validate_address_unless_homeless, on: :create, if: :form_data_present?
+    validate :validate_hearing_type_selection, if: :form_data_present?
 
     def pdf_structure(version)
       Object.const_get(
@@ -107,8 +108,7 @@ module AppealsApi
     private
 
     def validate_address_unless_homeless
-      # TODO: understand the pii removal steps more accurately
-      return if pii_removed? || veteran_homeless?
+      return if veteran_homeless?
 
       errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') if mailing_address.blank?
     end
@@ -150,8 +150,8 @@ module AppealsApi
       auth_headers&.dig(key).to_s.strip
     end
 
-    def pii_removed?
-      encrypted_form_data.nil?
+    def form_data_present?
+      proc { |a| a.form_data.present? }
     end
   end
 end
