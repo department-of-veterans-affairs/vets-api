@@ -20,10 +20,7 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    validate(
-     :validate_hearing_type_selection,
-     :validate_address_unless_homeless
-    )
+    validate(:validate_address_unless_homeless, :validate_hearing_type_selection)
 
     def pdf_structure(version)
       Object.const_get(
@@ -67,7 +64,7 @@ module AppealsApi
       ].compact.map(&:strip).join(' ')
 
       [
-      address_combined,
+        address_combined,
         veteran_contact_info.dig('address', 'city'),
         veteran_contact_info.dig('address', 'stateCode'),
         veteran_contact_info.dig('address', 'zipCode5'),
@@ -113,7 +110,7 @@ module AppealsApi
       # TODO: understand the pii removal steps more accurately
       return if pii_removed? || veteran_homeless?
 
-      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') unless mailing_address.present?
+      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') if mailing_address.blank?
     end
 
     def validate_hearing_type_selection

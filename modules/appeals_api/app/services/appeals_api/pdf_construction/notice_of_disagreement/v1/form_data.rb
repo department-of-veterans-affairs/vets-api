@@ -8,6 +8,8 @@ module AppealsApi
           @notice_of_disagreement = notice_of_disagreement
         end
 
+        delegate :mailing_address, to: :notice_of_disagreement
+
         def veteran_name
           name('Veteran')
         end
@@ -22,10 +24,6 @@ module AppealsApi
 
         def veteran_dob
           dob 'Veteran'
-        end
-
-        def mailing_address
-          notice_of_disagreement.mailing_address
         end
 
         def homeless
