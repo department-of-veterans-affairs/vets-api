@@ -26,11 +26,11 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     opt = {}
 
     opt[:to] =
-        if FeatureFlipper.staging_email?
-          Settings.reports.spool_submission.staging_emails.dup
-        else
-          Settings.reports.spool_submission.emails.dup
-        end
+      if FeatureFlipper.staging_email?
+        Settings.reports.spool_submission.staging_emails.dup
+      else
+        Settings.reports.spool_submission.emails.dup
+      end
 
     opt[:to] << add_stem_recipients if stem_exists
 
