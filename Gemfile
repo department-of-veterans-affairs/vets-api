@@ -86,7 +86,7 @@ gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.11'
 gem 'notifications-ruby-client', '~> 5.1'
-gem 'octokit', '~> 4.20'
+gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
 gem 'olive_branch'
