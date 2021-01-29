@@ -36,17 +36,24 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end
 
       context 'when homeless is false' do
-        before do
-          notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = false
-          notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
-          notice_of_disagreement.valid?
+        before { notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = false }
+
+        context 'when address is provided' do
+          it { expect(notice_of_disagreement.errors.count).to be 0 }
         end
 
-        it do
-          expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq(
-            "Form data if not homeless, address must be provided: '/data/attributes/veteran/address'"
-          )
+        context 'when address is not provided' do
+          before do
+            notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
+            notice_of_disagreement.valid?
+          end
+
+          it 'throws and error' do
+            expect(notice_of_disagreement.errors.count).to be 1
+            expect(notice_of_disagreement.errors.full_messages.first).to eq(
+              "Form data If not homeless, address must be provided: '/data/attributes/veteran/address'"
+            )
+          end
         end
       end
     end

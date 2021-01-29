@@ -20,7 +20,10 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    validate :validate_hearing_type_selection
+    validate(
+     :validate_hearing_type_selection,
+     :validate_address_unless_homeless#, unless: :veteran_homeless?
+    )
 
     def pdf_structure(version)
       Object.const_get(
@@ -107,9 +110,9 @@ module AppealsApi
     private
 
     def validate_address_unless_homeless
-      return if veteran_homeless?
+      return if pii_removed? || veteran_homeless?
 
-      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') if !veteran_homeless? && mailing_address.nil?
+      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') unless mailing_address.present?
     end
 
     def validate_hearing_type_selection
@@ -147,6 +150,10 @@ module AppealsApi
 
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
+    end
+
+    def pii_removed?
+      encrypted_form_data.nil?
     end
   end
 end
