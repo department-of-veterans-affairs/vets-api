@@ -10,10 +10,28 @@ module VAOS
 
       with_monitoring do
         response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
+
+        if response.status == 200 && response.body[:errors]
+          log_message_to_sentry(
+            'VAOS::AppointmentService#get_appointments has response errors.',
+            :info,
+            errors: response.body[:errors].to_json
+          )
+        end
+
         {
           data: deserialized_appointments(response.body, type),
           meta: pagination(pagination_params)
         }
+      end
+    end
+
+    def get_appointment(id)
+      params = {}
+
+      with_monitoring do
+        response = perform(:get, show_appointment_url(id), params, headers)
+        OpenStruct.new(response.body)
       end
     end
 
@@ -69,7 +87,7 @@ module VAOS
                          end
       return [] unless appointment_list
 
-      appointment_list.map { |appointments| OpenStruct.new(appointments) }
+      appointment_list.map { |appointment| OpenStruct.new(appointment) }
     end
 
     # TODO: need underlying APIs to support pagination consistently
@@ -90,6 +108,10 @@ module VAOS
       else
         "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
       end
+    end
+
+    def show_appointment_url(id)
+      "/appointments/v1/patients/#{user.icn}/appointments/#{id}"
     end
 
     def post_appointment_url(site)

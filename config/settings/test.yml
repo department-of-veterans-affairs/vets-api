@@ -96,7 +96,7 @@ veteran_readiness_and_employment:
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
-  key_path: /srv/vets-api/secret/health-quest.key
+  key_path: modules/health_quest/config/rsa/sandbox_rsa
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
   lighthouse:

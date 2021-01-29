@@ -30,6 +30,7 @@ module VBADocuments
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def download_and_process
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
 
@@ -43,15 +44,18 @@ module VBADocuments
         response = submit(metadata, parts)
         process_response(response)
         log_submission(@upload, metadata)
-      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError
+      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError => e
+        Rails.logger.warn("Exception in download_and_process for guid #{@upload.guid}.", e)
         VBADocuments::UploadSubmission.refresh_statuses!([@upload])
       rescue VBADocuments::UploadError => e
+        Rails.logger.warn("UploadError download_and_process for guid #{@upload.guid}.", e)
         retry_errors(e, @upload)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def update_pdf_metadata(inspector)
       @upload.update(uploaded_pdf: inspector.pdf_data)

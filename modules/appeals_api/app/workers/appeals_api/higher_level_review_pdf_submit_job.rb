@@ -14,6 +14,7 @@ module AppealsApi
     def perform(higher_level_review, retries = 0)
       @retries = retries
       stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
+      higher_level_review.update!(status: 'submitting')
       upload_to_central_mail(higher_level_review, stamped_pdf)
       File.delete(stamped_pdf) if File.exist?(stamped_pdf)
     end

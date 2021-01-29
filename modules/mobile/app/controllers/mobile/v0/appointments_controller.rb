@@ -17,8 +17,8 @@ module Mobile
           }
         }
 
-        va_appointments = parse_va_appointments(responses[:va].body) unless errors[:va]
-        cc_appointments = cc_adapter.parse(responses[:cc].body) unless errors[:cc]
+        va_appointments = va_appointments_with_facilities(responses[:va].body) unless errors[:va]
+        cc_appointments = cc_appointments_adapter.parse(responses[:cc].body) unless errors[:cc]
 
         appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
 
@@ -38,53 +38,16 @@ module Mobile
 
       private
 
-      def parse_va_appointments(appointments_from_response)
-        appointments, facility_ids = va_adapter.parse(appointments_from_response)
-        appointments = appointments_with_facilities(appointments, facility_ids) if appointments.size.positive?
-        appointments
+      def va_appointments_with_facilities(appointments_from_response)
+        appointments, facility_ids = va_appointments_adapter.parse(appointments_from_response)
+        appointments_with_facilities(appointments, facility_ids) if appointments.size.positive?
       end
 
-      def appointments_with_facilities(va_appointments, facility_ids)
+      def appointments_with_facilities(appointments, facility_ids)
         facilities = facilities_service.get_facilities(
           ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(',')
         )
-        facilities_by_id = facilities.index_by(&:id)
-        va_appointments.map do |appointment|
-          facility = facilities_by_id["vha_#{appointment.facility_id}"]
-          # resources are immutable and are updated with new copies
-          appointment.new(
-            location: appointment.location.new(
-              address: address_from_facility(facility),
-              phone: phone_from_facility(facility),
-              lat: facility.lat,
-              long: facility.long
-            )
-          )
-        end
-      end
-
-      def address_from_facility(facility)
-        address = facility.address['physical']
-        return nil unless address
-
-        Mobile::V0::AppointmentAddress.new(
-          street: address.slice('address_1', 'address_2', 'address_3').values.compact.join(', '),
-          city: address['city'],
-          state: address['state'],
-          zip_code: address['zip']
-        )
-      end
-
-      def phone_from_facility(facility)
-        # captures area code (\d{3}) number \s(\d{3}-\d{4})
-        # and extension (until the end of the string) (\S*)\z
-        phone_captures = facility.phone['main'].match(/(\d{3})-(\d{3}-\d{4})(\S*)\z/)
-
-        Mobile::V0::AppointmentPhone.new(
-          area_code: phone_captures[1].presence,
-          number: phone_captures[2].presence,
-          extension: phone_captures[3].presence
-        )
+        va_facilities_adapter.parse(appointments, facilities)
       end
 
       def appointments_service
@@ -95,11 +58,15 @@ module Mobile
         Lighthouse::Facilities::Client.new
       end
 
-      def va_adapter
+      def va_appointments_adapter
         Mobile::V0::Adapters::VAAppointments.new
       end
 
-      def cc_adapter
+      def va_facilities_adapter
+        Mobile::V0::Adapters::VAFacilities.new
+      end
+
+      def cc_appointments_adapter
         Mobile::V0::Adapters::CommunityCareAppointments.new
       end
 

@@ -34,6 +34,11 @@ features:
     actor_type: user
     description: >
       Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/" leading to the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration_frontend_hide_auth:
+    actor_type: user
+    description: >
+      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov. 
+      Note: When this is enabled, the 'Sign in' button will be hidden
   covid_vaccine_registration:
     actor_type: user
     description: >
@@ -175,6 +180,11 @@ features:
     enable_in_development: true
     description: >
       Set up toggle in anticipation of the next iteration of the homepage and appointment cards.
+  va_online_scheduling_facility_selection_v2_2:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Set up toggle in anticipation of the next iteration of facility selection, version 2.2.
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -373,7 +383,7 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-       Update OMB # and expiration dates for forms   
+      Update OMB # and expiration dates for forms
   in_progress_form_custom_expiration:
     actor_type: user
     enable_in_development: true
@@ -388,4 +398,4 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-       Include state abbreviation when searching on comparison tool 
+      Include state abbreviation when searching on comparison tool

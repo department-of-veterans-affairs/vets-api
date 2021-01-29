@@ -30,7 +30,6 @@ Rails.application.routes.draw do
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
-    resources :financial_status_reports, only: :create
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
 
@@ -51,6 +50,12 @@ Rails.application.routes.draw do
       get 'suggested_conditions'
       get 'user_submissions'
       get 'separation_locations'
+    end
+
+    resources :financial_status_reports, only: %i[create] do
+      collection do
+        get :download_pdf
+      end
     end
 
     post '/mvi_users/:id', to: 'mpi_users#submit'
@@ -361,6 +366,8 @@ Rails.application.routes.draw do
     require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 

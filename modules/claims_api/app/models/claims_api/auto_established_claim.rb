@@ -33,7 +33,7 @@ module ClaimsApi
 
     before_validation :set_md5
     after_validation :remove_encrypted_fields, on: [:update]
-    validates :md5, uniqueness: true
+    validates :md5, uniqueness: true, on: :create
 
     EVSS_CLAIM_ATTRIBUTES.each do |attribute|
       define_method attribute do
