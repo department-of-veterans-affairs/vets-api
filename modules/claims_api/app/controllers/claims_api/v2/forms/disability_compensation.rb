@@ -66,7 +66,7 @@ module ClaimsApi
             security [{ bearer_token: [] }]
           end
           params do
-            requires :data, type: Hash do
+            requires :data, type: Hash, documentation: { param_type: 'body' } do
               optional :type, type: String
               requires :attributes, type: Hash do
                 requires :veteran, type: Hash do
