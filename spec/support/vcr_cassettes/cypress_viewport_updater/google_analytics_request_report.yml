@@ -1,0 +1,1507 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://www.googleapis.com/oauth2/v4/token
+    body:
+      encoding: ASCII-8BIT
+      string: removed
+    headers:
+      User-Agent:
+      - Faraday v0.17.0
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Date:
+      - Wed, 27 Jan 2021 16:51:57 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Cache-Control:
+      - private
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Alt-Svc:
+      - h3-29=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443";
+        ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"removed","expires_in":3599,"token_type":"Bearer"}'
+  recorded_at: Wed, 27 Jan 2021 16:51:57 GMT
+- request:
+    method: post
+    uri: https://analyticsreporting.googleapis.com/v4/reports:batchGet
+    body:
+      encoding: UTF-8
+      string: '{"reportRequests":[{"dateRanges":[{"endDate":"2020-12-31","startDate":"2020-12-01"}],"metrics":[{"expression":"ga:users"}],"viewId":"176188361"},{"dateRanges":[{"endDate":"2020-12-31","startDate":"2020-12-01"}],"dimensions":[{"name":"ga:deviceCategory"},{"name":"ga:screenResolution"}],"metrics":[{"expression":"ga:users"}],"orderBys":[{"fieldName":"ga:users","sortOrder":"DESCENDING"}],"pageSize":100,"viewId":"176188361"}]}'
+    headers:
+      User-Agent:
+      - unknown/0.0.0 google-api-ruby-client/0.52.0 Linux/4.19.76-linuxkit (gzip)
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Wed, 27 Jan 2021 16:51:57 GMT
+      X-Goog-Api-Client:
+      - gl-ruby/2.6.6 gdcl/0.52.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - removed
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/json; charset=UTF-8
+      Vary:
+      - Origin
+      - Referer
+      - X-Origin
+      Content-Encoding:
+      - gzip
+      Date:
+      - Wed, 27 Jan 2021 16:51:58 GMT
+      Server:
+      - ESF
+      Cache-Control:
+      - private
+      X-Xss-Protection:
+      - '0'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Alt-Svc:
+      - h3-29=":443"; ma=2592000,h3-T051=":443"; ma=2592000,h3-Q050=":443"; ma=2592000,h3-Q046=":443";
+        ma=2592000,h3-Q043=":443"; ma=2592000,quic=":443"; ma=2592000; v="46,43"
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |
+        {
+          "reports": [
+            {
+              "columnHeader": {
+                "metricHeader": {
+                  "metricHeaderEntries": [
+                    {
+                      "name": "ga:users",
+                      "type": "INTEGER"
+                    }
+                  ]
+                }
+              },
+              "data": {
+                "rows": [
+                  {
+                    "metrics": [
+                      {
+                        "values": [
+                          "14356199"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "totals": [
+                  {
+                    "values": [
+                      "14356199"
+                    ]
+                  }
+                ],
+                "rowCount": 1,
+                "minimums": [
+                  {
+                    "values": [
+                      "14356199"
+                    ]
+                  }
+                ],
+                "maximums": [
+                  {
+                    "values": [
+                      "14356199"
+                    ]
+                  }
+                ],
+                "isDataGolden": true
+              }
+            },
+            {
+              "columnHeader": {
+                "dimensions": [
+                  "ga:deviceCategory",
+                  "ga:screenResolution"
+                ],
+                "metricHeader": {
+                  "metricHeaderEntries": [
+                    {
+                      "name": "ga:users",
+                      "type": "INTEGER"
+                    }
+                  ]
+                }
+              },
+              "data": {
+                "rows": [
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1280x960"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "4026812"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1920x1080"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "1181880"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "414x896"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "1082644"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1366x768"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "693204"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "375x812"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "620063"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "375x667"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "609261"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1440x900"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "557866"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1536x864"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "372271"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "414x736"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "323861"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1280x1024"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "280255"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1600x900"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "264279"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1280x720"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "248332"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "(not set)"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "238696"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "360x640"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "199695"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "768x1024"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "185766"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "768x1024"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "183264"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x568"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "169023"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x869"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "160552"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x846"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "147305"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "360x740"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "141648"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1280x800"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "127520"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1680x1050"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "124166"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "360x760"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "101937"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "(not set)"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "98128"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "390x844"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "97815"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "2560x1440"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "89429"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x892"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "87411"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1024x768"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "79679"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "810x1080"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "76893"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x915"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "71265"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "428x926"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "69019"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "360x780"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "65324"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1920x1080"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "61372"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "360x800"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "55886"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1920x1200"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "53100"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "360x720"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "52560"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1024x1366"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "48922"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x823"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "47671"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "834x1112"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "41616"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x569"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "37125"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1280x720"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "35135"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x732"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "33941"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "800x600"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "33429"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "2048x1152"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "31411"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x658"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "30814"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1368x912"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "28227"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "1280x960"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "27232"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x640"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "26977"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "800x1280"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "26408"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1360x768"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "25669"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x883"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "24219"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1280x800"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "22229"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "834x1194"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "21860"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "384x854"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "21547"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "601x962"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "21490"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x694"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "20154"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1093x615"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "19444"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x676"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "19102"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x938"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "19046"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1536x864"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "17255"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1152x720"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "16601"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1280x960"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "16601"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x693"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "15236"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "810x1080"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "14298"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1344x840"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "13673"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x570"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "13247"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1792x1120"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "12934"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "2560x1080"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "12053"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1024x1366"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "11882"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "393x851"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "11513"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "412x877"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "11115"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "834x1112"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "11058"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "393x786"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "9637"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "320x712"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "9153"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "(not set)"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "8755"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "962x601"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "8300"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1707x960"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "8244"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1093x614"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "8016"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "3440x1440"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "7846"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1440x900"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "7590"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "640x360"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "7192"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1301x731"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "7107"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "1920x1080"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "7050"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1600x900"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "6936"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1500x1000"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "6822"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1280x768"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "6481"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1536x960"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "6481"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "800x600"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "6367"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "1366x768"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "6282"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1067x600"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5913"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1098x618"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5913"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1504x1003"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5799"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1829x1029"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5657"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "360x756"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5458"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1440x960"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5344"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "834x1194"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5287"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "desktop",
+                      "1600x1200"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5259"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "393x830"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "5060"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "mobile",
+                      "393x808"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "4975"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "dimensions": [
+                      "tablet",
+                      "600x1024"
+                    ],
+                    "metrics": [
+                      {
+                        "values": [
+                          "4889"
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "totals": [
+                  {
+                    "values": [
+                      "14609058"
+                    ]
+                  }
+                ],
+                "rowCount": 3113,
+                "minimums": [
+                  {
+                    "values": [
+                      "28"
+                    ]
+                  }
+                ],
+                "maximums": [
+                  {
+                    "values": [
+                      "4026812"
+                    ]
+                  }
+                ],
+                "samplesReadCounts": [
+                  "999649"
+                ],
+                "samplingSpaceSizes": [
+                  "28416318"
+                ],
+                "isDataGolden": true
+              },
+              "nextPageToken": "100"
+            }
+          ]
+        }
+  recorded_at: Wed, 27 Jan 2021 16:51:58 GMT
+recorded_with: VCR 6.0.0
