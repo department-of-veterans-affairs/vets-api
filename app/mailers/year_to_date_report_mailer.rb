@@ -4,15 +4,14 @@ require 'reports/uploader'
 
 class YearToDateReportMailer < ApplicationMailer
   REPORT_TEXT = 'Year to date report'
-  
   def build(report_file)
     url = Reports::Uploader.get_s3_link(report_file)
 
-    opt =  if FeatureFlipper.staging_email?
-      Settings.reports.year_to_date_report.staging_emails.dup
-    else
-      Settings.reports.year_to_date_report.emails.dup
-    end
+    opt = if FeatureFlipper.staging_email?
+            Settings.reports.year_to_date_report.staging_emails.dup
+          else
+            Settings.reports.year_to_date_report.emails.dup
+          end
     mail(
       opt.merge(
         subject: REPORT_TEXT,
