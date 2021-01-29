@@ -8,7 +8,7 @@ module EVSS
 
     def initialize(original_body)
       @messages = original_body['messages']
-      @key = error_key || 'evss.unmapped_service_exception'
+      @key = error_key
       super
     end
 
@@ -19,7 +19,7 @@ module EVSS
       key = self.class::ERROR_MAP.select { |k, _v| messages_has_key?(k) }
       return key.values.first unless key.empty?
 
-      self.class::ERROR_MAP[:default]
+      self.class::ERROR_MAP[:default] || 'evss.unmapped_service_exception'
     end
 
     def messages_has_key?(key)
