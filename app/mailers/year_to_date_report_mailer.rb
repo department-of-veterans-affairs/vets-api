@@ -15,7 +15,7 @@ class YearToDateReportMailer < ApplicationMailer
       Christina.DiTucci@va.gov
       John.McNeal@va.gov
       Joseph.Preisser@va.gov
-      Joseph.Welton@va.gov
+      Joshua.Lashbrook@va.gov
       kathleen.dalfonso@va.gov
       kyle.pietrosanto@va.gov
       Lucas.Tickner@va.gov
@@ -31,7 +31,6 @@ class YearToDateReportMailer < ApplicationMailer
       Brian.Grubb@va.gov
       Delli-Gatti_Michael@bah.com
       Joseph.Preisser@va.gov
-      Joseph.Welton@va.gov
       kyle.pietrosanto@va.gov
       Lucas.Tickner@va.gov
       lihan@adhocteam.us
