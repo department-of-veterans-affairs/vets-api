@@ -15,7 +15,7 @@ module EVSS
       #
       def perform(submission_id)
         super(submission_id)
-        with_tracking("Form526 Upload BDD instructions:", submission.saved_claim_id, submission.id) do
+        with_tracking('Form526 Upload BDD instructions:', submission.saved_claim_id, submission.id) do
           file_body = File.read('lib/evss/disability_compensation_form/bdd_instructions.pdf')
           client = EVSS::DocumentsService.new(submission.auth_headers)
           client.upload(file_body, create_document_data)
@@ -38,7 +38,7 @@ module EVSS
           evss_claim_id: submission.submitted_claim_id,
           file_name: 'BDD_Instructions.pdf',
           tracked_item_id: nil,
-          document_type: 'L023' #'Other Correspondence'
+          document_type: 'L023' # 'Other Correspondence'
         )
       end
     end

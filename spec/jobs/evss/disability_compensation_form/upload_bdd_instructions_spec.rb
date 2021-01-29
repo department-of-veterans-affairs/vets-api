@@ -25,7 +25,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
   describe 'perform' do
     let(:client) { double(:client) }
     let(:document_data) { double(:document_data) }
-    let(:file_read) {File.read('lib/evss/disability_compensation_form/bdd_instructions.pdf')}
+    let(:file_read) { File.read('lib/evss/disability_compensation_form/bdd_instructions.pdf') }
 
     before do
       allow(EVSS::DocumentsService)
@@ -35,14 +35,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
 
     context 'when file_data exists' do
       it 'calls the documents service api with file body and document data' do
-
-         expect(EVSSClaimDocument)
+        expect(EVSSClaimDocument)
           .to receive(:new)
           .with(
             evss_claim_id: submission.submitted_claim_id,
             file_name: 'BDD_Instructions.pdf',
             tracked_item_id: nil,
-            document_type:'L023'
+            document_type: 'L023'
           )
           .and_return(document_data)
 
