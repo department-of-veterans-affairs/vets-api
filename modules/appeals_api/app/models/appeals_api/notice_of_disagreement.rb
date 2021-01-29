@@ -22,7 +22,7 @@ module AppealsApi
 
     validate(
      :validate_hearing_type_selection,
-     :validate_address_unless_homeless#, unless: :veteran_homeless?
+     :validate_address_unless_homeless
     )
 
     def pdf_structure(version)
@@ -110,6 +110,7 @@ module AppealsApi
     private
 
     def validate_address_unless_homeless
+      # TODO: understand the pii removal steps more accurately
       return if pii_removed? || veteran_homeless?
 
       errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') unless mailing_address.present?

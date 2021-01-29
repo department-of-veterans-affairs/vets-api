@@ -76,6 +76,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     end
 
     context 'when validation fails due to a JSON parse error' do
+      # TODO: when address removed from invalid fixture, this fails
       it 'responds with a JSON parse error' do
         allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
         post(path, params: @data, headers: @headers)

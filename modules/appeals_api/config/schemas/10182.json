@@ -49,9 +49,9 @@
         "address":             { "$ref": "#/definitions/nodCreateAddress" },
         "phone":               { "$ref": "#/definitions/nodCreatePhone" },
         "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail" },
-        "representativesName": { "type": "string", "maxLength": 120 },
+        "representativesName": { "type": "string", "maxLength": 120 }
       },
-      "required": [ "homeless", "phone", "emailAddressText" ],
+      "required": [ "homeless", "phone", "emailAddressText" ]
     },
 
 

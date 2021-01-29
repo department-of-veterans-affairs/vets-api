@@ -43,10 +43,6 @@ module AppealsApi
             it { expect(form_fields.preferred_phone).to eq('F[0].Page_1[0].PreferredPhoneNumber[0]') }
           end
 
-          describe '#preferred_email' do
-            it { expect(form_fields.preferred_email).to eq('F[0].Page_1[0].PreferredE_MailAddress[0]') }
-          end
-
           describe '#direct_review' do
             it { expect(form_fields.direct_review).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]') }
           end

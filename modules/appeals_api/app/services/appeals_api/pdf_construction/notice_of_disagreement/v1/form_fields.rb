@@ -32,10 +32,6 @@ module AppealsApi
           'F[0].Page_1[0].PreferredPhoneNumber[0]'
         end
 
-        def preferred_email
-          'F[0].Page_1[0].PreferredE_MailAddress[0]'
-        end
-
         def direct_review
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]'
         end
