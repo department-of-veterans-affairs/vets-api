@@ -4,7 +4,7 @@ require 'singleton'
 
 module VAProfile
   module Exceptions
-    # This class parses all of the Vet360 exception keys from config/locales/exceptions.en.yml
+    # This class parses all of the VAProfile exception keys from config/locales/exceptions.en.yml
     # and saves them to an instance variable.  For performance reasons, the Singleton Pattern
     # is used.  This allows the file system to be hit one time, when a server instance is
     # initialized.  From that point forward, the exception keys are saved to an instance
@@ -13,10 +13,10 @@ module VAProfile
     class Parser
       include Singleton
 
-      # Parses our exceptions file and returns all of the Vet360 exception keys.  Memoizes this
+      # Parses our exceptions file and returns all of the VAProfile exception keys.  Memoizes this
       # value by setting it equal to the @keys instance variable.
       #
-      # @return [Array] An array of lowercased, alphabetized, Vet360 exception keys
+      # @return [Array] An array of lowercased, alphabetized, VAProfile exception keys
       #
       def known_keys
         @keys ||= exception_keys
@@ -24,7 +24,7 @@ module VAProfile
 
       # Checks if the passed exception key is present in the exceptions_file
       #
-      # @param exception_key [String] A Vet360 exception key from config/locales/exceptions.en.yml
+      # @param exception_key [String] A VAProfile exception key from config/locales/exceptions.en.yml
       #   For example, 'VET360_ADDR133'
       # @return [Boolean]
       #
