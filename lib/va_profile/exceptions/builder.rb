@@ -10,16 +10,16 @@ module VAProfile
       attr_reader :known_exceptions, :stats, :error_codes, :needs_title, :needs_detail, :title, :detail, :status
 
       def initialize
-        @known_exceptions = Vet360::Exceptions::Parser.instance.known_exceptions
+        @known_exceptions = VAProfile::Exceptions::Parser.instance.known_exceptions
         @stats = initial_stats
         @error_codes = []
         @needs_title = []
         @needs_detail = []
       end
 
-      # Takes the content from Vet360's CSV of current error codes, and
+      # Takes the content from VAProfile's CSV of current error codes, and
       # converts them into formatted exceptions. These exceptions temporarily
-      # live in tmp/test.yml, until a developer replaces the old Vet360 exceptions
+      # live in tmp/test.yml, until a developer replaces the old VAProfile exceptions
       # in config/locales/exceptions.en.yml with these updated ones.
       #
       # A sample formatted exception in tmp/test.yml looks like this:
@@ -78,7 +78,7 @@ module VAProfile
       end
 
       def error_codes_file
-        Rails.root.join('spec', 'support', 'vet360', 'api_response_error_messages.csv')
+        Rails.root.join('spec', 'support', 'va_profile', 'api_response_error_messages.csv')
       end
 
       # Makes the headers callable by stripping the empty spaces out. Depending on the CSV
@@ -169,9 +169,9 @@ module VAProfile
         path = Rails.root.join('tmp', 'test.yml')
         file = File.open(path, 'w')
 
-        file.write '# BEGIN SCRIPT-GENERATED VET360 EXCEPTIONS'
+        file.write '# BEGIN SCRIPT-GENERATED VAProfile EXCEPTIONS'
         file.write error_codes.sort_by { |error| error&.keys&.first }.to_yaml
-        file.write '# END SCRIPT-GENERATED VET360 EXCEPTIONS'
+        file.write '# END SCRIPT-GENERATED VAProfile EXCEPTIONS'
         file.close
       end
 
