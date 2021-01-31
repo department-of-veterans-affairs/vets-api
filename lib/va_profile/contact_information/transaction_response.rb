@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'vet360/models/transaction'
-require 'vet360/response'
+require 'va_profile/models/transaction'
+require 'va_profile/response'
 
-module Vet360
+module VAProfile
   module ContactInformation
-    class TransactionResponse < Vet360::Response
+    class TransactionResponse < VAProfile::Response
       extend SentryLogging
 
-      attribute :transaction, Vet360::Models::Transaction
+      attribute :transaction, VAProfile::Models::Transaction
       ERROR_STATUS = 'COMPLETED_FAILURE'
 
       attr_reader :response_body
@@ -18,16 +18,16 @@ module Vet360
 
         if error?
           log_message_to_sentry(
-            'Vet360 transaction error',
+            'VAProfile transaction error',
             :error,
             { response_body: @response_body },
-            error: :vet360
+            error: :va_profile
           )
         end
 
         new(
           raw_response&.status,
-          transaction: Vet360::Models::Transaction.build_from(@response_body)
+          transaction: VAProfile::Models::Transaction.build_from(@response_body)
         )
       end
 
@@ -48,7 +48,7 @@ module Vet360
       def self.log_error
         if error?
           PersonalInformationLog.create(
-            error_class: 'Vet360::ContactInformation::AddressTransactionResponseError',
+            error_class: 'VAProfile::ContactInformation::AddressTransactionResponseError',
             data:
               {
                 address: @response_body['tx_push_input'].except(
