@@ -3,7 +3,7 @@
 require_relative 'base'
 require_relative 'message'
 
-module Vet360
+module VAProfile
   module Models
     class Transaction < Base
       STATUSES = %w[
@@ -16,16 +16,16 @@ module Vet360
         COMPLETED_FAILURE
       ].freeze
 
-      attribute :messages, Array[Vet360::Models::Message]
+      attribute :messages, Array[VAProfile::Models::Message]
       attribute :id, String
       attribute :status, String
 
-      # Converts a decoded JSON response from Vet360 to an instance of the Transaction model
-      # @param body [Hash] the decoded response body from Vet360
-      # @return [Vet360::Models::Transaction] the model built from the response body
+      # Converts a decoded JSON response from VAProfile to an instance of the Transaction model
+      # @param body [Hash] the decoded response body from VAProfile
+      # @return [VAProfile::Models::Transaction] the model built from the response body
       def self.build_from(body)
-        messages = body['tx_messages']&.map { |m| Vet360::Models::Message.build_from(m) }
-        Vet360::Models::Transaction.new(
+        messages = body['tx_messages']&.map { |m| VAProfile::Models::Message.build_from(m) }
+        VAProfile::Models::Transaction.new(
           messages: messages || [],
           id: body['tx_audit_id'],
           status: body['tx_status'] || body['status']
