@@ -2,12 +2,12 @@
 
 require_relative 'base'
 require 'common/models/attribute_types/iso8601_time'
-require 'vet360/concerns/defaultable'
+require 'va_profile/concerns/defaultable'
 
-module Vet360
+module VAProfile
   module Models
     class Permission < Base
-      include Vet360::Concerns::Defaultable
+      include VAProfile::Concerns::Defaultable
 
       TEXT = 'TextPermission'
       PERMISSION_TYPES = [TEXT].freeze
@@ -36,9 +36,9 @@ module Vet360
       )
 
       # Converts an instance of the Permission model to a JSON encoded string suitable for
-      # use in the body of a request to Vet360
+      # use in the body of a request to VAProfile
       #
-      # @return [String] JSON-encoded string suitable for requests to Vet360
+      # @return [String] JSON-encoded string suitable for requests to VAProfile
       #
       def in_json
         {
@@ -56,11 +56,11 @@ module Vet360
         }.to_json
       end
 
-      # Converts a decoded JSON response from Vet360 to an instance of the Permission model
-      # @param body [Hash] the decoded response body from Vet360
-      # @return [Vet360::Models::Permission] the model built from the response body
+      # Converts a decoded JSON response from VAProfile to an instance of the Permission model
+      # @param body [Hash] the decoded response body from VAProfile
+      # @return [VAProfile::Models::Permission] the model built from the response body
       def self.build_from(body)
-        Vet360::Models::Permission.new(
+        VAProfile::Models::Permission.new(
           id: body['permission_id'],
           created_at: body['create_date'],
           permission_type: body['permission_type'],
