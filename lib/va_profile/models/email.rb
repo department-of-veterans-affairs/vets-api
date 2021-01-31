@@ -3,12 +3,12 @@
 require_relative 'base'
 require 'common/models/attribute_types/iso8601_time'
 require 'evss/pciu/email_address'
-require 'vet360/concerns/defaultable'
+require 'va_profile/concerns/defaultable'
 
-module Vet360
+module VAProfile
   module Models
     class Email < Base
-      include Vet360::Concerns::Defaultable
+      include VAProfile::Concerns::Defaultable
 
       attribute :created_at, Common::ISO8601Time
       attribute :email_address, String
@@ -29,8 +29,8 @@ module Vet360
       )
 
       # Converts an instance of the Email model to a JSON encoded string suitable for use in
-      # the body of a request to Vet360
-      # @return [String] JSON-encoded string suitable for requests to Vet360
+      # the body of a request to VAProfile
+      # @return [String] JSON-encoded string suitable for requests to VAProfile
       def in_json
         {
           bio: {
@@ -46,11 +46,11 @@ module Vet360
         }.to_json
       end
 
-      # Converts a decoded JSON response from Vet360 to an instance of the Email model
-      # @param body [Hash] the decoded response body from Vet360
-      # @return [Vet360::Models::Email] the model built from the response body
+      # Converts a decoded JSON response from VAProfile to an instance of the Email model
+      # @param body [Hash] the decoded response body from VAProfile
+      # @return [VAProfile::Models::Email] the model built from the response body
       def self.build_from(body)
-        Vet360::Models::Email.new(
+        VAProfile::Models::Email.new(
           created_at: body['create_date'],
           email_address: body['email_address_text'],
           effective_end_date: body['effective_end_date'],
