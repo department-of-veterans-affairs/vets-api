@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :vet360_address, class: 'Vet360::Models::Address' do
+  factory :va_profile_address, class: 'Vet360::Models::Address' do
     address_line1 { '140 Rock Creek Rd' }
     address_pou { Vet360::Models::Address::RESIDENCE }
     address_type { Vet360::Models::Address::DOMESTIC }

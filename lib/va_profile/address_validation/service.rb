@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 require 'common/exceptions'
-require 'vet360/address_validation/configuration'
-require 'vet360/address_validation/address_suggestions_response'
-require 'vet360/service'
+require 'va_profile/address_validation/configuration'
+require 'va_profile/address_validation/address_suggestions_response'
+require 'va_profile/service'
 
-module Vet360
+module VAProfile
   module AddressValidation
     # Wrapper for the VA profile address validation/suggestions API
-    class Service < Vet360::Service
-      configuration Vet360::AddressValidation::Configuration
+    class Service < VAProfile::Service
+      configuration VAProfile::AddressValidation::Configuration
 
       def initialize; end
 
       # Get address suggestions and override key from the VA profile API
-      # @return [Vet360::AddressValidation::AddressSuggestionsResponse] response wrapper around address suggestions data
+      # @return [VAProfile::AddressValidation::AddressSuggestionsResponse] response wrapper around address suggestions data
       def address_suggestions(address)
         candidate_res = candidate(address)
 

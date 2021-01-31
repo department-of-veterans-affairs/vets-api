@@ -2,9 +2,9 @@
 
 require 'vet360/configuration'
 
-module Vet360
+module VAProfile
   module AddressValidation
-    class Configuration < Vet360::Configuration
+    class Configuration < VAProfile::Configuration
       def base_path
         "https://#{Settings.vet360.address_validation.hostname}/services/address_validation/v2/"
       end
@@ -14,7 +14,7 @@ module Vet360
       end
 
       def service_name
-        'Vet360/AddressValidation'
+        'VAProfile/AddressValidation'
       end
     end
   end

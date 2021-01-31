@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'vet360/service'
+require 'va_profile/service'
 
-module Vet360
+module VAProfile
   class Stats
     STATSD_KEY_PREFIX = 'api.vet360'
     FINAL_SUCCESS = %w[COMPLETED_SUCCESS COMPLETED_NO_CHANGES_DETECTED].freeze

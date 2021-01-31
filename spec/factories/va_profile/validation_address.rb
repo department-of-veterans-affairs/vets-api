@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'vet360/models/validation_address'
+require 'va_profile/models/validation_address'
 
 FactoryBot.define do
-  factory :vet360_validation_address, class: 'Vet360::Models::ValidationAddress' do
-    address_pou { Vet360::Models::Address::RESIDENCE }
-    address_type { Vet360::Models::Address::DOMESTIC }
+  factory :va_profile_validation_address, class: 'VAProfile::Models::ValidationAddress' do
+    address_pou { VAProfile::Models::Address::RESIDENCE }
+    address_type { VAProfile::Models::Address::DOMESTIC }
     country_name { 'USA' }
     country_code_iso3 { 'USA' }
 
@@ -17,7 +17,7 @@ FactoryBot.define do
     end
 
     trait :override do
-      address_pou { Vet360::Models::Address::CORRESPONDENCE }
+      address_pou { VAProfile::Models::Address::CORRESPONDENCE }
       address_line1 { '1494 Martin Luther King Rd' }
       address_line2 { 'c/o foo' }
       city { 'Fulton' }

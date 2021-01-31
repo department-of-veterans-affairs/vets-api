@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'vet360/configuration'
+require 'va_profile/configuration'
 
-module Vet360
+module VAProfile
   module ContactInformation
-    class Configuration < Vet360::Configuration
+    class Configuration < VAProfile::Configuration
       self.read_timeout = Settings.vet360.contact_information.timeout || 30
 
       def base_path
@@ -12,7 +12,7 @@ module Vet360
       end
 
       def service_name
-        'Vet360/ContactInformation'
+        'VAProfile/ContactInformation'
       end
 
       def mock_enabled?

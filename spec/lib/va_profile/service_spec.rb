@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'csv'
 require 'vet360/service'
 
-describe Vet360::Service do
+describe VAProfile::Service do
   subject       { described_class.new(user) }
 
   let(:user)    { build(:user, :loa3) }

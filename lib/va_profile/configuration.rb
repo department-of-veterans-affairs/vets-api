@@ -3,10 +3,10 @@
 require 'common/client/configuration/rest'
 require_relative 'models/base'
 
-module Vet360
+module VAProfile
   class Configuration < Common::Client::Configuration::REST
     def self.base_request_headers
-      super.merge('cufSystemName' => Vet360::Models::Base::SOURCE_SYSTEM)
+      super.merge('cufSystemName' => VAProfile::Models::Base::SOURCE_SYSTEM)
     end
 
     def connection

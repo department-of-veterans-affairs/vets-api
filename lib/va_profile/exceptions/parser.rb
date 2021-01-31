@@ -2,7 +2,7 @@
 
 require 'singleton'
 
-module Vet360
+module VAProfile
   module Exceptions
     # This class parses all of the Vet360 exception keys from config/locales/exceptions.en.yml
     # and saves them to an instance variable.  For performance reasons, the Singleton Pattern

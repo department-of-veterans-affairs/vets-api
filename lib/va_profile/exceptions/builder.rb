@@ -4,7 +4,7 @@ require 'yaml'
 require 'csv'
 require_relative 'parser'
 
-module Vet360
+module VAProfile
   module Exceptions
     class Builder
       attr_reader :known_exceptions, :stats, :error_codes, :needs_title, :needs_detail, :title, :detail, :status

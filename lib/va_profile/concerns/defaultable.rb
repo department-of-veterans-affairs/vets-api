@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Vet360
+module VAProfile
   module Concerns
     module Defaultable
       extend ActiveSupport::Concern
@@ -8,7 +8,7 @@ module Vet360
       # Sets the included default values
       #
       # @param user [User] The user associated with the transaction
-      # @return [Vet360::Models::Base] A Vet360::Models::Base instance, be it Email, Address, etc.
+      # @return [VAProfile::Models::Base] A VAProfile::Models::Base instance, be it Email, Address, etc.
       #
       def set_defaults(user)
         now = Time.zone.now.iso8601

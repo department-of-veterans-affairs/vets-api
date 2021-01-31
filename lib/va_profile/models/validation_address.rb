@@ -3,7 +3,7 @@
 require_relative 'base_address'
 require 'common/hash_helpers'
 
-module Vet360
+module VAProfile
   module Models
     # Model for addresses sent and received from the VA profile address validation API
     class ValidationAddress < BaseAddress
@@ -33,7 +33,7 @@ module Vet360
         )
       end
 
-      # @return [Vet360::Models::ValidationAddress] validation address model created from
+      # @return [VAProfile::Models::ValidationAddress] validation address model created from
       #   address validation API response
       def self.build_from_address_suggestion(address_suggestion_hash)
         address_hash = address_suggestion_hash['address']

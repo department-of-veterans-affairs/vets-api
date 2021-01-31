@@ -8,9 +8,9 @@ require_relative 'exceptions/parser'
 require_relative 'models/message'
 require_relative 'stats'
 
-module Vet360
+module VAProfile
   class Service < Common::Client::Base
-    STATSD_KEY_PREFIX = Vet360::Stats::STATSD_KEY_PREFIX
+    STATSD_KEY_PREFIX = VAProfile::Stats::STATSD_KEY_PREFIX
 
     def initialize(user)
       @user = user
@@ -19,7 +19,7 @@ module Vet360
     def perform(method, path, body = nil, headers = {})
       log_dates(body)
 
-      Vet360::Stats.increment('total_operations')
+      VAProfile::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
 
@@ -89,7 +89,7 @@ module Vet360
 
     def parse_messages(error)
       messages = error.body&.dig('messages')
-      messages&.map { |m| Vet360::Models::Message.build_from(m) }
+      messages&.map { |m| VAProfile::Models::Message.build_from(m) }
     end
 
     def raise_backend_exception(key, source, error = nil)
@@ -98,7 +98,7 @@ module Vet360
     end
 
     def raise_invalid_body(error, source)
-      Vet360::Stats.increment_exception('VET360_502')
+      VAProfile::Stats.increment_exception('VET360_502')
 
       raise Common::Exceptions::BackendServiceException.new(
         'VET360_502',
@@ -109,10 +109,10 @@ module Vet360
     end
 
     def report_stats_on(exception_key)
-      if Vet360::Exceptions::Parser.instance.known?(exception_key)
-        Vet360::Stats.increment_exception(exception_key)
+      if VAProfile::Exceptions::Parser.instance.known?(exception_key)
+        VAProfile::Stats.increment_exception(exception_key)
       else
-        log_message_to_sentry('New Vet360 Exceptions Key', :info, key: exception_key)
+        log_message_to_sentry('New VAProfile Exceptions Key', :info, key: exception_key)
       end
     end
   end

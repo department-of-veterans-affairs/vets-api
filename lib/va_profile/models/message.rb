@@ -2,7 +2,7 @@
 
 require_relative 'base'
 
-module Vet360
+module VAProfile
   module Models
     class Message < Base
       SEVERITY_LEVELS = %w[
@@ -24,11 +24,11 @@ module Vet360
         inclusion: { in: SEVERITY_LEVELS }
       )
 
-      # Converts a decoded JSON response from Vet360 to an instance of the Message model
-      # @param body [Hash] the decoded response body from Vet360
-      # @return [Vet360::Models::Message] the model built from the response body
+      # Converts a decoded JSON response from VAProfile to an instance of the Message model
+      # @param body [Hash] the decoded response body from VAProfile
+      # @return [VAProfile::Models::Message] the model built from the response body
       def self.build_from(body)
-        Vet360::Models::Message.new(
+        VAProfile::Models::Message.new(
           code: body['code'],
           key: body['key'],
           retryable: body['potentially_self_correcting_on_retry'],

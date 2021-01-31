@@ -2,12 +2,12 @@
 
 require_relative 'base'
 require 'common/models/attribute_types/iso8601_time'
-require 'vet360/concerns/defaultable'
+require 'va_profile/concerns/defaultable'
 
-module Vet360
+module VAProfile
   module Models
     class BaseAddress < Base
-      include Vet360::Concerns::Defaultable
+      include VAProfile::Concerns::Defaultable
 
       VALID_ALPHA_REGEX = /[a-zA-Z ]+/.freeze
       VALID_NUMERIC_REGEX = /[0-9]+/.freeze
