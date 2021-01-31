@@ -7,7 +7,7 @@ require_relative 'telephone'
 require_relative 'permission'
 require 'common/models/attribute_types/iso8601_time'
 
-module Vet360
+module VAProfile
   module Models
     class Person < Base
       attribute :addresses, Array[Address]
@@ -20,16 +20,16 @@ module Vet360
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
 
-      # Converts a decoded JSON response from Vet360 to an instance of the Person model
-      # @param body [Hash] the decoded response body from Vet360
-      # @return [Vet360::Models::Person] the model built from the response body
+      # Converts a decoded JSON response from VAProfile to an instance of the Person model
+      # @param body [Hash] the decoded response body from VAProfile
+      # @return [VAProfile::Models::Person] the model built from the response body
       def self.build_from(body)
-        addresses = body['addresses']&.map { |a| Vet360::Models::Address.build_from(a) }
-        emails = body['emails']&.map { |e| Vet360::Models::Email.build_from(e) }
-        telephones = body['telephones']&.map { |t| Vet360::Models::Telephone.build_from(t) }
-        permissions = body['permissions']&.map { |t| Vet360::Models::Permission.build_from(t) }
+        addresses = body['addresses']&.map { |a| VAProfile::Models::Address.build_from(a) }
+        emails = body['emails']&.map { |e| VAProfile::Models::Email.build_from(e) }
+        telephones = body['telephones']&.map { |t| VAProfile::Models::Telephone.build_from(t) }
+        permissions = body['permissions']&.map { |t| VAProfile::Models::Permission.build_from(t) }
 
-        Vet360::Models::Person.new(
+        VAProfile::Models::Person.new(
           created_at: body['create_date'],
           source_date: body['source_date'],
           updated_at: body['update_date'],
