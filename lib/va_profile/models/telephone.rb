@@ -3,10 +3,10 @@
 require_relative 'base'
 require 'common/models/attribute_types/iso8601_time'
 
-module Vet360
+module VAProfile
   module Models
     class Telephone < Base
-      include Vet360::Concerns::Defaultable
+      include VAProfile::Concerns::Defaultable
 
       VALID_AREA_CODE_REGEX = /[0-9]+/.freeze
       VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/.freeze
@@ -86,9 +86,9 @@ module Vet360
       end
 
       # Converts an instance of the Telphone model to a JSON encoded string suitable for
-      # use in the body of a request to Vet360
+      # use in the body of a request to VAProfile
       #
-      # @return [String] JSON-encoded string suitable for requests to Vet360
+      # @return [String] JSON-encoded string suitable for requests to VAProfile
       #
       # rubocop:disable Metrics/MethodLength
       def in_json
@@ -116,11 +116,11 @@ module Vet360
       end
       # rubocop:enable Metrics/MethodLength
 
-      # Converts a decoded JSON response from Vet360 to an instance of the Telephone model
-      # @param body [Hash] the decoded response body from Vet360
-      # @return [Vet360::Models::Telephone] the model built from the response body
+      # Converts a decoded JSON response from VAProfile to an instance of the Telephone model
+      # @param body [Hash] the decoded response body from VAProfile
+      # @return [VAProfile::Models::Telephone] the model built from the response body
       def self.build_from(body)
-        Vet360::Models::Telephone.new(
+        VAProfile::Models::Telephone.new(
           area_code: body['area_code'],
           country_code: body['country_code'],
           created_at: body['create_date'],
