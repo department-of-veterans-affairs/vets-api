@@ -14,7 +14,7 @@ module VBMS
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim.persistent_attachments.each do |attachment|
-        claim.upload_to_vbms("tmp#{attachment.file_url}")
+        claim.upload_to_vbms(path: "tmp#{attachment.file_url}")
       end
 
       generate_pdf(claim, submittable_686, submittable_674)
