@@ -116,11 +116,6 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to directly schedule VA appointments
-  va_online_scheduling_past:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Allows veterans to see past appointments
   va_online_scheduling_vsp_appointment_list:
     actor_type: user
     description: >
@@ -145,11 +140,6 @@ features:
     actor_type: user
     description: >
       Enables the use of VSP for making a new VA appointment request
-  va_online_scheduling_express_care:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables Express Care redirect to legacy and Express Care tab
   va_online_scheduling_express_care_new:
     actor_type: user
     enable_in_development: true
@@ -368,7 +358,12 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+      Enhances Find A Forms MVP.
+  yellow_ribbon_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Yellow Ribbon MVP.
   stem_automated_decision:
     actor_type: user
     enable_in_development: true
@@ -399,3 +394,8 @@ features:
     enable_in_development: true
     description: >
       Include state abbreviation when searching on comparison tool
+  dependents_management:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Manage dependent removal from view dependent page
