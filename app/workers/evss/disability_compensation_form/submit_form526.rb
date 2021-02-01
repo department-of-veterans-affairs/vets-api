@@ -33,7 +33,7 @@ module EVSS
           response_handler(response)
         end
       rescue Common::Exceptions::BackendServiceException,
-            Common::Exceptions::GatewayTimeout,
+             Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,
              EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
         retryable_error_handler(e)
