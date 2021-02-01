@@ -3,33 +3,33 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'mpi/responses/id_parser'
-require 'vet360/contact_information/configuration'
-require 'vet360/contact_information/transaction_response'
-require 'vet360/service'
+require 'va_profile/contact_information/configuration'
+require 'va_profile/contact_information/transaction_response'
+require 'va_profile/service'
 
-module Vet360
+module VAProfile
   module Person
-    class Service < Vet360::Service
+    class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
       include ERB::Util
 
       AAID = MPI::Responses::IdParser::ICN_ASSIGNING_AUTHORITY_ID
       OID  = MPI::Responses::IdParser::VA_ROOT_OID
 
-      configuration Vet360::ContactInformation::Configuration
+      configuration VAProfile::ContactInformation::Configuration
 
       # Initializes a vet360_id for a user that does not have one. Can be used when a current user
       # is present, or through a rake task when no user is present (through passing in their ICN).
-      # This is an asynchronous process for Vet360, so it returns Vet360 transaction information.
+      # This is an asynchronous process for VAProfile, so it returns VAProfile transaction information.
       #
       # @param icn [String] A users ICN. Only required when current user is absent.  Intended to be used in a rake task.
-      # @return [Vet360::ContactInformation::PersonTransactionResponse] response wrapper around a transaction object
+      # @return [VAProfile::ContactInformation::PersonTransactionResponse] response wrapper around a transaction object
       #
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
 
-          Vet360::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
+          VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
         end
       rescue => e
         handle_error(e)
