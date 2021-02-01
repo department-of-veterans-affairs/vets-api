@@ -75,4 +75,17 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       Timecop.return
     end
   end
+
+  context 'an error throws' do
+    it 'updates the NOD status to reflect the error' do
+      submit_job_worker = described_class.new
+      allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise
+
+      begin
+        submit_job_worker.perform(notice_of_disagreement.id)
+      rescue
+        expect(notice_of_disagreement.reload.status).to eq('error')
+      end
+    end
+  end
 end

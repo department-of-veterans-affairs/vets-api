@@ -13,11 +13,17 @@ module AppealsApi
 
     def perform(higher_level_review_id, retries = 0)
       higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
-      @retries = retries
-      stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
-      higher_level_review.update!(status: 'submitting')
-      upload_to_central_mail(higher_level_review, stamped_pdf)
-      File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+
+      begin
+        @retries = retries
+        stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
+        higher_level_review.update!(status: 'submitting')
+        upload_to_central_mail(higher_level_review, stamped_pdf)
+        File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      rescue
+        higher_level_review.update!(status: 'error')
+        raise
+      end
     end
 
     def upload_to_central_mail(higher_level_review, pdf_path)
