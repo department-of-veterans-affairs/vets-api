@@ -94,7 +94,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
-
     context 'with a 503 error' do
       it 'runs the retryable_error_handler and raises a ServiceUnavailableException' do
         expect_any_instance_of(EVSS::DisabilityCompensationForm::Service).to receive(:submit_form526).and_raise(
