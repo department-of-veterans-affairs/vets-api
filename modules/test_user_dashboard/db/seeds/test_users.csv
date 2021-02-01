@@ -1,4 +1,4 @@
-,middle_name,last_name,gender,birth_date,ssn,phone,email,password
+first_name,middle_name,last_name,gender,birth_date,ssn,phone,email,password
 HECTOR,J,ALLEN,M,1932-02-05T00:00:00-08:00,796126859,800-827-1000,vets.gov.user+0@gmail.com,testpass
 GREG,A,ANDERSON,M,1933-04-05T00:00:00-08:00,796121200,800-827-1000,vets.gov.user+1@gmail.com,testpass
 ANDREA,L,MITCHELL,F,1959-12-01T00:00:00-08:00,796127781,800-827-1000,vets.gov.user+2@gmail.com,testpass
