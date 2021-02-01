@@ -31,10 +31,17 @@ module Salesforce
     end
 
     def get_oauth_token
-      body = with_monitoring { request(:post, '', oauth_params).body }
-      Raven.extra_context(oauth_response_body: body)
+      response = nil
+      with_monitoring do
+        response = request(:post, '', oauth_params)
 
-      body['access_token']
+        if response.body['access_token'].nil? do
+          Raven.extra_context(oauth_token_response: response)
+          raise 'No salesforce access token returned!'
+        end
+      end
+
+      response.body['access_token']
     end
 
     def get_client
