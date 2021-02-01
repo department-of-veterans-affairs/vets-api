@@ -394,3 +394,8 @@ features:
     enable_in_development: true
     description: >
       Include state abbreviation when searching on comparison tool
+  dependents_management:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Manage dependent removal from view dependent page
