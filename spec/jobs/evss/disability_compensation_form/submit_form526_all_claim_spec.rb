@@ -143,6 +143,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
     end
 
+    context 'with an upstream bad gateway' do
+      it 'sets the transaction to "retrying"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_502') do
+          expect_retryable_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
+
+    context 'with an upstream service unavailable' do
+      it 'sets the transaction to "retrying"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_503') do
+          expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+        end
+      end
+    end
+
     context 'with an upstream service error for EP code not valid' do
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_200_with_ep_not_valid') do

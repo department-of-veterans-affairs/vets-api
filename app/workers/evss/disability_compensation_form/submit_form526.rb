@@ -32,7 +32,8 @@ module EVSS
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
-      rescue Common::Exceptions::GatewayTimeout,
+      rescue Common::Exceptions::BackendServiceException,
+             Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,
              EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
         retryable_error_handler(e)
