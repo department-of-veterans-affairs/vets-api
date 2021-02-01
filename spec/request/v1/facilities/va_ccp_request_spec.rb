@@ -237,7 +237,7 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'operating_status' => {
                     'code' => 'NORMAL'
                   },
-                  'operationalHoursSpecialInstructions' => nil,
+                  'operational_hours_special_instructions' => nil,
                   'phone' => {
                     'fax' => '973-676-4226',
                     'main' => '973-676-1000',
