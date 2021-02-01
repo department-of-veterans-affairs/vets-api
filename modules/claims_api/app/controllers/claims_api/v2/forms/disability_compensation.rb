@@ -60,19 +60,18 @@ module ClaimsApi
         end
 
         resource 'forms/526' do
-          desc 'Submit a claim.' do
+          desc 'Submit a claim.', body_name: 'post_body' do
+            body_name 'data'
             success ClaimsApi::Entities::V2::ClaimSubmittedEntity
             tags ['Disability']
             security [{ bearer_token: [] }]
           end
           params do
-            requires :data, type: Hash, documentation: { param_type: 'body' } do
-              optional :type, type: String
-              requires :attributes, type: Hash do
-                requires :veteran, type: Hash do
-                  requires :currentlyVAEmployee, type: Boolean
-                  # TODO: define necessary schema here
-                end
+            optional :type, type: String, documentation: { param_type: 'body' }
+            requires :attributes, type: Hash do
+              requires :veteran, type: Hash do
+                requires :currentlyVAEmployee, type: Boolean
+                # TODO: define necessary schema here
               end
             end
           end
