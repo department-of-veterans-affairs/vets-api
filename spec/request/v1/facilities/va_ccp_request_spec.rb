@@ -69,7 +69,7 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
             'data' => [
               {
                 'id' => '927d31eb-11fd-43c2-ac29-11c1a4128819',
-                'type' => 'provider_facility',
+                'type' => 'providerFacility',
                 'relationships' => {
                   'providers' => {
                     'data' => [
@@ -194,7 +194,7 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                         'established' => 2.166666
                       }
                     ],
-                    'effective_date' => '2020-11-30'
+                    'effectiveDate' => '2020-11-30'
                   },
                   'activeStatus' => 'A',
                   'address' => {
@@ -204,21 +204,21 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                       'zip' => '07018-1023',
                       'city' => 'East Orange',
                       'state' => 'NJ',
-                      'address_1' => '385 Tremont Avenue',
-                      'address_2' => nil,
-                      'address_3' => nil
+                      'address1' => '385 Tremont Avenue',
+                      'address2' => nil,
+                      'address3' => nil
                     }
                   },
                   'classification' => 'VA Medical Center (VAMC)',
                   'facilityType' => 'va_health_facility',
                   'feedback' => {
                     'health' => {
-                      'primary_care_urgent' => 0.7400000095367432,
-                      'primary_care_routine' => 0.7699999809265137,
-                      'specialty_care_urgent' => 0.800000011920929,
-                      'specialty_care_routine' => 0.8999999761581421
+                      'primaryCareUrgent' => 0.7400000095367432,
+                      'primaryCareRoutine' => 0.7699999809265137,
+                      'specialtyCareUrgent' => 0.800000011920929,
+                      'specialtyCareRoutine' => 0.8999999761581421
                     },
-                    'effective_date' => '2020-04-16'
+                    'effectiveDate' => '2020-04-16'
                   },
                   'hours' => {
                     'friday' => '24/7',
@@ -241,10 +241,10 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                     'fax' => '973-676-4226',
                     'main' => '973-676-1000',
                     'pharmacy' => '800-480-5590',
-                    'after_hours' => '973-676-1000',
-                    'patient_advocate' => '973-676-1000 x3399',
-                    'mental_health_clinic' => '973-676-1000 x 1421',
-                    'enrollment_coordinator' => '973-676-1000 x3044'
+                    'afterHours' => '973-676-1000',
+                    'patientAdvocate' => '973-676-1000 x3399',
+                    'mentalHealthClinic' => '973-676-1000 x 1421',
+                    'enrollmentCoordinator' => '973-676-1000 x3044'
                   },
                   'services' => {
                     'other' => [],
@@ -267,7 +267,7 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                       UrgentCare
                       Urology
                     ],
-                    'last_updated' => '2020-11-30'
+                    'lastUpdated' => '2020-11-30'
                   },
                   'uniqueId' => '561',
                   'visn' => '2',

@@ -212,7 +212,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   { service: 'PrimaryCare',      new: 8.354545,   established: 3.209895 },
                   { service: 'SpecialtyCare',    new: 29.722488,  established: 20.944935 }
                 ],
-                effective_date: '2021-01-25'
+                effectiveDate: '2021-01-25'
               },
               activeStatus: 'A',
               address: {
@@ -221,19 +221,19 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   zip: '98661-3753',
                   city: 'Vancouver',
                   state: 'WA',
-                  address_1: '1601 East 4th Plain Boulevard',
-                  address_2: nil,
-                  address_3: nil
+                  address1: '1601 East 4th Plain Boulevard',
+                  address2: nil,
+                  address3: nil
                 }
               },
               classification: 'VA Medical Center (VAMC)',
               facilityType: 'va_health_facility',
               feedback: {
                 health: {
-                  primary_care_urgent: 0.8100000023841858,
-                  primary_care_routine: 0.9200000166893005
+                  primaryCareUrgent: 0.8100000023841858,
+                  primaryCareRoutine: 0.9200000166893005
                 },
-                effective_date: '2020-04-16'
+                effectiveDate: '2020-04-16'
               },
               hours: {
                 monday: '730AM-430PM',
@@ -256,10 +256,10 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                 fax: '360-690-0864',
                 main: '360-759-1901',
                 pharmacy: '503-273-5183',
-                after_hours: '360-696-4061',
-                patient_advocate: '503-273-5308',
-                mental_health_clinic: '503-273-5187',
-                enrollment_coordinator: '503-273-5069'
+                afterHours: '360-696-4061',
+                patientAdvocate: '503-273-5308',
+                mentalHealthClinic: '503-273-5187',
+                enrollmentCoordinator: '503-273-5069'
               },
               services: {
                 other: [],
@@ -275,7 +275,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   PrimaryCare
                   SpecialtyCare
                 ],
-                last_updated: '2021-01-25'
+                lastUpdated: '2021-01-25'
               },
               uniqueId: '648A4',
               visn: '20',

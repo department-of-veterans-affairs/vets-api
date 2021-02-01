@@ -357,8 +357,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'grouping' => 'Behavioral Health & Social Service Providers',
             'name' => 'Counselor',
             'specialization' => nil,
-            'specialty_code' => '101Y00000X',
-            'specialty_description' => 'A provider who is trained and educated in the performance of behavior ' \
+            'specialtyCode' => '101Y00000X',
+            'specialtyDescription' => 'A provider who is trained and educated in the performance of behavior ' \
          'health services through interpersonal communications and analysis. ' \
          'Training and education at the specialty level usually requires a ' \
          'master\'s degree and clinical experience and supervision for licensure ' \
@@ -373,8 +373,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
              'grouping' => 'Behavioral Health & Social Service Providers',
              'name' => 'Counselor - Addiction (Substance Use Disorder)',
              'specialization' => 'Addiction (Substance Use Disorder)',
-             'specialty_code' => '101YA0400X',
-             'specialty_description' => 'Definition to come...'
+             'specialtyCode' => '101YA0400X',
+             'specialtyDescription' => 'Definition to come...'
            }
          }]
       )
