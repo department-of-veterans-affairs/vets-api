@@ -5,7 +5,7 @@ module <%= class_name %>
     class <%= class_name %>Controller < ApplicationController
       def index
         message = service.get_message
-        render json: <%= class_name %>Serializer.new(message).serialized_json
+        render json: <%= class_name %>Serializer.new(message).serializable_hash.to_json
       end
 
       private

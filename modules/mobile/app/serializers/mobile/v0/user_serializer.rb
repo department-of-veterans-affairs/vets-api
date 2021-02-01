@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'fast_jsonapi'
+require 'jsonapi/serializer'
 
 module Mobile
   module V0
     class UserSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       ADDRESS_KEYS = %i[
         id

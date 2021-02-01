@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'fast_jsonapi'
+require 'jsonapi/serializer'
 
 module VAOS
   module V0
     class LimitSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       attributes :number_of_requests,
                  :request_limit

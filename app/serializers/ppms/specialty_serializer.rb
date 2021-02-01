@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PPMS::SpecialtySerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   set_id :specialty_code
 

@@ -126,7 +126,7 @@ module Mobile
         adapted_full_list = full_list.map { |entry| Mobile::V0::Adapters::ClaimsOverview.new.parse(entry) }
         adapted_full_list = adapted_full_list.sort_by { |entry| entry[:updated_at] }.reverse!
         adapted_full_list.map do |entry|
-          JSON.parse(Mobile::V0::ClaimOverviewSerializer.new(entry).serialized_json)['data']
+          JSON.parse(Mobile::V0::ClaimOverviewSerializer.new(entry).serializable_hash.to_json)['data']
         end
       end
 

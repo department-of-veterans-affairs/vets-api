@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'fast_jsonapi'
+require 'jsonapi/serializer'
 
 module Mobile
   module V0
     class LettersBeneficiarySerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
       set_type :evssLettersBeneficiaryResponses
       attributes :benefit_information, :military_service
 

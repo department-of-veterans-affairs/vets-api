@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'fast_jsonapi'
+require 'jsonapi/serializer'
 
 module VAOS
   module V0
     class PreferencesSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       attributes :notification_frequency,
                  :email_allowed,

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PPMS::ProviderSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   attribute :acc_new_patients
 

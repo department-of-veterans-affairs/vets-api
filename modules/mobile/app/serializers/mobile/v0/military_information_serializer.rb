@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'fast_jsonapi'
+require 'jsonapi/serializer'
 
 module Mobile
   module V0
     class MilitaryInformationSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
       set_type :militaryInformation
       attribute :service_history do |user|
         formatted_result = []
