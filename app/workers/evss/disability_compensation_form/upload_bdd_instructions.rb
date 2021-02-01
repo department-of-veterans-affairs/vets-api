@@ -3,7 +3,6 @@
 module EVSS
   module DisabilityCompensationForm
     class UploadBddInstructions < Job
-      FORM_TYPE = '21-526EZ'
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_bdd_instructions'
 
       # retry for one day
