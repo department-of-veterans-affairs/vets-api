@@ -105,8 +105,8 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                         page: 2
                       },
                       %w[
-                        vc_0102V vc_0857MVC vc_0110V nca_808 vha_526
-                        vha_526QA vc_0109V vha_561GD vc_0132V vha_630A4
+                        vc_0102V vc_0857MVC vc_0110V nca_808 nca_947 vha_526
+                        vha_526QA vc_0109V vha_561GD vc_0132V
                       ]
 
       it_behaves_like 'paginated request from params with expected IDs',
@@ -171,8 +171,8 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                         page: 2
                       },
                       %w[
-                        vc_0102V vc_0110V nca_808 vha_526
-                        vc_0109V vha_561GD vc_0132V vha_630A4
+                        vc_0102V vc_0110V nca_808 nca_947 vha_526
+                        vc_0109V vha_561GD vc_0132V
                       ]
 
       it_behaves_like 'paginated request from params with expected IDs',
@@ -204,15 +204,15 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
             attributes: {
               access: {
                 health: [
-                  { service: 'Audiology',        new: 55.40625,  established: 54.988095 },
-                  { service: 'Dermatology',      new: 41.826086, established: 14.304347 },
-                  { service: 'MentalHealthCare', new: 14.888888, established: 0.865256 },
-                  { service: 'Ophthalmology',    new: 35.0,      established: 5.923076 },
-                  { service: 'Optometry',        new: 15.615384, established: 9.194656 },
-                  { service: 'PrimaryCare',      new: 10.383928, established: 7.072874 },
-                  { service: 'SpecialtyCare',    new: 22.0,      established: 14.042572 }
+                  { service: 'Audiology',        new: 33.475,     established: 40.906593 },
+                  { service: 'Dermatology',      new: 35.789473,  established: 36.096774 },
+                  { service: 'MentalHealthCare', new: 10.210526,  established: 1.122651 },
+                  { service: 'Ophthalmology',    new: nil,        established: 2.575 },
+                  { service: 'Optometry',        new: 40.522727,  established: 26.938144 },
+                  { service: 'PrimaryCare',      new: 8.354545,   established: 3.209895 },
+                  { service: 'SpecialtyCare',    new: 29.722488,  established: 20.944935 }
                 ],
-                effective_date: '2020-09-14'
+                effective_date: '2021-01-25'
               },
               activeStatus: 'A',
               address: {
@@ -275,7 +275,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   PrimaryCare
                   SpecialtyCare
                 ],
-                last_updated: '2020-09-14'
+                last_updated: '2021-01-25'
               },
               uniqueId: '648A4',
               visn: '20',
