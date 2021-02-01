@@ -20,7 +20,6 @@ module AppealsApi
             form_fields.mailing_address => form_data.mailing_address,
             form_fields.homeless => form_data.homeless,
             form_fields.preferred_phone => form_data.preferred_phone,
-            # form_fields.preferred_email => form_data.preferred_email,
             form_fields.direct_review => form_data.direct_review,
             form_fields.evidence_submission => form_data.evidence_submission,
             form_fields.hearing => form_data.hearing,
@@ -47,17 +46,7 @@ module AppealsApi
               min_font_size: 8,
               valign: :bottom
             }
-
             pdf.font 'Courier'
-            pdf.text_box(
-              form_data.representatives_name,
-              text_opts.merge(
-                at: [350, 514],
-                width: 195,
-                height: 24
-              )
-            )
-
             pdf.text_box(
               form_data.preferred_email,
               text_opts.merge(
@@ -66,7 +55,14 @@ module AppealsApi
                 height: 24
               )
             )
-
+            pdf.text_box(
+              form_data.representatives_name,
+              text_opts.merge(
+                at: [350, 514],
+                width: 195,
+                height: 24
+              )
+            )
             form_data
               .contestable_issues
               .take(5)

@@ -44,6 +44,8 @@ module AppealsApi::V1
                   key :type, :object
                   key :description, 'Address of the Veteran if not homeless'
                   key :required, %i[addressLine1 city countryName zipCode5]
+                  key :maxLength, 165
+                  key :minLength, 5
 
                   property :zipCode5 do
                     key :type, :string
@@ -58,11 +60,14 @@ module AppealsApi::V1
                   key :type, :object
                   key :description, 'Phone number of the Veteran'
                   key :required, %i[areaCode phoneNumber]
+                  key :maxLength, 20
                 end
 
                 property :emailAddressText do
                   key :type, :string
                   key :description, 'Email of the Veteran'
+                  key :maxLength, 120
+                  key :minLength, 5
                 end
               end
 
