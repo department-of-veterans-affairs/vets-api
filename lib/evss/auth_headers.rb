@@ -26,7 +26,7 @@ module EVSS
         'va_eauth_birlsfilenumber' => @user.birls_id,
         'va_eauth_pid' => @user.participant_id,
         'va_eauth_pnid' => @user.ssn,
-        'va_eauth_birthdate' => iso8601_birth_date,
+        'va_eauth_birthdate' => birth_date_formatted(@user.birth_date),
         'va_eauth_authorization' => eauth_json,
         'va_eauth_authenticationauthority' => 'eauth',
         'va_eauth_service_transaction_id' => @transaction_id
@@ -54,9 +54,15 @@ module EVSS
           edi: @user.edipi,
           firstName: @user.first_name,
           lastName: @user.last_name,
-          birthDate: iso8601_birth_date
+          birthDate: birth_date_formatted(@user.birth_date)
         }
       }.to_json
+    end
+
+    def birth_date_formatted(birth_date)
+      return unless birth_date
+
+      DateTime.parse(birth_date).iso8601
     end
   end
 end

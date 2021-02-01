@@ -34,8 +34,8 @@ module VAOS
         sst: 1.minute.ago.to_i + 50,
         version: VERSION,
         gender: gender,
-        dob: dob,
-        dateOfBirth: dob,
+        dob: parsed_date,
+        dateOfBirth: parsed_date,
         edipid: edipi,
         ssn: ssn
       }
@@ -65,8 +65,10 @@ module VAOS
       end
     end
 
-    def dob
-      user.mpi&.profile&.birth_date
+    def parsed_date
+      return unless user.birth_date
+
+      user.birth_date.to_date.strftime('%Y%m%d')
     end
 
     def edipi

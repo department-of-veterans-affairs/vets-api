@@ -44,11 +44,17 @@ module MPI
           'edipi' => user.edipi,
           'first_name' => user.first_name,
           'last_name' => user.last_name,
-          'date_of_birth' => Date.parse(user.birth_date).strftime('%Y%m%d'),
+          'date_of_birth' => parsed_date(user.birth_date),
           'ssn' => user.ssn,
           'current_datetime' => current_time.strftime('%Y-%m-%d %H:%M:%S'),
           'ip_address' => ip_address
         }
+      end
+
+      def parsed_date(date)
+        return unless date
+
+        date.to_date.strftime('%Y%m%d')
       end
     end
   end

@@ -84,7 +84,7 @@ module VAOS
         display_name: "#{last_name}, #{first_name}",
         first_name: first_name,
         last_name: last_name,
-        date_of_birth: dob,
+        date_of_birth: birth_date,
         patient_identifier: {
           unique_id: edipi
         },
@@ -140,10 +140,10 @@ module VAOS
       @user.mpi&.profile&.family_name
     end
 
-    def dob
-      Date.parse(@user.mpi.profile.birth_date).strftime('%b %d, %Y')
-    rescue
-      ''
+    def birth_date
+      return unless @user.birth_date
+
+      @user.birth_date.to_date.strftime('%b %d, %Y')
     end
 
     def edipi

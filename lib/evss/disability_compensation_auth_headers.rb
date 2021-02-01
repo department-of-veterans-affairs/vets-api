@@ -23,10 +23,16 @@ module EVSS
           edi: @user.edipi,
           firstName: @user.first_name,
           lastName: @user.last_name,
-          birthDate: iso8601_birth_date,
+          birthDate: birth_date_formatted(@user.birth_date),
           gender: gender
         }
       }.to_json
+    end
+
+    def birth_date_formatted(birth_date)
+      return unless birth_date
+
+      DateTime.parse(birth_date).iso8601
     end
 
     def gender
