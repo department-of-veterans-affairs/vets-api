@@ -4,7 +4,7 @@ module Mobile
   module V0
     module Adapters
       class VAFacilities
-        def parse(appointments, facilities)
+        def map_appointments_to_facilities(appointments, facilities)
           facilities_by_id = facilities.index_by(&:id)
           
           appointments.map do |appointment|

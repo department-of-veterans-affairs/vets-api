@@ -6,17 +6,17 @@ require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
-
+  
   before do
     iam_sign_in
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
-
+  
   before(:all) do
     @original_cassette_dir = VCR.configure(&:cassette_library_dir)
     VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
   end
-
+  
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
   
   describe 'GET /mobile/v0/appointments' do
@@ -266,6 +266,7 @@ RSpec.describe 'appointments', type: :request do
       
       it 'returns bad request with detail in errors' do
         VCR.use_cassette('appointments/put_cancel_appointment_409', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
           expect(Rails.logger).to receive(:warn).with('VAOS service call failed!', any_args).once
           expect(Rails.logger).to receive(:warn).with(
             'Clinic does not support VAOS appointment cancel',
@@ -281,6 +282,7 @@ RSpec.describe 'appointments', type: :request do
             .to eq('This appointment cannot be cancelled using VA Online Scheduling.  Please contact the site direc' \
                   'tly to cancel your appointment. <a class="external-link" href="https://www.va.gov/find-locations/">V' \
                   'A Facility Locator</a>')
+          end
         end
       end
     end
@@ -296,10 +298,12 @@ RSpec.describe 'appointments', type: :request do
       
       it 'cancels the appointment' do
         VCR.use_cassette('appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
-          put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
-          
-          expect(response).to have_http_status(:success)
-          expect(response.body).to be_an_instance_of(String).and be_empty
+          VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
+            put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
+            
+            expect(response).to have_http_status(:success)
+            expect(response.body).to be_an_instance_of(String).and be_empty
+          end
         end
       end
     end

@@ -31,6 +31,36 @@ module Mobile
       end
       
       def cancel
+        cancel_reasons = get_facility_cancel_reasons(cancel_params[:facility_id])
+        cancel_reason = nil
+        
+        if cancel_reasons.include?
+          cancel_reason = Mobile::V0::AppointmentCancelReason::UNABLE_TO_KEEP_APPT
+        end
+        
+        if (
+          cancelReasons.some(reason => reason.number === UNABLE_TO_KEEP_APPT)
+        ) {
+          cancelReason = UNABLE_TO_KEEP_APPT;
+        await updateAppointment({
+          ...cancelData,
+          cancelReason,
+        });
+        } else if (
+          cancelReasons.some(reason => VALID_CANCEL_CODES.has(reason.number))
+        ) {
+          cancelReason = cancelReasons.find(reason =>
+            VALID_CANCEL_CODES.has(reason.number),
+          );
+        await updateAppointment({
+          ...cancelData,
+          cancelReason: cancelReason.number,
+        });
+        } else {
+          throw new Error('Unable to find valid cancel reason');
+        }
+        
+        binding.pry
         params = cancel_params.merge({ cancel_reason: '5', cancel_code: 'PC' })
         appointments_service.put_cancel_appointment(params)
         head :no_content
@@ -40,14 +70,20 @@ module Mobile
 
       def va_appointments_with_facilities(appointments_from_response)
         appointments, facility_ids = va_appointments_adapter.parse(appointments_from_response)
-        appointments_with_facilities(appointments, facility_ids) if appointments.size.positive?
+        get_appointment_facilities(appointments, facility_ids) if appointments.size.positive?
       end
 
-      def appointments_with_facilities(appointments, facility_ids)
+      def get_appointment_facilities(appointments, facility_ids)
         facilities = facilities_service.get_facilities(
           ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(',')
         )
-        va_facilities_adapter.parse(appointments, facilities)
+        va_facilities_adapter.map_appointments_to_facilities(appointments, facilities)
+      end
+      
+      def get_facility_cancel_reasons(facility_id)
+        appointments_service.get_cancel_reasons(facility_id).map do |reason|
+          Mobile::V0::AppointmentCancelReason.new(reason)
+        end
       end
 
       def appointments_service

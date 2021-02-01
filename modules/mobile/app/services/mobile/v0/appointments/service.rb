@@ -27,24 +27,24 @@ module Mobile
             pageSize: 0,
             useCache: use_cache
           }
-
+          
           responses = { cc: nil, va: nil }
           errors = { cc: nil, va: nil }
-
+          
           config.parallel_connection.in_parallel do
-            responses[:cc], errors[:cc] = get(cc_url, params)
-            responses[:va], errors[:va] = get(va_url, params)
+            responses[:cc], errors[:cc] = parallel_get(cc_url, params)
+            responses[:va], errors[:va] = parallel_get(va_url, params)
           end
-
+          
           StatsD.increment('mobile.appointments.get_appointments.success')
           [responses, errors]
         end
-
+        
         def put_cancel_appointment(request_object_body)
           params = VAOS::CancelForm.new(request_object_body).params
           params.merge!(patient_identifier: { unique_id: @user.icn, assigning_authority: 'ICN' })
           site_code = params[:facility_id]
-  
+          
           with_monitoring do
             perform(:put, cancel_appointment_url(site_code), params, headers)
             ''
@@ -55,10 +55,15 @@ module Mobile
         rescue Common::Client::Errors::ClientError => e
           raise_backend_exception('VAOS_502', self.class, e)
         end
-
+        
+        def get_cancel_reasons(facility_id)
+          response = perform(:get, cancel_reasons_url(facility_id), nil, headers)
+          response.body[:cancel_reasons_list]
+        end
+        
         private
-
-        def get(url, params)
+        
+        def parallel_get(url, params)
           response = config.parallel_connection.get(url, params, headers)
           [response, nil]
         rescue VAOS::Exceptions::BackendServiceException => e
@@ -66,25 +71,30 @@ module Mobile
         rescue => e
           internal_error(e, url)
         end
-
+        
         def config
           Mobile::V0::Appointments::Configuration.instance
         end
-
+        
         def va_url
           "/appointments/v1/patients/#{@user.icn}/appointments"
         end
-
+        
         def cc_url
           '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling' \
             "/patient/ICN/#{@user.icn}/booked-cc-appointments"
         end
-
+        
         def cancel_appointment_url(site)
           "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{site}/patient/ICN/" \
-        "#{@user.icn}/cancel-appointment"
+           "#{@user.icn}/cancel-appointment"
         end
-
+        
+        def cancel_reasons_url(facility_id)
+          "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}" \
+            "/patient/ICN/#{@user.icn}/cancel-reasons-list"
+        end
+        
         def internal_error(e, url)
           Rails.logger.error(
             'mobile appointments internal exception',
@@ -96,11 +106,11 @@ module Mobile
             title: 'Internal Server Error',
             detail: e.message
           }
-
+          
           StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
         end
-
+        
         def vaos_error(e, url)
           Rails.logger.error(
             'mobile appointments backend service exception',
@@ -112,11 +122,11 @@ module Mobile
             title: 'Backend Service Exception',
             detail: e.response_values[:detail]
           }
-
+          
           StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
         end
-
+        
         def log_clinic_details(action, clinic_id, site_code)
           Rails.logger.warn(
             "Clinic does not support VAOS appointment #{action}",
