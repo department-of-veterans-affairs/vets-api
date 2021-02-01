@@ -3275,4 +3275,308 @@ http_interactions:
         Rehab And Employment","website":null,"lat":45.63941626,"long":-122.6552874,"address":{"mailing":{},"physical":{"zip":"98661","city":"Vancouver","state":"WA","address_1":"1601
         E Fourth Pain Blvd","address_2":"V3CH31, Bldg 18","address_3":null}},"phone":{"fax":"360-759-1679","main":"503-412-4577"},"hours":{"friday":"8:00AM-4:30PM","monday":"8:00AM-4:30PM","sunday":"Closed","tuesday":"8:00AM-4:30PM","saturday":"Closed","thursday":"8:00AM-4:30PM","wednesday":"8:00AM-4:30PM"},"operational_hours_special_instructions":null,"services":{"benefits":["EducationAndCareerCounseling","TransitionAssistance","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-122.786758&bbox%5B%5D=45.451913&bbox%5B%5D=-122.440689&bbox%5B%5D=45.64&type=benefits&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":5},"distances":[]}}'
   recorded_at: Mon, 01 Feb 2021 16:23:58 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&bbox%5B%5D=60.99
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 01 Feb 2021 19:52:18 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '9'
+      X-Kong-Upstream-Latency:
+      - '36'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS0108eb76=01c16e2d812b4e9fd013f33f360a7fd634ce95cd63f52e6835622afa1be4c4ad012804dcc07c3c4b800fe673454e7066bd46e9723d;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":null,"lat":14.54408,"long":120.99139,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":"NOX3 Seafront
+        Compound","address_3":null}},"phone":{"fax":"632-310-5962","main":"632-550-3888","pharmacy":"632-550-3888
+        x5029","after_hours":null,"patient_advocate":"632-550-3888 x3716","enrollment_coordinator":"632-550-3888
+        x3780"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-430PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"operational_hours_special_instructions":null,"services":{"other":[],"health":["Audiology","Cardiology","Dermatology","Gastroenterology","MentalHealthCare","Ophthalmology","PrimaryCare","SpecialtyCare"],"last_updated":"2021-01-25"},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[{"service":"Audiology","new":84.083333,"established":40.418604},{"service":"Cardiology","new":76.333333,"established":53.785714},{"service":"Dermatology","new":226.75,"established":54.727272},{"service":"Gastroenterology","new":109.666666,"established":null},{"service":"MentalHealthCare","new":null,"established":8.0},{"service":"Ophthalmology","new":157.166666,"established":54.113636},{"service":"PrimaryCare","new":23.5,"established":20.656862},{"service":"SpecialtyCare","new":88.471698,"established":50.856321}],"effective_date":"2021-01-25"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vba_358","type":"va_facilities","attributes":{"name":"Manila
+        Regional Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/manila","lat":14.54410388,"long":120.9921918,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"011-632-550-3944","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"operational_hours_special_instructions":null,"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance","Pensions"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"nca_s1139","type":"va_facilities","attributes":{"name":"Guam
+        Veterans Cemetery","facility_type":"va_cemetery","classification":"State Cemetery","website":null,"lat":13.4579839832273,"long":144.691046476364,"address":{"mailing":{},"physical":{"zip":"96910","city":"Agatna
+        Heights","state":"GU","address_1":"490 Chalan Palayso"}},"phone":{"fax":"671-475-8396","main":"671-475-8388"},"hours":{"friday":"Sunrise
+        - Sunset","monday":"Sunrise - Sunset","sunday":"Sunrise - Sunset","tuesday":"Sunrise
+        - Sunset","saturday":"Sunrise - Sunset","thursday":"Sunrise - Sunset","wednesday":"Sunrise
+        - Sunset"},"operational_hours_special_instructions":null,"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GE","type":"va_facilities","attributes":{"name":"Guam
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.hawaii.va.gov/locations/Agana_Heights_Guam.asp","lat":13.47187435,"long":144.7403903,"address":{"mailing":{},"physical":{"zip":"96910-6427","city":"Agana
+        Heights","state":"GU","address_1":"498 Chalan Palasyo","address_2":null,"address_3":null}},"phone":{"fax":"671-475-5855","main":"671-475-5760","pharmacy":"800-465-8387","after_hours":"800-214-1306","patient_advocate":"808-433-0126","mental_health_clinic":"808-433-0660","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"operational_hours_special_instructions":null,"services":{"other":[],"health":["MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2021-01-25"},"satisfaction":{"health":{"primary_care_urgent":0.5299999713897705,"primary_care_routine":0.6700000166893005},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"MentalHealthCare","new":18.7,"established":3.91986},{"service":"PrimaryCare","new":2.0,"established":1.347457},{"service":"SpecialtyCare","new":71.6,"established":null}],"effective_date":"2021-01-25"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vc_0648V","type":"va_facilities","attributes":{"name":"Guam
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":13.47619586,"long":144.7629365,"address":{"mailing":{},"physical":{"zip":"96910-5172","city":"Maite","state":"GU","address_1":"400
+        Route 8","address_2":"Suite 301","address_3":null}},"phone":{"fax":"671-472-7162","main":"671-472-7161"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"operational_hours_special_instructions":"Vet
+        Center after hours assistance is available by calling 1-877-WAR-VETS (1-877-927-8387).","services":{},"satisfaction":{},"wait_times":{},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vba_459h","type":"va_facilities","attributes":{"name":"Guam
+        Benefits Office","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":13.48793419,"long":144.7982844,"address":{"mailing":{},"physical":{"zip":"96913","city":"Tamuning","state":"GU","address_1":"770
+        East Sunset Blvd.","address_2":"Suite 165","address_3":null}},"phone":{"fax":"671-648-0096","main":"671-648-0090"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"operational_hours_special_instructions":null,"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","PreDischargeClaimAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GH","type":"va_facilities","attributes":{"name":"Saipan
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":"https://www.hawaii.va.gov/locations/saipan.asp","lat":15.216794,"long":145.729385,"address":{"mailing":{},"physical":{"zip":"96950-9998","city":"Saipan","state":"MP","address_1":"Marina
+        Heights Business Park - Garapan","address_2":"Medical Associates of the Pacific","address_3":"MH-II
+        Building Suite 100 and 206"}},"phone":{"fax":"670-322-0038","main":"670-322-0035","pharmacy":"800-465-8387","after_hours":"800-214-1306","patient_advocate":"670-322-0035","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"Closed","monday":"Closed","sunday":"Closed","tuesday":"830AM-400PM","saturday":"Closed","thursday":"830AM-400PM","wednesday":"Closed"},"operational_hours_special_instructions":null,"services":{"other":[],"health":["MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2021-01-25"},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[{"service":"MentalHealthCare","new":2.666666,"established":1.028571},{"service":"PrimaryCare","new":18.0,"established":0.0},{"service":"SpecialtyCare","new":null,"established":0.0}],"effective_date":"2021-01-25"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"nca_s1140","type":"va_facilities","attributes":{"name":"CNMI
+        Veterans Cemetery","facility_type":"va_cemetery","classification":"State Cemetery","website":null,"lat":15.2860893875671,"long":145.810772180557,"address":{"mailing":{},"physical":{"zip":"96950","city":"Saipan","state":"MP","address_1":"P.O.
+        Box 503416"}},"phone":{"fax":null,"main":"670-664-2650"},"hours":{"friday":"Sunrise
+        - Sunset","monday":"Sunrise - Sunset","sunday":"Sunrise - Sunset","tuesday":"Sunrise
+        - Sunset","saturday":"Sunrise - Sunset","thursday":"Sunrise - Sunset","wednesday":"Sunrise
+        - Sunset"},"operational_hours_special_instructions":null,"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=60.99&bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=60.99&bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&page=1&per_page=10","prev":null,"next":null,"last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=60.99&bbox%5B%5D=10.54&bbox%5B%5D=180.0&bbox%5B%5D=20.55&page=1&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":1,"total_entries":8},"distances":[]}}'
+  recorded_at: Mon, 01 Feb 2021 19:52:18 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 01 Feb 2021 19:52:19 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '13'
+      X-Kong-Upstream-Latency:
+      - '159'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '58'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS0108eb76=01c16e2d816f1992620ddf81b2657417911d2b86ad10893c0a3bffa72e1cfb4977ca05bc63664644a42c371ec9be8ad6f29aa7d906;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"vha_358","type":"va_facilities","attributes":{"name":"Manila
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":null,"lat":14.54408,"long":120.99139,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":"NOX3 Seafront
+        Compound","address_3":null}},"phone":{"fax":"632-310-5962","main":"632-550-3888","pharmacy":"632-550-3888
+        x5029","after_hours":null,"patient_advocate":"632-550-3888 x3716","enrollment_coordinator":"632-550-3888
+        x3780"},"hours":{"friday":"730AM-430PM","monday":"730AM-430PM","sunday":"Closed","tuesday":"730AM-430PM","saturday":"Closed","thursday":"730AM-430PM","wednesday":"730AM-430PM"},"operational_hours_special_instructions":null,"services":{"other":[],"health":["Audiology","Cardiology","Dermatology","Gastroenterology","MentalHealthCare","Ophthalmology","PrimaryCare","SpecialtyCare"],"last_updated":"2021-01-25"},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[{"service":"Audiology","new":84.083333,"established":40.418604},{"service":"Cardiology","new":76.333333,"established":53.785714},{"service":"Dermatology","new":226.75,"established":54.727272},{"service":"Gastroenterology","new":109.666666,"established":null},{"service":"MentalHealthCare","new":null,"established":8.0},{"service":"Ophthalmology","new":157.166666,"established":54.113636},{"service":"PrimaryCare","new":23.5,"established":20.656862},{"service":"SpecialtyCare","new":88.471698,"established":50.856321}],"effective_date":"2021-01-25"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vba_358","type":"va_facilities","attributes":{"name":"Manila
+        Regional Office","facility_type":"va_benefits_facility","classification":"Regional
+        Benefit Office","website":"https://www.benefits.va.gov/manila","lat":14.54410388,"long":120.9921918,"address":{"mailing":{},"physical":{"zip":"01302","city":"Pasay
+        City","state":"PH","address_1":"1501 Roxas Boulevard","address_2":null,"address_3":null}},"phone":{"fax":"011-632-550-3944","main":"1-800-827-1000"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"operational_hours_special_instructions":null,"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance","Pensions"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"nca_s1139","type":"va_facilities","attributes":{"name":"Guam
+        Veterans Cemetery","facility_type":"va_cemetery","classification":"State Cemetery","website":null,"lat":13.4579839832273,"long":144.691046476364,"address":{"mailing":{},"physical":{"zip":"96910","city":"Agatna
+        Heights","state":"GU","address_1":"490 Chalan Palayso"}},"phone":{"fax":"671-475-8396","main":"671-475-8388"},"hours":{"friday":"Sunrise
+        - Sunset","monday":"Sunrise - Sunset","sunday":"Sunrise - Sunset","tuesday":"Sunrise
+        - Sunset","saturday":"Sunrise - Sunset","thursday":"Sunrise - Sunset","wednesday":"Sunrise
+        - Sunset"},"operational_hours_special_instructions":null,"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GE","type":"va_facilities","attributes":{"name":"Guam
+        VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.hawaii.va.gov/locations/Agana_Heights_Guam.asp","lat":13.47187435,"long":144.7403903,"address":{"mailing":{},"physical":{"zip":"96910-6427","city":"Agana
+        Heights","state":"GU","address_1":"498 Chalan Palasyo","address_2":null,"address_3":null}},"phone":{"fax":"671-475-5855","main":"671-475-5760","pharmacy":"800-465-8387","after_hours":"800-214-1306","patient_advocate":"808-433-0126","mental_health_clinic":"808-433-0660","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"operational_hours_special_instructions":null,"services":{"other":[],"health":["MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2021-01-25"},"satisfaction":{"health":{"primary_care_urgent":0.5299999713897705,"primary_care_routine":0.6700000166893005},"effective_date":"2020-04-16"},"wait_times":{"health":[{"service":"MentalHealthCare","new":18.7,"established":3.91986},{"service":"PrimaryCare","new":2.0,"established":1.347457},{"service":"SpecialtyCare","new":71.6,"established":null}],"effective_date":"2021-01-25"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vc_0648V","type":"va_facilities","attributes":{"name":"Guam
+        Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":13.47619586,"long":144.7629365,"address":{"mailing":{},"physical":{"zip":"96910-5172","city":"Maite","state":"GU","address_1":"400
+        Route 8","address_2":"Suite 301","address_3":null}},"phone":{"fax":"671-472-7162","main":"671-472-7161"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"operational_hours_special_instructions":"Vet
+        Center after hours assistance is available by calling 1-877-WAR-VETS (1-877-927-8387).","services":{},"satisfaction":{},"wait_times":{},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vba_459h","type":"va_facilities","attributes":{"name":"Guam
+        Benefits Office","facility_type":"va_benefits_facility","classification":"Outbased","website":null,"lat":13.48793419,"long":144.7982844,"address":{"mailing":{},"physical":{"zip":"96913","city":"Tamuning","state":"GU","address_1":"770
+        East Sunset Blvd.","address_2":"Suite 165","address_3":null}},"phone":{"fax":"671-648-0096","main":"671-648-0090"},"hours":{"friday":"8:00AM-4:00PM","monday":"8:00AM-4:00PM","sunday":"Closed","tuesday":"8:00AM-4:00PM","saturday":"Closed","thursday":"8:00AM-4:00PM","wednesday":"8:00AM-4:00PM"},"operational_hours_special_instructions":null,"services":{"benefits":["ApplyingForBenefits","BurialClaimAssistance","DisabilityClaimAssistance","eBenefitsRegistrationAssistance","EducationAndCareerCounseling","EducationClaimAssistance","FamilyMemberClaimAssistance","HomelessAssistance","PreDischargeClaimAssistance","TransitionAssistance","UpdatingDirectDepositInformation","VocationalRehabilitationAndEmploymentAssistance"]},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vha_459GH","type":"va_facilities","attributes":{"name":"Saipan
+        VA Clinic","facility_type":"va_health_facility","classification":"Other Outpatient
+        Services (OOS)","website":"https://www.hawaii.va.gov/locations/saipan.asp","lat":15.216794,"long":145.729385,"address":{"mailing":{},"physical":{"zip":"96950-9998","city":"Saipan","state":"MP","address_1":"Marina
+        Heights Business Park - Garapan","address_2":"Medical Associates of the Pacific","address_3":"MH-II
+        Building Suite 100 and 206"}},"phone":{"fax":"670-322-0038","main":"670-322-0035","pharmacy":"800-465-8387","after_hours":"800-214-1306","patient_advocate":"670-322-0035","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"Closed","monday":"Closed","sunday":"Closed","tuesday":"830AM-400PM","saturday":"Closed","thursday":"830AM-400PM","wednesday":"Closed"},"operational_hours_special_instructions":null,"services":{"other":[],"health":["MentalHealthCare","Podiatry","PrimaryCare","SpecialtyCare"],"last_updated":"2021-01-25"},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[{"service":"MentalHealthCare","new":2.666666,"established":1.028571},{"service":"PrimaryCare","new":18.0,"established":0.0},{"service":"SpecialtyCare","new":null,"established":0.0}],"effective_date":"2021-01-25"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"nca_s1140","type":"va_facilities","attributes":{"name":"CNMI
+        Veterans Cemetery","facility_type":"va_cemetery","classification":"State Cemetery","website":null,"lat":15.2860893875671,"long":145.810772180557,"address":{"mailing":{},"physical":{"zip":"96950","city":"Saipan","state":"MP","address_1":"P.O.
+        Box 503416"}},"phone":{"fax":null,"main":"670-664-2650"},"hours":{"friday":"Sunrise
+        - Sunset","monday":"Sunrise - Sunset","sunday":"Sunrise - Sunset","tuesday":"Sunrise
+        - Sunset","saturday":"Sunrise - Sunset","thursday":"Sunrise - Sunset","wednesday":"Sunrise
+        - Sunset"},"operational_hours_special_instructions":null,"services":{},"satisfaction":{},"wait_times":{},"mobile":null,"active_status":null,"operating_status":{"code":"NORMAL"},"visn":null}},{"id":"vc_0616V","type":"va_facilities","attributes":{"name":"American
+        Samoa Vet Center","facility_type":"vet_center","classification":null,"website":null,"lat":-14.33224007,"long":-170.73101811,"address":{"mailing":{},"physical":{"zip":"96799","city":"Pago
+        Pago","state":"AS","address_1":"Ottoville Road","address_2":"Equator Building","address_3":null}},"phone":{"fax":"684-699-3764","main":"684-699-3760"},"hours":{"friday":"800AM-430PM","monday":"800AM-430PM","sunday":"Closed","tuesday":"800AM-430PM","saturday":"Closed","thursday":"800AM-430PM","wednesday":"800AM-430PM"},"operational_hours_special_instructions":"Expanded
+        or Nontraditional hours are available for some services on a routine and or
+        requested basis. Please call our main phone number for details. | Vet Center
+        after hours assistance is available by calling 1-877-WAR-VETS (1-877-927-8387).","services":{},"satisfaction":{},"wait_times":{},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}},{"id":"vha_459GF","type":"va_facilities","attributes":{"name":"Faleomavaega
+        Eni Fa''aua''a Hunkin VA Clinic","facility_type":"va_health_facility","classification":"Primary
+        Care CBOC","website":"https://www.hawaii.va.gov/locations/Pago_Pago_American_Samoa.asp","lat":-14.32821,"long":-170.718615,"address":{"mailing":{},"physical":{"zip":"96799","city":"Pago
+        Pago","state":"AS","address_1":"Fiatele Teo Army Reserve Building","address_2":null,"address_3":null}},"phone":{"fax":"684-699-9147","main":"684-699-3730","pharmacy":"684-699-3730","after_hours":"808-433-7864","patient_advocate":"808-433-0126","mental_health_clinic":"808-433-0660","enrollment_coordinator":"808-433-7600"},"hours":{"friday":"730AM-400PM","monday":"730AM-400PM","sunday":"Closed","tuesday":"730AM-400PM","saturday":"Closed","thursday":"730AM-400PM","wednesday":"730AM-400PM"},"operational_hours_special_instructions":null,"services":{"other":[],"health":["Dermatology","Gastroenterology","Gynecology","MentalHealthCare","PrimaryCare","SpecialtyCare","WomensHealth"],"last_updated":"2021-01-25"},"satisfaction":{"health":{},"effective_date":null},"wait_times":{"health":[{"service":"Dermatology","new":null,"established":0.0},{"service":"Gastroenterology","new":19.0,"established":0.0},{"service":"Gynecology","new":null,"established":11.333333},{"service":"MentalHealthCare","new":10.0,"established":0.506849},{"service":"PrimaryCare","new":4.428571,"established":0.70297},{"service":"SpecialtyCare","new":5.75,"established":6.8},{"service":"WomensHealth","new":null,"established":11.333333}],"effective_date":"2021-01-25"},"mobile":false,"active_status":"A","operating_status":{"code":"NORMAL"},"visn":"21"}}],"links":{"self":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0&page=1&per_page=10","first":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0&page=1&per_page=10","prev":null,"next":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0&page=2&per_page=10","last":"https://sandbox-api.va.gov/services/va_facilities/v0/facilities?lat=13.54&long=121.0&page=250&per_page=10"},"meta":{"pagination":{"current_page":1,"per_page":10,"total_pages":250,"total_entries":2495},"distances":[{"id":"vha_358","distance":69.38},{"id":"vba_358","distance":69.38},{"id":"nca_s1139","distance":1591.07},{"id":"vha_459GE","distance":1594.33},{"id":"vc_0648V","distance":1595.83},{"id":"vba_459h","distance":1598.16},{"id":"vha_459GH","distance":1658.31},{"id":"nca_s1140","distance":1663.81},{"id":"vc_0616V","distance":5050.37},{"id":"vha_459GF","distance":5051.07}]}}'
+  recorded_at: Mon, 01 Feb 2021 19:52:19 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities?taco=true
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Mon, 01 Feb 2021 19:52:20 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '450'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '2'
+      X-Kong-Upstream-Latency:
+      - '16'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '57'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS0108eb76=01c16e2d812547add046f60b3adb95961fd20f94c6ce8cb7b4cf7def3802714a70563006367f771045661c016e34d63b5f4fd11a55;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Missing parameter","detail":"Parameter conditions
+        \"bbox[], !lat, !long, !state, !visn, !zip\" OR \"!bbox[], ids, !lat, !long,
+        !state, !visn, !zip\" OR \"!bbox[], lat, long, !state, !visn, !zip\" OR \"!bbox[],
+        !lat, !long, state, !visn, !zip\" OR \"!bbox[], !lat, !long, !state, !type,
+        visn, !zip\" OR \"!bbox[], !lat, !long, !state, !visn, zip\" not met for actual
+        request parameters: taco={true}","code":"108","status":"400"}]}'
+  recorded_at: Mon, 01 Feb 2021 19:52:20 GMT
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/va_facilities/v0/facilities/bha_358
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 404
+      message: ''
+    headers:
+      Date:
+      - Mon, 01 Feb 2021 19:52:21 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '130'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=15724800; includeSubDomains
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Accept-Encoding
+      Via:
+      - kong/1.2.2
+      X-Kong-Proxy-Latency:
+      - '1'
+      X-Kong-Upstream-Latency:
+      - '15'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '56'
+      Cache-Control:
+      - ''
+      Set-Cookie:
+      - TS0108eb76=01c16e2d81184075696ec6cd7e5ee73ea53ac620b5b95410538fff472c621f1a8825b63a4e01d5203d57497f0c7aeae5db15cbfb8d;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Record not found","detail":"The record identified
+        by bha_358 could not be found","code":"404","status":"404"}]}'
+  recorded_at: Mon, 01 Feb 2021 19:52:21 GMT
 recorded_with: VCR 6.0.0
