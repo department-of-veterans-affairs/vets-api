@@ -777,12 +777,12 @@ GEM
       rack (~> 2.0)
       rack-protection (>= 1.5.0)
       redis (>= 3.3.5, < 4.2)
-    sidekiq-ent (1.8.1)	
-      einhorn (= 0.7.4)	
-      sidekiq (>= 5.2.3)	
-      sidekiq-pro (>= 4.0.4)	
-    sidekiq-pro (5.0.0)	
-      concurrent-ruby (>= 1.0.5)	
+    sidekiq-ent (1.8.1)
+      einhorn (= 0.7.4)
+      sidekiq (>= 5.2.3)
+      sidekiq-pro (>= 4.0.4)
+    sidekiq-pro (5.0.0)
+      concurrent-ruby (>= 1.0.5)
       sidekiq (>= 5.2.7)
     sidekiq-scheduler (3.0.1)
       e2mmap
@@ -1011,7 +1011,7 @@ DEPENDENCIES
   sentry-raven
   shrine
   sidekiq (~> 5.0)
-  sidekiq-ent!	
+  sidekiq-ent!
   sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov (< 0.18)
