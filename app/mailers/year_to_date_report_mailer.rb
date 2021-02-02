@@ -11,7 +11,7 @@ class YearToDateReportMailer < ApplicationMailer
                  Settings.reports.year_to_date_report.staging_emails.dup
                else
                  Settings.reports.year_to_date_report.emails.dup
-          end
+               end
     mail(
       opt.merge(
         subject: REPORT_TEXT,
