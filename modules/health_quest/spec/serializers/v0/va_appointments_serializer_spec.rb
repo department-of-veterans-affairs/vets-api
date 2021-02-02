@@ -24,8 +24,8 @@ describe HealthQuest::V0::VAAppointmentsSerializer do
   end
 
   describe 'included' do
-    it 'includes FastJsonapi::ObjectSerializer' do
-      expect(klass).to include(FastJsonapi::ObjectSerializer)
+    it 'includes JSONAPI::Serializer' do
+      expect(klass).to include(JSONAPI::Serializer)
     end
   end
 
