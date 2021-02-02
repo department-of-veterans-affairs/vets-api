@@ -44,7 +44,7 @@ module VAProfile
 
     def handle_error(error)
       case error
-      when Common::Client::Errors::ParsingError # Vet360 sent a non-JSON response
+      when Common::Client::Errors::ParsingError # VAProfile sent a non-JSON response
         Raven.extra_context(
           message: error.message,
           url: config.base_path
@@ -71,7 +71,7 @@ module VAProfile
       )
 
       Raven.tags_context(
-        vet360: person_transaction_failure?(error) ? 'failed_vet360_id_initializations' : 'general_client_error'
+        va_profile: person_transaction_failure?(error) ? 'failed_vet360_id_initializations' : 'general_client_error'
       )
     end
 

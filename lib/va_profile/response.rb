@@ -3,7 +3,7 @@
 require 'common/client/concerns/service_status'
 require 'common/models/base'
 
-module Vet360
+module VAProfile
   class Response < Common::Base
     include Common::Client::Concerns::ServiceStatus
 

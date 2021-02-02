@@ -4,17 +4,17 @@ require 'va_profile/service'
 
 module VAProfile
   class Stats
-    STATSD_KEY_PREFIX = 'api.vet360'
+    STATSD_KEY_PREFIX = 'api.va_profile'
     FINAL_SUCCESS = %w[COMPLETED_SUCCESS COMPLETED_NO_CHANGES_DETECTED].freeze
     FINAL_FAILURE = %w[REJECTED COMPLETED_FAILURE].freeze
 
     class << self
-      # Triggers the associated StatsD.increment method for the Vet360 buckets that are
+      # Triggers the associated StatsD.increment method for the VAProfile buckets that are
       # initialized in the config/initializers/statsd.rb file.
       #
       # @param *args [String] A variable number of string arguments. Each one represents
       #   a bucket in StatsD.  For example passing in ('policy', 'success') would increment
-      #   the 'api.vet360.policy.success' bucket
+      #   the 'api.va_profile.policy.success' bucket
       #
       def increment(*args)
         buckets = args.map(&:downcase).join('.')
@@ -26,7 +26,7 @@ module VAProfile
       # success or failure states, it increments the associated StatsD bucket.
       #
       # @param response [FaradayObject] The raw response from the Faraday HTTP call
-      # @param bucket1 [String] The Vet360 bucket to increment.  This bucket must
+      # @param bucket1 [String] The VAProfile bucket to increment.  This bucket must
       #   already be initialized in config/initializers/statsd.rb.
       # @return [Nil] Returns nil only if the passed transaction status is not a final status
       #
@@ -40,7 +40,7 @@ module VAProfile
 
       # Increments the associated StatsD bucket with the passed in exception error key.
       #
-      # @param key [String] A Vet360 exception key from the locales/exceptions file
+      # @param key [String] A VAProfile exception key from the locales/exceptions file
       #   For example, 'VET360_ADDR133'.
       #
       def increment_exception(key)
