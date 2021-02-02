@@ -135,14 +135,14 @@ RSpec.describe CentralMail::Service do
 
         if action.eql?('invalid')
           test_msg = "Returns a failure when a businessLine key is #{action}"
-          resp_msg = "Metadata Field Error - Invalid businessLine"
+          resp_msg = 'Metadata Field Error - Invalid businessLine'
           status = 412
         end
 
         it test_msg do
           VCR.use_cassette(
-              "central_mail/metadata_business_line_#{action}",
-              match_requests_on: [multipart_request_matcher, :method, :uri]
+            "central_mail/metadata_business_line_#{action}",
+            match_requests_on: [multipart_request_matcher, :method, :uri]
           ) do
             key = 'businessLine'
             metadata = valid_metadata.call
