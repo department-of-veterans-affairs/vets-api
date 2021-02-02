@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'vet360/models/validation_address'
-require 'vet360/address_validation/service'
+require 'va_profile/models/validation_address'
+require 'va_profile/address_validation/service'
 
 module VAProfile
   module AddressValidation
