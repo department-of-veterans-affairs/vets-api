@@ -113,11 +113,7 @@ RSpec.describe Lighthouse::Facilities::Client do
 
     it 'has operational_hours_special_instructions' do
       r = facilities_client.get_by_id('vc_0617V')
-      expect(r[:operational_hours_special_instructions]).to eql(
-        'Expanded or Nontraditional hours are available for some services on a routine and or requested basis. ' \
-          'Please call our main phone number for details. | Vet Center after hours assistance is available by ' \
-          'calling 1-877-WAR-VETS (1-877-927-8387).'
-      )
+      expect(r[:operational_hours_special_instructions]).to be_nil
     end
 
     it 'returns a 404 error' do
