@@ -109,6 +109,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
         expect(Rails.logger).to receive(:error).once
         expect_retryable_error(Breakers::OutageException)
+        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
       end
     end
 
