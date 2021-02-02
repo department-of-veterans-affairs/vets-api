@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :va_profile_address, class: 'Vet360::Models::Address' do
+  factory :va_profile_address, class: 'VAProfile::Models::Address' do
     address_line1 { '140 Rock Creek Rd' }
-    address_pou { Vet360::Models::Address::RESIDENCE }
-    address_type { Vet360::Models::Address::DOMESTIC }
+    address_pou { VAProfile::Models::Address::RESIDENCE }
+    address_type { VAProfile::Models::Address::DOMESTIC }
     city { 'Washington' }
     country_name { 'USA' }
     country_code_iso3 { 'USA' }
@@ -21,23 +21,23 @@ FactoryBot.define do
     vet360_id { '12345' }
 
     trait :mailing do
-      address_pou { Vet360::Models::Address::CORRESPONDENCE }
+      address_pou { VAProfile::Models::Address::CORRESPONDENCE }
       address_line1 { '1515 Broadway' }
     end
 
     trait :domestic do
-      address_type { Vet360::Models::Address::DOMESTIC }
+      address_type { VAProfile::Models::Address::DOMESTIC }
     end
 
     trait :international do
-      address_type { Vet360::Models::Address::INTERNATIONAL }
+      address_type { VAProfile::Models::Address::INTERNATIONAL }
       international_postal_code { '100-0001' }
       state_code { nil }
       zip_code { nil }
     end
 
     trait :military_overseas do
-      address_type { Vet360::Models::Address::MILITARY }
+      address_type { VAProfile::Models::Address::MILITARY }
     end
 
     trait :multiple_matches do
@@ -48,7 +48,7 @@ FactoryBot.define do
     end
 
     trait :override do
-      address_pou { Vet360::Models::Address::CORRESPONDENCE }
+      address_pou { VAProfile::Models::Address::CORRESPONDENCE }
       id { 108_347 }
       address_line1 { '1494 Martin Luther King Rd' }
       address_line2 { 'c/o foo' }
