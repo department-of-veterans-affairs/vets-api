@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :permission, class: 'Vet360::Models::Permission' do
+  factory :permission, class: 'VAProfile::Models::Permission' do
     permission_type { 'TextPermission' }
     permission_value { true }
     sequence(:id) { |n| n }
