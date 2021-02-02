@@ -218,7 +218,6 @@ module AppealsApi::V1
 
                     property :address do
                       key :type, :object
-                      key :example, false
                       key :description, 'value of submitted address if not homeless'
                     end
 
