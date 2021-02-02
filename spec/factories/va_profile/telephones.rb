@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :telephone, class: 'Vet360::Models::Telephone' do
+  factory :telephone, class: 'VAProfile::Models::Telephone' do
     area_code { '303' }
     country_code { '1' }
     extension { nil }
