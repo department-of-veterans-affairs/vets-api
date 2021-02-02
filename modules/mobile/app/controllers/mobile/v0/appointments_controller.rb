@@ -21,7 +21,7 @@ module Mobile
         cc_appointments = cc_adapter.parse(responses[:cc].body) unless errors[:cc]
 
         # There's currently a bug in the underlying Community Care service
-        # where data ranges are not being respected
+        # where date ranges are not being respected
         cc_appointments.select! do |appointment|
           appointment.start_date_utc.between?(start_date, end_date)
         end
