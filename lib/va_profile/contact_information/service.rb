@@ -29,7 +29,7 @@ module VAProfile
           log_exception_to_sentry(
             e,
             { vet360_id: @user.vet360_id },
-            { vet360: :person_not_found },
+            { va_profile: :person_not_found },
             :warning
           )
 
