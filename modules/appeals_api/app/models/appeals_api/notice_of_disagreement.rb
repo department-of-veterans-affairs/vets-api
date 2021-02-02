@@ -20,8 +20,8 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    validate :validate_address_unless_homeless, on: :create, if: :form_data_present?
-    validate :validate_hearing_type_selection, if: :form_data_present?
+    validate :validate_hearing_type_selection
+    validate :validate_address_unless_homeless, on: :create
 
     def pdf_structure(version)
       Object.const_get(
@@ -148,10 +148,6 @@ module AppealsApi
 
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
-    end
-
-    def form_data_present?
-      proc { |a| a.form_data.present? }
     end
   end
 end
