@@ -37,5 +37,4 @@ class Lighthouse::Facilities::FacilitySerializer
   attribute :unique_id
   attribute :visn
   attribute :website
-
 end
