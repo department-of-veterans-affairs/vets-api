@@ -2,7 +2,7 @@
 
 class Lighthouse::Facilities::FacilitySerializer
   include FastJsonapi::ObjectSerializer
-
+  
   set_key_transform :camel_lower
 
   attribute :access do |obj|
@@ -28,6 +28,7 @@ class Lighthouse::Facilities::FacilitySerializer
   attribute :operating_status do |obj|
     obj.operating_status.deep_stringify_keys.deep_transform_keys { |key| key.camelize(:lower) }
   end
+  attribute :operational_hours_special_instructions
   attribute :phone do |obj|
     obj.phone.deep_stringify_keys.deep_transform_keys { |key| key.camelize(:lower) }
   end
