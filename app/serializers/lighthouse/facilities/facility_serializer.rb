@@ -2,7 +2,7 @@
 
 class Lighthouse::Facilities::FacilitySerializer
   include FastJsonapi::ObjectSerializer
-  
+
   set_key_transform :camel_lower
 
   attribute :access do |obj|
