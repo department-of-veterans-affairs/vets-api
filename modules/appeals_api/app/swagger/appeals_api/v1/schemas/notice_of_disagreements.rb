@@ -42,7 +42,8 @@ module AppealsApi::V1
 
                 property :address do
                   key :type, :object
-                  key :description, 'Address of the Veteran - not required if Veteran is homeless. Cannot exceed 165 characters when all fields are concatenated.'
+                  key :description, 'Address of the Veteran - not required if Veteran is homeless. Cannot exceed 165
+                                     characters when all fields are concatenated.'
                   key :required, %i[addressLine1 city countryName zipCode5]
 
                   property :addressLine1 do
@@ -92,7 +93,8 @@ module AppealsApi::V1
 
                 property :phone do
                   key :type, :object
-                  key :description, 'The phone number of the veteran. Cannot exceed 20 characters when all fields are concatenated.'
+                  key :description, 'The phone number of the veteran. Cannot exceed 20 characters when
+                                     all fields are concatenated.'
                   key :required, %i[areaCode phoneNumber]
 
                   property :countryCode do
