@@ -34,11 +34,28 @@ module HealthQuest
       # @return [Hash]
       #
       def to_hash
-        if appointment_id.present?
-          { subject: subject_reference }
-        else
-          { author: user.icn }
-        end
+        name = filters.delete(:resource_name)
+        query_param = filters.keys.pop
+
+        registry[name.to_sym][query_param.to_sym]
+      end
+
+      ##
+      # The registry which holds the return value for `to_hash`.
+      #
+      # @return [Hash]
+      #
+      def registry
+        {
+          questionnaire_response: {
+            appointment_id: { _tag: appointment_reference },
+            patient: { subject: user.icn },
+            authored: { authored: resource_created_date }
+          },
+          questionnaire: {
+            use_context: { 'context-type-value': context_type_value }
+          }
+        }
       end
 
       ##
@@ -46,17 +63,42 @@ module HealthQuest
       #
       # @return [String]
       #
-      def subject_reference
-        "#{Settings.hqva_mobile.url}/appointments/v1/patients/#{user.icn}/Appointment/#{appointment_id}"
+      def appointment_reference
+        @appointment_reference ||=
+          "#{lighthouse.url}#{lighthouse.pgd_path}/NamingSystem/va-appointment-identifier|#{appointment_id}"
       end
 
       ##
-      # Get the appointment id from the filters that were passed into the controller action.
+      # Get the appointment id from the filters.
       #
       # @return [String]
       #
       def appointment_id
         @appointment_id ||= filters&.fetch(:appointment_id, nil)
+      end
+
+      ##
+      # Get the authored date from the filters.
+      #
+      # @return [String]
+      #
+      def resource_created_date
+        @resource_created_date ||= filters&.fetch(:authored, nil)
+      end
+
+      ##
+      # Get the use context values from the filters.
+      #
+      # @return [String]
+      #
+      def context_type_value
+        @context_type_value ||= filters&.fetch(:use_context, nil)
+      end
+
+      private
+
+      def lighthouse
+        Settings.hqva_mobile.lighthouse
       end
     end
   end

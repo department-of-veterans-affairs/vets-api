@@ -32,6 +32,7 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
     expect(capture_body).to have_key('document')
     metadata = JSON.parse(capture_body['metadata'])
     expect(metadata['uuid']).to eq(notice_of_disagreement.id)
+    expect(metadata['lob']).to eq(notice_of_disagreement.lob)
     updated = AppealsApi::NoticeOfDisagreement.find(notice_of_disagreement.id)
     expect(updated.status).to eq('submitted')
   end
@@ -52,6 +53,7 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
     expect(capture_body).to have_key('document')
     metadata = JSON.parse(capture_body['metadata'])
     expect(metadata['uuid']).to eq(notice_of_disagreement.id)
+    expect(metadata['lob']).to eq(notice_of_disagreement.lob)
     updated = AppealsApi::NoticeOfDisagreement.find(notice_of_disagreement.id)
     expect(updated.status).to eq('error')
     expect(updated.code).to eq('DOC104')

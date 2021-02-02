@@ -114,4 +114,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   describe '#zip_code_5' do
     it { expect(notice_of_disagreement.zip_code_5).to eq '66002' }
   end
+
+  describe '#lob' do
+    it { expect(notice_of_disagreement.lob).to eq 'BVA' }
+  end
 end

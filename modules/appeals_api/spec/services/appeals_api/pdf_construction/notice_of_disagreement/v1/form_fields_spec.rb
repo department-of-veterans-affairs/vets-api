@@ -35,8 +35,8 @@ module AppealsApi
             end
           end
 
-          describe '#homeless?' do
-            it { expect(form_fields.homeless?).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[0]') }
+          describe '#homeless' do
+            it { expect(form_fields.homeless).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[0]') }
           end
 
           describe '#preferred_phone' do
@@ -47,30 +47,30 @@ module AppealsApi
             it { expect(form_fields.preferred_email).to eq('F[0].Page_1[0].PreferredE_MailAddress[0]') }
           end
 
-          describe '#direct_review?' do
-            it { expect(form_fields.direct_review?).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]') }
+          describe '#direct_review' do
+            it { expect(form_fields.direct_review).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]') }
           end
 
-          describe '#evidence_submission?' do
+          describe '#evidence_submission' do
             it do
-              expect(form_fields.evidence_submission?)
+              expect(form_fields.evidence_submission)
                 .to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[2]')
             end
           end
 
-          describe '#hearing?' do
-            it { expect(form_fields.hearing?).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[3]') }
+          describe '#hearing' do
+            it { expect(form_fields.hearing).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[3]') }
           end
 
-          describe '#extra_contestable_issues?' do
+          describe '#extra_contestable_issues' do
             it do
-              expect(form_fields.extra_contestable_issues?)
+              expect(form_fields.extra_contestable_issues)
                 .to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[4]')
             end
           end
 
-          describe '#soc_opt_in?' do
-            it { expect(form_fields.soc_opt_in?).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[5]') }
+          describe '#soc_opt_in' do
+            it { expect(form_fields.soc_opt_in).to eq('F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[5]') }
           end
 
           describe '#signature' do

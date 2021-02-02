@@ -184,32 +184,32 @@ module AppealsApi
             end
           end
 
-          describe '#same_office?' do
+          describe '#same_office' do
             context 'when true' do
               it do
-                expect(form_data.same_office?).to eq(1)
+                expect(form_data.same_office).to eq(1)
               end
             end
 
             context 'when false' do
               it do
-                allow(higher_level_review).to receive(:same_office?).and_return(false)
-                expect(form_data.same_office?).to eq('Off')
+                allow(higher_level_review).to receive(:same_office).and_return(false)
+                expect(form_data.same_office).to eq('Off')
               end
             end
           end
 
-          describe '#informal_conference?' do
+          describe '#informal_conference' do
             context 'when true' do
               it do
-                expect(form_data.informal_conference?).to eq(1)
+                expect(form_data.informal_conference).to eq(1)
               end
             end
 
             context 'when false' do
               it do
-                allow(higher_level_review).to receive(:informal_conference?).and_return(false)
-                expect(form_data.informal_conference?).to eq('Off')
+                allow(higher_level_review).to receive(:informal_conference).and_return(false)
+                expect(form_data.informal_conference).to eq('Off')
               end
             end
           end

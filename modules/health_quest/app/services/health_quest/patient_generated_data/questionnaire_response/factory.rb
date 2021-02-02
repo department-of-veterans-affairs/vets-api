@@ -7,7 +7,7 @@ module HealthQuest
       # A service object for isolating dependencies from the questionnaire_responses controller.
       #
       # @!attribute session_service
-      #   @return [HealthQuest::SessionService]
+      #   @return [HealthQuest::Lighthouse::Session]
       # @!attribute user
       #   @return [User]
       # @!attribute map_query
@@ -29,8 +29,8 @@ module HealthQuest
 
         def initialize(user)
           @user = user
-          @session_service = HealthQuest::SessionService.new(user)
-          @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.headers)
+          @session_service = HealthQuest::Lighthouse::Session.build(user)
+          @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.retrieve)
           @options_builder = OptionsBuilder
         end
 
@@ -47,12 +47,13 @@ module HealthQuest
         ##
         # Gets Questionnaire Responses from a given set of OptionsBuilder
         #
-        # @param filters [PatientGeneratedData::QuestionnaireResponse::OptionsBuilder] the set of query options.
+        # @param filters [Hash] the set of query options.
         # @return [FHIR::QuestionnaireResponse::ClientReply] an instance of ClientReply
         #
-        def search(filters)
-          with_options = options_builder.manufacture(user, filters).to_hash
+        def search(filters = {})
+          filters.merge!(resource_name)
 
+          with_options = options_builder.manufacture(user, filters).to_hash
           map_query.search(with_options)
         end
 
@@ -63,9 +64,16 @@ module HealthQuest
         # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
         def create(data)
-          questionnaire_response = Resource.manufacture(data, user).prepare
+          map_query.create(data, user)
+        end
 
-          map_query.create(questionnaire_response)
+        ##
+        # Builds the key/value pair for identifying the resource
+        #
+        # @return [Hash] a key value pair
+        #
+        def resource_name
+          { resource_name: 'questionnaire_response' }
         end
       end
     end
