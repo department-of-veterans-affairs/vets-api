@@ -29,7 +29,6 @@ module VetsAPI
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
-    config.autoloader = :classic
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
@@ -73,5 +72,9 @@ module VetsAPI
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
                                    http_only: true
+
+    # These files do not contain auto-loaded ruby classes,
+    #   they are loaded through app/workers/education_form/forms/base.rb
+    Rails.autoloaders.main.ignore(Rails.root.join('app', 'workers', 'education_form', 'templates', '1990-disclosure'))
   end
 end

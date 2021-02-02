@@ -9,8 +9,9 @@ AppsApi::Engine.routes.draw do
     scope_default = { category: 'unknown_category' }
     get 'directory/scopes/:category', to: 'directory#scopes', defaults: scope_default
     get 'directory/scopes', to: 'directory#scopes', defaults: scope_default
-    resources 'directory', only: %i[index show]
+    resources 'directory'
   end
+
   namespace :docs do
     namespace :v0 do
       get 'api', to: 'api#index'

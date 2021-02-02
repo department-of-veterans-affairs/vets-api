@@ -58,6 +58,9 @@ Provide the location where you plan to or will start training:
 <%= @applicant.schoolCity %>, <%= @applicant.schoolState %>
 <%= @applicant.schoolCountry %>
 Auto Email Sent to SCO: <%= yesno(@applicant.scoEmailSent) %>
+<% if @stem_automated_decision.present? -%>
+Applicant has POA: <%= yesno(@stem_automated_decision.poa) %>
+<% end -%>
 Applicant School Email Address: <%= @applicant.schoolEmailAddress %>
 Applicant School ID: <%= @applicant.schoolStudentId %>
 

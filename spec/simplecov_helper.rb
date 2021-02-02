@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength
-
 # spec/simplecov_helper.rb
 require 'active_support/inflector'
 require 'simplecov'
@@ -13,39 +11,8 @@ class SimpleCovHelper
 
       track_files '**/{app,lib}/**/*.rb'
 
-      add_filter 'app/controllers/concerns/accountable.rb'
-      add_filter 'config/initializers/clamscan.rb'
-      add_filter 'lib/config_helper.rb'
-      add_filter 'lib/feature_flipper.rb'
-      add_filter 'lib/gibft/configuration.rb'
-      add_filter 'lib/ihub/appointments/response.rb'
-      add_filter 'lib/salesforce/configuration.rb'
-      add_filter 'lib/vet360/address_validation/configuration.rb'
-      add_filter 'lib/search/response.rb'
-      add_filter 'lib/vet360/exceptions/builder.rb'
-      add_filter 'lib/vet360/response.rb'
-      add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
-      add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
-      add_filter 'modules/claims_api/app/swagger/*'
-      add_filter 'modules/claims_api/lib/claims_api/health_checker.rb'
-      add_filter 'lib/bip_claims/configuration.rb'
-      add_filter 'version.rb'
-
-      # Modules
-      add_group 'Policies', 'app/policies'
-      add_group 'Serializers', 'app/serializers'
-      add_group 'Services', 'app/services'
-      add_group 'Swagger', 'app/swagger'
-      add_group 'Uploaders', 'app/uploaders'
-      add_group 'AppealsApi', 'modules/appeals_api/'
-      add_group 'ClaimsApi', 'modules/claims_api/'
-      add_group 'CovidVaccine', 'modules/covid_vaccine/'
-      add_group 'OpenidAuth', 'modules/openid_auth/'
-      add_group 'VBADocuments', 'modules/vba_documents/'
-      add_group 'Veteran', 'modules/veteran/'
-      add_group 'VeteranVerification', 'modules/veteran_verification/'
-      add_group 'OpenidAuth', 'modules/openid_auth/'
-      add_group 'VAOS', 'modules/vaos/'
+      add_filters
+      add_modules
 
       minimum_coverage(90) unless skip_check_coverage
       refuse_coverage_drop unless skip_check_coverage
@@ -70,6 +37,41 @@ class SimpleCovHelper
       SimpleCov::ResultMerger.store_result(result)
     end
   end
-end
 
-# rubocop:enable Metrics/MethodLength
+  def add_filters
+    add_filter 'app/controllers/concerns/accountable.rb'
+    add_filter 'config/initializers/clamscan.rb'
+    add_filter 'lib/config_helper.rb'
+    add_filter 'lib/feature_flipper.rb'
+    add_filter 'lib/gibft/configuration.rb'
+    add_filter 'lib/ihub/appointments/response.rb'
+    add_filter 'lib/salesforce/configuration.rb'
+    add_filter 'lib/vet360/address_validation/configuration.rb'
+    add_filter 'lib/search/response.rb'
+    add_filter 'lib/vet360/exceptions/builder.rb'
+    add_filter 'lib/vet360/response.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
+    add_filter 'modules/claims_api/app/swagger/*'
+    add_filter 'lib/bip_claims/configuration.rb'
+    add_filter 'version.rb'
+  end
+
+  def add_modules
+    add_group 'Policies', 'app/policies'
+    add_group 'Serializers', 'app/serializers'
+    add_group 'Services', 'app/services'
+    add_group 'Swagger', 'app/swagger'
+    add_group 'Uploaders', 'app/uploaders'
+    add_group 'AppealsApi', 'modules/appeals_api/'
+    add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'CovidVaccine', 'modules/covid_vaccine/'
+    add_group 'OpenidAuth', 'modules/openid_auth/'
+    add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
+    add_group 'VBADocuments', 'modules/vba_documents/'
+    add_group 'Veteran', 'modules/veteran/'
+    add_group 'VeteranVerification', 'modules/veteran_verification/'
+    add_group 'OpenidAuth', 'modules/openid_auth/'
+    add_group 'VAOS', 'modules/vaos/'
+  end
+end

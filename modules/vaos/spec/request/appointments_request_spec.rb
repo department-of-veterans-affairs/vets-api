@@ -135,42 +135,70 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
       end
 
-      it 'has access and returns va appointments' do
-        VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
-          get '/vaos/v0/appointments', params: params
+      context 'returns list of appointments' do
+        it 'has access and returns va appointments' do
+          VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments', params: params
 
-          expect(response).to have_http_status(:success)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['data'].first['id']).to eq('202006031600983000030800000000000000')
-          expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
+            expect(response).to have_http_status(:success)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].first['id']).to eq('202006031600983000030800000000000000')
+            expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
+          end
+        end
+
+        it 'has access and returns va appointments when camel-inflected' do
+          VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments', params: params, headers: inflection_header
+
+            expect(response).to have_http_status(:success)
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('vaos/va_appointments', { strict: false })
+          end
         end
       end
 
-      it 'has access and returns va appointments when camel-inflected' do
-        VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
-          get '/vaos/v0/appointments', params: params, headers: inflection_header
+      context 'shows single appointment' do
+        it 'returns single appointment based on appointment id' do
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments/va/202006031600983000030800000000000000', params: params
+            expect(response).to have_http_status(:success)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data']['id']).to eq('202006031600983000030800000000000000')
+            expect(response).to match_response_schema('vaos/va_appointment', { strict: false })
+          end
+        end
 
-          expect(response).to have_http_status(:success)
-          expect(response.body).to be_a(String)
-          expect(response).to match_camelized_response_schema('vaos/va_appointments', { strict: false })
+        it 'returns single appointment based on appointment id when camel-inflected' do
+          VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments/va/202006031600983000030800000000000000',
+                params: params,
+                headers: inflection_header
+            expect(response).to have_http_status(:success)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data']['id']).to eq('202006031600983000030800000000000000')
+            expect(response).to match_camelized_response_schema('vaos/va_appointment', { strict: false })
+          end
         end
       end
 
-      it 'has access and returns cc appointments' do
-        VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
-          get '/vaos/v0/appointments', params: params.merge(type: 'cc')
-          expect(response).to have_http_status(:success)
-          expect(response.body).to be_a(String)
-          expect(response).to match_response_schema('vaos/cc_appointments')
+      context 'cc appointments' do
+        it 'has access and returns cc appointments' do
+          VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments', params: params.merge(type: 'cc')
+            expect(response).to have_http_status(:success)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('vaos/cc_appointments')
+          end
         end
-      end
 
-      it 'has access and returns cc appointments when camel-inflected' do
-        VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
-          get '/vaos/v0/appointments', params: params.merge(type: 'cc'), headers: inflection_header
-          expect(response).to have_http_status(:success)
-          expect(response.body).to be_a(String)
-          expect(response).to match_camelized_response_schema('vaos/cc_appointments')
+        it 'has access and returns cc appointments when camel-inflected' do
+          VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments', params: params.merge(type: 'cc'), headers: inflection_header
+            expect(response).to have_http_status(:success)
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('vaos/cc_appointments')
+          end
         end
       end
 

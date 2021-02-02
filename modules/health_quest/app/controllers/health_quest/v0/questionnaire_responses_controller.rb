@@ -4,7 +4,7 @@ module HealthQuest
   module V0
     class QuestionnaireResponsesController < HealthQuest::V0::BaseController
       def index
-        render json: factory.search(params[:filters]).response[:body]
+        render json: factory.search(request.query_parameters).response[:body]
       end
 
       def show

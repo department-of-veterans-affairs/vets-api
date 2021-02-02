@@ -5,13 +5,13 @@ require 'rails_helper'
 describe HealthQuest::PatientGeneratedData::Questionnaire::Factory do
   subject { described_class }
 
-  let(:headers) { { 'Accept' => 'application/json+fhir' } }
   let(:user) { double('User', icn: '1008596379V859838') }
-  let(:session_service) { double('HealthQuest::SessionService', user: user, headers: headers) }
+  let(:session_store) { double('SessionStore', token: '123abc') }
+  let(:session_service) { double('HealthQuest::Lighthouse::Session', user: user, retrieve: session_store) }
   let(:client_reply) { double('FHIR::ClientReply') }
 
   before do
-    allow(HealthQuest::SessionService).to receive(:new).with(user).and_return(session_service)
+    allow(HealthQuest::Lighthouse::Session).to receive(:build).with(user).and_return(session_service)
   end
 
   describe 'object initialization' do
@@ -31,13 +31,13 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::Factory do
   end
 
   describe '#search' do
-    let(:filters) { { appointment_id: nil }.with_indifferent_access }
+    let(:filters) { { resource_name: 'questionnaire', appointment_id: nil }.with_indifferent_access }
     let(:options_builder) { HealthQuest::PatientGeneratedData::OptionsBuilder.manufacture(user, filters) }
 
     it 'returns a ClientReply' do
       allow_any_instance_of(FHIR::Client).to receive(:search).with(anything, anything).and_return(client_reply)
 
-      expect(subject.new(user).search(options_builder.to_hash)).to eq(client_reply)
+      expect(subject.new(user).search(filters)).to eq(client_reply)
     end
   end
 

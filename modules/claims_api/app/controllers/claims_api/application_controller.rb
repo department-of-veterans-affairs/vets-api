@@ -46,10 +46,13 @@ module ClaimsApi
 
       if claim && claim.status == 'errored'
         fetch_errored(claim)
-      elsif claim && claim.evss_id.nil?
+      elsif claim && claim.evss_id.blank?
         render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+      elsif claim && claim.evss_id.present?
+        evss_claim = claims_service.update_from_remote(claim.evss_id)
+        render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
       elsif /^\d{2,20}$/.match?(params[:id])
-        evss_claim = claims_service.update_from_remote(claim.try(:evss_id) || params[:id])
+        evss_claim = claims_service.update_from_remote(params[:id])
         # Note: source doesn't seem to be accessible within a remote evss_claim
         render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
       else
@@ -153,7 +156,7 @@ module ClaimsApi
       vet.mpi_record?
       vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
       vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
-      vet.participant_id = header('X-VA-PID') || vet.mpi.profile&.participant_id
+      vet.participant_id = vet.mpi.profile&.participant_id
       vet
     end
 

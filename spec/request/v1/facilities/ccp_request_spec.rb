@@ -33,7 +33,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
         bod = JSON.parse(response.body)
         expect(bod['data']).to include(
           {
-            'id' => '1154383230',
+            'id' => '6d4644e7db7491635849b23e20078f74cfcd2d0aeee6a77aca921f5540d03f33',
             'type' => 'provider',
             'attributes' => {
               'acc_new_patients' => 'true',
@@ -116,7 +116,11 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
           'facilities.ppms.provider_locator',
           kind_of(Numeric),
           hash_including(
-            tags: ['facilities.ppms']
+            tags: [
+              'facilities.ppms',
+              'facilities.ppms.radius:200',
+              'facilities.ppms.results:11'
+            ]
           )
         )
 
@@ -169,7 +173,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
         bod = JSON.parse(response.body)
         expect(bod['data']).to include(
           {
-            'id' => '1154383230',
+            'id' => '6d4644e7db7491635849b23e20078f74cfcd2d0aeee6a77aca921f5540d03f33',
             'type' => 'provider',
             'attributes' => {
               'acc_new_patients' => 'true',
@@ -215,7 +219,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
         expect(bod['data'][0]).to match(
           {
-            'id' => '1225028293',
+            'id' => '1a2ec66b370936eccc980db2fcf4b094fc61a5329aea49744d538f6a9bab2569',
             'type' => 'provider',
             'attributes' => {
               'acc_new_patients' => 'false',

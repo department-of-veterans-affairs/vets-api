@@ -50,28 +50,24 @@ class ModuleGenerator < Rails::Generators::NamedBase
   # :nocov:
   def update_and_install
     # spec helper add group
-    insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}',
-      'modules/#{file_name}/'\n", after: "# Modules\n"
+    # Don't add these entries to the files in test env/running specs
+    unless Rails.env.test?
+      insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}',
+                       'modules/#{file_name}/'\n", after: "# Modules\n"
 
-    # simplecov add group
-    insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}',
-      'modules/#{file_name}/'\n", after: "# Modules\n"
+      # simplecov add group
+      insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}',
+                       'modules/#{file_name}/'\n", after: "def add_modules\n"
 
-    # insert into main app gemfile
-    insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
-    route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
+      # insert into main app gemfile
+      insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
 
-    run 'bundle install'
+      insert_into_file 'config/routes.rb',
+                       "\tmount #{file_name.camelize}::Engine, at: '/#{file_name}'\n", after: "# Modules\n"
 
-    puts "\n"
-    puts "\u{1F64C} new module generated at ./modules/#{file_name}\n\n"
-    puts "\n"
-  end
+      run 'bundle install'
 
-  def create_commit_message
-    if Dir.exist?("modules/#{file_name}")
-      git add: '.'
-      git commit: "-a -m 'Initial commit of module structure *KEEP THIS COMMIT MESSAGE*'"
+      puts "\n\u{1F64C} new module generated at ./modules/#{file_name}\n\n\n"
     end
   end
 

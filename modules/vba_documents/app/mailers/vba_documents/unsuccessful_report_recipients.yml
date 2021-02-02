@@ -1,10 +1,10 @@
 common:
-  - 'michael.bastos@oddball.io'
-  - 'lydia.vian@thunderyard.com'
   - 'joshua.jennings@libertyits.com'
   - 'cristopher.shupp@libertyits.com'
   - 'gregory.bowman@libertyits.com'
   - 'mark.viterna@libertyits.com'
+  - 'molly.gatti@va.gov'
+  - 'nichole.harris@libertyits.com'
 dev:
 staging:
 sandbox:

@@ -32,6 +32,7 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
     expect(capture_body).to have_key('document')
     metadata = JSON.parse(capture_body['metadata'])
     expect(metadata['uuid']).to eq(notice_of_disagreement.id)
+    expect(metadata['lob']).to eq(notice_of_disagreement.lob)
     updated = AppealsApi::NoticeOfDisagreement.find(notice_of_disagreement.id)
     expect(updated.status).to eq('submitted')
   end
@@ -52,6 +53,7 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
     expect(capture_body).to have_key('document')
     metadata = JSON.parse(capture_body['metadata'])
     expect(metadata['uuid']).to eq(notice_of_disagreement.id)
+    expect(metadata['lob']).to eq(notice_of_disagreement.lob)
     updated = AppealsApi::NoticeOfDisagreement.find(notice_of_disagreement.id)
     expect(updated.status).to eq('error')
     expect(updated.code).to eq('DOC104')
@@ -70,32 +72,6 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       Timecop.freeze(Time.zone.now)
       described_class.new.perform(notice_of_disagreement.id)
       expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
-      Timecop.return
-    end
-  end
-
-  context 'pdf minimum content verification' do
-    let(:notice_of_disagreement) { create(:minimal_notice_of_disagreement) }
-
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      generated_pdf = described_class.new.generate_pdf(notice_of_disagreement.id)
-      expected_pdf = fixture_filepath('expected_10182_minimum.pdf')
-      expect(generated_pdf).to match_pdf expected_pdf
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
-      Timecop.return
-    end
-  end
-
-  context 'pdf extra content verification' do
-    let(:notice_of_disagreement) { create(:notice_of_disagreement) }
-
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      generated_pdf = described_class.new.generate_pdf(notice_of_disagreement.id)
-      expected_pdf = fixture_filepath('expected_10182_extra.pdf')
-      expect(generated_pdf).to match_pdf expected_pdf
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
       Timecop.return
     end
   end

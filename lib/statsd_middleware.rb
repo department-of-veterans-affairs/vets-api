@@ -54,6 +54,7 @@ class StatsdMiddleware
     questionnaire
     resources-and-support
     search
+    search-click-tracking
     static-pages
     terms-and-conditions
     vaos

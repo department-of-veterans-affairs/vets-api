@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AppealsApiDecisionReviewPreview < ActionMailer::Preview
-  # Preview this email at http://localhost:3000/rails/mailers/appeals_api/decision_review/report
+  # Preview this email at http://localhost:3000/rails/mailers/appeals_api_decision_review
   def build
     to = Time.zone.now
     from = Time.at(0).utc
