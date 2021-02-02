@@ -42,9 +42,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: a440c6ea6349f98839118ebe29f0aeade72898f1
+  revision: 72ee9286b9bab6d97ba49d2d9f9b45c83d39b113
   specs:
-    bgs_ext (0.19.0)
+    bgs_ext (0.20.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -107,7 +107,6 @@ PATH
 
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.3)
     aasm (5.0.6)
@@ -334,7 +333,6 @@ GEM
     e2mmap (0.1.0)
     ecma-re-validator (0.2.0)
       regexp_parser (~> 1.2)
-    einhorn (0.7.4)
     encryptor (3.0.0)
     equalizer (0.0.11)
     erubi (1.9.0)
@@ -777,13 +775,6 @@ GEM
       rack (~> 2.0)
       rack-protection (>= 1.5.0)
       redis (>= 3.3.5, < 4.2)
-    sidekiq-ent (1.8.1)
-      einhorn (= 0.7.4)
-      sidekiq (>= 5.2.3)
-      sidekiq-pro (>= 4.0.4)
-    sidekiq-pro (5.0.0)
-      concurrent-ruby (>= 1.0.5)
-      sidekiq (>= 5.2.7)
     sidekiq-scheduler (3.0.1)
       e2mmap
       redis (>= 3, < 5)
@@ -1011,8 +1002,6 @@ DEPENDENCIES
   sentry-raven
   shrine
   sidekiq (~> 5.0)
-  sidekiq-ent!
-  sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov (< 0.18)
   spring
