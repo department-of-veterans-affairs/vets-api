@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/address_validation/service'
+require 'va_profile/address_validation/service'
 
-describe Vet360::AddressValidation::Service do
-  let(:base_address) { build(:vet360_validation_address) }
+describe VAProfile::AddressValidation::Service do
+  let(:base_address) { build(:va_profile_validation_address) }
 
   let(:address) do
     base_address.address_line1 = '5 Stoddard Ct'
@@ -24,14 +24,14 @@ describe Vet360::AddressValidation::Service do
   end
 
   let(:multiple_match_addr) do
-    build(:vet360_validation_address, :multiple_matches)
+    build(:va_profile_validation_address, :multiple_matches)
   end
 
   describe '#address_suggestions' do
     context 'with a found address' do
       it 'returns suggested addresses' do
         VCR.use_cassette(
-          'vet360/address_validation/candidate_multiple_matches',
+          'va_profile/address_validation/candidate_multiple_matches',
           VCR::MATCH_EVERYTHING
         ) do
           res = described_class.new.address_suggestions(multiple_match_addr)
@@ -97,7 +97,7 @@ describe Vet360::AddressValidation::Service do
     context 'with an invalid address' do
       it 'returns error messages' do
         VCR.use_cassette(
-          'vet360/address_validation/candidate_no_match',
+          'va_profile/address_validation/candidate_no_match',
           VCR::MATCH_EVERYTHING
         ) do
           expect(described_class.new.candidate(invalid_address)).to eq(
@@ -140,7 +140,7 @@ describe Vet360::AddressValidation::Service do
                     'code' => 'ADDR306',
                     'key' => 'lowConfidenceScore',
                     'severity' => 'WARN',
-                    'text' => 'Vet360 Validation Failed: Confidence Score less than 80'
+                    'text' => 'VAProfile Validation Failed: Confidence Score less than 80'
                   }
                 ]
               }
@@ -154,7 +154,7 @@ describe Vet360::AddressValidation::Service do
       context 'with multiple matches' do
         it 'returns suggested addresses for a given address' do
           VCR.use_cassette(
-            'vet360/address_validation/candidate_multiple_matches',
+            'va_profile/address_validation/candidate_multiple_matches',
             VCR::MATCH_EVERYTHING
           ) do
             res = described_class.new.candidate(multiple_match_addr)
