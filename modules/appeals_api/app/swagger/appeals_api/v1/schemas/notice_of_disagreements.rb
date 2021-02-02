@@ -42,10 +42,34 @@ module AppealsApi::V1
 
                 property :address do
                   key :type, :object
-                  key :description, 'Address of the Veteran if not homeless'
+                  key :description, 'Address of the Veteran - not required if Veteran is homeless. Cannot exceed 165 characters when all fields are concatenated.'
                   key :required, %i[addressLine1 city countryName zipCode5]
-                  key :maxLength, 165
-                  key :minLength, 5
+
+                  property :addressLine1 do
+                    key :type, :string
+                    key :description, 'First line for address'
+                  end
+
+                  property :addressLine2 do
+                    key :type, :string
+                    key :description, 'Second line for address'
+                  end
+
+                  property :addressLine3 do
+                    key :type, :string
+                    key :description, 'Third line for address'
+                  end
+
+                  property :city do
+                    key :type, :string
+                    key :description, 'City of residence'
+                  end
+
+                  property :stateCode do
+                    key :type, :string
+                    key :description, 'State of residence in 2-character format'
+                    key :example, 'UT'
+                  end
 
                   property :zipCode5 do
                     key :type, :string
@@ -54,13 +78,46 @@ module AppealsApi::V1
                     key :maxLength, 5
                     key :minLength, 5
                   end
+
+                  property :countryName do
+                    key :type, :string
+                    key :description, 'Country of residence'
+                  end
+
+                  property :internationalPostalCode do
+                    key :type, :string
+                    key :description, 'Use if residence outside of the United States'
+                  end
                 end
 
                 property :phone do
                   key :type, :object
-                  key :description, 'Phone number of the Veteran'
+                  key :description, 'The phone number of the veteran. Cannot exceed 20 characters when all fields are concatenated.'
                   key :required, %i[areaCode phoneNumber]
-                  key :maxLength, 20
+
+                  property :countryCode do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 3
+                  end
+
+                  property :areaCode do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 4
+                  end
+
+                  property :phoneNumber do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 14
+                  end
+
+                  property :phoneNumberExt do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 10
+                  end
                 end
 
                 property :emailAddressText do

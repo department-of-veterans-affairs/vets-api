@@ -76,7 +76,6 @@
       "$comment": "the phone fields must not exceed 20 chars, when concatenated",
       "type": "object",
       "additionalProperties": false,
-      "description": "The phone number of the veteran. Cannot exceed 20 characters when all fields are concatenated.",
       "properties": {
         "countryCode":     { "type": "string", "pattern": "^[0-9]+$", "minLength": 1, "maxLength": 3 },
         "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$", "minLength": 1, "maxLength": 4 },
