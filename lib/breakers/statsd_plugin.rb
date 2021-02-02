@@ -5,7 +5,7 @@ module Breakers
     def get_tags(request, response = nil)
       tags = []
       if request
-        tags.append("endpoint:#{filtered_endpoint_tag(request.url.path)}") if request.url&.path
+        tags.append("endpoint:#{StringHelpers.filtered_endpoint_tag(request.url.path)}") if request.url&.path
         tags.append("method:#{request.method}") if request.method
       end
       if response
