@@ -16,6 +16,14 @@ RSpec.describe CypressViewportUpdater::GithubService do
         end
       end
     end
+
+    # the following filter is used on responses from
+    # https://api.github.com/app/installations/14176090/access_tokens
+    c.filter_sensitive_data('{"token":"removed","expires_at":"2021-02-02T18:24:37Z","permissions":{"contents":"write","metadata":"read","pull_requests":"write"},"repository_selection":"selected"}') do |interaction|
+      if (match = interaction.response.body.match(/^{\"token.+/))
+        match[0]
+      end
+    end
   end
 
   describe '#new' do
@@ -135,8 +143,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
     end
 
     it 'submits a pr to the department-of-veterans-affairs/vets-website repo' do
-      expect(@submit_pr.base.repo.full_name).to eq('holdenhinkle/vets-website')
-      # expect(@submit_pr.base.repo.full_name).to eq('department-of-veterans-affairs/vets-website')
+      expect(@submit_pr.base.repo.full_name).to eq('department-of-veterans-affairs/vets-website')
     end
 
     it 'returns the number of commits in the repo' do
@@ -145,9 +152,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
 
     it 'returns the url to the pr' do
       expect(@submit_pr.url)
-        .to match(%r{\bhttps:\/\/api.github.com\/repos\/holdenhinkle\/vets-website\/pulls\/\d+\b})
-      # expect(@submit_pr)
-      #   .to match(%r{\bhttps:\/\/api.github.com\/repos\/department-of-veterans-affairs\/vets-website\/pulls\/\d+\b})
+        .to match(%r{\bhttps:\/\/api.github.com\/repos\/department-of-veterans-affairs\/vets-website\/pulls\/\d+\b})
     end
 
     it 'returns the pr title' do
