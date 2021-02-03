@@ -3,7 +3,7 @@
 # at the specified interval.
 
 ExportBreakerStatus:
-  every: "1m"
+  every: '1m'
   description: "Send breaker status to statsd"
 
 CreateDailySpoolFiles:
@@ -126,7 +126,7 @@ AppealsApi::DecisionReviewReportJob:
   description: "Daily report of appeals submissions"
 
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
-  every: ["24h", first_in: "45m"]
+  every: ['24h', first_in: 45m']
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
@@ -136,7 +136,7 @@ AppealsApi::HigherLevelReviewUploadStatusBatch:
   description: "Update HigherLevelReview statuses with their Central Mail status"
 
 AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii:
-  every: ["24h", first_in: "45m"]
+  every: ['24h', first_in: '45m']
   class: AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii
   description: "Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
@@ -158,7 +158,7 @@ MHV::AccountStatisticsJob:
   description: "Log MHV Account Statistics"
 
 ExternalServicesStatusJob:
-  every: "1m"
+  every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
 
 VAForms::FetchLatest:
@@ -167,7 +167,7 @@ VAForms::FetchLatest:
   description: "Fetches latest VA Forms"
 
 AppsApi::LoadApplications:
-  in: "1m"
+  in: '1m'
   class: AppsApi::DirectoryLoader
   description: "Populates directory_applications table"
 
