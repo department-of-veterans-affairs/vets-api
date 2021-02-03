@@ -20,6 +20,12 @@ module Mobile
         va_appointments = parse_va_appointments(responses[:va].body) unless errors[:va]
         cc_appointments = cc_adapter.parse(responses[:cc].body) unless errors[:cc]
 
+        # There's currently a bug in the underlying Community Care service
+        # where date ranges are not being respected
+        cc_appointments.select! do |appointment|
+          appointment.start_date_utc.between?(start_date, end_date)
+        end
+
         appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
 
         errors = errors.values.compact

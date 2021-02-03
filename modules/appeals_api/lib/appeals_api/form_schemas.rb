@@ -4,9 +4,6 @@ require 'json_schema/form_schemas'
 
 module AppealsApi
   class FormSchemas < JsonSchema::FormSchemas
-    # TODO: Use Common::Exceptions::DetailedSchemaErrors for more robust errors.
-    # HigherLevelReviewsController currently uses JsonSchema::JsonApiMissingAttribute, NOD uses DetailedSchemaErrors
-    # HLR will need to wait for a new version to be able to switch to DetailedSchemaErrors
     def initialize(error_type = JsonSchema::JsonApiMissingAttribute)
       @error_type = error_type
     end
