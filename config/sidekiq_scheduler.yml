@@ -3,180 +3,180 @@
 # at the specified interval.
 
 ExportBreakerStatus:
-  every: '1m'
-  description: 'Send breaker status to statsd'
+  every: "1m"
+  description: "Send breaker status to statsd"
 
 CreateDailySpoolFiles:
-  cron: '0 3 * * MON-FRI America/New_York'
+  cron: "0 3 * * MON-FRI America/New_York"
   class: EducationForm::CreateDailySpoolFiles
-  description: 'Generate a daily set of spool files and transmit them over SFTP to a backend system'
+  description: "Generate a daily set of spool files and transmit them over SFTP to a backend system"
 
 EducationForm::CreateDailyFiscalYearToDateReport:
-  cron: '0 4 * * * America/New_York'
-  description: 'Send the daily report to VA stakeholders about Education Benefits submissions'
+  cron: "0 4 * * * America/New_York"
+  description: "Send the daily report to VA stakeholders about Education Benefits submissions"
 
 EducationForm::CreateSpoolSubmissionsReport:
-  cron: '15 4 * * MON-FRI America/New_York'
-  description: 'Send the daily report to the call center about spool file submissions'
+  cron: "15 4 * * MON-FRI America/New_York"
+  description: "Send the daily report to the call center about spool file submissions"
 
 EducationForm::Create10203SpoolSubmissionsReport:
-  cron: '30 4 * * MON-FRI America/New_York'
-  description: 'Send the daily 10203 report to the call center about spool file submissions'
+  cron: "30 4 * * MON-FRI America/New_York"
+  description: "Send the daily 10203 report to the call center about spool file submissions"
 
 Preneeds::DeleteOldUploads:
-  cron: '15 2 * * * America/New_York'
-  description: 'Clear out preneeds file uploads older than 2 months'
+  cron: "15 2 * * * America/New_York"
+  description: "Clear out preneeds file uploads older than 2 months"
 
 DeleteOldPiiLogsJob:
-  cron: '20 2 * * * America/New_York'
-  description: 'Clear out old personal information logs'
+  cron: "20 2 * * * America/New_York"
+  description: "Clear out old personal information logs"
 
 CentralMail::DeleteOldClaims:
-  cron: '30 2 * * * America/New_York'
+  cron: "30 2 * * * America/New_York"
   class: CentralMail::DeleteOldClaims
-  description: 'Clear out central mail claims older than 2 months'
+  description: "Clear out central mail claims older than 2 months"
 
 DeleteOldApplications:
-  cron: '0 0 * * * America/New_York'
+  cron: "0 0 * * * America/New_York"
   class: EducationForm::DeleteOldApplications
-  description: 'Clear out processed 22-1990 applications that are older than 1 month'
+  description: "Clear out processed 22-1990 applications that are older than 1 month"
 
 SidekiqStatsJob:
-  cron: '* * * * *'
-  description: 'Update Sidekiq stats for export to statsd gauges'
+  cron: "* * * * *"
+  description: "Update Sidekiq stats for export to statsd gauges"
 
 DeleteOldClaims:
-  cron: '0 2 * * * America/New_York'
+  cron: "0 2 * * * America/New_York"
   class: EVSS::DeleteOldClaims
-  description: 'Clear out EVSS disability claims that have not been updated in 24 hours'
+  description: "Clear out EVSS disability claims that have not been updated in 24 hours"
 
 InProgressFormCleaner:
-  cron: '0 2 * * * America/New_York'
+  cron: "0 2 * * * America/New_York"
   class: InProgressFormCleaner
-  description: 'Clear out saved forms that have not been updated in a while'
+  description: "Clear out saved forms that have not been updated in a while"
 
 FailedClaimsReport:
-  cron: '30 3 * * MON America/New_York'
+  cron: "30 3 * * MON America/New_York"
   class: EVSS::FailedClaimsReport
-  description: 'Notify developers about EVSS claims which could not be uploaded'
+  description: "Notify developers about EVSS claims which could not be uploaded"
 
 FacilityDentalServiceBulkUpdate:
-  cron: '25 4 * * * America/New_York'
+  cron: "25 4 * * * America/New_York"
   class: Facilities::DentalServiceReloadJob
-  description: 'Download and cache facility access-to-care metric data'
+  description: "Download and cache facility access-to-care metric data"
 
 FacilityMentalHealthBulkUpdate:
-  cron: '25 4 * * * America/New_York'
+  cron: "25 4 * * * America/New_York"
   class: Facilities::MentalHealthReloadJob
-  description: 'Download and cache facility mental health phone number data'
+  description: "Download and cache facility mental health phone number data"
 
 FacilityAccessBulkUpdate:
-  cron: '30 4 * * * America/New_York'
+  cron: "30 4 * * * America/New_York"
   class: Facilities::AccessDataDownload
-  description: 'Download and cache facility access-to-care metric data'
+  description: "Download and cache facility access-to-care metric data"
 
 FacilityLocationVHADriveTime:
-  cron: '55 4 * * * America/New_York'
+  cron: "55 4 * * * America/New_York"
   class: Facilities::PSSGDownload
-  description: 'Download and store drive time bands'
+  description: "Download and store drive time bands"
 
 GlobalDowntimeCache:
-  every: '60m'
+  every: "60m"
   class: PagerDuty::CacheGlobalDowntime
-  description: 'Cache global downtimes from PagerDuty API to S3'
+  description: "Cache global downtimes from PagerDuty API to S3"
 
 MaintenanceWindowRefresh:
-  cron: '*/3 * * * * America/New_York'
+  cron: "*/3 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows
-  description: 'Poll PagerDuty API for maintenance window information'
+  description: "Poll PagerDuty API for maintenance window information"
 
 VBADocuments::UploadScanner:
-  cron: '0,30 * * * * * America/New_York'
+  cron: "0,30 * * * * * America/New_York"
   class: VBADocuments::UploadScanner
-  description: 'Poll upload bucket for unprocessed uploads'
+  description: "Poll upload bucket for unprocessed uploads"
 
 VBADocuments::UploadRemover:
-  cron: '15,45 * * * * * America/New_York'
+  cron: "15,45 * * * * * America/New_York"
   class: VBADocuments::UploadRemover
-  description: 'Clean up submitted documents from S3'
+  description: "Clean up submitted documents from S3"
 
 VBADocuments::UploadStatusBatch:
-  every: '60m'
+  every: "60m"
   class: VBADocuments::UploadStatusBatch
-  description: 'Cache Statuses for VBA Documents'
+  description: "Cache Statuses for VBA Documents"
 
 VBADocuments::ReportUnsuccessfulSubmissions:
-  cron: '0 0 * * MON-FRI America/New_York'
+  cron: "0 0 * * MON-FRI America/New_York"
   class: VBADocuments::ReportUnsuccessfulSubmissions
-  description: 'Weekly report of unsuccessful benefits intake submissions'
+  description: "Weekly report of unsuccessful benefits intake submissions"
 
 ClaimsApi::ReportUnsuccessfulSubmissions:
-  cron: '0 0 * * MON-FRI America/New_York'
+  cron: "0 0 * * MON-FRI America/New_York"
   class: ClaimsApi::ReportUnsuccessfulSubmissions
-  description: 'Weekly report of unsuccessful claims submissions'
+  description: "Weekly report of unsuccessful claims submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
-  every: '8h'
+  every: "8h"
   class: VBADocuments::RunUnsuccessfulSubmissions
-  description: 'Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status'
+  description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
 AppealsApi::DecisionReviewReportJob:
-  cron: '0 0 * * MON-FRI America/New_York'
+  cron: "0 0 * * MON-FRI America/New_York"
   class: AppealsApi::DecisionReviewReportJob
-  description: 'Daily report of appeals submissions'
+  description: "Daily report of appeals submissions"
 
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
-  every: ['24h', first_in: '45m']
+  every: ["24h", first_in: "45m"]
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
 AppealsApi::HigherLevelReviewUploadStatusBatch:
-  every: '60m'
+  every: "60m"
   class: AppealsApi::HigherLevelReviewUploadStatusBatch
-  description: 'Update HigherLevelReview statuses with their Central Mail status'
+  description: "Update HigherLevelReview statuses with their Central Mail status"
 
 AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii:
-  every: ['24h', first_in: '45m']
+  every: ["24h", first_in: "45m"]
   class: AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii
   description: "Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
 AppealsApi::NoticeOfDisagreementUploadStatusBatch:
-  every: '60m'
+  every: "60m"
   class: AppealsApi::NoticeOfDisagreementUploadStatusBatch
-  description: 'Update NoticeOfDisagreement statuses with their Central Mail status'
+  description: "Update NoticeOfDisagreement statuses with their Central Mail status"
 
 TransactionalEmailAnalyticsJob:
-  cron: '0 1 * * * America/New_York'
-  description: 'posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics'
+  cron: "0 1 * * * America/New_York"
+  description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"
 
 DeleteOldTransactionsJob:
-  cron: '0 3 * * * America/New_York' # Daily @ 3am Eastern
-  description: 'Deletes old, completed AsyncTransaction records'
+  cron: "0 3 * * * America/New_York" # Daily @ 3am Eastern
+  description: "Deletes old, completed AsyncTransaction records"
 
 MHV::AccountStatisticsJob:
-  cron: '0 */4 * * * America/New_York'
-  description: 'Log MHV Account Statistics'
+  cron: "0 */4 * * * America/New_York"
+  description: "Log MHV Account Statistics"
 
 ExternalServicesStatusJob:
-  every: '1m'
+  every: "1m"
   description: "Checks the current status of all external services through PagerDuty's API"
 
 VAForms::FetchLatest:
-  cron: '0 0 * * * America/New_York'
+  cron: "0 0 * * * America/New_York"
   class: VAForms::FormReloader
-  description: 'Fetches latest VA Forms'
+  description: "Fetches latest VA Forms"
 
 AppsApi::LoadApplications:
-  in: '1m'
+  in: "1m"
   class: AppsApi::DirectoryLoader
-  description: 'Populates directory_applications table'
+  description: "Populates directory_applications table"
 
 EducationForm::Process10203Submissions:
-  cron: '0 6-18 * * * America/New_York'
+  cron: "0 6-18 * * * America/New_York"
   class: EducationForm::Process10203Submissions
-  description: 'Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected'
+  description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
 
 CypressViewportUpdater::UpdateCypressViewportsJob:
-  cron: '0 12 3 * * America/New_York'
+  cron: "0 12 3 * * America/New_York"
   class: CypressViewportUpdater::UpdateCypressViewportsJob
-  description: 'Updates Cypress files in vets-website with data from Google Analytics.'
+  description: "Updates Cypress files in vets-website with data from Google Analytics."
