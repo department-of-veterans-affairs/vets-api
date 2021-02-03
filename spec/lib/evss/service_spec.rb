@@ -6,13 +6,7 @@ describe EVSS::Service do
   module EVSS::Foo
     class Configuration < EVSS::Configuration
       def base_path
-        '/'
-      end
-    end
-
-    class ConfigurationWithUri < EVSS::Configuration
-      def base_path
-        'http://test'
+        'http://'
       end
 
       def service_name
@@ -22,10 +16,6 @@ describe EVSS::Service do
 
     class Service < EVSS::Service
       configuration Configuration
-    end
-
-    class ServiceWithUri < EVSS::Service
-      configuration ConfigurationWithUri
     end
   end
 
@@ -37,7 +27,7 @@ describe EVSS::Service do
       expect(Raven).to receive(:tags_context).with(external_service: 'evss/foo/service')
       expect(Raven).to receive(:extra_context).with(
         message: 'Common::Client::Errors::ClientError',
-        url: '/',
+        url: 'http://',
         body: nil,
         transaction_id: transaction_id
       )
@@ -52,10 +42,10 @@ describe EVSS::Service do
     end
 
     it 'sets the user data from headers' do
-      allow_any_instance_of(Faraday::Connection).to receive(:get)
       headers = EVSS::AuthHeaders.new(build(:user)).to_h
-      service_from_headers = EVSS::Foo::ServiceWithUri.new(nil, headers)
-      service_from_headers.perform(:get, 'test.test', nil, headers)
+      expect_any_instance_of(Common::Client::Base).to receive(:perform).with(:get, '', nil, headers, {})
+                                                                       .and_return(OpenStruct.new(status: 200))
+      EVSS::Foo::Service.new(nil, headers).perform(:get, '', nil, headers)
     end
   end
 end

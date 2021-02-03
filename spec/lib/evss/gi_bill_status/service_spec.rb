@@ -134,7 +134,7 @@ describe EVSS::GiBillStatus::Service do
 
         it 'overrides headers' do
           service = described_class.new(user)
-          headers = EVSS::AuthHeaders.new(user).to_h
+          headers = EVSS::AuthHeaders.new(build(:user)).to_h
           expect(service).to receive(:perform).with(:get, '', nil, headers).and_return(OpenStruct.new(status: 200))
           service.get_gi_bill_status(headers)
         end
