@@ -20,8 +20,9 @@ module AppealsApi
         stamped_pdf = PdfConstruction::Generator.new(notice_of_disagreement).generate
         upload_to_central_mail(notice_of_disagreement, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)
-      rescue
-        notice_of_disagreement.update!(status: 'error')
+      rescue => e
+        notice_of_disagreement.update!(status: 'error', code: e.class.to_s, detail: e.message)
+        raise
       end
     end
 

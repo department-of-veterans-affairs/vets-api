@@ -20,8 +20,8 @@ module AppealsApi
         higher_level_review.update!(status: 'submitting')
         upload_to_central_mail(higher_level_review, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)
-      rescue
-        higher_level_review.update!(status: 'error')
+      rescue => e
+        higher_level_review.update!(status: 'error', code: e.class.to_s, detail: e.message)
         raise
       end
     end
