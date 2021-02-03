@@ -8,8 +8,7 @@ module CypressViewportUpdater
     include Google::Auth
     include SentryLogging
 
-    data = YAML.safe_load(File.open('config/settings.local.yml'))
-    JSON_CREDENTIALS = data['google_analytics_service_credentials'].to_json
+    JSON_CREDENTIALS = Settings.google_analytics_cvu.to_json
     SCOPE = 'https://www.googleapis.com/auth/analytics.readonly'
     VIEW_ID = '176188361'
 
