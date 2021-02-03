@@ -4,14 +4,18 @@ module CypressViewportUpdater
   class GithubService
     include SentryLogging
 
-    data = YAML.safe_load(File.open('config/settings.local.yml'))
-    ACCESS_TOKEN = data['github_cypress_viewport_updater_bot']['access_token']
-    REPO = 'holdenhinkle/vets-website'
+    PRIVATE_KEY = OpenSSL::PKey::RSA.new(Settings.github_cvu.private_pem].gsub('\n', "\n"))
+    INSTALLATION_ID = Settings.github_cvu.installation_id
+    INTEGRATION_ID = Settings.github_cvu.integration_id
+    REPO = 'department-of-veterans-affairs/vets-website'
 
     attr_reader :client, :feature_branch_name
 
     def initialize
-      @client = Octokit::Client.new(access_token: ACCESS_TOKEN)
+      @client = Octokit::Client.new(bearer_token: new_jwt_token)
+      response = @client.create_installation_access_token(INSTALLATION_ID,
+                                                          accept: 'application/vnd.github.v3+json')
+      @client.bearer_token = response.to_h[:token]
     end
 
     def get_content(file:)
@@ -61,6 +65,19 @@ module CypressViewportUpdater
     private
 
     attr_writer :feature_branch_name
+
+    def new_jwt_token
+      payload = {
+        # issued at time
+        iat: Time.now.to_i,
+        # JWT expiration time (10 minute maximum)
+        exp: Time.now.to_i + (10 * 60),
+        # GitHub App's identifier
+        iss: INTEGRATION_ID
+      }
+
+      JWT.encode(payload, PRIVATE_KEY, 'RS256')
+    end
 
     def set_feature_branch_name
       prefix = DateTime.now.strftime('%m%d%Y%H%M%S%L')
