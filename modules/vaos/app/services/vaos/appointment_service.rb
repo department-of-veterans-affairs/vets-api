@@ -54,7 +54,7 @@ module VAOS
 
     def put_cancel_appointment(request_object_body)
       params = VAOS::CancelForm.new(request_object_body).params
-      params.merge!(patient_identifier: { unique_id: @user.icn, assigning_authority: 'ICN' })
+      params.merge!(patient_identifier: { unique_id: user.icn, assigning_authority: 'ICN' })
       site_code = params[:facility_id]
 
       with_monitoring do
