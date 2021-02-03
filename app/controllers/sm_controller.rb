@@ -5,7 +5,7 @@ require 'sm/client'
 class SMController < ApplicationController
   include ActionController::Serialization
   include MHVControllerConcerns
- 
+
   protected
 
   def client
