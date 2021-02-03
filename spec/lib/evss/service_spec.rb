@@ -10,8 +10,22 @@ describe EVSS::Service do
       end
     end
 
+    class ConfigurationWithUri < EVSS::Configuration
+      def base_path
+        'http://test'
+      end
+
+      def service_name
+        'test_evss'
+      end
+    end
+
     class Service < EVSS::Service
       configuration Configuration
+    end
+
+    class ServiceWithUri < EVSS::Service
+      configuration ConfigurationWithUri
     end
   end
 
@@ -32,9 +46,16 @@ describe EVSS::Service do
   end
 
   describe 'initializes from headers' do
-    it 'sets the tags_context and extra_context' do
+    it 'sets the transaction_id' do
       headers = EVSS::AuthHeaders.new(build(:user)).to_h
       expect(EVSS::Service.new(nil, headers).transaction_id).to eq(headers['va_eauth_service_transaction_id'])
+    end
+
+    it 'sets the user data from headers' do
+      allow_any_instance_of(Faraday::Connection).to receive(:get)
+      headers = EVSS::AuthHeaders.new(build(:user)).to_h
+      service_from_headers = EVSS::Foo::ServiceWithUri.new(nil, headers)
+      service_from_headers.perform(:get, 'test.test', nil, headers)
     end
   end
 end
