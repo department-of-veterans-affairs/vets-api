@@ -66,13 +66,13 @@ RSpec.describe CypressViewportUpdater::Viewport do
 
   describe '#percentTraffic' do
     it 'returns the correct value' do
-      expect(@viewport.percentTraffic).to eq('28.05%')
+      expect(@viewport.percentTraffic).to eq('10.3%')
     end
   end
 
   describe '#percentTrafficPeriod' do
     it 'returns the correct value' do
-      expect(@viewport.percentTrafficPeriod).to eq('From: 12/01/2020, To: 12/31/2020')
+      expect(@viewport.percentTrafficPeriod).to eq('From: 01/01/2021, To: 01/31/2021')
     end
   end
 
@@ -84,13 +84,13 @@ RSpec.describe CypressViewportUpdater::Viewport do
 
   describe '#width' do
     it 'returns the correct value' do
-      expect(@viewport.width).to eq(1280)
+      expect(@viewport.width).to eq(1920)
     end
   end
 
   describe '#height' do
     it 'returns the correct value' do
-      expect(@viewport.height).to eq(960)
+      expect(@viewport.height).to eq(1080)
     end
   end
 end
