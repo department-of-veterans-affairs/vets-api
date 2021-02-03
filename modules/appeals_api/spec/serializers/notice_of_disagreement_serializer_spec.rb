@@ -3,21 +3,21 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::HigherLevelReviewSerializer do
-  let(:higher_level_review) { create(:higher_level_review) }
-  let(:rendered_hash) { described_class.new(higher_level_review).serializable_hash }
+describe AppealsApi::NoticeOfDisagreementSerializer do
+  let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+  let(:rendered_hash) { described_class.new(notice_of_disagreement).serializable_hash }
 
-  it 'serializes the HLR properly' do
+  it 'serializes the NOD properly' do
     expect(rendered_hash).to eq(
       {
         data: {
-          type: :higherLevelReview,
-          id: higher_level_review.id,
+          type: :noticeOfDisagreement,
+          id: notice_of_disagreement.id,
           attributes: {
-            status: higher_level_review.status,
-            createdAt: higher_level_review.created_at,
-            updatedAt: higher_level_review.updated_at,
-            formData: higher_level_review.form_data
+            status: notice_of_disagreement.status,
+            createdAt: notice_of_disagreement.created_at,
+            updatedAt: notice_of_disagreement.updated_at,
+            formData: notice_of_disagreement.form_data
           }
         }
       }
@@ -45,6 +45,6 @@ describe AppealsApi::HigherLevelReviewSerializer do
   end
 
   it 'has the correct type' do
-    expect(rendered_hash[:data][:type]).to eq :higherLevelReview
+    expect(rendered_hash[:data][:type]).to eq :noticeOfDisagreement
   end
 end
