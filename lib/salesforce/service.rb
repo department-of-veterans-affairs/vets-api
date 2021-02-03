@@ -35,7 +35,7 @@ module Salesforce
       with_monitoring do
         response = request(:post, '', oauth_params)
 
-        if response.body['access_token'].nil? do
+        if response.body['access_token'].nil?
           Raven.extra_context(oauth_token_response: response)
           raise 'No salesforce access token returned!'
         end
