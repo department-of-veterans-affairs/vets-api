@@ -65,7 +65,6 @@ module Mobile
         #
         def parse(appointments)
           facilities = Set.new
-
           appointments_list = appointments.dig(:data, :appointment_list)
           appointments = appointments_list.map do |appointment_hash|
             build_appointment_model(appointment_hash, facilities)
@@ -82,9 +81,9 @@ module Mobile
           details, type = parse_by_appointment_type(appointment_hash)
           start_date_utc = start_date_utc(appointment_hash)
           time_zone = time_zone(facility_id)
-          
+
           adapted_hash = {
-            id: SecureRandom.uuid,
+            id: appointment_hash[:id],
             appointment_type: type,
             comment: comment(details, type),
             clinic_id: appointment_hash[:clinic_id],
