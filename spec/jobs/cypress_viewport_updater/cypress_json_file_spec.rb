@@ -30,6 +30,14 @@ RSpec.describe CypressViewportUpdater::CypressJsonFile do
         match[0]
       end
     end
+
+    # the following filter is used on responses from
+    # https://api.github.com/app/installations/14176090/access_tokens
+    c.filter_sensitive_data('{"token":"removed","expires_at":"2021-02-02T18:24:37Z","permissions":{"contents":"write","metadata":"read","pull_requests":"write"},"repository_selection":"selected"}') do |interaction|
+      if (match = interaction.response.body.match(/^{\"token.+/))
+        match[0]
+      end
+    end
   end
 
   it { expect(described_class).to be < CypressViewportUpdater::ExistingGithubFile }
