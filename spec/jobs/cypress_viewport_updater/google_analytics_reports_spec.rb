@@ -91,7 +91,7 @@ RSpec.describe CypressViewportUpdater::GoogleAnalyticsReports do
 
       it 'returns a report object that has a total number of users' do
         total_users = @request_report.user_report.data.rows.first.metrics.first.values.first
-        expect(total_users).to eq('14356199')
+        expect(total_users).to eq('12599714')
       end
     end
 
