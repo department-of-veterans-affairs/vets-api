@@ -21,7 +21,49 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Message.yml"
-
+    post:
+      summary: /
+      description: Returns urls for app use based on app build number, environment, and OS
+      operationId: index
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: App build and environment info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/DiscoveryRequest.yml'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/DiscoveryResponse.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/appointments:
     get:
       summary: /v0/appointments
@@ -1015,12 +1057,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#./schemas/Phone.yml"
-            example:
-              areaCode: "704"
-              countryCode: "1"
-              phoneNumber: "7749069"
-              phoneType: "HOME"
+              $ref: "./schemas/Phone.yml"
       responses:
         '200':
           description: OK
@@ -1089,13 +1126,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#./schemas/PhoneUpdate.yml"
-            example:
-              id: 157032
-              areaCode: "704"
-              countryCode: "1"
-              phoneNumber: "7749069"
-              phoneType: "HOME"
+              $ref: "./schemas/PhoneUpdate.yml"
       responses:
         '200':
           description: OK
@@ -1675,48 +1706,75 @@ paths:
           schema:
             type: string
           description: Claim Id
-        - in: query
-          name: file
-          description: file to upload
-          required: true
-        - in: query
-          name: tracked_item_id
-          description: item id from claim eventsTimeline
-          required: true
-        - in: query
-          name: document_type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/ClaimUploadRequestBody.yml"
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/ClaimDocUpload.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/claim/{id}/request-decision:
+    post:
+      summary: /v0/claim/{id}/request-decision
+      description: Request decision on a given claim, returns job id
+      operationId: request_decision
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
           required: true
           schema:
             type: string
-            enum:
-              - L015
-              - L018
-              - L023
-              - L029
-              - L034
-              - L048
-              - L049
-              - L070
-              - L102
-              - L107
-              - L115
-              - L117
-              - L133
-              - L139
-              - L149
-              - L159
-              - L222
-              - L228
-              - L229
-              - L450
-              - L451
-              - L478
-              - L702
-              - L703
-              - L827
-        - in: query
-          name: password
-          description: password for file if file to upload is locked
+          description: Claim Id
       responses:
         '202':
           description: Accepted

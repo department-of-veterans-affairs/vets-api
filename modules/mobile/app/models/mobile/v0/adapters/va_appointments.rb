@@ -50,7 +50,8 @@ module Mobile
 
         STATUSES = {
           booked: 'BOOKED',
-          cancelled: 'CANCELLED'
+          cancelled: 'CANCELLED',
+          hidden: 'HIDDEN'
         }.freeze
 
         VIDEO_GFE_FLAG = 'MOBILE_GFE'
@@ -64,8 +65,9 @@ module Mobile
         #
         def parse(appointments)
           facilities = Set.new
-
           appointments_list = appointments.dig(:data, :appointment_list)
+          return [nil, nil] if appointments_list.size.zero?
+
           appointments = appointments_list.map do |appointment_hash|
             build_appointment_model(appointment_hash, facilities)
           end
@@ -83,16 +85,18 @@ module Mobile
           time_zone = time_zone(facility_id)
 
           adapted_hash = {
-            id: SecureRandom.uuid,
+            id: appointment_hash[:id],
             appointment_type: type,
             comment: comment(details, type),
+            clinic_id: appointment_hash[:clinic_id],
             facility_id: facility_id,
             healthcare_service: healthcare_service(details, type),
             location: location(details, type, facility_id),
             minutes_duration: minutes_duration(details, type),
             start_date_local: start_date_utc.in_time_zone(time_zone),
             start_date_utc: start_date_utc,
-            status: status(details, type, start_date_utc)
+            status: status(details, type, start_date_utc),
+            time_zone: time_zone
           }
 
           Mobile::V0::Appointment.new(adapted_hash)
@@ -112,7 +116,7 @@ module Mobile
 
         def status(details, type, start_date)
           status = va?(type) ? details[:current_status] : details.dig(:status, :code)
-          return nil if should_hide_status?(start_date.past?, status)
+          return STATUSES[:hidden] if should_hide_status?(start_date.past?, status)
           return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
 
           STATUSES[:booked]

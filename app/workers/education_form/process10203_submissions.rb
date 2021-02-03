@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/gi_bill_status/service'
+require 'evss/vso_search/service'
 require 'sentry_logging'
 
 module EducationForm
@@ -59,30 +60,46 @@ module EducationForm
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
-      user_submissions.each do |user_uuid, submissions|
-        gi_bill_status = get_gi_bill_status(user_uuid)
+      user_submissions.each_value do |submissions|
+        auth_headers = submissions.first.education_stem_automated_decision.auth_headers
+        gi_bill_status = get_gi_bill_status(auth_headers)
+        poa = get_user_poa_status(auth_headers)
+
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
-          submissions.each { |submission| update_status(submission, PROCESSED) }
+          submissions.each do |submission|
+            update_automated_decision(submission, PROCESSED, poa)
+          end
         elsif submissions.count > 1
-          check_previous_submissions(submissions, gi_bill_status)
+          check_previous_submissions(submissions, gi_bill_status, poa)
         else
-          process_submission(submissions.first, gi_bill_status)
+          process_submission(submissions.first, gi_bill_status, poa)
         end
       end
     end
 
     # Retrieve EVSS gi_bill_status data for a user
-    def get_gi_bill_status(user_uuid)
-      user = User.find(user_uuid)
-      service = EVSS::GiBillStatus::Service.new(user)
-      service.get_gi_bill_status
+    def get_gi_bill_status(auth_headers)
+      service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
+      service.get_gi_bill_status(auth_headers)
     rescue => e
       Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
       {}
     end
 
-    def update_status(submission, status)
-      submission.education_stem_automated_decision.update(automated_decision_state: status)
+    # Retrieve poa status fromEVSS VSOSearch for a user
+    def get_user_poa_status(auth_headers)
+      service = EVSS::VSOSearch::Service.new(nil, auth_headers)
+      service.get_current_info(auth_headers)['userPoaInfoAvailable']
+    rescue => e
+      Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
+      nil
+    end
+
+    def update_automated_decision(submission, status, poa)
+      submission.education_stem_automated_decision.update(
+        automated_decision_state: status,
+        poa: poa
+      )
     end
 
     # Makes a list of all submissions that have not been processed and have a status of INIT
@@ -94,7 +111,7 @@ module EducationForm
     #     to most recent processed submissions
     # If values are the same set status as PROCESSED
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
-    def check_previous_submissions(submissions, gi_bill_status)
+    def check_previous_submissions(submissions, gi_bill_status, user_has_poa)
       unprocessed_submissions = submissions.find_all do |ebc|
         ebc.processed_at.nil? && ebc.education_stem_automated_decision&.automated_decision_state == INIT
       end
@@ -108,9 +125,9 @@ module EducationForm
       unprocessed_submissions.each do |submission|
         unprocessed_form = format_application(submission)
         if repeat_form?(unprocessed_form, processed_form)
-          update_status(submission, PROCESSED)
+          update_automated_decision(submission, PROCESSED, user_has_poa)
         else
-          process_submission(submission, gi_bill_status)
+          process_submission(submission, gi_bill_status, user_has_poa)
         end
       end
     end
@@ -127,7 +144,7 @@ module EducationForm
     # Set status to DENIED when isPursuingTeachingCert in form data is 'no' (false)
     #   and isEnrolledStem is 'no' (false)
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
-    def process_submission(submission, gi_bill_status)
+    def process_submission(submission, gi_bill_status, user_has_poa)
       if submission.processed_at.nil? &&
          submission.education_stem_automated_decision&.automated_decision_state == INIT
 
@@ -138,7 +155,7 @@ module EducationForm
                  else
                    PROCESSED
                  end
-        update_status(submission, status)
+        update_automated_decision(submission, status, user_has_poa)
       end
     end
 

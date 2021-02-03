@@ -20,14 +20,17 @@ module VBADocuments
       @retries = retries
       @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
       if @upload
-        Rails.logger.info("VBADocuments: Start Processing: #{@upload.inspect}")
+        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
+        Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
         download_and_process
-        Rails.logger.info("VBADocuments: Stop Processing: #{@upload.inspect}")
+        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
+        Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
       end
     end
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def download_and_process
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
 
@@ -41,15 +44,18 @@ module VBADocuments
         response = submit(metadata, parts)
         process_response(response)
         log_submission(@upload, metadata)
-      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError
+      rescue Common::Exceptions::GatewayTimeout, Faraday::TimeoutError => e
+        Rails.logger.warn("Exception in download_and_process for guid #{@upload.guid}.", e)
         VBADocuments::UploadSubmission.refresh_statuses!([@upload])
       rescue VBADocuments::UploadError => e
+        Rails.logger.warn("UploadError download_and_process for guid #{@upload.guid}.", e)
         retry_errors(e, @upload)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def update_pdf_metadata(inspector)
       @upload.update(uploaded_pdf: inspector.pdf_data)

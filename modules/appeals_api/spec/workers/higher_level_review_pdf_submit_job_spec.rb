@@ -11,9 +11,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
   before { Sidekiq::Worker.clear_all }
 
   let(:auth_headers) { fixture_to_s 'valid_200996_headers.json' }
-  let(:higher_level_review) { create_higher_level_review(:higher_level_review) }
-  let(:extra_higher_level_review) { create_higher_level_review(:extra_higher_level_review) }
-  let(:minimal_higher_level_review) { create_higher_level_review(:minimal_higher_level_review) }
+  let(:higher_level_review) { create_higher_level_review }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_doc) { fixture_to_s 'valid_200996.json' }
@@ -76,43 +74,25 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     end
   end
 
-  context 'pdf content verification' do
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      generated_pdf = described_class.new.generate_pdf(higher_level_review.id)
-      expected_pdf = fixture_filepath('expected_200996.pdf')
-      expect(generated_pdf).to match_pdf expected_pdf
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
-      Timecop.return
-    end
-  end
+  context 'an error throws' do
+    it 'updates the HLR status to reflect the error' do
+      submit_job_worker = described_class.new
+      allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
 
-  context 'pdf extra content verification' do
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      generated_pdf = described_class.new.generate_pdf(extra_higher_level_review.id)
-      expected_pdf = fixture_filepath('expected_200996_extra.pdf')
-      expect(generated_pdf).to match_pdf expected_pdf
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
-      Timecop.return
-    end
-  end
-
-  context 'pdf minimum content verification' do
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      generated_pdf = described_class.new.generate_pdf(minimal_higher_level_review.id)
-      expected_pdf = fixture_filepath('expected_200996_minimum.pdf')
-      expect(generated_pdf).to match_pdf(expected_pdf)
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
-      Timecop.return
+      begin
+        submit_job_worker.perform(higher_level_review.id)
+      rescue
+        expect(higher_level_review.reload.status).to eq('error')
+        expect(higher_level_review.reload.code).to eq('RuntimeError')
+        expect(higher_level_review.reload.detail).to eq('runtime error!')
+      end
     end
   end
 
   private
 
-  def create_higher_level_review(type)
-    higher_level_review = create(type)
+  def create_higher_level_review
+    higher_level_review = create(:higher_level_review)
     higher_level_review.auth_headers = JSON.parse(auth_headers)
     higher_level_review.save
     higher_level_review

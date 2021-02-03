@@ -19,7 +19,7 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
       expect(booked_cc[:appointment_type]).to eq('COMMUNITY_CARE')
     end
 
-    it 'has a location with a name and address' do
+    it 'has a location with a name, address, and phone number' do
       expect(booked_cc[:location].to_h).to eq(
         {
           name: 'Atlantic Medical Care',
@@ -32,8 +32,8 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
           lat: nil,
           long: nil,
           phone: {
-            area_code: nil,
-            number: nil,
+            area_code: '407',
+            number: '555-1212',
             extension: nil
           },
           url: nil,
@@ -65,6 +65,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     it 'has a booked status' do
       expect(booked_cc[:status]).to eq('BOOKED')
     end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/New_York')
+    end
   end
 
   context 'with a booked CC appointment in AKST' do
@@ -76,6 +80,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
 
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-12-20 14:15:00 -0900')
+    end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Anchorage')
     end
   end
 
@@ -89,6 +97,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-04-20 14:15:00 -0800')
     end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Anchorage')
+    end
   end
 
   context 'with a booked CC appointment in AST' do
@@ -100,6 +112,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
 
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-12-22 19:20:00 -0300')
+    end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Argentina/San_Juan')
     end
   end
 
@@ -113,6 +129,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-04-23 21:00:00 -0500')
     end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Chicago')
+    end
   end
 
   context 'with a booked CC appointment in CST' do
@@ -124,6 +144,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
 
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-12-01 14:13:00 -0600')
+    end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Chicago')
     end
   end
 
@@ -137,6 +161,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-05-13 18:11:00 -0400')
     end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/New_York')
+    end
   end
 
   context 'with a booked CC appointment in EST' do
@@ -148,6 +176,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
 
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-12-09 20:00:00 -0500')
+    end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/New_York')
     end
   end
 
@@ -161,6 +193,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-12-14 15:00:00 -1000')
     end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('Pacific/Honolulu')
+    end
   end
 
   context 'with a booked CC appointment in MDT' do
@@ -172,6 +208,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
 
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-05-23 19:31:00 -0600')
+    end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Denver')
     end
   end
 
@@ -185,6 +225,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-12-05 19:07:00 -0700')
     end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Denver')
+    end
   end
 
   context 'with a booked CC appointment in PHST' do
@@ -196,6 +240,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
 
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-12-12 14:00:00 +0800')
+    end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('Asia/Manila')
     end
   end
 
@@ -209,6 +257,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-06-20 20:00:00 -0700')
     end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Los_Angeles')
+    end
   end
 
   context 'with a booked CC appointment in PST' do
@@ -220,6 +272,10 @@ describe Mobile::V0::Adapters::CommunityCareAppointments do
 
     it 'has a local start date' do
       expect(booked_cc[:start_date_local].to_s).to eq('2020-12-17 14:30:00 -0800')
+    end
+
+    it 'has a time_zone' do
+      expect(booked_cc[:time_zone]).to eq('America/Los_Angeles')
     end
   end
 end

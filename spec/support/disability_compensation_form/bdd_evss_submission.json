@@ -4,6 +4,7 @@
         "autoCestPDFGenerationDisabled": false,
         "bddQualified": true,
         "claimantCertification": true,
+        "claimSubmissionSource": "VA.gov",
         "directDeposit": {
             "accountNumber": "11111",
             "accountType": "SAVINGS",

@@ -46,18 +46,50 @@
       "additionalProperties": false,
       "properties": {
         "homeless":            { "type": "boolean" },
-        "representativesName": { "type": "string", "maxLength": 120 },
-        "address": { "$ref": "#/definitions/nodCreateAddress" }
+        "address":             { "$ref": "#/definitions/nodCreateAddress", "minLength": 5, "maxLength": 165 },
+        "phone":               { "$ref": "#/definitions/nodCreatePhone" },
+        "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail", "minLength": 5, "maxLength": 120 },
+        "representativesName": { "type": "string", "maxLength": 120 }
       },
-      "required": [ "homeless", "address" ]
+      "required": [ "homeless", "phone", "emailAddressText" ]
     },
 
 
     "nodCreateAddress": {
       "type": "object",
-      "properties": { "zipCode5": { "type": "string", "pattern": "^[0-9]{5}$", "minLength": 5, "maxLength": 5 } },
       "additionalProperties": false,
-      "required": [ "zipCode5" ]
+      "properties": {
+        "addressLine1":            { "type": "string" },
+        "addressLine2":            { "type": "string" },
+        "addressLine3":            { "type": "string" },
+        "city":                    { "type": "string" },
+        "stateCode":               { "$ref": "#/definitions/nodCreateStateCode" },
+        "countryName":             { "type": "string" },
+        "zipCode5":                { "type": "string", "pattern": "^[0-9]{5}$", "minLength": 5, "maxLength": 5 },
+        "internationalPostalCode": { "type": "string" }
+      },
+      "required": [ "addressLine1", "city", "countryName", "zipCode5" ]
+    },
+
+
+    "nodCreatePhone": {
+      "$comment": "the phone fields must not exceed 20 chars, when concatenated",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "countryCode":     { "type": "string", "pattern": "^[0-9]+$", "minLength": 1, "maxLength": 3 },
+        "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$", "minLength": 1, "maxLength": 4 },
+        "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$", "minLength": 1, "maxLength": 14 },
+        "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$", "minLength": 1, "maxLength": 10 }
+      },
+      "required": [ "areaCode", "phoneNumber" ]
+    },
+
+
+    "nodCreateEmail": {
+      "type": "string",
+      "pattern": ".@.",
+      "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
     },
 
 
@@ -65,6 +97,7 @@
       "type": "array",
       "items": { "$ref": "#/definitions/nodCreateContestableIssue" },
       "minItems": 1,
+      "maxItems": 100,
       "uniqueItems": true
     },
 
@@ -84,7 +117,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString", "maxLength": 368 },
+        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString", "maxLength": 255 },
         "decisionDate":              { "$ref": "#/definitions/nodCreateDate" },
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },

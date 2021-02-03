@@ -99,6 +99,7 @@ http_interactions:
             "createdDate" : "11/22/2019 08:27:58",
             "detailCode" : {
               "code" : "DETCODE8",
+                "codeNumeric": 1,
               "providerMessage" : "Cancelled by Veteran - Pending",
               "veteranMessage" : "Your request to cancel this appointment request has been sent.",
               "objectType" : "VARDetailCode",

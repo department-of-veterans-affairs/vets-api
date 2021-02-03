@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_13_203803) do
+ActiveRecord::Schema.define(version: 2021_02_03_204200) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -272,6 +272,9 @@ ActiveRecord::Schema.define(version: 2021_01_13_203803) do
     t.string "user_uuid", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "poa"
+    t.string "encrypted_auth_headers_json"
+    t.string "encrypted_auth_headers_json_iv"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -565,6 +568,27 @@ ActiveRecord::Schema.define(version: 2021_01_13_203803) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
+  end
+
+  create_table "test_user_dashboard_tud_accounts", force: :cascade do |t|
+    t.string "account_uuid"
+    t.string "first_name"
+    t.string "middle_name"
+    t.string "last_name"
+    t.string "gender"
+    t.datetime "birth_date"
+    t.integer "ssn"
+    t.string "phone"
+    t.string "email"
+    t.string "password"
+    t.boolean "standard"
+    t.boolean "available"
+    t.datetime "checkout_time"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "id_type"
+    t.string "loa"
+    t.string "account_type"
   end
 
   create_table "user_preferences", id: :serial, force: :cascade do |t|

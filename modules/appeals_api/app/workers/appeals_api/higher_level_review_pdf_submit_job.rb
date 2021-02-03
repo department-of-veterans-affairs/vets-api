@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'appeals_api/higher_level_review_pdf_constructor'
 require 'appeals_api/upload_error'
 require 'central_mail/utilities'
 require 'central_mail/service'
@@ -13,22 +12,21 @@ module AppealsApi
     include CentralMail::Utilities
 
     def perform(higher_level_review_id, retries = 0)
-      @retries = retries
-      stamped_pdf = generate_pdf(higher_level_review_id)
-      upload_to_central_mail(higher_level_review_id, stamped_pdf)
-      File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
+
+      begin
+        @retries = retries
+        stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
+        higher_level_review.update!(status: 'submitting')
+        upload_to_central_mail(higher_level_review, stamped_pdf)
+        File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      rescue => e
+        higher_level_review.update!(status: 'error', code: e.class.to_s, detail: e.message)
+        raise
+      end
     end
 
-    def generate_pdf(higher_level_review_id)
-      pdf_constructor = AppealsApi::HigherLevelReviewPdfConstructor.new(higher_level_review_id)
-      pdf_path = pdf_constructor.fill_pdf
-      higher_level_review = HigherLevelReview.find higher_level_review_id
-      higher_level_review.update!(status: 'submitting')
-      pdf_constructor.stamp_pdf(pdf_path, higher_level_review.consumer_name)
-    end
-
-    def upload_to_central_mail(higher_level_review_id, pdf_path)
-      higher_level_review = AppealsApi::HigherLevelReview.find higher_level_review_id
+    def upload_to_central_mail(higher_level_review, pdf_path)
       metadata = {
         'veteranFirstName' => higher_level_review.first_name,
         'veteranLastName' => higher_level_review.last_name,

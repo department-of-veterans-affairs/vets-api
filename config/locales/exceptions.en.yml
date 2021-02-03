@@ -208,6 +208,12 @@ en:
           detail: "'%{value}' is not an available option"
           code: 141
           status: 422
+        const:
+          <<: *defaults
+          title: Invalid value
+          detail: "'%{value}' does not match the provided const"
+          code: 148
+          status: 422
         length:
           <<: *defaults
           title: Invalid length
@@ -577,6 +583,12 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      SEARCH_CLICK_TRACKING_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'SEARCH_CLICK_TRACKING_400'
+        detail: 'Missing query parameter'
+        status: 400
       VAOS_409A:
         <<: *external_defaults
         title: Conflict

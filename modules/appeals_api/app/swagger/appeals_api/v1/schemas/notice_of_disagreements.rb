@@ -6,6 +6,12 @@ module AppealsApi::V1
       include Swagger::Blocks
 
       swagger_component do
+        schema :nodStatus do
+          key :type, :string
+          key :enum, AppealsApi::CentralMailStatus::STATUSES
+          key :example, 'submitted'
+        end
+
         schema :nodCreateInput do
           key :required, %i[type attributes]
           key :description, 'Form 10182 with minimum required to establish.'
@@ -26,7 +32,7 @@ module AppealsApi::V1
               property :veteran do
                 key :type, :object
                 key :description, 'Veteran Object being submitted in appeal'
-                key :required, %i[homeless address]
+                key :required, %i[homeless phone emailAddressText]
 
                 property :homeless do
                   key :type, :boolean
@@ -36,8 +42,35 @@ module AppealsApi::V1
 
                 property :address do
                   key :type, :object
-                  key :description, 'Address of the Veteran'
-                  key :required, %i[zipCode5]
+                  key :description, 'Address of the Veteran - not required if Veteran is homeless. Cannot exceed 165
+                                     characters when all fields are concatenated.'
+                  key :required, %i[addressLine1 city countryName zipCode5]
+
+                  property :addressLine1 do
+                    key :type, :string
+                    key :description, 'First line for address'
+                  end
+
+                  property :addressLine2 do
+                    key :type, :string
+                    key :description, 'Second line for address'
+                  end
+
+                  property :addressLine3 do
+                    key :type, :string
+                    key :description, 'Third line for address'
+                  end
+
+                  property :city do
+                    key :type, :string
+                    key :description, 'City of residence'
+                  end
+
+                  property :stateCode do
+                    key :type, :string
+                    key :description, 'State of residence in 2-character format'
+                    key :example, 'UT'
+                  end
 
                   property :zipCode5 do
                     key :type, :string
@@ -46,6 +79,54 @@ module AppealsApi::V1
                     key :maxLength, 5
                     key :minLength, 5
                   end
+
+                  property :countryName do
+                    key :type, :string
+                    key :description, 'Country of residence'
+                  end
+
+                  property :internationalPostalCode do
+                    key :type, :string
+                    key :description, 'Use if residence outside of the United States'
+                  end
+                end
+
+                property :phone do
+                  key :type, :object
+                  key :description, 'The phone number of the veteran. Cannot exceed 20 characters when
+                                     all fields are concatenated.'
+                  key :required, %i[areaCode phoneNumber]
+
+                  property :countryCode do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 3
+                  end
+
+                  property :areaCode do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 4
+                  end
+
+                  property :phoneNumber do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 14
+                  end
+
+                  property :phoneNumberExt do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 10
+                  end
+                end
+
+                property :emailAddressText do
+                  key :type, :string
+                  key :description, 'Email of the Veteran'
+                  key :maxLength, 120
+                  key :minLength, 5
                 end
               end
 
@@ -66,6 +147,7 @@ module AppealsApi::V1
           property :included do
             key :type, :array
             key :minItems, 1
+            key :maxItems, 100
 
             items do
               key :'$ref', :contestableIssue
@@ -136,6 +218,21 @@ module AppealsApi::V1
                       key :description, 'value of submitted homeless key'
                     end
 
+                    property :address do
+                      key :type, :object
+                      key :description, 'value of submitted address if not homeless'
+                    end
+
+                    property :phone do
+                      key :type, :object
+                      key :description, 'value of submitted phone number'
+                    end
+
+                    property :emailAddressText do
+                      key :type, :string
+                      key :description, 'value of submitted email'
+                    end
+
                     property :representativesName do
                       key :type, :string
                       key :example, 'Mr. Wiggles'
@@ -187,7 +284,7 @@ module AppealsApi::V1
           property :detail do
             key :type, :string
             key :example, 'invalidType is not an available option'
-            key :description, 'A more detailed message about why an error occured'
+            key :description, 'A more detailed message about why an error occurred'
           end
 
           property :code do
@@ -257,7 +354,7 @@ module AppealsApi::V1
               key :type, :string
               key :example, 'tinnitus'
               key :example, 'the type of issue being contested'
-              key :maxLength, 368
+              key :maxLength, 255
             end
 
             property :decisionDate do

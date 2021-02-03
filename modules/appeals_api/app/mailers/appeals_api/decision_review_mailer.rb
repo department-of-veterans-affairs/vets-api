@@ -4,24 +4,17 @@ require 'appeals_api/decision_review_report'
 
 module AppealsApi
   class DecisionReviewMailer < ApplicationMailer
-    RECIPIENTS = %w[
-      premal.shah@va.gov
-      kelly@adhocteam.us
-      laura.trager@adhocteam.us
-      drew.fisher@adhocteam.us
-      jack.schuss@oddball.io
-      nathan.wright@oddball.io
-    ].freeze
-
-    def build(date_from:, date_to:)
+    def build(date_from:, date_to:, friendly_duration: '')
       @report = DecisionReviewReport.new(from: date_from, to: date_to)
+      @friendly_duration = friendly_duration
+      @friendly_env = (Settings.vsp_environment || Rails.env).titleize
 
       template = File.read(path)
       body = ERB.new(template).result(binding)
 
       mail(
-        to: RECIPIENTS,
-        subject: 'Decision Review API report',
+        to: Settings.modules_appeals_api.report_recipients,
+        subject: "#{@friendly_duration} Decision Review API report (#{@friendly_env})",
         content_type: 'text/html',
         body: body
       )

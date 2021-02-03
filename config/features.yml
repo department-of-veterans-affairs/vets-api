@@ -34,6 +34,11 @@ features:
     actor_type: user
     description: >
       Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/" leading to the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration_frontend_hide_auth:
+    actor_type: user
+    description: >
+      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
+      Note: When this is enabled, the 'Sign in' button will be hidden
   covid_vaccine_registration:
     actor_type: user
     description: >
@@ -111,11 +116,6 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to directly schedule VA appointments
-  va_online_scheduling_past:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Allows veterans to see past appointments
   va_online_scheduling_vsp_appointment_list:
     actor_type: user
     description: >
@@ -140,26 +140,11 @@ features:
     actor_type: user
     description: >
       Enables the use of VSP for making a new VA appointment request
-  va_online_scheduling_express_care:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables Express Care redirect to legacy and Express Care tab
   va_online_scheduling_express_care_new:
     actor_type: user
     enable_in_development: true
     description: >
       Enables Express Care request flow in VAOS
-  va_online_scheduling_flat_facility_page:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables the new VA facility choice page with a flat list
-  va_online_scheduling_flat_facility_page_sacramento:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
   va_online_scheduling_provider_selection:
     actor_type: user
     enable_in_development: true
@@ -170,6 +155,16 @@ features:
     enable_in_development: true
     description: >
       Enables Project Cheetah discovery work
+  va_online_scheduling_homepage_refresh:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Set up toggle in anticipation of the next iteration of the homepage and appointment cards.
+  va_online_scheduling_facility_selection_v2_2:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Set up toggle in anticipation of the next iteration of facility selection, version 2.2.
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -312,7 +307,11 @@ features:
   show_chapter_36:
     actor_type: user
     description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E Chapter 36 form
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
+  show_chapter_31:
+    actor_type: user
+    description: >
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
   view_payment_history:
     actor_type: user
     description: >
@@ -332,10 +331,6 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
-  allow_online_10_10cg_submissions:
-    actor_type: cookie_id
-    description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When disabled, this will redirect visitors from the form's page to the home page (va.gov).
   async_10_10_cg_attachments:
     actor_type: cookie_id
     description: >
@@ -353,17 +348,22 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+      Enhances Find A Forms MVP.
+  yellow_ribbon_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Yellow Ribbon MVP.
   stem_automated_decision:
     actor_type: user
     enable_in_development: true
     description: >
       Add automated decision to 10203 application workflow
-  stem_applicant_email:
+  edu_form_omb_and_expiration:
     actor_type: user
     enable_in_development: true
     description: >
-      Enable/disable SCO applicant email per environment
+      Update OMB # and expiration dates for forms
   in_progress_form_custom_expiration:
     actor_type: user
     enable_in_development: true
@@ -374,3 +374,13 @@ features:
     enable_in_development: true
     description: >
       Enable frontend application and cta for Search Representative application
+  gibct_state_search:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Include state abbreviation when searching on comparison tool
+  dependents_management:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Manage dependent removal from view dependent page

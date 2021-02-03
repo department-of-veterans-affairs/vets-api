@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 Mobile::Engine.routes.draw do
-  get '/', to: 'discovery#index'
+  get '/', to: 'discovery#welcome'
+  post '/', to: 'discovery#index'
 
   namespace :v0 do
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
     get '/appointments', to: 'appointments#index'
+    put '/appointments/cancel', to: 'appointments#cancel'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_documents'
+    post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'

@@ -36,6 +36,12 @@ module AppealsApi
       if: proc { |a| a.form_data.present? }
     )
 
+    def pdf_structure(version)
+      Object.const_get(
+        "AppealsApi::PdfConstruction::HigherLevelReview::#{version.upcase}::Structure"
+      ).new(self)
+    end
+
     # 1. VETERAN'S NAME
     def first_name
       header_field_as_string 'X-VA-First-Name'
@@ -134,12 +140,12 @@ module AppealsApi
     end
 
     # 13. IF YOU WOULD LIKE THE SAME OFFICE...
-    def same_office?
+    def same_office
       data_attributes&.dig('sameOffice')
     end
 
     # 14. ...INFORMAL CONFERENCE...
-    def informal_conference?
+    def informal_conference
       data_attributes&.dig('informalConference')
     end
 

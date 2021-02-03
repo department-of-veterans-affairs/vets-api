@@ -10,6 +10,7 @@ require:
 AllCops:
   TargetRailsVersion: 6.0
   Include:
+    - '**/Dangerfile'
     - '**/Gemfile'
     - '**/config.ru'
     - '**/Rakefile'
@@ -309,7 +310,7 @@ RSpec/ScatteredLet:
     - 'spec/lib/sentry/processor/log_as_warning_processor_spec.rb'
     - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
     - 'spec/models/form_profile_spec.rb'
-    - 'spec/models/vet360_redis/contact_information_spec.rb'
+    - 'spec/models/va_profile_redis/contact_information_spec.rb'
     - 'spec/request/health_care_applications_request_spec.rb'
     - 'spec/request/health_records_request_spec.rb'
     - 'spec/request/http_method_not_allowed_spec.rb'

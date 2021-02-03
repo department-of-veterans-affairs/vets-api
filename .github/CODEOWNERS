@@ -15,6 +15,8 @@ spec/bgs @department-of-veterans-affairs/vfs-ebenefits @department-of-veterans-a
 modules/mobile/                      @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
 spec/support/*/mobile/               @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
 
+rakelib/form526.rake @department-of-veterans-affairs/vsa-bam-1-backend @department-of-veterans-affairs/backend-review-group
+
 # authentication
 app/controllers/*/sessions_controller.rb @department-of-veterans-affairs/vsp-identity
 app/models/account.rb @department-of-veterans-affairs/vsp-identity

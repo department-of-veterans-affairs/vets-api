@@ -26,12 +26,20 @@ describe Mobile::V0::Adapters::VAAppointments do
   context 'with a booked VA appointment' do
     let(:booked_va) { adapted_appointments[0] }
 
+    it 'has an id' do
+      expect(booked_va[:id]).to eq('202006031600983000030800000000000000')
+    end
+
     it 'has a type of VA' do
       expect(booked_va[:appointment_type]).to eq('VA')
     end
 
     it 'has a comment' do
       expect(booked_va[:comment]).to eq('RP test')
+    end
+
+    it 'has a clinic_id' do
+      expect(booked_va[:clinic_id]).to eq('308')
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -80,10 +88,18 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a booked status' do
       expect(booked_va[:status]).to eq('BOOKED')
     end
+
+    it 'has a time zone' do
+      expect(booked_va[:time_zone]).to eq('America/Denver')
+    end
   end
 
   context 'with a cancelled VA appointment' do
     let(:cancelled_va) { adapted_appointments[1] }
+
+    it 'has an id' do
+      expect(cancelled_va[:id]).to eq('202006032020983000030800000000000000')
+    end
 
     it 'has a type of VA' do
       expect(cancelled_va[:appointment_type]).to eq('VA')
@@ -91,6 +107,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'does not have comment' do
       expect(cancelled_va[:comment]).to be_nil
+    end
+
+    it 'has a clinic_id' do
+      expect(cancelled_va[:clinic_id]).to eq('308')
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -139,10 +159,18 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a cancelled status' do
       expect(cancelled_va[:status]).to eq('CANCELLED')
     end
+
+    it 'has a time zone' do
+      expect(cancelled_va[:time_zone]).to eq('America/Denver')
+    end
   end
 
   context 'with a booked home video appointment' do
     let(:booked_video_home) { adapted_appointments[7] }
+
+    it 'has an id' do
+      expect(booked_video_home[:id]).to eq('202006111600983000045500000000000000')
+    end
 
     it 'has a type of VA_VIDEO_CONNECT_HOME' do
       expect(booked_video_home[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
@@ -150,6 +178,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'does not have comment' do
       expect(booked_video_home[:comment]).to be_nil
+    end
+
+    it 'does not have a clinic_id' do
+      expect(booked_video_home[:clinic_id]).to be_nil
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -198,10 +230,18 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a status' do
       expect(booked_video_home[:status]).to eq('BOOKED')
     end
+
+    it 'has a time zone' do
+      expect(booked_video_home[:time_zone]).to eq('America/Denver')
+    end
   end
 
   context 'with a booked atlas appointment' do
     let(:booked_video_atlas) { adapted_appointments[8] }
+
+    it 'has an id' do
+      expect(booked_video_atlas[:id]).to eq('202006141600983000094500000000000000')
+    end
 
     it 'has a type of VA' do
       expect(booked_video_atlas[:appointment_type]).to eq('VA_VIDEO_CONNECT_ATLAS')
@@ -209,6 +249,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has no comment' do
       expect(booked_video_atlas[:comment]).to be_nil
+    end
+
+    it 'has a clinic_id' do
+      expect(booked_video_atlas[:clinic_id]).to eq('1234')
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -257,10 +301,18 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a booked status' do
       expect(booked_video_atlas[:status]).to eq('BOOKED')
     end
+
+    it 'has a time zone' do
+      expect(booked_video_atlas[:time_zone]).to eq('America/Denver')
+    end
   end
 
   context 'with a booked video appointment on VA furnished equipment' do
     let(:booked_video_gfe) { adapted_appointments[9] }
+
+    it 'has an id' do
+      expect(booked_video_gfe[:id]).to eq('202006151200984000118400000000000000')
+    end
 
     it 'has a type of VA' do
       expect(booked_video_gfe[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
@@ -268,6 +320,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has a comment' do
       expect(booked_video_gfe[:comment]).to eq('Medication Review')
+    end
+
+    it 'has does not have a clinic_id' do
+      expect(booked_video_gfe[:clinic_id]).to be_nil
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -315,6 +371,39 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has a booked status' do
       expect(booked_video_gfe[:status]).to eq('BOOKED')
+    end
+
+    it 'has a time zone' do
+      expect(booked_video_gfe[:time_zone]).to eq('America/Denver')
+    end
+  end
+
+  context 'with appointments that have a missing status' do
+    let(:appointment_fixtures_missing_status) do
+      File.read(
+        Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments_missing_status.json')
+      )
+    end
+
+    let(:adapted_appointments_missing_status) do
+      subject.parse(JSON.parse(appointment_fixtures_missing_status, symbolize_names: true))[0]
+    end
+
+    let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+
+    it 'includes a hidden status' do
+      expect(booked_va_hidden_status.to_hash).to include(
+        {
+          appointment_type: 'VA',
+          comment: 'Follow-up/Routine: sasdfasdf',
+          facility_id: '442',
+          healthcare_service: 'FTC CPAP',
+          minutes_duration: 60,
+          start_date_local: DateTime.parse('2021-01-14 13:00:00.000 MST -07:00'),
+          start_date_utc: DateTime.parse('2021-01-14 20:00:00.000 +00:00 +00:00'),
+          status: 'HIDDEN'
+        }
+      )
     end
   end
 end

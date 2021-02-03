@@ -205,12 +205,22 @@ module PdfFill
           'year' => {
             key: 'VBA281900[0].#subform[0].DOByear[1]'
           }
-        } # end date_signed
+        }, # end date_signed
+        'use_eva' => {
+          key: 'useEva'
+        },
+        'use_telecounseling' => {
+          key: 'useTelecounseling'
+        },
+        'appointment_time_preferences' => {
+          key: 'appointmentTimePreferences'
+        }
       }.freeze
 
       def merge_fields(_options = {})
         merge_veteran_helpers
         merge_address_helpers
+        merge_preferences_helpers
 
         expand_signature(@form_data['veteran_information']['full_name'])
         @form_data['date_signed'] = split_date(@form_data['signatureDate'])
@@ -265,6 +275,26 @@ module PdfFill
         address['address_line1'] = address['street'] + ' ' + street2 + ' ' + street3
         address['address_line2'] = address['city'] + ' ' + state + ' ' + address['postal_code']
         address['address_line3'] = address['country']
+      end
+
+      def merge_preferences_helpers
+        @form_data['use_eva'] = @form_data['use_eva'] ? 'Yes' : 'No'
+        @form_data['use_telecounseling'] = @form_data['use_telecounseling'] ? 'Yes' : 'No'
+        @form_data['appointment_time_preferences'] = set_appointment_time_preferences
+      end
+
+      def set_appointment_time_preferences
+        times = @form_data['appointment_time_preferences'] # ex. {'morning'=>true, 'mid_day'=>false, 'afternoon'=>false}
+        counseling_hours = {
+          'morning' => "Mornings 6:00 to 10:00 a.m.\n",
+          'mid_day' => "Midday 10:00 a.m. to 2:00 p.m.\n",
+          'afternoon' => "Afternoons 2:00 to 6:00 p.m.\n"
+        }
+        time_preferences = ''
+        times.each do |time, does_prefer|
+          time_preferences += counseling_hours[time] if does_prefer
+        end
+        time_preferences
       end
     end
   end

@@ -76,7 +76,7 @@ describe VBADocuments::UploadSubmission, type: :model do
   end
 
   describe 'refresh_status!' do
-    it 'updates received status from downstream' do
+    it 'updates received status from upstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(received_body)
@@ -85,7 +85,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('received')
     end
 
-    it 'updates processing status from downstream' do
+    it 'updates processing status from upstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(processing_body)
@@ -94,7 +94,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('processing')
     end
 
-    it 'updates processing success status from downstream' do
+    it 'updates processing success status from upstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(processing_success_body)
@@ -103,7 +103,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('processing')
     end
 
-    it 'updates success status from downstream' do
+    it 'updates success status from upstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(success_body)
@@ -112,7 +112,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('success')
     end
 
-    it 'updates error status from downstream' do
+    it 'updates error status from upstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(processing_error_body)
@@ -123,7 +123,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.detail).to include('Invalid splines')
     end
 
-    it 'updates processing error status from downstream' do
+    it 'updates processing error status from upstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(error_body)
@@ -134,17 +134,17 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.detail).to include('Invalid splines')
     end
 
-    it 'skips downstream status check if not yet submitted' do
+    it 'skips upstream status check if not yet submitted' do
       expect(client_stub).not_to receive(:status)
       upload_pending.refresh_status!
     end
 
-    it 'skips downstream status check if already in error state' do
+    it 'skips upstream status check if already in error state' do
       expect(client_stub).not_to receive(:status)
       upload_error.refresh_status!
     end
 
-    it 'skips downstream status check if already in vbms state' do
+    it 'skips upstream status check if already in vbms state' do
       expect(client_stub).not_to receive(:status)
       upload_vbms.refresh_status!
     end
@@ -169,7 +169,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('received')
     end
 
-    it 'raises on unexpected status from downstream without updating state' do
+    it 'raises on unexpected status from upstream without updating state' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(nonsense_body)
@@ -178,7 +178,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(updated.status).to eq('received')
     end
 
-    it 'ignores empty status from downstream for known uuid' do
+    it 'ignores empty status from upstream for known uuid' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(empty_body)

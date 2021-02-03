@@ -111,4 +111,17 @@ describe VAOS::AppointmentRequestsService do
       end
     end
   end
+
+  describe '#get_request with id' do
+    let(:user) { build(:user, :vaos) }
+
+    context 'with valid appointment id' do
+      it 'returns a single appointment request' do
+        VCR.use_cassette('vaos/appointment_requests/get_request_with_id', match_requests_on: %i[method uri]) do
+          response = subject.get_request('8a4829dc7281184e017285000ab700cf')
+          expect(response[:data].unique_id).to eq('8a4829dc7281184e017285000ab700cf')
+        end
+      end
+    end
+  end
 end

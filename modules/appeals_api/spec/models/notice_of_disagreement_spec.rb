@@ -24,6 +24,40 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
   # rubocop:disable Layout/LineLength
   describe 'validations' do
+    describe '#validate_address' do
+      context 'when homeless is true' do
+        before do
+          notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = true
+          notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
+          notice_of_disagreement.valid?
+        end
+
+        it { expect(notice_of_disagreement.errors.count).to be 0 }
+      end
+
+      context 'when homeless is false' do
+        before { notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = false }
+
+        context 'when address is provided' do
+          it { expect(notice_of_disagreement.errors.count).to be 0 }
+        end
+
+        context 'when address is not provided' do
+          before do
+            notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
+            notice_of_disagreement.valid?
+          end
+
+          it 'throws and error' do
+            expect(notice_of_disagreement.errors.count).to be 1
+            expect(notice_of_disagreement.errors.full_messages.first).to eq(
+              "Form data If not homeless, address must be provided: '/data/attributes/veteran/address'"
+            )
+          end
+        end
+      end
+    end
+
     describe '#validate_hearing_type_selection' do
       context "when board review option 'hearing' selected" do
         context 'when hearing type provided' do
@@ -112,6 +146,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   describe '#zip_code_5' do
-    it { expect(notice_of_disagreement.zip_code_5).to eq '66002' }
+    it { expect(notice_of_disagreement.zip_code_5).to eq '30012' }
+  end
+
+  describe '#lob' do
+    it { expect(notice_of_disagreement.lob).to eq 'BVA' }
   end
 end

@@ -25,12 +25,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
           vet_info
         )
 
-        described_class.new.perform(
-          saved_claim_id: dependency_claim.id,
-          va_file_number_with_payload: vet_info,
-          submittable_686: true,
-          submittable_674: false
-        )
+        described_class.new.perform(dependency_claim.id, vet_info, true, false)
       end
     end
 
@@ -40,12 +35,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
           vet_info
         )
 
-        described_class.new.perform(
-          saved_claim_id: dependency_claim.id,
-          va_file_number_with_payload: vet_info,
-          submittable_686: false,
-          submittable_674: true
-        )
+        described_class.new.perform(dependency_claim.id, vet_info, false, true)
       end
     end
 
@@ -58,12 +48,7 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
           nil
         )
 
-        job.perform(
-          saved_claim_id: 'non-existant-claim',
-          va_file_number_with_payload: vet_info,
-          submittable_686: true,
-          submittable_674: false
-        )
+        job.perform('non-existant-claim', vet_info, true, false)
       end
 
       it 'raises an error if there is nothing in the dependents_application is empty' do
@@ -75,21 +60,11 @@ RSpec.describe VBMS::SubmitDependentsPdfJob do
         )
 
         vet_info['veteran_information'].delete('ssn')
-        job.perform(
-          saved_claim_id: invalid_dependency_claim.id,
-          va_file_number_with_payload: vet_info,
-          submittable_686: true,
-          submittable_674: false
-        )
+        job.perform(invalid_dependency_claim.id, vet_info, true, false)
       end
 
       it 'returns false' do
-        job = described_class.new.perform(
-          saved_claim_id: 'f',
-          va_file_number_with_payload: vet_info,
-          submittable_686: true,
-          submittable_674: false
-        )
+        job = described_class.new.perform('f', vet_info, true, false)
 
         expect(job).to eq(false)
       end

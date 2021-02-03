@@ -212,14 +212,14 @@ describe AppealsApi::HigherLevelReview, type: :model do
     it('matches json') { is_expected.to eq form_data['data']['attributes']['benefitType'] }
   end
 
-  describe '#same_office?' do
-    subject { higher_level_review.same_office? }
+  describe '#same_office' do
+    subject { higher_level_review.same_office }
 
     it('matches json') { is_expected.to eq form_data['data']['attributes']['sameOffice'] }
   end
 
-  describe '#informal_conference?' do
-    subject { higher_level_review.informal_conference? }
+  describe '#informal_conference' do
+    subject { higher_level_review.informal_conference }
 
     it('matches json') { is_expected.to eq form_data['data']['attributes']['informalConference'] }
   end

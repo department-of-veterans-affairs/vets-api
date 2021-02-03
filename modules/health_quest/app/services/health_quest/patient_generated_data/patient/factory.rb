@@ -7,7 +7,7 @@ module HealthQuest
       # A service object for isolating dependencies from any implementing service or controller.
       #
       # @!attribute session_service
-      #   @return [HealthQuest::SessionService]
+      #   @return [HealthQuest::Lighthouse::Session]
       # @!attribute user
       #   @return [User]
       # @!attribute map_query
@@ -27,25 +27,25 @@ module HealthQuest
 
         def initialize(user)
           @user = user
-          @session_service = HealthQuest::SessionService.new(user)
-          @map_query = PatientGeneratedData::Patient::MapQuery.build(session_service.headers)
+          @session_service = HealthQuest::Lighthouse::Session.build(user)
+          @map_query = PatientGeneratedData::Patient::MapQuery.build(session_service.retrieve)
         end
 
         ##
         # Gets patient information from a user's ICN
         #
-        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
-        def get_patient
+        def get
           map_query.get(user.icn)
         end
 
         ##
         # Create a patient resource from the logged in user
         #
-        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
-        def create_patient
+        def create
           map_query.create(user)
         end
       end
