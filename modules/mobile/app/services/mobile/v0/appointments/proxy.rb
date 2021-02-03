@@ -72,34 +72,6 @@ module Mobile
           va_facilities_adapter.map_appointments_to_facilities(appointments, facilities)
         end
         
-        def parallel_appointments_service
-          Mobile::V0::Appointments::Service.new(@user)
-        end
-        
-        def vaos_appointments_service
-          VAOS::AppointmentService.new(@user)
-        end
-        
-        def vaos_systems_service
-          VAOS::SystemsService.new(@user)
-        end
-        
-        def facilities_service
-          Lighthouse::Facilities::Client.new
-        end
-        
-        def va_appointments_adapter
-          Mobile::V0::Adapters::VAAppointments.new
-        end
-        
-        def va_facilities_adapter
-          Mobile::V0::Adapters::VAFacilities.new
-        end
-        
-        def cc_appointments_adapter
-          Mobile::V0::Adapters::CommunityCareAppointments.new
-        end
-        
         def extract_valid_reason(cancel_reason_codes)
           valid_codes = cancel_reason_codes & VALID_CANCEL_CODES
           return nil if valid_codes.empty?
@@ -114,6 +86,34 @@ module Mobile
         
         def unable_to_keep_appointment?(valid_codes)
           valid_codes.include? UNABLE_TO_KEEP_APPOINTMENT
+        end
+
+        def parallel_appointments_service
+          Mobile::V0::Appointments::Service.new(@user)
+        end
+
+        def vaos_appointments_service
+          VAOS::AppointmentService.new(@user)
+        end
+
+        def vaos_systems_service
+          VAOS::SystemsService.new(@user)
+        end
+
+        def facilities_service
+          Lighthouse::Facilities::Client.new
+        end
+
+        def va_appointments_adapter
+          Mobile::V0::Adapters::VAAppointments.new
+        end
+
+        def va_facilities_adapter
+          Mobile::V0::Adapters::VAFacilities.new
+        end
+
+        def cc_appointments_adapter
+          Mobile::V0::Adapters::CommunityCareAppointments.new
         end
       end
     end
