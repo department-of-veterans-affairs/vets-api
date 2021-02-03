@@ -126,7 +126,7 @@ AppealsApi::DecisionReviewReportJob:
   description: "Daily report of appeals submissions"
 
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
-  every: ['24h', first_in: 45m']
+  every: ['24h', first_in: '45m']
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
