@@ -101,8 +101,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(subject.metadata.veteran.icn).to eq(nil)
       expect(subject.metadata.veteran.is_veteran).to eq(nil)
       # metadata.primary_caregiver
-      expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
-      expect(subject.metadata.primary_caregiver.icn).to eq(nil)
+      expect(subject.metadata.primary_caregiver).to eq(nil)
       # metadata.secondary_caregiver_one
       expect(subject.metadata.secondary_caregiver_one).to eq(nil)
       # metadata.secondary_caregiver_two

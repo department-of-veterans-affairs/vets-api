@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/gi_bill_status/service'
+require 'backend_services'
 
 module V0
   class BackendStatusesController < ApplicationController

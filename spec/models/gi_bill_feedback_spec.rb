@@ -47,7 +47,6 @@ RSpec.describe GIBillFeedback, type: :model do
 
       it 'transforms the form' do
         form = gi_bill_feedback.parsed_form
-        form.delete('socialSecurityNumberLastFour')
         gi_bill_feedback.form = form.to_json
         gi_bill_feedback.send(:remove_instance_variable, :@parsed_form)
         expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form_no_user'))

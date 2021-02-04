@@ -22,8 +22,9 @@ module BGSDependents
         ptcpnt_clmant_id: @veteran[:vnp_participant_id],
         ptcpnt_mail_addrs_id: @veteran[:vnp_participant_address_id],
         vnp_ptcpnt_vet_id: @veteran[:vnp_participant_id],
-        claim_jrsdtn_lctn_id: @veteran[:regional_office],
-        intake_jrsdtn_lctn_id: @veteran[:regional_office]
+        claim_jrsdtn_lctn_id: @veteran[:location_id],
+        intake_jrsdtn_lctn_id: @veteran[:location_id],
+        net_worth_over_limit_ind: @veteran[:net_worth_over_limit_ind]
       }.merge(VNP_BENEFIT_CREATE_PARAMS)
     end
 
@@ -41,7 +42,8 @@ module BGSDependents
         pgm_type_cd: benefit_claim_record[:program_type_code],
         ptcpnt_clmant_id: vnp_benefit_claim_record[:participant_claimant_id],
         status_type_cd: benefit_claim_record[:status_type_code],
-        svc_type_cd: 'CP'
+        svc_type_cd: 'CP',
+        net_worth_over_limit_ind: @veteran[:net_worth_over_limit_ind]
       }.merge
     end
 

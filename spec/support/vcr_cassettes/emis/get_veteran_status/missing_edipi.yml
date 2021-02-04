@@ -28,7 +28,7 @@ http_interactions:
       Accept:
       - text/xml;charset=UTF-8
       Content-Type:
-      - text/xml;charset=UTF-8
+      - application/soap+xml;charset=UTF-8
       User-Agent:
       - Vets.gov Agent
       Soapaction:

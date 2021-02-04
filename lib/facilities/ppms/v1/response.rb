@@ -25,7 +25,9 @@ module Facilities
 
         def providers
           providers = body[offset, per_page].map do |attr|
-            ::PPMS::Provider.new(attr)
+            provider = ::PPMS::Provider.new(attr)
+            provider.set_hexdigest_as_id!
+            provider
           end.uniq(&:id)
 
           paginate_response(providers)

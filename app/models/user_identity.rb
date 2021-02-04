@@ -20,6 +20,9 @@ class UserIdentity < Common::RedisStore
   attribute :common_name
   attribute :gender
   attribute :birth_date
+  attribute :birls_id
+  attribute :participant_id
+  attribute :icn
   attribute :zip
   attribute :ssn
   attribute :loa

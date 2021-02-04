@@ -1,0 +1,20 @@
+data:
+  - type: appointment
+    id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+    attributes:
+      appointmentType: VA_VIDEO_CONNECT_HOME
+      status: CANCELLED
+      startDateLocal: 2019-04-20T14:15:00.000-04:00
+      startDateUtc: 2019-04-20T18:15:00.000Z
+      minutesDuration: 60
+      comment: Please log on 5 minutes before the start of your appointment
+      healthcareService: null
+      location:
+        name: null
+        address: null
+        lat: null
+        long: null
+        phone: null
+        url: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
+        code: null
+      timeZone: America/Los_Angeles

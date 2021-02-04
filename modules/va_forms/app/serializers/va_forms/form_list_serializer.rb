@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VaForms
+module VAForms
   class FormListSerializer < ActiveModel::Serializer
     type :va_form
 
@@ -11,11 +11,6 @@ module VaForms
 
     def id
       object.form_name
-    end
-
-    # TODO: Need to remove and add back to attributes when ready for production
-    def form_details_url
-      nil
     end
   end
 end

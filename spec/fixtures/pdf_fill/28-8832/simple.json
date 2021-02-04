@@ -8,16 +8,16 @@
     },
     "ssn": "333224444",
     "dateOfBirth": "1964-12-26",
-    "VAFileNumber": "22334455",
+    "vaFileNumber": "22334455",
     "emailAddress": "vet123@test.com",
     "phoneNumber": "8888675309"
   },
   "claimantAddress": {
     "country": "USA",
-    "addressLine1": "123 Sunshine Blvd",
-    "addressLine2": "Apt 1",
+    "street": "123 Sunshine Blvd",
+    "street2": "Apt 1",
     "city": "Miami",
-    "stateCode": "FL",
+    "state": "FL",
     "postalCode": "33928-0808"
   },
   "status": "isVeteran"

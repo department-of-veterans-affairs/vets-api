@@ -6,8 +6,8 @@ require 'facilities/ppms/v0/client'
 RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
   let(:params) do
     {
-      address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-      bbox: [-112.54, 32.53, -111.04, 34.03]
+      address: '58 Leonard Ave, Leonardo, NJ 07737',
+      bbox: [-75.91, 38.55, -72.19, 42.27]
     }.with_indifferent_access
   end
 
@@ -41,23 +41,23 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
         r = Facilities::PPMS::V0::Client.new.provider_locator(params.merge(services: ['213E00000X']))
         expect(r.length).to be 10
         expect(r[0]).to have_attributes(
-          AddressCity: 'Chandler',
-          AddressPostalCode: '85286',
-          AddressStateProvince: 'AZ',
-          AddressStreet: '1831 E Queen Creek Rd Ste 119',
-          CareSite: 'Foot & Ankle Clinics of Arizona',
-          CareSitePhoneNumber: '4809172300',
+          AddressCity: 'RED BANK',
+          AddressPostalCode: '07701-1063',
+          AddressStateProvince: 'NJ',
+          AddressStreet: '176 RIVERSIDE AVE',
+          CareSite: 'VISITING NURSE ASSOCIATION OF CENTRAL J',
+          CareSitePhoneNumber: '732-219-6625',
           ContactMethod: nil,
           Email: nil,
           IsAcceptingNewPatients: 'true',
-          Latitude: 33.262403,
-          Longitude: -111.808538,
+          Latitude: 40.35396,
+          Longitude: -74.07492,
           MainPhone: nil,
-          Miles: 1.679,
+          Miles: 5.474,
           OrganizationFax: nil,
-          ProviderGender: 'Male',
-          ProviderIdentifier: '1386050060',
-          ProviderName: 'OBryant, Steven',
+          ProviderGender: 'Female',
+          ProviderIdentifier: '1154383230',
+          ProviderName: 'GESUALDI, AMY',
           ProviderSpecialties: []
         )
       end
@@ -70,24 +70,24 @@ RSpec.describe Facilities::PPMS::V0::Client, team: :facilities do
         r = Facilities::PPMS::V0::Client.new.pos_locator(params)
         expect(r.length).to be 10
         expect(r[0]).to have_attributes(
-          ProviderIdentifier: '1609229764',
-          ProviderHexdigest: '398681135712746c43545dad381cacaba234e249f02459246ae709a6200f6c41',
-          CareSite: 'Banner Urgent Care Services LLC',
-          AddressStreet: '3200 S Gilbert Rd',
-          AddressCity: 'Chandler',
-          AddressStateProvince: 'AZ',
-          AddressPostalCode: '85286',
+          ProviderIdentifier: '1487993564',
+          ProviderHexdigest: '263e81aab50e1c4ea77e84ff7130473f074036f0f01e86abe5ad4a1864c77cb9',
+          CareSite: 'CITY MD URGENT CARE',
+          AddressStreet: '5024 5TH AVE',
+          AddressCity: 'BROOKLYN',
+          AddressStateProvince: 'NY',
+          AddressPostalCode: '11220-1909',
           Email: nil,
           MainPhone: nil,
-          CareSitePhoneNumber: '4808275700',
+          CareSitePhoneNumber: '718-571-9251',
           OrganizationFax: nil,
           ContactMethod: nil,
-          IsAcceptingNewPatients: 'true',
+          IsAcceptingNewPatients: 'false',
           ProviderGender: 'NotSpecified',
           ProviderSpecialties: [],
-          Latitude: 33.259952,
-          Longitude: -111.790163,
-          Miles: 0.744,
+          Latitude: 40.644795,
+          Longitude: -74.011055,
+          Miles: 42.071,
           posCodes: '20'
         )
       end

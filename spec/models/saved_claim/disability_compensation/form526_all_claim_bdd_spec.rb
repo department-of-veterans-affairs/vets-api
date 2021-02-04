@@ -25,10 +25,8 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526AllClaim do
 
       it 'returns a hash of submission data' do
         VCR.use_cassette('evss/ppiu/payment_information') do
-          VCR.use_cassette('evss/intent_to_file/active_compensation') do
-            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-              expect(JSON.parse(subject.to_submission_data(user))).to eq submission_data
-            end
+          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+            expect(JSON.parse(subject.to_submission_data(user))).to eq submission_data
           end
         end
       end

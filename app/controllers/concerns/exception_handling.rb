@@ -6,10 +6,9 @@ require 'common/client/errors'
 module ExceptionHandling
   extend ActiveSupport::Concern
 
+  # In addition to Common::Exceptions::BackendServiceException that have sentry_type :none the following exceptions
+  # will also be skipped.
   SKIP_SENTRY_EXCEPTION_TYPES = [
-    Common::Exceptions::Unauthorized,
-    Common::Exceptions::RoutingError,
-    Common::Exceptions::Forbidden,
     Breakers::OutageException
   ].freeze
 
@@ -17,6 +16,12 @@ module ExceptionHandling
 
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
+  end
+
+  def skip_sentry_exception?(exception)
+    return true if exception.class.in?(skip_sentry_exception_types)
+
+    exception.respond_to?(:sentry_type) && !exception.log_to_sentry?
   end
 
   # rubocop:disable Metrics/BlockLength
@@ -43,7 +48,7 @@ module ExceptionHandling
           Common::Exceptions::InternalServerError.new(exception)
         end
 
-      unless skip_sentry_exception_types.include?(exception.class)
+      unless skip_sentry_exception?(exception)
         report_original_exception(exception)
         report_mapped_exception(exception, va_exception)
       end
@@ -60,7 +65,7 @@ module ExceptionHandling
 
   def report_original_exception(exception)
     # report the original 'cause' of the exception when present
-    if skip_sentry_exception_types.include?(exception.class)
+    if skip_sentry_exception?(exception)
       Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
     elsif exception.is_a?(Common::Exceptions::BackendServiceException) && exception.generic_error?
       # Warn about VA900 needing to be added to exception.en.yml

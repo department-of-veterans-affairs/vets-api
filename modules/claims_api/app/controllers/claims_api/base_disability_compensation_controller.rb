@@ -10,22 +10,6 @@ module ClaimsApi
     STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
     STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
 
-    # TODO: Fix methods in document_validations to work correctly before uncommenting, add broader range of tests
-    # before_action :validate_documents_content_type, only: %i[upload_form_526]
-    # before_action :validate_documents_page_size, only: %i[upload_form_526]
-
-    def upload_form_526
-      pending_claim = ClaimsApi::AutoEstablishedClaim.pending?(params[:id])
-      pending_claim.set_file_data!(documents.first, params[:doc_type])
-      pending_claim.save!
-
-      ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
-
-      render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-    rescue => e
-      render json: unprocessable_response(e), status: :unprocessable_entity
-    end
-
     # rubocop:disable Metrics/MethodLength
     def validate_form_526
       service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)

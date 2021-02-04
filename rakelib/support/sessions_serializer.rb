@@ -35,7 +35,7 @@ class SessionsSerializer
 
   def redis_set(uuid, user, mvi_profile, identity)
     @redis.set "users_b:#{uuid}", user.to_json
-    @redis.set "mvi-profile-response:#{uuid}", mvi_profile.to_json
+    @redis.set "mpi-profile-response:#{uuid}", mvi_profile.to_json
     @redis.set "user_identities:#{uuid}", identity.to_json
   end
 end

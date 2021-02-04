@@ -56,7 +56,8 @@ module BGS
           marriage_country: @dependents_application['current_marriage_information']['location']['country'],
           marriage_state: @dependents_application['current_marriage_information']['location']['state'],
           marriage_city: @dependents_application['current_marriage_information']['location']['city'],
-          type: 'spouse'
+          type: 'spouse',
+          dep_has_income_ind: spouse_info['spouse_income']
         }
       )
     end

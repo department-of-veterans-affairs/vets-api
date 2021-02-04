@@ -17,7 +17,7 @@ class IAMUser < ::User
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
 
-  # MVI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
+  # MPI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
   alias mhv_icn iam_icn
 
   # Builds an user instance from a IAMUserIdentity

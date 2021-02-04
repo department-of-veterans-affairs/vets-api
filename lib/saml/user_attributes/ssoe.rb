@@ -2,6 +2,8 @@
 
 require 'saml/errors'
 require 'digest'
+require 'mpi/responses/parser_base'
+require 'mpi/responses/id_parser'
 
 module SAML
   module UserAttributes
@@ -9,15 +11,15 @@ module SAML
       include SentryLogging
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
-                                   dslogon_edipi loa sign_in multifactor].freeze
-      IDME_GCID_REGEX = /^(?<idme>\w+)\^PN\^200VIDM\^USDVA\^A$/.freeze
+                                   dslogon_edipi loa sign_in multifactor participant_id birls_id icn].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :warnings
 
-      def initialize(saml_attributes, authn_context)
+      def initialize(saml_attributes, authn_context, saml_settings = nil)
         @attributes = saml_attributes # never default this to {}
         @authn_context = authn_context
+        @saml_settings = saml_settings
         @warnings = []
       end
 
@@ -36,6 +38,18 @@ module SAML
 
       def common_name
         safe_attr('va_eauth_commonname')
+      end
+
+      def participant_id
+        MPI::Responses::ParserBase.new.sanitize_id(mvi_ids[:vba_corp_id])
+      end
+
+      def birls_id
+        MPI::Responses::ParserBase.new.sanitize_id(mvi_ids[:birls_id])
+      end
+
+      def icn
+        mvi_ids[:icn]
       end
 
       def zip
@@ -86,11 +100,7 @@ module SAML
 
         # the gcIds are a pipe-delimited concatenation of the MVI correlation IDs
         # (minus the weird "base/extension" cruft)
-        gcids = safe_attr('va_eauth_gcIds')&.split('|')
-        if gcids
-          idme_match = gcids.map { |id| IDME_GCID_REGEX.match(id) }.compact.first
-          idme_match && idme_match[:idme]
-        end
+        mvi_ids[:idme_id]
       end
 
       def sec_id
@@ -181,7 +191,7 @@ module SAML
 
       # Raise any fatal exceptions due to validation issues
       def validate!
-        unless idme_uuid
+        if should_raise_idme_uuid_error
           data = SAML::UserAttributeError::ERRORS[:idme_uuid_missing].merge({ identifier: mhv_icn })
           raise SAML::UserAttributeError, data
         end
@@ -191,6 +201,26 @@ module SAML
       end
 
       private
+
+      def should_raise_idme_uuid_error
+        return false if idme_uuid
+
+        @saml_settings.nil? || auth_context_is_v1_and_not_inbound
+      end
+
+      def auth_context_is_v1_and_not_inbound
+        @saml_settings.assertion_consumer_service_url =~ %r{/v1/} &&
+          @authn_context != INBOUND_AUTHN_CONTEXT
+      end
+
+      def mvi_ids
+        return @mvi_ids if @mvi_ids
+
+        gcids = safe_attr('va_eauth_gcIds')
+        return {} unless gcids
+
+        @mvi_ids = MPI::Responses::IdParser.new.parse_string(gcids)
+      end
 
       def safe_attr(key)
         @attributes[key] == 'NOT_FOUND' ? nil : @attributes[key]

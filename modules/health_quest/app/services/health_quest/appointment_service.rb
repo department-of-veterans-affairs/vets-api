@@ -6,6 +6,8 @@ Faraday::Middleware.register_middleware health_quest_logging: HealthQuest::Middl
 module HealthQuest
   class AppointmentService < HealthQuest::SessionService
     def get_appointments(start_date, end_date, pagination_params = {})
+      return mock_appointments if Rails.env.development?
+
       params = date_params(start_date, end_date).merge(page_params(pagination_params)).merge(other_params).compact
 
       with_monitoring do
@@ -18,13 +20,30 @@ module HealthQuest
     end
 
     def get_appointment_by_id(id)
+      return mock_appointment if Rails.env.development?
+
       with_monitoring do
         response = perform(:get, "#{get_appointments_base_url}/#{id}", {}, headers, timeout: 55)
-        {
-          data: OpenStruct.new(response.body),
-          meta: pagination({})
-        }
+
+        { data: OpenStruct.new(response.body) }
       end
+    end
+
+    def mock_appointment
+      response =
+        YAML.load_file(Rails.root.join(*appointment_file)).with_indifferent_access
+
+      { data: OpenStruct.new(response[:body][:data]) }
+    end
+
+    def mock_appointments
+      response =
+        YAML.load_file(Rails.root.join(*appointments_file)).with_indifferent_access
+
+      {
+        data: deserialized_appointments(response[:body]),
+        meta: pagination({})
+      }
     end
 
     private
@@ -70,6 +89,14 @@ module HealthQuest
 
     def date_format(date)
       date.strftime('%Y-%m-%dT%TZ')
+    end
+
+    def appointment_file
+      ['modules', 'health_quest', 'config', 'mock', 'appointment.yml']
+    end
+
+    def appointments_file
+      ['modules', 'health_quest', 'config', 'mock', 'appointments.yml']
     end
   end
 end

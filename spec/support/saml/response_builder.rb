@@ -24,7 +24,7 @@ module SAML
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
     def build_saml_response(
       authn_context:, level_of_assurance:,
-      attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil
+      attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil, settings: nil
     )
       verifying = [LOA::IDME_LOA3, LOA::IDME_LOA3_VETS, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
 
@@ -59,6 +59,7 @@ module SAML
       allow(saml_response).to receive(:validate).and_return(true)
       allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
       allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
+      allow(saml_response).to receive(:settings).and_return(settings)
       saml_response
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
@@ -137,6 +138,15 @@ module SAML
       )
     end
 
+    def saml_response_detail_error(status_detail_xml)
+      build_invalid_saml_response(
+        status_message: 'Status Detail Error Message',
+        in_response_to: uuid,
+        decrypted_document: document_status_detail(status_detail_xml),
+        errors: %w[Test1 Test2 Test3]
+      )
+    end
+
     def document_partial(authn_context = '')
       REXML::Document.new(
         <<-XML
@@ -149,6 +159,23 @@ module SAML
               </saml:AuthnContext>
             </saml:AuthnStatement>
           </saml:Assertion>
+        </samlp:Response>
+        XML
+      )
+    end
+
+    def document_status_detail(status = '')
+      REXML::Document.new(
+        <<-XML
+        <samlp:Response
+          xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+          xmlns:fim="urn:ibm:names:ITFIM:saml"
+          xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+          xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" Destination="https://api.va.gov/v1/sessions/callback" ID="FIMRSP_9bbcd6a3-0175-10e5-8532-9199cd4142f8" InResponseTo="_a9ea0b44-5b5d-40dd-ae46-de5dafa71983" IssueInstant="2020-11-06T04:07:25Z" Version="2.0">
+          <saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://eauth.va.gov/isam/sps/saml20idp/saml20</saml:Issuer>
+          <samlp:Status>
+            #{status}
+          </samlp:Status>
         </samlp:Response>
         XML
       )

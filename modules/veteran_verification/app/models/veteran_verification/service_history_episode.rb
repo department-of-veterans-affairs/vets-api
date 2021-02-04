@@ -19,8 +19,17 @@ module VeteranVerification
     attribute :pay_grade, String
     attribute :separation_reason, String
 
+    def self.emis_service
+      Rails.logger.info("Settings.vet_verification.mock_emis: #{Settings.vet_verification.mock_emis}")
+      if Settings.vet_verification.mock_emis == true
+        EMISRedis::MockMilitaryInformationV2
+      else
+        EMISRedis::MilitaryInformationV2
+      end
+    end
+
     def self.for_user(user)
-      emis = EMISRedis::MilitaryInformationV2.for_user(user)
+      emis = emis_service.for_user(user)
       handle_errors!(emis)
       episodes(emis, user)
     end

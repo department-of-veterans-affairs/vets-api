@@ -43,7 +43,8 @@ module BGS
           {
             marriage_termination_type_code: formatted_info['reason_marriage_ended'],
             type: 'child',
-            child_prevly_married_ind: formatted_info['ever_married_ind']
+            child_prevly_married_ind: formatted_info['ever_married_ind'],
+            dep_has_income_ind: formatted_info['child_income']
           }
         )
       end
@@ -94,10 +95,11 @@ module BGS
       @children << child_event.serialize_dependent_result(
         participant,
         'Child',
-        'Other',
+        'Biological',
         {
           'event_date': formatted_info['event_date'],
-          'type': event_type
+          'type': event_type,
+          'child_prevly_married_ind': formatted_info['ever_married_ind']
         }
       )
     end

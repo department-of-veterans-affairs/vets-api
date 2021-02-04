@@ -1,0 +1,23 @@
+{
+  "data": {
+    "type": "noticeOfDisagreement",
+    "attributes": {
+      "veteran": {
+        "homeless": false,
+        "address": { "zipCode5":  "66002" }
+      },
+      "boardReviewOption": "evidence_submission",
+      "timezone": "America/Chicago",
+      "socOptIn": false
+    }
+  },
+  "included": [
+    {
+      "type": "contestableIssue",
+      "attributes": {
+        "issue": "tinnitus",
+        "decisionDate": "1900-01-01"
+      }
+    }
+  ]
+}

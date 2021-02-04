@@ -9,6 +9,12 @@ module EMIS
   class Configuration < Common::Client::Configuration::SOAP
     # :nocov:
 
+    self.base_request_headers = {
+      'Accept' => 'text/xml;charset=UTF-8',
+      'Content-Type' => 'application/soap+xml;charset=UTF-8',
+      'User-Agent' => user_agent
+    }.freeze
+
     # EMIS SSL certificate path
     # @return [String] EMIS SSL certificate path
     def self.ssl_cert_path

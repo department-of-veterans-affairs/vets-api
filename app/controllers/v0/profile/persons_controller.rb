@@ -7,7 +7,7 @@ module V0
     class PersonsController < ApplicationController
       include Vet360::Transactionable
 
-      after_action :invalidate_mvi_cache
+      after_action :invalidate_mpi_cache
 
       def initialize_vet360_id
         response    = Vet360::Person::Service.new(@current_user).init_vet360_id
@@ -22,7 +22,7 @@ module V0
 
       private
 
-      def invalidate_mvi_cache
+      def invalidate_mpi_cache
         mvi_cache = @current_user.mpi
         mvi_cache.mvi_response
         mvi_cache.destroy

@@ -25,11 +25,15 @@ Rails.application.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
+    resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
     resources :education_career_counseling_claims, only: :create
+    resources :veteran_readiness_employment_claims, only: :create
+
+    resources :preferred_facilities, only: %i[index create destroy]
 
     resources :letters, only: [:index] do
       collection do
@@ -46,6 +50,12 @@ Rails.application.routes.draw do
       get 'suggested_conditions'
       get 'user_submissions'
       get 'separation_locations'
+    end
+
+    resources :financial_status_reports, only: %i[create] do
+      collection do
+        get :download_pdf
+      end
     end
 
     post '/mvi_users/:id', to: 'mpi_users#submit'
@@ -133,6 +143,11 @@ Rails.application.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :higher_level_reviews, only: %i[create show]
+
+    namespace :notice_of_disagreements do
+      get 'contestable_issues', to: 'contestable_issues#index'
+    end
+    resources :notice_of_disagreements, only: %i[create show]
 
     scope :messaging do
       scope :health do
@@ -246,6 +261,7 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
+    resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'
 
@@ -295,8 +311,8 @@ Rails.application.routes.draw do
       resource :tokens, only: :create
     end
 
-    namespace :ask do
-      resource :asks, only: :create
+    namespace :contact_us do
+      resources :inquiries, only: %i[index create]
     end
   end
 
@@ -331,15 +347,17 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VaForms::Engine, at: '/va_forms'
+    mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  # Modules
   mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
   mount Mobile::Engine, at: '/mobile'
+  mount CovidVaccine::Engine, at: '/covid_vaccine'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
@@ -348,6 +366,8 @@ Rails.application.routes.draw do
     require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 

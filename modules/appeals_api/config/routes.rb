@@ -5,8 +5,8 @@ AppealsApi::Engine.routes.draw do
   match '/decision_reviews/metadata', to: 'metadata#decision_reviews', via: [:get]
   match '/v0/healthcheck', to: 'metadata#healthcheck', via: [:get]
   match '/v1/healthcheck', to: 'metadata#healthcheck', via: [:get]
-  match '/v0/upstream_healthcheck', to: 'metadata#upstream_healthcheck', via: [:get]
-  match '/v1/upstream_healthcheck', to: 'metadata#upstream_healthcheck', via: [:get]
+  match '/v0/upstream_healthcheck', to: 'metadata#appeals_status_upstream_healthcheck', via: [:get]
+  match '/v1/upstream_healthcheck', to: 'metadata#decision_reviews_upstream_healthcheck', via: [:get]
   match '/v0/appeals', to: 'v0/appeals#index', via: [:get]
 
   namespace :v1, defaults: { format: 'json' } do
@@ -22,6 +22,12 @@ AppealsApi::Engine.routes.draw do
       end
       namespace :notice_of_disagreements do
         get 'contestable_issues', to: 'contestable_issues#index'
+      end
+      resources :notice_of_disagreements, only: %i[create show] do
+        collection do
+          get 'schema', to: 'notice_of_disagreements#schema'
+          post 'validate', to: 'notice_of_disagreements#validate'
+        end
       end
     end
   end

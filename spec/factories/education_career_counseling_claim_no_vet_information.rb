@@ -11,9 +11,9 @@ FactoryBot.define do
             first: 'Dardan',
             middle: 'Adam',
             last: 'Testy',
-            suffix: 'Jr.',
-            ssn: '333224444'
+            suffix: 'Jr.'
           },
+          ssn: '333224444',
           dateOfBirth: '1964-12-26',
           VAFileNumber: '22334455',
           emailAddress: 'vet123@test.com',

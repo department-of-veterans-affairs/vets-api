@@ -26,6 +26,50 @@ RSpec.describe BGS::Service do
       end
     end
 
+    describe '#get_ch33_dd_eft_info' do
+      let(:routing_number) { '122400724' }
+
+      context 'when there is an error retrieving bank name' do
+        it 'logs an exception to sentry and returns nil for bank name' do
+          VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('bgs/ddeft/find_bank_name_invalid_routing') do
+              expect(bgs_service).to receive(:log_exception_to_sentry).with(
+                an_instance_of(Savon::SOAPFault),
+                { routing_number: routing_number },
+                { error: 'ch33_dd' }
+              )
+
+              res = bgs_service.get_ch33_dd_eft_info
+              expect(res).to eq(
+                {
+                  dposit_acnt_nbr: '123',
+                  dposit_acnt_type_nm: 'C',
+                  routng_trnsit_nbr: routing_number,
+                  financial_institution_name: nil
+                }
+              )
+            end
+          end
+        end
+      end
+
+      it 'retrieves a users dd eft details including bank name' do
+        VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+            res = bgs_service.get_ch33_dd_eft_info
+            expect(res).to eq(
+              {
+                dposit_acnt_nbr: '123',
+                dposit_acnt_type_nm: 'C',
+                routng_trnsit_nbr: routing_number,
+                financial_institution_name: 'BANK OF AMERICA, N.A.'
+              }
+            )
+          end
+        end
+      end
+    end
+
     it 'retrieves a users dd eft info' do
       VCR.use_cassette('bgs/service/find_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
         response = bgs_service.find_ch33_dd_eft
@@ -58,7 +102,7 @@ RSpec.describe BGS::Service do
   describe '#create_proc_form' do
     it 'creates a participant and returns a vnp_particpant_id' do
       VCR.use_cassette('bgs/service/create_proc_form') do
-        response = bgs_service.create_proc_form('21874')
+        response = bgs_service.create_proc_form('21874', '130 - Automated Dependency 686c')
 
         expect(response).to have_key(:comp_id)
       end
@@ -170,6 +214,19 @@ RSpec.describe BGS::Service do
         response = bgs_service.get_regional_office_by_zip_code('19018', 'USA', '', 'CP', '123')
 
         expect(response).to eq('310')
+      end
+    end
+  end
+
+  describe '#find_regional_offices' do
+    it 'returns a list of regional offices' do
+      VCR.use_cassette('bgs/service/find_regional_offices') do
+        response = bgs_service.find_regional_offices
+
+        expect(response).to be_an_instance_of(Array)
+        # don't want to use an exact match here
+        # in case regional offices get closed or added
+        expect(response.size).to be > 1
       end
     end
   end

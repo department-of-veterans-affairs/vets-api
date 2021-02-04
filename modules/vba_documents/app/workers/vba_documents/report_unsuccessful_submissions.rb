@@ -7,7 +7,7 @@ module VBADocuments
     include Sidekiq::Worker
 
     def perform
-      if Settings.vba_documents.unsuccessful_report_enabled
+      if Settings.vba_documents.report_enabled
         @to = Time.zone.now
         @from = @to.monday? ? 7.days.ago : 1.day.ago
         @consumers = VBADocuments::UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq
