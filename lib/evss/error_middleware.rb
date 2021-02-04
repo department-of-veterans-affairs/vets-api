@@ -33,10 +33,8 @@ module EVSS
       when 200
         if env.response_headers['content-type'].downcase.include?('xml')
           handle_xml_body(env)
-        else
-          if resp['success'] == false || resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
-            raise EVSSError.new(resp['messages'], resp['messages'], resp)
-          end
+        elsif resp['success'] == false || resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
+          raise EVSSError.new(resp['messages'], resp['messages'], resp)
         end
       when 503, 504
         raise EVSSBackendServiceError.new("EVSS#{status}", { status: status }, status, resp)
