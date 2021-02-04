@@ -26,7 +26,7 @@ module Mobile
         appointments_proxy.put_cancel_appointment(cancel_params)
         head :no_content
       end
-      
+
       private
 
       def appointments_proxy
