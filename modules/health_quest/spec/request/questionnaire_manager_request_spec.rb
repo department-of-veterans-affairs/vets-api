@@ -35,12 +35,15 @@ RSpec.describe 'health_quest questionnaire_manager', type: :request do
       let(:client_reply) do
         double('FHIR::ClientReply', response: { body: { 'data' => [] } }, resource: default_client_reply)
       end
+      let(:appointments) { { data: [{}, {}] } }
 
       before do
         sign_in_as(current_user)
         allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
         allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
           .to receive(:get).with(anything).and_return(client_reply)
+        allow_any_instance_of(HealthQuest::AppointmentService)
+          .to receive(:get_appointments).with(anything, anything).and_return(appointments)
       end
 
       it 'returns a WIP response' do
