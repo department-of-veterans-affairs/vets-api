@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails/generators'
+require 'generators/module_helper'
 
 class ModuleGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('templates', __dir__)
+  include ModuleHelper
 
   def create_directory_structure
     # create the dir structure here
@@ -50,51 +52,34 @@ class ModuleGenerator < Rails::Generators::NamedBase
   # :nocov:
   def update_spec_and_simplecov_helper
     # spec and simplecov helper add group
-    ["spec", "simplecov"].each do |f|
-      helper_file             =  File.read("spec/#{f}_helper.rb")
 
-      if f == "spec"
-        existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
-      else
-        existing_entries = helper_file.match(/def add_modules(.*)end/m).to_s.split("\n")
-      end
-
-      ## removes the begining and ending matcher
-      existing_entries.pop
-      existing_entries.shift
-
-      new_entry = "\tadd_group '#{file_name.camelize}'," \
+    options = {}
+    options[:regex] = /def add_modules # Modules(.*)end/m
+    options[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
+    options[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
                        "'modules/#{file_name}/'\n"
 
-      existing_entries.each do |entry|
-        # if the current entry is alphabetically greater
-        # insert new entry before
-        if "add_group '#{file_name.camelize}', 'modules/#{file_name}/'" < entry.strip
-          insert_into_file "spec/#{f}_helper.rb", "#{new_entry}", before: "#{entry}"
-          return true
-        end
-      end
-    end
+    module_generator_file_insert("spec/simplecov_helper.rb", options)
+
+
+    options = {}
+    options[:regex] = /# Modules(.*)# End Modules/m
+    options[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
+    options[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
+                       "'modules/#{file_name}/'\n"
+
+    module_generator_file_insert("spec/spec_helper.rb", options)
+
+
+
   end
 
   def update_gemfile
-    helper_file      =  File.read("Gemfile")
-    existing_entries = helper_file.match(/path 'modules' do(.*)end/m).to_s.split("\n")
+    options = {}
+    options[:insert_matcher] = "gem '#{file_name}'"
+    options[:new_entry] = "\t#{options[:insert_matcher]}\n"
 
-    ## removes the begining and ending matcher
-    existing_entries.pop
-    existing_entries.shift
-
-    new_entry = "\tgem '#{file_name}'\n"
-
-    existing_entries.each do |entry|
-      # if the current entry is alphabetically greater
-      # insert new entry before
-      if "gem '#{file_name}'" < entry.strip
-        insert_into_file "Gemfile", "#{new_entry}", before: "#{entry}"
-        return true
-      end
-    end
+    module_generator_file_insert("Gemfile", options)
   end
 
   def update_routes_file

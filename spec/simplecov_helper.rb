@@ -57,7 +57,7 @@ class SimpleCovHelper
     add_filter 'version.rb'
   end
 
-  def add_modules
+  def add_modules # Modules
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
