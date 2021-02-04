@@ -69,6 +69,13 @@ class Form526Submission < ApplicationRecord
     jids.first
   end
 
+  # wip
+  def lookup_all_active_birls_id_and_start
+    lookup_all_active_birls_ids_and_initialize_birls_ids_tried
+    save!
+    start
+  end
+
   # Runs the start method above but first looks to see if the veteran has BIRLS IDs that previous start
   # attempts haven't used before (if so, swaps one of those into auth_headers).
   # If all BIRLS IDs for a veteran have been tried, does nothing and returns nil.
@@ -221,6 +228,14 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  end
+
+  # WIP
+  def lookup_all_active_birls_ids_and_initialize_birls_ids_tried
+    self.birls_ids_tried ||= {}
+    (all_birls_ids_for_veteran || []).each_with_object({}) do |birls_id, hash|
+      hash[birls_id] ||= []
+    end
   end
 
   def mark_current_birls_id_as_tried
