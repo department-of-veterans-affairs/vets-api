@@ -4,7 +4,23 @@
     "attributes": {
       "veteran": {
         "homeless": false,
-        "address": { "zipCode5":  "66002" },
+        "address": {
+          "addressLine1": "123 Main St",
+          "addressLine2": "Suite #1200",
+          "addressLine3": "Box 4",
+          "city": "New York",
+          "countryName": "United States",
+          "stateCode": "NY",
+          "zipCode5": "30012",
+          "internationalPostalCode": "1"
+        },
+        "phone": {
+          "countryCode": "6",
+          "areaCode": "555",
+          "phoneNumber": "8001111",
+          "phoneNumberExt": "2"
+        },
+        "emailAddressText": "a@a.a",
         "representativesName": "Tony Danza"
       },
       "boardReviewOption": "hearing",
