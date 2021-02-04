@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/models/address'
+require 'va_profile/models/address'
 
-describe Vet360::Models::Address do
-  let(:address) { build(:vet360_address) }
+describe VAProfile::Models::Address do
+  let(:address) { build(:va_profile_address) }
 
   describe 'geolocation' do
     it 'returns gelocation information' do
@@ -83,7 +83,7 @@ describe Vet360::Models::Address do
     end
 
     context 'when address_type is domestic' do
-      let(:address) { build(:vet360_address, :domestic) }
+      let(:address) { build(:va_profile_address, :domestic) }
 
       it 'state_code is required' do
         expect(address.valid?).to eq(true)
@@ -105,7 +105,7 @@ describe Vet360::Models::Address do
     end
 
     context 'when address_type is international' do
-      let(:address) { build(:vet360_address, :international) }
+      let(:address) { build(:va_profile_address, :international) }
 
       it 'state_code is disallowed' do
         expect(address.valid?).to eq(true)
@@ -151,7 +151,7 @@ describe Vet360::Models::Address do
     end
 
     context 'when address_type is military' do
-      let(:address) { build(:vet360_address, :military_overseas) }
+      let(:address) { build(:va_profile_address, :military_overseas) }
 
       it 'state_code is required' do
         expect(address.valid?).to eq(true)
