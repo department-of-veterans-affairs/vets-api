@@ -54,7 +54,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     # spec and simplecov helper add group
 
     options = {}
-    options[:regex] = /def add_modules # Modules(.*)end/m
+    options[:regex] = /# Modules(.*)end/m
     options[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
     options[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
                        "'modules/#{file_name}/'\n"
