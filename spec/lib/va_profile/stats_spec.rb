@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/stats'
+require 'va_profile/stats'
 
-describe Vet360::Stats do
-  let(:statsd_prefix) { Vet360::Stats::STATSD_KEY_PREFIX }
+describe VAProfile::Stats do
+  let(:statsd_prefix) { VAProfile::Stats::STATSD_KEY_PREFIX }
 
   describe '.increment' do
-    it 'increments the StatsD Vet360 counter' do
+    it 'increments the StatsD VAProfile counter' do
       bucket1 = 'exceptions'
       bucket2 = 'VET360_ADDR133'
 
@@ -16,7 +16,7 @@ describe Vet360::Stats do
       )
     end
 
-    it 'increments the StatsD Vet360 counter with a variable number of buckets passed' do
+    it 'increments the StatsD VAProfile counter with a variable number of buckets passed' do
       bucket1 = 'bucket1'
       bucket2 = 'bucket2'
       bucket3 = 'bucket3'
@@ -33,8 +33,8 @@ describe Vet360::Stats do
     let(:failure_status) { described_class::FINAL_FAILURE.first }
 
     context 'when response contains a final success status' do
-      it 'increments the StatsD Vet360 posts_and_puts success counter' do
-        response = raw_vet360_transaction_response(success_status)
+      it 'increments the StatsD VAProfile posts_and_puts success counter' do
+        response = raw_va_profile_transaction_response(success_status)
 
         expect { described_class.increment_transaction_results(response) }.to trigger_statsd_increment(
           "#{statsd_prefix}.posts_and_puts.success"
@@ -44,7 +44,7 @@ describe Vet360::Stats do
 
     context 'when response contains a final failure status' do
       it 'increments the StatsD Vet360 posts_and_puts failure counter' do
-        response = raw_vet360_transaction_response(failure_status)
+        response = raw_va_profile_transaction_response(failure_status)
 
         expect { described_class.increment_transaction_results(response) }.to trigger_statsd_increment(
           "#{statsd_prefix}.posts_and_puts.failure"
@@ -54,7 +54,7 @@ describe Vet360::Stats do
 
     context 'when response is neither a success nor failure status' do
       it 'does not increment the StatsD Vet360 posts_and_puts counters', :aggregate_failures do
-        response = raw_vet360_transaction_response('RECEIVED')
+        response = raw_va_profile_transaction_response('RECEIVED')
 
         expect { described_class.increment_transaction_results(response) }.not_to trigger_statsd_increment(
           "#{statsd_prefix}.posts_and_puts.success"
@@ -80,7 +80,7 @@ describe Vet360::Stats do
       let(:init_vet360) { 'init_vet360_id' }
 
       it 'increments the StatsD Vet360 init_vet360_id success counter' do
-        response = raw_vet360_transaction_response(success_status)
+        response = raw_va_profile_transaction_response(success_status)
 
         expect { described_class.increment_transaction_results(response, init_vet360) }.to trigger_statsd_increment(
           "#{statsd_prefix}.#{init_vet360}.success"
@@ -88,7 +88,7 @@ describe Vet360::Stats do
       end
 
       it 'increments the StatsD Vet360 init_vet360_id failure counter' do
-        response = raw_vet360_transaction_response(failure_status)
+        response = raw_va_profile_transaction_response(failure_status)
 
         expect { described_class.increment_transaction_results(response, init_vet360) }.to trigger_statsd_increment(
           "#{statsd_prefix}.#{init_vet360}.failure"
@@ -108,6 +108,6 @@ describe Vet360::Stats do
   end
 end
 
-def raw_vet360_transaction_response(tx_status)
+def raw_va_profile_transaction_response(tx_status)
   OpenStruct.new(body: { 'tx_status' => tx_status })
 end
