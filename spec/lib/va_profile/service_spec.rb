@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 require 'csv'
-require 'vet360/service'
+require 'va_profile/service'
 
 describe VAProfile::Service do
   subject       { described_class.new(user) }
@@ -10,15 +10,15 @@ describe VAProfile::Service do
   let(:user)    { build(:user, :loa3) }
   let(:status)  { 400 }
   let(:message) { 'the server responded with status 400' }
-  let(:file)    { Rails.root.join('spec', 'support', 'vet360', 'api_response_error_messages.csv') }
+  let(:file)    { Rails.root.join('spec', 'support', 'va_profile', 'api_response_error_messages.csv') }
 
   describe '#handle_error' do
     before do
       allow_any_instance_of(Common::Client::Base).to receive_message_chain(:config, :base_path) { '' }
     end
 
-    context 'when given a Common::Client::Errors::ClientError from a Vet360 service call' do
-      it 'maps the Vet360 error code to the appropriate vets-api error message', :aggregate_failures do
+    context 'when given a Common::Client::Errors::ClientError from a VAProfile service call' do
+      it 'maps the VAProfile error code to the appropriate vets-api error message', :aggregate_failures do
         CSV.foreach(file, headers: true) do |row|
           row   = strip_row_headers(row)
           error = Common::Client::Errors::ClientError.new(message, status, body_for(row))
@@ -36,7 +36,7 @@ describe VAProfile::Service do
       end
     end
 
-    context 'when given a Common::Client::Errors::ParsingError from a Vet360 service call' do
+    context 'when given a Common::Client::Errors::ParsingError from a VAProfile service call' do
       let(:error) { Common::Client::Errors::ParsingError.new }
 
       it 'logs an error message to sentry', :aggregate_failures do
@@ -112,7 +112,7 @@ describe VAProfile::Service do
       it 'increments the StatsD error counter', :aggregate_failures do
         error_key = 'VET360_ADDR133'
 
-        expect(Vet360::Stats).to receive(:increment_exception).with(error_key)
+        expect(VAProfile::Stats).to receive(:increment_exception).with(error_key)
         expect { subject.send('raise_backend_exception', error_key, 'test') }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
@@ -125,7 +125,7 @@ describe VAProfile::Service do
       it 'increments the StatsD error counter', :aggregate_failures do
         error_key = 'VET360_502'
 
-        expect(Vet360::Stats).to receive(:increment_exception).with(error_key)
+        expect(VAProfile::Stats).to receive(:increment_exception).with(error_key)
         expect { subject.send('raise_invalid_body', nil, 'test') }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
@@ -136,13 +136,13 @@ describe VAProfile::Service do
   describe '#perform' do
     context 'regarding its reporting' do
       before do
-        allow_any_instance_of(Vet360::Service).to receive_message_chain(:config, :base_request_headers, :merge) { '' }
+        allow_any_instance_of(VAProfile::Service).to receive_message_chain(:config, :base_request_headers, :merge) { '' }
         allow_any_instance_of(Common::Client::Base).to receive(:perform).and_return(nil)
       end
 
-      it 'increments the StatsD Vet360 total_operations counter' do
+      it 'increments the StatsD VAProfile total_operations counter' do
         expect { subject.perform(:get, 'some_path') }.to trigger_statsd_increment(
-          "#{Vet360::Service::STATSD_KEY_PREFIX}.total_operations"
+          "#{VAProfile::Service::STATSD_KEY_PREFIX}.total_operations"
         )
       end
     end
