@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
+require 'mpi/service'
 require 'sentry_logging'
 
 class Form526Submission < ApplicationRecord
