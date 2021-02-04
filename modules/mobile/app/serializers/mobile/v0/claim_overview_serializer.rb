@@ -8,7 +8,7 @@ module Mobile
       include JSONAPI::Serializer
       attributes :subtype, :completed, :date_filed, :updated_at
 
-      def self.record_hash(record, fieldset, params = {})
+      def self.record_hash(record, fieldset, includes_list, params = {})
         h = super
         h[:type] = record.type
         h
