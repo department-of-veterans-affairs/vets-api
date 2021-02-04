@@ -27,6 +27,8 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.md']
   spec.test_files = Dir['spec/**/*']
+
+  spec.add_dependency 'dry-validation'
   
   spec.add_development_dependency 'factory_bot_rails'
   spec.add_development_dependency 'pg'
