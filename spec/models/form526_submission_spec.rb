@@ -31,7 +31,7 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe '#start_but_use_a_birls_id_that_hasnt_been_tried_yet' do
+  describe '#start_but_use_a_birls_id_that_hasnt_been_tried_yet!' do
     before do
       Sidekiq::Worker.clear_all
       Settings.mvi.edipi_search = true
@@ -41,7 +41,7 @@ RSpec.describe Form526Submission do
       it 'queues an all claims job' do
         VCR.use_cassette('mpi/find_candidate/multiple_birls') do
           first_birls = subject.send :birls_id
-          expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet }.to(
+          expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet! }.to(
             change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
           )
           second_birls = subject.send :birls_id

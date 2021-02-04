@@ -66,13 +66,13 @@ class Form526Submission < ApplicationRecord
       EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(id)
     end
 
+    mark_current_birls_id_as_tried
+
     jids.first
   end
 
-  # wip
-  def lookup_all_active_birls_id_and_start
-    lookup_all_active_birls_ids_and_initialize_birls_ids_tried
-    save!
+  def lookup_all_active_birls_ids_and_start!
+    lookup_all_active_birls_ids_and_initialize_birls_ids_tried!
     start
   end
 
@@ -84,11 +84,10 @@ class Form526Submission < ApplicationRecord
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   # @return [NilClass] all BIRLS IDs for the veteran have been tried
   #
-  def start_but_use_a_birls_id_that_hasnt_been_tried_yet(
+  def start_but_use_a_birls_id_that_hasnt_been_tried_yet!(
     extra_content_for_sentry: {},
     silence_errors_and_log_to_sentry: false
   )
-    mark_current_birls_id_as_tried
 
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
     return unless untried_birls_id
@@ -230,22 +229,32 @@ class Form526Submission < ApplicationRecord
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
   end
 
-  # WIP
+  def lookup_all_active_birls_ids_and_initialize_birls_ids_tried!
+    lookup_all_active_birls_ids_and_initialize_birls_ids_tried
+    save!
+    birls_ids_tried
+  end
+
   def lookup_all_active_birls_ids_and_initialize_birls_ids_tried
     self.birls_ids_tried ||= {}
-    (all_birls_ids_for_veteran || []).each_with_object({}) do |birls_id, hash|
-      hash[birls_id] ||= []
+    (all_birls_ids_for_veteran || []).each do |birls_id|
+      self.birls_ids_tried[birls_id] ||= []
     end
+    birls_ids_tried
   end
 
   def mark_current_birls_id_as_tried
     raise Error, "can't retrieve current birls_id --no auth_headers" unless auth_headers
 
-    self.birls_ids_tried = [*birls_ids_tried, birls_id]
+    self.birls_ids_tried ||= {}
+    self.birls_ids_tried[birls_id] ||= []
+    self.birls_ids_tried[birls_id] << Time.zone.now.iso8601
   end
 
   def birls_ids_that_havent_been_tried_yet
-    all_birls_ids_for_veteran - (birls_ids_tried || [])
+    return [] unless birls_ids_tried
+
+    birls_ids_tried.select { |_, timestamps| timestamps.blank? }.keys
   end
 
   def all_birls_ids_for_veteran

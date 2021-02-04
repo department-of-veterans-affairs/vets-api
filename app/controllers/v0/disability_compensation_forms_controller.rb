@@ -40,7 +40,7 @@ module V0
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
 
-      jid = submission.start
+      jid = submission.lookup_all_active_birls_ids_and_start!
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok
