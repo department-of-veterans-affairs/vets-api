@@ -1140,6 +1140,27 @@ RSpec.describe FormProfile, type: :model do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
       end
+
+      context 'without address' do
+        let(:v21_p_530_expected) do
+          {
+            'claimantFullName' => {
+              'first' => user.first_name&.capitalize,
+              'last' => user.last_name&.capitalize,
+              'suffix' => user.va_profile[:suffix]
+            }
+          }
+        end
+
+        before do
+          allow_any_instance_of(FormProfiles::VA21p530)
+            .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
+        end
+
+        it "doesn't throw an exception" do
+          expect_prefilled('21P-530')
+        end
+      end
     end
 
     context 'with a higher level review form' do
