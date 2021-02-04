@@ -37,7 +37,7 @@ features:
   covid_vaccine_registration_frontend_hide_auth:
     actor_type: user
     description: >
-      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov. 
+      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
       Note: When this is enabled, the 'Sign in' button will be hidden
   covid_vaccine_registration:
     actor_type: user
@@ -145,16 +145,6 @@ features:
     enable_in_development: true
     description: >
       Enables Express Care request flow in VAOS
-  va_online_scheduling_flat_facility_page:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables the new VA facility choice page with a flat list
-  va_online_scheduling_flat_facility_page_sacramento:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
   va_online_scheduling_provider_selection:
     actor_type: user
     enable_in_development: true
@@ -317,7 +307,11 @@ features:
   show_chapter_36:
     actor_type: user
     description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E Chapter 36 form
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
+  show_chapter_31:
+    actor_type: user
+    description: >
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
   view_payment_history:
     actor_type: user
     description: >
@@ -358,17 +352,17 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+      Enhances Find A Forms MVP.
+  yellow_ribbon_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Yellow Ribbon MVP.
   stem_automated_decision:
     actor_type: user
     enable_in_development: true
     description: >
       Add automated decision to 10203 application workflow
-  stem_applicant_email:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enable/disable SCO applicant email per environment
   edu_form_omb_and_expiration:
     actor_type: user
     enable_in_development: true
@@ -389,3 +383,8 @@ features:
     enable_in_development: true
     description: >
       Include state abbreviation when searching on comparison tool
+  dependents_management:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Manage dependent removal from view dependent page

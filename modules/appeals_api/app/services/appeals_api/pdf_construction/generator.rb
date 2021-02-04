@@ -28,7 +28,6 @@ module AppealsApi
       attr_accessor :appeal, :structure
 
       def fill_unique_form_fields
-        pdftk = PdfForms.new(Settings.binaries.pdftk)
         form_fill_path = "/tmp/#{appeal.id}-tmp"
 
         pdftk.fill_form(
@@ -58,7 +57,6 @@ module AppealsApi
       def finalize_pages
         return @all_pages_path unless structure.final_page_adjustments
 
-        pdftk = PdfForms.new(Settings.binaries.pdftk)
         adjusted_pages_path = "/tmp/#{appeal.id}-rebuilt-pages-tmp.pdf"
         pdftk.cat({ @all_pages_path => structure.final_page_adjustments }, adjusted_pages_path)
         adjusted_pages_path
@@ -90,10 +88,14 @@ module AppealsApi
 
       def combine_form_fill_and_additional_pages(additional_pages_added_path)
         path = "/tmp/#{appeal.id}-completed-unstamped-tmp.pdf"
-        unstamped_completed_pdf = CombinePDF.load(@form_fill_path) << CombinePDF.load(additional_pages_added_path)
-        unstamped_completed_pdf.save(path)
+
+        pdftk.cat(@form_fill_path, additional_pages_added_path, path)
 
         path
+      end
+
+      def pdftk
+        @pdftk ||= PdfForms.new(Settings.binaries.pdftk)
       end
 
       def pdf_template_path
