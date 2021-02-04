@@ -74,6 +74,21 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     end
   end
 
+  context 'an error throws' do
+    it 'updates the HLR status to reflect the error' do
+      submit_job_worker = described_class.new
+      allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
+
+      begin
+        submit_job_worker.perform(higher_level_review.id)
+      rescue
+        expect(higher_level_review.reload.status).to eq('error')
+        expect(higher_level_review.reload.code).to eq('RuntimeError')
+        expect(higher_level_review.reload.detail).to eq('runtime error!')
+      end
+    end
+  end
+
   private
 
   def create_higher_level_review

@@ -69,7 +69,7 @@ RSpec/EmptyLineAfterExample:
 RSpec/RepeatedExampleGroupBody:
   Exclude:
     - 'spec/lib/pdf_fill/forms/common_ptsd_spec.rb'
-    - 'spec/models/vet360_redis/contact_information_spec.rb'
+    - 'spec/models/va_profile_redis/contact_information_spec.rb'
 
 # Offense count: 20
 RSpec/RepeatedExampleGroupDescription:
